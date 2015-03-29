@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="预编译">
+      <UniqueIdentifier>{1d389eb9-bfa5-4dcc-b3aa-a5d438864d07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器">
+      <UniqueIdentifier>{ce0e1cf0-5400-4c24-9521-423a9b221857}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="对象代理服务">
+      <UniqueIdentifier>{43e4456b-6163-47c0-bfee-586b1eaf8736}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="路由服务">
+      <UniqueIdentifier>{e102fdb7-d2b3-40cb-ba0b-b195e0519cea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="对象和对象管理">
+      <UniqueIdentifier>{11d4694f-2129-407c-b0ad-e8c980e23291}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="对象和对象管理\对象基类">
+      <UniqueIdentifier>{c42636b0-1247-4f25-bc26-84c62f030561}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="对象和对象管理\对象管理器">
+      <UniqueIdentifier>{5bd869a5-0280-4a2e-9b6b-51f13915c4b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="对象和对象管理\对象组">
+      <UniqueIdentifier>{13fee981-05d4-4bba-a779-a17c1e4f56bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="对象和对象管理\对象插件接口">
+      <UniqueIdentifier>{991524e9-c05b-4cc2-8291-fef5d7ae5af6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="客户端组件">
+      <UniqueIdentifier>{d623b919-894b-4163-888f-825cb190ba08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="消息协议">
+      <UniqueIdentifier>{8a73fc00-bf12-4086-9774-41f76c0739aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{ddae1ef2-454f-43cc-90fc-d8fa6064437f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>预编译</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSServer.cpp">
+      <Filter>服务器</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSObjectProxyService.cpp">
+      <Filter>对象代理服务</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSProxyConnection.cpp">
+      <Filter>对象代理服务</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSRouter.cpp">
+      <Filter>路由服务</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSRouterLink.cpp">
+      <Filter>路由服务</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSBaseObject.cpp">
+      <Filter>对象和对象管理\对象基类</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSObjectManager.cpp">
+      <Filter>对象和对象管理\对象管理器</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSObjectGroup.cpp">
+      <Filter>对象和对象管理\对象组</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSClient.cpp">
+      <Filter>客户端组件</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSDefines.cpp">
+      <Filter>消息协议</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSProxyManager.cpp">
+      <Filter>对象代理服务</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSServer.h">
+      <Filter>服务器</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSObjectProxyService.h">
+      <Filter>对象代理服务</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSProxyConnection.h">
+      <Filter>对象代理服务</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSRouter.h">
+      <Filter>路由服务</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSRouterLink.h">
+      <Filter>路由服务</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSBaseObject.h">
+      <Filter>对象和对象管理\对象基类</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSObjectManager.h">
+      <Filter>对象和对象管理\对象管理器</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSObjectGroup.h">
+      <Filter>对象和对象管理\对象组</Filter>
+    </ClInclude>
+    <ClInclude Include="IDistributedObject.h">
+      <Filter>对象和对象管理\对象插件接口</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSClient.h">
+      <Filter>客户端组件</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSDefines.h">
+      <Filter>消息协议</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSMessage.h">
+      <Filter>消息协议</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSLib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSProxyManager.h">
+      <Filter>对象代理服务</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DOSLib.cbp" />
+  </ItemGroup>
+</Project>

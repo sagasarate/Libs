@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<Main>
+  <Router RouterID="1" MsgQueueSize="10240" MsgProcessLimit="32" />
+
+  <ClientProxy MsgQueueSize="1024" MaxProxyConnectionMsgQueue="1024" MaxProxyGlobalMsgMap="1024" MaxProxyMsgMap="1024"
+               MaxProxyMsgSize="4096" ProxySendBufferSize="256" ProxySendDelay="50" ProxySendQueryLimit="5" MsgMinCompressSize="50">
+    <Listen IP="0" Port="8600" MaxConnection="1000" />
+  </ClientProxy>
+  <MemoryPool BlockSize="64" LevelSize="1048576" LevelCount="7" />
+  <Object GroupCount="10" MaxGroupObjectCount="512" MsgQueueSize="4096" />
+  <Plugins MaxPluginObject="4096">
+    <Plugin  FileName="LittleWorldDOSPlugin.dll" />
+    <Plugin  FileName="LittleWorldDBPlugin.dll" />
+  </Plugins>
+    
+</Main>
+
+<RouterLink ServerID="0-0-0-1">
+  <Services ReallocConnectionID="true">
+    <Service ID="0-0-0-1" IP="0" Port="8500" />
+	</Services>
+</RouterLink>
+
+<System>  
+  <LogConfig LogLevel="1" />
+</System>
+
+<SystemLink ServerID="6-0-0-1">	
+</SystemLink>

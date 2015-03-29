@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="gb2312"?>
+<Interfaces Name="LittleWorld" ID="">
+	<Interface Name="MapArea" Type="0" ID="INTERFACE_LW_MAP_AREA" Description="">
+		<Method Name="RegisterMapObject" ID="METHOD_MA_REGISTER_MAP_OBJECT" ParamIDSeed="8" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="ControllerID" Type="OBJECT_ID" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="AreaEventReceiverID" Type="OBJECT_ID" ID="3" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="MoveStatus" Type="CSmartStruct" ID="7" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+			<Param Name="Flag" Type="UINT" ID="8" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="UnregisterMapObject" ID="METHOD_MA_UNREGISTER_MAP_OBJECT" ParamIDSeed="1" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="UpdateMoveStatus" ID="METHOD_MA_UPDATE_MOVE_STATUS" ParamIDSeed="11" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="MoveStatus" Type="CSmartStruct" ID="11" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="SendEventMsgPacket" ID="METHOD_MA_SEND_EVENT_MSG_PACKET" ParamIDSeed="2" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="EventMsgPacket" Type="CSmartStruct" ID="2" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="HideOnMap" ID="METHOD_MA_HIDE_ON_MAP" ParamIDSeed="2" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="HideType" Type="BYTE" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="TeleportInMap" ID="METHOD_MA_TELEPORT_IN_MAP" ParamIDSeed="5" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="TargetPosX" Type="float" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="TargetPosY" Type="float" ID="3" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="TargetHeight" Type="float" ID="5" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="TargetDir" Type="float" ID="4" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+	</Interface>
+	<Interface Name="MapAreaAck" Type="1" ID="INTERFACE_LW_MAP_AREA" Description="">
+		<Method Name="RegisterMapObjectAck" ID="METHOD_MA_REGISTER_MAP_OBJECT" ParamIDSeed="2" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="Result" Type="int" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="UnregisterMapObjectAck" ID="METHOD_MA_UNREGISTER_MAP_OBJECT" ParamIDSeed="2" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="Result" Type="int" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="UpdateMoveStatusAck" ID="METHOD_MA_UPDATE_MOVE_STATUS" ParamIDSeed="2" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="Result" Type="int" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="SendEventMsgPacketAck" ID="METHOD_MA_SEND_EVENT_MSG_PACKET" ParamIDSeed="2" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="Result" Type="int" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="NewMapObject" ID="METHOD_MA_NEW_MAP_OBJECT" ParamIDSeed="2" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="MoveStatus" Type="CSmartStruct" ID="2" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="DeleteMapObject" ID="METHOD_MA_DEL_MAP_OBJECT" ParamIDSeed="1" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="MoveStatusUpdate" ID="METHOD_MA_MOVE_STATUS_UPDATE" ParamIDSeed="3" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="IsForce" Type="BYTE" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="MoveStatus" Type="CSmartStruct" ID="3" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="EventMsgPacket" ID="METHOD_MA_EVENT_MSG_PACKET" ParamIDSeed="1" Description="">
+			<Param Name="EventMsg" Type="CSmartStruct" ID="1" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="HideOnMapAck" ID="METHOD_MA_HIDE_ON_MAP" ParamIDSeed="3" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="HideType" Type="BYTE" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="Result" Type="int" ID="3" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="TeleportInMapAck" ID="METHOD_MA_TELEPORT_IN_MAP" ParamIDSeed="6" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="TargetPosX" Type="float" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="TargetPosY" Type="float" ID="3" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="TargetHeight" Type="float" ID="6" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="TargetDir" Type="float" ID="4" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="Result" Type="int" ID="5" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+	</Interface>
+	<Interface Name="Character" Type="0" ID="INTERFACE_LW_CHARACTER" Description="">
+		<Method Name="QueryCharInfo" ID="METHOD_CHAR_QUERY_CHAR_INFO" ParamIDSeed="2" Description="">
+			<Param Name="RequesterID" Type="OBJECT_ID" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="QueryMove" ID="METHOD_CHAR_QUERY_MOVE" ParamIDSeed="9" Description="">
+			<Param Name="MoveStatus" Type="BYTE" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="StartPosX" Type="float" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="StartPosY" Type="float" ID="3" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="StartHeight" Type="float" ID="8" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="TargetPosX" Type="float" ID="4" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="TargetPosY" Type="float" ID="5" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="TargetHeight" Type="float" ID="9" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="RotateStatus" Type="BYTE" ID="6" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="Direction" Type="float" ID="7" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="AliveTest" ID="METHOD_CHAR_ALIVE_TEST" ParamIDSeed="0" Description=""/>
+		<Method Name="QueryFly" ID="METHOD_CHAR_QUERY_FLY" ParamIDSeed="5" Description="">
+			<Param Name="MapID" Type="UINT" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="PosX" Type="float" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="PosY" Type="float" ID="3" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="Height" Type="float" ID="5" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="Direction" Type="float" ID="4" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="MapChangeConfirm" ID="METHOD_CHAR_MAP_CHANGE" ParamIDSeed="1" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="QueryJump" ID="METHOD_CHAR_QUERY_JUMP" ParamIDSeed="0" Description=""/>
+	</Interface>
+	<Interface Name="CharacterAck" Type="1" ID="INTERFACE_LW_CHARACTER" Description="">
+		<Method Name="QueryCharInfoAck" ID="METHOD_CHAR_QUERY_CHAR_INFO" ParamIDSeed="2" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharData" Type="CSmartStruct" ID="2" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="QueryMoveAck" ID="METHOD_CHAR_QUERY_MOVE" ParamIDSeed="1" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="AliveTestAck" ID="METHOD_CHAR_ALIVE_TEST" ParamIDSeed="0" Description=""/>
+		<Method Name="QueryFlyAck" ID="METHOD_CHAR_QUERY_FLY" ParamIDSeed="1" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="MapChange" ID="METHOD_CHAR_MAP_CHANGE" ParamIDSeed="4" Description="">
+			<Param Name="MapID" Type="UINT" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="PosX" Type="float" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="PosY" Type="float" ID="3" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="Direction" Type="float" ID="4" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="QueryJumpAck" ID="METHOD_CHAR_QUERY_JUMP" ParamIDSeed="2" Description="">
+			<Param Name="ObjectID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="Result" Type="int" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+	</Interface>
+	<Interface Name="PlayerManager" Type="0" ID="INTERFACE_LW_PLAYER_MANAGER" Description="">
+		<Method Name="PlayerLogin" ID="METHOD_PM_PLAYER_REGISTER" ParamIDSeed="5" Description="">
+			<Param Name="szAccountName" Type="LPCTSTR" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="szPassword" Type="LPCTSTR" ID="5" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+	</Interface>
+	<Interface Name="PlayerManagerAck" Type="1" ID="INTERFACE_LW_PLAYER_MANAGER" Description="">
+		<Method Name="PlayerLoginAck" ID="METHOD_PM_PLAYER_REGISTER" ParamIDSeed="2" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="AccountID" Type="UINT64" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+	</Interface>
+	<Interface Name="CharQueryCenter" Type="0" ID="INTERFACE_LW_CHAR_QUERY_CENTER" Description="">
+		<Method Name="RegisterChar" ID="METHOD_CQC_REGISTER_CHAR" ParamIDSeed="1" Description="">
+			<Param Name="CharID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="UnregisterChar" ID="METHOD_CQC_UNREGISTER_CHAR" ParamIDSeed="1" Description="">
+			<Param Name="CharID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="QueryCharInfo" ID="METHOD_CQC_QUERY_CHAR_INFO" ParamIDSeed="1" Description="">
+			<Param Name="CharID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+	</Interface>
+	<Interface Name="CharQueryCenterAck" Type="1" ID="INTERFACE_LW_CHAR_QUERY_CENTER" Description="">
+		<Method Name="RegisterCharAck" ID="METHOD_CQC_REGISTER_CHAR" ParamIDSeed="1" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="UnregisterCharAck" ID="METHOD_CQC_UNREGISTER_CHAR" ParamIDSeed="1" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+	</Interface>
+	<Interface Name="PlayerCharDB" Type="0" ID="INTERFACE_LW_PLAYER_CHAR_DB" Description="">
+		<Method Name="AccountLogin" ID="METHOD_PCD_ACCOUNT_LOGIN" ParamIDSeed="3" Description="">
+			<Param Name="szAccountName" Type="LPCTSTR" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="szPassword" Type="LPCTSTR" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="szClientIP" Type="LPCTSTR" ID="3" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="AccountLogout" ID="METHOD_PCD_ACCOUNT_LOGOUT" ParamIDSeed="1" Description="">
+			<Param Name="AccountID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="GetAccountChar" ID="METHOD_PCD_GET_ACCOUNT_CHAR" ParamIDSeed="1" Description="">
+			<Param Name="AccountID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="CreateChar" ID="METHOD_PCD_CREATE_CHAR" ParamIDSeed="2" Description="">
+			<Param Name="AccountID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharData" Type="CSmartStruct" ID="2" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="DeleteChar" ID="METHOD_PCD_DELETE_CHAR" ParamIDSeed="2" Description="">
+			<Param Name="AccountID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharID" Type="UINT64" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="GetCharData" ID="METHOD_PCD_GET_CHAR_DATA" ParamIDSeed="2" Description="">
+			<Param Name="AccountID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharID" Type="UINT64" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="SaveCharData" ID="METHOD_PCD_SAVE_CHAR_DATA" ParamIDSeed="3" Description="">
+			<Param Name="AccountID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharID" Type="UINT64" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharData" Type="CSmartStruct" ID="3" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+	</Interface>
+	<Interface Name="PlayerCharDBAck" Type="1" ID="INTERFACE_LW_PLAYER_CHAR_DB" Description="">
+		<Method Name="AccountLoginAck" ID="METHOD_PCD_ACCOUNT_LOGIN" ParamIDSeed="3" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="AccountID" Type="UINT64" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="AccountData" Type="CSmartStruct" ID="3" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="AccountLogoutAck" ID="METHOD_PCD_ACCOUNT_LOGOUT" ParamIDSeed="2" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="AccountID" Type="UINT64" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="GetAccountCharAck" ID="METHOD_PCD_GET_ACCOUNT_CHAR" ParamIDSeed="3" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="AccountID" Type="UINT64" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharData" Type="CSmartStruct" ID="3" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="CreateCharAck" ID="METHOD_PCD_CREATE_CHAR" ParamIDSeed="3" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="AccountID" Type="UINT64" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharData" Type="CSmartStruct" ID="3" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="DeleteCharAck" ID="METHOD_PCD_DELETE_CHAR" ParamIDSeed="3" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="AccountID" Type="UINT64" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharID" Type="UINT64" ID="3" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="GetCharDataAck" ID="METHOD_PCD_GET_CHAR_DATA" ParamIDSeed="4" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="AccountID" Type="UINT64" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharID" Type="UINT64" ID="3" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharData" Type="CSmartStruct" ID="4" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="SaveCharDataAck" ID="METHOD_PCD_SAVE_CHAR_DATA" ParamIDSeed="3" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="AccountID" Type="UINT64" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharID" Type="UINT64" ID="3" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+	</Interface>
+	<Interface Name="PlayerCharOperator" Type="0" ID="INTERFACE_LW_PLAYER_CHAR_OPERATOR" Description="">
+		<Method Name="GetCharList" ID="METHOD_PCO_GET_CHAR_LIST" ParamIDSeed="0" Description=""/>
+		<Method Name="CreateChar" ID="METHOD_PCO_CREATE_CHAR" ParamIDSeed="1" Description="">
+			<Param Name="CharCreateData" Type="CSmartStruct" ID="1" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="DeleteChar" ID="METHOD_PCO_DELETE_CHAR" ParamIDSeed="1" Description="">
+			<Param Name="CharID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="SelectChar" ID="METHOD_PCO_SELECT_CHAR" ParamIDSeed="1" Description="">
+			<Param Name="CharID" Type="UINT64" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+	</Interface>
+	<Interface Name="PlayerCharOperatorAck" Type="1" ID="INTERFACE_LW_PLAYER_CHAR_OPERATOR" Description="">
+		<Method Name="GetCharListAck" ID="METHOD_PCO_GET_CHAR_LIST" ParamIDSeed="2" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharData" Type="CSmartStruct" ID="2" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="CreateCharAck" ID="METHOD_PCO_CREATE_CHAR" ParamIDSeed="2" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharData" Type="CSmartStruct" ID="2" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="DeleteCharAck" ID="METHOD_PCO_DELETE_CHAR" ParamIDSeed="2" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharID" Type="UINT64" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+		</Method>
+		<Method Name="SelectCharAck" ID="METHOD_PCO_SELECT_CHAR" ParamIDSeed="3" Description="">
+			<Param Name="Result" Type="int" ID="1" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharID" Type="UINT64" ID="2" Length="0" CanNull="false" IsReference="false" DefaultValue="" Description=""/>
+			<Param Name="CharData" Type="CSmartStruct" ID="3" Length="0" CanNull="false" IsReference="true" DefaultValue="" Description=""/>
+		</Method>
+	</Interface>
+	<Prefix Content=""/>
+	<Postfix Content=""/>
+</Interfaces>

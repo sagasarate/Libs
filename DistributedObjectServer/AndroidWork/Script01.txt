@@ -1,0 +1,36 @@
+float StartPosX;
+float StartPosY;
+
+Function OnLogin(String AccountName,String Password)
+	if Login(AccountName,Password)<>0 then
+		exit;
+	endif
+	
+	if GetCharList()<=0 then
+		if CreateChar("»úÆ÷ÈË''"+AccountName,1,0)<>0 then
+			exit;
+		endif
+	endif
+	
+	SelectChar(0);
+EndFun
+
+Function OnGame()
+	int PosX;
+	int PosY;
+	int x;
+	int y;
+	
+	exit;
+	
+	Sleep(3000);
+	
+	PosX=GetCurPosX();
+	PosY=GetCurPosY();
+	
+	while 1 do
+		x=PosX+Random(50);
+		y=PosY+Random(50);
+		Move(x,y);
+	endwhile;
+EndFun

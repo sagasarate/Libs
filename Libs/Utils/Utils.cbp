@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Utils" />
+		<Option platforms="Unix;" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="对象基类/;快速内存池/;Log/缺省实现/;线程/线程安全/;性能计数器/;CSV文件/;内存泄露检测/;数据结构/数据存储/;简单脚本/;对象存储模板/;字符串/;线程/;时间相关/;路径管理/;文件系统/目录搜索/;文件系统/管理器/;数据结构/;线程/守护线程/;MD5/;文件系统/接口/;Log/接口/;LZMA/;LZO/;LZW/;操作系统相关/;文件系统/缺省实现/LinuxAPI实现/;Log/管理器/;文件系统/配置文件/;聪明指针/;SmartStruct/;文件系统/缺省实现/STD实现/;文件系统/StringFile/;字符串/字符串工具/;线程安全存储/;小工具函数/;USO资源管理/;头文件/;atomic_ops/;XML/;预编译/;" />
+		<Build>
+			<Target title="Debug">
+				<Option platforms="Unix;" />
+				<Option output="../Bin/Debug/UtilsD" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="Debug" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-W" />
+					<Add option="-O0" />
+					<Add option="-D_DEBUG" />
+				</Compiler>
+				<Linker>
+					<Add option="-lrt" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="../Bin/Release/libUtils" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="Release" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-W" />
+					<Add option="-D_LIB" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Unit filename="AsyncFileLogPrinter.cpp">
+			<Option virtualFolder="Log/缺省实现/" />
+		</Unit>
+		<Unit filename="AsyncFileLogPrinter.h">
+			<Option virtualFolder="Log/缺省实现/" />
+		</Unit>
+		<Unit filename="AsyncFileLogWorkThread.cpp">
+			<Option virtualFolder="Log/缺省实现/" />
+		</Unit>
+		<Unit filename="AsyncFileLogWorkThread.h">
+			<Option virtualFolder="Log/缺省实现/" />
+		</Unit>
+		<Unit filename="AutoLock.h">
+			<Option virtualFolder="线程/线程安全/" />
+		</Unit>
+		<Unit filename="AutoPerformanceCounter.h">
+			<Option virtualFolder="性能计数器/" />
+		</Unit>
+		<Unit filename="AutoReadLock.h">
+			<Option virtualFolder="线程/线程安全/" />
+		</Unit>
+		<Unit filename="AutoWriteLock.h">
+			<Option virtualFolder="线程/线程安全/" />
+		</Unit>
+		<Unit filename="CSVReader.cpp">
+			<Option virtualFolder="CSV文件/" />
+		</Unit>
+		<Unit filename="CSVReader.h">
+			<Option virtualFolder="CSV文件/" />
+		</Unit>
+		<Unit filename="CrtDebugNew.h">
+			<Option virtualFolder="内存泄露检测/" />
+		</Unit>
+		<Unit filename="CycleBuffer.cpp">
+			<Option virtualFolder="数据结构/数据存储/" />
+		</Unit>
+		<Unit filename="CycleBuffer.h">
+			<Option virtualFolder="数据结构/数据存储/" />
+		</Unit>
+		<Unit filename="CycleBufferEx.cpp">
+			<Option virtualFolder="数据结构/数据存储/" />
+		</Unit>
+		<Unit filename="CycleBufferEx.h">
+			<Option virtualFolder="数据结构/数据存储/" />
+		</Unit>
+		<Unit filename="ESBolanStack.cpp">
+			<Option virtualFolder="简单脚本/" />
+		</Unit>
+		<Unit filename="ESBolanStack.h">
+			<Option virtualFolder="简单脚本/" />
+		</Unit>
+		<Unit filename="ESFunctionLib.cpp">
+			<Option virtualFolder="简单脚本/" />
+		</Unit>
+		<Unit filename="ESFunctionLib.h">
+			<Option virtualFolder="简单脚本/" />
+		</Unit>
+		<Unit filename="ESFunctionList.h">
+			<Option virtualFolder="简单脚本/" />
+		</Unit>
+		<Unit filename="ESThread.cpp">
+			<Option virtualFolder="简单脚本/" />
+		</Unit>
+		<Unit filename="ESThread.h">
+			<Option virtualFolder="简单脚本/" />
+		</Unit>
+		<Unit filename="ESVariableList.h">
+			<Option virtualFolder="简单脚本/" />
+		</Unit>
+		<Unit filename="EasyArray.h">
+			<Option virtualFolder="对象存储模板/" />
+		</Unit>
+		<Unit filename="EasyBuffer.cpp">
+			<Option virtualFolder="数据结构/数据存储/" />
+		</Unit>
+		<Unit filename="EasyBuffer.h">
+			<Option virtualFolder="数据结构/数据存储/" />
+		</Unit>
+		<Unit filename="EasyCriticalSectionLinux.h">
+			<Option virtualFolder="线程/线程安全/" />
+		</Unit>
+		<Unit filename="EasyList.h">
+			<Option virtualFolder="对象存储模板/" />
+		</Unit>
+		<Unit filename="EasyMap.h">
+			<Option virtualFolder="对象存储模板/" />
+		</Unit>
+		<Unit filename="EasyReadWriteLockLinux.h">
+			<Option virtualFolder="线程/线程安全/" />
+		</Unit>
+		<Unit filename="EasyScriptExecutor.cpp">
+			<Option virtualFolder="简单脚本/" />
+		</Unit>
+		<Unit filename="EasyScriptExecutor.h">
+			<Option virtualFolder="简单脚本/" />
+		</Unit>
+		<Unit filename="EasyScriptTypes.h">
+			<Option virtualFolder="简单脚本/" />
+		</Unit>
+		<Unit filename="EasyString.h">
+			<Option virtualFolder="字符串/" />
+		</Unit>
+		<Unit filename="EasyThreadLinux.cpp">
+			<Option virtualFolder="线程/" />
+		</Unit>
+		<Unit filename="EasyThreadLinux.h">
+			<Option virtualFolder="线程/" />
+		</Unit>
+		<Unit filename="EasyTime.h">
+			<Option virtualFolder="时间相关/" />
+		</Unit>
+		<Unit filename="EasyTimer.h">
+			<Option virtualFolder="时间相关/" />
+		</Unit>
+		<Unit filename="EasyTimerEx.cpp">
+			<Option virtualFolder="时间相关/" />
+		</Unit>
+		<Unit filename="EasyTimerEx.h">
+			<Option virtualFolder="时间相关/" />
+		</Unit>
+		<Unit filename="FastMemoryPool.cpp">
+			<Option virtualFolder="快速内存池/" />
+		</Unit>
+		<Unit filename="FastMemoryPool.h">
+			<Option virtualFolder="快速内存池/" />
+		</Unit>
+		<Unit filename="FileLogPrinter.cpp">
+			<Option virtualFolder="Log/缺省实现/" />
+		</Unit>
+		<Unit filename="FileLogPrinter.h">
+			<Option virtualFolder="Log/缺省实现/" />
+		</Unit>
+		<Unit filename="FilePathManager.h">
+			<Option virtualFolder="路径管理/" />
+		</Unit>
+		<Unit filename="FileSearcherLinux.cpp">
+			<Option virtualFolder="文件系统/目录搜索/" />
+		</Unit>
+		<Unit filename="FileSearcherLinux.h">
+			<Option virtualFolder="文件系统/目录搜索/" />
+		</Unit>
+		<Unit filename="FileSystemManager.cpp">
+			<Option weight="75" />
+			<Option virtualFolder="文件系统/管理器/" />
+		</Unit>
+		<Unit filename="FileSystemManager.h">
+			<Option virtualFolder="文件系统/管理器/" />
+		</Unit>
+		<Unit filename="FloatRect.h">
+			<Option virtualFolder="数据结构/" />
+		</Unit>
+		<Unit filename="GrowBuffer.cpp">
+			<Option virtualFolder="数据结构/数据存储/" />
+		</Unit>
+		<Unit filename="GrowBuffer.h">
+			<Option virtualFolder="数据结构/数据存储/" />
+		</Unit>
+		<Unit filename="GuardThread.cpp">
+			<Option virtualFolder="线程/守护线程/" />
+		</Unit>
+		<Unit filename="GuardThread.h">
+			<Option virtualFolder="线程/守护线程/" />
+		</Unit>
+		<Unit filename="HashMD5.cpp">
+			<Option virtualFolder="MD5/" />
+		</Unit>
+		<Unit filename="HashMD5.h">
+			<Option virtualFolder="MD5/" />
+		</Unit>
+		<Unit filename="IDStorage.h">
+			<Option virtualFolder="对象存储模板/" />
+		</Unit>
+		<Unit filename="IFileAccessor.cpp">
+			<Option virtualFolder="文件系统/接口/" />
+		</Unit>
+		<Unit filename="IFileAccessor.h">
+			<Option virtualFolder="文件系统/接口/" />
+		</Unit>
+		<Unit filename="IFileObjectCreator.cpp">
+			<Option virtualFolder="文件系统/接口/" />
+		</Unit>
+		<Unit filename="IFileObjectCreator.h">
+			<Option virtualFolder="文件系统/接口/" />
+		</Unit>
+		<Unit filename="ILogPrinter.h">
+			<Option virtualFolder="Log/接口/" />
+		</Unit>
+		<Unit filename="IndexSet.h">
+			<Option virtualFolder="对象存储模板/" />
+		</Unit>
+		<Unit filename="LZMA/Alloc.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/Alloc.h">
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/Bra.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/Bra.h">
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/LzFind.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/LzFind.h">
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/LzFindMt.h">
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/LzHash.h">
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/Lzma2Dec.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/Lzma2Dec.h">
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/Lzma2Enc.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/Lzma2Enc.h">
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/Lzma86.h">
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/Lzma86Dec.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/Lzma86Enc.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/LzmaDec.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/LzmaDec.h">
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/LzmaEnc.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/LzmaEnc.h">
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/LzmaLib.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/LzmaLib.h">
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZMA/Types.h">
+			<Option virtualFolder="LZMA/" />
+		</Unit>
+		<Unit filename="LZO/lzoconf.h">
+			<Option virtualFolder="LZO/" />
+		</Unit>
+		<Unit filename="LZO/lzodefs.h">
+			<Option virtualFolder="LZO/" />
+		</Unit>
+		<Unit filename="LZO/minilzo.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LZO/" />
+		</Unit>
+		<Unit filename="LZO/minilzo.h">
+			<Option virtualFolder="LZO/" />
+		</Unit>
+		<Unit filename="LZWPack.cpp">
+			<Option virtualFolder="LZW/" />
+		</Unit>
+		<Unit filename="LZWPack.h">
+			<Option virtualFolder="LZW/" />
+		</Unit>
+		<Unit filename="LinuxAddOn.h">
+			<Option virtualFolder="操作系统相关/" />
+		</Unit>
+		<Unit filename="LinuxFileAccessor.cpp">
+			<Option virtualFolder="文件系统/缺省实现/LinuxAPI实现/" />
+		</Unit>
+		<Unit filename="LinuxFileAccessor.h">
+			<Option virtualFolder="文件系统/缺省实现/LinuxAPI实现/" />
+		</Unit>
+		<Unit filename="LinuxFileAccessorObjectCreator.cpp">
+			<Option virtualFolder="文件系统/缺省实现/LinuxAPI实现/" />
+		</Unit>
+		<Unit filename="LinuxFileAccessorObjectCreator.h">
+			<Option virtualFolder="文件系统/缺省实现/LinuxAPI实现/" />
+		</Unit>
+		<Unit filename="LogManager.cpp">
+			<Option virtualFolder="Log/管理器/" />
+		</Unit>
+		<Unit filename="LogManager.h">
+			<Option virtualFolder="Log/管理器/" />
+		</Unit>
+		<Unit filename="MemoryAllocatee.cpp">
+			<Option virtualFolder="内存泄露检测/" />
+		</Unit>
+		<Unit filename="MemoryAllocatee.h">
+			<Option virtualFolder="内存泄露检测/" />
+		</Unit>
+		<Unit filename="MemoryLeakDetective.h">
+			<Option virtualFolder="内存泄露检测/" />
+		</Unit>
+		<Unit filename="NameObject.cpp">
+			<Option virtualFolder="对象基类/" />
+		</Unit>
+		<Unit filename="NameObject.h">
+			<Option virtualFolder="对象基类/" />
+		</Unit>
+		<Unit filename="PerformanceStatistician.cpp">
+			<Option virtualFolder="性能计数器/" />
+		</Unit>
+		<Unit filename="PerformanceStatistician.h">
+			<Option virtualFolder="性能计数器/" />
+		</Unit>
+		<Unit filename="SettingFile.h">
+			<Option virtualFolder="文件系统/配置文件/" />
+		</Unit>
+		<Unit filename="SmartPtr.h">
+			<Option virtualFolder="聪明指针/" />
+		</Unit>
+		<Unit filename="SmartStruct.cpp">
+			<Option virtualFolder="SmartStruct/" />
+		</Unit>
+		<Unit filename="SmartStruct.h">
+			<Option virtualFolder="SmartStruct/" />
+		</Unit>
+		<Unit filename="SmartValue.cpp">
+			<Option virtualFolder="SmartStruct/" />
+		</Unit>
+		<Unit filename="SmartValue.h">
+			<Option virtualFolder="SmartStruct/" />
+		</Unit>
+		<Unit filename="StandardFileAccessor.cpp">
+			<Option virtualFolder="文件系统/缺省实现/STD实现/" />
+		</Unit>
+		<Unit filename="StandardFileAccessor.h">
+			<Option virtualFolder="文件系统/缺省实现/STD实现/" />
+		</Unit>
+		<Unit filename="StandardFileObjectCreator.cpp">
+			<Option virtualFolder="文件系统/缺省实现/STD实现/" />
+		</Unit>
+		<Unit filename="StandardFileObjectCreator.h">
+			<Option virtualFolder="文件系统/缺省实现/STD实现/" />
+		</Unit>
+		<Unit filename="StaticList.h">
+			<Option virtualFolder="对象存储模板/" />
+		</Unit>
+		<Unit filename="StaticMap.h">
+			<Option virtualFolder="对象存储模板/" />
+		</Unit>
+		<Unit filename="StaticObject.h">
+			<Option virtualFolder="对象基类/" />
+		</Unit>
+		<Unit filename="StringFile.cpp">
+			<Option virtualFolder="文件系统/StringFile/" />
+		</Unit>
+		<Unit filename="StringFile.h">
+			<Option virtualFolder="文件系统/StringFile/" />
+		</Unit>
+		<Unit filename="StringSplitter.h">
+			<Option virtualFolder="字符串/字符串工具/" />
+		</Unit>
+		<Unit filename="TCharLinux.h">
+			<Option virtualFolder="操作系统相关/" />
+		</Unit>
+		<Unit filename="ThreadPerformanceCounter.cpp">
+			<Option virtualFolder="性能计数器/" />
+		</Unit>
+		<Unit filename="ThreadPerformanceCounter.h">
+			<Option virtualFolder="性能计数器/" />
+		</Unit>
+		<Unit filename="ThreadSafeCycleBuffer.cpp">
+			<Option virtualFolder="线程安全存储/" />
+		</Unit>
+		<Unit filename="ThreadSafeCycleBuffer.h">
+			<Option virtualFolder="线程安全存储/" />
+		</Unit>
+		<Unit filename="ThreadSafeCycleBufferEx.cpp">
+			<Option virtualFolder="线程安全存储/" />
+		</Unit>
+		<Unit filename="ThreadSafeCycleBufferEx.h">
+			<Option virtualFolder="线程安全存储/" />
+		</Unit>
+		<Unit filename="ThreadSafeIDStorage.h">
+			<Option virtualFolder="线程安全存储/" />
+		</Unit>
+		<Unit filename="ThreadSafeList.h">
+			<Option virtualFolder="线程安全存储/" />
+		</Unit>
+		<Unit filename="ThreadSafeStaticMap.h">
+			<Option virtualFolder="线程安全存储/" />
+		</Unit>
+		<Unit filename="ToolsAll.h">
+			<Option virtualFolder="小工具函数/" />
+		</Unit>
+		<Unit filename="ToolsLinux.h">
+			<Option virtualFolder="小工具函数/" />
+		</Unit>
+		<Unit filename="TreeObject.cpp">
+			<Option virtualFolder="对象基类/" />
+		</Unit>
+		<Unit filename="TreeObject.h">
+			<Option virtualFolder="对象基类/" />
+		</Unit>
+		<Unit filename="USOObjectCreateFilter.cpp">
+			<Option virtualFolder="USO资源管理/" />
+		</Unit>
+		<Unit filename="USOObjectCreateFilter.h">
+			<Option virtualFolder="USO资源管理/" />
+		</Unit>
+		<Unit filename="USOResourceManager.cpp">
+			<Option virtualFolder="USO资源管理/" />
+		</Unit>
+		<Unit filename="USOResourceManager.h">
+			<Option virtualFolder="USO资源管理/" />
+		</Unit>
+		<Unit filename="Utils.cpp">
+			<Option virtualFolder="头文件/" />
+		</Unit>
+		<Unit filename="Utils.h">
+			<Option virtualFolder="头文件/" />
+		</Unit>
+		<Unit filename="VSOutputLogPrinter.cpp">
+			<Option virtualFolder="Log/缺省实现/" />
+		</Unit>
+		<Unit filename="VSOutputLogPrinter.h">
+			<Option virtualFolder="Log/缺省实现/" />
+		</Unit>
+		<Unit filename="WinTypeWrap.h">
+			<Option virtualFolder="数据结构/" />
+		</Unit>
+		<Unit filename="atomic_ops/include/atomic_ops.h">
+			<Option virtualFolder="atomic_ops/" />
+		</Unit>
+		<Unit filename="atomic_ops/include/atomic_ops_malloc.h">
+			<Option virtualFolder="atomic_ops/" />
+		</Unit>
+		<Unit filename="atomic_ops/include/atomic_ops_stack.h">
+			<Option virtualFolder="atomic_ops/" />
+		</Unit>
+		<Unit filename="pugxml.cpp">
+			<Option virtualFolder="XML/" />
+		</Unit>
+		<Unit filename="pugxml_linux.h">
+			<Option virtualFolder="XML/" />
+		</Unit>
+		<Unit filename="stdafx.cpp">
+			<Option virtualFolder="预编译/" />
+		</Unit>
+		<Unit filename="stdafx.h">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option virtualFolder="预编译/" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

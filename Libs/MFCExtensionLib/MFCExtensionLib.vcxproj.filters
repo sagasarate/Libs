@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="PropertyGrid">
+      <UniqueIdentifier>{1f310044-b816-43a5-8d06-8f853a3c1e3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PropertyGrid\主体">
+      <UniqueIdentifier>{ce80674a-1f69-4536-96b7-189e91cf7fec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PropertyGrid\编辑用组件">
+      <UniqueIdentifier>{042b9685-0c3b-4655-9d33-901e12ab94bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PropertyGrid\自定义属性编辑">
+      <UniqueIdentifier>{3b0713a3-efe7-4ef8-a6b1-7205ffa762d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PropertyGrid\视图">
+      <UniqueIdentifier>{92b81532-8967-4554-b8f2-609b64c1f673}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="预编译">
+      <UniqueIdentifier>{968a0fdd-4f2a-4ca9-8ef1-b094f02c047b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DialogItemSorter">
+      <UniqueIdentifier>{ab56ba86-e468-4846-9af1-2121030f128f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{ee0a9133-e71a-401e-8e06-4c82b1ae879a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="PropertyGrid.cpp">
+      <Filter>PropertyGrid\主体</Filter>
+    </ClCompile>
+    <ClCompile Include="Inputer.cpp">
+      <Filter>PropertyGrid\编辑用组件</Filter>
+    </ClCompile>
+    <ClCompile Include="LinkComboBox.cpp">
+      <Filter>PropertyGrid\编辑用组件</Filter>
+    </ClCompile>
+    <ClCompile Include="LinkEdit.cpp">
+      <Filter>PropertyGrid\编辑用组件</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyConfigDialog.cpp">
+      <Filter>PropertyGrid\自定义属性编辑</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyView.cpp">
+      <Filter>PropertyGrid\视图</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>预编译</Filter>
+    </ClCompile>
+    <ClCompile Include="DialogItemSorter.cpp">
+      <Filter>DialogItemSorter</Filter>
+    </ClCompile>
+    <ClCompile Include="ResizeBar.cpp">
+      <Filter>DialogItemSorter</Filter>
+    </ClCompile>
+    <ClCompile Include="MFCExtensionLib.cpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PropertyGrid.h">
+      <Filter>PropertyGrid\主体</Filter>
+    </ClInclude>
+    <ClInclude Include="Inputer.h">
+      <Filter>PropertyGrid\编辑用组件</Filter>
+    </ClInclude>
+    <ClInclude Include="LinkComboBox.h">
+      <Filter>PropertyGrid\编辑用组件</Filter>
+    </ClInclude>
+    <ClInclude Include="LinkEdit.h">
+      <Filter>PropertyGrid\编辑用组件</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertyConfigDialog.h">
+      <Filter>PropertyGrid\自定义属性编辑</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertyView.h">
+      <Filter>PropertyGrid\视图</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="DialogItemSorter.h">
+      <Filter>DialogItemSorter</Filter>
+    </ClInclude>
+    <ClInclude Include="ResizeBar.h">
+      <Filter>DialogItemSorter</Filter>
+    </ClInclude>
+    <ClInclude Include="MFCExtensionLib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

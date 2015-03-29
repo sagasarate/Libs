@@ -1,0 +1,652 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="预编译">
+      <UniqueIdentifier>{9e3e0b62-6173-4df6-9315-6616dc74467b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib">
+      <UniqueIdentifier>{c7b6679d-955a-40e5-b7dd-9b638e3571c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\主设备">
+      <UniqueIdentifier>{ad3ef178-5d71-4763-b359-17b67eda9c30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\纹理">
+      <UniqueIdentifier>{e1c0c3d9-4808-4adf-895b-6986c623c3fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\纹理\管理器">
+      <UniqueIdentifier>{db29ee05-8844-4ad7-aa7d-51d088577690}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\纹理\普通纹理">
+      <UniqueIdentifier>{ad51f227-1818-43b3-ab8b-0cff89a88402}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\纹理\文字纹理">
+      <UniqueIdentifier>{cabb1323-1274-424d-8621-f2677ff92157}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\纹理\动画纹理">
+      <UniqueIdentifier>{21dcdef5-655e-45e1-aade-8edc56130dec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\类型定义">
+      <UniqueIdentifier>{58f27738-877e-41fc-ad79-3489e83a3f85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\FX">
+      <UniqueIdentifier>{10c1ccc9-4b93-4610-b0d7-4cad626e1c7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\渲染器">
+      <UniqueIdentifier>{aab23b4f-e34b-4107-886e-b5982fc8187c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\渲染器\UI渲染器">
+      <UniqueIdentifier>{d812403d-aeec-4d3f-bb1d-5029e79abfe5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\渲染器\基类">
+      <UniqueIdentifier>{19d4404e-f083-4915-bbab-406b665ef4a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\渲染器\场景渲染器">
+      <UniqueIdentifier>{bc171d63-74d8-4c45-b637-9f9930f470a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象">
+      <UniqueIdentifier>{56d375a0-3a3b-4585-9a3f-d314aecea6a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\基类">
+      <UniqueIdentifier>{8e559db4-1e79-42c9-bfd3-485806841f06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\Dummy">
+      <UniqueIdentifier>{c3830411-5650-4ac8-80ce-0df9983c5c6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\静态模型">
+      <UniqueIdentifier>{bf6bb4a7-55eb-45d2-b80e-af1c4da795e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\静态模型\基类">
+      <UniqueIdentifier>{8775fb9f-a301-4c8c-ba90-4fcecf42746c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\资源管理器">
+      <UniqueIdentifier>{9e9b5d6d-f47d-4e42-8a8b-67d7989b2b47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\动态模型">
+      <UniqueIdentifier>{64417e37-fc06-4597-b217-f2e42d436e37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\动态模型\骨骼动画动态模型">
+      <UniqueIdentifier>{fc5eebc2-a380-4b14-8796-5747d903c618}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\动态模型\帧动画动态模型">
+      <UniqueIdentifier>{d6aa0154-7f96-42a2-a428-5b165b5eefd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\动态模型\顶点动画动态模型">
+      <UniqueIdentifier>{d13eb1f2-c2f9-4af1-91f6-eed4d5ef744e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\动态模型\基类">
+      <UniqueIdentifier>{0e167166-2650-4d92-bb1a-156b02b44b09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\动态模型\条带">
+      <UniqueIdentifier>{366062fe-3ba4-43d4-94f3-159fa1742f48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\动态模型\粒子">
+      <UniqueIdentifier>{ddd0a180-8319-44f9-b5e9-f8adef08a0b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\辅助对象">
+      <UniqueIdentifier>{4dfb4231-0d7c-4724-8eac-588c5fb538ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\摄像机">
+      <UniqueIdentifier>{7804243c-36b3-44fc-aded-c212ed948473}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\灯光">
+      <UniqueIdentifier>{e3eac950-7097-406f-8965-4abd9f3bc5eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\SubMesh">
+      <UniqueIdentifier>{033f2891-4793-4bec-85f9-7b87f8ef1947}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\WOW模型">
+      <UniqueIdentifier>{39af7e5c-b237-49e5-ae17-435b7ef0100b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\WOW模型\ChunkFile">
+      <UniqueIdentifier>{c454ab04-7ebf-4c12-bd16-e77cb014939b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\WOW模型\DBCFile">
+      <UniqueIdentifier>{8a707bab-ee9d-44e0-87bb-566455d3bae7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\WOW模型\Defines">
+      <UniqueIdentifier>{607757fd-039c-44de-a824-02ab1110fc81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\WOW模型\BLS">
+      <UniqueIdentifier>{68583dc8-65df-4350-b7dd-cc683a203bb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\WOW模型\WDT">
+      <UniqueIdentifier>{49bd8595-9c12-464d-8212-1211f8ed0667}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\WOW模型\ADT">
+      <UniqueIdentifier>{5f0f65ff-f143-407d-8924-7115a8454e64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\WOW模型\M2">
+      <UniqueIdentifier>{afba14af-1ad9-4785-b655-e2e99a6a91ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\WOW模型\WMO">
+      <UniqueIdentifier>{9bce91d2-90e8-4fd3-b5ec-584056bee370}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\WOW模型\WDL">
+      <UniqueIdentifier>{5c91af0d-96d1-4833-b5ae-c315fc71d292}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\3D对象\场景">
+      <UniqueIdentifier>{30cccce6-acc3-419e-9bc4-e75b477f5b75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\字体">
+      <UniqueIdentifier>{6adb5461-2b6b-4371-9688-8a9f5780af14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\字体\中文字体">
+      <UniqueIdentifier>{3448ba67-985d-4330-83ac-7598c83aa025}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\字体\DX9字体">
+      <UniqueIdentifier>{86a9ed48-46a3-4d7e-9aa5-6cc60e129fdb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\数学库">
+      <UniqueIdentifier>{ed4a41c4-d081-4f56-a634-33858ae68ca8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\头文件">
+      <UniqueIdentifier>{31b313ac-1505-4905-8662-5c2fd0c1092b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\USO文件">
+      <UniqueIdentifier>{0912a397-3249-4e7c-bb63-fae0c0762229}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\GUI接口实现">
+      <UniqueIdentifier>{6cf3f2db-eec0-4dc8-b22f-ed90e984d6a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\渲染输出">
+      <UniqueIdentifier>{942c5154-7c5b-4b1c-8a9c-5a7d195bd56b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\Shaders">
+      <UniqueIdentifier>{ee671300-fb05-4573-822c-bf9bf5dbcf7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\渲染线程">
+      <UniqueIdentifier>{412fb13c-8b3b-4cb9-a2ae-4357dc2f78f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DLib\工具">
+      <UniqueIdentifier>{c4dd7e2c-473a-4b91-8192-33cb69e7c8cc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>预编译</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DDevice.cpp">
+      <Filter>D3DLib\主设备</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DTextureManager.cpp">
+      <Filter>D3DLib\纹理\管理器</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DTexture.cpp">
+      <Filter>D3DLib\纹理\普通纹理</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DTextTexture.cpp">
+      <Filter>D3DLib\纹理\文字纹理</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DIFLTexture.cpp">
+      <Filter>D3DLib\纹理\动画纹理</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DBuildInFXIncludeParser.cpp">
+      <Filter>D3DLib\FX</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DFX.cpp">
+      <Filter>D3DLib\FX</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DFXManager.cpp">
+      <Filter>D3DLib\FX</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DUIRender.cpp">
+      <Filter>D3DLib\渲染器\UI渲染器</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DBaseRender.cpp">
+      <Filter>D3DLib\渲染器\基类</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DSceneRender.cpp">
+      <Filter>D3DLib\渲染器\场景渲染器</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DObject.cpp">
+      <Filter>D3DLib\3D对象\基类</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DObjectResource.cpp">
+      <Filter>D3DLib\3D对象\基类</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DDummy.cpp">
+      <Filter>D3DLib\3D对象\Dummy</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DBaseStaticModel.cpp">
+      <Filter>D3DLib\3D对象\静态模型\基类</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DObjectResourceManager.cpp">
+      <Filter>D3DLib\3D对象\资源管理器</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DBaseDynamicModel.cpp">
+      <Filter>D3DLib\3D对象\动态模型\基类</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DRibbonEmitter.cpp">
+      <Filter>D3DLib\3D对象\动态模型\条带</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DRibbonEmitterResource.cpp">
+      <Filter>D3DLib\3D对象\动态模型\条带</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DBillBoardParticleEmitter.cpp">
+      <Filter>D3DLib\3D对象\动态模型\粒子</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DParticleEmitterResource.cpp">
+      <Filter>D3DLib\3D对象\动态模型\粒子</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DBoard.cpp">
+      <Filter>D3DLib\3D对象\辅助对象</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DBoundingFrame.cpp">
+      <Filter>D3DLib\3D对象\辅助对象</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DLine.cpp">
+      <Filter>D3DLib\3D对象\辅助对象</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DCamera.cpp">
+      <Filter>D3DLib\3D对象\摄像机</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DLight.cpp">
+      <Filter>D3DLib\3D对象\灯光</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DSubMesh.cpp">
+      <Filter>D3DLib\3D对象\SubMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DSubMeshMaterial.cpp">
+      <Filter>D3DLib\3D对象\SubMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="BLZChunkFile.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\ChunkFile</Filter>
+    </ClCompile>
+    <ClCompile Include="BLZDBCFile.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\DBCFile</Filter>
+    </ClCompile>
+    <ClCompile Include="BLZWOWDatabase.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\DBCFile</Filter>
+    </ClCompile>
+    <ClCompile Include="BLZBLSImporter.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\BLS</Filter>
+    </ClCompile>
+    <ClCompile Include="BLZWDTFile.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\WDT</Filter>
+    </ClCompile>
+    <ClCompile Include="BLZWOWSceneLoader.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\WDT</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DWOWADTModel.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\ADT</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DWOWADTModelResource.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\ADT</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DWOWDoodadModel.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\M2</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DWOWM2CharacterModel.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\M2</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DWOWM2ItemModel.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\M2</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DWOWM2Model.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\M2</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DWOWM2ModelResource.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\M2</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DWOWWMOGroupModel.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\WMO</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DWOWWMOModel.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\WMO</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DWOWWMOModelResource.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\WMO</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DWOWWDLModel.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\WDL</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DWOWWDLModelResource.cpp">
+      <Filter>D3DLib\3D对象\WOW模型\WDL</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DScene.cpp">
+      <Filter>D3DLib\3D对象\场景</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DBaseFont.cpp">
+      <Filter>D3DLib\字体</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DFontManager.cpp">
+      <Filter>D3DLib\字体</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DFontCharClip.cpp">
+      <Filter>D3DLib\字体\中文字体</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DFontCN.cpp">
+      <Filter>D3DLib\字体\中文字体</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DDX9Font.cpp">
+      <Filter>D3DLib\字体\DX9字体</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DBoundingBox.cpp">
+      <Filter>D3DLib\数学库</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DFrustum.cpp">
+      <Filter>D3DLib\数学库</Filter>
+    </ClCompile>
+    <ClCompile Include="USOD3DObjectCreateFilter.cpp">
+      <Filter>D3DLib\USO文件</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DGUIObjectCreator.cpp">
+      <Filter>D3DLib\GUI接口实现</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DGUITextRect.cpp">
+      <Filter>D3DLib\GUI接口实现</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DGUITexture.cpp">
+      <Filter>D3DLib\GUI接口实现</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DGUIWndRect.cpp">
+      <Filter>D3DLib\GUI接口实现</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DSwapChain.cpp">
+      <Filter>D3DLib\渲染输出</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>D3DLib\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DRenderThread.cpp">
+      <Filter>D3DLib\渲染线程</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DTools.cpp">
+      <Filter>D3DLib\工具</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DDevice.h">
+      <Filter>D3DLib\主设备</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DTextureManager.h">
+      <Filter>D3DLib\纹理\管理器</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DTexture.h">
+      <Filter>D3DLib\纹理\普通纹理</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DTextTexture.h">
+      <Filter>D3DLib\纹理\文字纹理</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DIFLTexture.h">
+      <Filter>D3DLib\纹理\动画纹理</Filter>
+    </ClInclude>
+    <ClInclude Include="AniDefines.h">
+      <Filter>D3DLib\类型定义</Filter>
+    </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>D3DLib\类型定义</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DBuildInFXIncludeParser.h">
+      <Filter>D3DLib\FX</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DFX.h">
+      <Filter>D3DLib\FX</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DFXManager.h">
+      <Filter>D3DLib\FX</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DUIRender.h">
+      <Filter>D3DLib\渲染器\UI渲染器</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DBaseRender.h">
+      <Filter>D3DLib\渲染器\基类</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DSceneRender.h">
+      <Filter>D3DLib\渲染器\场景渲染器</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DObject.h">
+      <Filter>D3DLib\3D对象\基类</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DObjectResource.h">
+      <Filter>D3DLib\3D对象\基类</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DDummy.h">
+      <Filter>D3DLib\3D对象\Dummy</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DObjectResourceManager.h">
+      <Filter>D3DLib\3D对象\资源管理器</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DBaseDynamicModel.h">
+      <Filter>D3DLib\3D对象\动态模型\基类</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DRibbonEmitter.h">
+      <Filter>D3DLib\3D对象\动态模型\条带</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DRibbonEmitterResource.h">
+      <Filter>D3DLib\3D对象\动态模型\条带</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DBillBoardParticleEmitter.h">
+      <Filter>D3DLib\3D对象\动态模型\粒子</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DParticleEmitterResource.h">
+      <Filter>D3DLib\3D对象\动态模型\粒子</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DBoard.h">
+      <Filter>D3DLib\3D对象\辅助对象</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DBoundingFrame.h">
+      <Filter>D3DLib\3D对象\辅助对象</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DLine.h">
+      <Filter>D3DLib\3D对象\辅助对象</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DCamera.h">
+      <Filter>D3DLib\3D对象\摄像机</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DLight.h">
+      <Filter>D3DLib\3D对象\灯光</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DSubMesh.h">
+      <Filter>D3DLib\3D对象\SubMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DSubMeshMaterial.h">
+      <Filter>D3DLib\3D对象\SubMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="BLZChunkFile.h">
+      <Filter>D3DLib\3D对象\WOW模型\ChunkFile</Filter>
+    </ClInclude>
+    <ClInclude Include="BLZDBCFile.h">
+      <Filter>D3DLib\3D对象\WOW模型\DBCFile</Filter>
+    </ClInclude>
+    <ClInclude Include="BLZWOWDatabase.h">
+      <Filter>D3DLib\3D对象\WOW模型\DBCFile</Filter>
+    </ClInclude>
+    <ClInclude Include="BLZFileDefines.h">
+      <Filter>D3DLib\3D对象\WOW模型\Defines</Filter>
+    </ClInclude>
+    <ClInclude Include="BLZBLSImporter.h">
+      <Filter>D3DLib\3D对象\WOW模型\BLS</Filter>
+    </ClInclude>
+    <ClInclude Include="BLZWDTFile.h">
+      <Filter>D3DLib\3D对象\WOW模型\WDT</Filter>
+    </ClInclude>
+    <ClInclude Include="BLZWOWSceneLoader.h">
+      <Filter>D3DLib\3D对象\WOW模型\WDT</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DWOWADTModel.h">
+      <Filter>D3DLib\3D对象\WOW模型\ADT</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DWOWADTModelResource.h">
+      <Filter>D3DLib\3D对象\WOW模型\ADT</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DWOWDoodadModel.h">
+      <Filter>D3DLib\3D对象\WOW模型\M2</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DWOWM2CharacterModel.h">
+      <Filter>D3DLib\3D对象\WOW模型\M2</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DWOWM2ItemModel.h">
+      <Filter>D3DLib\3D对象\WOW模型\M2</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DWOWM2Model.h">
+      <Filter>D3DLib\3D对象\WOW模型\M2</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DWOWM2ModelResource.h">
+      <Filter>D3DLib\3D对象\WOW模型\M2</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DWOWWMOGroupModel.h">
+      <Filter>D3DLib\3D对象\WOW模型\WMO</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DWOWWMOModel.h">
+      <Filter>D3DLib\3D对象\WOW模型\WMO</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DWOWWMOModelResource.h">
+      <Filter>D3DLib\3D对象\WOW模型\WMO</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DWOWWDLModel.h">
+      <Filter>D3DLib\3D对象\WOW模型\WDL</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DWOWWDLModelResource.h">
+      <Filter>D3DLib\3D对象\WOW模型\WDL</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DScene.h">
+      <Filter>D3DLib\3D对象\场景</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DBaseFont.h">
+      <Filter>D3DLib\字体</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DFontManager.h">
+      <Filter>D3DLib\字体</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DFontCharClip.h">
+      <Filter>D3DLib\字体\中文字体</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DFontCN.h">
+      <Filter>D3DLib\字体\中文字体</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DDX9Font.h">
+      <Filter>D3DLib\字体\DX9字体</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DBoundingBox.h">
+      <Filter>D3DLib\数学库</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DBoundingSphere.h">
+      <Filter>D3DLib\数学库</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DFrustum.h">
+      <Filter>D3DLib\数学库</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DMatrix.h">
+      <Filter>D3DLib\数学库</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DPlane.h">
+      <Filter>D3DLib\数学库</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DQuaternion.h">
+      <Filter>D3DLib\数学库</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DVector2.h">
+      <Filter>D3DLib\数学库</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DVector3.h">
+      <Filter>D3DLib\数学库</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DVector4.h">
+      <Filter>D3DLib\数学库</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DLib.h">
+      <Filter>D3DLib\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="USOD3DObjectCreateFilter.h">
+      <Filter>D3DLib\USO文件</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DGUIObjectCreator.h">
+      <Filter>D3DLib\GUI接口实现</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DGUITextRect.h">
+      <Filter>D3DLib\GUI接口实现</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DGUITexture.h">
+      <Filter>D3DLib\GUI接口实现</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DGUIWndRect.h">
+      <Filter>D3DLib\GUI接口实现</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DSwapChain.h">
+      <Filter>D3DLib\渲染输出</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders.h">
+      <Filter>D3DLib\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DRenderThread.h">
+      <Filter>D3DLib\渲染线程</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DTools.h">
+      <Filter>D3DLib\工具</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\TXT2String.exe">
+      <Filter>D3DLib\Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D3DBaseStaticModel.h">
+      <Filter>D3DLib\3D对象\静态模型\基类</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\ADTLiquid.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\ADTModel20.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\ADTModel30.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\D3DBoard.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\D3DBoundFrame.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\D3DLine.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\FontRender.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\M2ModelSoftBoneOnly.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\M2Particle.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\M2Ribbon.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\SharedLib.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\SharedParam.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\TextTexture.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\UIInverseColor.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\UITextRect.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\UIWinRectNoTexture.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\UIWinRectWithTexture.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\UIWinRectWithTextureFilter.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\WDLModel.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\WMOModel.fx">
+      <Filter>D3DLib\Shaders</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

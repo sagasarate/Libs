@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<Main PlayerCharDataDBEnable="true">
+  <PlayerCharDataDB DBType="MYSQL" DBConnectString="DRIVER=SQL Native Client;UID=sa;PWD=12345678;LANGUAGE=简体中文;DATABASE=LittleWorld;SERVER=127.0.0.1;CharSet=gbk;Flag=CLIENT_STMT_MODE" 
+                    ThreadCount="16" QueueSize="256" RunLimit="32" IsLogPerformance="true"/>  
+</Main>

@@ -1,0 +1,277 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{DC0762CA-C61C-4D97-ADE2-9A408943A912}</ProjectGuid>
+    <RootNamespace>DBLib</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\Bin\Debug\</OutDir>
+    <IntDir>Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\Bin\x64\Debug\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\Bin\Release\</OutDir>
+    <IntDir>Release\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)DBLibD.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <EnablePREfast>false</EnablePREfast>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)DBLibD.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)DBLib.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <EnablePREfast>false</EnablePREfast>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)DBLib.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="DBInterfaces.cpp" />
+    <ClCompile Include="ODBCConnection.cpp" />
+    <ClCompile Include="ODBCDatabase.cpp" />
+    <ClCompile Include="ODBCRecordSet.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="MySQLConnection.cpp" />
+    <ClCompile Include="MySQLDatabase.cpp" />
+    <ClCompile Include="MySQLDynamicRecordSet.cpp" />
+    <ClCompile Include="MySQLRecordSet.cpp" />
+    <ClCompile Include="DBTransationManager.cpp" />
+    <ClCompile Include="DBTransationWorkThread.cpp" />
+    <ClCompile Include="DBTransaction.cpp" />
+    <ClCompile Include="DBFakeRecordSet.cpp" />
+    <ClCompile Include="DBParameterSet.cpp" />
+    <ClCompile Include="DBStaticRecordSet.cpp" />
+    <ClCompile Include="DBValue.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DBInterfaces.h" />
+    <ClInclude Include="DBTypes.h" />
+    <ClInclude Include="ODBCConnection.h" />
+    <ClInclude Include="ODBCDatabase.h" />
+    <ClInclude Include="ODBCRecordSet.h" />
+    <ClInclude Include="DBLib.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="MySQLConnection.h" />
+    <ClInclude Include="MySQLDatabase.h" />
+    <ClInclude Include="MySQLDynamicRecordSet.h" />
+    <ClInclude Include="MySQLRecordSet.h" />
+    <ClInclude Include="DBTransationManager.h" />
+    <ClInclude Include="DBTransationWorkThread.h" />
+    <ClInclude Include="DBTransaction.h" />
+    <ClInclude Include="MySQL\include\base64.h" />
+    <ClInclude Include="MySQL\include\config-win.h" />
+    <ClInclude Include="MySQL\include\decimal.h" />
+    <ClInclude Include="MySQL\include\errmsg.h" />
+    <ClInclude Include="MySQL\include\atomic\gcc_builtins.h" />
+    <ClInclude Include="MySQL\include\atomic\generic-msvc.h" />
+    <ClInclude Include="MySQL\include\hash.h" />
+    <ClInclude Include="MySQL\include\keycache.h" />
+    <ClInclude Include="MySQL\include\lf.h" />
+    <ClInclude Include="MySQL\include\m_ctype.h" />
+    <ClInclude Include="MySQL\include\m_string.h" />
+    <ClInclude Include="MySQL\include\my_aes.h" />
+    <ClInclude Include="MySQL\include\my_alarm.h" />
+    <ClInclude Include="MySQL\include\my_alloc.h" />
+    <ClInclude Include="MySQL\include\my_atomic.h" />
+    <ClInclude Include="MySQL\include\my_attribute.h" />
+    <ClInclude Include="MySQL\include\my_base.h" />
+    <ClInclude Include="MySQL\include\my_bit.h" />
+    <ClInclude Include="MySQL\include\my_bitmap.h" />
+    <ClInclude Include="MySQL\include\my_charsets.h" />
+    <ClInclude Include="MySQL\include\my_config.h" />
+    <ClInclude Include="MySQL\include\my_dbug.h" />
+    <ClInclude Include="MySQL\include\my_dir.h" />
+    <ClInclude Include="MySQL\include\my_getopt.h" />
+    <ClInclude Include="MySQL\include\my_global.h" />
+    <ClInclude Include="MySQL\include\my_libwrap.h" />
+    <ClInclude Include="MySQL\include\my_list.h" />
+    <ClInclude Include="MySQL\include\my_md5.h" />
+    <ClInclude Include="MySQL\include\my_net.h" />
+    <ClInclude Include="MySQL\include\my_no_pthread.h" />
+    <ClInclude Include="MySQL\include\my_nosys.h" />
+    <ClInclude Include="MySQL\include\my_pthread.h" />
+    <ClInclude Include="MySQL\include\my_stacktrace.h" />
+    <ClInclude Include="MySQL\include\my_sys.h" />
+    <ClInclude Include="MySQL\include\my_time.h" />
+    <ClInclude Include="MySQL\include\my_tree.h" />
+    <ClInclude Include="MySQL\include\my_trie.h" />
+    <ClInclude Include="MySQL\include\my_uctype.h" />
+    <ClInclude Include="MySQL\include\my_vle.h" />
+    <ClInclude Include="MySQL\include\my_xml.h" />
+    <ClInclude Include="MySQL\include\myisampack.h" />
+    <ClInclude Include="MySQL\include\mysql.h" />
+    <ClInclude Include="MySQL\include\mysql_com.h" />
+    <ClInclude Include="MySQL\include\mysql_time.h" />
+    <ClInclude Include="MySQL\include\mysql_version.h" />
+    <ClInclude Include="MySQL\include\mysqld_error.h" />
+    <ClInclude Include="MySQL\include\mysys_err.h" />
+    <ClInclude Include="MySQL\include\atomic\nolock.h" />
+    <ClInclude Include="MySQL\include\queues.h" />
+    <ClInclude Include="MySQL\include\mysys\rijndael.h" />
+    <ClInclude Include="MySQL\include\atomic\rwlock.h" />
+    <ClInclude Include="MySQL\include\service_versions.h" />
+    <ClInclude Include="MySQL\include\sha1.h" />
+    <ClInclude Include="MySQL\include\sha2.h" />
+    <ClInclude Include="MySQL\include\sql_common.h" />
+    <ClInclude Include="MySQL\include\sslopt-case.h" />
+    <ClInclude Include="MySQL\include\sslopt-longopts.h" />
+    <ClInclude Include="MySQL\include\sslopt-vars.h" />
+    <ClInclude Include="MySQL\include\t_ctype.h" />
+    <ClInclude Include="MySQL\include\thr_alarm.h" />
+    <ClInclude Include="MySQL\include\thr_lock.h" />
+    <ClInclude Include="MySQL\include\typelib.h" />
+    <ClInclude Include="MySQL\include\violite.h" />
+    <ClInclude Include="MySQL\include\waiting_threads.h" />
+    <ClInclude Include="MySQL\include\wqueue.h" />
+    <ClInclude Include="MySQL\include\atomic\x86-gcc.h" />
+    <ClInclude Include="DBFakeRecordSet.h" />
+    <ClInclude Include="DBParameterSet.h" />
+    <ClInclude Include="DBStaticRecordSet.h" />
+    <ClInclude Include="DBValue.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="MySQL\lib\libmysqlclient.a">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <None Include="DBLib.cbp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="MySQL\lib\mysqlclient.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="MySQL\lib\x64\mysqlclient.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,270 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{b4e2cc29-2edd-48d4-a3a7-bd06644a3c7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MapArea">
+      <UniqueIdentifier>{7d6a4d43-02e0-4ef6-bb61-7464c8ff2d5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="预编译">
+      <UniqueIdentifier>{d42ee160-178e-4cbe-bfbd-063e58ad3f54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Character">
+      <UniqueIdentifier>{9c9acebb-9e55-46f4-8ddc-301cdf3617e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="对象数据结构">
+      <UniqueIdentifier>{c4448928-ccd9-4a3a-ad8a-5a3ae67b4266}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PlayerManager">
+      <UniqueIdentifier>{cb578518-602d-47a4-8969-f5622771562a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CharQueryCenter">
+      <UniqueIdentifier>{993ddbf3-7f15-4272-a574-cf28cb7aacdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PlayerCharDB">
+      <UniqueIdentifier>{f678fdc1-ff7b-494e-93de-cae701665721}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PlayerCharOperator">
+      <UniqueIdentifier>{e809755b-0c57-42e9-a6a9-00d069809122}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LittleWorldObjectInterfaces.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LittleWorldProtocol.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MapAreaAckInterface.h">
+      <Filter>MapArea</Filter>
+    </ClInclude>
+    <ClInclude Include="MapAreaAckMsgCaller.h">
+      <Filter>MapArea</Filter>
+    </ClInclude>
+    <ClInclude Include="MapAreaAckMsgHandler.h">
+      <Filter>MapArea</Filter>
+    </ClInclude>
+    <ClInclude Include="MapAreaInterface.h">
+      <Filter>MapArea</Filter>
+    </ClInclude>
+    <ClInclude Include="MapAreaMethods.h">
+      <Filter>MapArea</Filter>
+    </ClInclude>
+    <ClInclude Include="MapAreaMsgCaller.h">
+      <Filter>MapArea</Filter>
+    </ClInclude>
+    <ClInclude Include="MapAreaMsgHandler.h">
+      <Filter>MapArea</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterAckInterface.h">
+      <Filter>Character</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterAckMsgCaller.h">
+      <Filter>Character</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterAckMsgHandler.h">
+      <Filter>Character</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterInterface.h">
+      <Filter>Character</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterMethods.h">
+      <Filter>Character</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterMsgCaller.h">
+      <Filter>Character</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterMsgHandler.h">
+      <Filter>Character</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseCharInfo.h">
+      <Filter>对象数据结构</Filter>
+    </ClInclude>
+    <ClInclude Include="DataDefines.h">
+      <Filter>对象数据结构</Filter>
+    </ClInclude>
+    <ClInclude Include="MoveStatus.h">
+      <Filter>对象数据结构</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerManagerAckInterface.h">
+      <Filter>PlayerManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerManagerAckMsgCaller.h">
+      <Filter>PlayerManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerManagerAckMsgHandler.h">
+      <Filter>PlayerManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerManagerInterface.h">
+      <Filter>PlayerManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerManagerMethods.h">
+      <Filter>PlayerManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerManagerMsgCaller.h">
+      <Filter>PlayerManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerManagerMsgHandler.h">
+      <Filter>PlayerManager</Filter>
+    </ClInclude>
+    <ClInclude Include="CharQueryCenterAckInterface.h">
+      <Filter>CharQueryCenter</Filter>
+    </ClInclude>
+    <ClInclude Include="CharQueryCenterAckMsgCaller.h">
+      <Filter>CharQueryCenter</Filter>
+    </ClInclude>
+    <ClInclude Include="CharQueryCenterAckMsgHandler.h">
+      <Filter>CharQueryCenter</Filter>
+    </ClInclude>
+    <ClInclude Include="CharQueryCenterInterface.h">
+      <Filter>CharQueryCenter</Filter>
+    </ClInclude>
+    <ClInclude Include="CharQueryCenterMethods.h">
+      <Filter>CharQueryCenter</Filter>
+    </ClInclude>
+    <ClInclude Include="CharQueryCenterMsgCaller.h">
+      <Filter>CharQueryCenter</Filter>
+    </ClInclude>
+    <ClInclude Include="CharQueryCenterMsgHandler.h">
+      <Filter>CharQueryCenter</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharDBAckInterface.h">
+      <Filter>PlayerCharDB</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharDBAckMsgCaller.h">
+      <Filter>PlayerCharDB</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharDBAckMsgHandler.h">
+      <Filter>PlayerCharDB</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharDBInterface.h">
+      <Filter>PlayerCharDB</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharDBMethods.h">
+      <Filter>PlayerCharDB</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharDBMsgCaller.h">
+      <Filter>PlayerCharDB</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharDBMsgHandler.h">
+      <Filter>PlayerCharDB</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharOperatorAckInterface.h">
+      <Filter>PlayerCharOperator</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharOperatorAckMsgCaller.h">
+      <Filter>PlayerCharOperator</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharOperatorAckMsgHandler.h">
+      <Filter>PlayerCharOperator</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharOperatorInterface.h">
+      <Filter>PlayerCharOperator</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharOperatorMethods.h">
+      <Filter>PlayerCharOperator</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharOperatorMsgCaller.h">
+      <Filter>PlayerCharOperator</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharOperatorMsgHandler.h">
+      <Filter>PlayerCharOperator</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MapAreaAckMsgCaller.cpp">
+      <Filter>MapArea</Filter>
+    </ClCompile>
+    <ClCompile Include="MapAreaAckMsgHandler.cpp">
+      <Filter>MapArea</Filter>
+    </ClCompile>
+    <ClCompile Include="MapAreaMsgCaller.cpp">
+      <Filter>MapArea</Filter>
+    </ClCompile>
+    <ClCompile Include="MapAreaMsgHandler.cpp">
+      <Filter>MapArea</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>预编译</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterAckMsgCaller.cpp">
+      <Filter>Character</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterAckMsgHandler.cpp">
+      <Filter>Character</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterMsgCaller.cpp">
+      <Filter>Character</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterMsgHandler.cpp">
+      <Filter>Character</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseCharInfo.cpp">
+      <Filter>对象数据结构</Filter>
+    </ClCompile>
+    <ClCompile Include="MoveStatus.cpp">
+      <Filter>对象数据结构</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerManagerAckMsgCaller.cpp">
+      <Filter>PlayerManager</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerManagerAckMsgHandler.cpp">
+      <Filter>PlayerManager</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerManagerMsgCaller.cpp">
+      <Filter>PlayerManager</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerManagerMsgHandler.cpp">
+      <Filter>PlayerManager</Filter>
+    </ClCompile>
+    <ClCompile Include="CharQueryCenterAckMsgCaller.cpp">
+      <Filter>CharQueryCenter</Filter>
+    </ClCompile>
+    <ClCompile Include="CharQueryCenterAckMsgHandler.cpp">
+      <Filter>CharQueryCenter</Filter>
+    </ClCompile>
+    <ClCompile Include="CharQueryCenterMsgCaller.cpp">
+      <Filter>CharQueryCenter</Filter>
+    </ClCompile>
+    <ClCompile Include="CharQueryCenterMsgHandler.cpp">
+      <Filter>CharQueryCenter</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerCharDBAckMsgCaller.cpp">
+      <Filter>PlayerCharDB</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerCharDBAckMsgHandler.cpp">
+      <Filter>PlayerCharDB</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerCharDBMsgCaller.cpp">
+      <Filter>PlayerCharDB</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerCharDBMsgHandler.cpp">
+      <Filter>PlayerCharDB</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerCharOperatorAckMsgCaller.cpp">
+      <Filter>PlayerCharOperator</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerCharOperatorAckMsgHandler.cpp">
+      <Filter>PlayerCharOperator</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerCharOperatorMsgCaller.cpp">
+      <Filter>PlayerCharOperator</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerCharOperatorMsgHandler.cpp">
+      <Filter>PlayerCharOperator</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="LittleWorld.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LittleWorldProtocol.cbp" />
+  </ItemGroup>
+</Project>

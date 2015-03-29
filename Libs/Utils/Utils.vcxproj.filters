@@ -1,0 +1,918 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="时间相关">
+      <UniqueIdentifier>{84d96a91-3d9a-4552-a2e8-8ae8972cf855}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="预编译">
+      <UniqueIdentifier>{64763742-302e-4b77-b0bf-f1f067e5ae77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="文件系统">
+      <UniqueIdentifier>{d06e5368-7723-4c9a-be1d-b42e91c9af44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="文件系统\接口">
+      <UniqueIdentifier>{7f78cccb-937b-41de-9823-166050a45e04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="文件系统\缺省实现">
+      <UniqueIdentifier>{4a04a763-51e4-4b2d-96e3-5bea1065e41d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="文件系统\缺省实现\STD实现">
+      <UniqueIdentifier>{822bb390-424a-44de-8047-ee0ec814e784}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="文件系统\缺省实现\WINAPI实现">
+      <UniqueIdentifier>{a5239d7e-3cb6-4bfe-95d9-f1ea479b8915}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="文件系统\缺省实现\Resource实现">
+      <UniqueIdentifier>{8803364e-aa4e-4971-9cb4-7e2a04a5c94b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="文件系统\缺省实现\LinuxAPI实现">
+      <UniqueIdentifier>{d2220e0d-2c45-4def-898b-6ed30365f66e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="文件系统\管理器">
+      <UniqueIdentifier>{1a58676c-b3a5-4a8e-bbf1-d84e04322e7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="文件系统\StringFile">
+      <UniqueIdentifier>{7f1c33a7-e88c-400a-8aff-5691d4362e20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="文件系统\配置文件">
+      <UniqueIdentifier>{6567b28c-c47c-4a0d-8343-0047ecaabe1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="文件系统\目录搜索">
+      <UniqueIdentifier>{659937ff-0db6-4448-95ff-320d7f7aa4d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="对象基类">
+      <UniqueIdentifier>{d310bbf8-c256-4618-a52f-97d931f41118}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="数据结构">
+      <UniqueIdentifier>{42efbbca-ba2f-4579-b82a-093139073e9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="数据结构\数据存储">
+      <UniqueIdentifier>{cfeaf771-9801-49d4-8ab1-1fe168176d63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{eaa31b8a-1e60-424d-8de1-526b4de4c911}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="路径管理">
+      <UniqueIdentifier>{e9e238ed-c4d7-446b-8e83-d380510583e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XML">
+      <UniqueIdentifier>{db9d8cc8-58fd-4dd4-8f36-5dc8ce969e6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="线程">
+      <UniqueIdentifier>{ce15ce77-a357-4efe-b40a-ec2ab25e0abd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="线程\线程安全">
+      <UniqueIdentifier>{508f33b6-5536-4b52-9386-b6dcef33cf78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="线程\守护线程">
+      <UniqueIdentifier>{5b0ed9d5-c272-44b1-ada2-bfd887f81260}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Log">
+      <UniqueIdentifier>{a292976e-61a8-4e8d-b882-1d55a73705f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Log\接口">
+      <UniqueIdentifier>{732a2f6f-90b5-4659-82a9-183962fa1f88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Log\管理器">
+      <UniqueIdentifier>{335a7214-e103-4175-b1a3-d3bb184d0590}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Log\缺省实现">
+      <UniqueIdentifier>{e53a02e0-f6a7-4dd9-af1a-7fed28531c0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="内存泄漏检测">
+      <UniqueIdentifier>{0c830082-0b1e-457a-b09e-acec1a6baa2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="快速内存池">
+      <UniqueIdentifier>{8da692bb-b608-4009-9cfd-cb7a84385e26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="异常处理">
+      <UniqueIdentifier>{ffeb049c-7231-4c46-bce5-1a7c80024e3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="聪明指针">
+      <UniqueIdentifier>{d21c530d-4bd7-4c26-b559-6250d8410077}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="字符串">
+      <UniqueIdentifier>{2227293a-9884-4ed5-b2ec-c003d9683245}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="字符串\字符串工具">
+      <UniqueIdentifier>{ca3044f4-9e00-4f19-b7dc-22f06f9fdcb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="线程安全存储">
+      <UniqueIdentifier>{460b39b4-201c-4856-b4af-bf91c13bff20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="简单脚本">
+      <UniqueIdentifier>{19d5b235-cbd4-4151-b27c-096833789863}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="USO资源管理">
+      <UniqueIdentifier>{38f93c5d-665b-4f19-aa4e-8eba11d97637}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LZW压缩解压">
+      <UniqueIdentifier>{e8ed6577-1330-44d4-ac60-b87a1a753946}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GIF格式处理">
+      <UniqueIdentifier>{a0c6057e-318c-424e-be4c-03e92561730c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SmartStruct">
+      <UniqueIdentifier>{3ab0e488-666a-43de-9e06-92ba7953c004}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="进程管理">
+      <UniqueIdentifier>{221b5808-14c1-4a60-958c-b2aa75b79bea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="性能计数器">
+      <UniqueIdentifier>{e7d03761-9cbf-43d8-ba4a-fb0f3e5b19c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="操作系统相关">
+      <UniqueIdentifier>{ed8c1b96-b16c-4d48-9653-a195919ee3cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="小工具函数">
+      <UniqueIdentifier>{46d27baf-e01c-4114-93a7-f03610ac285d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LZMA">
+      <UniqueIdentifier>{c693f59b-986a-4916-9487-edeca0a625bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WinService控制">
+      <UniqueIdentifier>{e75c18bc-80ae-472e-96af-cc1bd633a290}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="atomic_ops">
+      <UniqueIdentifier>{f6c6d498-0170-4349-8d28-d954e62d3ea8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="atomic_ops\头文件">
+      <UniqueIdentifier>{472aef44-53b3-4dc7-aa25-394c6117077b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CSV文件">
+      <UniqueIdentifier>{938867af-e32e-472b-9fe8-0c82d428506a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LZO">
+      <UniqueIdentifier>{179e9ff2-9ef4-4b5c-893f-55824ac49e7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="对象存储模版">
+      <UniqueIdentifier>{b95f98d0-e55a-4440-becd-bf190a3722d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ID">
+      <UniqueIdentifier>{25dcc0a8-f922-45c0-a816-cab1d2f0335e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="加解密">
+      <UniqueIdentifier>{95e65aca-12f5-4a35-94b4-9767e3190678}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="加解密\MD5">
+      <UniqueIdentifier>{f3d53de1-c99b-425a-9d9f-9debd971f785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="加解密\Base64">
+      <UniqueIdentifier>{ad84c049-3ca6-4293-9dc3-2df3acfe8ea8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="加解密\SHA1">
+      <UniqueIdentifier>{4d2b8f15-4e27-4e5d-bc66-4447735b2b0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="加解密\URLEncode">
+      <UniqueIdentifier>{1d8929b1-b3ad-4a51-83a8-c327ddd060ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="加解密\TEA">
+      <UniqueIdentifier>{90c40df0-8cd9-4c30-af5b-5dafefc4911a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="加解密\AES">
+      <UniqueIdentifier>{1de1c68a-cca7-4cc5-84d3-ea74bf20aacd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="加解密\DES">
+      <UniqueIdentifier>{9ace4b11-ec2e-4a60-b181-da257bcb1eb1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="EasyTime.h">
+      <Filter>时间相关</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyTimer.h">
+      <Filter>时间相关</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyTimerEx.h">
+      <Filter>时间相关</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="IFileAccessor.h">
+      <Filter>文件系统\接口</Filter>
+    </ClInclude>
+    <ClInclude Include="IFileObjectCreator.h">
+      <Filter>文件系统\接口</Filter>
+    </ClInclude>
+    <ClInclude Include="StandardFileAccessor.h">
+      <Filter>文件系统\缺省实现\STD实现</Filter>
+    </ClInclude>
+    <ClInclude Include="StandardFileObjectCreator.h">
+      <Filter>文件系统\缺省实现\STD实现</Filter>
+    </ClInclude>
+    <ClInclude Include="WinFileAccessor.h">
+      <Filter>文件系统\缺省实现\WINAPI实现</Filter>
+    </ClInclude>
+    <ClInclude Include="WinFileAccessorObjectCreator.h">
+      <Filter>文件系统\缺省实现\WINAPI实现</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceFileAccessor.h">
+      <Filter>文件系统\缺省实现\Resource实现</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceFileObjectCreator.h">
+      <Filter>文件系统\缺省实现\Resource实现</Filter>
+    </ClInclude>
+    <ClInclude Include="LinuxFileAccessor.h">
+      <Filter>文件系统\缺省实现\LinuxAPI实现</Filter>
+    </ClInclude>
+    <ClInclude Include="LinuxFileAccessorObjectCreator.h">
+      <Filter>文件系统\缺省实现\LinuxAPI实现</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystemManager.h">
+      <Filter>文件系统\管理器</Filter>
+    </ClInclude>
+    <ClInclude Include="StringFile.h">
+      <Filter>文件系统\StringFile</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingFile.h">
+      <Filter>文件系统\配置文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSearcherLinux.h">
+      <Filter>文件系统\目录搜索</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSearcherWin.h">
+      <Filter>文件系统\目录搜索</Filter>
+    </ClInclude>
+    <ClInclude Include="NameObject.h">
+      <Filter>对象基类</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticObject.h">
+      <Filter>对象基类</Filter>
+    </ClInclude>
+    <ClInclude Include="TreeObject.h">
+      <Filter>对象基类</Filter>
+    </ClInclude>
+    <ClInclude Include="FloatRect.h">
+      <Filter>数据结构</Filter>
+    </ClInclude>
+    <ClInclude Include="WinTypeWrap.h">
+      <Filter>数据结构</Filter>
+    </ClInclude>
+    <ClInclude Include="CycleBuffer.h">
+      <Filter>数据结构\数据存储</Filter>
+    </ClInclude>
+    <ClInclude Include="CycleBufferEx.h">
+      <Filter>数据结构\数据存储</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyBuffer.h">
+      <Filter>数据结构\数据存储</Filter>
+    </ClInclude>
+    <ClInclude Include="GrowBuffer.h">
+      <Filter>数据结构\数据存储</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilePathManager.h">
+      <Filter>路径管理</Filter>
+    </ClInclude>
+    <ClInclude Include="pugxml.h">
+      <Filter>XML</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyThreadLinux.h">
+      <Filter>线程</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyThreadWin.h">
+      <Filter>线程</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoLock.h">
+      <Filter>线程\线程安全</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoReadLock.h">
+      <Filter>线程\线程安全</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoWriteLock.h">
+      <Filter>线程\线程安全</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyCriticalSectionLinux.h">
+      <Filter>线程\线程安全</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyCriticalSectionWin.h">
+      <Filter>线程\线程安全</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyReadWriteLockLinux.h">
+      <Filter>线程\线程安全</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyReadWriteLockWin.h">
+      <Filter>线程\线程安全</Filter>
+    </ClInclude>
+    <ClInclude Include="GuardThread.h">
+      <Filter>线程\守护线程</Filter>
+    </ClInclude>
+    <ClInclude Include="ILogPrinter.h">
+      <Filter>Log\接口</Filter>
+    </ClInclude>
+    <ClInclude Include="LogManager.h">
+      <Filter>Log\管理器</Filter>
+    </ClInclude>
+    <ClInclude Include="AsyncFileLogPrinter.h">
+      <Filter>Log\缺省实现</Filter>
+    </ClInclude>
+    <ClInclude Include="AsyncFileLogWorkThread.h">
+      <Filter>Log\缺省实现</Filter>
+    </ClInclude>
+    <ClInclude Include="CSVFileLogPrinter.h">
+      <Filter>Log\缺省实现</Filter>
+    </ClInclude>
+    <ClInclude Include="FileLogPrinter.h">
+      <Filter>Log\缺省实现</Filter>
+    </ClInclude>
+    <ClInclude Include="VSOutputLogPrinter.h">
+      <Filter>Log\缺省实现</Filter>
+    </ClInclude>
+    <ClInclude Include="CrtDebugNew.h">
+      <Filter>内存泄漏检测</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryAllocatee.h">
+      <Filter>内存泄漏检测</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryLeakDetective.h">
+      <Filter>内存泄漏检测</Filter>
+    </ClInclude>
+    <ClInclude Include="FastMemoryPool.h">
+      <Filter>快速内存池</Filter>
+    </ClInclude>
+    <ClInclude Include="ExceptionHandler.h">
+      <Filter>异常处理</Filter>
+    </ClInclude>
+    <ClInclude Include="ExceptionParser.h">
+      <Filter>异常处理</Filter>
+    </ClInclude>
+    <ClInclude Include="SmartPtr.h">
+      <Filter>聪明指针</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyString.h">
+      <Filter>字符串</Filter>
+    </ClInclude>
+    <ClInclude Include="StringSplitter.h">
+      <Filter>字符串\字符串工具</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSafeCycleBuffer.h">
+      <Filter>线程安全存储</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSafeCycleBufferEx.h">
+      <Filter>线程安全存储</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSafeIDStorage.h">
+      <Filter>线程安全存储</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSafeList.h">
+      <Filter>线程安全存储</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSafeStaticMap.h">
+      <Filter>线程安全存储</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyScriptExecutor.h">
+      <Filter>简单脚本</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyScriptTypes.h">
+      <Filter>简单脚本</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBolanStack.h">
+      <Filter>简单脚本</Filter>
+    </ClInclude>
+    <ClInclude Include="ESFunctionLib.h">
+      <Filter>简单脚本</Filter>
+    </ClInclude>
+    <ClInclude Include="ESFunctionList.h">
+      <Filter>简单脚本</Filter>
+    </ClInclude>
+    <ClInclude Include="ESThread.h">
+      <Filter>简单脚本</Filter>
+    </ClInclude>
+    <ClInclude Include="ESVariableList.h">
+      <Filter>简单脚本</Filter>
+    </ClInclude>
+    <ClInclude Include="USOObjectCreateFilter.h">
+      <Filter>USO资源管理</Filter>
+    </ClInclude>
+    <ClInclude Include="USOResourceManager.h">
+      <Filter>USO资源管理</Filter>
+    </ClInclude>
+    <ClInclude Include="LZWPack.h">
+      <Filter>LZW压缩解压</Filter>
+    </ClInclude>
+    <ClInclude Include="Gif.h">
+      <Filter>GIF格式处理</Filter>
+    </ClInclude>
+    <ClInclude Include="SmartStruct.h">
+      <Filter>SmartStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="SmartValue.h">
+      <Filter>SmartStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemProcessList.h">
+      <Filter>进程管理</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoPerformanceCounter.h">
+      <Filter>性能计数器</Filter>
+    </ClInclude>
+    <ClInclude Include="PerformanceStatistician.h">
+      <Filter>性能计数器</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPerformanceCounter.h">
+      <Filter>性能计数器</Filter>
+    </ClInclude>
+    <ClInclude Include="LinuxAddOn.h">
+      <Filter>操作系统相关</Filter>
+    </ClInclude>
+    <ClInclude Include="TCharLinux.h">
+      <Filter>操作系统相关</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32AddOn.h">
+      <Filter>操作系统相关</Filter>
+    </ClInclude>
+    <ClInclude Include="ToolsAll.h">
+      <Filter>小工具函数</Filter>
+    </ClInclude>
+    <ClInclude Include="ToolsLinux.h">
+      <Filter>小工具函数</Filter>
+    </ClInclude>
+    <ClInclude Include="ToolsWin32.h">
+      <Filter>小工具函数</Filter>
+    </ClInclude>
+    <ClInclude Include="LZMA\Alloc.h">
+      <Filter>LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="LZMA\Bra.h">
+      <Filter>LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="LZMA\LzFind.h">
+      <Filter>LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="LZMA\LzFindMt.h">
+      <Filter>LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="LZMA\LzHash.h">
+      <Filter>LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="LZMA\Lzma2Dec.h">
+      <Filter>LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="LZMA\Lzma2Enc.h">
+      <Filter>LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="LZMA\Lzma86.h">
+      <Filter>LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="LZMA\LzmaDec.h">
+      <Filter>LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="LZMA\LzmaEnc.h">
+      <Filter>LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="LZMA\LzmaLib.h">
+      <Filter>LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="LZMA\Threads.h">
+      <Filter>LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="LZMA\Types.h">
+      <Filter>LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="WinServiceController.h">
+      <Filter>WinService控制</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\acquire_release_volatile.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\aligned_atomic_load_store.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\all_acquire_release_volatile.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\all_aligned_atomic_load_store.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\all_atomic_load_store.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\gcc\alpha.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\ao_t_is_int.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\gcc\arm.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\atomic_load_store.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops_malloc.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops_stack.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\char_acquire_release_volatile.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\char_atomic_load_store.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\gcc\cris.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\emul_cas.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\generalize-small.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\generalize.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\generic_pthread.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\hpc\hppa.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\gcc\hppa.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\icc\ia64.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\gcc\ia64.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\hpc\ia64.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\int_acquire_release_volatile.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\int_aligned_atomic_load_store.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\int_atomic_load_store.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\gcc\m68k.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\ordered.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\ordered_except_wr.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\gcc\powerpc.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\ibmc\powerpc.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\read_ordered.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\gcc\s390.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\short_acquire_release_volatile.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\short_aligned_atomic_load_store.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\short_atomic_load_store.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\sunc\sparc.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\gcc\sparc.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\standard_ao_double_t.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\test_and_set_t_is_ao_t.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\test_and_set_t_is_char.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\msftc\x86.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\gcc\x86.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="atomic_ops\include\atomic_ops\sysdeps\gcc\x86_64.h">
+      <Filter>atomic_ops\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CSVReader.h">
+      <Filter>CSV文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LZO\lzoconf.h">
+      <Filter>LZO</Filter>
+    </ClInclude>
+    <ClInclude Include="LZO\lzodefs.h">
+      <Filter>LZO</Filter>
+    </ClInclude>
+    <ClInclude Include="LZO\minilzo.h">
+      <Filter>LZO</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyArray.h">
+      <Filter>对象存储模版</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyList.h">
+      <Filter>对象存储模版</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyMap.h">
+      <Filter>对象存储模版</Filter>
+    </ClInclude>
+    <ClInclude Include="IDStorage.h">
+      <Filter>对象存储模版</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticMap.h">
+      <Filter>对象存储模版</Filter>
+    </ClInclude>
+    <ClInclude Include="ClassifiedID.h">
+      <Filter>ID</Filter>
+    </ClInclude>
+    <ClInclude Include="HashMD5.h">
+      <Filter>加解密\MD5</Filter>
+    </ClInclude>
+    <ClInclude Include="Base64.h">
+      <Filter>加解密\Base64</Filter>
+    </ClInclude>
+    <ClInclude Include="HMAC_SHA1.h">
+      <Filter>加解密\SHA1</Filter>
+    </ClInclude>
+    <ClInclude Include="SHA1.h">
+      <Filter>加解密\SHA1</Filter>
+    </ClInclude>
+    <ClInclude Include="URLEncode.h">
+      <Filter>加解密\URLEncode</Filter>
+    </ClInclude>
+    <ClInclude Include="TEA.h">
+      <Filter>加解密\TEA</Filter>
+    </ClInclude>
+    <ClInclude Include="Crypto\aes.h">
+      <Filter>加解密\AES</Filter>
+    </ClInclude>
+    <ClInclude Include="Crypto\crypto_types.h">
+      <Filter>加解密\AES</Filter>
+    </ClInclude>
+    <ClInclude Include="Crypto\des.h">
+      <Filter>加解密\DES</Filter>
+    </ClInclude>
+    <ClInclude Include="TimerQueue.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="EasyTimerEx.cpp">
+      <Filter>时间相关</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>预编译</Filter>
+    </ClCompile>
+    <ClCompile Include="IFileAccessor.cpp">
+      <Filter>文件系统\接口</Filter>
+    </ClCompile>
+    <ClCompile Include="IFileObjectCreator.cpp">
+      <Filter>文件系统\接口</Filter>
+    </ClCompile>
+    <ClCompile Include="StandardFileAccessor.cpp">
+      <Filter>文件系统\缺省实现\STD实现</Filter>
+    </ClCompile>
+    <ClCompile Include="StandardFileObjectCreator.cpp">
+      <Filter>文件系统\缺省实现\STD实现</Filter>
+    </ClCompile>
+    <ClCompile Include="WinFileAccessor.cpp">
+      <Filter>文件系统\缺省实现\WINAPI实现</Filter>
+    </ClCompile>
+    <ClCompile Include="WinFileAccessorObjectCreator.cpp">
+      <Filter>文件系统\缺省实现\WINAPI实现</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceFileAccessor.cpp">
+      <Filter>文件系统\缺省实现\Resource实现</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceFileObjectCreator.cpp">
+      <Filter>文件系统\缺省实现\Resource实现</Filter>
+    </ClCompile>
+    <ClCompile Include="LinuxFileAccessor.cpp">
+      <Filter>文件系统\缺省实现\LinuxAPI实现</Filter>
+    </ClCompile>
+    <ClCompile Include="LinuxFileAccessorObjectCreator.cpp">
+      <Filter>文件系统\缺省实现\LinuxAPI实现</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystemManager.cpp">
+      <Filter>文件系统\管理器</Filter>
+    </ClCompile>
+    <ClCompile Include="StringFile.cpp">
+      <Filter>文件系统\StringFile</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSearcherLinux.cpp">
+      <Filter>文件系统\目录搜索</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSearcherWin.cpp">
+      <Filter>文件系统\目录搜索</Filter>
+    </ClCompile>
+    <ClCompile Include="NameObject.cpp">
+      <Filter>对象基类</Filter>
+    </ClCompile>
+    <ClCompile Include="TreeObject.cpp">
+      <Filter>对象基类</Filter>
+    </ClCompile>
+    <ClCompile Include="CycleBuffer.cpp">
+      <Filter>数据结构\数据存储</Filter>
+    </ClCompile>
+    <ClCompile Include="CycleBufferEx.cpp">
+      <Filter>数据结构\数据存储</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyBuffer.cpp">
+      <Filter>数据结构\数据存储</Filter>
+    </ClCompile>
+    <ClCompile Include="GrowBuffer.cpp">
+      <Filter>数据结构\数据存储</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pugxml.cpp">
+      <Filter>XML</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyThreadLinux.cpp">
+      <Filter>线程</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyThreadWin.cpp">
+      <Filter>线程</Filter>
+    </ClCompile>
+    <ClCompile Include="GuardThread.cpp">
+      <Filter>线程\守护线程</Filter>
+    </ClCompile>
+    <ClCompile Include="LogManager.cpp">
+      <Filter>Log\管理器</Filter>
+    </ClCompile>
+    <ClCompile Include="AsyncFileLogPrinter.cpp">
+      <Filter>Log\缺省实现</Filter>
+    </ClCompile>
+    <ClCompile Include="AsyncFileLogWorkThread.cpp">
+      <Filter>Log\缺省实现</Filter>
+    </ClCompile>
+    <ClCompile Include="CSVFileLogPrinter.cpp">
+      <Filter>Log\缺省实现</Filter>
+    </ClCompile>
+    <ClCompile Include="FileLogPrinter.cpp">
+      <Filter>Log\缺省实现</Filter>
+    </ClCompile>
+    <ClCompile Include="VSOutputLogPrinter.cpp">
+      <Filter>Log\缺省实现</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryAllocatee.cpp">
+      <Filter>内存泄漏检测</Filter>
+    </ClCompile>
+    <ClCompile Include="FastMemoryPool.cpp">
+      <Filter>快速内存池</Filter>
+    </ClCompile>
+    <ClCompile Include="ExceptionHandler.cpp">
+      <Filter>异常处理</Filter>
+    </ClCompile>
+    <ClCompile Include="ExceptionParser.cpp">
+      <Filter>异常处理</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadSafeCycleBuffer.cpp">
+      <Filter>线程安全存储</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadSafeCycleBufferEx.cpp">
+      <Filter>线程安全存储</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyScriptExecutor.cpp">
+      <Filter>简单脚本</Filter>
+    </ClCompile>
+    <ClCompile Include="ESBolanStack.cpp">
+      <Filter>简单脚本</Filter>
+    </ClCompile>
+    <ClCompile Include="ESFunctionLib.cpp">
+      <Filter>简单脚本</Filter>
+    </ClCompile>
+    <ClCompile Include="ESThread.cpp">
+      <Filter>简单脚本</Filter>
+    </ClCompile>
+    <ClCompile Include="USOObjectCreateFilter.cpp">
+      <Filter>USO资源管理</Filter>
+    </ClCompile>
+    <ClCompile Include="USOResourceManager.cpp">
+      <Filter>USO资源管理</Filter>
+    </ClCompile>
+    <ClCompile Include="LZWPack.cpp">
+      <Filter>LZW压缩解压</Filter>
+    </ClCompile>
+    <ClCompile Include="Gif.cpp">
+      <Filter>GIF格式处理</Filter>
+    </ClCompile>
+    <ClCompile Include="SmartStruct.cpp">
+      <Filter>SmartStruct</Filter>
+    </ClCompile>
+    <ClCompile Include="SmartValue.cpp">
+      <Filter>SmartStruct</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemProcessList.cpp">
+      <Filter>进程管理</Filter>
+    </ClCompile>
+    <ClCompile Include="PerformanceStatistician.cpp">
+      <Filter>性能计数器</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadPerformanceCounter.cpp">
+      <Filter>性能计数器</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolsWin32.cpp">
+      <Filter>小工具函数</Filter>
+    </ClCompile>
+    <ClCompile Include="LZMA\Alloc.c">
+      <Filter>LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="LZMA\Bra.c">
+      <Filter>LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="LZMA\LzFind.c">
+      <Filter>LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="LZMA\LzFindMt.c">
+      <Filter>LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="LZMA\Lzma2Dec.c">
+      <Filter>LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="LZMA\Lzma2Enc.c">
+      <Filter>LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="LZMA\Lzma86Dec.c">
+      <Filter>LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="LZMA\Lzma86Enc.c">
+      <Filter>LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="LZMA\LzmaDec.c">
+      <Filter>LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="LZMA\LzmaEnc.c">
+      <Filter>LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="LZMA\LzmaLib.c">
+      <Filter>LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="LZMA\Threads.c">
+      <Filter>LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="WinServiceController.cpp">
+      <Filter>WinService控制</Filter>
+    </ClCompile>
+    <ClCompile Include="CSVReader.cpp">
+      <Filter>CSV文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LZO\minilzo.c">
+      <Filter>LZO</Filter>
+    </ClCompile>
+    <ClCompile Include="HashMD5.cpp">
+      <Filter>加解密\MD5</Filter>
+    </ClCompile>
+    <ClCompile Include="Base64.cpp">
+      <Filter>加解密\Base64</Filter>
+    </ClCompile>
+    <ClCompile Include="HMAC_SHA1.cpp">
+      <Filter>加解密\SHA1</Filter>
+    </ClCompile>
+    <ClCompile Include="SHA1.cpp">
+      <Filter>加解密\SHA1</Filter>
+    </ClCompile>
+    <ClCompile Include="URLEncode.cpp">
+      <Filter>加解密\URLEncode</Filter>
+    </ClCompile>
+    <ClCompile Include="TEA.cpp">
+      <Filter>加解密\TEA</Filter>
+    </ClCompile>
+    <ClCompile Include="Crypto\aes.c">
+      <Filter>加解密\AES</Filter>
+    </ClCompile>
+    <ClCompile Include="Crypto\des.c">
+      <Filter>加解密\DES</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerQueue.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LZO\README.LZO">
+      <Filter>LZO</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="atomic_ops\lib\libatomic_ops_gpl.lib">
+      <Filter>atomic_ops</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="libatomic_ops-1.2.tar.gz">
+      <Filter>atomic_ops</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Utils.cbp" />
+  </ItemGroup>
+</Project>

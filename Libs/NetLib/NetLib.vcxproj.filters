@@ -1,0 +1,293 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{8c249e58-9833-402c-942a-725400987090}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="预编译">
+      <UniqueIdentifier>{14b90640-a78f-4484-9f8c-814e0cfe0995}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Socket">
+      <UniqueIdentifier>{d1cefe8e-b1f2-4d65-af45-6d4377ad5c22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件">
+      <UniqueIdentifier>{7aaba439-b7c6-4531-bd9b-13a1e1b0dcfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\IOCP">
+      <UniqueIdentifier>{0f6b852a-db58-4281-98c1-67dc21401caa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\IOCP\IOCP线程">
+      <UniqueIdentifier>{25fc734d-361c-4f9f-b6c2-265ed797bead}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\IOCP\IOCP服务器">
+      <UniqueIdentifier>{9e4d2e84-3bc1-4948-9889-7876f4ad2d57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\IOCP\OverLapped对象">
+      <UniqueIdentifier>{a0a28f70-ef29-4d0b-b5a9-6fc2b0b739ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\IOCP\IOCP服务">
+      <UniqueIdentifier>{5c4aff83-521b-4438-8dfb-e73ea3158aa2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\IOCP\IOCP服务\并行UDP">
+      <UniqueIdentifier>{72b9d55f-78dc-4e9f-aaf4-dbb1a654a9d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\IOCP\IOCP连接">
+      <UniqueIdentifier>{6cbfd97e-d38c-40c3-a344-0967b4f45355}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\IOCP\IOCP连接\并行TCP">
+      <UniqueIdentifier>{c7a10754-8fc1-42aa-b9c9-19c8aaa30219}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\IOCP\IOCP事件处理">
+      <UniqueIdentifier>{89d97e2c-6ad8-4cb8-98df-e9264936da4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\IOCP\侦听线程">
+      <UniqueIdentifier>{fad3c97d-ff23-44fa-9592-9c15c2805827}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\IOCP\IOCP文件访问">
+      <UniqueIdentifier>{78bbc04c-c16b-4fec-be49-c57a139584aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\工具组件">
+      <UniqueIdentifier>{a16bd7b3-4de6-41ed-804d-57c4d2260bce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\工具组件\EasyNetLink">
+      <UniqueIdentifier>{d4ede129-522c-4697-8881-dd78723c3e15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\工具组件\EasyFileService">
+      <UniqueIdentifier>{e802261d-846d-4fe8-a250-497c8d4bfa57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\基本对象">
+      <UniqueIdentifier>{a7b64984-997c-4c59-87b0-8789e163a802}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\基本对象\连接">
+      <UniqueIdentifier>{d465163a-ef50-4241-8d16-39b43ffa11de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\基本对象\服务">
+      <UniqueIdentifier>{4c6f7cc7-4be5-447c-a760-22f1004466c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\基本对象\服务器">
+      <UniqueIdentifier>{77a6c978-8c51-4155-91aa-e99465024681}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\Epoll">
+      <UniqueIdentifier>{a7be40be-c810-4d24-b25b-228ef9dd7d62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\Epoll\事件对象">
+      <UniqueIdentifier>{32529e6b-f505-4807-a0ee-78fbeb726c49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\Epoll\EPoll服务器">
+      <UniqueIdentifier>{257959c8-5603-4b5d-adda-3d56b75452eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\Epoll\Epoll工作线程">
+      <UniqueIdentifier>{66cea2ab-8f99-4b1b-b634-3b9a5ef73fe4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\Epoll\Epoll事件处理">
+      <UniqueIdentifier>{a3267b8f-1361-4dff-b973-2165c80f59fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\Epoll\Epoll服务">
+      <UniqueIdentifier>{516bb77f-2cfb-4af3-b177-b0fd53b0efd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\Epoll\Epoll连接">
+      <UniqueIdentifier>{0495054c-d258-4c6e-ab56-f43ac20e9e85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\Epoll\Epoll连接\并行TCP">
+      <UniqueIdentifier>{eedeba04-cf15-4a5a-a99e-5aa68ff8369e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="工具">
+      <UniqueIdentifier>{421cb2ad-57af-4901-ada6-9f8c7023886d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NetLib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="NetSocket.h">
+      <Filter>Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCPThread.h">
+      <Filter>服务器组件\IOCP\IOCP线程</Filter>
+    </ClInclude>
+    <ClInclude Include="NetServerIOCP.h">
+      <Filter>服务器组件\IOCP\IOCP服务器</Filter>
+    </ClInclude>
+    <ClInclude Include="OverLappedObject.h">
+      <Filter>服务器组件\IOCP\OverLapped对象</Filter>
+    </ClInclude>
+    <ClInclude Include="NetServiceIOCP.h">
+      <Filter>服务器组件\IOCP\IOCP服务</Filter>
+    </ClInclude>
+    <ClInclude Include="NetPUDPServiceIOCP.h">
+      <Filter>服务器组件\IOCP\IOCP服务\并行UDP</Filter>
+    </ClInclude>
+    <ClInclude Include="NetConnectionIOCP.h">
+      <Filter>服务器组件\IOCP\IOCP连接</Filter>
+    </ClInclude>
+    <ClInclude Include="NetPTCPConnectionIOCP.h">
+      <Filter>服务器组件\IOCP\IOCP连接\并行TCP</Filter>
+    </ClInclude>
+    <ClInclude Include="IIOCPEventHandler.h">
+      <Filter>服务器组件\IOCP\IOCP事件处理</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCPEventRouter.h">
+      <Filter>服务器组件\IOCP\IOCP事件处理</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCPListenThread.h">
+      <Filter>服务器组件\IOCP\侦听线程</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCPFileAccessor.h">
+      <Filter>服务器组件\IOCP\IOCP文件访问</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyNetLinkConnection.h">
+      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyNetLinkManager.h">
+      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyNetLinkService.h">
+      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyFileServerConnection.h">
+      <Filter>服务器组件\工具组件\EasyFileService</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyFileService.h">
+      <Filter>服务器组件\工具组件\EasyFileService</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseTCPConnection.h">
+      <Filter>服务器组件\基本对象\连接</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseService.h">
+      <Filter>服务器组件\基本对象\服务</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseServer.h">
+      <Filter>服务器组件\基本对象\服务器</Filter>
+    </ClInclude>
+    <ClInclude Include="NetPTCPConnectionEpoll.h">
+      <Filter>服务器组件\Epoll\Epoll连接\并行TCP</Filter>
+    </ClInclude>
+    <ClInclude Include="IPAddress.h">
+      <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="IPPattern.h">
+      <Filter>工具</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>预编译</Filter>
+    </ClCompile>
+    <ClCompile Include="NetSocket.cpp">
+      <Filter>Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="IOCPThread.cpp">
+      <Filter>服务器组件\IOCP\IOCP线程</Filter>
+    </ClCompile>
+    <ClCompile Include="NetServerIOCP.cpp">
+      <Filter>服务器组件\IOCP\IOCP服务器</Filter>
+    </ClCompile>
+    <ClCompile Include="OverLappedObject.cpp">
+      <Filter>服务器组件\IOCP\OverLapped对象</Filter>
+    </ClCompile>
+    <ClCompile Include="NetServiceIOCP.cpp">
+      <Filter>服务器组件\IOCP\IOCP服务</Filter>
+    </ClCompile>
+    <ClCompile Include="NetPUDPServiceIOCP.cpp">
+      <Filter>服务器组件\IOCP\IOCP服务\并行UDP</Filter>
+    </ClCompile>
+    <ClCompile Include="NetConnectionIOCP.cpp">
+      <Filter>服务器组件\IOCP\IOCP连接</Filter>
+    </ClCompile>
+    <ClCompile Include="NetPTCPConnectionIOCP.cpp">
+      <Filter>服务器组件\IOCP\IOCP连接\并行TCP</Filter>
+    </ClCompile>
+    <ClCompile Include="IIOCPEventHandler.cpp">
+      <Filter>服务器组件\IOCP\IOCP事件处理</Filter>
+    </ClCompile>
+    <ClCompile Include="IOCPEventRouter.cpp">
+      <Filter>服务器组件\IOCP\IOCP事件处理</Filter>
+    </ClCompile>
+    <ClCompile Include="IOCPListenThread.cpp">
+      <Filter>服务器组件\IOCP\侦听线程</Filter>
+    </ClCompile>
+    <ClCompile Include="IOCPFileAccessor.cpp">
+      <Filter>服务器组件\IOCP\IOCP文件访问</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyNetLinkConnection.cpp">
+      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyNetLinkManager.cpp">
+      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyNetLinkService.cpp">
+      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyFileServerConnection.cpp">
+      <Filter>服务器组件\工具组件\EasyFileService</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyFileService.cpp">
+      <Filter>服务器组件\工具组件\EasyFileService</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseTCPConnection.cpp">
+      <Filter>服务器组件\基本对象\连接</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseService.cpp">
+      <Filter>服务器组件\基本对象\服务</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseServer.cpp">
+      <Filter>服务器组件\基本对象\服务器</Filter>
+    </ClCompile>
+    <ClCompile Include="EpollEventObject.cpp">
+      <Filter>服务器组件\Epoll\事件对象</Filter>
+    </ClCompile>
+    <ClCompile Include="NetServerEpoll.cpp">
+      <Filter>服务器组件\Epoll\EPoll服务器</Filter>
+    </ClCompile>
+    <ClCompile Include="EpollThread.cpp">
+      <Filter>服务器组件\Epoll\Epoll工作线程</Filter>
+    </ClCompile>
+    <ClCompile Include="EpollEventRouter.cpp">
+      <Filter>服务器组件\Epoll\Epoll事件处理</Filter>
+    </ClCompile>
+    <ClCompile Include="IEpollEventHandler.cpp">
+      <Filter>服务器组件\Epoll\Epoll事件处理</Filter>
+    </ClCompile>
+    <ClCompile Include="NetServiceEpoll.cpp">
+      <Filter>服务器组件\Epoll\Epoll服务</Filter>
+    </ClCompile>
+    <ClCompile Include="NetConnectionEpoll.cpp">
+      <Filter>服务器组件\Epoll\Epoll连接</Filter>
+    </ClCompile>
+    <ClCompile Include="NetPTCPConnectionEpoll.cpp">
+      <Filter>服务器组件\Epoll\Epoll连接\并行TCP</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NetLib.cbp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="EpollEventObject.h">
+      <Filter>服务器组件\Epoll\事件对象</Filter>
+    </CustomBuild>
+    <CustomBuild Include="NetServerEpoll.h">
+      <Filter>服务器组件\Epoll\EPoll服务器</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EpollThread.h">
+      <Filter>服务器组件\Epoll\Epoll工作线程</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EpollEventRouter.h">
+      <Filter>服务器组件\Epoll\Epoll事件处理</Filter>
+    </CustomBuild>
+    <CustomBuild Include="IEpollEventHandler.h">
+      <Filter>服务器组件\Epoll\Epoll事件处理</Filter>
+    </CustomBuild>
+    <CustomBuild Include="NetServiceEpoll.h">
+      <Filter>服务器组件\Epoll\Epoll服务</Filter>
+    </CustomBuild>
+    <CustomBuild Include="NetConnectionEpoll.h">
+      <Filter>服务器组件\Epoll\Epoll连接</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

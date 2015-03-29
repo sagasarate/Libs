@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="NetLib" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="Socket/;头文件/;工具/;服务器组件/;预编译/;服务器组件/EasyNetLink/;工具组建/;服务器组件/Epoll/;服务器组件/Epoll/Epoll事件处理/;服务器组件/Epoll/Epoll工作线程/;服务器组件/Epoll/Epoll服务/;服务器组件/Epoll/Epoll服务器/;服务器组件/Epoll/Epoll连接/;服务器组件/Epoll/事件对象/;服务器组件/Epoll/Epoll连接/并行TCP/;工具组建/EasyNetLink/;基本对象/;基本对象/服务/;基本对象/服务器/;基本对象/连接/;服务器组件/Epoll/Epoll服务/Epoll连接/;服务器组件/Epoll/Epoll服务/Epoll连接/并行TCP/;" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../Bin/Debug/NetLibD" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="Debug" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-W" />
+					<Add option="-g" />
+					<Add option="-O0" />
+					<Add option="-D_DEBUG" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="../Bin/Release/libNetLib" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="Release" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-W" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Unit filename="BaseServer.cpp">
+			<Option virtualFolder="基本对象/服务器/" />
+		</Unit>
+		<Unit filename="BaseServer.h">
+			<Option virtualFolder="基本对象/服务器/" />
+		</Unit>
+		<Unit filename="BaseService.cpp">
+			<Option virtualFolder="基本对象/服务/" />
+		</Unit>
+		<Unit filename="BaseService.h">
+			<Option virtualFolder="基本对象/服务/" />
+		</Unit>
+		<Unit filename="BaseTCPConnection.cpp">
+			<Option virtualFolder="基本对象/连接/" />
+		</Unit>
+		<Unit filename="BaseTCPConnection.h">
+			<Option virtualFolder="基本对象/连接/" />
+		</Unit>
+		<Unit filename="ClassifiedID.h">
+			<Option virtualFolder="工具/" />
+		</Unit>
+		<Unit filename="EasyNetLinkConnection.cpp">
+			<Option virtualFolder="工具组建/EasyNetLink/" />
+		</Unit>
+		<Unit filename="EasyNetLinkConnection.h">
+			<Option virtualFolder="工具组建/EasyNetLink/" />
+		</Unit>
+		<Unit filename="EasyNetLinkManager.cpp">
+			<Option virtualFolder="工具组建/EasyNetLink/" />
+		</Unit>
+		<Unit filename="EasyNetLinkManager.h">
+			<Option virtualFolder="工具组建/EasyNetLink/" />
+		</Unit>
+		<Unit filename="EasyNetLinkService.cpp">
+			<Option virtualFolder="工具组建/EasyNetLink/" />
+		</Unit>
+		<Unit filename="EasyNetLinkService.h">
+			<Option virtualFolder="工具组建/EasyNetLink/" />
+		</Unit>
+		<Unit filename="EpollEventObject.cpp">
+			<Option virtualFolder="服务器组件/Epoll/事件对象/" />
+		</Unit>
+		<Unit filename="EpollEventObject.h">
+			<Option virtualFolder="服务器组件/Epoll/事件对象/" />
+		</Unit>
+		<Unit filename="EpollEventRouter.cpp">
+			<Option virtualFolder="服务器组件/Epoll/Epoll事件处理/" />
+		</Unit>
+		<Unit filename="EpollEventRouter.h">
+			<Option virtualFolder="服务器组件/Epoll/Epoll事件处理/" />
+		</Unit>
+		<Unit filename="EpollThread.cpp">
+			<Option virtualFolder="服务器组件/Epoll/Epoll工作线程/" />
+		</Unit>
+		<Unit filename="EpollThread.h">
+			<Option virtualFolder="服务器组件/Epoll/Epoll工作线程/" />
+		</Unit>
+		<Unit filename="IEpollEventHandler.cpp">
+			<Option virtualFolder="服务器组件/Epoll/Epoll事件处理/" />
+		</Unit>
+		<Unit filename="IEpollEventHandler.h">
+			<Option virtualFolder="服务器组件/Epoll/Epoll事件处理/" />
+		</Unit>
+		<Unit filename="IPAddress.h">
+			<Option virtualFolder="工具/" />
+		</Unit>
+		<Unit filename="IPPattern.h">
+			<Option virtualFolder="工具/" />
+		</Unit>
+		<Unit filename="NetConnectionEpoll.cpp">
+			<Option virtualFolder="服务器组件/Epoll/Epoll服务/Epoll连接/" />
+		</Unit>
+		<Unit filename="NetConnectionEpoll.h">
+			<Option virtualFolder="服务器组件/Epoll/Epoll服务/Epoll连接/" />
+		</Unit>
+		<Unit filename="NetLib.h">
+			<Option virtualFolder="头文件/" />
+		</Unit>
+		<Unit filename="NetPTCPConnectionEpoll.cpp">
+			<Option virtualFolder="服务器组件/Epoll/Epoll服务/Epoll连接/并行TCP/" />
+		</Unit>
+		<Unit filename="NetPTCPConnectionEpoll.h">
+			<Option virtualFolder="服务器组件/Epoll/Epoll服务/Epoll连接/并行TCP/" />
+		</Unit>
+		<Unit filename="NetServerEpoll.cpp">
+			<Option virtualFolder="服务器组件/Epoll/Epoll服务器/" />
+		</Unit>
+		<Unit filename="NetServerEpoll.h">
+			<Option virtualFolder="服务器组件/Epoll/Epoll服务器/" />
+		</Unit>
+		<Unit filename="NetServiceEpoll.cpp">
+			<Option virtualFolder="服务器组件/Epoll/Epoll服务/" />
+		</Unit>
+		<Unit filename="NetServiceEpoll.h">
+			<Option virtualFolder="服务器组件/Epoll/Epoll服务/" />
+		</Unit>
+		<Unit filename="NetSocket.cpp">
+			<Option virtualFolder="Socket/" />
+		</Unit>
+		<Unit filename="NetSocket.h">
+			<Option virtualFolder="Socket/" />
+		</Unit>
+		<Unit filename="stdafx.cpp">
+			<Option virtualFolder="预编译/" />
+		</Unit>
+		<Unit filename="stdafx.h">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option virtualFolder="预编译/" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

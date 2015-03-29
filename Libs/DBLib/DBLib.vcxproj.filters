@@ -1,0 +1,362 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="接口">
+      <UniqueIdentifier>{80c7d07b-03fb-47b1-8186-3a5e17916710}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ODBC实现">
+      <UniqueIdentifier>{04430ea7-2fb8-401a-b993-ab9bea08a0ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{73513397-d716-4e23-aa3b-da11ca8775ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="预编译">
+      <UniqueIdentifier>{310dcdf8-e489-4e64-859f-970464dc1153}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MySQL实现">
+      <UniqueIdentifier>{d54b72de-195c-430c-b163-25c437a05d68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="事务管理">
+      <UniqueIdentifier>{0ef2d0ab-3432-48cb-8c27-901a33487b24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="事务管理\管理器">
+      <UniqueIdentifier>{49e7d4f9-9de2-4855-8977-8c69a68744f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="事务管理\工作线程">
+      <UniqueIdentifier>{92bf3a22-26d9-4aeb-8906-72f8a486b75d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="事务管理\事务对象">
+      <UniqueIdentifier>{b79c9b7e-3ef5-4e1d-b34c-a28854fc901e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MySQL头文件">
+      <UniqueIdentifier>{fc44ae42-c194-4f13-acd4-0c12ebd0ae4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MySQL库">
+      <UniqueIdentifier>{f5f1adaa-0177-4a03-b0a4-e709e29a5686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MySQL库\x64">
+      <UniqueIdentifier>{209bbbc3-33b9-46b5-98a4-dda62efc34c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="通用实现">
+      <UniqueIdentifier>{68b96f6a-d872-4c6f-bdeb-67be093b9d6c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DBInterfaces.cpp">
+      <Filter>接口</Filter>
+    </ClCompile>
+    <ClCompile Include="ODBCConnection.cpp">
+      <Filter>ODBC实现</Filter>
+    </ClCompile>
+    <ClCompile Include="ODBCDatabase.cpp">
+      <Filter>ODBC实现</Filter>
+    </ClCompile>
+    <ClCompile Include="ODBCRecordSet.cpp">
+      <Filter>ODBC实现</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>预编译</Filter>
+    </ClCompile>
+    <ClCompile Include="MySQLConnection.cpp">
+      <Filter>MySQL实现</Filter>
+    </ClCompile>
+    <ClCompile Include="MySQLDatabase.cpp">
+      <Filter>MySQL实现</Filter>
+    </ClCompile>
+    <ClCompile Include="MySQLDynamicRecordSet.cpp">
+      <Filter>MySQL实现</Filter>
+    </ClCompile>
+    <ClCompile Include="MySQLRecordSet.cpp">
+      <Filter>MySQL实现</Filter>
+    </ClCompile>
+    <ClCompile Include="DBTransationManager.cpp">
+      <Filter>事务管理\管理器</Filter>
+    </ClCompile>
+    <ClCompile Include="DBTransationWorkThread.cpp">
+      <Filter>事务管理\工作线程</Filter>
+    </ClCompile>
+    <ClCompile Include="DBTransaction.cpp">
+      <Filter>事务管理\事务对象</Filter>
+    </ClCompile>
+    <ClCompile Include="DBFakeRecordSet.cpp">
+      <Filter>通用实现</Filter>
+    </ClCompile>
+    <ClCompile Include="DBParameterSet.cpp">
+      <Filter>通用实现</Filter>
+    </ClCompile>
+    <ClCompile Include="DBStaticRecordSet.cpp">
+      <Filter>通用实现</Filter>
+    </ClCompile>
+    <ClCompile Include="DBValue.cpp">
+      <Filter>通用实现</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DBInterfaces.h">
+      <Filter>接口</Filter>
+    </ClInclude>
+    <ClInclude Include="DBTypes.h">
+      <Filter>接口</Filter>
+    </ClInclude>
+    <ClInclude Include="ODBCConnection.h">
+      <Filter>ODBC实现</Filter>
+    </ClInclude>
+    <ClInclude Include="ODBCDatabase.h">
+      <Filter>ODBC实现</Filter>
+    </ClInclude>
+    <ClInclude Include="ODBCRecordSet.h">
+      <Filter>ODBC实现</Filter>
+    </ClInclude>
+    <ClInclude Include="DBLib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQLConnection.h">
+      <Filter>MySQL实现</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQLDatabase.h">
+      <Filter>MySQL实现</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQLDynamicRecordSet.h">
+      <Filter>MySQL实现</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQLRecordSet.h">
+      <Filter>MySQL实现</Filter>
+    </ClInclude>
+    <ClInclude Include="DBTransationManager.h">
+      <Filter>事务管理\管理器</Filter>
+    </ClInclude>
+    <ClInclude Include="DBTransationWorkThread.h">
+      <Filter>事务管理\工作线程</Filter>
+    </ClInclude>
+    <ClInclude Include="DBTransaction.h">
+      <Filter>事务管理\事务对象</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\base64.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\config-win.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\decimal.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\errmsg.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\atomic\gcc_builtins.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\atomic\generic-msvc.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\hash.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\keycache.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\lf.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\m_ctype.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\m_string.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_aes.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_alarm.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_alloc.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_atomic.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_attribute.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_base.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_bit.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_bitmap.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_charsets.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_config.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_dbug.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_dir.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_getopt.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_global.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_libwrap.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_list.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_md5.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_net.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_no_pthread.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_nosys.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_pthread.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_stacktrace.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_sys.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_time.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_tree.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_trie.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_uctype.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_vle.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\my_xml.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\myisampack.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\mysql.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\mysql_com.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\mysql_time.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\mysql_version.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\mysqld_error.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\mysys_err.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\atomic\nolock.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\queues.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\mysys\rijndael.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\atomic\rwlock.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\service_versions.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\sha1.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\sha2.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\sql_common.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\sslopt-case.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\sslopt-longopts.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\sslopt-vars.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\t_ctype.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\thr_alarm.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\thr_lock.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\typelib.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\violite.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\waiting_threads.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\wqueue.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL\include\atomic\x86-gcc.h">
+      <Filter>MySQL头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DBFakeRecordSet.h">
+      <Filter>通用实现</Filter>
+    </ClInclude>
+    <ClInclude Include="DBParameterSet.h">
+      <Filter>通用实现</Filter>
+    </ClInclude>
+    <ClInclude Include="DBStaticRecordSet.h">
+      <Filter>通用实现</Filter>
+    </ClInclude>
+    <ClInclude Include="DBValue.h">
+      <Filter>通用实现</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DBLib.cbp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="MySQL\lib\libmysqlclient.a">
+      <Filter>MySQL库</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MySQL\lib\mysqlclient.lib">
+      <Filter>MySQL库</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MySQL\lib\x64\mysqlclient.lib">
+      <Filter>MySQL库\x64</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

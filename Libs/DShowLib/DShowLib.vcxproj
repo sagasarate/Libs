@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0A049347-2724-49C0-B53B-ECF947EFAAC9}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\Bin\Debug\</OutDir>
+    <IntDir>.\Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\Bin\Release\</OutDir>
+    <IntDir>.\Release\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_WIN32_DCOM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)DShowLibD.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_WIN32_DCOM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)DShowLib.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AutoUsingOutputPin.cpp" />
+    <ClCompile Include="BaseAllocator.cpp" />
+    <ClCompile Include="BaseFilter.cpp" />
+    <ClCompile Include="BaseInputPin.cpp" />
+    <ClCompile Include="BaseMediaFilter.cpp" />
+    <ClCompile Include="BaseOutputPin.cpp" />
+    <ClCompile Include="BasePin.cpp" />
+    <ClCompile Include="D3DVideoTexture.cpp" />
+    <ClCompile Include="DynamicOutputPin.cpp" />
+    <ClCompile Include="EnumMediaTypes.cpp" />
+    <ClCompile Include="EnumPins.cpp" />
+    <ClCompile Include="FilterBase\amextra.cpp" />
+    <ClCompile Include="FilterBase\amfilter.cpp" />
+    <ClCompile Include="FilterBase\amvideo.cpp" />
+    <ClCompile Include="FilterBase\combase.cpp" />
+    <ClCompile Include="FilterBase\cprop.cpp" />
+    <ClCompile Include="FilterBase\ctlutil.cpp" />
+    <ClCompile Include="FilterBase\ddmm.cpp" />
+    <ClCompile Include="FilterBase\dllentry.cpp" />
+    <ClCompile Include="FilterBase\dllsetup.cpp" />
+    <ClCompile Include="FilterBase\mtype.cpp" />
+    <ClCompile Include="FilterBase\outputq.cpp" />
+    <ClCompile Include="FilterBase\pstream.cpp" />
+    <ClCompile Include="FilterBase\pullpin.cpp" />
+    <ClCompile Include="FilterBase\refclock.cpp" />
+    <ClCompile Include="FilterBase\renbase.cpp" />
+    <ClCompile Include="FilterBase\schedule.cpp" />
+    <ClCompile Include="FilterBase\seekpt.cpp" />
+    <ClCompile Include="FilterBase\source.cpp" />
+    <ClCompile Include="FilterBase\strmctl.cpp" />
+    <ClCompile Include="FilterBase\sysclock.cpp" />
+    <ClCompile Include="FilterBase\transfrm.cpp" />
+    <ClCompile Include="FilterBase\transip.cpp" />
+    <ClCompile Include="FilterBase\videoctl.cpp" />
+    <ClCompile Include="FilterBase\vtrans.cpp" />
+    <ClCompile Include="FilterBase\winctrl.cpp" />
+    <ClCompile Include="FilterBase\winutil.cpp" />
+    <ClCompile Include="FilterBase\wxdebug.cpp" />
+    <ClCompile Include="FilterBase\wxlist.cpp" />
+    <ClCompile Include="FilterBase\wxutil.cpp" />
+    <ClCompile Include="FilterRenderOnTexture.cpp" />
+    <ClCompile Include="Helper.cpp" />
+    <ClCompile Include="MediaSample.cpp" />
+    <ClCompile Include="MemAllocator.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="VideoPlayer.cpp" />
+    <ClCompile Include="VMRAllocator.cpp" />
+    <ClCompile Include="VMRImageCompositor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AutoUsingOutputPin.h" />
+    <ClInclude Include="BaseAllocator.h" />
+    <ClInclude Include="BaseFilter.h" />
+    <ClInclude Include="BaseInputPin.h" />
+    <ClInclude Include="BaseMediaFilter.h" />
+    <ClInclude Include="BaseOutputPin.h" />
+    <ClInclude Include="BasePin.h" />
+    <ClInclude Include="D3DVideoTexture.h" />
+    <ClInclude Include="DShowLib.h" />
+    <ClInclude Include="DynamicOutputPin.h" />
+    <ClInclude Include="EnumMediaTypes.h" />
+    <ClInclude Include="EnumPins.h" />
+    <ClInclude Include="FilterBase\amextra.h" />
+    <ClInclude Include="FilterBase\amfilter.h" />
+    <ClInclude Include="FilterBase\cache.h" />
+    <ClInclude Include="FilterBase\combase.h" />
+    <ClInclude Include="FilterBase\cprop.h" />
+    <ClInclude Include="FilterBase\ctlutil.h" />
+    <ClInclude Include="FilterBase\ddmm.h" />
+    <ClInclude Include="FilterBase\dllsetup.h" />
+    <ClInclude Include="FilterBase\dsschedule.h" />
+    <ClInclude Include="FilterBase\fourcc.h" />
+    <ClInclude Include="FilterBase\measure.h" />
+    <ClInclude Include="FilterBase\msgthrd.h" />
+    <ClInclude Include="FilterBase\mtype.h" />
+    <ClInclude Include="FilterBase\outputq.h" />
+    <ClInclude Include="FilterBase\pstream.h" />
+    <ClInclude Include="FilterBase\pullpin.h" />
+    <ClInclude Include="FilterBase\refclock.h" />
+    <ClInclude Include="FilterBase\reftime.h" />
+    <ClInclude Include="FilterBase\renbase.h" />
+    <ClInclude Include="FilterBase\seekpt.h" />
+    <ClInclude Include="FilterBase\source.h" />
+    <ClInclude Include="FilterBase\streams.h" />
+    <ClInclude Include="FilterBase\strmctl.h" />
+    <ClInclude Include="FilterBase\sysclock.h" />
+    <ClInclude Include="FilterBase\transfrm.h" />
+    <ClInclude Include="FilterBase\transip.h" />
+    <ClInclude Include="FilterBase\videoctl.h" />
+    <ClInclude Include="FilterBase\vtrans.h" />
+    <ClInclude Include="FilterBase\winctrl.h" />
+    <ClInclude Include="FilterBase\winutil.h" />
+    <ClInclude Include="FilterBase\wxdebug.h" />
+    <ClInclude Include="FilterBase\wxlist.h" />
+    <ClInclude Include="FilterBase\wxutil.h" />
+    <ClInclude Include="FilterRenderOnTexture.h" />
+    <ClInclude Include="Helper.h" />
+    <ClInclude Include="IDirectVobSub.h" />
+    <ClInclude Include="MediaSample.h" />
+    <ClInclude Include="MemAllocator.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="VideoPlayer.h" />
+    <ClInclude Include="VMRAllocator.h" />
+    <ClInclude Include="VMRImageCompositor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="FilterBase\activex.rcv" />
+    <None Include="FilterBase\activex.ver" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

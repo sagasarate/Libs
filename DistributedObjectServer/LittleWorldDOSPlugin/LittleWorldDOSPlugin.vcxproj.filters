@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="地图">
+      <UniqueIdentifier>{bbe503f2-ca17-461a-9908-18debbfe1464}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="玩家管理">
+      <UniqueIdentifier>{3ed52e33-0cec-4843-a7be-5933d60225af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="预编译">
+      <UniqueIdentifier>{89490e95-06e6-4f44-af55-a4c43677b4e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="主程序">
+      <UniqueIdentifier>{c8714885-c523-45bb-89b0-354e018791b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="角色">
+      <UniqueIdentifier>{8cace6f1-e79e-446c-a0bc-ebc0589bcd9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NPC管理">
+      <UniqueIdentifier>{8712667c-aadd-4dea-996e-079f6f7e4138}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NPC">
+      <UniqueIdentifier>{9c1a6700-a806-404a-8021-148b98ed2b9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="玩家">
+      <UniqueIdentifier>{ebd2a648-42ee-4274-88e0-b5bad0bfd6de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="配置">
+      <UniqueIdentifier>{b7b8261a-e22a-4d83-b76c-cb5f75b7f17a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="角色查询中心">
+      <UniqueIdentifier>{25bf8010-0e43-4099-9e73-5e37e808ba5e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MapArea.cpp">
+      <Filter>地图</Filter>
+    </ClCompile>
+    <ClCompile Include="MapCollisionNode.cpp">
+      <Filter>地图</Filter>
+    </ClCompile>
+    <ClCompile Include="MapEventNode.cpp">
+      <Filter>地图</Filter>
+    </ClCompile>
+    <ClCompile Include="MapObject.cpp">
+      <Filter>地图</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerManager.cpp">
+      <Filter>玩家管理</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>预编译</Filter>
+    </ClCompile>
+    <ClCompile Include="LittleWorldDOSPlugin.cpp">
+      <Filter>主程序</Filter>
+    </ClCompile>
+    <ClCompile Include="Character.cpp">
+      <Filter>角色</Filter>
+    </ClCompile>
+    <ClCompile Include="NPCManager.cpp">
+      <Filter>NPC管理</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseNPC.cpp">
+      <Filter>NPC</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>玩家</Filter>
+    </ClCompile>
+    <ClCompile Include="MainConfig.cpp">
+      <Filter>配置</Filter>
+    </ClCompile>
+    <ClCompile Include="CharQueryCenter.cpp">
+      <Filter>角色查询中心</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MapArea.h">
+      <Filter>地图</Filter>
+    </ClInclude>
+    <ClInclude Include="MapCollisionNode.h">
+      <Filter>地图</Filter>
+    </ClInclude>
+    <ClInclude Include="MapEventNode.h">
+      <Filter>地图</Filter>
+    </ClInclude>
+    <ClInclude Include="MapObject.h">
+      <Filter>地图</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerManager.h">
+      <Filter>玩家管理</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="Character.h">
+      <Filter>角色</Filter>
+    </ClInclude>
+    <ClInclude Include="NPCManager.h">
+      <Filter>NPC管理</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseNPC.h">
+      <Filter>NPC</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>玩家</Filter>
+    </ClInclude>
+    <ClInclude Include="MainConfig.h">
+      <Filter>配置</Filter>
+    </ClInclude>
+    <ClInclude Include="CharQueryCenter.h">
+      <Filter>角色查询中心</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LittleWorldDOSPlugin.cbp" />
+  </ItemGroup>
+</Project>

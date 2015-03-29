@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="资源">
+      <UniqueIdentifier>{b3fb1519-4da2-4567-ac17-94f403f22df9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器控制台">
+      <UniqueIdentifier>{0ee6af56-ce2c-43da-86fd-9764be2a901d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器线程">
+      <UniqueIdentifier>{0da7972b-e834-438e-b578-0e8b66dd9cc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器线程\守护线程">
+      <UniqueIdentifier>{d8b8c1b3-f8cb-491e-bd6b-faac9ec8ed31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="预编译">
+      <UniqueIdentifier>{e1354e47-49d7-4b30-8d9f-48a1cf51f38a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ServerApp">
+      <UniqueIdentifier>{6a61056f-6db5-4ea2-b771-403b9138617c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{e068f76d-9846-44b0-b737-b4ba071350fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="杂项工具">
+      <UniqueIdentifier>{64574316-7165-4523-9df9-07131d1f1c79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NTService">
+      <UniqueIdentifier>{2c93d445-7a7b-43dd-bb2d-f26b8db78643}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Log">
+      <UniqueIdentifier>{bc0ee34b-4298-4370-bc7a-212954a8cd74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="系统连接">
+      <UniqueIdentifier>{4dbc6214-bd37-4020-bfcc-626d17448e35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="系统配置">
+      <UniqueIdentifier>{beb678a0-65a4-498d-9082-cd734f6ee2e2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ServerFrameWork.rc">
+      <Filter>资源</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ServerFrameWorkResource.h">
+      <Filter>资源</Filter>
+    </ClInclude>
+    <ClInclude Include="ControlPanel.h">
+      <Filter>服务器控制台</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgServerStatus.h">
+      <Filter>服务器控制台</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerConsoleDlg.h">
+      <Filter>服务器控制台</Filter>
+    </ClInclude>
+    <ClInclude Include="IBaseServer.h">
+      <Filter>服务器线程</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerThread.h">
+      <Filter>服务器线程</Filter>
+    </ClInclude>
+    <ClInclude Include="MainGuardThread.h">
+      <Filter>服务器线程\守护线程</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerAppLinux.h">
+      <Filter>ServerApp</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerAppWin.h">
+      <Filter>ServerApp</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerFrameWork.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools.h">
+      <Filter>杂项工具</Filter>
+    </ClInclude>
+    <ClInclude Include="NTService.h">
+      <Filter>NTService</Filter>
+    </ClInclude>
+    <ClInclude Include="NTServiceEventLogMsg.h">
+      <Filter>NTService</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerLogPrinter.h">
+      <Filter>Log</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemControlPort.h">
+      <Filter>系统连接</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemNetLink.h">
+      <Filter>系统连接</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemNetLinkManager.h">
+      <Filter>系统连接</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemConfig.h">
+      <Filter>系统配置</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="TrayIcon.ico">
+      <Filter>资源</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ControlPanel.cpp">
+      <Filter>服务器控制台</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgServerStatus.cpp">
+      <Filter>服务器控制台</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerConsoleDlg.cpp">
+      <Filter>服务器控制台</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerThread.cpp">
+      <Filter>服务器线程</Filter>
+    </ClCompile>
+    <ClCompile Include="MainGuardThread.cpp">
+      <Filter>服务器线程\守护线程</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>预编译</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerAppLinux.cpp">
+      <Filter>ServerApp</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerAppWin.cpp">
+      <Filter>ServerApp</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools.cpp">
+      <Filter>杂项工具</Filter>
+    </ClCompile>
+    <ClCompile Include="NTService.cpp">
+      <Filter>NTService</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerLogPrinter.cpp">
+      <Filter>Log</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemControlPort.cpp">
+      <Filter>系统连接</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemNetLink.cpp">
+      <Filter>系统连接</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemNetLinkManager.cpp">
+      <Filter>系统连接</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemConfig.cpp">
+      <Filter>系统配置</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ServerFrameWork.cbp" />
+  </ItemGroup>
+</Project>

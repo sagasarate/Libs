@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="D3DGUI">
+      <UniqueIdentifier>{c33451b8-319e-4430-8bf0-b8e7e925ef4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DGUI\管理器">
+      <UniqueIdentifier>{18105a59-4531-412c-8a17-7f83d82bbda2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DGUI\类型定义">
+      <UniqueIdentifier>{ed043645-e531-4189-9430-572fbad2f111}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DGUI\基本窗口">
+      <UniqueIdentifier>{c6793ae8-efd0-47e8-a8b8-c8e7a9e01f23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DGUI\控件">
+      <UniqueIdentifier>{d83453b6-1a03-4519-86ba-78edcf65fd08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DGUI\控件\按钮">
+      <UniqueIdentifier>{5203c2c8-a975-43da-9cfd-a718f16e4808}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DGUI\控件\编辑框">
+      <UniqueIdentifier>{d54b0297-0dd5-4833-bb45-80e7baac5d5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DGUI\控件\滚动条">
+      <UniqueIdentifier>{a364dd5f-723e-4afe-88e4-592bd82efb09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DGUI\控件\列表框">
+      <UniqueIdentifier>{47cc8675-3f64-4a9f-a9ce-9180e1573def}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DGUI\控件\组合框">
+      <UniqueIdentifier>{381d14a2-4d71-4561-a8ec-cda1e7832de7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DGUI\控件\进度条">
+      <UniqueIdentifier>{f90deb0a-e968-4b1c-91ec-9e2ff19b8183}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DGUI\头文件">
+      <UniqueIdentifier>{f6a221d8-ab5d-4217-ae81-e9c618d5ee68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DGUI\接口">
+      <UniqueIdentifier>{c0bdcf07-db59-47dd-a26b-b6cc6be3a5ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DGUI\USO文件">
+      <UniqueIdentifier>{ba600d80-455e-439e-895c-1d88e7ad5b9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="预编译">
+      <UniqueIdentifier>{1bc2db03-e947-4f3e-b7df-09ec6fca2796}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D3DGUI.cpp">
+      <Filter>D3DGUI\管理器</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DWnd.cpp">
+      <Filter>D3DGUI\基本窗口</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DButton.cpp">
+      <Filter>D3DGUI\控件\按钮</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DEdit.cpp">
+      <Filter>D3DGUI\控件\编辑框</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DScrollBar.cpp">
+      <Filter>D3DGUI\控件\滚动条</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DSimpleList.cpp">
+      <Filter>D3DGUI\控件\列表框</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DCombo.cpp">
+      <Filter>D3DGUI\控件\组合框</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DProgressBar.cpp">
+      <Filter>D3DGUI\控件\进度条</Filter>
+    </ClCompile>
+    <ClCompile Include="USOGUIObjectCreateFilter.cpp">
+      <Filter>D3DGUI\USO文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>预编译</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D3DGUI.h">
+      <Filter>D3DGUI\管理器</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DGUITypes.h">
+      <Filter>D3DGUI\类型定义</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DWnd.h">
+      <Filter>D3DGUI\基本窗口</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DButton.h">
+      <Filter>D3DGUI\控件\按钮</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DEdit.h">
+      <Filter>D3DGUI\控件\编辑框</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DScrollBar.h">
+      <Filter>D3DGUI\控件\滚动条</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DSimpleList.h">
+      <Filter>D3DGUI\控件\列表框</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DCombo.h">
+      <Filter>D3DGUI\控件\组合框</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DProgressBar.h">
+      <Filter>D3DGUI\控件\进度条</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DGUIHeaders.h">
+      <Filter>D3DGUI\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces.h">
+      <Filter>D3DGUI\接口</Filter>
+    </ClInclude>
+    <ClInclude Include="USOGUIObjectCreateFilter.h">
+      <Filter>D3DGUI\USO文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

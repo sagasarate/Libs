@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="主控框架">
+      <UniqueIdentifier>{3cd81a51-f054-48cb-bc66-ac77cc51327c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="预编译">
+      <UniqueIdentifier>{2697e649-8fbe-4eb5-873e-6ebc5fea8bae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="主框架">
+      <UniqueIdentifier>{8458286a-cdb6-427f-8646-08d7b71a686e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="客户端框架">
+      <UniqueIdentifier>{9df6dfab-def4-4509-bcdc-30bed8319f70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="客户端">
+      <UniqueIdentifier>{9a5c31bc-c4fe-4657-8964-5efcca545cfd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MainControlFrame.cpp">
+      <Filter>主控框架</Filter>
+    </ClCompile>
+    <ClCompile Include="MainControlView.cpp">
+      <Filter>主控框架</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>预编译</Filter>
+    </ClCompile>
+    <ClCompile Include="MainApp.cpp">
+      <Filter>主框架</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>主框架</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientFrm.cpp">
+      <Filter>客户端框架</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientInfoView.cpp">
+      <Filter>客户端框架</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgMapView.cpp">
+      <Filter>客户端框架</Filter>
+    </ClCompile>
+    <ClCompile Include="MapBox.cpp">
+      <Filter>客户端框架</Filter>
+    </ClCompile>
+    <ClCompile Include="Client.cpp">
+      <Filter>客户端</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientGroup.cpp">
+      <Filter>客户端</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MainControlFrame.h">
+      <Filter>主控框架</Filter>
+    </ClInclude>
+    <ClInclude Include="MainControlView.h">
+      <Filter>主控框架</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>资源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>资源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="MainApp.h">
+      <Filter>主框架</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>主框架</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientFrm.h">
+      <Filter>客户端框架</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientInfoView.h">
+      <Filter>客户端框架</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgMapView.h">
+      <Filter>客户端框架</Filter>
+    </ClInclude>
+    <ClInclude Include="MapBox.h">
+      <Filter>客户端框架</Filter>
+    </ClInclude>
+    <ClInclude Include="Client.h">
+      <Filter>客户端</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientGroup.h">
+      <Filter>客户端</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\AndroidForLittleWorld.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\Toolbar.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="AndroidForLittleWorld.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\AndroidForLittleWorld.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>

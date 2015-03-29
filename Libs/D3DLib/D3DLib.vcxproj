@@ -1,0 +1,524 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugUnicode|Win32">
+      <Configuration>DebugUnicode</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4C55A45C-EC01-4531-9440-D042CC1BF8A5}</ProjectGuid>
+    <RootNamespace>D3DLib</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\Bin\Debug\</OutDir>
+    <IntDir>.\Debug\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\Bin\Release\</OutDir>
+    <IntDir>.\Release\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">
+    <OutDir>..\Bin\$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)D3DLibD.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)D3DLib.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)D3DLibD.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="D3DDevice.cpp" />
+    <ClCompile Include="D3DTextureManager.cpp" />
+    <ClCompile Include="D3DTexture.cpp" />
+    <ClCompile Include="D3DTextTexture.cpp" />
+    <ClCompile Include="D3DIFLTexture.cpp" />
+    <ClCompile Include="D3DBuildInFXIncludeParser.cpp" />
+    <ClCompile Include="D3DFX.cpp" />
+    <ClCompile Include="D3DFXManager.cpp" />
+    <ClCompile Include="D3DUIRender.cpp" />
+    <ClCompile Include="D3DBaseRender.cpp" />
+    <ClCompile Include="D3DSceneRender.cpp" />
+    <ClCompile Include="D3DObject.cpp" />
+    <ClCompile Include="D3DObjectResource.cpp" />
+    <ClCompile Include="D3DDummy.cpp" />
+    <ClCompile Include="D3DBaseStaticModel.cpp" />
+    <ClCompile Include="D3DObjectResourceManager.cpp" />
+    <ClCompile Include="D3DBaseDynamicModel.cpp" />
+    <ClCompile Include="D3DRibbonEmitter.cpp" />
+    <ClCompile Include="D3DRibbonEmitterResource.cpp" />
+    <ClCompile Include="D3DBillBoardParticleEmitter.cpp" />
+    <ClCompile Include="D3DParticleEmitterResource.cpp" />
+    <ClCompile Include="D3DBoard.cpp" />
+    <ClCompile Include="D3DBoundingFrame.cpp" />
+    <ClCompile Include="D3DLine.cpp" />
+    <ClCompile Include="D3DCamera.cpp" />
+    <ClCompile Include="D3DLight.cpp" />
+    <ClCompile Include="D3DSubMesh.cpp" />
+    <ClCompile Include="D3DSubMeshMaterial.cpp" />
+    <ClCompile Include="BLZChunkFile.cpp" />
+    <ClCompile Include="BLZDBCFile.cpp" />
+    <ClCompile Include="BLZWOWDatabase.cpp" />
+    <ClCompile Include="BLZBLSImporter.cpp" />
+    <ClCompile Include="BLZWDTFile.cpp" />
+    <ClCompile Include="BLZWOWSceneLoader.cpp" />
+    <ClCompile Include="D3DWOWADTModel.cpp" />
+    <ClCompile Include="D3DWOWADTModelResource.cpp" />
+    <ClCompile Include="D3DWOWDoodadModel.cpp" />
+    <ClCompile Include="D3DWOWM2CharacterModel.cpp" />
+    <ClCompile Include="D3DWOWM2ItemModel.cpp" />
+    <ClCompile Include="D3DWOWM2Model.cpp" />
+    <ClCompile Include="D3DWOWM2ModelResource.cpp" />
+    <ClCompile Include="D3DWOWWMOGroupModel.cpp" />
+    <ClCompile Include="D3DWOWWMOModel.cpp" />
+    <ClCompile Include="D3DWOWWMOModelResource.cpp" />
+    <ClCompile Include="D3DWOWWDLModel.cpp" />
+    <ClCompile Include="D3DWOWWDLModelResource.cpp" />
+    <ClCompile Include="D3DScene.cpp" />
+    <ClCompile Include="D3DBaseFont.cpp" />
+    <ClCompile Include="D3DFontManager.cpp" />
+    <ClCompile Include="D3DFontCharClip.cpp" />
+    <ClCompile Include="D3DFontCN.cpp" />
+    <ClCompile Include="D3DDX9Font.cpp" />
+    <ClCompile Include="D3DBoundingBox.cpp" />
+    <ClCompile Include="D3DFrustum.cpp" />
+    <ClCompile Include="USOD3DObjectCreateFilter.cpp" />
+    <ClCompile Include="D3DGUIObjectCreator.cpp" />
+    <ClCompile Include="D3DGUITextRect.cpp" />
+    <ClCompile Include="D3DGUITexture.cpp" />
+    <ClCompile Include="D3DGUIWndRect.cpp" />
+    <ClCompile Include="D3DSwapChain.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="D3DRenderThread.cpp" />
+    <ClCompile Include="D3DTools.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="D3DDevice.h" />
+    <ClInclude Include="D3DTextureManager.h" />
+    <ClInclude Include="D3DTexture.h" />
+    <ClInclude Include="D3DTextTexture.h" />
+    <ClInclude Include="D3DIFLTexture.h" />
+    <ClInclude Include="AniDefines.h" />
+    <ClInclude Include="Types.h" />
+    <ClInclude Include="D3DBuildInFXIncludeParser.h" />
+    <ClInclude Include="D3DFX.h" />
+    <ClInclude Include="D3DFXManager.h" />
+    <ClInclude Include="D3DUIRender.h" />
+    <ClInclude Include="D3DBaseRender.h" />
+    <ClInclude Include="D3DSceneRender.h" />
+    <ClInclude Include="D3DObject.h" />
+    <ClInclude Include="D3DObjectResource.h" />
+    <ClInclude Include="D3DDummy.h" />
+    <CustomBuild Include="D3DBaseStaticModel.h" />
+    <ClInclude Include="D3DObjectResourceManager.h" />
+    <ClInclude Include="D3DBaseDynamicModel.h" />
+    <ClInclude Include="D3DRibbonEmitter.h" />
+    <ClInclude Include="D3DRibbonEmitterResource.h" />
+    <ClInclude Include="D3DBillBoardParticleEmitter.h" />
+    <ClInclude Include="D3DParticleEmitterResource.h" />
+    <ClInclude Include="D3DBoard.h" />
+    <ClInclude Include="D3DBoundingFrame.h" />
+    <ClInclude Include="D3DLine.h" />
+    <ClInclude Include="D3DCamera.h" />
+    <ClInclude Include="D3DLight.h" />
+    <ClInclude Include="D3DSubMesh.h" />
+    <ClInclude Include="D3DSubMeshMaterial.h" />
+    <ClInclude Include="BLZChunkFile.h" />
+    <ClInclude Include="BLZDBCFile.h" />
+    <ClInclude Include="BLZWOWDatabase.h" />
+    <ClInclude Include="BLZFileDefines.h" />
+    <ClInclude Include="BLZBLSImporter.h" />
+    <ClInclude Include="BLZWDTFile.h" />
+    <ClInclude Include="BLZWOWSceneLoader.h" />
+    <ClInclude Include="D3DWOWADTModel.h" />
+    <ClInclude Include="D3DWOWADTModelResource.h" />
+    <ClInclude Include="D3DWOWDoodadModel.h" />
+    <ClInclude Include="D3DWOWM2CharacterModel.h" />
+    <ClInclude Include="D3DWOWM2ItemModel.h" />
+    <ClInclude Include="D3DWOWM2Model.h" />
+    <ClInclude Include="D3DWOWM2ModelResource.h" />
+    <ClInclude Include="D3DWOWWMOGroupModel.h" />
+    <ClInclude Include="D3DWOWWMOModel.h" />
+    <ClInclude Include="D3DWOWWMOModelResource.h" />
+    <ClInclude Include="D3DWOWWDLModel.h" />
+    <ClInclude Include="D3DWOWWDLModelResource.h" />
+    <ClInclude Include="D3DScene.h" />
+    <ClInclude Include="D3DBaseFont.h" />
+    <ClInclude Include="D3DFontManager.h" />
+    <ClInclude Include="D3DFontCharClip.h" />
+    <ClInclude Include="D3DFontCN.h" />
+    <ClInclude Include="D3DDX9Font.h" />
+    <ClInclude Include="D3DBoundingBox.h" />
+    <ClInclude Include="D3DBoundingSphere.h" />
+    <ClInclude Include="D3DFrustum.h" />
+    <ClInclude Include="D3DMatrix.h" />
+    <ClInclude Include="D3DPlane.h" />
+    <ClInclude Include="D3DQuaternion.h" />
+    <ClInclude Include="D3DVector2.h" />
+    <ClInclude Include="D3DVector3.h" />
+    <ClInclude Include="D3DVector4.h" />
+    <ClInclude Include="D3DLib.h" />
+    <ClInclude Include="USOD3DObjectCreateFilter.h" />
+    <ClInclude Include="D3DGUIObjectCreator.h" />
+    <ClInclude Include="D3DGUITextRect.h" />
+    <ClInclude Include="D3DGUITexture.h" />
+    <ClInclude Include="D3DGUIWndRect.h" />
+    <ClInclude Include="D3DSwapChain.h" />
+    <ClInclude Include="Shaders.h" />
+    <ClInclude Include="D3DRenderThread.h" />
+    <ClInclude Include="D3DTools.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Shaders\ADTLiquid.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\ADTModel20.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\ADTModel30.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\D3DBoard.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\D3DBoundFrame.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\D3DLine.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\FontRender.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\M2ModelSoftBoneOnly.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\M2Particle.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\M2Ribbon.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\SharedLib.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\SharedParam.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\TextTexture.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\UIInverseColor.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\UITextRect.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\UIWinRectNoTexture.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\UIWinRectWithTexture.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\UIWinRectWithTextureFilter.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\WDLModel.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Shaders\WMOModel.fx">
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">正在生成%(Filename).fxt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\TXT2String %(FullPath) %(RootDir)%(Directory)%(Filename).fxt
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).fxt;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\TXT2String.exe" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

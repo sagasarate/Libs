@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="LittleWorldDBPlugin" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="主程序/;玩家角色数据/;配置/;预编译/;玩家角色数据/数据库事务/;" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../Work/LittleWorldDBPluginD" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Debug" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-W" />
+					<Add option="-O0" />
+					<Add option="-fvisibility=hidden" />
+					<Add option="-D_DEBUG" />
+				</Compiler>
+				<Linker>
+					<Add library="../Work/LittleWorldProtocolD.a" />
+					<Add library="../../Libs/bin/Debug/DBLibD.a" />
+					<Add library="../../Libs/bin/Debug/UtilsD.a" />
+					<Add library="../../Libs/DBLib/MySQL/lib/libmysqlclient.a" />
+					<Add library="pthread" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="../Work/LittleWorldDBPlugin" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Release" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-W" />
+					<Add option="-fvisibility=hidden" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="DBTransAccountLogin.cpp">
+			<Option virtualFolder="玩家角色数据/数据库事务/" />
+		</Unit>
+		<Unit filename="DBTransAccountLogin.h">
+			<Option virtualFolder="玩家角色数据/数据库事务/" />
+		</Unit>
+		<Unit filename="DBTransCreateChar.cpp">
+			<Option virtualFolder="玩家角色数据/数据库事务/" />
+		</Unit>
+		<Unit filename="DBTransCreateChar.h">
+			<Option virtualFolder="玩家角色数据/数据库事务/" />
+		</Unit>
+		<Unit filename="DBTransGetAccountChar.cpp">
+			<Option virtualFolder="玩家角色数据/数据库事务/" />
+		</Unit>
+		<Unit filename="DBTransGetAccountChar.h">
+			<Option virtualFolder="玩家角色数据/数据库事务/" />
+		</Unit>
+		<Unit filename="DBTransGetCharData.cpp">
+			<Option virtualFolder="玩家角色数据/数据库事务/" />
+		</Unit>
+		<Unit filename="DBTransGetCharData.h">
+			<Option virtualFolder="玩家角色数据/数据库事务/" />
+		</Unit>
+		<Unit filename="DBTransGetCharIDSeed.cpp">
+			<Option virtualFolder="玩家角色数据/数据库事务/" />
+		</Unit>
+		<Unit filename="DBTransGetCharIDSeed.h">
+			<Option virtualFolder="玩家角色数据/数据库事务/" />
+		</Unit>
+		<Unit filename="DBTransSaveCharData.cpp">
+			<Option virtualFolder="玩家角色数据/数据库事务/" />
+		</Unit>
+		<Unit filename="DBTransSaveCharData.h">
+			<Option virtualFolder="玩家角色数据/数据库事务/" />
+		</Unit>
+		<Unit filename="LittleWorldDBPlugin.cpp">
+			<Option virtualFolder="主程序/" />
+		</Unit>
+		<Unit filename="MainConfig.cpp">
+			<Option virtualFolder="配置/" />
+		</Unit>
+		<Unit filename="MainConfig.h">
+			<Option virtualFolder="配置/" />
+		</Unit>
+		<Unit filename="PlayerCharDataDBAdapter.cpp">
+			<Option virtualFolder="玩家角色数据/" />
+		</Unit>
+		<Unit filename="PlayerCharDataDBAdapter.h">
+			<Option virtualFolder="玩家角色数据/" />
+		</Unit>
+		<Unit filename="stdafx.cpp">
+			<Option virtualFolder="预编译/" />
+		</Unit>
+		<Unit filename="stdafx.h">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option virtualFolder="预编译/" />
+		</Unit>
+		<Unit filename="targetver.h">
+			<Option virtualFolder="预编译/" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

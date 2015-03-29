@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="DBLib" />
+		<Option platforms="Unix;" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="MySQL实现/;事务管理/;头文件/;接口/;通用实现/;预编译/;事务管理/事物对象/;事务管理/工作线程/;事务管理/管理器/;MySQL头文件/;" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../Bin/Debug/DBLibD" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="Debug" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-W" />
+					<Add option="-g" />
+					<Add option="-O0" />
+					<Add option="-D_DEBUG" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="../Bin/Release/libDBLib" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="Release" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-W" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Unit filename="DBFakeRecordSet.cpp">
+			<Option virtualFolder="通用实现/" />
+		</Unit>
+		<Unit filename="DBFakeRecordSet.h">
+			<Option virtualFolder="通用实现/" />
+		</Unit>
+		<Unit filename="DBInterfaces.cpp">
+			<Option virtualFolder="接口/" />
+		</Unit>
+		<Unit filename="DBInterfaces.h">
+			<Option virtualFolder="接口/" />
+		</Unit>
+		<Unit filename="DBLib.h">
+			<Option virtualFolder="头文件/" />
+		</Unit>
+		<Unit filename="DBParameterSet.cpp">
+			<Option virtualFolder="通用实现/" />
+		</Unit>
+		<Unit filename="DBParameterSet.h">
+			<Option virtualFolder="通用实现/" />
+		</Unit>
+		<Unit filename="DBStaticRecordSet.cpp">
+			<Option virtualFolder="通用实现/" />
+		</Unit>
+		<Unit filename="DBStaticRecordSet.h">
+			<Option virtualFolder="通用实现/" />
+		</Unit>
+		<Unit filename="DBTransaction.cpp">
+			<Option virtualFolder="事务管理/事物对象/" />
+		</Unit>
+		<Unit filename="DBTransaction.h">
+			<Option virtualFolder="事务管理/事物对象/" />
+		</Unit>
+		<Unit filename="DBTransationManager.cpp">
+			<Option virtualFolder="事务管理/管理器/" />
+		</Unit>
+		<Unit filename="DBTransationManager.h">
+			<Option virtualFolder="事务管理/管理器/" />
+		</Unit>
+		<Unit filename="DBTransationWorkThread.cpp">
+			<Option virtualFolder="事务管理/工作线程/" />
+		</Unit>
+		<Unit filename="DBTransationWorkThread.h">
+			<Option virtualFolder="事务管理/工作线程/" />
+		</Unit>
+		<Unit filename="DBTypes.h">
+			<Option virtualFolder="接口/" />
+		</Unit>
+		<Unit filename="DBValue.cpp">
+			<Option virtualFolder="通用实现/" />
+		</Unit>
+		<Unit filename="DBValue.h">
+			<Option virtualFolder="通用实现/" />
+		</Unit>
+		<Unit filename="MySQL/include/atomic/gcc_builtins.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/atomic/generic-msvc.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/atomic/nolock.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/atomic/rwlock.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/atomic/x86-gcc.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/base64.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/config-win.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/decimal.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/errmsg.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/hash.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/keycache.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/lf.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/m_ctype.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/m_string.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_aes.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_alarm.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_alloc.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_atomic.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_attribute.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_base.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_bit.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_bitmap.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_charsets.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_config.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_dbug.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_dir.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_getopt.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_global.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_libwrap.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_list.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_md5.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_net.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_no_pthread.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_nosys.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_pthread.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_stacktrace.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_sys.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_time.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_tree.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_trie.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_uctype.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_vle.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/my_xml.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/myisampack.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/mysql.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/mysql_com.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/mysql_time.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/mysql_version.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/mysqld_error.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/mysys/rijndael.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/mysys_err.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/queues.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/service_versions.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/sha1.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/sha2.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/sql_common.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/sslopt-case.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/sslopt-longopts.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/sslopt-vars.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/t_ctype.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/thr_alarm.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/thr_lock.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/typelib.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/violite.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/waiting_threads.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQL/include/wqueue.h">
+			<Option virtualFolder="MySQL头文件/" />
+		</Unit>
+		<Unit filename="MySQLConnection.cpp">
+			<Option virtualFolder="MySQL实现/" />
+		</Unit>
+		<Unit filename="MySQLConnection.h">
+			<Option virtualFolder="MySQL实现/" />
+		</Unit>
+		<Unit filename="MySQLDatabase.cpp">
+			<Option virtualFolder="MySQL实现/" />
+		</Unit>
+		<Unit filename="MySQLDatabase.h">
+			<Option virtualFolder="MySQL实现/" />
+		</Unit>
+		<Unit filename="MySQLDynamicRecordSet.cpp">
+			<Option virtualFolder="MySQL实现/" />
+		</Unit>
+		<Unit filename="MySQLDynamicRecordSet.h">
+			<Option virtualFolder="MySQL实现/" />
+		</Unit>
+		<Unit filename="MySQLRecordSet.cpp">
+			<Option virtualFolder="MySQL实现/" />
+		</Unit>
+		<Unit filename="MySQLRecordSet.h">
+			<Option virtualFolder="MySQL实现/" />
+		</Unit>
+		<Unit filename="stdafx.cpp">
+			<Option virtualFolder="预编译/" />
+		</Unit>
+		<Unit filename="stdafx.h">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option virtualFolder="预编译/" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

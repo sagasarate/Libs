@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="DOSLib" />
+		<Option platforms="Unix;" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="头文件/;客户端组件/;对象代理服务/;对象和对象管理/;服务器/;消息协议/;路由服务/;预编译/;对象和对象管理/对象基类/;对象和对象管理/对象插件接口/;对象和对象管理/对象管理器/;对象和对象管理/对象组/;" />
+		<Build>
+			<Target title="Debug">
+				<Option platforms="Unix;" />
+				<Option output="../Bin/Debug/DOSLibD" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="Debug" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-W" />
+					<Add option="-g" />
+					<Add option="-O0" />
+					<Add option="-D_DEBUG" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option platforms="Unix;" />
+				<Option output="../Bin/Release/libDOSLib" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="Release" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-W" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="DOSBaseObject.cpp">
+			<Option virtualFolder="对象和对象管理/对象基类/" />
+		</Unit>
+		<Unit filename="DOSBaseObject.h">
+			<Option virtualFolder="对象和对象管理/对象基类/" />
+		</Unit>
+		<Unit filename="DOSClient.cpp">
+			<Option virtualFolder="客户端组件/" />
+		</Unit>
+		<Unit filename="DOSClient.h">
+			<Option virtualFolder="客户端组件/" />
+		</Unit>
+		<Unit filename="DOSDefines.cpp">
+			<Option virtualFolder="消息协议/" />
+		</Unit>
+		<Unit filename="DOSDefines.h">
+			<Option virtualFolder="消息协议/" />
+		</Unit>
+		<Unit filename="DOSLib.h">
+			<Option virtualFolder="头文件/" />
+		</Unit>
+		<Unit filename="DOSMessage.h">
+			<Option virtualFolder="消息协议/" />
+		</Unit>
+		<Unit filename="DOSObjectGroup.cpp">
+			<Option virtualFolder="对象和对象管理/对象组/" />
+		</Unit>
+		<Unit filename="DOSObjectGroup.h">
+			<Option virtualFolder="对象和对象管理/对象组/" />
+		</Unit>
+		<Unit filename="DOSObjectManager.cpp">
+			<Option virtualFolder="对象和对象管理/对象管理器/" />
+		</Unit>
+		<Unit filename="DOSObjectManager.h">
+			<Option virtualFolder="对象和对象管理/对象管理器/" />
+		</Unit>
+		<Unit filename="DOSObjectProxyService.cpp">
+			<Option virtualFolder="对象代理服务/" />
+		</Unit>
+		<Unit filename="DOSObjectProxyService.h">
+			<Option virtualFolder="对象代理服务/" />
+		</Unit>
+		<Unit filename="DOSProxyConnection.cpp">
+			<Option virtualFolder="对象代理服务/" />
+		</Unit>
+		<Unit filename="DOSProxyConnection.h">
+			<Option virtualFolder="对象代理服务/" />
+		</Unit>
+		<Unit filename="DOSRouter.cpp">
+			<Option virtualFolder="路由服务/" />
+		</Unit>
+		<Unit filename="DOSRouter.h">
+			<Option virtualFolder="路由服务/" />
+		</Unit>
+		<Unit filename="DOSRouterLink.cpp">
+			<Option virtualFolder="路由服务/" />
+		</Unit>
+		<Unit filename="DOSRouterLink.h">
+			<Option virtualFolder="路由服务/" />
+		</Unit>
+		<Unit filename="DOSServer.cpp">
+			<Option virtualFolder="服务器/" />
+		</Unit>
+		<Unit filename="DOSServer.h">
+			<Option virtualFolder="服务器/" />
+		</Unit>
+		<Unit filename="IDistributedObject.h">
+			<Option virtualFolder="对象和对象管理/对象插件接口/" />
+		</Unit>
+		<Unit filename="stdafx.cpp">
+			<Option virtualFolder="预编译/" />
+		</Unit>
+		<Unit filename="stdafx.h">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option virtualFolder="预编译/" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

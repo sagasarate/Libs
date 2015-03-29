@@ -1,0 +1,368 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="预编译">
+      <UniqueIdentifier>{5eb1aa03-317e-4a2a-aeb5-c958c2620b78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib">
+      <UniqueIdentifier>{fa41a2bd-1afd-4f53-883d-7b777f0f5e04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib\头文件">
+      <UniqueIdentifier>{63863d8d-9dce-4a33-ac86-5a690ac56a87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib\视频纹理">
+      <UniqueIdentifier>{cb8275e7-6c7a-4a74-8633-c507fbba0d0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib\DShowBase">
+      <UniqueIdentifier>{24b8a015-da8b-4258-a964-15f32433b51e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib\DShowBase\头文件">
+      <UniqueIdentifier>{4c9c8541-3c8b-4e2c-b929-50242adef842}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib\DShowBase\源文件">
+      <UniqueIdentifier>{10eb7f7d-9ce6-4c7d-926e-a0f058ce7fbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib\DShowBase\渲染器">
+      <UniqueIdentifier>{dc106244-749b-496d-b11d-47778208d163}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib\DShowBase\Pin">
+      <UniqueIdentifier>{8301a1ca-f2b4-4d46-a57f-f9b4dbc51819}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib\DShowBase\Filter">
+      <UniqueIdentifier>{a105c3cc-8020-410d-a802-88bfb8593d77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib\DShowBase\Media">
+      <UniqueIdentifier>{e9faac84-5dcc-42af-9e3b-422cffd896fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib\DShowBase\Allocator">
+      <UniqueIdentifier>{2c8aea40-338c-44a6-99cf-74c72a602509}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib\DShowBase\Helper">
+      <UniqueIdentifier>{ceffda98-a8a0-43e9-986d-d30a61ad9486}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib\视频播放">
+      <UniqueIdentifier>{3de74604-a2a4-469d-b23a-f8677be5c847}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DShowLib\FilterInterfaces">
+      <UniqueIdentifier>{8c8b407a-5cdb-4ac1-84dd-34793cf3e942}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>预编译</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DVideoTexture.cpp">
+      <Filter>DShowLib\视频纹理</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterRenderOnTexture.cpp">
+      <Filter>DShowLib\视频纹理</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\amextra.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\amfilter.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\amvideo.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\combase.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\cprop.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\ctlutil.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\ddmm.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\dllentry.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\dllsetup.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\mtype.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\outputq.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\pstream.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\pullpin.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\refclock.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\schedule.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\seekpt.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\source.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\strmctl.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\sysclock.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\transfrm.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\transip.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\videoctl.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\vtrans.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\winctrl.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\winutil.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\wxdebug.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\wxlist.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\wxutil.cpp">
+      <Filter>DShowLib\DShowBase\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FilterBase\renbase.cpp">
+      <Filter>DShowLib\DShowBase\渲染器</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoUsingOutputPin.cpp">
+      <Filter>DShowLib\DShowBase\Pin</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseInputPin.cpp">
+      <Filter>DShowLib\DShowBase\Pin</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseOutputPin.cpp">
+      <Filter>DShowLib\DShowBase\Pin</Filter>
+    </ClCompile>
+    <ClCompile Include="BasePin.cpp">
+      <Filter>DShowLib\DShowBase\Pin</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicOutputPin.cpp">
+      <Filter>DShowLib\DShowBase\Pin</Filter>
+    </ClCompile>
+    <ClCompile Include="EnumPins.cpp">
+      <Filter>DShowLib\DShowBase\Pin</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseFilter.cpp">
+      <Filter>DShowLib\DShowBase\Filter</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseMediaFilter.cpp">
+      <Filter>DShowLib\DShowBase\Filter</Filter>
+    </ClCompile>
+    <ClCompile Include="EnumMediaTypes.cpp">
+      <Filter>DShowLib\DShowBase\Media</Filter>
+    </ClCompile>
+    <ClCompile Include="MediaSample.cpp">
+      <Filter>DShowLib\DShowBase\Media</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseAllocator.cpp">
+      <Filter>DShowLib\DShowBase\Allocator</Filter>
+    </ClCompile>
+    <ClCompile Include="MemAllocator.cpp">
+      <Filter>DShowLib\DShowBase\Allocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper.cpp">
+      <Filter>DShowLib\DShowBase\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoPlayer.cpp">
+      <Filter>DShowLib\视频播放</Filter>
+    </ClCompile>
+    <ClCompile Include="VMRAllocator.cpp">
+      <Filter>DShowLib\视频播放</Filter>
+    </ClCompile>
+    <ClCompile Include="VMRImageCompositor.cpp">
+      <Filter>DShowLib\视频播放</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="DShowLib.h">
+      <Filter>DShowLib\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DVideoTexture.h">
+      <Filter>DShowLib\视频纹理</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterRenderOnTexture.h">
+      <Filter>DShowLib\视频纹理</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\amextra.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\amfilter.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\cache.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\combase.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\cprop.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\ctlutil.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\ddmm.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\dllsetup.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\dsschedule.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\fourcc.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\measure.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\msgthrd.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\mtype.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\outputq.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\pstream.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\pullpin.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\refclock.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\reftime.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\seekpt.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\source.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\streams.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\strmctl.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\sysclock.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\transfrm.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\transip.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\videoctl.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\vtrans.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\winctrl.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\winutil.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\wxdebug.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\wxlist.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\wxutil.h">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterBase\renbase.h">
+      <Filter>DShowLib\DShowBase\渲染器</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoUsingOutputPin.h">
+      <Filter>DShowLib\DShowBase\Pin</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseInputPin.h">
+      <Filter>DShowLib\DShowBase\Pin</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseOutputPin.h">
+      <Filter>DShowLib\DShowBase\Pin</Filter>
+    </ClInclude>
+    <ClInclude Include="BasePin.h">
+      <Filter>DShowLib\DShowBase\Pin</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicOutputPin.h">
+      <Filter>DShowLib\DShowBase\Pin</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumPins.h">
+      <Filter>DShowLib\DShowBase\Pin</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseFilter.h">
+      <Filter>DShowLib\DShowBase\Filter</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseMediaFilter.h">
+      <Filter>DShowLib\DShowBase\Filter</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumMediaTypes.h">
+      <Filter>DShowLib\DShowBase\Media</Filter>
+    </ClInclude>
+    <ClInclude Include="MediaSample.h">
+      <Filter>DShowLib\DShowBase\Media</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseAllocator.h">
+      <Filter>DShowLib\DShowBase\Allocator</Filter>
+    </ClInclude>
+    <ClInclude Include="MemAllocator.h">
+      <Filter>DShowLib\DShowBase\Allocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper.h">
+      <Filter>DShowLib\DShowBase\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoPlayer.h">
+      <Filter>DShowLib\视频播放</Filter>
+    </ClInclude>
+    <ClInclude Include="VMRAllocator.h">
+      <Filter>DShowLib\视频播放</Filter>
+    </ClInclude>
+    <ClInclude Include="VMRImageCompositor.h">
+      <Filter>DShowLib\视频播放</Filter>
+    </ClInclude>
+    <ClInclude Include="IDirectVobSub.h">
+      <Filter>DShowLib\FilterInterfaces</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="FilterBase\activex.rcv">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </None>
+    <None Include="FilterBase\activex.ver">
+      <Filter>DShowLib\DShowBase\头文件</Filter>
+    </None>
+  </ItemGroup>
+</Project>
