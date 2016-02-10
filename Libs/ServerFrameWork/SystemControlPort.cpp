@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "SystemControlPort.h"
 
 CSystemControlPort::CSystemControlPort(void)
@@ -27,11 +27,11 @@ bool CSystemControlPort::Init(IBaseServer * pServer)
 	{
 		m_pServer=pServer;
 		SetServer(m_pServer->GetServer());
-	}	
+	}
 
 	if(CSystemConfig::GetInstance()->GetUDPControlAddress().GetPort())
 	{
-		Create(IPPROTO_UDP);	
+		Create(IPPROTO_UDP);
 		if(!StartListen(CSystemConfig::GetInstance()->GetUDPControlAddress()))
 		{
 			Log("SystemControlPort侦听失败%s:%u",
@@ -61,7 +61,7 @@ void CSystemControlPort::OnClose()
 }
 
 void CSystemControlPort::OnRecvData(const CIPAddress& IPAddress,const CEasyBuffer& DataBuffer)
-{		
+{
 
 	if(m_pServer==NULL)
 		return;
@@ -90,13 +90,13 @@ void CSystemControlPort::OnRecvData(const CIPAddress& IPAddress,const CEasyBuffe
 			SendMsg(IPAddress,SC_MSG_QUERY_SERVER_STATUS_RESULT,
 				ServerStatus.GetData(),ServerStatus.GetDataLen());
 		}
-		break;	
+		break;
 	};
 }
 
 void CSystemControlPort::SendMsg(const CIPAddress& Address,WORD Msg,LPCVOID pData,int DataLen)
 {
-	
+
 	static char s_SendBuffer[65536];
 
 
@@ -105,12 +105,12 @@ void CSystemControlPort::SendMsg(const CIPAddress& Address,WORD Msg,LPCVOID pDat
 	SMSG_HEADER MsgHeader;
 
 	MsgHeader.MsgID=Msg;
-	MsgHeader.Size=(WORD)(sizeof(SMSG_HEADER)+DataLen);	
+	MsgHeader.Size=(WORD)(sizeof(SMSG_HEADER)+DataLen);
 	SendBuffer.PushBack(&MsgHeader,sizeof(SMSG_HEADER));
 
 	if(DataLen)
 		SendBuffer.PushBack(pData,DataLen);
 	QueryUDPSend(Address,SendBuffer.GetBuffer(),SendBuffer.GetUsedSize());
 
-	
+
 }

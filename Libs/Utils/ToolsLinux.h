@@ -11,6 +11,103 @@
 /****************************************************************************/
 #pragma once
 
+//#ifndef max
+//#define max(a,b)            (((a) > (b)) ? (a) : (b))
+//#endif
+//
+//#ifndef min
+//#define min(a,b)            (((a) < (b)) ? (a) : (b))
+//#endif
+
+template<typename T>
+inline T max(T a, T b)
+{
+	return a > b ? a : b;
+}
+
+template<typename T>
+inline T min(T a, T b)
+{
+	return a < b ? a : b;
+}
+
+inline void _split_whole_name(const char *whole_name, char *fname, char *ext)
+{
+	const char *p_ext;
+
+	if (whole_name == NULL)
+	{
+		if (ext != NULL)
+			ext[0] = '\0';
+		if (fname != NULL)
+			fname[0];
+		return;
+	}
+		
+
+	p_ext = rindex(whole_name, '.');
+	if (NULL != p_ext)
+	{
+		if (ext != NULL)
+			strcpy(ext, p_ext);
+		if (fname != NULL)
+			snprintf(fname, p_ext - whole_name + 1, "%s", whole_name);
+	}
+	else
+	{
+		if (ext != NULL)
+			ext[0] = '\0';
+		if (fname != NULL)
+			strcpy(fname, whole_name);
+	}
+}
+
+inline void _splitpath(const char *path, char *drive, char *dir, char *fname, char *ext)
+{
+    const char *p_whole_name;
+
+	if (drive != NULL)
+		drive[0] = '\0';
+    if (NULL == path)
+    {
+		if (dir != NULL)
+			dir[0] = '\0';
+		if (fname != NULL)
+			fname[0] = '\0';
+		if (ext != NULL)
+			ext[0] = '\0';
+        return;
+    }
+
+    if ('/' == path[strlen(path)])
+    {
+		if (dir != NULL)
+			strcpy(dir, path);
+		if (fname != NULL)
+			fname[0] = '\0';
+		if (ext != NULL)
+			ext[0] = '\0';
+        return;
+    }
+
+    p_whole_name = rindex(path, '/');
+    if (NULL != p_whole_name)
+    {
+        p_whole_name++;
+		_split_whole_name(p_whole_name, fname, ext);
+
+		if (dir != NULL)
+			snprintf(dir, p_whole_name - path, "%s", path);
+    }
+    else
+    {
+		_split_whole_name(path, fname, ext);
+		if (dir != NULL)
+			dir[0] = '\0';
+    }
+}
+
+
 
 
 
@@ -48,7 +145,7 @@ inline CEasyString GetModuleFilePath(HMODULE hModule)
 	{
 		fullPath[Len]=0;
 		ModulePath=fullPath;
-		ModulePath.TrimBuffer();		
+		ModulePath.TrimBuffer();
 	}
 	return ModulePath;
 }
@@ -86,6 +183,27 @@ inline CEasyString GetPathFileNameExt(LPCTSTR Path)
 	CEasyString FileName=Path;
 	int Pos=FileName.ReverseFind('/');
 	return FileName.Right(FileName.GetLength()-Pos-1);
+}
+
+inline CEasyString GetPathFileName(LPCTSTR Path)
+{
+	CEasyString FileName;
+
+	FileName.Resize(MAX_PATH);
+	_splitpath(Path, NULL, NULL, FileName, NULL);
+	FileName.TrimBuffer();
+	return FileName;
+}
+
+
+inline CEasyString GetPathFileExtName(LPCTSTR Path)
+{
+	CEasyString ExtName;
+
+	ExtName.Resize(8);
+	_splitpath(Path, NULL, NULL, NULL, ExtName);
+	ExtName.TrimBuffer();
+	return ExtName;
 }
 
 inline void DoSleep(UINT nMilliseconds)

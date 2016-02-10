@@ -53,20 +53,3 @@
 
 
 
-inline void Log(LPCTSTR Format, ...)
-{
-	va_list vl;
-
-	va_start(vl, Format);
-	CLogManager::GetInstance()->PrintLogVL(CLuaScript::m_LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, 0, Format, vl);
-	va_end(vl);
-}
-
-inline void LogDebug(LPCTSTR Format, ...)
-{
-	va_list vl;
-
-	va_start(vl, Format);
-	CLogManager::GetInstance()->PrintLogVL(CLuaScript::m_LogChannel, ILogPrinter::LOG_LEVEL_DEBUG, 0, Format, vl);
-	va_end(vl);
-}

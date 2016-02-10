@@ -9,7 +9,12 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
+
+
+#ifdef WIN32
+#define EWOULDBLOCK		WSAEWOULDBLOCK
+#endif
 
 IMPLEMENT_CLASS_INFO_STATIC(CNetSocket,CNameObject);
 
@@ -38,7 +43,7 @@ BOOL CNetSocket::MakeSocket( int af, int type, int protocol )
 	if( m_Socket != INVALID_SOCKET )
 	{
 		Close();
-	}	
+	}
 	m_Socket = socket( af, type, protocol );
 	if( m_Socket == INVALID_SOCKET )
 	{
@@ -46,7 +51,7 @@ BOOL CNetSocket::MakeSocket( int af, int type, int protocol )
 		PrintNetLog(0xffffffff,_T("(%d)Socket( %d, %d, %d )调用失败！"),ErrorCode,af, type, protocol);
 		SetState( SS_UNINITED );
 		return FALSE;
-	}	
+	}
 	SetState( SS_UNUSED );
 	return TRUE;
 }
@@ -567,7 +572,7 @@ bool CNetSocket::StealFrom(CNameObject * pObject,UINT Param)
 	{
 		if(!CNameObject::StealFrom(pObject,Param))
 			return false;
-		return StealSocket(*((CNetSocket *)pObject));
+		return StealSocket(*((CNetSocket *)pObject)) ? true : false;
 	}
 	return false;
 }

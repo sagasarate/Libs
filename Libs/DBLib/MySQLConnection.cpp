@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 namespace DBLib
@@ -138,13 +138,17 @@ int CMySQLConnection::ExecuteSQL(LPCSTR SQLStr,int StrLen,IDBParameterSet * pPar
 		return ExecuteSQLDirect(SQLStr,StrLen);
 	}
 }
-
+int CMySQLConnection::ExecuteSQLWithoutResultSet(LPCSTR SQLStr, int StrLen, IDBParameterSet * pParamSet)
+{
+	return ExecuteSQLDirect(SQLStr, StrLen);
+}
 int CMySQLConnection::GetResults(IDBRecordSet * pDBRecordset)
 {
 	if(!pDBRecordset)
 	{
 		return DBERR_INVALID_PARAM;
 	}
+	pDBRecordset->Destory();
 	if(m_UseSTMTMode)
 	{
 		if(pDBRecordset->IsKindOf(GET_CLASS_INFO(CMySQLDynamicRecordSet)))
@@ -163,7 +167,7 @@ int CMySQLConnection::GetResults(IDBRecordSet * pDBRecordset)
 			return FetchResult((CMySQLRecordSet *)pDBRecordset);
 		}
 	}
-	
+
 
 	return DBERR_INVALID_PARAM;
 
@@ -175,7 +179,7 @@ int CMySQLConnection::NextResults(IDBRecordSet * pDBRecordset)
 	{
 		return DBERR_NO_MORE_RESULTS;
 	}
-	
+
 	if(pDBRecordset->IsKindOf(GET_CLASS_INFO(CMySQLDynamicRecordSet)))
 	{
 		return ((CMySQLDynamicRecordSet *)pDBRecordset)->NextResults();
@@ -261,7 +265,7 @@ void CMySQLConnection::ProcessErrorMsg(MYSQL_STMT_HANDLE hStmt,LPCSTR Msg)
 	{
 		PrintDBLog(0xff,"%s %s\r\n",Msg,mysql_error(m_MySQLHandle));
 	}
-	
+
 }
 
 int CMySQLConnection::FetchStaticResult(CDBStaticRecordSet * pDBRecordset)
@@ -290,9 +294,9 @@ int CMySQLConnection::FetchStaticResult(CDBStaticRecordSet * pDBRecordset)
 				return DBERR_FETCH_RESULT_FAIL;
 			}
 		}
-	}	
+	}
 
-	
+
 
 	//计算数据集大小
 	int ColNum=mysql_num_fields(hResults);
@@ -383,7 +387,7 @@ int CMySQLConnection::FetchResult(CMySQLRecordSet * pDBRecordset)
 			return DBERR_FETCH_RESULT_FAIL;
 		}
 	}
-	return pDBRecordset->Init(this,hResults);	
+	return pDBRecordset->Init(this,hResults);
 }
 
 int CMySQLConnection::FetchDynamicResult(CMySQLDynamicRecordSet * pDBRecordset)
@@ -451,9 +455,9 @@ DWORD CMySQLConnection::FetchConnectFlags(LPCSTR FlagsStr)
 }
 
 int CMySQLConnection::DBLibTypeToMySQLType(int Type,UINT& Size,UINT& DitigalSize)
-{	
+{
 	switch(Type)
-	{	
+	{
 	case DB_TYPE_STRING:
 	case DB_TYPE_WSTRING:
 		return MYSQL_TYPE_VAR_STRING;
@@ -483,9 +487,9 @@ int CMySQLConnection::DBLibTypeToMySQLType(int Type,UINT& Size,UINT& DitigalSize
 		return MYSQL_TYPE_DATE;
 	case DB_TYPE_TIMESTAMP:
 		Size=sizeof(MYSQL_TIME);
-		return MYSQL_TYPE_TIMESTAMP;	
+		return MYSQL_TYPE_TIMESTAMP;
 	case DB_TYPE_BINARY:
-		return MYSQL_TYPE_BLOB;		
+		return MYSQL_TYPE_BLOB;
 	default:
 		return -1;
 	}
@@ -494,7 +498,7 @@ int CMySQLConnection::DBLibTypeToMySQLType(int Type,UINT& Size,UINT& DitigalSize
 int CMySQLConnection::MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize)
 {
 	switch(Type)
-	{	
+	{
 	case MYSQL_TYPE_DECIMAL:
 		Size=32+DitigalSize+1;
 		return DB_TYPE_STRING;
@@ -502,10 +506,10 @@ int CMySQLConnection::MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize
 		Size=sizeof(BYTE);
 		return DB_TYPE_TINY;
 	case MYSQL_TYPE_SHORT:
-		Size=sizeof(short);
+		Size=sizeof(WORD);
 		return DB_TYPE_SMALLINT;
 	case MYSQL_TYPE_LONG:
-		Size=sizeof(long);
+		Size=sizeof(DWORD);
 		return DB_TYPE_INTEGER;
 	case MYSQL_TYPE_FLOAT:
 		Size=sizeof(float);
@@ -523,7 +527,7 @@ int CMySQLConnection::MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize
 		Size=sizeof(INT64);
 		return DB_TYPE_BIGINT;
 	case MYSQL_TYPE_INT24:
-		Size=sizeof(long);
+		Size=sizeof(DWORD);
 		return DB_TYPE_INTEGER;
 	case MYSQL_TYPE_DATE:
 		Size=sizeof(DB_DATE);
@@ -535,7 +539,7 @@ int CMySQLConnection::MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize
 		Size=sizeof(DB_TIMESTAMP);
 		return DB_TYPE_TIMESTAMP;
 	case MYSQL_TYPE_YEAR:
-		Size=sizeof(long);
+		Size=sizeof(BYTE);
 		return DB_TYPE_INTEGER;
 	case MYSQL_TYPE_NEWDATE:
 		Size=sizeof(DB_DATE);
@@ -551,7 +555,7 @@ int CMySQLConnection::MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize
 		return DB_TYPE_STRING;
 	case MYSQL_TYPE_SET:
 		return DB_TYPE_STRING;
-	case MYSQL_TYPE_TINY_BLOB:		
+	case MYSQL_TYPE_TINY_BLOB:
 	case MYSQL_TYPE_MEDIUM_BLOB:
 	case MYSQL_TYPE_LONG_BLOB:
 	case MYSQL_TYPE_BLOB:
@@ -569,17 +573,17 @@ int CMySQLConnection::MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize
 UINT CMySQLConnection::GetMySQLTypeBinLength(int Type,UINT Size,UINT DitigalSize)
 {
 	switch(Type)
-	{	
-	case MYSQL_TYPE_DECIMAL:		
+	{
+	case MYSQL_TYPE_DECIMAL:
 		break;
 	case MYSQL_TYPE_TINY:
 		Size=sizeof(BYTE);
 		break;
 	case MYSQL_TYPE_SHORT:
-		Size=sizeof(short);
+		Size=sizeof(WORD);
 		break;
 	case MYSQL_TYPE_LONG:
-		Size=sizeof(long);
+		Size=sizeof(DWORD);
 		break;
 	case MYSQL_TYPE_FLOAT:
 		Size=sizeof(float);
@@ -597,30 +601,30 @@ UINT CMySQLConnection::GetMySQLTypeBinLength(int Type,UINT Size,UINT DitigalSize
 		Size=sizeof(INT64);
 		break;
 	case MYSQL_TYPE_INT24:
-		Size=sizeof(long);
+		Size=sizeof(DWORD);
 		break;
-	case MYSQL_TYPE_DATE:		
-	case MYSQL_TYPE_TIME:		
+	case MYSQL_TYPE_DATE:
+	case MYSQL_TYPE_TIME:
 	case MYSQL_TYPE_DATETIME:
 		Size=sizeof(MYSQL_TIME);
 		break;
 	case MYSQL_TYPE_YEAR:
-		Size=sizeof(long);
+		Size=sizeof(BYTE);
 		break;
 	case MYSQL_TYPE_NEWDATE:
 		Size=sizeof(MYSQL_TIME);
 		break;
-	case MYSQL_TYPE_VARCHAR:		
-	case MYSQL_TYPE_BIT:		
-	case MYSQL_TYPE_NEWDECIMAL:		
-	case MYSQL_TYPE_ENUM:		
-	case MYSQL_TYPE_SET:		
-	case MYSQL_TYPE_TINY_BLOB:		
+	case MYSQL_TYPE_VARCHAR:
+	case MYSQL_TYPE_BIT:
+	case MYSQL_TYPE_NEWDECIMAL:
+	case MYSQL_TYPE_ENUM:
+	case MYSQL_TYPE_SET:
+	case MYSQL_TYPE_TINY_BLOB:
 	case MYSQL_TYPE_MEDIUM_BLOB:
 	case MYSQL_TYPE_LONG_BLOB:
-	case MYSQL_TYPE_BLOB:		
+	case MYSQL_TYPE_BLOB:
 	case MYSQL_TYPE_VAR_STRING:
-	case MYSQL_TYPE_STRING:		
+	case MYSQL_TYPE_STRING:
 	case MYSQL_TYPE_GEOMETRY:
 		break;
 	}
@@ -636,27 +640,27 @@ BOOL CMySQLConnection::MySQLStrValueToDBValue(int ValueType,LPCVOID pData,int Da
 	switch(ValueType)
 	{
 	case MYSQL_TYPE_TINY:
-		{			
+		{
 			DBValue.SetEmptyValue(DBType,0,DitigalSize);
-			*((char *)DBValue.GetBuffer())=(char)atol((LPCSTR)pData);			
+			*((BYTE *)DBValue.GetBuffer()) = (BYTE)atol((LPCSTR)pData);
 			return TRUE;
 		}
 	case MYSQL_TYPE_SHORT:
 		{
 			DBValue.SetEmptyValue(DBType,0,DitigalSize);
-			*((short *)DBValue.GetBuffer())=(short)atol((LPCSTR)pData);				
+			*((WORD *)DBValue.GetBuffer()) = (WORD)atol((LPCSTR)pData);
 			return TRUE;
 		}
 	case MYSQL_TYPE_LONG:
 		{
 			DBValue.SetEmptyValue(DBType,0,DitigalSize);
-			*((long *)DBValue.GetBuffer())=(long)atol((LPCSTR)pData);
+			*((DWORD *)DBValue.GetBuffer()) = (DWORD)atol((LPCSTR)pData);
 			return TRUE;
 		}
 	case MYSQL_TYPE_INT24:
 		{
 			DBValue.SetEmptyValue(DBType,0,DitigalSize);
-			*((long *)DBValue.GetBuffer())=(long)atol((LPCSTR)pData);
+			*((DWORD *)DBValue.GetBuffer()) = (DWORD)atol((LPCSTR)pData);
 			return TRUE;
 		}
 	case MYSQL_TYPE_LONGLONG:
@@ -733,20 +737,20 @@ BOOL CMySQLConnection::MySQLStrValueToDBValue(int ValueType,LPCVOID pData,int Da
 	case MYSQL_TYPE_YEAR:
 		{
 			DBValue.SetEmptyValue(DBType,0,DitigalSize);
-			*((double *)DBValue.GetBuffer())=(long)atol((LPCSTR)pData);
+			*((BYTE *)DBValue.GetBuffer()) = (BYTE)(atol((LPCSTR)pData) - 1901);
 			return TRUE;
 		}
 	case MYSQL_TYPE_SET:
 	case MYSQL_TYPE_ENUM:
-	case MYSQL_TYPE_STRING:		
-	case MYSQL_TYPE_VAR_STRING:		
+	case MYSQL_TYPE_STRING:
+	case MYSQL_TYPE_VAR_STRING:
 	case MYSQL_TYPE_GEOMETRY:
 	case MYSQL_TYPE_BLOB:
 		{
 			DBValue.SetEmptyValue(DBType,DataSize,DitigalSize);
 			memcpy(DBValue.GetBuffer(),pData,DataSize);
 			return TRUE;
-		}		
+		}
 	}
 	return FALSE;
 #pragma warning (pop)
@@ -756,7 +760,7 @@ BOOL CMySQLConnection::MySQLStrValueToDBValue(int ValueType,LPCVOID pData,int Da
 BOOL CMySQLConnection::DBValueToMySQLBinValue(int Type,LPCVOID pDBValue,int DBValueSize,LPVOID pData,int DataSize)
 {
 	switch(Type)
-	{	
+	{
 	case DB_TYPE_STRING:
 	case DB_TYPE_WSTRING:
 		if(DataSize>=DBValueSize)
@@ -773,16 +777,16 @@ BOOL CMySQLConnection::DBValueToMySQLBinValue(int Type,LPCVOID pDBValue,int DBVa
 		}
 		break;
 	case DB_TYPE_SMALLINT:
-		if(DataSize>=sizeof(short))
+		if(DataSize>=sizeof(WORD))
 		{
-			memcpy(pData,pDBValue,sizeof(short));
+			memcpy(pData, pDBValue, sizeof(WORD));
 			return TRUE;
 		}
 		break;
 	case DB_TYPE_INTEGER:
-		if(DataSize>=sizeof(int))
+		if(DataSize>=sizeof(DWORD))
 		{
-			memcpy(pData,pDBValue,sizeof(int));
+			memcpy(pData, pDBValue, sizeof(DWORD));
 			return TRUE;
 		}
 		break;
@@ -861,7 +865,7 @@ BOOL CMySQLConnection::DBValueToMySQLBinValue(int Type,LPCVOID pDBValue,int DBVa
 			memcpy(pData,pDBValue,DBValueSize);
 			return TRUE;
 		}
-		break;	
+		break;
 	}
 	return FALSE;
 }
@@ -869,17 +873,17 @@ BOOL CMySQLConnection::DBValueToMySQLBinValue(int Type,LPCVOID pDBValue,int DBVa
 BOOL CMySQLConnection::MySQLBinValueToDBValue(int Type,LPCVOID pData,int DataSize,int DBType,int DitigalSize,CDBValue& DBValue)
 {
 	switch(Type)
-	{	
-	case MYSQL_TYPE_DECIMAL:			
-	case MYSQL_TYPE_TINY:		
-	case MYSQL_TYPE_SHORT:		
-	case MYSQL_TYPE_LONG:		
-	case MYSQL_TYPE_FLOAT:		
-	case MYSQL_TYPE_DOUBLE:	
+	{
+	case MYSQL_TYPE_DECIMAL:
+	case MYSQL_TYPE_TINY:
+	case MYSQL_TYPE_SHORT:
+	case MYSQL_TYPE_LONG:
+	case MYSQL_TYPE_FLOAT:
+	case MYSQL_TYPE_DOUBLE:
 	case MYSQL_TYPE_LONGLONG:
 	case MYSQL_TYPE_INT24:
 	case MYSQL_TYPE_YEAR:
-	case MYSQL_TYPE_VARCHAR:	
+	case MYSQL_TYPE_VARCHAR:
 	case MYSQL_TYPE_BIT:
 	case MYSQL_TYPE_NEWDECIMAL:
 	case MYSQL_TYPE_ENUM:
@@ -892,7 +896,7 @@ BOOL CMySQLConnection::MySQLBinValueToDBValue(int Type,LPCVOID pData,int DataSiz
 	case MYSQL_TYPE_STRING:
 	case MYSQL_TYPE_GEOMETRY:
 		DBValue.SetValue(DBType,pData,DataSize,DitigalSize);
-		return TRUE;	
+		return TRUE;
 	case MYSQL_TYPE_NULL:
 		DBValue.SetNULLValue(DBType);
 		return TRUE;
@@ -907,11 +911,11 @@ BOOL CMySQLConnection::MySQLBinValueToDBValue(int Type,LPCVOID pData,int DataSiz
 			pDBTime->hour=pMySQLTime->hour;
 			pDBTime->minute=pMySQLTime->minute;
 			pDBTime->second=pMySQLTime->second;
-			pDBTime->fraction=pMySQLTime->second_part;			
+			pDBTime->fraction=pMySQLTime->second_part;
 			return TRUE;
 		}
-		break;	
-		
+		break;
+
 	case MYSQL_TYPE_DATE:
 		{
 			DBValue.SetEmptyValue(DBType,0,DitigalSize);
@@ -919,7 +923,7 @@ BOOL CMySQLConnection::MySQLBinValueToDBValue(int Type,LPCVOID pData,int DataSiz
 			DB_DATE * pDBTime=(DB_DATE *)DBValue.GetBuffer();
 			pDBTime->year=pMySQLTime->year;
 			pDBTime->month=pMySQLTime->month;
-			pDBTime->day=pMySQLTime->day;			
+			pDBTime->day=pMySQLTime->day;
 			return TRUE;
 		}
 		break;
@@ -930,7 +934,7 @@ BOOL CMySQLConnection::MySQLBinValueToDBValue(int Type,LPCVOID pData,int DataSiz
 			DB_TIME * pDBTime=(DB_TIME *)DBValue.GetBuffer();
 			pDBTime->hour=pMySQLTime->hour;
 			pDBTime->minute=pMySQLTime->minute;
-			pDBTime->minute=pMySQLTime->second;			
+			pDBTime->minute=pMySQLTime->second;
 			return TRUE;
 		}
 		break;
@@ -945,10 +949,10 @@ BOOL CMySQLConnection::MySQLBinValueToDBValue(int Type,LPCVOID pData,int DataSiz
 			pDBTime->hour=pMySQLTime->hour;
 			pDBTime->minute=pMySQLTime->minute;
 			pDBTime->second=pMySQLTime->second;
-			pDBTime->fraction=pMySQLTime->second_part;			
+			pDBTime->fraction=pMySQLTime->second_part;
 			return TRUE;
 		}
-		break;		
+		break;
 	case MYSQL_TYPE_NEWDATE:
 		{
 			DBValue.SetEmptyValue(DBType,0,DitigalSize);
@@ -956,11 +960,11 @@ BOOL CMySQLConnection::MySQLBinValueToDBValue(int Type,LPCVOID pData,int DataSiz
 			DB_DATE * pDBTime=(DB_DATE *)DBValue.GetBuffer();
 			pDBTime->year=pMySQLTime->year;
 			pDBTime->month=pMySQLTime->month;
-			pDBTime->day=pMySQLTime->day;			
+			pDBTime->day=pMySQLTime->day;
 			return TRUE;
 		}
-		break;	
-	}	
+		break;
+	}
 	return FALSE;
 }
 
@@ -1032,9 +1036,9 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 		{
 			ProcessErrorMsg(m_MySQLStmt,"没有足够的参数\r\n");
 			return DBERR_NOTENOUGHPARAM;
-		}	
+		}
 
-		
+
 
 		ParamList.Resize(ParamNum);
 		ZeroMemory(&(ParamList[0]),sizeof(MYSQL_BIND)*ParamNum);
@@ -1046,22 +1050,22 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 			UINT Size=pParamSet->GetParam(i).GetLength();
 			UINT DigitalSize=pParamSet->GetParam(i).GetDigitalLength();
 			ParamList[i].buffer_type=(enum_field_types)DBLibTypeToMySQLType(pParamSet->GetParamInfo(i)->Type,Size,DigitalSize);
-			ParamBufferSize+=Size+sizeof(UINT)+sizeof(my_bool);
+			ParamBufferSize+=Size+sizeof(ULONG)+sizeof(my_bool);
 		}
 		//转换内容到缓冲
 		ParamBuffer.Create(ParamBufferSize);
 		for(UINT i=0;i<ParamNum;i++)
 		{
-			
+
 			UINT Size=pParamSet->GetParam(i).GetLength();
 			UINT DigitalSize=pParamSet->GetParam(i).GetDigitalLength();
 			ParamList[i].buffer_type=(enum_field_types)DBLibTypeToMySQLType(pParamSet->GetParamInfo(i)->Type,Size,DigitalSize);
-			
+
 			ParamList[i].buffer=(char *)ParamBuffer.GetFreeBuffer();
 			ParamList[i].buffer_length=Size;
 			ParamBuffer.PushBack(NULL,Size);
 			ParamList[i].length=(ULONG *)ParamBuffer.GetFreeBuffer();
-			ParamBuffer.PushBack(&Size,sizeof(UINT));
+			ParamBuffer.PushBack(&Size, sizeof(ULONG));
 			ParamList[i].is_null=(my_bool *)ParamBuffer.GetFreeBuffer();
 			ParamBuffer.PushConstBack(0,sizeof(my_bool));
 
@@ -1070,10 +1074,10 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 				*(ParamList[i].is_null)=true;
 				*(ParamList[i].length)=0;
 				ParamList[i].length_value=0;
-			
+
 			}
 			else
-			{	
+			{
 				*(ParamList[i].is_null)=false;
 				*(ParamList[i].length)=Size;
 				ParamList[i].length_value=Size;
@@ -1083,7 +1087,7 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 				{
 					return DBERR_BINDPARAMFAIL;
 				}
-				
+
 			}
 		}
 

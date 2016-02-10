@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 IMPLEMENT_CLASS_INFO_STATIC(CLogManager,CNameObject);
@@ -20,7 +20,7 @@ CLogManager::CLogManager(void):CNameObject()
 {
 	m_LogChannels.Insert(LOG_SYSTEM_CHANNEL,new CVSOutputLogPrinter());
 
-	CEasyString ImportLogFileName=GetModuleFilePath(NULL);	
+	CEasyString ImportLogFileName=GetModuleFilePath(NULL);
 
 	m_LogChannels.Insert(LOG_IMPORTANT_CHANNEL,new CFileLogPrinter(ImportLogFileName,FILE_LOG_APPEND|FILE_LOG_SAFE_WRITE));
 }

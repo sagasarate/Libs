@@ -11,8 +11,7 @@
 /****************************************************************************/
 #pragma once
 
-#define LOG_DOS_CHANNEL					1301
-#define LOG_DOS_OBJECT_STATE_CHANNEL	1302
+
 #define THREAD_CPU_COUNT_TIME			(5000)
 //#define DOS_PROXY_KEEP_ALIVE_TIME		(10000)
 //#define DOS_PROXY_KEEP_ALIVE_MAX_COUNT	(20)

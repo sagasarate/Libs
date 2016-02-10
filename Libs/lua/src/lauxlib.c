@@ -699,8 +699,8 @@ LUALIB_API int luaL_loadbufferx (lua_State *L, const char *buff, size_t size,
 }
 
 
-LUALIB_API int luaL_loadstring (lua_State *L, const char *s) {
-  return luaL_loadbuffer(L, s, strlen(s), s);
+LUALIB_API int luaL_loadstring(lua_State *L, const char *s, const char *name) {
+	return luaL_loadbuffer(L, s, strlen(s), name);
 }
 
 /* }====================================================== */

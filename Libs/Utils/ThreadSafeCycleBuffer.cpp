@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 IMPLEMENT_CLASS_INFO_STATIC(CThreadSafeCycleBuffer,CNameObject);
@@ -17,9 +17,9 @@ IMPLEMENT_CLASS_INFO_STATIC(CThreadSafeCycleBuffer,CNameObject);
 CThreadSafeCycleBuffer::CThreadSafeCycleBuffer(void):CNameObject()
 {
 	m_pBuffer=NULL;
-	m_BufferSize=0;	
+	m_BufferSize=0;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 	m_IsLockFront=true;
 	m_IsLockBack=true;
@@ -28,21 +28,21 @@ CThreadSafeCycleBuffer::CThreadSafeCycleBuffer(void):CNameObject()
 CThreadSafeCycleBuffer::CThreadSafeCycleBuffer(UINT Size):CNameObject()
 {
 	m_pBuffer=NULL;
-	m_BufferSize=0;	
+	m_BufferSize=0;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 	m_IsLockFront=true;
 	m_IsLockBack=true;
-	Create(Size);	
+	Create(Size);
 }
 
 CThreadSafeCycleBuffer::CThreadSafeCycleBuffer(LPVOID pBuff,UINT Size):CNameObject()
 {
 	m_pBuffer=NULL;
-	m_BufferSize=0;	
+	m_BufferSize=0;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 	m_IsLockFront=true;
 	m_IsLockBack=true;
@@ -70,7 +70,7 @@ BOOL CThreadSafeCycleBuffer::Create(UINT Size)
 	m_pBuffer=new BYTE[Size];
 	m_BufferSize=Size;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 	m_IsLockFront=true;
 	m_IsLockBack=true;
@@ -93,7 +93,7 @@ BOOL CThreadSafeCycleBuffer::Create(LPVOID pBuff,UINT Size)
 	m_pBuffer=(BYTE *)pBuff;
 	m_BufferSize=Size;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=false;
 	m_IsLockFront=true;
 	m_IsLockBack=true;
@@ -115,9 +115,9 @@ void CThreadSafeCycleBuffer::Destory()
 	if(m_IsSelfBuffer)
 		SAFE_DELETE_ARRAY(m_pBuffer);
 	m_pBuffer=NULL;
-	m_BufferSize=0;	
+	m_BufferSize=0;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 	m_IsLockFront=true;
 	m_IsLockBack=true;

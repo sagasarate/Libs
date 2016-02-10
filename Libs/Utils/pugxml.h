@@ -73,14 +73,6 @@
 
 
 
-//#include <vector>
-//using std::vector;
-//
-//#if defined(PUGOPT_MEMFIL) | defined(PUGOPT_NONSEG)
-//#	include <assert.h>
-//#endif
-
-
 #ifndef HIWORD
 #	define HIWORD(X) ((unsigned short)((unsigned int)(X)>>16))
 #	define LOWORD(X) ((unsigned short)((unsigned int)(X)&0xFFFF))
@@ -354,8 +346,8 @@ inline static bool strwtrim(TCHAR** s,unsigned int& len)
 	if(!s || !*s) return false;
 	TCHAR* pse = *s + len;
 	while(*s < pse && pug::chartype_space(**s)) //Find first non-white character.
-		++*s; //As long as we hit whitespace, increment the string pointer.
-	for(; *s < --pse;) //As long as we hit whitespace, decrement.
+		++*s; //As int as we hit whitespace, increment the string pointer.
+	for(; *s < --pse;) //As int as we hit whitespace, decrement.
 	{
 		if(!pug::chartype_space(*pse))
 		{
@@ -376,12 +368,12 @@ inline static bool strwtrim(TCHAR** s,unsigned int& len)
 inline static bool strwtrim(TCHAR** s)
 {
 	if(!s || !*s) return false;
-	while(**s > 0 && **s < _T('!')) ++*s; //As long as we hit whitespace, increment the string pointer.
+	while(**s > 0 && **s < _T('!')) ++*s; //As int as we hit whitespace, increment the string pointer.
 	const TCHAR* temp = *s;
 	while(0 != *temp++); //Find the terminating null.
-	long i, n = (long)(temp-*s-1);
+	int i, n = (int)(temp-*s-1);
 	--n; //Start from the last string TCHAR.
-	for(i=n; (i > -1) && (*s)[i] > 0 && (*s)[i] < _T('!'); --i); //As long as we hit whitespace, decrement.
+	for(i=n; (i > -1) && (*s)[i] > 0 && (*s)[i] < _T('!'); --i); //As int as we hit whitespace, decrement.
 	if(i<n) (*s)[i+1] = 0; //Zero-terminate.
 	return true;
 }
@@ -396,16 +388,16 @@ inline static bool strwtrim(TCHAR** s)
 inline static bool strwnorm(TCHAR** s)
 {
 	if(!s || !*s) return false; //No string to normalize.
-	while(**s > 0 && **s < _T('!')) ++(*s); //As long as we hit whitespace, increment the string pointer.
+	while(**s > 0 && **s < _T('!')) ++(*s); //As int as we hit whitespace, increment the string pointer.
 	const TCHAR* temp = *s;
 	while(0 != *temp++); //Find the terminating null.
-	long n = (long)(temp-*s-1);
+	int n = (int)(temp-*s-1);
 	TCHAR* norm = (TCHAR*)malloc(sizeof(TCHAR)*(n+1)); //Allocate a temporary normalization buffer.
 	if(!norm) return false; //Allocation failed.
 	memset(norm,0,sizeof(TCHAR)*(n+1)); //Zero it.
-	long j = 1;
+	int j = 1;
 	norm[0] = (*s)[0];
-	for(long i=1; i<n; ++i) //For each character, starting at offset 1.
+	for(int i=1; i<n; ++i) //For each character, starting at offset 1.
 	{
 		if((*s)[i] < _T('!')) //Whitespace-like.
 		{
@@ -458,7 +450,7 @@ inline static bool strcpyinsitu
 {
 	if(!dest || !src || !insitu) return false; //Bad argument(s), so fail.
 #ifndef PUGOPT_NONSEG //Always use heap for our r/o string.
-	size_t l = (*dest) ? _tcslen(*dest) : 0; //How long is destination?
+	size_t l = (*dest) ? _tcslen(*dest) : 0; //How int is destination?
 	if(l >= _tcslen(src)) //Destination is large enough, so just copy.
 	{
 		_tcscpy(*dest,src); //Copy.
@@ -699,7 +691,7 @@ inline static xml_node_struct* append_node( xml_node_struct* parent, const int g
 //<param name="grow">Pointer space growth increment.</param>
 //<returns>Pointer to appended xml_attribute_struct.</returns>
 //<remarks>Attribute pointer space of 'node' may be reallocated.</remarks>
-inline static xml_attribute_struct* append_attribute(xml_node_struct* node,long grow)
+inline static xml_attribute_struct* append_attribute(xml_node_struct* node,int grow)
 {
 	if(!node) return NULL;
 	xml_attribute_struct* a = new_attribute();
@@ -842,7 +834,7 @@ inline static void free_node_recursive(xml_node_struct* root)
 //<param name="tempsize">Temporary read buffer size.</param>
 //<returns>Success if file at 'path' was opened and bytes were read into memory.</returns>
 //<remarks>Memory is allocated at '*buffer'. Free with 'free'.</remarks>
-//inline static bool load_file(const TCHAR* path,TCHAR** buffer,unsigned long* size,unsigned long tempsize = 4096)
+//inline static bool load_file(const TCHAR* path,TCHAR** buffer,unsigned int* size,unsigned int tempsize = 4096)
 //{
 //	if(!path || !buffer || !size) return false;
 //	*size = 0;
@@ -851,7 +843,7 @@ inline static void free_node_recursive(xml_node_struct* root)
 //	if(file_handle == INVALID_HANDLE_VALUE) return false;
 //	TCHAR* temp = (TCHAR*) malloc(sizeof(TCHAR)*tempsize);
 //	if(!temp) return false;
-//	unsigned long read_bytes = 0;
+//	unsigned int read_bytes = 0;
 //	ZeroMemory(temp,sizeof(TCHAR)*tempsize);
 //	while(ReadFile(file_handle,(void*)temp,tempsize-1,&read_bytes,0) && read_bytes && strcatgrow(buffer,temp))
 //	{
@@ -905,7 +897,7 @@ public:
 	}
 	unsigned int size(){ return _size; } //Count data elements in the array.
 	virtual void* at(unsigned int i){ if(i < _size) return _data[i]; else return NULL; } //Access element at subscript, or NULL if overflow.
-	long push_back(void* element) //Append a new element to the array.
+	int push_back(void* element) //Append a new element to the array.
 	{
 		if(_data) //Fail if no array.
 		{
@@ -1271,18 +1263,18 @@ class xml_iterator : public std::iterator<std::random_access_iterator_tag,_Ty,_D
 {
 protected:
 	xml_node_struct* _vref; //A pointer to the node over which to iterate.
-	long _sscr; //Current subscript of element.
+	int _sscr; //Current subscript of element.
 public:
 	xml_iterator() : _vref(0), _sscr(-1) {} //Default constructor.
-	xml_iterator(xml_node_struct* vref,long sscr = 0) : _vref(vref), _sscr(sscr){ } //Initializing constructor.
+	xml_iterator(xml_node_struct* vref,int sscr = 0) : _vref(vref), _sscr(sscr){ } //Initializing constructor.
 	xml_iterator(const xml_iterator& r) : _vref(r._vref), _sscr(r._sscr){ } //Copy constructor.
 	virtual ~xml_iterator(){} //Destructor.
 public:
 	virtual bool good() = 0; //Internal validity of '_vref'.
 	virtual bool oob() = 0; //Out of bounds check for '_sscr' with respect to '_vref'. Returns true if '_sscr' is O.O.B.
 public:
-	virtual long subscript(){ return _sscr; } //Get subscript value;
-	virtual void subscript(long new_subscript){ _sscr = new_subscript; } //Set subscript value;
+	virtual int subscript(){ return _sscr; } //Get subscript value;
+	virtual void subscript(int new_subscript){ _sscr = new_subscript; } //Set subscript value;
 public:
 	virtual xml_iterator& operator=(const xml_iterator& rhs){ _vref = rhs._vref; _sscr = rhs._sscr; return *this; } //Assignment.
 	virtual bool operator==(const xml_iterator& rhs){ return (_sscr == rhs._sscr); } //True if this is equal to RHS.
@@ -1304,14 +1296,14 @@ class xml_node; //Forward decl.
 class xml_tree_walker
 {
 protected:
-	long _deep; //Current node depth.
+	int _deep; //Current node depth.
 public:
 	xml_tree_walker() : _deep(0) {} //Default constructor.
 	virtual ~xml_tree_walker(){} //Destructor.
 public:
 	virtual void push(){ ++_deep; } //Increment node depth.
 	virtual void pop(){ --_deep; } //Decrement node depth.
-	virtual long depth() const { return (_deep > 0) ? _deep : 0; } //Access node depth.
+	virtual int depth() const { return (_deep > 0) ? _deep : 0; } //Access node depth.
 public:
 	//<summary>Callback when traverse on a given root node begins.</summary>
 	//<returns>Returning false will abort the traversal.</returns>
@@ -1478,40 +1470,40 @@ public:
 #endif
 	}
 
-	//<summary>Cast attribute value as long. If not found, return 0.</summary>
-	//<returns>Attribute value as long, or 0.</returns>
+	//<summary>Cast attribute value as int. If not found, return 0.</summary>
+	//<returns>Attribute value as int, or 0.</returns>
 	//<remarks>Note: Modifying this will not change the value, e.g. read only.</remarks>
-	operator long()
-	{
-		if(!has_value()) return 0;
-#ifdef PUGOPT_NONSEG
-		TCHAR temp[PUGDEF_ATTR_VALU_SIZE];
-		unsigned int valulen = sizeof(temp)-1;
-		const unsigned int maxlen = valulen ? Min(valulen,_attr->value_size) : _attr->value_size;
-		_tcsncpy_s(temp,PUGDEF_ATTR_VALU_SIZE,_attr->value,maxlen);
-		temp[maxlen] = 0;
-		return _tcstol(temp,NULL,10);
-#else
-		return _tcstol(_attr->value,NULL,10);
-#endif
-	}
+//	operator int()
+//	{
+//		if(!has_value()) return 0;
+//#ifdef PUGOPT_NONSEG
+//		TCHAR temp[PUGDEF_ATTR_VALU_SIZE];
+//		unsigned int valulen = sizeof(temp)-1;
+//		const unsigned int maxlen = valulen ? Min(valulen,_attr->value_size) : _attr->value_size;
+//		_tcsncpy_s(temp,PUGDEF_ATTR_VALU_SIZE,_attr->value,maxlen);
+//		temp[maxlen] = 0;
+//		return _tcstol(temp,NULL,10);
+//#else
+//		return _tcstol(_attr->value,NULL,10);
+//#endif
+//	}
+//
+//	operator unsigned int()
+//	{
+//		if(!has_value()) return 0;
+//#ifdef PUGOPT_NONSEG
+//		TCHAR temp[PUGDEF_ATTR_VALU_SIZE];
+//		unsigned int valulen = sizeof(temp)-1;
+//		const unsigned int maxlen = valulen ? Min(valulen,_attr->value_size) : _attr->value_size;
+//		_tcsncpy_s(temp,PUGDEF_ATTR_VALU_SIZE,_attr->value,maxlen);
+//		temp[maxlen] = 0;
+//		return _tcstoul(temp,NULL,10);
+//#else
+//		return _tcstoul(_attr->value,NULL,10);
+//#endif
+//	}
 
-	operator unsigned long()
-	{
-		if(!has_value()) return 0;
-#ifdef PUGOPT_NONSEG
-		TCHAR temp[PUGDEF_ATTR_VALU_SIZE];
-		unsigned int valulen = sizeof(temp)-1;
-		const unsigned int maxlen = valulen ? Min(valulen,_attr->value_size) : _attr->value_size;
-		_tcsncpy_s(temp,PUGDEF_ATTR_VALU_SIZE,_attr->value,maxlen);
-		temp[maxlen] = 0;
-		return _tcstoul(temp,NULL,10);
-#else
-		return _tcstoul(_attr->value,NULL,10);
-#endif
-	}
-
-	operator long long()
+	operator __int64()
 	{
 		if(!has_value()) return 0;
 #ifdef PUGOPT_NONSEG
@@ -1526,7 +1518,7 @@ public:
 #endif
 	}
 
-	operator unsigned long long()
+	operator unsigned __int64()
 	{
 		if(!has_value()) return 0;
 #ifdef PUGOPT_NONSEG
@@ -1611,17 +1603,17 @@ public:
 		value(temp);
 		return *this;
 	}
-	//<summary>Set attribute to long.</summary>
-	//<param name="rhs">Value long to set.</param>
+	//<summary>Set attribute to int.</summary>
+	//<param name="rhs">Value int to set.</param>
 	//<returns>Reference to xml_attribute.</returns>
-	xml_attribute& operator=(const long rhs)
-	{
-		TCHAR temp[32] = {0};
-		// _stprintf(temp,_T("%ld"),rhs);
-        _ltot_s( rhs, temp,32, 10 );    // NF changed from _stprintf 5 Mar 2003
-		value(temp);
-		return *this;
-	}
+	//xml_attribute& operator=(const int rhs)
+	//{
+	//	TCHAR temp[32] = {0};
+	//	// _stprintf(temp,_T("%ld"),rhs);
+ //       _ltot_s( rhs, temp,32, 10 );    // NF changed from _stprintf 5 Mar 2003
+	//	value(temp);
+	//	return *this;
+	//}
 	//<summary>Set attribute to double.</summary>
 	//<param name="rhs">Value double to set.</param>
 	//<returns>Reference to xml_attribute.</returns>
@@ -1654,10 +1646,10 @@ public:
 #endif
 		return *this;
 	}
-	//<summary>Right-shift attribute value to long.</summary>
-	//<param name="rhs">Reference to long to set.</param>
+	//<summary>Right-shift attribute value to int.</summary>
+	//<param name="rhs">Reference to int to set.</param>
 	//<returns>Reference to xml_attribute.</returns>
-	xml_attribute& operator>>(long& rhs){ rhs = (long)*this; return *this; }
+	xml_attribute& operator>>(int& rhs){ rhs = (int)*this; return *this; }
 	//<summary>Right-shift attribute value to double.</summary>
 	//<param name="rhs">Reference to double to set.</param>
 	//<returns>Reference to xml_attribute.</returns>
@@ -1666,11 +1658,11 @@ public:
 	//<param name="rhs">Reference to bool to set.</param>
 	//<returns>Reference to xml_attribute.</returns>
 	xml_attribute& operator>>(bool& rhs){ rhs = (bool)*this; return *this; }
-	//<summary>Left-shift attribute value to long.</summary>
-	//<param name="lhs">Reference to long to set.</param>
+	//<summary>Left-shift attribute value to int.</summary>
+	//<param name="lhs">Reference to int to set.</param>
 	//<param name="rhs">Reference to xml_attribute to read.</param>
-	//<returns>Reference to long.</returns>
-	friend long& operator<<(long& lhs,xml_attribute& rhs){ lhs = (long)rhs; return lhs; }
+	//<returns>Reference to int.</returns>
+	friend int& operator<<(int& lhs,xml_attribute& rhs){ lhs = (int)rhs; return lhs; }
 	//<summary>Left-shift attribute value to double.</summary>
 	//<param name="lhs">Reference to double to set.</param>
 	//<param name="rhs">Reference to xml_attribute to read.</param>
@@ -1681,11 +1673,11 @@ public:
 	//<param name="rhs">Reference to xml_attribute to read.</param>
 	//<returns>Reference to bool.</returns>
 	friend bool& operator<<(bool& lhs,xml_attribute& rhs){ lhs = (bool)rhs; return lhs; }
-	//<summary>Left-shift long to attribute value.</summary>
+	//<summary>Left-shift int to attribute value.</summary>
 	//<param name="lhs">Reference to xml_attribute to set.</param>
-	//<param name="rhs">Reference to long to read.</param>
+	//<param name="rhs">Reference to int to read.</param>
 	//<returns>Reference to xml_attribute.</returns>
-	friend xml_attribute& operator<<(xml_attribute& lhs,const long rhs){ lhs = rhs; return lhs; }
+	friend xml_attribute& operator<<(xml_attribute& lhs,const int rhs){ lhs = rhs; return lhs; }
 	//<summary>Left-shift double to attribute value.</summary>
 	//<param name="lhs">Reference to xml_attribute to set.</param>
 	//<param name="rhs">Reference to double to read.</param>
@@ -1851,15 +1843,15 @@ public:
 
 	//<summary>Child node iterator.</summary>
 
-	class xml_node_iterator : public xml_iterator<xml_node,long,xml_node*,xml_node&>
+	class xml_node_iterator : public xml_iterator<xml_node,int,xml_node*,xml_node&>
 	{
 	protected:
 		forward_class<xml_node> _wrap; //Wrapper for xml_node.
 	public:
 
-        xml_node_iterator() : _wrap(), xml_iterator<xml_node,long,xml_node*,xml_node&>() {} //Default constructor.
-        xml_node_iterator(xml_node_struct* vref,long sscr = 0) : _wrap(), xml_iterator<xml_node,long,xml_node*,xml_node&>(vref,sscr) { } //Initializing constructor.
-        xml_node_iterator(const xml_node_iterator& r) : _wrap(), xml_iterator<xml_node,long,xml_node*,xml_node&>(r) { } //Copy constructor.
+        xml_node_iterator() : _wrap(), xml_iterator<xml_node,int,xml_node*,xml_node&>() {} //Default constructor.
+        xml_node_iterator(xml_node_struct* vref,int sscr = 0) : _wrap(), xml_iterator<xml_node,int,xml_node*,xml_node&>(vref,sscr) { } //Initializing constructor.
+        xml_node_iterator(const xml_node_iterator& r) : _wrap(), xml_iterator<xml_node,int,xml_node*,xml_node&>(r) { } //Copy constructor.
 		virtual bool good() //Internal validity.
 		{
 			if
@@ -1877,7 +1869,7 @@ public:
 			(
 				!good()		|| //There is no data over which to iterate.
 				_sscr < 0	|| //Subscript is out of range.
-				_sscr >= (long)_vref->children
+				_sscr >= (int)_vref->children
 			)
 				return true;
 			return false;
@@ -1904,15 +1896,15 @@ public:
 
 	//<summary>Attribute iterator.</summary>
 
-	class xml_attribute_iterator : public xml_iterator<xml_attribute,long,xml_attribute*,xml_attribute&>
+	class xml_attribute_iterator : public xml_iterator<xml_attribute,int,xml_attribute*,xml_attribute&>
 	{
 	protected:
 		forward_class<xml_attribute> _wrap;
 	public:
 
-        xml_attribute_iterator() : _wrap(), xml_iterator<xml_attribute,long,xml_attribute*,xml_attribute&>() {} //Default constructor.
-        xml_attribute_iterator(xml_node_struct* vref,long sscr = 0) : _wrap(), xml_iterator<xml_attribute,long,xml_attribute*,xml_attribute&>(vref,sscr) { } //Initializing constructor.
-        xml_attribute_iterator(const xml_attribute_iterator& r) : _wrap(), xml_iterator<xml_attribute,long,xml_attribute*,xml_attribute&>(r) { } //Copy constructor.
+        xml_attribute_iterator() : _wrap(), xml_iterator<xml_attribute,int,xml_attribute*,xml_attribute&>() {} //Default constructor.
+        xml_attribute_iterator(xml_node_struct* vref,int sscr = 0) : _wrap(), xml_iterator<xml_attribute,int,xml_attribute*,xml_attribute&>(vref,sscr) { } //Initializing constructor.
+        xml_attribute_iterator(const xml_attribute_iterator& r) : _wrap(), xml_iterator<xml_attribute,int,xml_attribute*,xml_attribute&>(r) { } //Copy constructor.
 		virtual bool good() //Internal validity check.
 		{
 			if
@@ -1930,7 +1922,7 @@ public:
 			(
 				!good()		|| //There is no data over which to iterate.
 				_sscr < 0	|| //Subscript is out of range.
-				_sscr >= (long)_vref->attributes //For 'end'
+				_sscr >= (int)_vref->attributes //For 'end'
 			)
 				return true;
 			return false;
@@ -2170,7 +2162,7 @@ public:
             xml_attribute_struct* def_attr = new xml_attribute_struct;  // rem: dtor will delete def_attr.
 
                 // We rely on 'def' being around for the life of the returned xml_attribute.
-                // For typical use of: long Val = (long)some_node.getattribute( "someattr", "-1" );
+                // For typical use of: int Val = (int)some_node.getattribute( "someattr", "-1" );
                 // thus is fine. If this proves inadequate then do what append_attribute() does.
             def_attr->value = const_cast<TCHAR*>( def );
 #ifdef PUGOPT_NONSEG
@@ -2924,20 +2916,20 @@ public:
 	//<summary>Compile the absolute node path from root as a text string of xml_node_struct hex addresses..</summary>
 	//<param name="delimiter">Delimiter string to insert between element names.</param>
 	//<returns>Path string (e.g. with '/' as delimiter, '/A4EF/.../this'.</returns>
-	CEasyString pathaddress(const TCHAR* delimiter = _T("/"))
-	{
-		xml_node cursor = *this; //Make a copy.
-        char szTemp[ 50 ];
-		_itoa_s( (int)(xml_node_struct*)cursor, szTemp,50, 16 );
-		CEasyString spath(szTemp);
+	//CEasyString pathaddress(const TCHAR* delimiter = _T("/"))
+	//{
+	//	xml_node cursor = *this; //Make a copy.
+ //       char szTemp[ 50 ];
+	//	_itoa_s( (int)((xml_node_struct*)cursor), szTemp,50, 16 );
+	//	CEasyString spath(szTemp);
 
-		while(cursor.moveto_parent() && !cursor.type_document()) //Loop to parent (stopping on actual root because it has no name).
-		{
-            _itoa_s( (int)(xml_node_struct*)cursor, szTemp,50, 16 );
-            spath = CEasyString( szTemp ) + delimiter + spath;
-		}
-		return spath; //Return the path;
-	}
+	//	while(cursor.moveto_parent() && !cursor.type_document()) //Loop to parent (stopping on actual root because it has no name).
+	//	{
+ //           _itoa_s( (int)((xml_node_struct*)cursor), szTemp,50, 16 );
+ //           spath = CEasyString( szTemp ) + delimiter + spath;
+	//	}
+	//	return spath; //Return the path;
+	//}
 
 	//<summary>Search for a node by path.</summary>
 	//<param name="path">
@@ -3168,32 +3160,16 @@ public:
 		return xml_attribute(); //Failure; return an empty.
 	}
 
-	//<summary>Append a new attribute of type long to the node list of attributes.</summary>
+	//<summary>Append a new attribute of type int to the node list of attributes.</summary>
 	//<param name="name">Name.</param>
 	//<param name="value">Value thereof.</param>
 	//<returns>Attribute structure wrapper.</returns>
 	//<remarks>Pointer space may be grown, memory for name/value members allocated.</remarks>
-	xml_attribute append_attribute(const TCHAR* name,long value)
-	{
-		if(!name) return false;
-		TCHAR temp[32] = {0};
-		_stprintf_s(temp,32,_T("%ld"),value);
-		return append_attribute(name,temp);
-	}
-
-	xml_attribute append_attribute(const TCHAR* name,unsigned long value)
-	{
-		if(!name) return false;
-		TCHAR temp[32] = {0};
-		_stprintf_s(temp,32,_T("%ld"),value);
-		return append_attribute(name,temp);
-	}
-
 	xml_attribute append_attribute(const TCHAR* name,int value)
 	{
 		if(!name) return false;
 		TCHAR temp[32] = {0};
-		_stprintf_s(temp,32,_T("%d"),value);
+		_stprintf_s(temp,32,_T("%ld"),value);
 		return append_attribute(name,temp);
 	}
 
@@ -3201,9 +3177,25 @@ public:
 	{
 		if(!name) return false;
 		TCHAR temp[32] = {0};
-		_stprintf_s(temp,32,_T("%d"),value);
+		_stprintf_s(temp,32,_T("%lu"),value);
 		return append_attribute(name,temp);
 	}
+
+	//xml_attribute append_attribute(const TCHAR* name,int value)
+	//{
+	//	if(!name) return false;
+	//	TCHAR temp[32] = {0};
+	//	_stprintf_s(temp,32,_T("%d"),value);
+	//	return append_attribute(name,temp);
+	//}
+
+	//xml_attribute append_attribute(const TCHAR* name,unsigned int value)
+	//{
+	//	if(!name) return false;
+	//	TCHAR temp[32] = {0};
+	//	_stprintf_s(temp,32,_T("%d"),value);
+	//	return append_attribute(name,temp);
+	//}
 
 	//<summary>Append a new attribute of type double to the node list of attributes.</summary>
 	//<param name="name">Name.</param>
@@ -3635,11 +3627,11 @@ class xml_parser
 protected:
 
 	xml_node_struct*	_xmldoc; //Pointer to current XML document tree root.
-	long				_growby; //Attribute & child pointer space growth increment.
+	int				_growby; //Attribute & child pointer space growth increment.
 	bool				_autdel; //Delete the tree on destruct?
 	CEasyString			_buffer; //Pointer to in-memory buffer (for 'parse_file').
 	TCHAR*				_strpos; //Where parsing left off (for 'parse_file').
-	unsigned long		_optmsk; //Parser options.
+	unsigned int		_optmsk; //Parser options.
 #ifdef PUGOPT_MEMFIL
 	HANDLE				_mmfile; //File handle.
 	HANDLE				_mmfmap; //Handle which maps the file.
@@ -3662,7 +3654,7 @@ public:
 	//<param name="autdel">Delete tree on destruct?</param>
 	//<param name="growby">Parser pointer space growth increment.</param>
 	//<remarks>Root node structure is allocated.</remarks>
-	xml_parser(unsigned long optmsk = parse_default,bool autdel = true,long growby = parse_grow):
+	xml_parser(unsigned int optmsk = parse_default,bool autdel = true,int growby = parse_grow):
 		_xmldoc(0),
 			_growby(growby),
 			_autdel(autdel),
@@ -3688,7 +3680,7 @@ public:
 		//<param name="autdel">Delete tree on destruct?</param>
 		//<param name="growby">Parser pointer space growth increment.</param>
 		//<remarks>Root node structure is allocated, string is parsed & tree may be grown.</remarks>
-		xml_parser(TCHAR* xmlstr,unsigned long optmsk = parse_default,bool autdel = true,long growby = parse_grow) :
+		xml_parser(TCHAR* xmlstr,unsigned int optmsk = parse_default,bool autdel = true,int growby = parse_grow) :
 		_xmldoc(0),
 			_growby(growby),
 			_autdel(autdel),
@@ -3779,28 +3771,28 @@ public:
 
 	//<summary>Get parser optsions mask.</summary>
 	//<returns>Options mask.</returns>
-	unsigned long options(){ return _optmsk; }
+	unsigned int options(){ return _optmsk; }
 
 	//<summary>Set parser options mask.</summary>
 	//<param name="optmsk">Options mask to set.</param>
 	//<returns>Old options mask.</returns>
-	unsigned long options(unsigned long optmsk)
+	unsigned int options(unsigned int optmsk)
 	{
-		unsigned long prev = _optmsk;
+		unsigned int prev = _optmsk;
 		_optmsk = optmsk;
 		return prev;
 	}
 
 	//<summary>Get pointer space growth size increment.</summary>
 	//<returns>Grow size.</returns>
-	unsigned long growby(){ return _growby; }
+	unsigned int growby(){ return _growby; }
 
 	//<summary>Set pointer space growth size increment.</summary>
 	//<param name="grow">Grow size to set.</param>
 	//<returns>Old size.</returns>
-	unsigned long growby(long grow)
+	unsigned int growby(int grow)
 	{
-		long prev = _growby;
+		int prev = _growby;
 		_growby = grow;
 		return prev;
 	}
@@ -3824,7 +3816,7 @@ public:
 	//<param name="optmsk">Parser options mask.</param>
 	//<returns>Last string position or null.</returns>
 	//<remarks>Input string is zero-segmented.</remarks>
-	TCHAR* parse( TCHAR* s, unsigned long optmsk = parse_noset )
+	TCHAR* parse( TCHAR* s, unsigned int optmsk = parse_noset )
 	{
 		if(!s) return s;
 		clear(); //Free any allocated memory.
@@ -3844,11 +3836,11 @@ public:
 	//	The file contents is loaded and stored in the member '_buffer' until 
 	//	freed by calling 'Parse', 'parse_file', 'clear' or '~xml_parser'.
 	//</remarks>
-	bool parse_file(const TCHAR* path,unsigned long optmsk = parse_noset)
+	bool parse_file(const TCHAR* path,unsigned int optmsk = parse_noset)
 	{
 		return parse_file(FILE_CHANNEL,path,optmsk);
 	}
-	bool parse_file(int FileChannel,const TCHAR* path,unsigned long optmsk = parse_noset)
+	bool parse_file(int FileChannel,const TCHAR* path,unsigned int optmsk = parse_noset)
 	{
 		bool Ret=false;
 		IFileAccessor * pFile=CFileSystemManager::GetInstance()->CreateFileAccessor(FileChannel);
@@ -3890,8 +3882,8 @@ public:
 
 	///
 	void set_null() { _buffer.Clear(); }
-//	bool parse_file_in_mem(TCHAR *bits, size_t bytes, unsigned long optmsk = parse_noset)
-//	bool parse_file_in_mem(TCHAR *bits, unsigned long optmsk = parse_noset)
+//	bool parse_file_in_mem(TCHAR *bits, size_t bytes, unsigned int optmsk = parse_noset)
+//	bool parse_file_in_mem(TCHAR *bits, unsigned int optmsk = parse_noset)
 //	{
 //#ifdef PUGOPT_NONSEG
 //		assert((optmsk & parse_wnorm) == 0); // Normalization isn't implemented for non-segmented strings, as of 24 Mar 2003
@@ -3922,7 +3914,7 @@ public:
 	//	The file contents are available until closed by calling 'parse', 
 	//	'parse_file', 'clear' or '~xml_parser'.
 	//</remarks>
-	//int parse_mmfile(const TCHAR* path,unsigned long optmsk = parse_noset)
+	//int parse_mmfile(const TCHAR* path,unsigned int optmsk = parse_noset)
 	//{
 	//	int status = 0;
 	//	if(path)
@@ -4024,7 +4016,7 @@ protected:
 #endif
 
     // NF 29 May 2003
-    TCHAR* parse( register TCHAR* s, xml_node_struct* xmldoc, long growby, unsigned long optmsk = parse_default );
+    TCHAR* parse( register TCHAR* s, xml_node_struct* xmldoc, int growby, unsigned int optmsk = parse_default );
 
 };  // class xml_parser
 
@@ -4039,8 +4031,8 @@ protected:
 //	Input string is zero-segmented if 'PUGOPT_NONSEG' is not defined. Memory 
 //	may have been allocated to 'root' (free with 'free_node').
 //</remarks>
-// TCHAR* parse( register TCHAR* s, xml_node_struct* xmldoc, long growby, unsigned long optmsk = parse_default )
-inline TCHAR* xml_parser::parse( register TCHAR* s, xml_node_struct* xmldoc, long growby, unsigned long optmsk /* = parse_default */ )
+// TCHAR* parse( register TCHAR* s, xml_node_struct* xmldoc, int growby, unsigned int optmsk = parse_default )
+inline TCHAR* xml_parser::parse( register TCHAR* s, xml_node_struct* xmldoc, int growby, unsigned int optmsk /* = parse_default */ )
 {
 	if(!s || !xmldoc) return s;
 	TCHAR ch = 0; //Current char, in cases where we must null-terminate before we test.
@@ -4706,8 +4698,8 @@ public:
 	xml_node_list(unsigned int grow = 4) : pointer_array(grow) { }
 	virtual ~xml_node_list(){ }
 public:
-	xml_node at(long i){ return xml_node((xml_node_struct*)pointer_array::at((unsigned int)i)); } //Access xml_node at subscript.
-	xml_node operator[](long i){ return xml_node((xml_node_struct*)pointer_array::at((unsigned int)i)); } //Access xml_node at subscript.
+	xml_node at(int i){ return xml_node((xml_node_struct*)pointer_array::at((unsigned int)i)); } //Access xml_node at subscript.
+	xml_node operator[](int i){ return xml_node((xml_node_struct*)pointer_array::at((unsigned int)i)); } //Access xml_node at subscript.
 	friend std::ostream& operator<<(std::ostream& os,xml_node_list& list) //Output helper.
 	{
 		if(!os.good()) return os;

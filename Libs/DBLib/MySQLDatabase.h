@@ -10,12 +10,12 @@
 /*                                                                          */
 /****************************************************************************/
 #pragma once
-#include "dbinterfaces.h"
+#include "DBInterfaces.h"
 
 
 //#pragma comment(lib,"mysqlclient.lib")
 
-	
+
 
 
 
@@ -37,16 +37,16 @@ enum DB_MYSQL_ERROR_INFO
 class CMySQLDatabase :
 	public IDatabase
 {
-protected:	
+protected:
 
 	DECLARE_CLASS_INFO(CMySQLDatabase)
 public:
 	CMySQLDatabase(void);
-	virtual ~CMySQLDatabase(void);	
+	virtual ~CMySQLDatabase(void);
 
 	virtual IDBConnection * CreateConnection();
-	virtual int DeleteConnection(IDBConnection * pDBConnection);	
-	
+	virtual int DeleteConnection(IDBConnection * pDBConnection);
+
 };
 
 

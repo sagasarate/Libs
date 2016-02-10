@@ -195,7 +195,10 @@ int CODBCConnection::ExecuteSQL(LPCSTR SQLStr,int StrLen,IDBParameterSet * pPara
 		return ExecuteSQLDirect(SQLStr,StrLen);
 	}
 }
-
+int CODBCConnection::ExecuteSQLWithoutResultSet(LPCSTR SQLStr, int StrLen, IDBParameterSet * pParamSet)
+{
+	return ExecuteSQL(SQLStr, StrLen, pParamSet);
+}
 int CODBCConnection::GetTables()
 {
 	int nResult;
@@ -294,7 +297,7 @@ int CODBCConnection::GetAffectedRowCount()
 	int nResult=SQLRowCount(m_hStmt,&RowCount);
 	if(nResult==SQL_SUCCESS||nResult==SQL_SUCCESS_WITH_INFO)
 	{
-		return RowCount;
+		return (int)RowCount;
 	}
 	ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取影响行数失败\r\n", TRUE);
 	return -1;
@@ -345,7 +348,7 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 		ColInfos[i].Type=ODBCCTypeTODBLibType(BindTypes[i],ColInfos[i].Size);	
 		if(ColInfos[i].Size>MAX_FEILD_LEN)
 			ColInfos[i].Size=MAX_FEILD_LEN;
-		RecordLineLen+=ColInfos[i].Size;		
+		RecordLineLen+=(UINT)ColInfos[i].Size;		
 	}
 
 	////获取结果集行数
@@ -403,10 +406,10 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 			pFieldBuffer=(char *)RecordLineBuffer.GetFreeBuffer();	
 			for(UINT i=0;i<ColNum;i++)
 			{
-				ResultBuff.PushConstBack(FieldSize[i],sizeof(int));
+				ResultBuff.PushConstBack((UINT)FieldSize[i], sizeof(int));
 				if(FieldSize[i]>0)
-					ResultBuff.PushBack(pFieldBuffer,FieldSize[i]);
-				pFieldBuffer+=ColInfos[i].Size;
+					ResultBuff.PushBack(pFieldBuffer, (UINT)FieldSize[i]);
+				pFieldBuffer += ColInfos[i].Size;
 			}				
 		}
 	}while(nResult == SQL_SUCCESS || nResult == SQL_SUCCESS_WITH_INFO);
@@ -741,13 +744,13 @@ int CODBCConnection::ODBCSQLTypeTOODBCCType(int Type,UINT64& Size)
 		return SQL_C_WCHAR ;
 	case SQL_BIT:
 	case SQL_TINYINT:
-		Size=sizeof(char);
+		Size=sizeof(BYTE);
 		return SQL_C_TINYINT;
 	case SQL_SMALLINT:
-		Size=sizeof(short);
+		Size=sizeof(WORD);
 		return SQL_C_SSHORT;
 	case SQL_INTEGER:
-		Size=sizeof(long);
+		Size=sizeof(DWORD);
 		return SQL_C_SLONG;
 	case SQL_BIGINT:
 		Size=sizeof(INT64);
@@ -954,7 +957,7 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 			if(ODBCSQLType==SQL_CHAR||ODBCSQLType==SQL_VARCHAR||ODBCSQLType==SQL_LONGVARCHAR||
 				ODBCSQLType==SQL_BINARY||ODBCSQLType==SQL_VARBINARY||ODBCSQLType==SQL_LONGVARBINARY)
 			{
-				ColumnSize=tParamSize;
+				ColumnSize=(int)tParamSize;
 			}
 			if(ODBCSQLType==SQL_DECIMAL||ODBCSQLType==SQL_NUMERIC||ODBCSQLType==SQL_FLOAT||
 				ODBCSQLType==SQL_REAL||ODBCSQLType==SQL_DOUBLE)

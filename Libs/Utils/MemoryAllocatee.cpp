@@ -9,12 +9,12 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 
 CMemoryAllocatee::CMemoryAllocatee(void)
-{	
+{
 	m_IsWorking=true;
 }
 
@@ -41,7 +41,7 @@ CMemoryAllocatee::~CMemoryAllocatee(void)
 				PrintImportantLog(0,_T("Memory Leak Size=%u"),
 					pInfo->AllocSize);
 			}
-		}		
+		}
 	}
 }
 

@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 CThreadPerformanceCounter::CThreadPerformanceCounter(void)
@@ -29,7 +29,7 @@ void CThreadPerformanceCounter::Init(HANDLE ThreadHandle,UINT CountIntervalTime)
 	SYSTEM_INFO	si;
 	GetSystemInfo( &si );
 	m_CPUCount=si.dwNumberOfProcessors;
-	
+
 	FILETIME CreationTime,ExitTime,KernelTime,UserTime;
 	if(!GetThreadTimes(m_TreadHandle,
 		&CreationTime,&ExitTime,
@@ -42,7 +42,7 @@ void CThreadPerformanceCounter::Init(HANDLE ThreadHandle,UINT CountIntervalTime)
 #else
 	m_CPUCount=sysconf(_SC_NPROCESSORS_CONF);
 
-	timespec OrginTime;		
+	timespec OrginTime;
 	clock_gettime(CLOCK_THREAD_CPUTIME_ID,&OrginTime);
 	m_StartCPUUsedTime=(UINT64)OrginTime.tv_sec*1000000000+OrginTime.tv_nsec;
 #endif
@@ -58,7 +58,7 @@ void CThreadPerformanceCounter::DoPerformanceCount()
 			m_CountIntervalTimer.SaveTime();
 
 			UINT64 CurPerformanceCount=CEasyTimerEx::GetTime();
-			float CPUTime=(float)(CurPerformanceCount-m_StartPerformanceCount)/CEasyTimerEx::TIME_UNIT_PER_SECOND;		
+			float CPUTime=(float)(CurPerformanceCount-m_StartPerformanceCount)/CEasyTimerEx::TIME_UNIT_PER_SECOND;
 			m_StartPerformanceCount=CurPerformanceCount;
 
 			m_CycleTime=CPUTime*1000.0f/m_CycleCount;
@@ -76,7 +76,7 @@ void CThreadPerformanceCounter::DoPerformanceCount()
 			CurCPUUsedTime=((UINT64)KernelTime.dwLowDateTime)|(((UINT64)KernelTime.dwHighDateTime)<<32);
 			CurCPUUsedTime+=((UINT64)UserTime.dwLowDateTime)|(((UINT64)UserTime.dwHighDateTime)<<32);
 #else
-			timespec OrginTime;		
+			timespec OrginTime;
 			clock_gettime(CLOCK_THREAD_CPUTIME_ID,&OrginTime);
 			CurCPUUsedTime=(UINT64)OrginTime.tv_sec*1000000000+OrginTime.tv_nsec;
 #endif

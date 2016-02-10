@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "SystemConfig.h"
 
 CSystemConfig::CSystemConfig(void)
@@ -51,7 +51,7 @@ bool CSystemConfig::LoadConfig(LPCTSTR ConfigFileName)
 					m_MainThreadProcessLimit=MainThread.attribute("ProcessLimit");
 
 			}
-			
+
 			xml_node UDPControlAddress=Config;
 			if(UDPControlAddress.moveto_child("UDPControlAddress"))
 			{
@@ -78,7 +78,7 @@ bool CSystemConfig::LoadConfig(LPCTSTR ConfigFileName)
 				if (LogConfig.has_attribute("LogModuleSymStatus"))
 					m_LogModuleSymStatus = (bool)LogConfig.attribute("LogModuleSymStatus");
 
-				
+
 
 				if(LogConfig.has_attribute("LogLevel"))
 					m_LogLevel=LogConfig.attribute("LogLevel");

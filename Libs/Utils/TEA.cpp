@@ -12,7 +12,7 @@
 
 #include "StdAfx.h"
 
-void encrypt(unsigned int *v, const unsigned int *k,int Cycle) 
+void encrypt(unsigned int *v, const unsigned int *k, unsigned int Cycle)
 {
 	unsigned int y=v[0], z=v[1], sum=0, i;         /* set up */
 	unsigned int delta=0x9e3779b9;                 /* a key schedule constant */
@@ -27,7 +27,7 @@ void encrypt(unsigned int *v, const unsigned int *k,int Cycle)
 	v[1]=z;
  }
  
-void decrypt(unsigned int *v, const unsigned int *k,int Cycle) 
+void decrypt(unsigned int *v, const unsigned int *k, unsigned int Cycle)
 {
 	unsigned int y=v[0], z=v[1], sum=0, i; /* set up */
 	unsigned int delta=0x9e3779b9;                  /* a key schedule constant */
@@ -51,7 +51,7 @@ void decrypt(unsigned int *v, const unsigned int *k,int Cycle)
 	v[1]=z;
 }
 
-bool TEAEncode(const BYTE * pIn,BYTE * pOut,UINT DataLen,const BYTE * pKey,int Cycle)
+bool TEAEncode(const BYTE * pIn, BYTE * pOut, UINT DataLen, const BYTE * pKey, unsigned int Cycle)
 {
 	if((DataLen%8)!=0)
 		return false;
@@ -65,7 +65,7 @@ bool TEAEncode(const BYTE * pIn,BYTE * pOut,UINT DataLen,const BYTE * pKey,int C
 	return true;
 }
 
-bool TEADecode(const BYTE * pIn,BYTE * pOut,UINT DataLen,const BYTE * pKey,int Cycle)
+bool TEADecode(const BYTE * pIn, BYTE * pOut, UINT DataLen, const BYTE * pKey, unsigned int Cycle)
 {
 	if((DataLen%8)!=0)
 		return false;

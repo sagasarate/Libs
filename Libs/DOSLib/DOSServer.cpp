@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 IMPLEMENT_CLASS_INFO_STATIC(CDOSServer,CNetServer);
 
@@ -18,7 +18,7 @@ CDOSServer::CDOSServer(void):CNetServer()
 	FUNCTION_BEGIN;
 	m_pProxyManager = NULL;
 	m_pDOSRouterService=NULL;
-	m_pObjectManager=NULL;	
+	m_pObjectManager=NULL;
 	FUNCTION_END;
 }
 
@@ -44,9 +44,9 @@ BOOL CDOSServer::OnStartUp()
 	{
 		PrintDOSLog(0xffff, _T("代理管理器初始化失败！"));
 		return FALSE;
-	}	
+	}
 
-	m_pDOSRouterService=new CDOSRouter();	
+	m_pDOSRouterService=new CDOSRouter();
 	if(!m_pDOSRouterService->Init(this))
 	{
 		PrintDOSLog(0xffff,_T("路由服务启动失败！"));
@@ -77,7 +77,7 @@ BOOL CDOSServer::OnStartUp()
 void CDOSServer::OnShutDown()
 {
 	FUNCTION_BEGIN;
-	m_MemoryPool.Verfy(0);	
+	m_MemoryPool.Verfy(0);
 
 	if(m_pDOSRouterService)
 	{
@@ -85,7 +85,7 @@ void CDOSServer::OnShutDown()
 	}
 
 	SAFE_DELETE(m_pProxyManager);
-	SAFE_RELEASE(m_pObjectManager);	
+	SAFE_RELEASE(m_pObjectManager);
 	SAFE_DELETE(m_pDOSRouterService);
 
 	m_MemoryPool.Destory();

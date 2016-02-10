@@ -51,7 +51,7 @@ public:
 				if(m_pInstance==NULL)
 				{
 					m_pInstance = new T;
-					_stprintf_s(InstanceAddrStr,32,_T("%llu"),(LONGLONG)m_pInstance);
+					_stprintf_s(InstanceAddrStr,32,_T("%llu"),(UINT64)m_pInstance);
 					InstanceAddrStr[31]=0;
 					SetEnvVar(ThisEnvVarName,InstanceAddrStr);
 					//atexit(ReleaseInstance);

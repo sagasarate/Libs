@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 
 IMPLEMENT_FILE_CHANNEL_MANAGER(CCSVReader)
 
@@ -15,7 +15,7 @@ CCSVReader::CCSVReader(void)
 
 CCSVReader::~CCSVReader(void)
 {
-	Destory();	
+	Destory();
 }
 
 void CCSVReader::Destory()
@@ -32,7 +32,7 @@ bool CCSVReader::Open(LPCTSTR szFileName,bool HaveHeader)
 	IFileAccessor * pFileAccessor=CreateFileAccessor();
 	if(pFileAccessor)
 	{
-		
+
 		if(pFileAccessor->Open(szFileName,IFileAccessor::modeOpen|IFileAccessor::modeRead|IFileAccessor::shareShareAll))
 		{
 			Ret=Open(pFileAccessor,HaveHeader);
@@ -50,18 +50,18 @@ bool CCSVReader::Open(IFileAccessor * pFileAccessor,bool HaveHeader)
 	Destory();
 
 	CStringFile StringFile(GetFileChannel());
-	
+
 	StringFile.SetLocalCodePage(m_LocalCodePage);
 	if(!StringFile.LoadFile(pFileAccessor,false))
 	{
 		return false;
 	}
 
-	m_DataSize=_tcslen(StringFile.GetData());
+	m_DataSize = StringFile.GetDataLen();
 	m_pData=new TCHAR[m_DataSize+1];
-	_tcscpy(m_pData,StringFile.GetData());
+	memcpy(m_pData, StringFile.GetData(), m_DataSize*sizeof(TCHAR));
 	m_pData[m_DataSize]=0;
-	
+
 	UINT RowCount=GetLineCount(m_pData);
 	LPTSTR szLine=m_pData;
 	if(HaveHeader&&RowCount)
@@ -79,11 +79,23 @@ bool CCSVReader::Open(IFileAccessor * pFileAccessor,bool HaveHeader)
 
 UINT CCSVReader::GetRowCount()
 {
-	return m_Records.GetCount();
+	return (UINT)m_Records.GetCount();
 }
 UINT CCSVReader::GetColCount()
 {
-	return m_ColumnNames.GetCount();
+	return (UINT)m_ColumnNames.GetCount();
+}
+
+int CCSVReader::GetColIndex(LPCTSTR ColName)
+{
+	for (UINT i = 0; i < m_ColumnNames.GetCount(); i++)
+	{
+		if (_tcsicmp(OffsetToStr(m_ColumnNames[i]), ColName) == 0)
+		{
+			return (int)i;
+		}
+	}
+	return -1;
 }
 
 LPCTSTR CCSVReader::GetDataString(UINT Row,UINT Col,LPCTSTR Default)
@@ -266,7 +278,7 @@ bool CCSVReader::Save(IFileAccessor * pFileAccessor,bool WriteHeader)
 
 bool CCSVReader::AddColumn(LPCTSTR ColName)
 {
-	int NeedSize=_tcslen(ColName)+1;	
+	UINT NeedSize = (UINT)_tcslen(ColName) + 1;
 	LPTSTR pData=AllocBuffer(NeedSize);
 	_tcscpy_s(pData,NeedSize,ColName);
 	m_ColumnNames.Add(StrToOffset(pData));
@@ -281,7 +293,7 @@ bool CCSVReader::AddRow()
 
 bool CCSVReader::AddDataString(LPCTSTR Data)
 {
-	int NeedSize=_tcslen(Data)+1;
+	UINT NeedSize=(UINT)_tcslen(Data)+1;
 	LPTSTR pData=AllocBuffer(NeedSize);
 	_tcscpy_s(pData,NeedSize,Data);
 	m_Records[m_Records.GetCount()-1].Add(StrToOffset(pData));
@@ -314,12 +326,12 @@ bool CCSVReader::AddDataInt64(INT64 Data)
 
 bool CCSVReader::AddDataDouble(double Data)
 {
-	int NeedSize=_sctprintf(_T("%g"),Data);
+	int NeedSize=_sctprintf(_T("%f"),Data);
 	if(NeedSize<0)
 		return false;
 	NeedSize++;
 	LPTSTR pData=AllocBuffer(NeedSize);
-	_stprintf_s(pData,NeedSize,_T("%g"),Data);
+	_stprintf_s(pData,NeedSize,_T("%f"),Data);
 	m_Records[m_Records.GetCount()-1].Add(StrToOffset(pData));
 	return true;
 }
@@ -380,7 +392,7 @@ LPTSTR CCSVReader::ParseLine(LPTSTR szLine,CEasyArray<UINT>& LineRecord)
 		else if(!IsInStr)
 		{
 			if(*szLine==_T('\r')||*szLine==_T('\n'))
-			{				
+			{
 				if(*szLine==_T('\r')&&*(szLine+1)==_T('\n'))
 				{
 					*szLine=0;
@@ -390,7 +402,7 @@ LPTSTR CCSVReader::ParseLine(LPTSTR szLine,CEasyArray<UINT>& LineRecord)
 				else
 				{
 					szLine++;
-				}				
+				}
 				break;
 			}
 			else if(*szLine==_T(','))
@@ -399,13 +411,13 @@ LPTSTR CCSVReader::ParseLine(LPTSTR szLine,CEasyArray<UINT>& LineRecord)
 				LineRecord.Add(StrToOffset(szLineHead));
 				szLineHead=szLine+1;
 			}
-		}		
+		}
 		szLine++;
-	}	
+	}
 	for(UINT i=0;i<LineRecord.GetCount();i++)
 	{
 		LPTSTR szField=OffsetToStr(LineRecord[i]);
-		UINT Len=_tcslen(szField);
+		UINT Len=(UINT)_tcslen(szField);
 		if(Len)
 		{
 			if(szField[Len-1]==_T('"'))
@@ -417,7 +429,7 @@ LPTSTR CCSVReader::ParseLine(LPTSTR szLine,CEasyArray<UINT>& LineRecord)
 				szField[0]=0;
 				szField++;
 			}
-			UINT QMCount=0;		
+			UINT QMCount=0;
 			while(*szField)
 			{
 				if(*szField==_T('"'))
@@ -430,7 +442,7 @@ LPTSTR CCSVReader::ParseLine(LPTSTR szLine,CEasyArray<UINT>& LineRecord)
 					else
 					{
 						QMCount++;
-					}					
+					}
 				}
 				else
 				{
@@ -464,7 +476,7 @@ void CCSVReader::ConfirmBufferFreeSize(UINT NeedSize)
 		memcpy(pNewBuffer,m_pData,m_DataSize*sizeof(TCHAR));
 		SAFE_DELETE_ARRAY(m_pData);
 		m_pData=pNewBuffer;
-		m_BufferSize=NewBufferSize;		
+		m_BufferSize=NewBufferSize;
 	}
 }
 
@@ -540,10 +552,10 @@ UINT CCSVReader::SaveLine(LPTSTR pSaveBuffer,UINT BufferSize,CEasyArray<UINT>& L
 					memmove(pSaveBuffer+DataLen-FieldPtr+1,pSaveBuffer+DataLen-FieldPtr,FieldPtr*sizeof(TCHAR));
 					pSaveBuffer[DataLen-FieldPtr]=_T('"');
 					DataLen++;
-					BufferSize--;					
+					BufferSize--;
 					if(BufferSize==0)
 						break;
-				}				
+				}
 			}
 			if(*szField==_T('"'))
 			{
@@ -557,7 +569,7 @@ UINT CCSVReader::SaveLine(LPTSTR pSaveBuffer,UINT BufferSize,CEasyArray<UINT>& L
 			szField++;
 			FieldPtr++;
 			DataLen++;
-			BufferSize--;	
+			BufferSize--;
 		}
 		if(AddQuotationMark&&BufferSize)
 		{

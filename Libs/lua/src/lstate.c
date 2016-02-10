@@ -163,6 +163,20 @@ static void stack_init (lua_State *L1, lua_State *L) {
   L1->ci = ci;
 }
 
+LUA_API void lua_reset_state(lua_State *L)
+{
+	L->top = L->stack;
+	L->status = LUA_OK;
+
+	CallInfo *ci;
+	ci = &L->base_ci;	
+	ci->callstatus = 0;
+	ci->func = L->top;
+	setnilvalue(L->top++);  /* 'function' entry for this 'ci' */
+	//ci->top = L->top + LUA_MINSTACK;
+	L->ci = ci;
+}
+
 
 static void freestack (lua_State *L) {
   if (L->stack == NULL)

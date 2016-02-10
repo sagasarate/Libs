@@ -67,6 +67,8 @@
 #define USE_CRT_DETAIL_NEW
 #endif
 
+#include "../../Libs/Utils/Utils.h"
+#include "../../Libs/NetLib/NetLib.h"
 #include "../../Libs/ServerFrameWork/ServerFrameWork.h"
 
 #include "../../Libs/DOSLib/DOSLib.h"

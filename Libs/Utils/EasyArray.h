@@ -192,11 +192,15 @@ public:
 		}
 		return false;
 	}
-	size_t GetBufferLength()
+	size_t GetBufferLength() const
 	{
 		return m_BufferSize;
 	}
 	T * GetBuffer()
+	{
+		return m_pBuffer;
+	}
+	const T * GetBuffer() const
 	{
 		return m_pBuffer;
 	}
@@ -205,6 +209,14 @@ public:
 		if(Index<m_ArrayLength)
 		{
 			return m_pBuffer+Index;
+		}
+		return NULL;
+	}
+	const T * GetObject(size_t Index) const
+	{
+		if (Index < m_ArrayLength)
+		{
+			return m_pBuffer + Index;
 		}
 		return NULL;
 	}
@@ -257,7 +269,25 @@ public:
 		ASSERT_AND_THROW(Index<m_ArrayLength);
 		return m_pBuffer[Index];
 	}
-	
+	const T& operator[](size_t Index) const
+	{
+		ASSERT_AND_THROW(Index < m_ArrayLength);
+		return m_pBuffer[Index];
+	}
+	void Reverse()
+	{
+		if (m_ArrayLength >= m_BufferSize)
+		{
+			ResizeBuffer(m_BufferSize + m_GrowSize);
+		}
+		T * pSwapBuff = m_pBuffer + sizeof(T)*GetCount();
+		for (UINT i = 0; i < GetCount() / 2; i++)
+		{
+			memcpy(pSwapBuff, m_pBuffer + i, sizeof(T));
+			memcpy(m_pBuffer + i, m_pBuffer + GetCount() - i - 1, sizeof(T));
+			memcpy(m_pBuffer + GetCount() - i - 1, pSwapBuff, sizeof(T));
+		}
+	}
 
 protected:
 	void ConstructObjects(T * pObjects,size_t ObjectCount)

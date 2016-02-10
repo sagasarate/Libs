@@ -190,9 +190,12 @@ public:
 
 	virtual BOOL QueryShutDown(OBJECT_ID TargetID,int Level)=0;
 	virtual void ShutDown(UINT PluginID)=0;
+
+	virtual BOOL RegisterLogger(UINT LogChannel, LPCTSTR FileName) = 0;
+	virtual BOOL RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader) = 0;
 };
 
-class IDistributedObject:public CNameObject
+class IDistributedObject
 {
 protected:
 	OBJECT_ID									m_CurMsgSenderID;
@@ -201,6 +204,8 @@ protected:
 public:
 	virtual BOOL Initialize(IDistributedObjectOperator * pOperator)=0;
 	virtual void Destory()=0;
+	virtual UINT AddUseRef() = 0;
+	virtual void Release() = 0;
 
 	virtual BOOL OnPreTranslateMessage(CDOSMessage * pMessage){return FALSE;}
 	virtual BOOL OnMessage(CDOSMessage * pMessage){return FALSE;}

@@ -69,6 +69,8 @@ public:
 
 	virtual BOOL QueryShutDown(OBJECT_ID TargetID,int Level);
 	virtual void ShutDown(UINT PluginID);
+	virtual BOOL RegisterLogger(UINT LogChannel, LPCTSTR FileName);
+	virtual BOOL RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader);
 
 protected:
 	virtual void OnRecvData(const CEasyBuffer& DataBuffer);

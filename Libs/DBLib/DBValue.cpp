@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "DBValue.h"
 
 namespace DBLib
@@ -19,8 +19,8 @@ IMPLEMENT_CLASS_INFO(CDBValue,CNameObject);
 
 CDBValue::CDBValue(void)
 {
-	m_ValueType=0;	
-	m_pData=NULL;	
+	m_ValueType=0;
+	m_pData=NULL;
 	m_DataSize=0;
 	m_DigitSize=0;
 }
@@ -75,18 +75,18 @@ CDBValue::CDBValue(unsigned int Value)
 	m_DataSize=0;
 	*this=Value;
 }
-CDBValue::CDBValue(long Value)
-{
-	m_pData=NULL;
-	m_DataSize=0;
-	*this=Value;
-}
-CDBValue::CDBValue(unsigned long Value)
-{
-	m_pData=NULL;
-	m_DataSize=0;
-	*this=Value;
-}
+//CDBValue::CDBValue(long Value)
+//{
+//	m_pData=NULL;
+//	m_DataSize=0;
+//	*this=Value;
+//}
+//CDBValue::CDBValue(unsigned long Value)
+//{
+//	m_pData=NULL;
+//	m_DataSize=0;
+//	*this=Value;
+//}
 CDBValue::CDBValue(__int64 Value)
 {
 	m_pData=NULL;
@@ -175,7 +175,7 @@ CDBValue::~CDBValue(void)
 void CDBValue::Destory()
 {
 	if(m_pData)
-	{	
+	{
 		SAFE_DELETE_ARRAY(m_pData);
 		m_DataSize=0;
 		m_DigitSize=0;
@@ -184,25 +184,25 @@ void CDBValue::Destory()
 }
 
 void CDBValue::SetValue(int ValueType,LPCVOID pData,int DataSize,int DitigalSize)
-{	
+{
 	Destory();
 	m_ValueType=ValueType;
 
 	if(pData)
 	{
 
-	
+
 		int AllocSize;
 
 		switch(m_ValueType)
-		{	
+		{
 		case DB_TYPE_TINY:
-			m_DataSize=1;				
+			m_DataSize=1;
 			m_DigitSize=0;
 			AllocSize=m_DataSize;
 			break;
 		case DB_TYPE_SMALLINT:
-			m_DataSize=2;		
+			m_DataSize=2;
 			m_DigitSize=0;
 			AllocSize=m_DataSize;
 			break;
@@ -244,15 +244,15 @@ void CDBValue::SetValue(int ValueType,LPCVOID pData,int DataSize,int DitigalSize
 		case DB_TYPE_GUID:
 			m_DataSize=sizeof(DB_GUID);
 			m_DigitSize=0;
-			AllocSize=m_DataSize;		
+			AllocSize=m_DataSize;
 			break;
 		case DB_TYPE_STRING:
 		case DB_TYPE_WSTRING:
 		case DB_TYPE_BINARY:
-			m_DataSize=DataSize;		
+			m_DataSize=DataSize;
 			m_DigitSize=0;
 			AllocSize=m_DataSize+2;
-			break;	
+			break;
 		default:
 			return;
 		}
@@ -270,14 +270,14 @@ void CDBValue::SetEmptyValue(int ValueType,int DataSize,int DitigalSize)
 	int AllocSize;
 
 	switch(m_ValueType)
-	{	
+	{
 	case DB_TYPE_TINY:
-		m_DataSize=1;				
+		m_DataSize=1;
 		m_DigitSize=0;
 		AllocSize=m_DataSize;
 		break;
 	case DB_TYPE_SMALLINT:
-		m_DataSize=2;		
+		m_DataSize=2;
 		m_DigitSize=0;
 		AllocSize=m_DataSize;
 		break;
@@ -319,20 +319,20 @@ void CDBValue::SetEmptyValue(int ValueType,int DataSize,int DitigalSize)
 	case DB_TYPE_GUID:
 		m_DataSize=sizeof(DB_GUID);
 		m_DigitSize=0;
-		AllocSize=m_DataSize;		
+		AllocSize=m_DataSize;
 		break;
 	case DB_TYPE_STRING:
 	case DB_TYPE_WSTRING:
 	case DB_TYPE_BINARY:
-		m_DataSize=DataSize;		
+		m_DataSize=DataSize;
 		m_DigitSize=0;
 		AllocSize=m_DataSize+2;
-		break;	
+		break;
 	default:
 		return;
 	}
 	m_pData=new BYTE[AllocSize];
-	ZeroMemory(m_pData,AllocSize);		
+	ZeroMemory(m_pData,AllocSize);
 }
 
 void CDBValue::SetNULLValue(int ValueType)
@@ -366,13 +366,13 @@ bool CDBValue::IsNull()
 }
 
 
-CDBValue::operator bool()
+CDBValue::operator bool() const
 {
 	bool Default=false;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{	
+	{
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 		return atoi((const char *)m_pData)!=0;
@@ -388,22 +388,22 @@ CDBValue::operator bool()
 		{
 			float Value=*((float *)m_pData);
 			return Value!=0;
-		}		
-	case DB_TYPE_DOUBLE:	
+		}
+	case DB_TYPE_DOUBLE:
 		{
 			double Value=*((double *)m_pData);
 			return Value!=0;
-		}		
+		}
 	}
 	return Default;
 }
-CDBValue::operator char()
+CDBValue::operator char() const
 {
 	char Default=0;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{	
+	{
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 		return (char)atoi((const char *)m_pData);
@@ -419,22 +419,22 @@ CDBValue::operator char()
 		{
 			float Value=*((float *)m_pData);
 			return (char)Value;
-		}		
-	case DB_TYPE_DOUBLE:	
+		}
+	case DB_TYPE_DOUBLE:
 		{
 			double Value=*((double *)m_pData);
 			return (char)Value;
-		}		
+		}
 	}
 	return Default;
 }
-CDBValue::operator unsigned char()
+CDBValue::operator unsigned char() const
 {
 	unsigned char Default=0;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{		
+	{
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 		return (unsigned char)atoi((const char *)m_pData);
@@ -450,22 +450,22 @@ CDBValue::operator unsigned char()
 		{
 			float Value=*((float *)m_pData);
 			return (unsigned char)Value;
-		}		
+		}
 	case DB_TYPE_DOUBLE:
 		{
 			double Value=*((double *)m_pData);
 			return (unsigned char)Value;
-		}			
+		}
 	}
 	return Default;
 }
-CDBValue::operator short()
+CDBValue::operator short() const
 {
 	short Default=0;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{	
+	{
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 		return (short)atoi((const char *)m_pData);
@@ -481,22 +481,22 @@ CDBValue::operator short()
 		{
 			float Value=*((float *)m_pData);
 			return (short)Value;
-		}	
+		}
 	case DB_TYPE_DOUBLE:
 		{
 			double Value=*((double *)m_pData);
 			return (short)Value;
-		}	
+		}
 	}
 	return Default;
 }
-CDBValue::operator unsigned short()
+CDBValue::operator unsigned short() const
 {
 	unsigned short Default=0;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{	
+	{
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 		return (unsigned short)atoi((const char *)m_pData);
@@ -512,22 +512,22 @@ CDBValue::operator unsigned short()
 		{
 			float Value=*((float *)m_pData);
 			return (unsigned short)Value;
-		}	
-	case DB_TYPE_DOUBLE:	
+		}
+	case DB_TYPE_DOUBLE:
 		{
 			double Value=*((double *)m_pData);
 			return (unsigned short)Value;
-		}	
+		}
 	}
 	return Default;
 }
-CDBValue::operator int()
+CDBValue::operator int() const
 {
 	int Default=0;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{		
+	{
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 		return (int)atoi((const char *)m_pData);
@@ -552,13 +552,13 @@ CDBValue::operator int()
 	}
 	return Default;
 }
-CDBValue::operator unsigned int()
+CDBValue::operator unsigned int() const
 {
 	unsigned int Default=0;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{		
+	{
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 		return (unsigned int)atoi((const char *)m_pData);
@@ -583,75 +583,75 @@ CDBValue::operator unsigned int()
 	}
 	return Default;
 }
-CDBValue::operator long()
-{
-	long Default=0;
-	if(m_pData==NULL)
-		return Default;
-	switch(m_ValueType)
-	{		
-	case DB_TYPE_BINARY:
-	case DB_TYPE_STRING:
-		return (long)atoi((const char *)m_pData);
-	case DB_TYPE_TINY:
-		return (long)(*m_pData);
-	case DB_TYPE_SMALLINT:
-		return (long)(*((short *)m_pData));
-	case DB_TYPE_INTEGER:
-		return (long)(*((int *)m_pData));
-	case DB_TYPE_BIGINT:
-		return (long)(*((__int64 *)m_pData));
-	case DB_TYPE_FLOAT:
-		{
-			float Value=*((float *)m_pData);
-			return (long)Value;
-		}
-	case DB_TYPE_DOUBLE:	
-		{
-			double Value=*((double *)m_pData);
-			return (long)Value;
-		}
-	}
-	return Default;
-}
-CDBValue::operator unsigned long()
-{
-	unsigned long Default=0;
-	if(m_pData==NULL)
-		return Default;
-	switch(m_ValueType)
-	{		
-	case DB_TYPE_BINARY:
-	case DB_TYPE_STRING:
-		return (unsigned long)atoi((const char *)m_pData);
-	case DB_TYPE_TINY:
-		return (unsigned long)(*m_pData);
-	case DB_TYPE_SMALLINT:
-		return (unsigned long)(*((short *)m_pData));
-	case DB_TYPE_INTEGER:
-		return (unsigned long)(*((int *)m_pData));
-	case DB_TYPE_BIGINT:
-		return (unsigned long)(*((__int64 *)m_pData));
-	case DB_TYPE_FLOAT:
-		{
-			float Value=*((float *)m_pData);
-			return (unsigned long)Value;
-		}
-	case DB_TYPE_DOUBLE:	
-		{
-			double Value=*((double *)m_pData);
-			return (unsigned long)Value;
-		}
-	}
-	return Default;
-}
-CDBValue::operator __int64()
+//CDBValue::operator long() const
+//{
+//	long Default=0;
+//	if(m_pData==NULL)
+//		return Default;
+//	switch(m_ValueType)
+//	{
+//	case DB_TYPE_BINARY:
+//	case DB_TYPE_STRING:
+//		return (long)atoi((const char *)m_pData);
+//	case DB_TYPE_TINY:
+//		return (long)(*m_pData);
+//	case DB_TYPE_SMALLINT:
+//		return (long)(*((short *)m_pData));
+//	case DB_TYPE_INTEGER:
+//		return (long)(*((int *)m_pData));
+//	case DB_TYPE_BIGINT:
+//		return (long)(*((__int64 *)m_pData));
+//	case DB_TYPE_FLOAT:
+//		{
+//			float Value=*((float *)m_pData);
+//			return (long)Value;
+//		}
+//	case DB_TYPE_DOUBLE:
+//		{
+//			double Value=*((double *)m_pData);
+//			return (long)Value;
+//		}
+//	}
+//	return Default;
+//}
+//CDBValue::operator unsigned long() const
+//{
+//	unsigned long Default=0;
+//	if(m_pData==NULL)
+//		return Default;
+//	switch(m_ValueType)
+//	{
+//	case DB_TYPE_BINARY:
+//	case DB_TYPE_STRING:
+//		return (unsigned long)atoi((const char *)m_pData);
+//	case DB_TYPE_TINY:
+//		return (unsigned long)(*m_pData);
+//	case DB_TYPE_SMALLINT:
+//		return (unsigned long)(*((short *)m_pData));
+//	case DB_TYPE_INTEGER:
+//		return (unsigned long)(*((int *)m_pData));
+//	case DB_TYPE_BIGINT:
+//		return (unsigned long)(*((__int64 *)m_pData));
+//	case DB_TYPE_FLOAT:
+//		{
+//			float Value=*((float *)m_pData);
+//			return (unsigned long)Value;
+//		}
+//	case DB_TYPE_DOUBLE:
+//		{
+//			double Value=*((double *)m_pData);
+//			return (unsigned long)Value;
+//		}
+//	}
+//	return Default;
+//}
+CDBValue::operator __int64() const
 {
 	__int64 Default=0;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{		
+	{
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 		return (__int64)atoi((const char *)m_pData);
@@ -676,13 +676,13 @@ CDBValue::operator __int64()
 	}
 	return Default;
 }
-CDBValue::operator unsigned __int64()
+CDBValue::operator unsigned __int64() const
 {
 	unsigned __int64 Default=0;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{		
+	{
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 		return (unsigned __int64)atoi((const char *)m_pData);
@@ -707,13 +707,13 @@ CDBValue::operator unsigned __int64()
 	}
 	return Default;
 }
-CDBValue::operator float()
+CDBValue::operator float() const
 {
 	float Default=0.0f;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{		
+	{
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 		return (float)atof((const char *)m_pData);
@@ -727,7 +727,7 @@ CDBValue::operator float()
 		return (float)(*((__int64 *)m_pData));
 	case DB_TYPE_FLOAT:
 		return (float)(*((float *)m_pData));
-	case DB_TYPE_DOUBLE:	
+	case DB_TYPE_DOUBLE:
 		{
 			double Value=*((double *)m_pData);
 			return (float)Value;
@@ -735,13 +735,13 @@ CDBValue::operator float()
 	}
 	return Default;
 }
-CDBValue::operator double()
+CDBValue::operator double() const
 {
 	double Default=0.0f;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{		
+	{
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 		return (double)atof((const char *)m_pData);
@@ -755,18 +755,18 @@ CDBValue::operator double()
 		return (double)(*((__int64 *)m_pData));
 	case DB_TYPE_FLOAT:
 		return (double)(*((float *)m_pData));
-	case DB_TYPE_DOUBLE:	
+	case DB_TYPE_DOUBLE:
 		return (double)(*((double *)m_pData));
 	}
 	return Default;
 }
-CDBValue::operator const char *()
+CDBValue::operator const char *() const
 {
 	char * Default=NULL;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{		
+	{
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 	case DB_TYPE_WSTRING:
@@ -775,13 +775,13 @@ CDBValue::operator const char *()
 	return Default;
 }
 
-CDBValue::operator const wchar_t *()
+CDBValue::operator const wchar_t *() const
 {
 	wchar_t * Default=NULL;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{		
+	{
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 	case DB_TYPE_WSTRING:
@@ -793,7 +793,7 @@ CDBValue::operator const wchar_t *()
 
 //CDBValue::operator SYSTEMTIME()
 //{
-//	SYSTEMTIME_EX Default;	
+//	SYSTEMTIME_EX Default;
 //	if(m_pData==NULL)
 //		return Default;
 //	switch(m_ValueType)
@@ -802,13 +802,13 @@ CDBValue::operator const wchar_t *()
 //		Default=*((DB_DATE *)m_pData);
 //		break;
 //	case DB_TYPE_TIME:
-//		Default=*((DB_TIME *)m_pData);		
+//		Default=*((DB_TIME *)m_pData);
 //		break;
 //	case DB_TYPE_TIMESTAMP:
-//		Default=*((DB_TIMESTAMP *)m_pData);		
+//		Default=*((DB_TIMESTAMP *)m_pData);
 //		break;
 //	}
-//	
+//
 //	return Default;
 //}
 //CDBValue::operator FILETIME()
@@ -822,15 +822,15 @@ CDBValue::operator const wchar_t *()
 //		Default=*((DB_DATE *)m_pData);
 //		break;
 //	case DB_TYPE_TIME:
-//		Default=*((DB_TIME *)m_pData);		
+//		Default=*((DB_TIME *)m_pData);
 //		break;
 //	case DB_TYPE_TIMESTAMP:
-//		Default=*((DB_TIMESTAMP *)m_pData);		
+//		Default=*((DB_TIMESTAMP *)m_pData);
 //		break;
 //	}
 //	return Default;
 //}
-CDBValue::operator DB_DATE()
+CDBValue::operator DB_DATE() const
 {
 	DB_DATE Default;
 	ZeroMemory(&Default,sizeof(Default));
@@ -840,31 +840,31 @@ CDBValue::operator DB_DATE()
 	{
 	case DB_TYPE_DATE:
 		return *((DB_DATE *)m_pData);
-		break;	
+		break;
 	case DB_TYPE_TIMESTAMP:
-		Default=*((DB_TIMESTAMP *)m_pData);		
+		Default=*((DB_TIMESTAMP *)m_pData);
 		break;
 	}
 	return Default;
 }
-CDBValue::operator DB_TIME()
+CDBValue::operator DB_TIME() const
 {
 	DB_TIME Default;
 	ZeroMemory(&Default,sizeof(Default));
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
-	{	
+	{
 	case DB_TYPE_TIME:
-		return *((DB_TIME *)m_pData);		
+		return *((DB_TIME *)m_pData);
 		break;
 	case DB_TYPE_TIMESTAMP:
-		Default=*((DB_TIMESTAMP *)m_pData);		
+		Default=*((DB_TIMESTAMP *)m_pData);
 		break;
 	}
 	return Default;
 }
-CDBValue::operator DB_TIMESTAMP()
+CDBValue::operator DB_TIMESTAMP() const
 {
 	DB_TIMESTAMP Default;
 	ZeroMemory(&Default,sizeof(Default));
@@ -876,15 +876,15 @@ CDBValue::operator DB_TIMESTAMP()
 		Default=*((DB_DATE *)m_pData);
 		break;
 	case DB_TYPE_TIME:
-		Default=*((DB_TIME *)m_pData);		
+		Default=*((DB_TIME *)m_pData);
 		break;
 	case DB_TYPE_TIMESTAMP:
-		Default=*((DB_TIMESTAMP *)m_pData);		
+		Default=*((DB_TIMESTAMP *)m_pData);
 		break;
 	}
 	return Default;
 }
-CDBValue::operator CEasyTime()
+CDBValue::operator CEasyTime() const
 {
 	CEasyTime Default;
 	ZeroMemory(&Default,sizeof(Default));
@@ -914,7 +914,7 @@ CDBValue::operator CEasyTime()
 	}
 	return Default;
 }
-CDBValue::operator DB_GUID()
+CDBValue::operator DB_GUID() const
 {
 	DB_GUID Default;
 	ZeroMemory(&Default,sizeof(Default));
@@ -925,9 +925,9 @@ CDBValue::operator DB_GUID()
 	case DB_TYPE_GUID:
 		return *((DB_GUID *)m_pData);
 	}
-	return Default;	
+	return Default;
 }
-CDBValue::operator const void *()
+CDBValue::operator const void *() const
 {
 	return m_pData;
 }
@@ -940,25 +940,25 @@ void CDBValue::operator=(const CDBValue& Value)
 
 void CDBValue::operator=(bool Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_TINY,&Value,1,0);
 }
 
 void CDBValue::operator=(char Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_TINY,&Value,1,0);
 }
 
 void CDBValue::operator=(unsigned char Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_TINY,&Value,1,0);
 }
 
 void CDBValue::operator=(short Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_SMALLINT,&Value,2,0);
 }
 
@@ -970,7 +970,7 @@ void CDBValue::operator=(unsigned short Value)
 
 void CDBValue::operator=(int Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_INTEGER,&Value,4,0);
 }
 
@@ -980,21 +980,21 @@ void CDBValue::operator=(unsigned int Value)
 	SetValue(DB_TYPE_INTEGER,&Value,4,0);
 }
 
-void CDBValue::operator=(long Value)
-{
-	Destory();
-	SetValue(DB_TYPE_INTEGER,&Value,4,0);
-}
-
-void CDBValue::operator=(unsigned long Value)
-{
-	Destory();
-	SetValue(DB_TYPE_INTEGER,&Value,4,0);
-}
+//void CDBValue::operator=(long Value)
+//{
+//	Destory();
+//	SetValue(DB_TYPE_INTEGER,&Value,4,0);
+//}
+//
+//void CDBValue::operator=(unsigned long Value)
+//{
+//	Destory();
+//	SetValue(DB_TYPE_INTEGER,&Value,4,0);
+//}
 
 void CDBValue::operator=(__int64 Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_BIGINT,&Value,8,0);
 }
 
@@ -1006,31 +1006,31 @@ void CDBValue::operator=(unsigned __int64 Value)
 
 void CDBValue::operator=(float Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_FLOAT,&Value,4,0);
 }
 
 void CDBValue::operator=(double Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_DOUBLE,&Value,8,0);
 }
 
 void CDBValue::operator=(const char * Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_STRING,Value,(int)strlen(Value),0);
 }
 
 void CDBValue::operator=(const wchar_t * Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_WSTRING,Value,(int)wcslen(Value)*2,0);
 }
 
 //void CDBValue::operator=(const SYSTEMTIME& Value)
 //{
-//	Destory();	
+//	Destory();
 //	DB_TIMESTAMP TimeStamp(Value);
 //	SetValue(DB_TYPE_TIMESTAMP,&TimeStamp,sizeof(DB_TIMESTAMP),0);
 //}
@@ -1038,30 +1038,30 @@ void CDBValue::operator=(const wchar_t * Value)
 //void CDBValue::operator=(const FILETIME& Value)
 //{
 //	Destory();
-//	DB_TIMESTAMP TimeStamp(Value);	
+//	DB_TIMESTAMP TimeStamp(Value);
 //	SetValue(DB_TYPE_TIMESTAMP,&TimeStamp,sizeof(DB_TIMESTAMP),0);
 //}
 
 void CDBValue::operator=(const DB_DATE& Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_DATE,&Value,sizeof(DB_DATE),0);
 }
 
 void CDBValue::operator=(const DB_TIME& Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_TIME,&Value,sizeof(DB_TIME),0);
 }
 
 void CDBValue::operator=(const DB_TIMESTAMP& Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_TIMESTAMP,&Value,sizeof(DB_TIMESTAMP),0);
 }
 void CDBValue::operator=(const CEasyTime& Value)
 {
-	Destory();	
+	Destory();
 	DB_TIMESTAMP DBValue;
 	DBValue.year=((CEasyTime)Value).Year();
 	DBValue.month=((CEasyTime)Value).Month();
@@ -1074,7 +1074,7 @@ void CDBValue::operator=(const CEasyTime& Value)
 }
 void CDBValue::operator=(const DB_GUID& Value)
 {
-	Destory();	
+	Destory();
 	SetValue(DB_TYPE_GUID,&Value,sizeof(DB_GUID),0);
 }
 

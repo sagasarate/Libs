@@ -1,28 +1,40 @@
 #include "des.h"
 #include <errno.h>
+#include <memory.h>
 
-#define ROL(x, r) ((x) = rol32((x), (r)))
-#define ROR(x, r) ((x) = ror32((x), (r)))
+#if defined(WIN32) && !defined(__cplusplus)
 
-/**
- * rol32 - rotate a 32-bit value left
- * @word: value to rotate
- * @shift: bits to roll
- */
-static _inline __u32 rol32(__u32 word, unsigned int shift)
-{
-	return (word << shift) | (word >> (32 - shift));
-}
+#define inline __inline
 
-/**
- * ror32 - rotate a 32-bit value right
- * @word: value to rotate
- * @shift: bits to roll
- */
-static _inline __u32 ror32(__u32 word, unsigned int shift)
-{
-	return (word >> shift) | (word << (32 - shift));
-}
+#endif
+
+
+//#define ROL(x, r) ((x) = rol32((x), (r)))
+//#define ROR(x, r) ((x) = ror32((x), (r)))
+//
+///**
+// * rol32 - rotate a 32-bit value left
+// * @word: value to rotate
+// * @shift: bits to roll
+// */
+//inline __u32 rol32(__u32 word, unsigned int shift)
+//{
+//	return (word << shift) | (word >> (32 - shift));
+//}
+//
+///**
+// * ror32 - rotate a 32-bit value right
+// * @word: value to rotate
+// * @shift: bits to roll
+// */
+//inline __u32 ror32(__u32 word, unsigned int shift)
+//{
+//	return (word >> shift) | (word << (32 - shift));
+//}
+
+
+#define ROL(x, r) ((x) = (x << r) | (x >> (32 - r)))
+#define ROR(x, r) ((x) = (x >> r) | (x << (32 - r)))
 
 /* Lookup tables for key expansion */
 

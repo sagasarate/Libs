@@ -9,14 +9,14 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 IMPLEMENT_CLASS_INFO(CTreeObject,CNameObject);
 
 CTreeObject::CTreeObject(void)
 {
 	m_pParent=NULL;
-	m_StorageID=(UINT)this;
+	m_StorageID=(UINT)((UINT64)this);
 	m_ChildList.Create(0,5);
 }
 
@@ -158,12 +158,12 @@ void CTreeObject::ClearAllChild()
 bool CTreeObject::CloneFrom(CNameObject * pObject,UINT Param)
 {
 	if(!CNameObject::CloneFrom(pObject,Param))
-		return false;	
+		return false;
 
-	CTreeObject * pSource=(CTreeObject *)pObject;	
+	CTreeObject * pSource=(CTreeObject *)pObject;
 
 	if((Param&OBJECT_CLONE_WITHOUT_CHILD)==0)
-	{			
+	{
 		for(int i=0;i<(int)pSource->m_ChildList.GetCount();i++)
 		{
 			CTreeObject * pNewChild=dynamic_cast<CTreeObject *>(pSource->m_ChildList[i]->GetClassInfo().CreateObject());
@@ -171,7 +171,7 @@ bool CTreeObject::CloneFrom(CNameObject * pObject,UINT Param)
 			{
 				if(pNewChild->CloneFrom(pSource->m_ChildList[i]))
 				{
-					pNewChild->SetParent(this);					
+					pNewChild->SetParent(this);
 				}
 				else
 				{
@@ -218,7 +218,7 @@ bool CTreeObject::FromSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pRe
 			{
 				LPCTSTR ClassName=ChildPacket.GetMember(SST_NO_CLASS_NAME);
 				LPCTSTR ObjectName=ChildPacket.GetMember(SST_NO_OBJECT_NAME);
-				CNameObject * pObject=pResourceManager->CreateObject(ClassName,ObjectName);				
+				CNameObject * pObject=pResourceManager->CreateObject(ClassName,ObjectName);
 				if(pObject==NULL)
 					return false;
 				if(!pObject->IsKindOf(GET_CLASS_INFO(CTreeObject)))
@@ -241,7 +241,7 @@ UINT CTreeObject::GetSmartStructSize(UINT Param)
 	{
 		for(UINT i=0;i<m_ChildList.GetCount();i++)
 		{
-			Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(m_ChildList[i]->GetSmartStructSize(Param));
+			Size+=CSmartStruct::GetFixMemberSize(m_ChildList[i]->GetSmartStructSize(Param));
 		}
 	}
 	return Size;

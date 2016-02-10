@@ -182,6 +182,20 @@ public:
 		m_GrowSize=0;
 		m_GrowLimit=0;
 	}
+	CStaticMap(UINT Size, UINT GrowSize = 0, UINT GrowLimit = 0)
+	{
+		m_pFreeListHead = NULL;
+		m_pFreeListTail = NULL;
+		m_pObjectListHead = NULL;
+		m_pObjectListTail = NULL;
+		m_pTreeRoot = NULL;
+		m_pFront = NULL;
+		m_pBack = NULL;
+		m_ObjectCount = 0;
+		m_GrowSize = 0;
+		m_GrowLimit = 0;
+		Create(Size, GrowSize, GrowLimit);
+	}
 	~CStaticMap()
 	{
 		Destory();

@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 #define LINK_CONNECT_TIME		(30*1000)
@@ -44,7 +44,7 @@ CEasyNetLinkConnection::~CEasyNetLinkConnection(void)
 
 void CEasyNetLinkConnection::SetMaxPacketSize(UINT MaxPacketSize)
 {
-	if(MaxPacketSize)
+	if (MaxPacketSize>m_SendBuffer.GetBufferSize())
 	{
 		m_AssembleBuffer.Create(MaxPacketSize+MAX_DATA_PACKET_SIZE);
 		m_SendBuffer.Create(MaxPacketSize);

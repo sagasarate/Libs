@@ -9,11 +9,17 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 
 IMPLEMENT_CLASS_INFO_STATIC(CEpollThread,CEasyThread);
+
+CEpollThread::CEpollThread() :CEasyThread()
+{
+	m_pServer = NULL;
+	m_hEpoll = NULL;
+}
 
 CEpollThread::CEpollThread(CNetServer * pServer):CEasyThread()
 {
@@ -44,7 +50,7 @@ BOOL CEpollThread::OnRun()
 		{
 			ULONG64_CONVERTER Param64;
 
-			Param64.QuadPart=Events[i].data.u64;	
+			Param64.QuadPart=Events[i].data.u64;
 
 			CEpollEventRouter * pEpollEventRouter=m_pServer->GetEventRouter(Param64.LowPart);
 			if(pEpollEventRouter)

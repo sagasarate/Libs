@@ -9,13 +9,13 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 IMPLEMENT_CLASS_INFO_STATIC(CNetConnection,CBaseTCPConnection);
 
 
 CNetConnection::CNetConnection(void)
-{		
+{
 	m_pServer=NULL;
 	m_WantClose=FALSE;
 	m_UseSafeDisconnect=false;
@@ -28,7 +28,7 @@ CNetConnection::~CNetConnection(void)
 }
 
 BOOL CNetConnection::OnEpollEvent(UINT EventID)
-{	
+{
 	if(m_Socket.IsConnected())
 	{
 		if(EventID&(EPOLLERR|EPOLLHUP))
@@ -44,7 +44,7 @@ BOOL CNetConnection::OnEpollEvent(UINT EventID)
 		if(EventID&EPOLLOUT)
 		{
 			DoSend();
-		}			
+		}
 	}
 	else
 	{
@@ -57,7 +57,7 @@ BOOL CNetConnection::OnEpollEvent(UINT EventID)
 
 BOOL CNetConnection::Create(UINT RecvQueueSize,UINT SendQueueSize)
 {
-	
+
 
 	if(GetServer()==NULL)
 		return FALSE;
@@ -67,10 +67,10 @@ BOOL CNetConnection::Create(UINT RecvQueueSize,UINT SendQueueSize)
 
 	if(m_pEpollEventRouter==NULL)
 	{
-		m_pEpollEventRouter=GetServer()->CreateEventRouter();	
+		m_pEpollEventRouter=GetServer()->CreateEventRouter();
 		m_pEpollEventRouter->Init(this);
 	}
-	m_Socket.MakeSocket(AF_INET,SOCK_STREAM,IPPROTO_TCP);	
+	m_Socket.MakeSocket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
 
 	if(m_RecvQueue.GetBufferSize()<RecvQueueSize)
 	{
@@ -90,13 +90,13 @@ BOOL CNetConnection::Create(UINT RecvQueueSize,UINT SendQueueSize)
 		m_SendQueue.Clear();
 	}
 	m_WantClose=FALSE;
-	
+
 	return TRUE;
 }
 
 BOOL CNetConnection::Create(SOCKET Socket,UINT RecvQueueSize,UINT SendQueueSize)
 {
-	
+
 
 	if(GetServer()==NULL)
 		return FALSE;
@@ -109,7 +109,7 @@ BOOL CNetConnection::Create(SOCKET Socket,UINT RecvQueueSize,UINT SendQueueSize)
 		m_pEpollEventRouter=GetServer()->CreateEventRouter();
 		m_pEpollEventRouter->Init(this);
 	}
-	
+
 	m_Socket.SetSocket(Socket);
 
 	if(m_RecvQueue.GetBufferSize()<RecvQueueSize)
@@ -129,15 +129,15 @@ BOOL CNetConnection::Create(SOCKET Socket,UINT RecvQueueSize,UINT SendQueueSize)
 	{
 		m_SendQueue.Clear();
 	}
-	m_WantClose=FALSE;	
+	m_WantClose=FALSE;
 	return TRUE;
 }
 
 void CNetConnection::Destory()
-{	
+{
 	if(IsConnected())
-	{		
-		OnDisconnection();	
+	{
+		OnDisconnection();
 	}
 
 	m_Socket.Close();
@@ -148,16 +148,16 @@ void CNetConnection::Destory()
 		GetServer()->DeleteEventRouter(m_pEpollEventRouter);
 		m_pEpollEventRouter=NULL;
 	}
-	
+
 	CEpollEventObject * pEpollEventObject;
 	while(m_RecvQueue.PopFront(pEpollEventObject))
-	{			
-		GetServer()->DeleteEventObject(pEpollEventObject);		
-	}	
+	{
+		GetServer()->DeleteEventObject(pEpollEventObject);
+	}
 	while(m_SendQueue.PopFront(pEpollEventObject))
-	{			
-		GetServer()->DeleteEventObject(pEpollEventObject);		
-	}	
+	{
+		GetServer()->DeleteEventObject(pEpollEventObject);
+	}
 
 	m_WantClose=FALSE;
 }
@@ -178,15 +178,15 @@ BOOL CNetConnection::Connect(const CIPAddress& Address ,DWORD TimeOut)
 	if(TimeOut==NO_CONNECTION_TIME_OUT)
 	{
 		if(m_Socket.Connect(Address))
-		{				
-			StartWork();			
+		{
+			StartWork();
 			return TRUE;
 		}
 	}
 	else
 	{
 		if(m_Socket.ConnectNoBlocking(Address,TimeOut))
-		{			
+		{
 			return TRUE;
 		}
 	}
@@ -198,19 +198,19 @@ void CNetConnection::Disconnect()
 
 	//PrintNetLog(0xffffffff,"%s连接关闭",GetName());
 
-	
+
 	m_Socket.Close();
-	
+
 	m_WantClose=FALSE;
 
 	CEpollEventObject * pEpollEventObject;
 	while(m_RecvQueue.PopFront(pEpollEventObject))
-	{			
-		GetServer()->DeleteEventObject(pEpollEventObject);		
-	}	
+	{
+		GetServer()->DeleteEventObject(pEpollEventObject);
+	}
 	while(m_SendQueue.PopFront(pEpollEventObject))
-	{			
-		GetServer()->DeleteEventObject(pEpollEventObject);		
+	{
+		GetServer()->DeleteEventObject(pEpollEventObject);
 	}
 
 	OnDisconnection();
@@ -223,18 +223,18 @@ void CNetConnection::QueryDisconnect()
 
 
 BOOL CNetConnection::StartWork()
-{	
+{
 	//PrintNetLog(0xffffffff,"(%d)Connection开始工作",GetID());
 
 	m_pEpollEventRouter->Init(this);
 
-	m_Socket.SetState(CNetSocket::SS_CONNECTED);	
+	m_Socket.SetState(CNetSocket::SS_CONNECTED);
 
 	if(!m_Socket.EnableBlocking(FALSE))
 	{
 		OnConnection(FALSE);
 		PrintNetLog(0xffffffff,"(%d)Connection开始非阻塞模式失败！",GetID());
-		m_Socket.Close();		
+		m_Socket.Close();
 		return FALSE;
 	}
 
@@ -242,10 +242,10 @@ BOOL CNetConnection::StartWork()
 	{
 		OnConnection(FALSE);
 		PrintNetLog(0xffffffff,"(%d)Connection绑定Epoll失败！",GetID());
-		m_Socket.Close();		
+		m_Socket.Close();
 		return FALSE;
-	}	
-		
+	}
+
 	//CEasyString ConnectionName;
 	//ConnectionName.Format("[%s:%d]",GetRemoteAddress().GetIPString(),GetRemoteAddress().GetPort());
 	//SetName(ConnectionName);;
@@ -259,7 +259,7 @@ BOOL CNetConnection::StartWork()
 
 void CNetConnection::OnConnection(BOOL IsSucceed)
 {
-	
+
 }
 
 void CNetConnection::OnDisconnection()
@@ -267,9 +267,9 @@ void CNetConnection::OnDisconnection()
 }
 
 BOOL CNetConnection::Send(LPCVOID pData,int Size)
-{		
+{
 	//CAutoLock Lock(m_EasyCriticalSection);
-	
+
 
 	if(m_Socket.IsConnected())
 	{
@@ -287,7 +287,7 @@ BOOL CNetConnection::Send(LPCVOID pData,int Size)
 				return FALSE;
 			}
 
-			pEpollEventObject->SetType(IO_SEND);	
+			pEpollEventObject->SetType(IO_SEND);
 			pEpollEventObject->GetDataBuff()->SetUsedSize(0);
 			pEpollEventObject->SetParentID(GetID());
 
@@ -301,16 +301,16 @@ BOOL CNetConnection::Send(LPCVOID pData,int Size)
 
 			if(!m_SendQueue.PushBack(pEpollEventObject))
 			{
-				PrintNetLog(0xffffffff,"CNetConnection::发送队列已满！");	
+				PrintNetLog(0xffffffff,"CNetConnection::发送队列已满！");
 				GetServer()->DeleteEventObject(pEpollEventObject);
 				Disconnect();
 				return FALSE;
-			}			
+			}
 		}
 		DoSend();
 		return TRUE;
-	}	
-	return FALSE;	
+	}
+	return FALSE;
 }
 
 
@@ -328,25 +328,25 @@ int CNetConnection::Update(int ProcessPacketLimit)
 	{
 		m_Socket.Connected();
 		if(m_Socket.GetState()==CNetSocket::SS_CONNECTED)
-		{			
-			StartWork();				
+		{
+			StartWork();
 		}
 		if(m_Socket.GetState()==CNetSocket::SS_UNUSED)
 		{
-			OnConnection(FALSE);			
+			OnConnection(FALSE);
 		}
 	}
 	else
 	{
 		CEpollEventObject * pEpollEventObject;
 		while(m_RecvQueue.PopFront(pEpollEventObject))
-		{				
+		{
 			OnRecvData(*(pEpollEventObject->GetDataBuff()));
 			GetServer()->DeleteEventObject(pEpollEventObject);
 			PacketCount++;
 			if(PacketCount>=ProcessPacketLimit)
 				break;
-		}			
+		}
 	}
 
 	//处理关闭
@@ -356,8 +356,8 @@ int CNetConnection::Update(int ProcessPacketLimit)
 		{
 			if(m_SendQueue.GetObjectCount()<=0)
 			{
-				Disconnect();		
-			}			
+				Disconnect();
+			}
 		}
 		else
 		{
@@ -383,7 +383,7 @@ bool CNetConnection::StealFrom(CNameObject * pObject,UINT Param)
 		CNetConnection * pConnection=(CNetConnection *)pObject;
 		if(!m_Socket.StealFrom(&(pConnection->m_Socket),Param))
 			return false;
-		
+
 		m_pServer=pConnection->m_pServer;
 		m_WantClose=pConnection->m_WantClose;
 		m_pEpollEventRouter=pConnection->m_pEpollEventRouter;
@@ -391,24 +391,24 @@ bool CNetConnection::StealFrom(CNameObject * pObject,UINT Param)
 		if(m_pEpollEventRouter)
 			m_pEpollEventRouter->SetEventHander(this);
 
-		
-		
+
+
 		CEpollEventObject * pEpollEventObject;
 
-		m_RecvQueue.Create(pConnection->m_RecvQueue.GetBufferSize());		
+		m_RecvQueue.Create(pConnection->m_RecvQueue.GetBufferSize());
 		while(pConnection->m_RecvQueue.PopFront(pEpollEventObject))
 		{
 			m_RecvQueue.PushBack(pEpollEventObject);
-		}		
+		}
 
-		m_SendQueue.Create(pConnection->m_SendQueue.GetBufferSize());		
+		m_SendQueue.Create(pConnection->m_SendQueue.GetBufferSize());
 		while(pConnection->m_SendQueue.PopFront(pEpollEventObject))
 		{
 			m_SendQueue.PushBack(pEpollEventObject);
-		}	
+		}
 
 		return true;
-		
+
 	}
 	return false;
 }
@@ -462,19 +462,19 @@ void CNetConnection::DoRecv()
 				switch(ErrorCode)
 				{
 				case EAGAIN:
-					return;				
+					return;
 				default:
 					PrintNetLog(0xffffffff,"CNetConnection::Recv失败(%u),Socket关闭",ErrorCode);
 					QueryDisconnect();
 					return;
-				}			
+				}
 			}
 		}
 		else
 		{
 			PrintNetLog(0xffffffff,"CNetConnection创建Recv用EpollEventObject失败！");
 			QueryDisconnect();
-			return;			
+			return;
 		}
 	}
 }
@@ -504,7 +504,7 @@ void CNetConnection::DoSend()
 		{
 			int ErrorCode=errno;
 			if(ErrorCode==EAGAIN)
-			{		
+			{
 				m_SendQueue.PushFront(pEpollEventObject);
 				return;
 			}
@@ -512,8 +512,8 @@ void CNetConnection::DoSend()
 			{
 				PrintNetLog(0xffffffff,"Send失败(%u)",ErrorCode);
 				QueryDisconnect();
-				return;			
-			}	
+				return;
+			}
 
 		}
 		GetServer()->DeleteEventObject(pEpollEventObject);

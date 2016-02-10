@@ -56,7 +56,7 @@ CMainApp theApp;
 //
 //	if(!CMainThread::GetInstance()->StartUp())
 //		return FALSE;
-//	
+//
 //
 //	// 由于对话框已关闭，所以将返回 FALSE 以便退出应用程序，
 //	// 而不是启动应用程序的消息泵。
@@ -65,14 +65,14 @@ CMainApp theApp;
 //
 //int CMainApp::ExitInstance()
 //{
-//	
+//
 //	CMainThread::GetInstance()->ShutDown(MAX_SERVER_TERMINATE_WAIT_TIME);
 //	SAFE_DELETE(m_pConsoleDlg);
 //	return 0;
 //}
 
 BOOL CMainApp::OnStartUp()
-{		
+{
 	PrintImportantLog(0,"DistributedObjectServer Start");
 	CPerformanceStatistician::GetInstance()->ResetPerformanceStat();
 
@@ -90,7 +90,7 @@ BOOL CMainApp::OnStartUp()
 		Flag|=EXCEPTION_MAKE_FULL_DUMP;
 	if (CSystemConfig::GetInstance()->IsLogModuleSymStatus())
 		Flag |= EXCEPTION_LOG_MODULE_SYM_STATUS;
-	
+
 	CExceptionParser::GetInstance()->Init(Flag);
 #endif
 
@@ -127,8 +127,10 @@ void CMainApp::OnSetServiceName()
 	}
 	if(m_IsConfigLoaded&&CMainConfig::GetInstance()->HaveServiceName())
 	{
+#ifdef WIN32
 		m_lpServiceName=CMainConfig::GetInstance()->GetServiceName();
 		m_lpDisplayName=CMainConfig::GetInstance()->GetServiceDesc();
 		PrintImportantLog(0,"服务名设置为:%s/%s",m_lpServiceName,m_lpDisplayName);
+#endif
 	}
 }

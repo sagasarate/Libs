@@ -14,7 +14,7 @@ public:
 protected:
 	bool							m_NeedReload;
 	bool							m_IsLoadFromFile;
-	bool							m_IsCloneScript;
+	bool							m_IsSharedLuaState;
 	UINT							m_ScriptID;
 	CEasyString						m_ScriptName;
 	CEasyString						m_ScriptContent;
@@ -29,14 +29,36 @@ protected:
 	CEasyTimer						m_ThreadRecyleTimer;
 public:
 	CLuaScript();
-	CLuaScript(const CLuaScript& LuaScript, bool ShareLuaState);
+	CLuaScript(const CLuaScript& LuaScript, int LuaStackSize = 0, UINT ThreadCount = 0, UINT GrowSize = 0, UINT GrowLimit = 0);
 	~CLuaScript();
 
 	virtual void Destory();
 
+	void CloneFrom(const CLuaScript& LuaScript,int LuaStackSize = 0, UINT ThreadCount = 0, UINT GrowSize = 0, UINT GrowLimit = 0);
+
 	bool Init(LPCTSTR ScriptName, LPCTSTR ScriptContent, CEasyArray<LUA_CFUN_INFO>* pFunctionList, int LuaStackSize, UINT ThreadCount, UINT GrowSize, UINT GrowLimit);
 	CLuaThread * AllocScriptThread(CBaseScriptHost * pObject, LPCTSTR szFunctionName);
 	bool DeleteScriptThread(CLuaThread * pLuaThread);
+	void DeleteAllScriptThread();
+	LPVOID GetFirstThreadPos()
+	{
+		return m_LuaThreadPool.GetFirstObjectPos();
+	}
+	CLuaThread * GetNextThread(LPVOID& Pos)
+	{
+		return m_LuaThreadPool.GetNext(Pos);
+	}
+	CLuaThread * GetThreadByID(UINT ID)
+	{
+		return m_LuaThreadPool.GetObject(ID);
+	}
+	CLuaThread * GetThreadByYeildType(int YeildType);	
+
+	lua_State *	GetLuaState()
+	{
+		return m_pLuaState;
+	}
+
 	void ReloadScript(LPCTSTR ScriptContent);
 
 	virtual void Update();
@@ -62,10 +84,12 @@ public:
 	{
 		return m_IsLoadFromFile;
 	}
+	//bool PopLuaThread(lua_State * pThreadState);
 protected:
+	void CloseLuaState();
 	bool LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent, CEasyArray<LUA_CFUN_INFO>* pFunctionList);
-
 	void RegisterLuaCFun(lua_State * pLuaState, const char* funcName, lua_CFunction function, void* func, unsigned int sizeofFunc);
+	void RecycleThread();
 
 };
 

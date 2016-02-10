@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 IMPLEMENT_CLASS_INFO_STATIC(CDOSServerThread,CDOSServer);
@@ -7,7 +7,7 @@ CDOSServerThread::CDOSServerThread()
 {
 	FUNCTION_BEGIN;
 	m_pSysNetLinkManager=NULL;
-	m_pUDPSystemControlPort=NULL;	
+	m_pUDPSystemControlPort=NULL;
 	m_ConsoleLogLevel=0;
 	FUNCTION_END;
 }
@@ -31,7 +31,7 @@ void CDOSServerThread::Execute()
 #ifndef _DEBUG
 		CMainGuardThread::GetInstance()->MakeKeepAlive();
 #endif
-	}	
+	}
 #ifndef _DEBUG
 	CMainGuardThread::GetInstance()->SafeTerminate();
 #endif
@@ -79,7 +79,7 @@ BOOL CDOSServerThread::OnStart()
 
 	SetConsoleLogLevel(CSystemConfig::GetInstance()->GetConsoleLogLevel());
 
-	
+
 
 
 	LogFileName.Format("%s/Log/DOSLib",(LPCTSTR)ModulePath);
@@ -104,7 +104,7 @@ BOOL CDOSServerThread::OnStart()
 	pLog=new CServerLogPrinter(this,CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(),LogFileName);
 	CLogManager::GetInstance()->AddChannel(LOG_DB_ERROR_CHANNEL,pLog);
-	SAFE_RELEASE(pLog);	
+	SAFE_RELEASE(pLog);
 
 
 
@@ -115,7 +115,7 @@ BOOL CDOSServerThread::OnStart()
 		g_ProgramVersion[0]);
 
 
-	
+
 
 
 	m_ESVariableList.Create(128);
@@ -188,12 +188,12 @@ BOOL CDOSServerThread::OnStart()
 	SetServerStatusFormat(SC_SST_SS_TCP_RECV_FLOW,"TCP接收流量(Byte/S)",SSFT_FLOW);
 	SetServerStatusFormat(SC_SST_SS_TCP_SEND_FLOW,"TCP发送流量(Byte/S)",SSFT_FLOW);
 	SetServerStatusFormat(SC_SST_SS_TCP_RECV_COUNT,"TCP接收次数(次/S)");
-	SetServerStatusFormat(SC_SST_SS_TCP_SEND_COUNT,"TCP发送次数(次/S)");	
+	SetServerStatusFormat(SC_SST_SS_TCP_SEND_COUNT,"TCP发送次数(次/S)");
 	SetServerStatusFormat(SST_SS_OBJECT_COUNT,"系统对象数");
 	SetServerStatusFormat(SST_SS_ROUTE_IN_MSG_COUNT,"路由输入消息数");
 	SetServerStatusFormat(SST_SS_ROUTE_IN_MSG_FLOW,"路由输入消息流量",SSFT_FLOW);
 	SetServerStatusFormat(SST_SS_ROUTE_OUT_MSG_COUNT,"路由输出消息数");
-	SetServerStatusFormat(SST_SS_ROUTE_OUT_MSG_FLOW,"路由输出消息流量",SSFT_FLOW);	
+	SetServerStatusFormat(SST_SS_ROUTE_OUT_MSG_FLOW,"路由输出消息流量",SSFT_FLOW);
 	SetServerStatusFormat(SST_SS_ROUTE_CYCLE_TIME,"路由循环时间(MS)");
 	SetServerStatusFormat(SST_SS_ROUTE_MSG_QUEUE_LEN,"路由消息队列长度");
 	Temp.Format("路由(%u)CPU占用率",GetRouter()->GetThreadID());
@@ -218,7 +218,7 @@ BOOL CDOSServerThread::OnStart()
 
 	for(UINT i=0;i<GetObjectManager()->GetGroupCount();i++)
 	{
-		
+
 		Temp.Format("对象组%d循环时间(MS)",i);
 		SetServerStatusFormat(SST_SS_GROUP_CYCLE_TIME+i,Temp);
 		Temp.Format("对象组%d最长对象消息队列",i);
@@ -231,13 +231,13 @@ BOOL CDOSServerThread::OnStart()
 
 	LogFileName.Format("%s/Log/%s.Status",(LPCTSTR)ModulePath,g_ProgramName);
 	CCSVFileLogPrinter * pCSVLog=new CCSVFileLogPrinter();
-	pCSVLog->Init(CSystemConfig::GetInstance()->GetLogLevel(),LogFileName,CSVLogHeader);	
+	pCSVLog->Init(CSystemConfig::GetInstance()->GetLogLevel(),LogFileName,CSVLogHeader);
 	CLogManager::GetInstance()->AddChannel(SERVER_STATUS_LOG_CHANNEL,pCSVLog);
 	SAFE_RELEASE(pCSVLog);
 
 
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(),SERVER_INFO_COUNT_TIME);
-	
+
 	Log("服务器成功启动");
 
 	FUNCTION_END;
@@ -251,7 +251,7 @@ void CDOSServerThread::OnBeginTerminate()
 
 void CDOSServerThread::OnTerminate()
 {
-	FUNCTION_BEGIN;	
+	FUNCTION_BEGIN;
 
 	SAFE_RELEASE(m_pSysNetLinkManager);
 	SAFE_RELEASE(m_pUDPSystemControlPort);
@@ -262,7 +262,7 @@ void CDOSServerThread::OnTerminate()
 
 BOOL CDOSServerThread::OnRun()
 {
-	FUNCTION_BEGIN;		
+	FUNCTION_BEGIN;
 
 	if(!CBaseServer::OnRun())
 		return FALSE;
@@ -275,7 +275,7 @@ BOOL CDOSServerThread::OnRun()
 	m_ThreadPerformanceCounter.DoPerformanceCount();
 	//计算服务器循环时间
 	if(m_CountTimer.IsTimeOut(SERVER_INFO_COUNT_TIME))
-	{		
+	{
 		m_CountTimer.SaveTime();
 		DoServerStat();
 	}
@@ -295,8 +295,8 @@ BOOL CDOSServerThread::OnRun()
 int CDOSServerThread::Update(int ProcessPacketLimit)
 {
 	FUNCTION_BEGIN;
-	int Process=0;	
-	Process+=CDOSServer::Update(ProcessPacketLimit);		
+	int Process=0;
+	Process+=CDOSServer::Update(ProcessPacketLimit);
 	Process+=m_pSysNetLinkManager->Update(ProcessPacketLimit);
 	Process+=m_pUDPSystemControlPort->Update(ProcessPacketLimit);
 	return Process;
@@ -414,21 +414,21 @@ int CDOSServerThread::StartLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN*
 	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
 			GetChannel(SERVER_LOG_CHANNEL);
-	}	
+	}
 	else if(_stricmp(pParams[0].StrValue,"Status")==0)
 	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
 			GetChannel(SERVER_STATUS_LOG_CHANNEL);
 	}
 	else if(_stricmp(pParams[0].StrValue,"DB")==0)
-	{		
+	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
 			GetChannel(LOG_DB_ERROR_CHANNEL);
 	}
 	else if(_stricmp(pParams[0].StrValue,"Net")==0)
 	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(LOG_NET_CHANNEL);	
+			GetChannel(LOG_NET_CHANNEL);
 	}
 	if(pLog)
 	{
@@ -482,7 +482,7 @@ int CDOSServerThread::StopLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* 
 	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
 			GetChannel(SERVER_LOG_CHANNEL);
-	}	
+	}
 	else if(_stricmp(pParams[0].StrValue,"Status")==0)
 	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
@@ -494,7 +494,7 @@ int CDOSServerThread::StopLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* 
 			GetChannel(LOG_DB_ERROR_CHANNEL);
 	}
 	else if(_stricmp(pParams[0].StrValue,"Net")==0)
-	{		
+	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
 			GetChannel(LOG_NET_CHANNEL);
 	}
@@ -539,15 +539,8 @@ int CDOSServerThread::TestLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* 
 	else if(_stricmp(pParams[0].StrValue,"Debug")==0)
 	{
 		LogDebug("Debug");
-	}	
-	else if(_stricmp(pParams[0].StrValue,"DB")==0)
-	{
-		PrintDBLog(0,"DB");
 	}
-	else if(_stricmp(pParams[0].StrValue,"Net")==0)
-	{
-		PrintNetLog(0,"Net");
-	}
+	
 
 	FUNCTION_END;
 	return 0;
@@ -572,10 +565,10 @@ int CDOSServerThread::RebuildUDPControlPort(CESThread * pESThread,ES_BOLAN* pRes
 int CDOSServerThread::SFSetConsoleLogLevel(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)
 {
 	FUNCTION_BEGIN;
-	
+
 	SetConsoleLogLevel(pParams[0]);
 	Log("控制台Log输出等级设置为%d",GetConsoleLogLevel());
-	
+
 	FUNCTION_END;
 	return 0;
 }
@@ -597,11 +590,11 @@ void CDOSServerThread::DoServerStat()
 	float CycleTime=m_ThreadPerformanceCounter.GetCycleTime();
 	float CPUCost=m_ThreadPerformanceCounter.GetCPUUsedRate();
 	float TCPRecvFlow=(float)m_TCPRecvBytes*1000/SERVER_INFO_COUNT_TIME;
-	float TCPSendFlow=(float)m_TCPSendBytes*1000/SERVER_INFO_COUNT_TIME;	
+	float TCPSendFlow=(float)m_TCPSendBytes*1000/SERVER_INFO_COUNT_TIME;
 
 	float TCPRecvCount=(float)m_TCPRecvCount*1000/SERVER_INFO_COUNT_TIME;
 	float TCPSendCount=(float)m_TCPSendCount*1000/SERVER_INFO_COUNT_TIME;
-	
+
 	UINT ObjectCount=GetObjectManager()->GetObejctCount();
 
 	float RouteInMsgCount=(float)GetRouter()->GetInMsgCount()*1000/SERVER_INFO_COUNT_TIME;
@@ -620,11 +613,11 @@ void CDOSServerThread::DoServerStat()
 	SetServerStatus(SST_SS_ROUTE_IN_MSG_COUNT,CSmartValue(RouteInMsgCount));
 	SetServerStatus(SST_SS_ROUTE_IN_MSG_FLOW,CSmartValue(RouteInMsgFlow));
 	SetServerStatus(SST_SS_ROUTE_OUT_MSG_COUNT,CSmartValue(RouteOutMsgCount));
-	SetServerStatus(SST_SS_ROUTE_OUT_MSG_FLOW,CSmartValue(RouteOutMsgFlow));	
+	SetServerStatus(SST_SS_ROUTE_OUT_MSG_FLOW,CSmartValue(RouteOutMsgFlow));
 	SetServerStatus(SST_SS_ROUTE_CYCLE_TIME,CSmartValue(GetRouter()->GetCycleTime()));
 	SetServerStatus(SST_SS_ROUTE_MSG_QUEUE_LEN,CSmartValue(GetRouter()->GetMsgQueueLen()));
 	SetServerStatus(SST_SS_ROUTE_CPU_USED_RATE,CSmartValue(GetRouter()->GetCPUUsedRate()));
-	
+
 
 	CEasyString ProxyStatData;
 
@@ -686,7 +679,7 @@ void CDOSServerThread::DoServerStat()
 	if(CSystemConfig::GetInstance()->IsLogServerObjectUse())
 	{
 		PrintObjectStatus();
-	}		
+	}
 	PrintDOSObjectStatLog(0,"================================================================");
 	PrintDOSObjectStatLog(0,"开始统计对象使用情况");
 	PrintDOSObjectStatLog(0,"================================================================");
@@ -697,7 +690,7 @@ void CDOSServerThread::DoServerStat()
 	UINT SystemAllocCount=((CDOSServer *)GetServer())->GetMemoryPool()->GetSystemAllocCount();
 	UINT SystemFreeCount=((CDOSServer *)GetServer())->GetMemoryPool()->GetSystemFreeCount();
 
-	PrintDOSObjectStatLog(0,"内存池分配数:%u",AllocCount);	
+	PrintDOSObjectStatLog(0,"内存池分配数:%u",AllocCount);
 	PrintDOSObjectStatLog(0,"内存池释放数:%u,%u",FreeCount,AllocCount-FreeCount);
 	PrintDOSObjectStatLog(0,"系统内存分配数:%u",SystemAllocCount);
 	PrintDOSObjectStatLog(0,"系统内存释放数:%u,%u",SystemFreeCount,SystemAllocCount-SystemFreeCount);

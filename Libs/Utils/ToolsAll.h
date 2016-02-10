@@ -12,6 +12,7 @@
 #pragma once
 
 #define CP_UNICODE		1200
+#define IS_TYPE_OF(pObject,Type)	((dynamic_cast<Type *>(pObject))!=NULL)
 
 enum BOM_HEADER_TYPE
 {
@@ -87,7 +88,18 @@ inline int GetRand(int Min,int Max)
 	return rand()%(Max-Min+1)+Min;
 }
 
-inline float GetRandf(float Min,float Max)
+inline UINT GetRand(UINT Min, UINT Max)
+{
+	if (Min > Max)
+	{
+		int Temp = Min;
+		Min = Max;
+		Max = Temp;
+	}
+	return rand() % (Max - Min + 1) + Min;
+}
+
+inline float GetRand(float Min,float Max)
 {
 	return (((float)rand())/RAND_MAX)*(Max-Min)+Min;
 }
@@ -96,7 +108,7 @@ inline float GetRandGaussf(float Min,float Max)
 {
 	float sigma=(Max-Min)/2.0f;
 	float mu=(Max+Min)/2.0f;
-	return Saturate((mu + (rand() % 2 ? -1.0 : 1.0)*sigma*pow(-log(0.99999f*((double)rand() / RAND_MAX)), 0.5)),Min,Max);
+	return Saturate((float)(mu + ((rand() % 2) ? -1.0 : 1.0)*sigma*pow(-log(0.99999f*((double)rand() / RAND_MAX)), 0.5)),Min,Max);
 }
 
 
@@ -168,14 +180,14 @@ inline CEasyString FormatNumberWordsFloat(float Number,bool IsTiny=false)
 
 
 
-inline UINT GetBomHeader(LPVOID pData)
+inline UINT GetBomHeader(LPVOID pData, UINT DataLen)
 {
 	BYTE * pByte=(BYTE *)pData;
-	if(pByte[0]==0xFF&&pByte[1]==0xFE)
+	if (DataLen >= 2 && pByte[0] == 0xFF && pByte[1] == 0xFE)
 		return BMT_UNICODE;
-	if(pByte[0]==0xFE&&pByte[1]==0xFF)
+	if (DataLen >= 2 && pByte[0] == 0xFE && pByte[1] == 0xFF)
 		return BMT_UNICODE_BIG_ENDIAN;
-	if(pByte[0]==0xEF&&pByte[1]==0xBB&&pByte[2]==0xBF)
+	if (DataLen >= 3 && pByte[0] == 0xEF && pByte[1] == 0xBB && pByte[2] == 0xBF)
 		return BMT_UTF_8;
 	return 0;
 }
@@ -184,7 +196,7 @@ inline UINT GetBomHeader(LPVOID pData)
 inline CEasyString BinToString(BYTE * pData,UINT Len)
 {
 	CEasyString BinString,temp;
-	int i;
+	UINT i;
 
 	for (i = 0; i < Len; i++)
 	{
@@ -297,7 +309,7 @@ inline double __ntohd(UINT64 Value)
 {
 	if (IsHostBigEndian())
 	{
-		return *((UINT64 *)&Value);
+		return *((double *)&Value);
 	}
 	else
 	{

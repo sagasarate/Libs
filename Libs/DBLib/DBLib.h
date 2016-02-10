@@ -13,23 +13,23 @@
 
 #define DBLIB_VERSION	"2.0.0.0"
 
-#define LOG_DB_ERROR_CHANNEL	1202
+
 //typedef unsigned long ulong;
 
-inline BOOL PrintDBLog(DWORD Color,LPCSTR Format,...)
+inline BOOL PrintDBLog(DWORD Color, LPCSTR Format, ...)
 {
 	va_list vl;
-	va_start(vl,Format);
-	BOOL ret=CLogManager::GetInstance()->PrintLogVL(LOG_DB_ERROR_CHANNEL,ILogPrinter::LOG_LEVEL_NORMAL,Color,Format,vl);
+	va_start(vl, Format);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DB_ERROR_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Color, Format, vl);
 	va_end(vl);
 	return ret;
 }
 
-inline BOOL PrintDBDebugLog(DWORD Color,LPCSTR Format,...)
+inline BOOL PrintDBDebugLog(DWORD Color, LPCSTR Format, ...)
 {
 	va_list vl;
-	va_start(vl,Format);
-	BOOL ret=CLogManager::GetInstance()->PrintLogVL(LOG_DB_ERROR_CHANNEL,ILogPrinter::LOG_LEVEL_DEBUG,Color,Format,vl);
+	va_start(vl, Format);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DB_ERROR_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, Color, Format, vl);
 	va_end(vl);
 	return ret;
 }
@@ -57,14 +57,34 @@ inline BOOL PrintDBDebugLog(DWORD Color,LPCSTR Format,...)
 #include "ODBCConnection.h"
 #include "ODBCDataBase.h"
 
+#ifdef _WIN64
+
+#include "./MySQL/include/x64/win/mysql.h"
+
 #else
 
+#include "./MySQL/include/x86/win/mysql.h"
 
+#endif
+
+#else
+
+#ifdef __x86_64__
+
+#include "./MySQL/include/x64/linux/mysql.h"
+
+
+#else
+
+#include "./MySQL/include/x86/linux/mysql.h"
+
+#endif
 
 #endif
 
 
-#include "MySQL/include/mysql.h"
+
+
 
 
 #include "MySQLDynamicRecordSet.h"
@@ -75,6 +95,7 @@ inline BOOL PrintDBDebugLog(DWORD Color,LPCSTR Format,...)
 #include "DBTransaction.h"
 #include "DBTransationWorkThread.h"
 #include "DBTransationManager.h"
+
 
 using namespace DBLib;
 

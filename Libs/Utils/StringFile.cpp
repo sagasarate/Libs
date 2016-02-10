@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 CStringFile::CStringFile( LPCTSTR pszTextFile ,bool bSplitLine,int FileChannel)
 {
@@ -90,8 +90,8 @@ BOOL CStringFile::LoadFile( LPCTSTR pszTextFile ,bool bSplitLine)
 		pFile->Release();
 		return false;
 	}
-	BOOL Ret=LoadFile(pFile,bSplitLine);	
-	pFile->Release();	
+	BOOL Ret=LoadFile(pFile,bSplitLine);
+	pFile->Release();
 	return Ret;
 }
 
@@ -102,15 +102,24 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 	CEasyBuffer Buffer;
 
 	UINT FileSize=(UINT)pFile->GetSize();
-	Buffer.Create(FileSize);
-	if(pFile->Read(Buffer.GetBuffer(),FileSize)<FileSize)
+
+
+	if (FileSize)
 	{
-		return false;
+		Buffer.Create(FileSize);
+		if (pFile->Read(Buffer.GetBuffer(), FileSize) < FileSize)
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return true;
 	}
 
-	UINT BomHeader=GetBomHeader(Buffer.GetBuffer());
+	UINT BomHeader = GetBomHeader(Buffer.GetBuffer(), FileSize);
 
-	
+
 #ifdef UNICODE
 	if(BomHeader==0)
 	{
@@ -187,7 +196,7 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 	{
 		return false;
 	}
-	m_pData[m_iDataSize]=0;	
+	m_pData[m_iDataSize]=0;
 #endif
 	if(bSplitLine)
 	{
@@ -234,8 +243,8 @@ BOOL CStringFile::SaveToFile(LPCTSTR pszTextFile)
 		pFile->Release();
 		return false;
 	}
-	BOOL Ret=SaveToFile(pFile);	
-	pFile->Release();	
+	BOOL Ret=SaveToFile(pFile);
+	pFile->Release();
 	return Ret;
 }
 

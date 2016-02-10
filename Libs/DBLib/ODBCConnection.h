@@ -44,6 +44,7 @@ public:
 	virtual int Disconnect();
 	virtual BOOL IsConnected();
 	virtual int ExecuteSQL(LPCSTR SQLStr,int StrLen=0,IDBParameterSet * pParamSet=NULL);
+	virtual int ExecuteSQLWithoutResultSet(LPCSTR SQLStr, int StrLen = 0, IDBParameterSet * pParamSet = NULL);
 	virtual int GetTables();
 	virtual int GetResults(IDBRecordSet * pDBRecordset);
 	virtual int NextResults(IDBRecordSet * pDBRecordset);

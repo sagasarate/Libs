@@ -41,6 +41,9 @@
 #define INVALID_HANDLE_VALUE	(-1)
 
 
+
+
+
 #define MAX_PATH        PATH_MAX
 
 #define TRUE			1
@@ -125,6 +128,7 @@ typedef const TCHAR * LPCTSTR;
 #define _wcsicmp		wcscasecmp
 #define _wcsnicmp		wcsncasecmp
 #define _atoi64			atoll
+#define _strtoui64		strtoull
 #define GetLastError()	errno
 
 
@@ -197,32 +201,34 @@ inline int _itoa_s(int _Value, char * _DstBuf, size_t _Size, int _Radix)
 	return 0;
 }
 
-inline int _ltoa_s(long _Val, char * _DstBuf, size_t _Size, int _Radix)
-{
-	if(_Radix==16)
-	{
-		sprintf(_DstBuf,_T("%lX"),_Val);
-	}
-	else
-	{
-		sprintf(_DstBuf,_T("%ld"),_Val);
-	}
-	return 0;
-}
+//inline int _ltoa_s(long _Val, char * _DstBuf, size_t _Size, int _Radix)
+//{
+//	if(_Radix==16)
+//	{
+//		sprintf(_DstBuf,_T("%lX"),_Val);
+//	}
+//	else
+//	{
+//		sprintf(_DstBuf,_T("%ld"),_Val);
+//	}
+//	return 0;
+//}
 
 #define sprintf_s(_DstBuf, _SizeInBytes, _Format, ...)	sprintf(_DstBuf,_Format,##__VA_ARGS__)
 #define _vscprintf(_Format, _ArgList)		vsnprintf(NULL,0,_Format,_ArgList)
 #define _vscwprintf(_Format, _ArgList)		vswprintf(NULL,0,_Format,_ArgList)
+#define vsprintf_s(_DstBuf,_SizeInBytes,_Format,_ArgList)	vsnprintf(_DstBuf,_SizeInBytes,_Format,_ArgList)
+#define vswprintf_s(_DstBuf,_SizeInBytes,_Format,_ArgList)	vswprintf(_DstBuf,_SizeInBytes,_Format,_ArgList)
 
-inline int vsprintf_s(char * _DstBuf, size_t _SizeInBytes, const char * _Format, va_list _ArgList)
-{
-	return vsprintf(_DstBuf,_Format,_ArgList);
-}
+//inline int vsprintf_s(char * _DstBuf, size_t _SizeInBytes, const char * _Format, va_list _ArgList)
+//{
+//	return vsprintf(_DstBuf,_Format,_ArgList);
+//}
 
-inline int vswprintf_s(WCHAR * _DstBuf, size_t _SizeInBytes, const WCHAR * _Format, va_list _ArgList)
-{
-	return vswprintf(_DstBuf,_SizeInBytes,_Format,_ArgList);
-}
+//inline int vswprintf_s(WCHAR * _DstBuf, size_t _SizeInBytes, const WCHAR * _Format, va_list _ArgList)
+//{
+//	return vswprintf(_DstBuf,_SizeInBytes,_Format,_ArgList);
+//}
 
 inline int _strupr_s(char * _Str, size_t _Size)
 {
@@ -320,7 +326,7 @@ inline bool SetEnvVar(LPCTSTR pszVarName,LPTSTR pszValue)
 #ifdef _UNICODE
 	//if(_wputenv_s(pszVarName,pszValue)==0)
 	//	return true;
-#else	
+#else
 	if(setenv(pszVarName,pszValue,1)==0)
 		return true;
 #endif
@@ -350,10 +356,11 @@ inline unsigned int AtomicSub(volatile unsigned int * pVal,int SubVal)
 	return AO_int_fetch_and_add(pVal,-SubVal)-SubVal;
 }
 
-inline int AtomicCompareAndSet(volatile unsigned int * pVal,unsigned int CompValue,unsigned int NewVal)
-{
-	return AO_int_compare_and_swap_full(pVal,CompValue,NewVal);
-}
+
+//inline int AtomicCompareAndSet(volatile unsigned int * pVal,unsigned int CompValue,unsigned int NewVal)
+//{
+//	return AO_int_compare_and_swap_full(pVal,CompValue,NewVal);
+//}
 
 
 
@@ -369,6 +376,20 @@ inline size_t UnicodeToAnsi(const wchar_t * SrcStr,size_t SrcLen,char * DestStr,
 	return wcstombs(DestStr,SrcStr,SrcLen);
 }
 
+inline size_t UnicodeToUTF8(const wchar_t * SrcStr, size_t SrcLen, char * DestStr, size_t DestLen)
+{
+	return 0;
+}
+
+inline size_t AnsiToUTF8(const char * SrcStr, size_t SrcLen, char * DestStr, size_t DestLen)
+{
+	return iconv_gbk2utf8(SrcStr, SrcLen, DestStr, DestLen);
+}
+
+inline size_t UTF8ToAnsi(const char * SrcStr, size_t SrcLen, char * DestStr, size_t DestLen)
+{
+	return iconv_utf82gbk(SrcStr, SrcLen, DestStr, DestLen);
+}
 
 #include "TCharLinux.h"
 

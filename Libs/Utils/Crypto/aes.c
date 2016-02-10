@@ -1,12 +1,19 @@
 #include "aes.h"
 #include <errno.h>
+#include <memory.h>
 
-static _inline u8 byte(const u32 x, const unsigned n)
+#if defined(WIN32) && !defined(__cplusplus)
+
+#define inline __inline
+
+#endif
+
+static inline u8 byte(const u32 x, const unsigned n)
 {
 	return x >> (n << 3);
 }
 
-static _inline __u32 ror32(__u32 word, unsigned int shift)
+static inline __u32 ror32(__u32 word, unsigned int shift)
 {
 		return (word >> shift) | (word << (32 - shift));
 }

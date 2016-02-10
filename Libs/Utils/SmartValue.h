@@ -106,24 +106,24 @@ public:
 		Create(VT_UINT,0);
 		*this=Value;
 	}
-	CSmartValue(long Value)
-	{
-		m_pData=NULL;
-		m_DataLen=0;
-		m_IsSelfData=true;
-		m_AllowChange=true;
-		Create(VT_INT,0);
-		*this=Value;
-	}
-	CSmartValue(unsigned long Value)
-	{
-		m_pData=NULL;
-		m_DataLen=0;
-		m_IsSelfData=true;
-		m_AllowChange=true;
-		Create(VT_UINT,0);
-		*this=Value;
-	}
+	//CSmartValue(long Value)
+	//{
+	//	m_pData=NULL;
+	//	m_DataLen=0;
+	//	m_IsSelfData=true;
+	//	m_AllowChange=true;
+	//	Create(VT_INT,0);
+	//	*this=Value;
+	//}
+	//CSmartValue(unsigned long Value)
+	//{
+	//	m_pData=NULL;
+	//	m_DataLen=0;
+	//	m_IsSelfData=true;
+	//	m_AllowChange=true;
+	//	Create(VT_UINT,0);
+	//	*this=Value;
+	//}
 	CSmartValue(__int64 Value)
 	{
 		m_pData=NULL;
@@ -764,64 +764,64 @@ public:
 		}
 		return 0;
 	}
-	operator long() const
-	{
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			return (long)(*((char *)(m_pData+1)));
-		case VT_UCHAR:
-			return (long)(*((unsigned char *)(m_pData+1)));
-		case VT_SHORT:
-			return (long)(*((short *)(m_pData+1)));
-		case VT_USHORT:
-			return (long)(*((unsigned short *)(m_pData+1)));
-		case VT_INT:
-			return (long)(*((int *)(m_pData+1)));
-		case VT_UINT:
-			return (long)(*((unsigned int *)(m_pData+1)));
-		case VT_BIGINT:
-			return (long)(*((__int64 *)(m_pData+1)));
-		case VT_UBIGINT:
-			return (long)(*((unsigned __int64 *)(m_pData+1)));
-		case VT_FLOAT:
-			return (long)(*((float *)(m_pData+1)));
-		case VT_DOUBLE:
-			return (long)(*((double *)(m_pData+1)));
-		case VT_BOOL:
-			return (long)(*((bool *)(m_pData+1)));
-		}
-		return 0;
-	}
-	operator unsigned long() const
-	{
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			return (unsigned long)(*((char *)(m_pData+1)));
-		case VT_UCHAR:
-			return (unsigned long)(*((unsigned char *)(m_pData+1)));
-		case VT_SHORT:
-			return (unsigned long)(*((short *)(m_pData+1)));
-		case VT_USHORT:
-			return (unsigned long)(*((unsigned short *)(m_pData+1)));
-		case VT_INT:
-			return (unsigned long)(*((int *)(m_pData+1)));
-		case VT_UINT:
-			return (unsigned long)(*((unsigned int *)(m_pData+1)));
-		case VT_BIGINT:
-			return (unsigned long)(*((__int64 *)(m_pData+1)));
-		case VT_UBIGINT:
-			return (unsigned long)(*((unsigned __int64 *)(m_pData+1)));
-		case VT_FLOAT:
-			return (unsigned long)(*((float *)(m_pData+1)));
-		case VT_DOUBLE:
-			return (unsigned long)(*((double *)(m_pData+1)));
-		case VT_BOOL:
-			return (unsigned long)(*((bool *)(m_pData+1)));
-		}
-		return 0;
-	}
+	//operator long() const
+	//{
+	//	switch(GetType())
+	//	{		
+	//	case VT_CHAR:
+	//		return (long)(*((char *)(m_pData+1)));
+	//	case VT_UCHAR:
+	//		return (long)(*((unsigned char *)(m_pData+1)));
+	//	case VT_SHORT:
+	//		return (long)(*((short *)(m_pData+1)));
+	//	case VT_USHORT:
+	//		return (long)(*((unsigned short *)(m_pData+1)));
+	//	case VT_INT:
+	//		return (long)(*((int *)(m_pData+1)));
+	//	case VT_UINT:
+	//		return (long)(*((unsigned int *)(m_pData+1)));
+	//	case VT_BIGINT:
+	//		return (long)(*((__int64 *)(m_pData+1)));
+	//	case VT_UBIGINT:
+	//		return (long)(*((unsigned __int64 *)(m_pData+1)));
+	//	case VT_FLOAT:
+	//		return (long)(*((float *)(m_pData+1)));
+	//	case VT_DOUBLE:
+	//		return (long)(*((double *)(m_pData+1)));
+	//	case VT_BOOL:
+	//		return (long)(*((bool *)(m_pData+1)));
+	//	}
+	//	return 0;
+	//}
+	//operator unsigned long() const
+	//{
+	//	switch(GetType())
+	//	{		
+	//	case VT_CHAR:
+	//		return (unsigned long)(*((char *)(m_pData+1)));
+	//	case VT_UCHAR:
+	//		return (unsigned long)(*((unsigned char *)(m_pData+1)));
+	//	case VT_SHORT:
+	//		return (unsigned long)(*((short *)(m_pData+1)));
+	//	case VT_USHORT:
+	//		return (unsigned long)(*((unsigned short *)(m_pData+1)));
+	//	case VT_INT:
+	//		return (unsigned long)(*((int *)(m_pData+1)));
+	//	case VT_UINT:
+	//		return (unsigned long)(*((unsigned int *)(m_pData+1)));
+	//	case VT_BIGINT:
+	//		return (unsigned long)(*((__int64 *)(m_pData+1)));
+	//	case VT_UBIGINT:
+	//		return (unsigned long)(*((unsigned __int64 *)(m_pData+1)));
+	//	case VT_FLOAT:
+	//		return (unsigned long)(*((float *)(m_pData+1)));
+	//	case VT_DOUBLE:
+	//		return (unsigned long)(*((double *)(m_pData+1)));
+	//	case VT_BOOL:
+	//		return (unsigned long)(*((bool *)(m_pData+1)));
+	//	}
+	//	return 0;
+	//}
 	operator __int64() const
 	{
 		switch(GetType())
@@ -1009,10 +1009,11 @@ public:
 		switch(GetType())
 		{	
 		case VT_STRING:
+#ifdef WIN32
 			if(CSmartValue::IsConvertWideCharToUTF8()&&String.IsUnicode())
 			{
 				const char * szSrc=(const char *)(m_pData+sizeof(BYTE)+sizeof(UINT));
-				int SrcLen=strlen(szSrc);
+				int SrcLen=(int)strlen(szSrc);
 				int DestLen=0;
 				DestLen=MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,NULL,0);
 				String.Resize(DestLen,false);
@@ -1020,15 +1021,17 @@ public:
 				String.TrimBuffer();
 			}
 			else
+#endif
 			{
 				String=(const char *)(m_pData+sizeof(BYTE)+sizeof(UINT));
 			}			
 			break;
 		case VT_STRING_TINY:
+#ifdef WIN32
 			if(CSmartValue::IsConvertWideCharToUTF8()&&String.IsUnicode())
 			{
 				const char * szSrc=(const char *)(m_pData+sizeof(BYTE)+sizeof(WORD));
-				int SrcLen=strlen(szSrc);
+				int SrcLen = (int)strlen(szSrc);
 				int DestLen=0;
 				DestLen=MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,NULL,0);
 				String.Resize(DestLen,false);
@@ -1036,6 +1039,7 @@ public:
 				String.TrimBuffer();
 			}
 			else
+#endif
 			{
 				String=(const char *)(m_pData+sizeof(BYTE)+sizeof(WORD));
 			}			
@@ -1349,88 +1353,88 @@ public:
 			break;
 		}
 	}
-	void operator=(long Value)
-	{
-		if(m_pData==NULL)
-			return;
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			*((char *)(m_pData+1))=(char)Value;
-			break;
-		case VT_UCHAR:
-			*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-			break;
-		case VT_SHORT:
-			*((short *)(m_pData+1))=(short)Value;
-			break;
-		case VT_USHORT:
-			*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-			break;
-		case VT_INT:
-			*((int *)(m_pData+1))=(int)Value;
-			break;
-		case VT_UINT:
-			*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-			break;
-		case VT_BIGINT:
-			*((__int64 *)(m_pData+1))=(__int64)Value;
-			break;
-		case VT_UBIGINT:
-			*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-			break;
-		case VT_FLOAT:
-			*((float *)(m_pData+1))=(float)Value;
-			break;
-		case VT_DOUBLE:
-			*((double *)(m_pData+1))=(double)Value;
-			break;
-		case VT_BOOL:
-			*((bool *)(m_pData+1))=(Value!=0);
-			break;
-		}
-	}
-	void operator=(unsigned long Value)
-	{
-		if(m_pData==NULL)
-			return;
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			*((char *)(m_pData+1))=(char)Value;
-			break;
-		case VT_UCHAR:
-			*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-			break;
-		case VT_SHORT:
-			*((short *)(m_pData+1))=(short)Value;
-			break;
-		case VT_USHORT:
-			*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-			break;
-		case VT_INT:
-			*((int *)(m_pData+1))=(int)Value;
-			break;
-		case VT_UINT:
-			*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-			break;
-		case VT_BIGINT:
-			*((__int64 *)(m_pData+1))=(__int64)Value;
-			break;
-		case VT_UBIGINT:
-			*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-			break;
-		case VT_FLOAT:
-			*((float *)(m_pData+1))=(float)Value;
-			break;
-		case VT_DOUBLE:
-			*((double *)(m_pData+1))=(double)Value;
-			break;
-		case VT_BOOL:
-			*((bool *)(m_pData+1))=(Value!=0);
-			break;
-		}
-	}
+	//void operator=(long Value)
+	//{
+	//	if(m_pData==NULL)
+	//		return;
+	//	switch(GetType())
+	//	{		
+	//	case VT_CHAR:
+	//		*((char *)(m_pData+1))=(char)Value;
+	//		break;
+	//	case VT_UCHAR:
+	//		*((unsigned char *)(m_pData+1))=(unsigned char)Value;
+	//		break;
+	//	case VT_SHORT:
+	//		*((short *)(m_pData+1))=(short)Value;
+	//		break;
+	//	case VT_USHORT:
+	//		*((unsigned short *)(m_pData+1))=(unsigned short)Value;
+	//		break;
+	//	case VT_INT:
+	//		*((int *)(m_pData+1))=(int)Value;
+	//		break;
+	//	case VT_UINT:
+	//		*((unsigned int *)(m_pData+1))=(unsigned int)Value;
+	//		break;
+	//	case VT_BIGINT:
+	//		*((__int64 *)(m_pData+1))=(__int64)Value;
+	//		break;
+	//	case VT_UBIGINT:
+	//		*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
+	//		break;
+	//	case VT_FLOAT:
+	//		*((float *)(m_pData+1))=(float)Value;
+	//		break;
+	//	case VT_DOUBLE:
+	//		*((double *)(m_pData+1))=(double)Value;
+	//		break;
+	//	case VT_BOOL:
+	//		*((bool *)(m_pData+1))=(Value!=0);
+	//		break;
+	//	}
+	//}
+	//void operator=(unsigned long Value)
+	//{
+	//	if(m_pData==NULL)
+	//		return;
+	//	switch(GetType())
+	//	{		
+	//	case VT_CHAR:
+	//		*((char *)(m_pData+1))=(char)Value;
+	//		break;
+	//	case VT_UCHAR:
+	//		*((unsigned char *)(m_pData+1))=(unsigned char)Value;
+	//		break;
+	//	case VT_SHORT:
+	//		*((short *)(m_pData+1))=(short)Value;
+	//		break;
+	//	case VT_USHORT:
+	//		*((unsigned short *)(m_pData+1))=(unsigned short)Value;
+	//		break;
+	//	case VT_INT:
+	//		*((int *)(m_pData+1))=(int)Value;
+	//		break;
+	//	case VT_UINT:
+	//		*((unsigned int *)(m_pData+1))=(unsigned int)Value;
+	//		break;
+	//	case VT_BIGINT:
+	//		*((__int64 *)(m_pData+1))=(__int64)Value;
+	//		break;
+	//	case VT_UBIGINT:
+	//		*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
+	//		break;
+	//	case VT_FLOAT:
+	//		*((float *)(m_pData+1))=(float)Value;
+	//		break;
+	//	case VT_DOUBLE:
+	//		*((double *)(m_pData+1))=(double)Value;
+	//		break;
+	//	case VT_BOOL:
+	//		*((bool *)(m_pData+1))=(Value!=0);
+	//		break;
+	//	}
+	//}
 	void operator=(__int64 Value)
 	{
 		if(m_pData==NULL)
@@ -1659,6 +1663,7 @@ public:
 			memcpy(m_pData+sizeof(BYTE)+sizeof(WORD),pStr,Len*sizeof(wchar_t));
 			*((wchar_t *)(m_pData+sizeof(BYTE)+sizeof(WORD)+Len*sizeof(wchar_t)))=0;
 		}
+#ifdef WIN32
 		else if(GetType()==VT_STRING&&IsConvertWideCharToUTF8())			
 		{
 			UINT UTF8Len=(UINT)UnicodeToUTF8(pStr,Len,NULL,0);
@@ -1679,6 +1684,7 @@ public:
 			UnicodeToUTF8(pStr,Len,(char *)m_pData+sizeof(BYTE)+sizeof(WORD),UTF8Len);
 			*((char *)(m_pData+sizeof(BYTE)+sizeof(WORD)+UTF8Len*sizeof(char)))=0;
 		}
+#endif
 	}
 
 	static int GetTypeFromData(LPCVOID pData,UINT DataSize);

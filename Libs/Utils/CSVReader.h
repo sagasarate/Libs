@@ -28,6 +28,8 @@ public:
 	UINT GetRowCount();
 	UINT GetColCount();
 
+	int GetColIndex(LPCTSTR ColName);
+
 	LPCTSTR GetDataString(UINT Row,UINT Col,LPCTSTR Default);
 	LPCTSTR GetDataString(UINT Row,LPCTSTR ColName,LPCTSTR Default);
 

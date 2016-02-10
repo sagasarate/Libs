@@ -1,5 +1,7 @@
 #pragma once
 
+class CLuaBaseMetaClass;
+class CLuaGrid;
 namespace LuaWrap
 {
 	struct LuaLightUserData
@@ -25,30 +27,7 @@ namespace LuaWrap
 
 	struct LuaNil
 	{
-	};
-
-	inline int GetLuaObjectType(lua_State* L, int idx)
-	{
-		int Type = lua_type(L, idx);
-		if (Type == LUA_TNUMBER)
-		{
-			if (lua_isinteger(L, idx))
-				Type = LUA_TINTEGER;
-		}
-		else if (Type==LUA_TUSERDATA)		
-		{
-			if (lua_getmetatable(L, idx))
-			{
-				lua_pushstring(L, "_ClassID");
-				lua_gettable(L, -2);
-				Type = lua_tonumber(L, -1);
-				lua_pop(L, 2);
-				if (Type == 0)
-					Type = LUA_TUSERDATA;
-			}
-		}
-		return Type;
-	}
+	};	
 
 	inline void Push(lua_State* L, bool value)				{ lua_pushboolean(L, value); }
 	inline void Push(lua_State* L, char value)				{ lua_pushnumber(L, value); }
@@ -57,8 +36,8 @@ namespace LuaWrap
 	inline void Push(lua_State* L, unsigned short value)	{ lua_pushnumber(L, value); }
 	inline void Push(lua_State* L, int value)				{ lua_pushnumber(L, value); }
 	inline void Push(lua_State* L, unsigned int value)		{ lua_pushnumber(L, value); }
-	inline void Push(lua_State* L, long value)				{ lua_pushnumber(L, value); }
-	inline void Push(lua_State* L, unsigned long value)		{ lua_pushnumber(L, value); }
+	//inline void Push(lua_State* L, long value)				{ lua_pushnumber(L, value); }
+	//inline void Push(lua_State* L, unsigned long value)		{ lua_pushnumber(L, value); }
 	inline void Push(lua_State* L, __int64 value)			{ lua_pushinteger(L, value); }
 	inline void Push(lua_State* L, unsigned __int64 value)	{ lua_pushinteger(L, value); }
 	inline void Push(lua_State* L, double value)			{ lua_pushnumber(L, (lua_Number)value); }
@@ -74,80 +53,90 @@ namespace LuaWrap
 	inline void Push(lua_State* L, lua_CFunction value)		{ lua_pushcclosure(L, value, 0); }
 	inline void Push(lua_State* L, const void* value)		{ lua_pushlightuserdata(L, (void*)value); }
 	inline void Push(lua_State* L, const LuaLightUserData& value)	{ lua_pushlightuserdata(L, (void*)value.m_value); }
+	inline void Push(lua_State* L, const LuaValue& value)	
+	{ 
+		LuaValue::PushValueToLuaState(value, L);
+	}
 	
-	inline void Push(lua_State* L, CLuaTable& value)
+	inline void Push(lua_State* L, const CLuaTable& value)
 	{
 		value.PushToLuaState(L);
 	}
 
-	inline void Push(lua_State* L, CEasyArray<LuaValue>& value)
+	inline void Push(lua_State* L, const CEasyArray<LuaValue>& value)
 	{
 		for (UINT i = 0; i < value.GetCount(); i++)
 		{
-			CLuaTable::PushValueToLuaState(value[i], L);
+			LuaValue::PushValueToLuaState(value.GetObjectConst(i), L);
 		}
 	}
+	inline void Push(lua_State* L, LUA_EMPTY_VALUE value)
+	{
+		
+	}
+	inline void Push(lua_State* L, CLuaBaseMetaClass * pObject);
 	
+	inline void Push(lua_State* L, const CLuaGrid value);
 
 	inline bool	Match(TypeWrapper<bool>, lua_State* L, int idx)
 	{
-		return lua_type(L, idx) == LUA_TBOOLEAN;
+		return lua_isboolean(L, idx);
 	}
 	inline bool	Match(TypeWrapper<char>, lua_State* L, int idx)
 	{
-		return lua_type(L, idx) == LUA_TNUMBER;
+		return lua_isnumber(L, idx) != 0;
 	}
 	inline bool	Match(TypeWrapper<unsigned char>, lua_State* L, int idx)
 	{
-		return lua_type(L, idx) == LUA_TNUMBER;
+		return lua_isnumber(L, idx) != 0;
 	}
 	inline bool	Match(TypeWrapper<short>, lua_State* L, int idx)
 	{
-		return lua_type(L, idx) == LUA_TNUMBER;
+		return lua_isnumber(L, idx) != 0;
 	}
 	inline bool	Match(TypeWrapper<unsigned short>, lua_State* L, int idx)
 	{
-		return lua_type(L, idx) == LUA_TNUMBER;
+		return lua_isnumber(L, idx) != 0;
 	}
 	inline bool	Match(TypeWrapper<int>, lua_State* L, int idx)
 	{
-		return lua_type(L, idx) == LUA_TNUMBER;
+		return lua_isnumber(L, idx) != 0;
 	}
 	inline bool	Match(TypeWrapper<unsigned int>, lua_State* L, int idx)
 	{
-		return lua_type(L, idx) == LUA_TNUMBER;
+		return lua_isnumber(L, idx) != 0;
 	}
-	inline bool	Match(TypeWrapper<long>, lua_State* L, int idx)
-	{
-		return lua_type(L, idx) == LUA_TNUMBER;
-	}
-	inline bool	Match(TypeWrapper<unsigned long>, lua_State* L, int idx)
-	{
-		return lua_type(L, idx) == LUA_TNUMBER;
-	}
+	//inline bool	Match(TypeWrapper<long>, lua_State* L, int idx)
+	//{
+	//	return lua_isnumber(L, idx);
+	//}
+	//inline bool	Match(TypeWrapper<unsigned long>, lua_State* L, int idx)
+	//{
+	//	return lua_isnumber(L, idx);
+	//}
 	inline bool	Match(TypeWrapper<__int64>, lua_State* L, int idx)
 	{
-		return lua_type(L, idx) == LUA_TNUMBER;
+		return lua_isnumber(L, idx) != 0;
 	}
 	inline bool	Match(TypeWrapper<unsigned __int64>, lua_State* L, int idx)
 	{
-		return lua_type(L, idx) == LUA_TNUMBER;
+		return lua_isnumber(L, idx) != 0;
 	}
 	inline bool	Match(TypeWrapper<float>, lua_State* L, int idx)
 	{
-		int type = lua_type(L, idx);  return type == LUA_TNUMBER;
+		return lua_isnumber(L, idx) != 0;
 	}
 	inline bool	Match(TypeWrapper<double>, lua_State* L, int idx)
 	{
-		int type = lua_type(L, idx);  return type == LUA_TNUMBER;
+		return lua_isnumber(L, idx) != 0;
 	}
 	inline bool	Match(TypeWrapper<const char*>, lua_State* L, int idx)
 	{
-		return lua_type(L, idx) == LUA_TSTRING;
+		return lua_isstring(L, idx) != 0;
 	}
 	inline bool	Match(TypeWrapper<const wchar_t*>, lua_State* L, int idx)
 	{
-		return lua_type(L, idx) == LUA_TSTRING;
+		return lua_isstring(L, idx) != 0;
 	}
 	inline bool	Match(TypeWrapper<lua_State*>, lua_State* L, int idx)
 	{
@@ -157,12 +146,37 @@ namespace LuaWrap
 	{
 		return lua_type(L, idx) == LUA_TLIGHTUSERDATA;
 	}
+
+	inline bool	Match(TypeWrapper<LuaValue>, lua_State* L, int idx)
+	{
+		return lua_gettop(L) >= idx;
+	}	
 	
 
 	inline bool	Match(TypeWrapper<CLuaTable>, lua_State* L, int idx)
 	{
 		return lua_type(L, idx) == LUA_TTABLE;
 	}
+
+	inline bool	Match(TypeWrapper<CEasyArray<LuaValue> >, lua_State* L, int idx)
+	{
+		return lua_gettop(L) >= idx;
+	}
+
+	inline bool	Match(TypeWrapper<LUA_PARAMS >, lua_State* L, int idx)
+	{
+		return lua_gettop(L) >= idx;
+	}
+
+	inline bool	Match(TypeWrapper<LUA_EMPTY_VALUE >, lua_State* L, int idx)
+	{
+		return lua_gettop(L) >= idx;
+	}
+
+	inline bool	Match(TypeWrapper<CLuaBaseMetaClass *>, lua_State* L, int idx);
+	
+	inline bool	Match(TypeWrapper<CLuaGrid >, lua_State* L, int idx);
+	
 
 	inline void				Get(TypeWrapper<void>, lua_State*, int)
 	{  }
@@ -194,14 +208,14 @@ namespace LuaWrap
 	{
 		return static_cast<unsigned int>(lua_tonumber(L, idx));
 	}
-	inline long				Get(TypeWrapper<long>, lua_State* L, int idx)
-	{
-		return static_cast<long>(lua_tonumber(L, idx));
-	}
-	inline unsigned long	Get(TypeWrapper<unsigned long>, lua_State* L, int idx)
-	{
-		return static_cast<unsigned long>(lua_tonumber(L, idx));
-	}
+	//inline long				Get(TypeWrapper<long>, lua_State* L, int idx)
+	//{
+	//	return static_cast<long>(lua_tonumber(L, idx));
+	//}
+	//inline unsigned long	Get(TypeWrapper<unsigned long>, lua_State* L, int idx)
+	//{
+	//	return static_cast<unsigned long>(lua_tonumber(L, idx));
+	//}
 	inline __int64				Get(TypeWrapper<__int64>, lua_State* L, int idx)
 	{
 		return static_cast<__int64>(lua_tointeger(L, idx));
@@ -245,7 +259,14 @@ namespace LuaWrap
 		return L;
 	}
 	
+	inline LuaValue	Get(TypeWrapper<LuaValue>, lua_State* L, int idx)
+	{
+		LuaValue Value;
 
+		LuaValue::GetValueFromLuaState(Value, L, idx);
+
+		return Value;
+	}	
 
 	inline CLuaTable	Get(TypeWrapper<CLuaTable>, lua_State* L, int idx)
 	{
@@ -255,4 +276,44 @@ namespace LuaWrap
 		
 		return LuaTable;
 	}
+
+	inline CEasyArray<LuaValue>	Get(TypeWrapper< CEasyArray<LuaValue> >, lua_State* L, int idx)
+	{
+		CEasyArray<LuaValue> LuaValueList;
+
+		int ParamCount = lua_gettop(L);
+		if (ParamCount>=idx)
+		{
+			LuaValueList.Resize(ParamCount - idx + 1);
+			for (int i = idx; i <= ParamCount; i++)
+			{
+				LuaValue::GetValueFromLuaState(LuaValueList[i - idx], L, i);
+			}
+		}
+		return LuaValueList;
+	}
+	inline LUA_PARAMS	Get(TypeWrapper< LUA_PARAMS >, lua_State* L, int idx)
+	{
+		LUA_PARAMS LuaParams;
+
+		int ParamCount = lua_gettop(L);
+		if (ParamCount >= idx)
+		{
+			LuaParams.pLuaState = L;
+			LuaParams.StartIndex = idx;
+			LuaParams.ParamCount = ParamCount - idx + 1;			
+		}
+		return LuaParams;
+	}
+	inline LUA_EMPTY_VALUE	Get(TypeWrapper< LUA_EMPTY_VALUE >, lua_State* L, int idx)
+	{
+		return LUA_EMPTY_VALUE();
+	}
+
+	
+	
+	inline CLuaBaseMetaClass * Get(TypeWrapper<CLuaBaseMetaClass *>, lua_State* L, int idx);
+
+	
+	inline CLuaGrid Get(TypeWrapper<CLuaGrid>, lua_State* L, int idx);
 }

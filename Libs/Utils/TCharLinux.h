@@ -18,7 +18,8 @@
 
 #else
 
-
+#define CP_ACP                    0           // default to ANSI code page
+#define CP_UTF8                   65001       // UTF-8 translation
 
 #define _tcscmp			strcmp
 #define _tcsncmp		strncmp
@@ -26,7 +27,7 @@
 #define _tcsnicmp		strncasecmp
 #define _tcslen			strlen
 
-
+#define _totlower		tolower
 #define _tcscpy			strcpy
 #define _tcscpy_s		strcpy_s
 #define _tcsncpy		strncpy
@@ -37,6 +38,7 @@
 
 #define _tcschr			strchr
 
+#define _ttoi			atoi
 #define _tstoi			atoi
 #define _tcstol			strtol
 #define _tcstod			strtod
@@ -49,6 +51,7 @@
 #define _itot_s			_itoa_s
 #define _ltot_s			_ltoa_s
 #define _istalnum		isalnum
+#define _tcsstr			strstr
 
 #define _tcsftime		strftime
 
@@ -56,8 +59,12 @@
 #define _tcprintf		printf
 #define _stprintf_s		sprintf_s
 #define _vstprintf_s	vsprintf_s
+#define _sctprintf		printf
+#define _stscanf		scanf
 
 #define _tfopen_s		fopen_s
+
+
 
 #endif
 

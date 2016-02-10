@@ -10,7 +10,7 @@
 /*                                                                          */
 /****************************************************************************/
 #pragma once
-#include "dbinterfaces.h"
+#include "DBInterfaces.h"
 
 
 namespace DBLib
@@ -45,9 +45,10 @@ public:
 	virtual int Connect(LPCSTR ConnectStr);
 	virtual int Disconnect();
 	virtual BOOL IsConnected();
-	virtual int ExecuteSQL(LPCSTR SQLStr,int StrLen=0,IDBParameterSet * pParamSet=NULL);		
+	virtual int ExecuteSQL(LPCSTR SQLStr,int StrLen=0,IDBParameterSet * pParamSet=NULL);
+	virtual int ExecuteSQLWithoutResultSet(LPCSTR SQLStr, int StrLen = 0, IDBParameterSet * pParamSet = NULL);
 	virtual int GetResults(IDBRecordSet * pDBRecordset);
-	virtual int NextResults(IDBRecordSet * pDBRecordset);	
+	virtual int NextResults(IDBRecordSet * pDBRecordset);
 	virtual int GetAffectedRowCount();
 	virtual int EnableTransaction(BOOL IsEnable);
 	virtual int Commit();

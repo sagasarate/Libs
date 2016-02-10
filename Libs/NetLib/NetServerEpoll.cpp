@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 IMPLEMENT_CLASS_INFO_STATIC(CNetServer,CBaseServer);
 
@@ -75,10 +75,11 @@ BOOL CNetServer::OnStart()
 
 	m_EpollThreadCount = GetSystemCPUCount() * m_EpollThreadNumPerCPU;
 
-	m_pEpollThreads = new CEpollThread[m_EpollThreadCount](this);
+	m_pEpollThreads = new CEpollThread[m_EpollThreadCount];
 
 	for( int i = 0;i < m_EpollThreadCount;i ++ )
 	{
+		m_pEpollThreads[i].SetServer(this);
 		m_pEpollThreads[i].SetEpollHandle(m_hEpoll);
 		m_pEpollThreads[i].Start();
 	}

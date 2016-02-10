@@ -9,13 +9,13 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 IMPLEMENT_CLASS_INFO(CDOSRouterLink,CEasyNetLinkConnection);
 
 CDOSRouterLink::CDOSRouterLink()
-{	
-	
+{
+
 }
 
 CDOSRouterLink::~CDOSRouterLink(void)
@@ -25,7 +25,7 @@ CDOSRouterLink::~CDOSRouterLink(void)
 void CDOSRouterLink::OnLinkStart()
 {
 	FUNCTION_BEGIN;
-	PrintDOSLog(0xff0000,_T("收到路由(%d)的连接"),GetID());	
+	PrintDOSLog(0xff0000,_T("收到路由(%d)的连接"),GetID());
 	FUNCTION_END;
 }
 void CDOSRouterLink::OnLinkEnd()
@@ -44,7 +44,7 @@ void CDOSRouterLink::OnLinkEnd()
 }
 
 void CDOSRouterLink::OnData(const CEasyBuffer& DataBuffer)
-{	
+{
 	FUNCTION_BEGIN;
 	MSG_LEN_TYPE PacketLen=*((MSG_LEN_TYPE *)DataBuffer.GetBuffer());
 	CDOSMessagePacket * pNewPacket=GetRouter()->GetServer()->NewMessagePacket(PacketLen);

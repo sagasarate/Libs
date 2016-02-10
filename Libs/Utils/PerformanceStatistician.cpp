@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 #include <algorithm>
 
 TCHAR PERFORMANCE_STATISTICIAN_INSTANCE[]=_T("PerformanceStatisticianInstance");
@@ -47,7 +47,7 @@ CPerformanceStatistician::~CPerformanceStatistician(void)
 
 void CPerformanceStatistician::PrintPerformanceStat(int LogChannel)
 {
-	
+
 	CEasyArray<PERFORMANCE_INFO> PerformanceList;
 	CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,_T("性能统计开始:"));
 	for(int i=0;i<MAX_PERFORMANCE_FUNCTION_NUM;i++)
@@ -59,12 +59,12 @@ void CPerformanceStatistician::PrintPerformanceStat(int LogChannel)
 			Info.PerformanceFunctionName=m_PerformanceFunctionNames[i];
 			Info.PerformanceFunctionCall=m_PerformanceFunctionCalls[i];
 			PerformanceList.Add(Info);
-			
+
 		}
 	}
 	qsort(PerformanceList.GetBuffer(),PerformanceList.GetCount(),sizeof(PERFORMANCE_INFO),PERFORMANCE_INFO::Sort);
 
-	
+
 	double CountUnit=(double)CEasyTimerEx::TIME_UNIT_PER_SECOND/PERFORMANCE_UNIT;
 	double Total=0;
 	for(size_t i=0;i<PerformanceList.GetCount();i++)
@@ -80,12 +80,12 @@ void CPerformanceStatistician::PrintPerformanceStat(int LogChannel)
 	}
 	CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,_T("    %80hs:   %gMS"),
 		_T("Total"),Total);
-	
-	
+
+
 }
 
 void CPerformanceStatistician::PrintPerformanceStatUnit(int LogChannel)
-{	
+{
 	CEasyArray<PERFORMANCE_INFO> PerformanceList;
 	CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,_T("性能统计开始(单位):"));
 	for(int i=0;i<MAX_PERFORMANCE_FUNCTION_NUM;i++)
@@ -94,14 +94,14 @@ void CPerformanceStatistician::PrintPerformanceStatUnit(int LogChannel)
 		{
 			PERFORMANCE_INFO Info;
 			Info.PerformanceCount=m_PerformanceCounts[i]/m_PerformanceFunctionCalls[i];
-			Info.PerformanceFunctionName=m_PerformanceFunctionNames[i];			
+			Info.PerformanceFunctionName=m_PerformanceFunctionNames[i];
 			PerformanceList.Add(Info);
 
 		}
 	}
 	qsort(PerformanceList.GetBuffer(),PerformanceList.GetCount(),sizeof(PERFORMANCE_INFO),PERFORMANCE_INFO::Sort);
 
-	
+
 	double CountUnit=(double)CEasyTimerEx::TIME_UNIT_PER_SECOND/PERFORMANCE_UNIT;
 	for(size_t i=0;i<PerformanceList.GetCount();i++)
 	{
@@ -113,7 +113,7 @@ void CPerformanceStatistician::PrintPerformanceStatUnit(int LogChannel)
 			PerformanceList[i].PerformanceFunctionName,
 			Count);
 	}
-	
+
 }
 
 void CPerformanceStatistician::ResetPerformanceStat()

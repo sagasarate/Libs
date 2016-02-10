@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 CFileLogPrinter::CFileLogPrinter()
 {
@@ -17,7 +17,7 @@ CFileLogPrinter::CFileLogPrinter()
 	m_pFileAccessor=NULL;
 	m_FileOpenMode=0;
 	m_LogLevel=0;
-	
+
 }
 
 CFileLogPrinter::CFileLogPrinter(LPCTSTR FileName,DWORD Flag)
@@ -101,7 +101,7 @@ void CFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl
 		}
 	}
 	CurTime.Format(m_MsgBuff,40960,_T("[%m-%d %H:%M:%S]:"));
-	
+
 	m_pFileAccessor->Write(m_MsgBuff,_tcslen(m_MsgBuff));
 	_vstprintf_s( m_MsgBuff,40960, Format, vl );
 	m_pFileAccessor->Write(m_MsgBuff,_tcslen(m_MsgBuff));

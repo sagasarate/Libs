@@ -9,14 +9,14 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 CFileSystemManager::CFileSystemManager(void)
 {
 #ifdef WIN32
 	m_FileObjectCreators[FILE_CHANNEL_NORMAL1]=new CWinFileAccessorObjectCreator();
-#else 
+#else
 	m_FileObjectCreators[FILE_CHANNEL_NORMAL1]=new CLinuxFileAccessorObjectCreator();
 #endif
 	m_FileObjectCreators[FILE_CHANNEL_NORMAL2]=new CStandardFileObjectCreator();

@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 namespace DBLib
 {
@@ -45,7 +45,7 @@ int CMySQLDynamicRecordSet::Init(CMySQLConnection * pDBConnection,MYSQL_STMT_HAN
 	int ColNum=mysql_num_fields(hResult);
 	m_pColumnInfos.Resize(ColNum);
 	m_RowBuffer.Resize(ColNum);
-	m_FetchBuffer.Resize(ColNum);	
+	m_FetchBuffer.Resize(ColNum);
 	ZeroMemory(&(m_FetchBuffer[0]),sizeof(MYSQL_BIND)*ColNum);
 	MYSQL_FIELD * pFields=mysql_fetch_fields(hResult);
 	UINT FetchBufferLen=0;
@@ -54,28 +54,28 @@ int CMySQLDynamicRecordSet::Init(CMySQLConnection * pDBConnection,MYSQL_STMT_HAN
 		UINT Size=pFields[i].length;
 		UINT DigitalSize=pFields[i].decimals;
 		int DBType=CMySQLConnection::MySQLTypeToDBLibType(pFields[i].type,Size,DigitalSize);
-		strncpy_0(m_pColumnInfos[i].Name,MAX_COLUMN_NAME,pFields[i].name,MAX_COLUMN_NAME);		
+		strncpy_0(m_pColumnInfos[i].Name,MAX_COLUMN_NAME,pFields[i].name,MAX_COLUMN_NAME);
 		m_pColumnInfos[i].Type=DBType;
 		m_pColumnInfos[i].Size=Size;
-		m_pColumnInfos[i].DigitSize=DigitalSize;		
-		FetchBufferLen+=CMySQLConnection::GetMySQLTypeBinLength(pFields[i].type,pFields[i].length,pFields[i].decimals)+sizeof(UINT)+sizeof(my_bool);
+		m_pColumnInfos[i].DigitSize=DigitalSize;
+		FetchBufferLen += CMySQLConnection::GetMySQLTypeBinLength(pFields[i].type, pFields[i].length, pFields[i].decimals) + sizeof(ULONG) + sizeof(my_bool);
 	}
 	m_FetchDataBuffer.Create(FetchBufferLen);
 	for(int i=0;i<ColNum;i++)
-	{	
+	{
 		m_FetchBuffer[i].buffer_type=pFields[i].type;
 		m_FetchBuffer[i].is_unsigned=(pFields[i].flags&UNSIGNED_FLAG)?1:0;
 		m_FetchBuffer[i].buffer=(char *)m_FetchDataBuffer.GetFreeBuffer();
 		m_FetchBuffer[i].buffer_length=CMySQLConnection::GetMySQLTypeBinLength(pFields[i].type,pFields[i].length,pFields[i].decimals);
-		m_FetchDataBuffer.PushBack(NULL,m_FetchBuffer[i].buffer_length);		
+		m_FetchDataBuffer.PushBack(NULL,m_FetchBuffer[i].buffer_length);
 
 		m_FetchBuffer[i].length=(ULONG *)m_FetchDataBuffer.GetFreeBuffer();
-		m_FetchDataBuffer.PushConstBack(m_pColumnInfos[i].Size,sizeof(ULONG));
+		m_FetchDataBuffer.PushConstBack((ULONG)m_pColumnInfos[i].Size, sizeof(ULONG));
 
 		m_FetchBuffer[i].is_null=(my_bool *)m_FetchDataBuffer.GetFreeBuffer();
 		m_FetchDataBuffer.PushConstBack(0,sizeof(my_bool));
 
-		
+
 	}
 	mysql_free_result(hResult);
 
@@ -92,7 +92,7 @@ int CMySQLDynamicRecordSet::Init(CMySQLConnection * pDBConnection,MYSQL_STMT_HAN
 			return DBERR_BUFFER_OVERFLOW;
 		}
 	}
-	int Ret=FetchRow();	
+	int Ret=FetchRow();
 	return Ret;
 }
 
@@ -119,7 +119,7 @@ int CMySQLDynamicRecordSet::NextResults()
 			return DBERR_BUFFER_OVERFLOW;
 		}
 	}
-	int Ret=FetchRow();	
+	int Ret=FetchRow();
 	return Ret;
 }
 
@@ -134,7 +134,7 @@ void CMySQLDynamicRecordSet::Destory()
 	m_pColumnInfos.Clear();
 	m_RowBuffer.Clear();
 	m_IsBOF=true;
-	m_IsEOF=true;	
+	m_IsEOF=true;
 }
 
 int CMySQLDynamicRecordSet::GetRecordCount()
@@ -201,11 +201,11 @@ CDBValue& CMySQLDynamicRecordSet::GetField(LPCSTR Name)
 int CMySQLDynamicRecordSet::MoveFirst()
 {
 	if(m_hStmt)
-	{		
+	{
 		if(m_CacheAllData)
 		{
 			mysql_stmt_data_seek(m_hStmt,0);
-			return FetchRow();			
+			return FetchRow();
 		}
 		else
 		{
@@ -222,12 +222,12 @@ int CMySQLDynamicRecordSet::MoveFirst()
 int CMySQLDynamicRecordSet::MoveLast()
 {
 	if(m_hStmt)
-	{		
+	{
 		if(m_CacheAllData)
 		{
-			my_ulonglong RowCount=mysql_stmt_num_rows(m_hStmt);			
+			my_ulonglong RowCount=mysql_stmt_num_rows(m_hStmt);
 			mysql_stmt_data_seek(m_hStmt,RowCount-1);
-			return FetchRow();			
+			return FetchRow();
 		}
 		else
 		{
@@ -243,8 +243,8 @@ int CMySQLDynamicRecordSet::MoveLast()
 int CMySQLDynamicRecordSet::MoveNext()
 {
 	if(m_hStmt)
-	{	
-		return FetchRow();			
+	{
+		return FetchRow();
 	}
 	else
 	{
@@ -255,7 +255,7 @@ int CMySQLDynamicRecordSet::MoveNext()
 int CMySQLDynamicRecordSet::MovePrevious()
 {
 	if(m_hStmt)
-	{		
+	{
 		if(m_CacheAllData)
 		{
 			MYSQL_ROW_OFFSET Offset=mysql_stmt_row_tell(m_hStmt);
@@ -286,7 +286,7 @@ int CMySQLDynamicRecordSet::MovePrevious()
 int CMySQLDynamicRecordSet::MoveTo(int Index)
 {
 	if(m_hStmt)
-	{		
+	{
 		if(m_CacheAllData)
 		{
 			mysql_stmt_data_seek(m_hStmt,Index);
@@ -336,13 +336,13 @@ int CMySQLDynamicRecordSet::FetchRow()
 		{
 			if(Ret==MYSQL_DATA_TRUNCATED)
 			{
-				m_pDBConnection->ProcessErrorMsg(m_hStmt,"出现数据截断");				
+				m_pDBConnection->ProcessErrorMsg(m_hStmt,"出现数据截断");
 				return DBERR_FETCH_RESULT_FAIL;
 			}
 			else if(Ret==MYSQL_NO_DATA)
 			{
 				m_IsEOF=true;
-				return DBERR_NO_RECORDS;					
+				return DBERR_NO_RECORDS;
 			}
 			else
 			{
@@ -350,10 +350,10 @@ int CMySQLDynamicRecordSet::FetchRow()
 				return DBERR_FETCH_RESULT_FAIL;
 			}
 		}
-		
+
 		int ColNum=GetColumnCount();
 		for(int i=0;i<ColNum;i++)
-		{			
+		{
 
 			if(*(m_FetchBuffer[i].is_null))
 			{
@@ -367,13 +367,13 @@ int CMySQLDynamicRecordSet::FetchRow()
 					m_RowBuffer[i]))
 				{
 					return DBERR_BINDPARAMFAIL;
-				}				
+				}
 			}
 		}
 		m_IsBOF=false;
 		m_IsEOF=false;
 		return DBERR_SUCCEED;
-	}	
+	}
 	else
 	{
 		return DBERR_NO_RECORDS;

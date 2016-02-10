@@ -52,6 +52,7 @@ public:
 	virtual int Disconnect()=0;
 	virtual BOOL IsConnected()=0;
 	virtual int ExecuteSQL(LPCSTR SQLStr,int StrLen=0,IDBParameterSet * pParamSet=NULL)=0;	
+	virtual int ExecuteSQLWithoutResultSet(LPCSTR SQLStr, int StrLen = 0, IDBParameterSet * pParamSet = NULL) = 0;
 	virtual int GetResults(IDBRecordSet * pDBRecordset)=0;
 	virtual int NextResults(IDBRecordSet * pDBRecordset)=0;	
 	virtual int GetAffectedRowCount()=0;

@@ -81,7 +81,7 @@ CLuaScript * CLuaScriptPool::GetScript(LPCTSTR szLuaFileName)
 		}
 		else
 		{
-			Log(_T("CLuaScriptPool::InitLuaScript:打开lua脚本失败%s"), (LPCTSTR)FileName);
+			LogLua(_T("CLuaScriptPool::InitLuaScript:打开lua脚本失败%s"), (LPCTSTR)FileName);
 		}
 	}
 	return pScript;
@@ -100,18 +100,18 @@ CLuaScript * CLuaScriptPool::LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptConten
 
 		if (pScript->Init(ScriptName, ScriptContent, &m_LuaCFunList, m_LuaStackSize, m_ThreadStartSize, m_ThreadGrowSize, m_ThreadGrowLimit))
 		{
-			LogDebug(_T("CLuaScriptPool::InitLuaScript:加载lua脚本完毕%s"), (LPCTSTR)ScriptName);
+			LogLuaDebug(_T("CLuaScriptPool::InitLuaScript:加载lua脚本完毕%s"), (LPCTSTR)ScriptName);
 		}
 		else
 		{
-			Log(_T("CLuaScriptPool::InitLuaScript:加载lua脚本失败%s"), (LPCTSTR)ScriptName);
+			LogLua(_T("CLuaScriptPool::InitLuaScript:加载lua脚本失败%s"), (LPCTSTR)ScriptName);
 			m_LuaScriptPool.DeleteByID(ScriptID);
 			pScript = NULL;
 		}
 	}
 	else
 	{
-		Log(_T("CLuaScriptPool::InitLuaScript:(%s)脚本缓冲池已满"), (LPCTSTR)ScriptName);
+		LogLua(_T("CLuaScriptPool::InitLuaScript:(%s)脚本缓冲池已满"), (LPCTSTR)ScriptName);
 	}
 	return pScript;
 }
@@ -155,7 +155,7 @@ void CLuaScriptPool::ReloadAllScript()
 			}
 			else
 			{
-				Log(_T("CLuaScriptPool::ReloadAllScript:打开lua脚本失败%s"), (LPCTSTR)pScript->GetScriptName());
+				LogLua(_T("CLuaScriptPool::ReloadAllScript:打开lua脚本失败%s"), (LPCTSTR)pScript->GetScriptName());
 			}
 		}
 	}

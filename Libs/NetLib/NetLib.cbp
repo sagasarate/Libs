@@ -8,31 +8,36 @@
 		<Option virtualFolders="Socket/;头文件/;工具/;服务器组件/;预编译/;服务器组件/EasyNetLink/;工具组建/;服务器组件/Epoll/;服务器组件/Epoll/Epoll事件处理/;服务器组件/Epoll/Epoll工作线程/;服务器组件/Epoll/Epoll服务/;服务器组件/Epoll/Epoll服务器/;服务器组件/Epoll/Epoll连接/;服务器组件/Epoll/事件对象/;服务器组件/Epoll/Epoll连接/并行TCP/;工具组建/EasyNetLink/;基本对象/;基本对象/服务/;基本对象/服务器/;基本对象/连接/;服务器组件/Epoll/Epoll服务/Epoll连接/;服务器组件/Epoll/Epoll服务/Epoll连接/并行TCP/;" />
 		<Build>
 			<Target title="Debug">
-				<Option output="../Bin/Debug/NetLibD" prefix_auto="0" extension_auto="1" />
+				<Option output="../Bin/NetLibD" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="Debug" />
+				<Option object_output="debug" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="-W" />
 					<Add option="-g" />
+					<Add option="-W" />
 					<Add option="-O0" />
+					<Add option="-fPIC" />
 					<Add option="-D_DEBUG" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="../Bin/Release/libNetLib" prefix_auto="1" extension_auto="1" />
+				<Option output="../Bin/NetLib" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="Release" />
+				<Option object_output="release" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-W" />
+					<Add option="-fPIC" />
 				</Compiler>
 			</Target>
 		</Build>
+		<Compiler>
+			<Add option="-std=c++11" />
+		</Compiler>
 		<Unit filename="BaseServer.cpp">
 			<Option virtualFolder="基本对象/服务器/" />
 		</Unit>
@@ -146,6 +151,7 @@
 		<Extensions>
 			<code_completion />
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

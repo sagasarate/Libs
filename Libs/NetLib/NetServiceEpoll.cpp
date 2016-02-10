@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 IMPLEMENT_CLASS_INFO_STATIC(CNetService,CBaseService);
 
@@ -23,8 +23,8 @@ CNetService::CNetService()
 	m_SendQueueSize=0;
 	m_ParallelAcceptCount=0;
 	m_ParallelRecvCount=0;
-	m_pEpollEventRouter=NULL;	
-	
+	m_pEpollEventRouter=NULL;
+
 }
 
 CNetService::~CNetService(void)
@@ -33,7 +33,7 @@ CNetService::~CNetService(void)
 }
 
 BOOL CNetService::OnEpollEvent(UINT EventID)
-{		
+{
 	if(IsWorking())
 	{
 		if(EventID&(EPOLLERR|EPOLLHUP))
@@ -52,7 +52,7 @@ BOOL CNetService::OnEpollEvent(UINT EventID)
 		if(EventID&EPOLLOUT)
 		{
 			DoUDPSend();
-		}			
+		}
 	}
 	else
 		PrintNetLog(0xffffffff,"Service未启用，事件被忽略！");
@@ -61,7 +61,7 @@ BOOL CNetService::OnEpollEvent(UINT EventID)
 }
 
 BOOL CNetService::Create(int Protocol,int AcceptQueueSize,int RecvQueueSize,int SendQueueSize,int ParallelAcceptCount,int ParallelRecvCount,bool IsUseListenThread)
-{	
+{
 	if(GetServer()==NULL)
 		return FALSE;
 
@@ -79,7 +79,7 @@ BOOL CNetService::Create(int Protocol,int AcceptQueueSize,int RecvQueueSize,int 
 	m_ParallelRecvCount=ParallelRecvCount;
 	if(Protocol==IPPROTO_UDP)
 	{
-		m_Socket.MakeSocket(AF_INET,SOCK_DGRAM,IPPROTO_UDP);	
+		m_Socket.MakeSocket(AF_INET,SOCK_DGRAM,IPPROTO_UDP);
 		m_RecvQueue.Create(m_RecvQueueSize);
 		m_SendQueue.Create(m_SendQueueSize);
 	}
@@ -87,7 +87,7 @@ BOOL CNetService::Create(int Protocol,int AcceptQueueSize,int RecvQueueSize,int 
 	{
 		m_Socket.MakeSocket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
 		m_RecvQueue.Create(m_AcceptQueueSize);
-		
+
 	}
 	m_WantClose=FALSE;
 	m_CurProtocol=Protocol;
@@ -107,51 +107,51 @@ void CNetService::Destory()
 	}
 
 
-	m_Socket.Close();	
+	m_Socket.Close();
 
 	m_WantClose=FALSE;
 
 
 	CEpollEventObject * pEpollEventObject;
 	while(m_RecvQueue.PopFront(pEpollEventObject))
-	{	
-		GetServer()->DeleteEventObject(pEpollEventObject);		
+	{
+		GetServer()->DeleteEventObject(pEpollEventObject);
 	}
 	while(m_SendQueue.PopFront(pEpollEventObject))
-	{	
-		GetServer()->DeleteEventObject(pEpollEventObject);		
+	{
+		GetServer()->DeleteEventObject(pEpollEventObject);
 	}
 
-	
-	
-	
+
+
+
 }
 
 
 BOOL CNetService::StartListen(const CIPAddress& Address)
-{		
+{
 
 	if(m_Socket.GetState()==CNetSocket::SS_UNINITED)
 	{
 		if(!Create())
 			return FALSE;
-	}	
+	}
 
 	m_pEpollEventRouter->Init(this);
 
 	if(!m_Socket.EnableBlocking(FALSE))
-	{		
-		PrintNetLog(0xffffffff,"(%d)Service开始非阻塞模式失败！",GetID());		
+	{
+		PrintNetLog(0xffffffff,"(%d)Service开始非阻塞模式失败！",GetID());
 		return FALSE;
 	}
-	
+
 	if(m_CurProtocol==IPPROTO_UDP)
-	{		
+	{
 		if(!m_Socket.Bind(Address))
 		{
 			PrintNetLog(0xffffffff,"(%d)Service绑定失败！",GetID());
 			return FALSE;
-		}	
+		}
 		m_Socket.SetState(CNetSocket::SS_CONNECTED);
 	}
 	else
@@ -166,30 +166,30 @@ BOOL CNetService::StartListen(const CIPAddress& Address)
 
 	if(!GetServer()->BindSocket(m_Socket.GetSocket(),m_pEpollEventRouter))
 	{
-		PrintNetLog(0xffffffff,"(%d)Service绑定Socket失败！",GetID());	
+		PrintNetLog(0xffffffff,"(%d)Service绑定Socket失败！",GetID());
 		return FALSE;
-	}	
-	
+	}
+
 	OnStartUp();
 	return TRUE;
 }
 void CNetService::Close()
 {
 	m_Socket.Close();
-	
+
 	m_WantClose=FALSE;
 
 	CEpollEventObject * pEpollEventObject;
 	while(m_RecvQueue.PopFront(pEpollEventObject))
-	{	
-		GetServer()->DeleteEventObject(pEpollEventObject);		
+	{
+		GetServer()->DeleteEventObject(pEpollEventObject);
 	}
 	while(m_SendQueue.PopFront(pEpollEventObject))
-	{	
-		GetServer()->DeleteEventObject(pEpollEventObject);		
+	{
+		GetServer()->DeleteEventObject(pEpollEventObject);
 	}
 
-	OnClose();	
+	OnClose();
 }
 void CNetService::QueryClose()
 {
@@ -203,8 +203,8 @@ void CNetService::OnClose()
 }
 
 int CNetService::Update(int ProcessPacketLimit)
-{	
-	
+{
+
 
 	//处理Accept
 	int PacketCount=0;
@@ -219,24 +219,24 @@ int CNetService::Update(int ProcessPacketLimit)
 			}
 		}
 		else if(pEpollEventObject->GetType()==IO_RECV)
-		{			
+		{
 			OnRecvData(pEpollEventObject->GetAddress(),*pEpollEventObject->GetDataBuff());
 		}
 		else
 		{
-			PrintNetLog(0xffffffff,"(%d)Servicec收到不明类型的OverLapped！",GetID());			
+			PrintNetLog(0xffffffff,"(%d)Servicec收到不明类型的OverLapped！",GetID());
 		}
 		GetServer()->DeleteEventObject(pEpollEventObject);
 		PacketCount++;
 		if(PacketCount>=ProcessPacketLimit)
 			break;
-	}	
+	}
 
 	//处理关闭
 	if(m_WantClose)
 	{
-		Close();		
-	}		
+		Close();
+	}
 	return PacketCount;
 }
 
@@ -251,7 +251,7 @@ BOOL CNetService::DeleteConnection(CBaseTCPConnection * pConnection)
 }
 
 BOOL CNetService::QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int Size)
-{	
+{
 
 	CEpollEventObject * pEpollEventObject=GetServer()->CreateEventObject();
 	if(pEpollEventObject==NULL)
@@ -274,11 +274,11 @@ BOOL CNetService::QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int Siz
 	}
 
 	if(m_SendQueue.PushBack(pEpollEventObject))
-	{		
+	{
 		DoUDPSend();
 		return TRUE;
 	}
-	PrintNetLog(0xffffffff,"(%d)Service的发送队列已满！",GetID());	
+	PrintNetLog(0xffffffff,"(%d)Service的发送队列已满！",GetID());
 	GetServer()->DeleteEventObject(pEpollEventObject);
 	return FALSE;
 }
@@ -294,7 +294,7 @@ BOOL CNetService::AcceptSocket(SOCKET Socket)
 {
 
 	CIPAddress LocalAddress;
-	CIPAddress RemoteAddress;			
+	CIPAddress RemoteAddress;
 
 	socklen_t LocalAddressLen=sizeof(sockaddr_in);
 	socklen_t RemoteAddressLen=sizeof(sockaddr_in);
@@ -310,14 +310,14 @@ BOOL CNetService::AcceptSocket(SOCKET Socket)
 	CBaseTCPConnection * pConnection=dynamic_cast<CBaseTCPConnection *>(CreateConnection(RemoteAddress));
 	if(pConnection)
 	{
-		if(pConnection->Create(Socket,m_RecvQueueSize,m_SendQueueSize))	
-		{					
-			pConnection->SetRemoteAddress(RemoteAddress);				
-			pConnection->SetLocalAddress(LocalAddress);					
+		if(pConnection->Create(Socket,m_RecvQueueSize,m_SendQueueSize))
+		{
+			pConnection->SetRemoteAddress(RemoteAddress);
+			pConnection->SetLocalAddress(LocalAddress);
 
 			if(pConnection->StartWork())
-			{				
-				return TRUE;	
+			{
+				return TRUE;
 			}
 			else
 				PrintNetLog(0xffffffff,"(%d)Service启动Connection失败！",GetID());
@@ -331,7 +331,7 @@ BOOL CNetService::AcceptSocket(SOCKET Socket)
 	}
 	else
 	{
-		PrintNetLog(0xffffffff,"(%d)Servicec创建Connection失败！",GetID());	
+		PrintNetLog(0xffffffff,"(%d)Servicec创建Connection失败！",GetID());
 		closesocket(Socket);
 	}
 	return FALSE;
@@ -357,7 +357,7 @@ void CNetService::DoAcceptSocket()
 				PrintNetLog(0xffffffff,"Accept失败(%u)",ErrorCode);
 				QueryClose();
 				return;
-			}			
+			}
 		}
 		else
 		{
@@ -377,7 +377,7 @@ void CNetService::DoAcceptSocket()
 					GetServer()->DeleteEventObject(pEpollEventObject);
 					PrintNetLog(0xffffffff,"CNetService的Accept队列已满！");
 				}
-				
+
 			}
 			else
 			{
@@ -442,7 +442,7 @@ void CNetService::DoUDPRecv()
 					PrintNetLog(0xffffffff,"CNetService的Recv队列已满！");
 				}
 			}
-			
+
 		}
 		else
 		{
@@ -456,15 +456,15 @@ void CNetService::DoUDPRecv()
 				return;
 			case EINTR:
 				PrintNetLog(0xffffffff,"Recv被系统中断");
-				break;			
+				break;
 			default:
 				PrintNetLog(0xffffffff,"Recv失败(%u),Socket关闭",ErrorCode);
 				QueryClose();
 				return;
-			}			
+			}
 		}
-		
-		
+
+
 	}
 }
 
@@ -481,15 +481,15 @@ void CNetService::DoUDPSend()
 			(sockaddr*)&(pEpollEventObject->GetAddress().GetSockAddr()),
 			sizeof(sockaddr_in));
 
-		
-			
+
+
 		if(SendSize>=0)
 		{
 			GetServer()->AddUDPSendBytes(SendSize);
 			if(SendSize<(int)pEpollEventObject->GetDataBuff()->GetUsedSize())
 			{
-				PrintNetLog(0xffffffff,"Send没有完成，数据被部分丢弃");			
-			}			
+				PrintNetLog(0xffffffff,"Send没有完成，数据被部分丢弃");
+			}
 		}
 		else
 		{
@@ -502,8 +502,8 @@ void CNetService::DoUDPSend()
 			else
 			{
 				PrintNetLog(0xffffffff,"Send失败(%u)",ErrorCode);
-			}	
-			
+			}
+
 		}
 		GetServer()->DeleteEventObject(pEpollEventObject);
 	}

@@ -68,7 +68,7 @@ int CNameObject::GetAllClassCount()
 
 void CNameObject::RefreshStorageID()
 {
-	m_StorageID=(UINT)this;
+	m_StorageID=(UINT)((UINT64)this);
 }
 
 
@@ -136,10 +136,10 @@ bool CNameObject::FromSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pRe
 
  UINT CNameObject::GetSmartStructSize(UINT Param)
 {
-	return SMART_STRUCT_STRING_MEMBER_SIZE(_tcslen(GetClassInfo().ClassName))+
-		SMART_STRUCT_STRING_MEMBER_SIZE(m_Name.GetLength())+
-		SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ID))+
-		SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_StorageID));
+	return CSmartStruct::GetStringMemberSize((UINT)_tcslen(GetClassInfo().ClassName)) +
+		CSmartStruct::GetStringMemberSize((UINT)m_Name.GetLength()) +
+		CSmartStruct::GetFixMemberSize(sizeof(m_ID)) +
+		CSmartStruct::GetFixMemberSize(sizeof(m_StorageID));
 }
 
 

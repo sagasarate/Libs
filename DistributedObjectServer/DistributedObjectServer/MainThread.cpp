@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #define SERVER_STAT_TIME		(5*60*1000)
 
@@ -19,16 +19,16 @@ BOOL CMainThread::OnStart()
 {
 	FUNCTION_BEGIN;
 
-	
 
-	
+
+
 
 	CDOSServerThread::SetConfig(CMainConfig::GetInstance()->GetDOSConfig());
 
 	if(!CDOSServerThread::OnStart())
 		return FALSE;
 
-	
+
 
 	if(!m_PluginObjectManager.Init(GetObjectManager(),CMainConfig::GetInstance()->GetMaxPluginObject()))
 	{
@@ -89,12 +89,12 @@ BOOL CMainThread::OnTerminating()
 
 void CMainThread::OnTerminate()
 {
-	FUNCTION_BEGIN;		
+	FUNCTION_BEGIN;
 
 	CDOSServerThread::OnTerminate();
-	
+
 	m_PluginUnloadQueue.Destory();
-	m_PluginObjectManager.Destory();	
+	m_PluginObjectManager.Destory();
 
 	FreePlugins();
 
@@ -128,7 +128,7 @@ BOOL CMainThread::LoadPlugins()
 {
 	FUNCTION_BEGIN;
 
-	
+
 
 	Log("一共有%u个插件",CMainConfig::GetInstance()->GetPluginCount());
 	UINT LogChannel=PLUGIN_LOG_CHANNEL_START;
@@ -141,8 +141,8 @@ BOOL CMainThread::LoadPlugins()
 		PluginInfo.PluginFileName=MakeModuleFullPath(NULL,CMainConfig::GetInstance()->GetPluginFileName(i));
 #else
 		PluginInfo.PluginFileName=CMainConfig::GetInstance()->GetPluginFileName(i);
-		PluginInfo.PluginFileName.Trim();		
-		PluginInfo.PluginFileName.Replace('\\','/');		
+		PluginInfo.PluginFileName.Trim();
+		PluginInfo.PluginFileName.Replace('\\','/');
 		if(PluginInfo.PluginFileName[0]!='/')
 		{
 			PluginInfo.PluginFileName=MakeModuleFullPath(NULL,PluginInfo.PluginFileName);
@@ -153,12 +153,12 @@ BOOL CMainThread::LoadPlugins()
 			PluginInfo.PluginFileName=PluginInfo.PluginFileName.Left(Pos)+".so";
 		}
 #endif
-		
+
 		Log("开始装载插件%s",(LPCTSTR)PluginInfo.PluginFileName);
 #ifdef WIN32
 		PluginInfo.hModule=LoadLibrary(PluginInfo.PluginFileName);
 #else
-		PluginInfo.hModule=dlopen(PluginInfo.PluginFileName,RTLD_NOW|RTLD_DEEPBIND);
+		PluginInfo.hModule = dlopen(PluginInfo.PluginFileName, RTLD_NOW | RTLD_LOCAL | RTLD_DEEPBIND);
 #endif
 		if(PluginInfo.hModule)
 		{
@@ -180,7 +180,7 @@ BOOL CMainThread::LoadPlugins()
 			PluginInfo.pReleaseFN=(PLUGIN_RELEASE_FN)dlsym (PluginInfo.hModule,PLUGIN_RELEASE_FN_NAME);
 			LPCTSTR ReleaseFNError=dlerror();
 			if(InitFNError==NULL&&ReleaseFNError==NULL&&PluginInfo.pInitFN&&PluginInfo.pReleaseFN)
-#endif			
+#endif
 			{
 				CEasyString LogFileName;
 				CEasyString ModulePath=GetModulePath(NULL);
@@ -224,7 +224,7 @@ BOOL CMainThread::LoadPlugins()
 
 	}
 
-	
+
 
 	m_PluginUnloadQueue.Create(m_PluginList.GetCount());
 
@@ -293,7 +293,7 @@ bool CMainThread::FreePlugin(UINT PluginID)
 #endif
 				m_PluginList.Delete(i);
 				return false;
-			}			
+			}
 		}
 	}
 

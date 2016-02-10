@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 IMPLEMENT_CLASS_INFO_STATIC(CStandardFileAccessor,IFileAccessor);
@@ -53,7 +53,7 @@ BOOL CStandardFileAccessor::Open(LPCTSTR FileName,int OpenMode)
 		break;
 	default:
 		_tcscat_s(ModeStr,20,_T("r"));
-	}	
+	}
 
 	if(((OpenMode&modeCreationMask)!=modeAppend)&&(OpenMode&modeReadWrite))
 		_tcscat_s(ModeStr,20,_T("+"));

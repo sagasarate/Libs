@@ -1,30 +1,36 @@
 <?xml version="1.0" encoding="gb2312" ?>
-<Main>  
-  <Router RouterID="1" MsgQueueSize="10240" MsgProcessLimit="32"/>     
-  
-  <ClientProxy MsgQueueSize="1024" MaxProxyConnectionMsgQueue="1024" MaxProxyGlobalMsgMap="1024" MaxProxyMsgMap="1024" 
-               MaxProxyMsgSize="4096" ProxySendBufferSize="256" ProxySendDelay="50" ProxySendQueryLimit="5" MsgMinCompressSize="50" >
-    <Listen IP="0" Port="8600" MaxConnection="1000" />
-  </ClientProxy>  
-	<MemoryPool BlockSize="64" LevelSize="1048576" LevelCount="7" />      
-  <Object GroupCount="10" MaxGroupObjectCount="512" MsgQueueSize="4096" />
-  <Plugins MaxPluginObject="10240">
-    <Plugin  FileName="LittleWorldDOSPluginD.dll" />
-    <Plugin  FileName="LittleWorldDBPluginD.dll" />
+<Main ServiceName="ServerList" ServiceDesc="ServerList">
+  <Net NetWorkThreadPerCPU="2">
+    <EventObjectPool StartSize="10240" GrowSize="1024" GrowLimit="32" />
+    <EventRouterPool StartSize="2048" GrowSize="512" GrowLimit="32" />
+  </Net>
+  <Router RouterID="200" MsgQueueSize="10240" MsgProcessLimit="32" />
+
+  <ClientProxys>
+    <ClientProxy ProxyType="1" ListenIP="0" ListenPort="9800" MaxConnection="2048" ConnectionMsgQueueSize="256" 
+                 SendBufferSize="1024" SendDelay="50" SendQueryLimit="5"  
+                 UnacceptConnectionKeepTime="30000" UseServerInitiativeKeepAlive="true" KeepAliveTime="10000" KeepAliveCount="20"
+                 MsgCompressType="lzo" MinMsgCompressSize="1024"                 
+                 MsgQueueSize="256"  GlobalMsgMapSize="128" MsgMapSize="1024" MaxMsgSize="40960" />
+  </ClientProxys>
+
+  <MemoryPool BlockSize="64" LevelSize="1048576" LevelCount="7" />
+  <Object GroupCount="10" MaxGroupObjectCount="512" MsgQueueSize="4096" StatObjectCPUCost="true" />
+  <Plugins MaxPluginObject="4096">   
+    <Plugin  FileName="ServerListProviderD.so" />
   </Plugins>
     
 </Main>
 
-<RouterLink ServerID="0-0-0-1">
-  <Services >
-    <Service ID="0-0-0-1" IP="0" Port="8500" />
+<RouterLink ServerID="0-0-0-200">
+  <Services ReallocConnectionID="false">
+    <Service ID="0-0-0-200" IP="0" Port="8500" />
 	</Services>
 </RouterLink>
 
 <System>  
-  <LogConfig LogLevel="3" />
+  <LogConfig LogLevel="3" ConsoleLogLevel="3" LogServerObjectUse="false" />
 </System>
 
-<SystemLink ServerID="6-0-0-1">
-	
+<SystemLink ServerID="6-0-0-1">	
 </SystemLink>

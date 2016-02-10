@@ -11,5 +11,5 @@
 /****************************************************************************/
 #pragma once
 
-extern bool TEAEncode(const BYTE * pIn,BYTE * pOut,UINT DataLen,const BYTE * pKey,int Cycle);
-extern bool TEADecode(const BYTE * pIn,BYTE * pOut,UINT DataLen,const BYTE * pKey,int Cycle);
+extern bool TEAEncode(const BYTE * pIn, BYTE * pOut, UINT DataLen, const BYTE * pKey, unsigned int Cycle);
+extern bool TEADecode(const BYTE * pIn, BYTE * pOut, UINT DataLen, const BYTE * pKey, unsigned int Cycle);

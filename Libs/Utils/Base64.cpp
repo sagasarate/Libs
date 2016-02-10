@@ -104,10 +104,10 @@ bool CBase64::Encode(LPCVOID pInData,size_t DataLen,char * pOutBuff, size_t& Out
 
 bool CBase64::Decode(const CEasyStringA& InData,CEasyBuffer& OutData)
 {
-	OutData.Create(GetDecodeLen(InData,InData.GetLength()));
+	OutData.Create((UINT)GetDecodeLen(InData, InData.GetLength()));
 	size_t OutLen=OutData.GetBufferSize();
 	bool Ret=Decode(InData,InData.GetLength(),(BYTE *)OutData.GetBuffer(),OutLen);
-	OutData.SetUsedSize(OutLen);
+	OutData.SetUsedSize((UINT)OutLen);
 	return Ret;
 }
 
@@ -118,10 +118,10 @@ bool CBase64::Decode(const CEasyStringA& InData,BYTE * pOutData, size_t& OutLen)
 
 bool  CBase64::Decode(LPCSTR szInData,size_t InLen, CEasyBuffer& OutData)
 {
-	OutData.Create(GetDecodeLen(szInData,InLen));
+	OutData.Create((UINT)GetDecodeLen(szInData, InLen));
 	size_t OutLen=OutData.GetBufferSize();
 	bool Ret=Decode(szInData,InLen,(BYTE *)OutData.GetBuffer(),OutLen);
-	OutData.SetUsedSize(OutLen);
+	OutData.SetUsedSize((UINT)OutLen);
 	return Ret;
 }
 

@@ -14,10 +14,10 @@
 
 #define CHECK_SMART_STRUCT_ADD(Opt,FailCount)		{if(!(Opt)) FailCount++;}
 #define CHECK_SMART_STRUCT_ADD_AND_RETURN(Opt)		{if(!(Opt)) return false;}
-#define SMART_STRUCT_FIX_MEMBER_SIZE(DataSize)		(sizeof(WORD)+sizeof(BYTE)+DataSize)
-#define SMART_STRUCT_STRING_MEMBER_SIZE(StrLen)		(sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+sizeof(char)*(StrLen+1))
-#define SMART_STRUCT_WSTRING_MEMBER_SIZE(StrLen)	(sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+sizeof(wchar_t)*(StrLen+1))
-#define SMART_STRUCT_STRUCT_MEMBER_SIZE(StructLen)	(sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+StructLen)
+//#define SMART_STRUCT_FIX_MEMBER_SIZE(DataSize)		(sizeof(WORD)+sizeof(BYTE)+DataSize)
+//#define SMART_STRUCT_STRING_MEMBER_SIZE(StrLen)		(sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+sizeof(char)*(StrLen+1))
+//#define SMART_STRUCT_WSTRING_MEMBER_SIZE(StrLen)	(sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+sizeof(wchar_t)*(StrLen+1))
+//#define SMART_STRUCT_STRUCT_MEMBER_SIZE(StructLen)	(sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+StructLen)
 
 template < typename LENGTH_TYPE,typename ID_TYPE >
 class CSmartStructBase 
@@ -226,36 +226,36 @@ public:
 		}
 		return false;
 	}
-	bool AddMember(ID_TYPE ID,long Value)
-	{
-		LENGTH_TYPE BufferSize;
-		void * pBuffer=PrepareMember(BufferSize);
-		if(pBuffer)
-		{
-			CSmartValue SmartValue;
-			if(SmartValue.Attach(pBuffer,BufferSize,CSmartValue::VT_INT))
-			{
-				SmartValue=Value;
-				return FinishMember(ID,SmartValue.GetDataLen());
-			}			
-		}
-		return false;
-	}
-	bool AddMember(ID_TYPE ID,unsigned long Value)
-	{
-		LENGTH_TYPE BufferSize;
-		void * pBuffer=PrepareMember(BufferSize);
-		if(pBuffer)
-		{
-			CSmartValue SmartValue;
-			if(SmartValue.Attach(pBuffer,BufferSize,CSmartValue::VT_UINT))
-			{
-				SmartValue=Value;
-				return FinishMember(ID,SmartValue.GetDataLen());
-			}			
-		}
-		return false;
-	}
+	//bool AddMember(ID_TYPE ID,long Value)
+	//{
+	//	LENGTH_TYPE BufferSize;
+	//	void * pBuffer=PrepareMember(BufferSize);
+	//	if(pBuffer)
+	//	{
+	//		CSmartValue SmartValue;
+	//		if(SmartValue.Attach(pBuffer,BufferSize,CSmartValue::VT_INT))
+	//		{
+	//			SmartValue=Value;
+	//			return FinishMember(ID,SmartValue.GetDataLen());
+	//		}			
+	//	}
+	//	return false;
+	//}
+	//bool AddMember(ID_TYPE ID,unsigned long Value)
+	//{
+	//	LENGTH_TYPE BufferSize;
+	//	void * pBuffer=PrepareMember(BufferSize);
+	//	if(pBuffer)
+	//	{
+	//		CSmartValue SmartValue;
+	//		if(SmartValue.Attach(pBuffer,BufferSize,CSmartValue::VT_UINT))
+	//		{
+	//			SmartValue=Value;
+	//			return FinishMember(ID,SmartValue.GetDataLen());
+	//		}			
+	//	}
+	//	return false;
+	//}
 	bool AddMember(ID_TYPE ID,int Value)
 	{
 		LENGTH_TYPE BufferSize;
@@ -477,7 +477,7 @@ public:
 		{
 			pHead+=sizeof(ID_TYPE);
 
-			CSmartValue Value(pHead,pTail-pHead);
+			CSmartValue Value(pHead,(UINT)(pTail-pHead));
 
 			pHead+=Value.GetDataLen();
 			MemberCount++;
@@ -804,6 +804,7 @@ inline bool CSmartStructBase<UINT,WORD>::AddMember(WORD ID,const wchar_t * pszSt
 		return false;
 	if(ID==0)
 		return false;	
+#ifdef WIN32
 	if(CSmartValue::IsConvertWideCharToUTF8())
 	{
 		UINT UTF8Len=(UINT)UnicodeToUTF8(pszStr,nStrLen,NULL,0);
@@ -828,6 +829,7 @@ inline bool CSmartStructBase<UINT,WORD>::AddMember(WORD ID,const wchar_t * pszSt
 		*((UINT *)(m_pData+1))+=NeedSize;
 	}
 	else
+#endif
 	{
 		UINT NeedSize=sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+sizeof(wchar_t)*(nStrLen+1);
 		if(GetFreeLen()<NeedSize)
@@ -857,6 +859,7 @@ inline bool CSmartStructBase<WORD,BYTE>::AddMember(BYTE ID,const wchar_t * pszSt
 		return false;
 	if(ID==0)
 		return false;	
+#ifdef WIN32
 	if(CSmartValue::IsConvertWideCharToUTF8())
 	{
 		UINT UTF8Len=(UINT)UnicodeToUTF8(pszStr,nStrLen,NULL,0);
@@ -881,6 +884,7 @@ inline bool CSmartStructBase<WORD,BYTE>::AddMember(BYTE ID,const wchar_t * pszSt
 		*((WORD *)(m_pData+1))+=NeedSize;
 	}
 	else
+#endif
 	{
 		WORD NeedSize=sizeof(BYTE)+sizeof(BYTE)+sizeof(WORD)+sizeof(wchar_t)*(nStrLen+1);
 		if(GetFreeLen()<NeedSize)

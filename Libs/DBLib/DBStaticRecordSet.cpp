@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "DBStaticRecordSet.h"
 
 namespace DBLib
@@ -18,7 +18,7 @@ namespace DBLib
 IMPLEMENT_CLASS_INFO(CDBStaticRecordSet,IDBRecordSet);
 
 CDBStaticRecordSet::CDBStaticRecordSet(void):IDBRecordSet()
-{	
+{
 	m_CurRow=0;
 }
 
@@ -53,11 +53,11 @@ int CDBStaticRecordSet::Init(LPCVOID pData,int DataSize)
 	m_Records.Resize(RecordNum);
 	for(int i=0;i<RecordNum;i++)
 	{
-		m_Records[i].Resize(ColNum);		
+		m_Records[i].Resize(ColNum);
 		for(int j=0;j<ColNum;j++)
 		{
 			int ValueSize=0;
-			RecordBuffer.Peek(PeekPtr,&ValueSize,sizeof(int));			
+			RecordBuffer.Peek(PeekPtr,&ValueSize,sizeof(int));
 			if(ValueSize<0)
 			{
 				m_Records[i][j].SetValue(m_pColumnInfos[j].Type,
@@ -70,10 +70,10 @@ int CDBStaticRecordSet::Init(LPCVOID pData,int DataSize)
 					(BYTE *)RecordBuffer.GetBuffer()+PeekPtr,
 					ValueSize,m_pColumnInfos[j].DigitSize);
 			}
-			PeekPtr+=ValueSize;			
-		}		
+			PeekPtr+=ValueSize;
+		}
 	}
-	
+
 
 	return DBERR_SUCCEED;
 }
@@ -129,7 +129,7 @@ DB_COLUMN_INFO * CDBStaticRecordSet::GetColumnInfo(int Index)
 CDBValue& CDBStaticRecordSet::GetField(int Index)
 {
 	if(m_CurRow>=0&&m_CurRow<(int)m_Records.GetCount())
-	{	
+	{
 		CDBValueRow& Record=m_Records[m_CurRow];
 		if(Index>=0&&Index<(int)Record.GetCount())
 		{
@@ -142,7 +142,7 @@ CDBValue& CDBStaticRecordSet::GetField(int Index)
 CDBValue& CDBStaticRecordSet::GetField(LPCSTR Name)
 {
 	if(m_CurRow>=0&&m_CurRow<(int)m_Records.GetCount())
-	{	
+	{
 		CDBValueRow& Record=m_Records[m_CurRow];
 		int Index=GetIndexByColumnName(Name);
 		if(Index>=0)
@@ -176,7 +176,7 @@ int CDBStaticRecordSet::MoveNext()
 	if((int)m_Records.GetCount()<=0)
 		return DBERR_NO_RECORDS;
 	if(m_CurRow>=(int)m_Records.GetCount())
-		return DBERR_IS_RECORDSET_TAIL;	
+		return DBERR_IS_RECORDSET_TAIL;
 
 	return DBERR_SUCCEED;
 }
@@ -189,7 +189,7 @@ int CDBStaticRecordSet::MovePrevious()
 		return DBERR_NO_RECORDS;
 	if(m_CurRow<0)
 		return DBERR_IS_RECORDSET_HEAD;
-	
+
 	return DBERR_SUCCEED;
 }
 

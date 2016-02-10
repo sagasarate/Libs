@@ -29,27 +29,27 @@ public:
 	{
 		SAFE_RELEASE(m_Pointer);
 	}
-	operator T*()
+	operator T*() const
 	{
 		return m_Pointer;
 	}
-	T& operator *()
+	T& operator *() const
 	{
 		return *m_Pointer;
 	}
-	T** operator &()
+	T** operator &() const
 	{
 		return &m_Pointer;
 	}
-	T* operator->()
+	T* operator->() const
 	{		
 		return m_Pointer;
 	}	
-	bool operator==(const T* Pointer)
+	bool operator==(const T* Pointer) const
 	{
 		return m_Pointer == Pointer;
 	}
-	bool operator!=(const T* Pointer)
+	bool operator!=(const T* Pointer) const
 	{
 		return m_Pointer != Pointer;
 	}

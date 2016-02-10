@@ -181,7 +181,7 @@
       <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)NetLibD.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -226,7 +226,7 @@
       <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)NetLib.lib</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">

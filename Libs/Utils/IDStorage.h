@@ -370,10 +370,13 @@ public:
 	T* GetObject(LPVOID Pos)
 	{
 		StorageNode * pNode=(StorageNode *)Pos;	
-		if(Pos)
-			return pNode->GetObjectPointer();
-		else
-			return NULL;
+		if (pNode)
+		{
+			if (!pNode->IsFree)
+				return pNode->GetObjectPointer();
+		}
+		
+		return NULL;
 	}	
 	T* GetObject(UINT ID)
 	{		
@@ -382,7 +385,7 @@ public:
 	UINT GetObjectID(LPVOID Pos)
 	{
 		StorageNode * pNode=(StorageNode *)Pos;	
-		if(Pos)
+		if (pNode)
 			return pNode->ID;
 		else
 			return 0;
@@ -390,21 +393,18 @@ public:
 	
 	BOOL DeleteObject(UINT ID)
 	{
-		StorageNode * pNode=(StorageNode *)GetObjectPos(ID);
-		if(pNode)
-		{
-			DeleteNode(pNode);
-			return true;
-		}
-		return false;;
+		return DeleteObjectByPos(GetObjectPos(ID));
 	}	
 	BOOL DeleteObjectByPos(LPVOID Pos)
 	{
 		StorageNode * pNode=(StorageNode *)Pos;
 		if(pNode)
 		{
-			DeleteNode(pNode);
-			return true;
+			if (!pNode->IsFree)
+			{
+				DeleteNode(pNode);
+				return true;
+			}
 		}
 		return false;;
 	}	

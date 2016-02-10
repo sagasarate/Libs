@@ -106,6 +106,10 @@ public:
 	{
 		return m_Map.Create(Size);
 	}
+	void Clear()
+	{
+		m_Map.Clear();
+	}
 	CStaticMap<CEasyString,ES_FUNCTION>& GetMap()
 	{
 		return m_Map;

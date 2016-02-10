@@ -9,29 +9,29 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 IMPLEMENT_CLASS_INFO_STATIC(CEasyThread,CNameObject);
 
 CEasyThread::CEasyThread():CNameObject()
 {
-	m_ThreadID=0;	
+	m_ThreadID=0;
 	m_Status=THREAD_STATUS_TERMINATED;
 	m_WantTerminate=FALSE;
 }
 
 CEasyThread::~CEasyThread()
 {
-	SafeTerminate(DEFAULT_THREAD_TERMINATE_TIME);	
+	SafeTerminate(DEFAULT_THREAD_TERMINATE_TIME);
 }
 
 
 BOOL CEasyThread::Start(BOOL IsSuspended,DWORD StartWaitTime)
-{	
-	int Flag = 0;	
+{
+	int Flag = 0;
 
 	if(IsWorking())
-		return FALSE;	
+		return FALSE;
 
 
 	m_Status=THREAD_STATUS_STARTING;
@@ -40,8 +40,8 @@ BOOL CEasyThread::Start(BOOL IsSuspended,DWORD StartWaitTime)
 	if(pthread_create(&m_ThreadID,NULL,ThreadProc,this)!=0)
 	{
 		return FALSE;
-	}	
-	pthread_detach(m_ThreadID);	
+	}
+	pthread_detach(m_ThreadID);
 	WaitForWorking(StartWaitTime);
 
 	return TRUE;
@@ -73,24 +73,24 @@ void CEasyThread::ForceTerminate()
 	if(m_ThreadID)
 	{
 		pthread_cancel(m_ThreadID);
-		OnTerminate();	
+		OnTerminate();
 		m_ThreadID=0;
 	}
-	
+
 }
 
 void CEasyThread::SafeTerminate(DWORD Milliseconds)
-{	
+{
 	Terminate();
 	if(!WaitForTerminate(Milliseconds))
-		ForceTerminate();	
+		ForceTerminate();
 	m_ThreadID=0;
 }
 
 BOOL CEasyThread::WaitForWorking(DWORD Milliseconds)
-{	
+{
 	if(Milliseconds==INFINITE)
-	{	
+	{
 		while(m_Status==THREAD_STATUS_STARTING)
 		{
 			DoSleep(10);
@@ -98,11 +98,11 @@ BOOL CEasyThread::WaitForWorking(DWORD Milliseconds)
 		return TRUE;
 	}
 	else
-	{		
+	{
 		CEasyTimer Timer;
 		Timer.SetTimeOut(Milliseconds);
 		while(!Timer.IsTimeOut())
-		{			
+		{
 			if(m_Status!=THREAD_STATUS_STARTING)
 				return TRUE;
 			DoSleep(10);
@@ -114,7 +114,7 @@ BOOL CEasyThread::WaitForWorking(DWORD Milliseconds)
 BOOL CEasyThread::WaitForTerminate(DWORD Milliseconds)
 {
 	if(Milliseconds==INFINITE)
-	{	
+	{
 		while(m_Status!=THREAD_STATUS_TERMINATED)
 		{
 			DoSleep(10);
@@ -122,11 +122,11 @@ BOOL CEasyThread::WaitForTerminate(DWORD Milliseconds)
 		return TRUE;
 	}
 	else
-	{		
+	{
 		CEasyTimer Timer;
 		Timer.SetTimeOut(Milliseconds);
 		while(!Timer.IsTimeOut())
-		{			
+		{
 			if(m_Status==THREAD_STATUS_TERMINATED)
 				return TRUE;
 			DoSleep(10);
@@ -154,7 +154,7 @@ void CEasyThread::Execute()
 {
 	while((!m_WantTerminate)&&(OnRun()))
 	{
-	}	
+	}
 }
 
 BOOL CEasyThread::OnRun()
@@ -164,7 +164,7 @@ BOOL CEasyThread::OnRun()
 
 void CEasyThread::OnTerminate()
 {
-	
+
 }
 
 
@@ -174,11 +174,11 @@ LPVOID CEasyThread::ThreadProc(LPVOID pParam)
 	__try
 	{
 #endif
-	
+
 		CEasyThread * pThread=(CEasyThread *)pParam;
 
 		pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
-		
+
 		if(pThread->OnStart())
 		{
 			pThread->m_Status=THREAD_STATUS_WORKING;
@@ -186,14 +186,14 @@ LPVOID CEasyThread::ThreadProc(LPVOID pParam)
 		}
 		pThread->m_Status=THREAD_STATUS_ENDING;
 		pThread->OnTerminate();
-		pThread->m_Status=THREAD_STATUS_TERMINATED;				
-		
+		pThread->m_Status=THREAD_STATUS_TERMINATED;
+
 		return NULL;
 #ifdef USE_THREAD_EXCEPTION_CATCH
 	}__except(CExceptionParser::ExceptionHander(GetExceptionInformation()))
 	{
 		exit(0);
-	}	
+	}
 	return 0;
 #endif
 }

@@ -395,6 +395,18 @@ namespace LuaWrap
 		return NULL;
 	}
 	
+	template <typename Func, int startIndex>
+	class DirectCallFunctionDispatchHelper
+	{
+	public:
+		static inline int DirectCallFunctionDispatcher(lua_State* L)
+		{
+			unsigned char* buffer = GetFirstUpValueAsUserData(L);
+			CLuaThread * pThreadInfo = (CLuaThread*)GetObjectIndexData2(L);
+
+			return Call(*(Func*)(buffer), L, 1, pThreadInfo);
+		}
+	};
 
 	template <typename Callee, typename Func, int startIndex>
 	class DirectCallObjectMemberDispatcherHelper
@@ -403,13 +415,16 @@ namespace LuaWrap
 		static inline int DirectCallMemberDispatcher(lua_State* L)
 		{
 			unsigned char* buffer = GetFirstUpValueAsUserData(L);
-			Callee *callee = dynamic_cast<Callee *>((CBaseScriptHost *)GetObjectIndexData1(L));
+			Callee *callee = (Callee *)GetObjectIndexData1(L);
 			CLuaThread * pThreadInfo = (CLuaThread*)GetObjectIndexData2(L);
 
 			if (callee)
 				return Call(*callee, *(Func*)buffer, L, startIndex, pThreadInfo);
 			else
+			{
+				luaL_error(L, "host object is null on call");
 				return 0;
+			}
 		}
 	};
 
@@ -436,6 +451,24 @@ namespace LuaWrap
 		}
 	};
 
+	template <typename Callee, typename Func, int startIndex>
+	class DirectCallStaticMetaClassMemberDispatcherHelper
+	{
+	public:
+		static inline int DirectCallMemberDispatcher(lua_State* L)
+		{
+			Callee callee;
+			unsigned char* buffer = GetFirstUpValueAsUserData(L);
+			void * pData = lua_touserdata(L, startIndex);
+			UINT DataLen = (UINT)lua_rawlen(L, startIndex);
+			if (pData&&DataLen)
+				callee.Attach(pData, DataLen);
+			CLuaThread * pThreadInfo = (CLuaThread*)GetObjectIndexData2(L);
+			
+			return Call(callee, *(Func*)buffer, L, startIndex + 1, pThreadInfo);
+		}
+	};
+
 }
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
@@ -444,7 +477,7 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE void
 #define LUA_WRAP_RETURN_FETCH_OPERATION 
-#define LUA_WRAP_RETURN_PUSH_OPERATION if (pThreadInfo->IsNeedYield()) {pThreadInfo->SetYeildReturnCount(0);return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 0;
+#define LUA_WRAP_RETURN_PUSH_OPERATION if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 0;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
@@ -453,7 +486,7 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE bool
 #define LUA_WRAP_RETURN_FETCH_OPERATION bool Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {pThreadInfo->SetYeildReturnCount(1);return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
@@ -462,7 +495,7 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE char
 #define LUA_WRAP_RETURN_FETCH_OPERATION char Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {pThreadInfo->SetYeildReturnCount(1);return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
@@ -471,7 +504,7 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE unsigned char
 #define LUA_WRAP_RETURN_FETCH_OPERATION unsigned char Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {pThreadInfo->SetYeildReturnCount(1);return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
@@ -480,7 +513,7 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE short
 #define LUA_WRAP_RETURN_FETCH_OPERATION short Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {pThreadInfo->SetYeildReturnCount(1);return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
@@ -489,7 +522,7 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE unsigned short
 #define LUA_WRAP_RETURN_FETCH_OPERATION unsigned short Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {pThreadInfo->SetYeildReturnCount(1);return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
@@ -498,7 +531,7 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE int
 #define LUA_WRAP_RETURN_FETCH_OPERATION int Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {pThreadInfo->SetYeildReturnCount(1);return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
@@ -507,8 +540,27 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE unsigned int
 #define LUA_WRAP_RETURN_FETCH_OPERATION unsigned int Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {pThreadInfo->SetYeildReturnCount(1);return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
+
+#undef LUA_WRAP_CALL_RETURN_TYPE
+#undef LUA_WRAP_RETURN_FETCH_OPERATION
+#undef LUA_WRAP_RETURN_PUSH_OPERATION
+
+#define LUA_WRAP_CALL_RETURN_TYPE __int64
+#define LUA_WRAP_RETURN_FETCH_OPERATION __int64 Ret=
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#include "LuaCallWrapTemplate.h"
+
+#undef LUA_WRAP_CALL_RETURN_TYPE
+#undef LUA_WRAP_RETURN_FETCH_OPERATION
+#undef LUA_WRAP_RETURN_PUSH_OPERATION
+
+#define LUA_WRAP_CALL_RETURN_TYPE unsigned __int64
+#define LUA_WRAP_RETURN_FETCH_OPERATION unsigned __int64 Ret=
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#include "LuaCallWrapTemplate.h"
+
 
 
 
@@ -518,7 +570,7 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE float
 #define LUA_WRAP_RETURN_FETCH_OPERATION float Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {pThreadInfo->SetYeildReturnCount(1);return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
@@ -527,7 +579,7 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE double
 #define LUA_WRAP_RETURN_FETCH_OPERATION double Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {pThreadInfo->SetYeildReturnCount(1);return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
@@ -536,7 +588,16 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE const char *
 #define LUA_WRAP_RETURN_FETCH_OPERATION const char * Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {pThreadInfo->SetYeildReturnCount(1);return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#include "LuaCallWrapTemplate.h"
+
+#undef LUA_WRAP_CALL_RETURN_TYPE
+#undef LUA_WRAP_RETURN_FETCH_OPERATION
+#undef LUA_WRAP_RETURN_PUSH_OPERATION
+
+#define LUA_WRAP_CALL_RETURN_TYPE LuaValue
+#define LUA_WRAP_RETURN_FETCH_OPERATION LuaValue Ret=
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
@@ -545,7 +606,7 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE CLuaTable
 #define LUA_WRAP_RETURN_FETCH_OPERATION CLuaTable Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {pThreadInfo->SetYeildReturnCount(1);return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
@@ -554,5 +615,14 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE CEasyArray<LuaValue>
 #define LUA_WRAP_RETURN_FETCH_OPERATION CEasyArray<LuaValue> Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {pThreadInfo->SetYeildReturnCount(1);return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return (int)Ret.GetCount();
+#include "LuaCallWrapTemplate.h"
+
+#undef LUA_WRAP_CALL_RETURN_TYPE
+#undef LUA_WRAP_RETURN_FETCH_OPERATION
+#undef LUA_WRAP_RETURN_PUSH_OPERATION
+
+#define LUA_WRAP_CALL_RETURN_TYPE LUA_EMPTY_VALUE
+#define LUA_WRAP_RETURN_FETCH_OPERATION LUA_EMPTY_VALUE Ret=
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"

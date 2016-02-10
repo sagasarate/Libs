@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #define LOG_BUFF_FULL_ALARM_TIME	(60*1000)
 
@@ -32,7 +32,7 @@ BOOL CAsyncFileLogWorkThread::Init(LPCTSTR FileName,LPCTSTR FileExtName,int LogB
 			PrintImportantLog(0,_T("无法创建Log缓冲%s"),(LPCTSTR)FileName);
 		}
 	}
-	
+
 
 	m_LogDataBuffer.SetLockMode(false,true);
 
@@ -40,7 +40,7 @@ BOOL CAsyncFileLogWorkThread::Init(LPCTSTR FileName,LPCTSTR FileExtName,int LogB
 	{
 		if(FileName[0])
 		{
-			m_LogFileName=FileName;			
+			m_LogFileName=FileName;
 		}
 	}
 
@@ -48,7 +48,7 @@ BOOL CAsyncFileLogWorkThread::Init(LPCTSTR FileName,LPCTSTR FileExtName,int LogB
 	{
 		if(FileExtName[0])
 		{
-			m_LogFileExtName=FileExtName;			
+			m_LogFileExtName=FileExtName;
 		}
 	}
 
@@ -68,7 +68,7 @@ BOOL CAsyncFileLogWorkThread::Init(LPCTSTR FileName,LPCTSTR FileExtName,int LogB
 	CreateDir(LogFileName);
 
 	SAFE_RELEASE(m_pLogFile);
-	
+
 	m_pLogFile=CFileSystemManager::GetInstance()->CreateFileAccessor(FILE_CHANNEL_NORMAL1);
 	if(m_pLogFile==NULL)
 	{
@@ -108,7 +108,7 @@ BOOL CAsyncFileLogWorkThread::OnRun()
 	if(DataSize)
 	{
 		m_pLogFile->Write(m_LogDataBuffer.GetUsedBuffer(),DataSize);
-		m_LogDataBuffer.PopFront((LPVOID)NULL,DataSize);		
+		m_LogDataBuffer.PopFront((LPVOID)NULL,DataSize);
 	}
 	else
 	{
@@ -143,7 +143,7 @@ void CAsyncFileLogWorkThread::OnTerminate()
 
 BOOL CAsyncFileLogWorkThread::PushLog(LPCTSTR LogData)
 {
-	
+
 	int DataLen=(int)_tcslen(LogData);
 	m_LogDataBuffer.PushBack((LPVOID)LogData,DataLen);
 

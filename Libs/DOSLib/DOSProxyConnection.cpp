@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 IMPLEMENT_CLASS_INFO(CDOSProxyConnection,CNetConnection);
 
@@ -38,7 +38,7 @@ CDOSProxyConnection::~CDOSProxyConnection(void)
 BOOL CDOSProxyConnection::Init(CDOSObjectProxyService * pService,UINT ID)
 {
 	FUNCTION_BEGIN;
-	SetID(ID);	
+	SetID(ID);
 	m_pService=pService;
 	SetServer(pService->GetServer());
 
@@ -80,9 +80,9 @@ BOOL CDOSProxyConnection::Init(CDOSObjectProxyService * pService,UINT ID)
 		if(!GetServer()->ReleaseMessagePacket(pPacket))
 		{
 			PrintDOSLog(0xff0000,_T("CDOSProxyConnection::OnDisconnection:释放消息内存块失败！"));
-		}		
+		}
 	}
-	
+
 	if(m_MsgQueue.GetBufferSize()<m_pService->GetConfig().ConnectionMsgQueueSize)
 	{
 		if (!m_MsgQueue.Create(m_pService->GetConfig().ConnectionMsgQueueSize))
@@ -121,21 +121,21 @@ void CDOSProxyConnection::Destory()
 {
 	FUNCTION_BEGIN;
 	CNetConnection::Destory();
-	
+
 	//CDOSMessagePacket * pPacket;
 	//while(m_MsgQueue.PopFront(pPacket))
 	//{
 	//	if(!GetServer()->ReleaseMessagePacket(pPacket))
 	//	{
 	//		PrintDOSLog(0xff0000,_T("CDOSProxyConnection::Destory:释放消息内存块失败！"));
-	//	}		
+	//	}
 	//}
 	//m_MessageMap.Clear();
 	FUNCTION_END;
 }
 
 void CDOSProxyConnection::OnConnection(BOOL IsSucceed)
-{	
+{
 	FUNCTION_BEGIN;
 	PrintDOSDebugLog(0xff0000,_T("收到代理对象的连接！IP=%s"),GetRemoteAddress().GetIPString());
 	SetSendDelay(m_pService->GetConfig().SendDelay);
@@ -149,7 +149,7 @@ void CDOSProxyConnection::OnConnection(BOOL IsSucceed)
 	FUNCTION_END;
 }
 void CDOSProxyConnection::OnDisconnection()
-{	
+{
 	FUNCTION_BEGIN;
 	PrintDOSDebugLog(0xff0000, _T("对象代理(%d)的连接断开！IP=%s"), GetID(), GetRemoteAddress().GetIPString());
 	SendDisconnectNotify();
@@ -160,7 +160,7 @@ void CDOSProxyConnection::OnDisconnection()
 		if(!GetServer()->ReleaseMessagePacket(pPacket))
 		{
 			PrintDOSLog(0xff0000,_T("CDOSProxyConnection::OnDisconnection:释放消息内存块失败！"));
-		}		
+		}
 	}
 	m_MessageMap.Clear();
 	m_UnacceptConnectionKeepTimer.SaveTime();
@@ -210,15 +210,16 @@ void CDOSProxyConnection::OnMsg(CDOSSimpleMessage * pMessage)
 			if(!m_UseServerInitiativeKeepAlive)
 			{
 				Send(pMessage,pMessage->GetMsgLength());
-			}			
+			}
 			m_KeepAliveCount=0;
 		}
-		
+
 		break;
 	default:
-		SendInSideMsg(pMessage->GetMsgID(),pMessage->GetDataBuffer(),pMessage->GetDataLength());
+		if (!m_NeedDelayClose)
+			SendInSideMsg(pMessage->GetMsgID(),pMessage->GetDataBuffer(),pMessage->GetDataLength());
 	}
-	
+
 	FUNCTION_END;
 }
 
@@ -233,7 +234,7 @@ BOOL CDOSProxyConnection::PushMessage(CDOSMessagePacket * pPacket)
 	((CDOSServer *)GetServer())->AddRefMessagePacket(pPacket);
 	pPacket->SetAllocTime(3);
 	if(m_MsgQueue.PushBack(pPacket))
-	{		
+	{
 		pPacket->SetAllocTime(31);
 		return TRUE;
 	}
@@ -328,7 +329,7 @@ BOOL CDOSProxyConnection::SendInSideMsg(MSG_ID_TYPE MsgID,LPVOID pData,UINT Data
 	FUNCTION_BEGIN;
 	int PacketSize=CDOSMessagePacket::CaculatePacketLength(DataSize,1);
 
-	
+
 	OBJECT_ID TargetObjectID=GetMsgMapObjectID(MsgID);
 	if(TargetObjectID.ID)
 	{
@@ -402,7 +403,7 @@ inline BOOL CDOSProxyConnection::SendOutSideMsg(CDOSMessagePacket * pPacket)
 		}
 		return TRUE;
 	default:
-		{			
+		{
 			bool NeedSaveHead=pPacket->GetRefCount()>1;
 
 			CDOSMessage::DOS_MESSAGE_HEAD SaveHeader;
@@ -411,7 +412,7 @@ inline BOOL CDOSProxyConnection::SendOutSideMsg(CDOSMessagePacket * pPacket)
 			{
 				SaveHeader=pPacket->GetMessage().GetMsgHeader();
 			}
-			CDOSSimpleMessage * pSimpleMessage=pPacket->GetMessage().MakeSimpleMessage();			
+			CDOSSimpleMessage * pSimpleMessage=pPacket->GetMessage().MakeSimpleMessage();
 
 			pSimpleMessage=CompressMsg(pSimpleMessage);
 			if(pSimpleMessage==NULL)
@@ -433,7 +434,7 @@ inline BOOL CDOSProxyConnection::SendOutSideMsg(CDOSMessagePacket * pPacket)
 
 			return Ret;
 		}
-	}	
+	}
 	FUNCTION_END;
 	return FALSE;
 }
@@ -489,7 +490,7 @@ BOOL CDOSProxyConnection::SendDisconnectNotify()
 
 
 OBJECT_ID CDOSProxyConnection::GetMsgMapObjectID(MSG_ID_TYPE CmdID)
-{	
+{
 	FUNCTION_BEGIN;
 	OBJECT_ID * pObjectID=m_MessageMap.Find(CmdID);
 	if(pObjectID)
@@ -517,7 +518,7 @@ BOOL CDOSProxyConnection::RegisterMsgMap(MSG_ID_TYPE MsgID,OBJECT_ID ObjectID)
 	//{
 	//	PrintDOSDebugLog(0xff0000,_T("0x%llX注册了代理[0x%X]消息映射[0x%X]！"),ObjectID.ID,GetID(),MsgID);
 	//}
-	
+
 	m_UnacceptConnectionKeepTimer.SaveTime();
 	return m_MessageMap.Insert(MsgID,ObjectID);
 	FUNCTION_END;
@@ -581,7 +582,7 @@ CDOSSimpleMessage * CDOSProxyConnection::CompressMsg(CDOSSimpleMessage * pMsg)
 		m_pService->GetConfig().MinMsgCompressSize&&
 		pMsg->GetDataLength() >= m_pService->GetConfig().MinMsgCompressSize)
 	{
-		
+
 		switch(m_pService->GetConfig().MsgCompressType)
 		{
 		case MSG_COMPRESS_LZO:
@@ -618,7 +619,7 @@ CDOSSimpleMessage * CDOSProxyConnection::CompressMsg(CDOSSimpleMessage * pMsg)
 			}
 			break;
 		case MSG_COMPRESS_ZIP_FAST:
-		case MSG_COMPRESS_ZIP_NORMAL:			
+		case MSG_COMPRESS_ZIP_NORMAL:
 		case MSG_COMPRESS_ZIP_SLOW:
 			//{
 			//	UINT CompressBuffSize=compressBound(pMsg->GetMsgLength());
@@ -668,7 +669,7 @@ CDOSSimpleMessage * CDOSProxyConnection::CompressMsg(CDOSSimpleMessage * pMsg)
 			break;
 		}
 
-		
+
 	}
 
 	return pMsg;

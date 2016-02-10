@@ -9,13 +9,19 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
-
+#include "stdafx.h"
 
 CServerApp	* m_gAppInstance=NULL;
 
-int main()//int argc, char *argv[])
+int main(int argc, char *argv[])
 {
+	if (argc>1)
+	{
+		if (strcmp(argv[1], "-d") == 0)
+		{
+			daemon(0, 1);
+		}
+	}
 	m_gAppInstance->Run();
 	return 0;
 }
@@ -44,18 +50,11 @@ void CServerApp::OnShutDown()
 
 int CServerApp::Run()
 {
-	char szCmd[2048];
-	szCmd[0]=0;
 	if(OnStartUp())
 	{
-		while(!m_WantExist)
+		while (m_pServer&&(!m_pServer->IsServerTerminated()))
 		{
-			DoSleep(1);
-			gets(szCmd);
-			if(_stricmp(szCmd,"quit")==0)
-			{
-				m_WantExist=true;
-			}
+			DoSleep(1);			
 		}
 		OnShutDown();
 	}

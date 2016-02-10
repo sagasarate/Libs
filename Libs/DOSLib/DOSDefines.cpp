@@ -9,10 +9,10 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 int FindMinObjectID(OBJECT_ID * pObjectIDs,UINT Count)
-{	
+{
 	int MinPtr=-1;
 	UINT64 MinID=0;
 	for(UINT i=0;i<Count;i++)
@@ -33,7 +33,7 @@ int FindMinObjectID(OBJECT_ID * pObjectIDs,UINT Count)
 				}
 			}
 		}
-	}	
+	}
 	return MinPtr;
 }
 
@@ -56,7 +56,7 @@ UINT DistinctObjectID(OBJECT_ID * pObjectIDs,UINT Count)
 					pObjectIDs[FinishPtr].ID=pObjectIDs[MinPtr].ID;
 					pObjectIDs[MinPtr].ID=Temp;
 				}
-				else 
+				else
 				{
 					if(MinPtr>LeftPtr)
 					{

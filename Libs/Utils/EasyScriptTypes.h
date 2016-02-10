@@ -189,22 +189,22 @@ struct ES_BOLAN
 		Line=0;
 		*this=Value;
 	}
-	ES_BOLAN(long Value)
-	{
-		ValueInt64=0;
-		Index=0;
-		Level=0;
-		Line=0;
-		*this=Value;
-	}
-	ES_BOLAN(unsigned long Value)
-	{
-		ValueInt64=0;
-		Index=0;
-		Level=0;
-		Line=0;
-		*this=Value;
-	}
+	//ES_BOLAN(long Value)
+	//{
+	//	ValueInt64=0;
+	//	Index=0;
+	//	Level=0;
+	//	Line=0;
+	//	*this=Value;
+	//}
+	//ES_BOLAN(unsigned long Value)
+	//{
+	//	ValueInt64=0;
+	//	Index=0;
+	//	Level=0;
+	//	Line=0;
+	//	*this=Value;
+	//}
 	ES_BOLAN(__int64 Value)
 	{
 		ValueInt64=0;
@@ -380,36 +380,36 @@ struct ES_BOLAN
 		}		
 		return 0;
 	}
-	operator long()
-	{
-		switch(ValueType)
-		{
-		case VALUE_TYPE_INT:
-			return (long)ValueInt;
-		case VALUE_TYPE_INT64:
-			return (long)ValueInt64;
-		case VALUE_TYPE_FLOAT:
-			return (long)ValueFloat;
-		case VALUE_TYPE_DOUBLE:
-			return (long)ValueDouble;
-		}		
-		return 0;
-	}
-	operator unsigned long()
-	{
-		switch(ValueType)
-		{
-		case VALUE_TYPE_INT:
-			return (unsigned long)ValueInt;
-		case VALUE_TYPE_INT64:
-			return (unsigned long)ValueInt64;
-		case VALUE_TYPE_FLOAT:
-			return (unsigned long)ValueFloat;
-		case VALUE_TYPE_DOUBLE:
-			return (unsigned long)ValueDouble;
-		}		
-		return 0;
-	}
+	//operator long()
+	//{
+	//	switch(ValueType)
+	//	{
+	//	case VALUE_TYPE_INT:
+	//		return (long)ValueInt;
+	//	case VALUE_TYPE_INT64:
+	//		return (long)ValueInt64;
+	//	case VALUE_TYPE_FLOAT:
+	//		return (long)ValueFloat;
+	//	case VALUE_TYPE_DOUBLE:
+	//		return (long)ValueDouble;
+	//	}		
+	//	return 0;
+	//}
+	//operator unsigned long()
+	//{
+	//	switch(ValueType)
+	//	{
+	//	case VALUE_TYPE_INT:
+	//		return (unsigned long)ValueInt;
+	//	case VALUE_TYPE_INT64:
+	//		return (unsigned long)ValueInt64;
+	//	case VALUE_TYPE_FLOAT:
+	//		return (unsigned long)ValueFloat;
+	//	case VALUE_TYPE_DOUBLE:
+	//		return (unsigned long)ValueDouble;
+	//	}		
+	//	return 0;
+	//}
 	operator __int64()
 	{
 		switch(ValueType)
@@ -516,20 +516,20 @@ struct ES_BOLAN
 		ValueInt=Value;
 		return ValueInt;
 	}
-	int operator=(long Value)
-	{
-		Type=BOLAN_TYPE_VALUE;
-		ValueType=VALUE_TYPE_INT;
-		ValueInt=Value;
-		return ValueInt;
-	}
-	unsigned int operator=(unsigned long Value)
-	{
-		Type=BOLAN_TYPE_VALUE;
-		ValueType=VALUE_TYPE_INT;
-		ValueInt=Value;
-		return ValueInt;
-	}
+	//int operator=(long Value)
+	//{
+	//	Type=BOLAN_TYPE_VALUE;
+	//	ValueType=VALUE_TYPE_INT;
+	//	ValueInt=Value;
+	//	return ValueInt;
+	//}
+	//unsigned int operator=(unsigned long Value)
+	//{
+	//	Type=BOLAN_TYPE_VALUE;
+	//	ValueType=VALUE_TYPE_INT;
+	//	ValueInt=Value;
+	//	return ValueInt;
+	//}
 	__int64 operator=(__int64 Value)
 	{
 		Type=BOLAN_TYPE_VALUE;
@@ -626,7 +626,10 @@ inline void StrToNumber(LPCTSTR szNumberStr,ES_BOLAN& Value)
 	{		
 		INT64 ValueMax=0;
 		if(IsHex)
+#pragma warning( push )
+#pragma warning (disable : 4996)
 			_stscanf(szNumberStr,_T("0X%llX"),&ValueMax);
+#pragma warning( pop )
 		else
 			ValueMax=_tstoi64(szNumberStr);
 

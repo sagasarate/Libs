@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 CAsyncFileLogPrinter::CAsyncFileLogPrinter()
 {
@@ -60,13 +60,13 @@ void CAsyncFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_li
 
 		if(Level==LOG_LEVEL_DEBUG)
 		{
-			_stprintf_s(MsgBuff,5000,_T("[%02d-%02d][%02d:%02d:%02d][D]"),
+			_stprintf_s(MsgBuff,5000,_T("[%02u-%02u][%02u:%02u:%02u][D]"),
 				CurTime.Month(),CurTime.Day(),
 				CurTime.Hour(),CurTime.Minute(),CurTime.Second());
 		}
 		else
 		{
-			_stprintf_s(MsgBuff,5000,_T("[%02d-%02d][%02d:%02d:%02d][N]"),
+			_stprintf_s(MsgBuff,5000,_T("[%02u-%02u][%02u:%02u:%02u][N]"),
 				CurTime.Month(),CurTime.Day(),
 				CurTime.Hour(),CurTime.Minute(),CurTime.Second());
 		}

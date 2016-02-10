@@ -10,7 +10,7 @@
 /*                                                                          */
 /****************************************************************************/
 #pragma once
-#include "dbinterfaces.h"
+#include "DBInterfaces.h"
 
 
 namespace DBLib
@@ -22,7 +22,7 @@ class CDBStaticRecordSet :
 	public IDBRecordSet
 {
 protected:
-	typedef CEasyArray<CDBValue> CDBValueRow;	
+	typedef CEasyArray<CDBValue> CDBValueRow;
 	CEasyArray<DB_COLUMN_INFO>		m_pColumnInfos;
 	CEasyArray<CDBValueRow>			m_Records;
 	CEasyArray<CDBValue>			m_Params;
@@ -32,10 +32,10 @@ protected:
 	DECLARE_CLASS_INFO(CDBStaticRecordSet)
 public:
 	CDBStaticRecordSet(void);
-	virtual ~CDBStaticRecordSet(void);	
+	virtual ~CDBStaticRecordSet(void);
 
-	virtual int Init(LPCVOID pData,int DataSize);	
-	virtual void Destory();		
+	virtual int Init(LPCVOID pData,int DataSize);
+	virtual void Destory();
 
 	virtual int GetRecordCount();
 	virtual int GetColumnCount();
@@ -50,7 +50,7 @@ public:
 	virtual int MoveLast();
 	virtual int MoveNext();
 	virtual int MovePrevious();
-	virtual int MoveTo(int Index);	
+	virtual int MoveTo(int Index);
 	virtual bool IsEOF();
 	virtual bool IsBOF();
 

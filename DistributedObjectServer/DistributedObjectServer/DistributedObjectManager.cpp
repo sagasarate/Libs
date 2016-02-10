@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 CDistributedObjectManager::CDistributedObjectManager(void)
@@ -52,7 +52,7 @@ BOOL CDistributedObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& Obje
 			RegisterInfo.MsgQueueSize=ObjectRegisterInfo.MsgQueueSize;
 			RegisterInfo.MsgProcessLimit=ObjectRegisterInfo.MsgProcessLimit;
 			RegisterInfo.Param=ObjectRegisterInfo.Param;
-			
+
 			if(m_pDOSObjectManager->RegisterObject(RegisterInfo))
 			{
 				//LogDebug("CDistributedObjectManager::RegisterObject:成功注册对象0x%llX",
@@ -65,9 +65,9 @@ BOOL CDistributedObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& Obje
 					ObjectRegisterInfo.ObjectID.ID);
 			}
 		}
-		
+
 	}
-	
+
 	FUNCTION_END;
 	return FALSE;
 }
@@ -77,7 +77,7 @@ BOOL CDistributedObjectManager::UnregisterObject(CDistributedObjectOperator * pO
 	FUNCTION_BEGIN;
 	if(m_pDOSObjectManager&&pObjectOperator)
 	{
-		
+
 		if(m_pDOSObjectManager->UnregisterObject(pObjectOperator->GetObjectID()))
 		{
 			//LogDebug("CDistributedObjectManager::UnregisterObject:成功注销对象0x%llX",
@@ -112,16 +112,16 @@ CDistributedObjectOperator * CDistributedObjectManager::CreateObjectOperator(IDi
 		}
 	}
 	LogDebug("CDistributedObjectManager::CreateObjectOperator:新建对象失败,现有对象%u",m_ObjectPool.GetObjectCount());
-	FUNCTION_END;	
+	FUNCTION_END;
 	return NULL;
 
 }
 
 BOOL CDistributedObjectManager::DeleteObjectOperator(CDistributedObjectOperator * pObjectOperator)
 {
-	FUNCTION_BEGIN;	
+	FUNCTION_BEGIN;
 	UINT ID=pObjectOperator->GetPoolID();
-	
+
 	if(m_ObjectPool.DeleteObject(ID))
 	{
 		//LogDebug("CDistributedObjectManager::CreateObjectOperator:删除对象%u,现有对象%u",ID,m_ObjectPool.GetObjectCount());

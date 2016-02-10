@@ -18,19 +18,19 @@
 
 
 
-#if defined _WIN32 || defined __CYGWIN__  
-	#define UTILS_DLL_IMPORT __declspec(dllimport)  
-	#define UTILS_DLL_EXPORT __declspec(dllexport)  
+#if defined _WIN32 || defined __CYGWIN__
+	#define UTILS_DLL_IMPORT __declspec(dllimport)
+	#define UTILS_DLL_EXPORT __declspec(dllexport)
 	#define UTILS_DLL_LOCAL
-#else 
-	#if __GNUC__ >= 4    
-		#define UTILS_DLL_IMPORT __attribute__ ((visibility("default")))   
-		#define UTILS_DLL_EXPORT __attribute__ ((visibility("default")))    
-		#define UTILS_DLL_LOCAL  __attribute__ ((visibility("hidden")))  
-	#else    
-		#define UTILS_DLL_IMPORT    
-		#define UTILS_DLL_EXPORT   
-		#define UTILS_DLL_LOCAL  
+#else
+	#if __GNUC__ >= 4
+		#define UTILS_DLL_IMPORT __attribute__ ((visibility("default")))
+		#define UTILS_DLL_EXPORT __attribute__ ((visibility("default")))
+		#define UTILS_DLL_LOCAL  __attribute__ ((visibility("hidden")))
+	#else
+		#define UTILS_DLL_IMPORT
+		#define UTILS_DLL_EXPORT
+		#define UTILS_DLL_LOCAL
 	#endif
 #endif
 
@@ -39,6 +39,7 @@
 #include <iostream>
 #include <ostream>
 #include <math.h>
+#include "iconv/miniconv.h"
 #ifdef WIN32
 
 #include "Win32AddOn.h"
@@ -49,7 +50,7 @@
 
 #endif
 
-
+#define DEFAULT_PROCESS_LIMIT	32
 
 #define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
 #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
@@ -57,9 +58,12 @@
 
 #define ASSERT_AND_THROW(Express)		if(!(Express)) {assert(Express);throw;}
 
+
+
 const float PI				= float(3.14159265358979323846);
 const float TWO_PI			= float(2.0 * 3.14159265358979323846);
 const float HALF_PI			= float(3.14159265358979323846/ 2.0);
+
 
 
 union ULONG64_CONVERTER
@@ -70,11 +74,11 @@ union ULONG64_CONVERTER
 		DWORD LowPart;
 		DWORD HighPart;
 	};
-	struct 
+	struct
 	{
 		WORD Words[4];
 	};
-	struct  
+	struct
 	{
 		BYTE Bytes[8];
 	};
@@ -133,8 +137,8 @@ enum EASY_DATA_STORAGE_MODE
 #include "ToolsLinux.h"
 #endif
 
-#include "lzma/LzmaLib.h"
-#include "lzo/minilzo.h"
+#include "LZMA/LzmaLib.h"
+#include "LZO/minilzo.h"
 
 
 #include "EasyTime.h"

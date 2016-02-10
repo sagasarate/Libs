@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 #include <math.h>
 
 CESFunctionLib::CESFunctionLib(void)
@@ -27,13 +27,13 @@ void CESFunctionLib::AddFunction(CESFunctionList * pFunctionList)
 	ADD_SCRIPT_CFUNCTION(CESFunctionLib,RoundFN,_T("Round"),1,pFunctionList,this);
 	ADD_SCRIPT_CFUNCTION(CESFunctionLib,StrCmpFN,_T("StrCmp"),1,pFunctionList,this);
 	ADD_SCRIPT_CFUNCTION(CESFunctionLib,NumToStrFN,_T("NumToStr"),1,pFunctionList,this);
-	ADD_SCRIPT_CFUNCTION(CESFunctionLib,RandomFN,_T("Random"),2,pFunctionList,this);	
+	ADD_SCRIPT_CFUNCTION(CESFunctionLib,RandomFN,_T("Random"),2,pFunctionList,this);
 }
 
 int CESFunctionLib::SinFN(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)
 {
 	*pResult=sin((double)pParams[0]);
-	return 0;	
+	return 0;
 }
 
 int CESFunctionLib::CosFN(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)
@@ -48,7 +48,7 @@ int CESFunctionLib::RoundFN(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pP
 	pResult->Level=0;
 	if(pParams[0].ValueDouble>0)
 		pResult->ValueDouble=floor(pParams[0].ValueDouble*pow(10.0f,pParams[1].ValueInt)+0.5)/pow(10.0f,pParams[1].ValueInt);
-	else 
+	else
 		pResult->ValueDouble=ceil(pParams[0].ValueDouble*pow(10.0f,pParams[1].ValueInt)-0.5)/pow(10.0f,pParams[1].ValueInt);
 	return 0;
 }
@@ -77,7 +77,7 @@ int CESFunctionLib::NumToStrFN(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN*
 		pResult->StrValue.Format(_T("%g"),pParams[0].ValueDouble);
 		break;
 	}
-	
+
 	return 0;
 }
 

@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "GuardThread.h"
 
 IMPLEMENT_CLASS_INFO_STATIC(CGuardThread,CEasyThread);

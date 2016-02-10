@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 
 CMainConfig::CMainConfig(void)
 {
@@ -51,12 +51,12 @@ bool CMainConfig::LoadConfig(LPCTSTR FileName)
 			if(Router.moveto_child("Router"))
 			{
 				if(Router.has_attribute("RouterID"))
-					m_DOSConfig.RouterID=(long)Router.attribute("RouterID");
+					m_DOSConfig.RouterID=(UINT)Router.attribute("RouterID");
 				if(Router.has_attribute("MsgQueueSize"))
-					m_DOSConfig.MaxRouterSendMsgQueue=(long)Router.attribute("MsgQueueSize");
+					m_DOSConfig.MaxRouterSendMsgQueue=(UINT)Router.attribute("MsgQueueSize");
 				if(Router.has_attribute("MsgProcessLimit"))
-					m_DOSConfig.RouterMsgProcessLimit=(long)Router.attribute("MsgProcessLimit");
-				
+					m_DOSConfig.RouterMsgProcessLimit=(UINT)Router.attribute("MsgProcessLimit");
+
 			}
 
 			xml_node ClientProxys=Config;
@@ -80,27 +80,27 @@ bool CMainConfig::LoadConfig(LPCTSTR FileName)
 			if(MemoryPool.moveto_child("MemoryPool"))
 			{
 				if(MemoryPool.has_attribute("BlockSize"))
-					m_DOSConfig.MemoryPoolBlockSize=(long)MemoryPool.attribute("BlockSize");
+					m_DOSConfig.MemoryPoolBlockSize=(UINT)MemoryPool.attribute("BlockSize");
 				if(MemoryPool.has_attribute("LevelSize"))
-					m_DOSConfig.MemoryPoolLeveSize=(long)MemoryPool.attribute("LevelSize");
+					m_DOSConfig.MemoryPoolLeveSize=(UINT)MemoryPool.attribute("LevelSize");
 				if(MemoryPool.has_attribute("LevelCount"))
-					m_DOSConfig.MemoryPoolLevelCount=(long)MemoryPool.attribute("LevelCount");
+					m_DOSConfig.MemoryPoolLevelCount=(UINT)MemoryPool.attribute("LevelCount");
 			}
 			xml_node Object=Config;
 			if(Object.moveto_child("Object"))
 			{
 				if(Object.has_attribute("GroupCount"))
-					m_DOSConfig.ObjectGroupCount=(long)Object.attribute("GroupCount");
+					m_DOSConfig.ObjectGroupCount=(UINT)Object.attribute("GroupCount");
 				if(Object.has_attribute("MaxGroupObjectCount"))
-					m_DOSConfig.MaxGroupObjectCount=(long)Object.attribute("MaxGroupObjectCount");
+					m_DOSConfig.MaxGroupObjectCount=(UINT)Object.attribute("MaxGroupObjectCount");
 				if(Object.has_attribute("MsgQueueSize"))
-					m_DOSConfig.MaxObjectMsgQueue=(long)Object.attribute("MsgQueueSize");
+					m_DOSConfig.MaxObjectMsgQueue=(UINT)Object.attribute("MsgQueueSize");
 				if(Object.has_attribute("AliveTestTime"))
-					m_DOSConfig.ObjectAliveTestTime=(long)Object.attribute("AliveTestTime");
+					m_DOSConfig.ObjectAliveTestTime=(UINT)Object.attribute("AliveTestTime");
 				if(Object.has_attribute("AliveCheckTime"))
-					m_DOSConfig.ObjectAliveCheckTime=(long)Object.attribute("AliveCheckTime");
+					m_DOSConfig.ObjectAliveCheckTime=(UINT)Object.attribute("AliveCheckTime");
 				if(Object.has_attribute("KeepAliveCount"))
-					m_DOSConfig.ObjectKeepAliveCount=(long)Object.attribute("KeepAliveCount");
+					m_DOSConfig.ObjectKeepAliveCount=(UINT)Object.attribute("KeepAliveCount");
 				if(Object.has_attribute("StatObjectCPUCost"))
 					m_DOSConfig.StatObjectCPUCost=Object.attribute("StatObjectCPUCost");
 			}
@@ -108,8 +108,8 @@ bool CMainConfig::LoadConfig(LPCTSTR FileName)
 			if(Plugins.moveto_child("Plugins"))
 			{
 				if(Plugins.has_attribute("MaxPluginObject"))
-					m_MaxPluginObject=(long)Plugins.attribute("MaxPluginObject");
-				
+					m_MaxPluginObject=(UINT)Plugins.attribute("MaxPluginObject");
+
 				for(UINT i=0;i<Plugins.children();i++)
 				{
 					xml_node Plugin=Plugins.child(i);
@@ -150,7 +150,7 @@ bool CMainConfig::ReadPoolConfig(xml_node& XMLContent,POOL_CONFIG& Config)
 		Config.GrowSize=XMLContent.attribute("GrowSize");
 	if(XMLContent.has_attribute("GrowLimit"))
 		Config.GrowLimit=XMLContent.attribute("GrowLimit");
-	
+
 	return true;
 	FUNCTION_END;
 	return false;
@@ -169,22 +169,22 @@ bool CMainConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_CONFIG& Con
 		Config.ListenAddress.SetIP(XMLContent.attribute("ListenIP").getvalue());
 
 	if (XMLContent.has_attribute("ListenPort"))
-		Config.ListenAddress.SetPort((WORD)(long)XMLContent.attribute("ListenPort"));
+		Config.ListenAddress.SetPort((WORD)XMLContent.attribute("ListenPort"));
 
 	if (XMLContent.has_attribute("MaxConnection"))
-		Config.MaxConnection = (long)XMLContent.attribute("MaxConnection");
+		Config.MaxConnection = (UINT)XMLContent.attribute("MaxConnection");
 
 	if (XMLContent.has_attribute("ConnectionMsgQueueSize"))
-		Config.ConnectionMsgQueueSize = (long)XMLContent.attribute("ConnectionMsgQueueSize");
+		Config.ConnectionMsgQueueSize = (UINT)XMLContent.attribute("ConnectionMsgQueueSize");
 
 	if (XMLContent.has_attribute("SendBufferSize"))
-		Config.SendBufferSize = (long)XMLContent.attribute("SendBufferSize");
+		Config.SendBufferSize = (UINT)XMLContent.attribute("SendBufferSize");
 
 	if (XMLContent.has_attribute("SendDelay"))
-		Config.SendDelay = (long)XMLContent.attribute("SendDelay");
+		Config.SendDelay = (UINT)XMLContent.attribute("SendDelay");
 
 	if (XMLContent.has_attribute("SendQueryLimit"))
-		Config.SendQueryLimit = (long)XMLContent.attribute("SendQueryLimit");
+		Config.SendQueryLimit = (UINT)XMLContent.attribute("SendQueryLimit");
 
 	if (XMLContent.has_attribute("UnacceptConnectionKeepTime"))
 		Config.UnacceptConnectionKeepTime = XMLContent.attribute("UnacceptConnectionKeepTime");
@@ -193,10 +193,10 @@ bool CMainConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_CONFIG& Con
 		Config.UseServerInitiativeKeepAlive = XMLContent.attribute("UseServerInitiativeKeepAlive");
 
 	if (XMLContent.has_attribute("KeepAliveCount"))
-		Config.KeepAliveCount = (long)XMLContent.attribute("KeepAliveCount");
+		Config.KeepAliveCount = (UINT)XMLContent.attribute("KeepAliveCount");
 
 	if (XMLContent.has_attribute("KeepAliveTime"))
-		Config.KeepAliveTime = (long)XMLContent.attribute("KeepAliveTime");
+		Config.KeepAliveTime = (UINT)XMLContent.attribute("KeepAliveTime");
 
 	if (XMLContent.has_attribute("MsgCompressType"))
 	{
@@ -218,20 +218,20 @@ bool CMainConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_CONFIG& Con
 
 
 
-	
+
 	if (XMLContent.has_attribute("MsgQueueSize"))
-		Config.MsgQueueSize = (long)XMLContent.attribute("MsgQueueSize");	
+		Config.MsgQueueSize = (UINT)XMLContent.attribute("MsgQueueSize");
 
 	if (XMLContent.has_attribute("GlobalMsgMapSize"))
-		Config.GlobalMsgMapSize = (long)XMLContent.attribute("GlobalMsgMapSize");
+		Config.GlobalMsgMapSize = (UINT)XMLContent.attribute("GlobalMsgMapSize");
 
 	if (XMLContent.has_attribute("MsgMapSize"))
-		Config.MsgMapSize = (long)XMLContent.attribute("MsgMapSize");
+		Config.MsgMapSize = (UINT)XMLContent.attribute("MsgMapSize");
 
 	if (XMLContent.has_attribute("MaxMsgSize"))
-		Config.MaxMsgSize = (long)XMLContent.attribute("MaxMsgSize");
+		Config.MaxMsgSize = (UINT)XMLContent.attribute("MaxMsgSize");
 
-	
+
 	return true;
 	FUNCTION_END;
 	return false;

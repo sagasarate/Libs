@@ -9,13 +9,13 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 IMPLEMENT_CLASS_INFO_STATIC(CDOSObjectProxyService,CNetService);
 
 CDOSObjectProxyService::CDOSObjectProxyService(void):CNetService(),CEasyThread()
 {
-	
+
 }
 
 CDOSObjectProxyService::~CDOSObjectProxyService(void)
@@ -52,7 +52,7 @@ BOOL CDOSObjectProxyService::OnStart()
 			m_Config.ConnectionMsgQueueSize);
 		return FALSE;
 	}
-	
+
 	if (!m_MessageMap.Create(m_Config.GlobalMsgMapSize))
 	{
 		PrintDOSLog(0xff0000,_T("代理服务[%u]创建%u大小的消息映射表失败！"),
@@ -60,7 +60,7 @@ BOOL CDOSObjectProxyService::OnStart()
 			m_Config.GlobalMsgMapSize);
 		return FALSE;
 	}
-	
+
 	if (m_Config.MinMsgCompressSize)
 	{
 		switch (m_Config.MsgCompressType)
@@ -127,7 +127,7 @@ void CDOSObjectProxyService::OnClose()
 
 	CDOSMessagePacket * pPacket;
 	while(m_MsgQueue.PopFront(pPacket))
-	{		
+	{
 		if(!((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket))
 		{
 			PrintDOSLog(0xff0000,_T("CDOSObjectProxyService::OnClose:释放消息内存块失败！"));
@@ -189,7 +189,7 @@ CBaseTCPConnection * CDOSObjectProxyService::CreateConnection(CIPAddress& Remote
 		if(!pConnection->Init(this,ID))
 		{
 			m_ConnectionPool.DeleteObject(ID);
-		}		
+		}
 		return pConnection;
 	}
 	FUNCTION_END;
@@ -216,7 +216,7 @@ BOOL CDOSObjectProxyService::PushMessage(CDOSMessagePacket * pPacket)
 	((CDOSServer *)GetServer())->AddRefMessagePacket(pPacket);
 	pPacket->SetAllocTime(4);
 	if(m_MsgQueue.PushBack(pPacket))
-	{		
+	{
 		return TRUE;
 	}
 	else
@@ -287,7 +287,7 @@ void CDOSObjectProxyService::OnMsg(CDOSMessage * pMessage)
 {
 	FUNCTION_BEGIN;
 	switch(pMessage->GetMsgID())
-	{		
+	{
 	case DSM_PROXY_REGISTER_GLOBAL_MSG_MAP:
 		if(pMessage->GetDataLength()>=sizeof(MSG_ID_TYPE))
 		{
@@ -307,7 +307,7 @@ void CDOSObjectProxyService::OnMsg(CDOSMessage * pMessage)
 			for(int i=0;i<Count;i++)
 			{
 				UnregisterGlobalMsgMap(pMsgIDs[i],pMessage->GetSenderID());
-			}		
+			}
 		}
 		break;
 	case DSM_ROUTE_LINK_LOST:

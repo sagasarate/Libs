@@ -9,11 +9,11 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 CESBolanStack::CESBolanStack(int InitBuffSize,int GrowSize)
-{	
+{
 	m_GrowSize=GrowSize;
 
 	m_BolanBuff=new ES_BOLAN[InitBuffSize];
@@ -52,7 +52,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 	CESBolanStack TempStack;
 	CESBolanStack OrginScript;
 	ES_BOLAN Bolan;
-	
+
 	bool IsInStr;
 	LastLine=1;
 
@@ -72,7 +72,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 		if(IsInStr)
 			ExpBuff[Len++]=(*ExpStr++);
 		else
-			ExpBuff[Len++]=toupper(*ExpStr++);		
+			ExpBuff[Len++]=toupper(*ExpStr++);
 
 	}
 	ExpBuff[Len]=0;
@@ -135,7 +135,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 				TempBuff[i++]=*ExpStr++;
 			}
 			TempBuff[i]=0;
-			Bolan.Type=BOLAN_TYPE_VALUE;			
+			Bolan.Type=BOLAN_TYPE_VALUE;
 			Bolan.Level=0;
 			StrToNumber(TempBuff,Bolan);
 			OrginScript.Push(&Bolan);
@@ -150,15 +150,15 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 					return 1003;
 				TempID[i++]=*ExpStr++;
 			}
-			TempID[i]=0;			
+			TempID[i]=0;
 			Bolan.Type=BOLAN_TYPE_IDENTIFIER;
 			Bolan.Index=IDENTIFIER_TYPE_JUMP_DEFINE;
-			Bolan.Level=0;				
+			Bolan.Level=0;
 			Bolan.StrValue=TempID;
-			OrginScript.Push(&Bolan);			
+			OrginScript.Push(&Bolan);
 		}
 		else if(*ExpStr==';'||*ExpStr=='\r'||*ExpStr=='\n')//行结束符
-		{			
+		{
 			Bolan.Type=BOLAN_TYPE_KEYWORD;
 			Bolan.Level=0;
 			Bolan.Index=KW_LINEEND;
@@ -180,27 +180,27 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 					return 1003;
 				TempBuff[i++]=*ExpStr++;
 			}
-			TempBuff[i]=0;	
+			TempBuff[i]=0;
 			if(_tcsicmp(TempBuff,_T("AND"))==0)
-			{				
+			{
 				Bolan.Type=BOLAN_TYPE_OPERATOR;
 				Bolan.Level=15;
 				Bolan.Index=OPERATOR_AND;
-				OrginScript.Push(&Bolan);			
+				OrginScript.Push(&Bolan);
 			}
 			else if(_tcsicmp(TempBuff,_T("OR"))==0)
-			{				
+			{
 				Bolan.Type=BOLAN_TYPE_OPERATOR;
 				Bolan.Level=15;
 				Bolan.Index=OPERATOR_OR;
-				OrginScript.Push(&Bolan);			
+				OrginScript.Push(&Bolan);
 			}
 			else if(_tcsicmp(TempBuff,_T("NOT"))==0)
-			{				
+			{
 				Bolan.Type=BOLAN_TYPE_OPERATOR;
 				Bolan.Level=16;
 				Bolan.Index=OPERATOR_NOT;
-				OrginScript.Push(&Bolan);			
+				OrginScript.Push(&Bolan);
 			}
 			else
 			{
@@ -214,22 +214,22 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 
 				}
 				else
-				{		
+				{
 					Bolan.Type=BOLAN_TYPE_IDENTIFIER;
 					Bolan.Index=IDENTIFIER_TYPE_UNKNOW;
-					Bolan.Level=0;				
+					Bolan.Level=0;
 					Bolan.StrValue=TempBuff;
-					OrginScript.Push(&Bolan);					
+					OrginScript.Push(&Bolan);
 				}
 			}
 		}
 		else if(*ExpStr=='(')
-		{			
+		{
 			Bolan.Type=BOLAN_TYPE_OPERATOR;
 			Bolan.Level=0;
 			Bolan.Index=OPERATOR_LP;
 			OrginScript.Push(&Bolan);
-			ExpStr++;			
+			ExpStr++;
 		}
 		else if(*ExpStr==')')
 		{
@@ -240,75 +240,75 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 			ExpStr++;
 		}
 		else if(*ExpStr=='=')
-		{	
+		{
 			if(*(ExpStr+1)=='=')
-			{				
+			{
 				Bolan.Type=BOLAN_TYPE_OPERATOR;
 				Bolan.Level=20;
-				Bolan.Index=OPERATOR_EQU;	
+				Bolan.Index=OPERATOR_EQU;
 				OrginScript.Push(&Bolan);
 				ExpStr+=2;
 			}
 			else
-			{					
+			{
 				Bolan.Type=BOLAN_TYPE_OPERATOR;
 				Bolan.Level=10;
-				Bolan.Index=OPERATOR_EVA;	
+				Bolan.Index=OPERATOR_EVA;
 				OrginScript.Push(&Bolan);
 				ExpStr++;
 			}
 		}
 		else if(*ExpStr=='>')
-		{			
+		{
 			if(*(ExpStr+1)=='=')
-			{				
+			{
 				Bolan.Type=BOLAN_TYPE_OPERATOR;
 				Bolan.Level=20;
-				Bolan.Index=OPERATOR_MORE_EQU;	
+				Bolan.Index=OPERATOR_MORE_EQU;
 				OrginScript.Push(&Bolan);
-				ExpStr+=2;	
+				ExpStr+=2;
 			}
 			else
-			{				
+			{
 				Bolan.Type=BOLAN_TYPE_OPERATOR;
 				Bolan.Level=20;
-				Bolan.Index=OPERATOR_MORE;	
+				Bolan.Index=OPERATOR_MORE;
 				OrginScript.Push(&Bolan);
-				ExpStr++;				
+				ExpStr++;
 			}
 		}
 		else if(*ExpStr=='<')
-		{			
+		{
 			if(*(ExpStr+1)=='=')
-			{				
+			{
 				Bolan.Type=BOLAN_TYPE_OPERATOR;
 				Bolan.Level=20;
-				Bolan.Index=OPERATOR_LESS_EQU;		
+				Bolan.Index=OPERATOR_LESS_EQU;
 				OrginScript.Push(&Bolan);
-				ExpStr+=2;	
+				ExpStr+=2;
 			}
 			else if(*(ExpStr+1)=='>')
-			{				
+			{
 				Bolan.Type=BOLAN_TYPE_OPERATOR;
 				Bolan.Level=20;
-				Bolan.Index=OPERATOR_DIFF;		
+				Bolan.Index=OPERATOR_DIFF;
 				OrginScript.Push(&Bolan);
-				ExpStr+=2;	
+				ExpStr+=2;
 			}
 			else
-			{					
+			{
 				Bolan.Type=BOLAN_TYPE_OPERATOR;
 				Bolan.Level=20;
-				Bolan.Index=OPERATOR_LESS;			
+				Bolan.Index=OPERATOR_LESS;
 				OrginScript.Push(&Bolan);
-				ExpStr++;				
-			}			
+				ExpStr++;
+			}
 
 		}
 		else if(*ExpStr=='+'||*ExpStr=='-')
 		{
 			//if(*ExpStr=='-'&&(ExpStr==ExpBuff||*(ExpStr-1)=='('))
-			//{				
+			//{
 			//	Bolan.Type=BOLAN_TYPE_OPERATOR;
 			//	Bolan.Index=OPERATOR_NEG;
 			//	Bolan.Level=50;
@@ -316,21 +316,21 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 			//	ExpStr++;
 			//}
 			//else
-			{						
+			{
 				Bolan.Type=BOLAN_TYPE_OPERATOR;
 				Bolan.Level=30;
 				if(*ExpStr=='+') Bolan.Index=OPERATOR_ADD;
-				else Bolan.Index=OPERATOR_SUB;	
+				else Bolan.Index=OPERATOR_SUB;
 				OrginScript.Push(&Bolan);
-				ExpStr++;				
+				ExpStr++;
 			}
 		}
 		else if(*ExpStr=='*'||*ExpStr=='/')
-		{						
+		{
 			Bolan.Type=BOLAN_TYPE_OPERATOR;
 			Bolan.Level=40;
 			if(*ExpStr=='*') Bolan.Index=OPERATOR_MUL;
-			else Bolan.Index=OPERATOR_DIV;	
+			else Bolan.Index=OPERATOR_DIV;
 			OrginScript.Push(&Bolan);
 			ExpStr++;
 		}
@@ -339,13 +339,13 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 			Bolan.Type=BOLAN_TYPE_OPERATOR;
 			Bolan.Index=OPERATOR_COMMA;
 			Bolan.Level=0;
-			OrginScript.Push(&Bolan);			
+			OrginScript.Push(&Bolan);
 			ExpStr++;
-		}		
+		}
 		else
 		{
 			return 1005;				//非法字符
-		}		
+		}
 	}
 
 	CESThread ESThread;
@@ -359,9 +359,9 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 	if(RetCode)
 		return RetCode;
 
-	
 
-	
+
+
 	for(UINT i=0;i<OrginScript.GetSize();i++)
 	{
 		ES_BOLAN * pBolan=OrginScript.GetAt(i);
@@ -375,10 +375,10 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 			if(pBolan->Index==OPERATOR_RP)
 			{
 				while(TempStack.GetTop()!=NULL&&(TempStack.GetTop()->Type!=BOLAN_TYPE_OPERATOR||TempStack.GetTop()->Index!=OPERATOR_LP))
-				{				
-					ES_BOLAN * pTemp=TempStack.Pop();					
+				{
+					ES_BOLAN * pTemp=TempStack.Pop();
 					Push(pTemp);
-				}			
+				}
 				if(TempStack.GetTop()==NULL||TempStack.GetTop()->Type!=BOLAN_TYPE_OPERATOR||TempStack.GetTop()->Index!=OPERATOR_LP)
 					return 2021;
 				TempStack.Pop();
@@ -386,7 +386,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 			else if(pBolan->Index==OPERATOR_LP)
 			{
 				TempStack.Push(pBolan);
-			}			
+			}
 			else if(pBolan->Index==OPERATOR_NOP)
 			{
 
@@ -394,27 +394,27 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 			else if(pBolan->Index==OPERATOR_COMMA)
 			{
 				while(TempStack.GetTop()!=NULL&&(TempStack.GetTop()->Type!=BOLAN_TYPE_OPERATOR||TempStack.GetTop()->Index!=OPERATOR_LP))
-				{				
-					ES_BOLAN * pTemp=TempStack.Pop();					
+				{
+					ES_BOLAN * pTemp=TempStack.Pop();
 					Push(pTemp);
-				}	
+				}
 			}
 			else
 			{
 				while(TempStack.GetTop()!=NULL&&TempStack.GetTop()->Level>=pBolan->Level)
-				{		
-					ES_BOLAN * pTemp=TempStack.Pop();				
+				{
+					ES_BOLAN * pTemp=TempStack.Pop();
 					Push(pTemp);
-				}	
+				}
 				TempStack.Push(pBolan);
 			}
 			break;
 		case BOLAN_TYPE_FUNCTION:
 			while(TempStack.GetTop()!=NULL&&TempStack.GetTop()->Level>=pBolan->Level)
-			{		
-				ES_BOLAN * pTemp=TempStack.Pop();				
+			{
+				ES_BOLAN * pTemp=TempStack.Pop();
 				Push(pTemp);
-			}		
+			}
 			TempStack.Push(pBolan);
 			break;
 		case BOLAN_TYPE_VARIABLE:
@@ -422,43 +422,43 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 			break;
 		case BOLAN_TYPE_KEYWORD:
 			while(TempStack.GetTop()!=NULL)
-			{		
-				ES_BOLAN * pTemp=TempStack.Pop();			
+			{
+				ES_BOLAN * pTemp=TempStack.Pop();
 				Push(pTemp);
-			}	
+			}
 			switch(pBolan->Index)
 			{
 			case KW_EXIT:
-			case KW_IF:			
+			case KW_IF:
 			case KW_THEN:
 			case KW_ELSE:
-			case KW_ELSEIF:				
+			case KW_ELSEIF:
 			case KW_ENDIF:
-			case KW_WHILE:				
-			case KW_DO:				
-			case KW_ENDWHILE:				
-			case KW_BREAK:				
-			case KW_CONTINUE:				
+			case KW_WHILE:
+			case KW_DO:
+			case KW_ENDWHILE:
+			case KW_BREAK:
+			case KW_CONTINUE:
 			case KW_GOTO:
 				Push(pBolan);
 				break;
-			case KW_LINEEND:				
+			case KW_LINEEND:
 			case KW_INT:
 			case KW_INT64:
 			case KW_FLOAT:
 			case KW_DOUBLE:
-			case KW_STRING:				
+			case KW_STRING:
 				break;
-			case KW_FUNCTION:				
-			case KW_ENDFUN:				
+			case KW_FUNCTION:
+			case KW_ENDFUN:
 				Push(pBolan);
 				break;
-			};			
+			};
 			break;
 		case BOLAN_TYPE_IDENTIFIER:
 			while(TempStack.GetTop()!=NULL)
-			{		
-				ES_BOLAN * pTemp=TempStack.Pop();				
+			{
+				ES_BOLAN * pTemp=TempStack.Pop();
 				Push(pTemp);
 			}
 			if(pBolan->Index!=IDENTIFIER_TYPE_VARIABLE_DEFINE)
@@ -467,7 +467,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 		}
 	}
 	while(TempStack.GetTop()!=NULL)
-	{		
+	{
 		ES_BOLAN * pTemp=TempStack.Pop();
 		if(pTemp->Type==BOLAN_TYPE_OPERATOR&&pTemp->Index==OPERATOR_LP)
 			return 2021;
@@ -475,7 +475,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 	}
 
 	//设置各种控制语句
-	ES_FUNCTION * pCurFunction=NULL;	
+	ES_FUNCTION * pCurFunction=NULL;
 
 	for(UINT i=0;i<GetSize();i++)
 	{
@@ -523,7 +523,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 						pThenBolan->Level=ElsePos+1;
 					else
 						pThenBolan->Level=EndPos+1;
-				}					
+				}
 				break;
 			case KW_ELSE:
 				{
@@ -554,7 +554,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 					pEndBolan->Index=OPERATOR_JMP;
 					pEndBolan->Level=i+1;
 				}
-				break;			
+				break;
 			case KW_ENDWHILE:
 				{
 					return 2011;
@@ -610,18 +610,18 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 					pBolan->Index=OPERATOR_JMP_FUNC;
 					pBolan->Level=Pos+1;
 
-					
+
 				}
 				break;
 			case KW_ENDFUN:
-				{					
+				{
 					if(pCurFunction==NULL)
-						return 2019;					
+						return 2019;
 					pCurFunction->FunEndPos=i+1;
 					pBolan->Type=BOLAN_TYPE_OPERATOR;
 					pBolan->Index=OPERATOR_RET;
 				}
-				break;				
+				break;
 			}
 		}
 		else if(pBolan->Type==BOLAN_TYPE_IDENTIFIER&&pBolan->Index==IDENTIFIER_TYPE_FUNCTION_DEFINE)
@@ -664,7 +664,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 		return RetCode;
 
 	return 0;
-	
+
 }
 
 int CESBolanStack::FindIdentifier(int Start,LPCTSTR Name)
@@ -774,7 +774,7 @@ int CESBolanStack::GetNextKeyWord(int StartPos)
 
 
 int CESBolanStack::DealIdentifiers(CESThread * pESThread,int StartPos,int EndPos,bool IsDealLocalVar)
-{	
+{
 	ES_VARIABLE * pVar;
 	int FunctionLayer=0;
 
@@ -792,7 +792,7 @@ int CESBolanStack::DealIdentifiers(CESThread * pESThread,int StartPos,int EndPos
 		case BOLAN_TYPE_IDENTIFIER:
 			if(pBolan->Index==IDENTIFIER_TYPE_UNKNOW&&(!IsDealLocalVar))
 			{
-				pVar=pESThread->FindVariable(pBolan->StrValue);				
+				pVar=pESThread->FindVariable(pBolan->StrValue);
 				if(pVar)
 				{
 					pBolan->Type=BOLAN_TYPE_VARIABLE;
@@ -848,7 +848,7 @@ int CESBolanStack::DealIdentifiers(CESThread * pESThread,int StartPos,int EndPos
 							break;
 						}
 						break;
-					case BOLAN_TYPE_VALUE:				
+					case BOLAN_TYPE_VALUE:
 					case BOLAN_TYPE_FUNCTION:
 					case BOLAN_TYPE_VARIABLE:
 						IsNeg=2;
@@ -891,7 +891,7 @@ int CESBolanStack::DealIdentifiers(CESThread * pESThread,int StartPos,int EndPos
 					pBolan->Index=IDENTIFIER_TYPE_VARIABLE_DEFINE;
 					pESThread->GetVariableList()->AddVariable(pBolan->StrValue,(int)0);
 				}
-			
+
 				CurPos++;
 				break;
 			case KW_INT64:
@@ -955,10 +955,10 @@ int CESBolanStack::DealIdentifiers(CESThread * pESThread,int StartPos,int EndPos
 				}
 				else
 				{
-					pBolan->Index=IDENTIFIER_TYPE_VARIABLE_DEFINE;				
+					pBolan->Index=IDENTIFIER_TYPE_VARIABLE_DEFINE;
 					pESThread->GetVariableList()->AddVariable(pBolan->StrValue,(double)0);
 				}
-				
+
 				CurPos++;
 				break;
 			case KW_STRING:
@@ -982,13 +982,13 @@ int CESBolanStack::DealIdentifiers(CESThread * pESThread,int StartPos,int EndPos
 					pESThread->GetVariableList()->AddVariable(pBolan->StrValue,_T(""));
 				}
 				CurPos++;
-				break;		
+				break;
 			case KW_FUNCTION:
 				if(!IsDealLocalVar)
 				{
 					if(FunctionLayer)
 						return 2018;
-					FunctionLayer++;					
+					FunctionLayer++;
 					CurPos++;
 					pBolan=pESThread->GetScript()->GetAt(CurPos);
 					if(pBolan->Type!=BOLAN_TYPE_IDENTIFIER)
@@ -1000,7 +1000,7 @@ int CESBolanStack::DealIdentifiers(CESThread * pESThread,int StartPos,int EndPos
 					pBolan->Index=IDENTIFIER_TYPE_FUNCTION_DEFINE;
 					int EndFunPos=pESThread->GetScript()->FindKeyWord(KW_ENDFUN,CurPos,-1);
 					if(EndFunPos<0)
-					{						
+					{
 						return 2017;
 					}
 					pESThread->GetFunctionList()->AddFunction(pBolan->StrValue,ParaCount,0,0);
@@ -1055,7 +1055,7 @@ int CESBolanStack::DealIdentifiers(CESThread * pESThread,int StartPos,int EndPos
 		case BOLAN_TYPE_IDENTIFIER:
 			if(pBolan->Index==IDENTIFIER_TYPE_UNKNOW&&(!IsDealLocalVar))
 			{
-				pVar=pESThread->FindVariable(pBolan->StrValue);				
+				pVar=pESThread->FindVariable(pBolan->StrValue);
 				if(pVar)
 				{
 					pBolan->Type=BOLAN_TYPE_VARIABLE;
@@ -1102,17 +1102,17 @@ int CESBolanStack::DealIdentifiers(CESThread * pESThread,int StartPos,int EndPos
 //		ES_BOLAN * pBolan=GetAt(StartPos);
 //		LastLine=pBolan->Line;
 //		switch(pBolan->Type)
-//		{		
+//		{
 //		case BOLAN_TYPE_KEYWORD:
 //			switch((int)(pBolan->Index))
 //			{
-//			case KW_FUNCTION:				
+//			case KW_FUNCTION:
 //				StartPos++;
-//				
-//				
-//				break;		
+//
+//
+//				break;
 //			case KW_ENDFUN:
-//				
+//
 //				break;
 //			default:
 //				StartPos++;
@@ -1156,7 +1156,7 @@ int CESBolanStack::GetFunctionParamCount(CESBolanStack * pScript,int StartPos,in
 				if(pBolan->Index==OPERATOR_RP)
 					return 0;
 				if(pBolan->Index!=OPERATOR_COMMA)
-					return 2019;				
+					return 2019;
 				break;
 			case BOLAN_TYPE_FUNCTION:
 			case BOLAN_TYPE_VARIABLE:
@@ -1246,7 +1246,7 @@ int CESBolanStack::DoVariableBind(CESThread * pESThread,int& LastLine)
 				ES_VARIABLE * pVar=pESThread->FindVariable(pBolan->StrValue);
 				if(pVar)
 				{
-					pBolan->Index=pVar->ID;				
+					pBolan->Index=pVar->ID;
 					pBolan->ValueType=pVar->Type;
 				}
 				else
@@ -1274,9 +1274,9 @@ int CESBolanStack::DoVariableBind(CESThread * pESThread,int& LastLine)
 					pESThread->ReleaseLocalVariableList();
 				}
 			}
-			break;		
-		}	
-		
+			break;
+		}
+
 	}
 	return 0;
 }

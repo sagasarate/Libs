@@ -10,8 +10,29 @@
     <Filter Include="预编译">
       <UniqueIdentifier>{8a07b39b-88ed-40a7-bd85-f90767d92f5e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MetaClass">
+      <UniqueIdentifier>{c4262b3e-9ef8-4f36-97fa-f53c775e5804}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LuaScriptPool.cpp">
+      <Filter>LuaWrap</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaTable.cpp">
+      <Filter>LuaWrap</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>预编译</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaThread.cpp">
+      <Filter>LuaWrap</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaScript.cpp">
+      <Filter>LuaWrap</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaBaseMetaClass.cpp">
+      <Filter>MetaClass</Filter>
+    </ClCompile>
     <ClCompile Include="src\lapi.c">
       <Filter>Lua</Filter>
     </ClCompile>
@@ -21,7 +42,16 @@
     <ClCompile Include="src\lbaselib.c">
       <Filter>Lua</Filter>
     </ClCompile>
+    <ClCompile Include="src\lbitlib.c">
+      <Filter>Lua</Filter>
+    </ClCompile>
     <ClCompile Include="src\lcode.c">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcorolib.c">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lctype.c">
       <Filter>Lua</Filter>
     </ClCompile>
     <ClCompile Include="src\ldblib.c">
@@ -90,13 +120,10 @@
     <ClCompile Include="src\ltm.c">
       <Filter>Lua</Filter>
     </ClCompile>
-    <ClCompile Include="src\lua.c">
-      <Filter>Lua</Filter>
-    </ClCompile>
-    <ClCompile Include="src\luac.c">
-      <Filter>Lua</Filter>
-    </ClCompile>
     <ClCompile Include="src\lundump.c">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lutf8lib.c">
       <Filter>Lua</Filter>
     </ClCompile>
     <ClCompile Include="src\lvm.c">
@@ -105,32 +132,47 @@
     <ClCompile Include="src\lzio.c">
       <Filter>Lua</Filter>
     </ClCompile>
-    <ClCompile Include="src\print.c">
-      <Filter>Lua</Filter>
-    </ClCompile>
-    <ClCompile Include="LuaInt64.cpp">
+    <ClCompile Include="LuaGrid.cpp">
       <Filter>LuaWrap</Filter>
     </ClCompile>
-    <ClCompile Include="LuaScriptPool.cpp">
-      <Filter>LuaWrap</Filter>
+    <ClCompile Include="LuaBaseStaticMetaClass.cpp">
+      <Filter>MetaClass</Filter>
     </ClCompile>
-    <ClCompile Include="LuaTable.cpp">
-      <Filter>LuaWrap</Filter>
-    </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>预编译</Filter>
-    </ClCompile>
-    <ClCompile Include="LuaBaseMetaClass.cpp">
-      <Filter>LuaWrap</Filter>
-    </ClCompile>
-    <ClCompile Include="LuaThread.cpp">
-      <Filter>LuaWrap</Filter>
-    </ClCompile>
-    <ClCompile Include="LuaScript.cpp">
+    <ClCompile Include="LuaValue.cpp">
       <Filter>LuaWrap</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LuaScriptPool.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaTable.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaWrap.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>预编译</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaTypeWraps.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaCallWraps.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaCallWrapTemplate.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaThread.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaScript.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaBaseMetaClass.h">
+      <Filter>MetaClass</Filter>
+    </ClInclude>
     <ClInclude Include="src\lapi.h">
       <Filter>Lua</Filter>
     </ClInclude>
@@ -138,6 +180,9 @@
       <Filter>Lua</Filter>
     </ClInclude>
     <ClInclude Include="src\lcode.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lctype.h">
       <Filter>Lua</Filter>
     </ClInclude>
     <ClInclude Include="src\ldebug.h">
@@ -168,6 +213,9 @@
       <Filter>Lua</Filter>
     </ClInclude>
     <ClInclude Include="src\lparser.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lprefix.h">
       <Filter>Lua</Filter>
     </ClInclude>
     <ClInclude Include="src\lstate.h">
@@ -203,40 +251,16 @@
     <ClInclude Include="src\lzio.h">
       <Filter>Lua</Filter>
     </ClInclude>
-    <ClInclude Include="LuaInt64.h">
+    <ClInclude Include="LuaGrid.h">
       <Filter>LuaWrap</Filter>
     </ClInclude>
-    <ClInclude Include="LuaPlusCD.h">
+    <ClInclude Include="LuaBaseStaticMetaClass.h">
+      <Filter>MetaClass</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaValue.h">
       <Filter>LuaWrap</Filter>
     </ClInclude>
-    <ClInclude Include="LuaScriptPool.h">
-      <Filter>LuaWrap</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaTable.h">
-      <Filter>LuaWrap</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaWrap.h">
-      <Filter>LuaWrap</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>预编译</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaTypeWraps.h">
-      <Filter>LuaWrap</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaCallWraps.h">
-      <Filter>LuaWrap</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaCallWrapTemplate.h">
-      <Filter>LuaWrap</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaBaseMetaClass.h">
-      <Filter>LuaWrap</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaThread.h">
-      <Filter>LuaWrap</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaScript.h">
+    <ClInclude Include="LuaWrapBase.h">
       <Filter>LuaWrap</Filter>
     </ClInclude>
   </ItemGroup>

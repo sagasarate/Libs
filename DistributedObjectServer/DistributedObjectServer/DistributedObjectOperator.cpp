@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 CDistributedObjectOperator::CDistributedObjectOperator()
@@ -39,14 +39,14 @@ bool CDistributedObjectOperator::Initialize()
 void CDistributedObjectOperator::Destory()
 {
 	FUNCTION_BEGIN;
-	m_pDistributedObject->Destory();	
-	SAFE_RELEASE(m_pDistributedObject);	
+	m_pDistributedObject->Destory();
+	SAFE_RELEASE(m_pDistributedObject);
 	if(m_pManager)
 		m_pManager->DeleteObjectOperator(this);
 	m_PoolID=0;
 	m_pManager=NULL;
-	CDOSBaseObject::Destory();	
-	FUNCTION_END;	
+	CDOSBaseObject::Destory();
+	FUNCTION_END;
 }
 
 
@@ -189,7 +189,7 @@ BOOL CDistributedObjectOperator::RequestProxyObjectIP(OBJECT_ID ProxyObjectID)
 
 BOOL CDistributedObjectOperator::RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& ObjectRegisterInfo)
 {
-	FUNCTION_BEGIN;	
+	FUNCTION_BEGIN;
 	return m_pManager->RegisterObject(ObjectRegisterInfo);
 	FUNCTION_END;
 	return FALSE;
@@ -198,7 +198,7 @@ void CDistributedObjectOperator::Release()
 {
 	FUNCTION_BEGIN;
 	if(m_pManager)
-		m_pManager->UnregisterObject(this);	
+		m_pManager->UnregisterObject(this);
 	FUNCTION_END;
 }
 
@@ -214,6 +214,44 @@ void CDistributedObjectOperator::ShutDown(UINT PluginID)
 	FUNCTION_BEGIN;
 	CMainThread::GetInstance()->QueryFreePlugin(PluginID);
 	FUNCTION_END;
+}
+
+BOOL CDistributedObjectOperator::RegisterLogger(UINT LogChannel, LPCTSTR FileName)
+{
+	FUNCTION_BEGIN;
+	CEasyString LogFileName;
+	CEasyString ModulePath = GetModulePath(NULL);
+
+	CServerLogPrinter * pLog;
+
+	LogFileName.Format("%s/Log/%s", (LPCTSTR)ModulePath, FileName);
+	pLog = new CServerLogPrinter(CMainThread::GetInstance(), CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
+		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName);
+	CLogManager::GetInstance()->AddChannel(LogChannel, pLog);
+	SAFE_RELEASE(pLog);
+	return TRUE;
+
+	FUNCTION_END;
+	return FALSE;
+}
+
+BOOL CDistributedObjectOperator::RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader)
+{
+	FUNCTION_BEGIN;
+	CEasyString LogFileName;
+	CEasyString ModulePath = GetModulePath(NULL);
+
+	CCSVFileLogPrinter * pLog;
+
+	LogFileName.Format("%s/Log/%s", (LPCTSTR)ModulePath, FileName);
+	pLog = new CCSVFileLogPrinter();
+	pLog->Init(CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSVLogHeader);
+	CLogManager::GetInstance()->AddChannel(LogChannel, pLog);
+	SAFE_RELEASE(pLog);
+	return TRUE;
+
+	FUNCTION_END;
+	return FALSE;
 }
 
 BOOL CDistributedObjectOperator::OnMessage(CDOSMessage * pMessage)
@@ -240,13 +278,13 @@ BOOL CDistributedObjectOperator::OnSystemMessage(CDOSMessage * pMessage)
 }
 void CDistributedObjectOperator::OnConcernedObjectLost(OBJECT_ID ObjectID)
 {
-	OBJECT_EXCEPTION_CATCH_START;	
+	OBJECT_EXCEPTION_CATCH_START;
 	m_pDistributedObject->OnConcernedObjectLost(ObjectID);
 	OBJECT_EXCEPTION_CATCH_END;
 }
 void CDistributedObjectOperator::OnFindObject(OBJECT_ID CallerID)
 {
-	OBJECT_EXCEPTION_CATCH_START;	
+	OBJECT_EXCEPTION_CATCH_START;
 	if(!m_pDistributedObject->OnFindObject(CallerID))
 	{
 		CDOSBaseObject::OnFindObject(CallerID);
@@ -255,19 +293,19 @@ void CDistributedObjectOperator::OnFindObject(OBJECT_ID CallerID)
 }
 void CDistributedObjectOperator::OnObjectReport(OBJECT_ID ObjectID,const CSmartStruct& ObjectInfo)
 {
-	OBJECT_EXCEPTION_CATCH_START;	
+	OBJECT_EXCEPTION_CATCH_START;
 	m_pDistributedObject->OnObjectReport(ObjectID,ObjectInfo);
 	OBJECT_EXCEPTION_CATCH_END;
 }
 void CDistributedObjectOperator::OnProxyObjectIPReport(OBJECT_ID ProxyObjectID,UINT IP,UINT Port,LPCSTR szIPString)
 {
-	OBJECT_EXCEPTION_CATCH_START;	
+	OBJECT_EXCEPTION_CATCH_START;
 	m_pDistributedObject->OnProxyObjectIPReport(ProxyObjectID,IP,Port,szIPString);
 	OBJECT_EXCEPTION_CATCH_END;
 }
 void CDistributedObjectOperator::OnShutDown(int Level)
 {
-	OBJECT_EXCEPTION_CATCH_START;	
+	OBJECT_EXCEPTION_CATCH_START;
 	m_pDistributedObject->OnShutDown(Level);
 	OBJECT_EXCEPTION_CATCH_END;
 }

@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 IMPLEMENT_CLASS_INFO(CDOSClient,CNameObject);
 
@@ -76,7 +76,7 @@ BOOL CDOSClient::SendMessage(OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag
 	pSimpleMessage->SetMsgID(MsgID);
 	pSimpleMessage->SetDataLength(DataSize);
 	pSimpleMessage->SetMsgFlag(MsgFlag);
-	
+
 	if(!m_SendBuffer.PushBack(pData,DataSize))
 		return false;
 
@@ -173,7 +173,14 @@ void CDOSClient::ShutDown(UINT PluginID)
 {
 
 }
-
+BOOL CDOSClient::RegisterLogger(UINT LogChannel, LPCTSTR FileName)
+{
+	return FALSE;
+}
+BOOL CDOSClient::RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader)
+{
+	return FALSE;
+}
 void CDOSClient::OnRecvData(const CEasyBuffer& DataBuffer)
 {
 	MSG_LEN_TYPE PacketSize=0;
@@ -193,7 +200,7 @@ void CDOSClient::OnRecvData(const CEasyBuffer& DataBuffer)
 			Close();
 			PrintDOSLog(0xff0000,_T("(%d)收到非法包，连接断开！"),GetID());
 		}
-		CDOSSimpleMessage * pMsg=(CDOSSimpleMessage *)m_AssembleBuffer.GetBuffer();		
+		CDOSSimpleMessage * pMsg=(CDOSSimpleMessage *)m_AssembleBuffer.GetBuffer();
 		if(pMsg->GetMsgFlag()&DOS_MESSAGE_FLAG_COMPRESSED)
 		{
 			switch(m_MsgCompressType)
@@ -240,7 +247,7 @@ void CDOSClient::OnRecvData(const CEasyBuffer& DataBuffer)
 				}
 				break;
 			}
-			
+
 		}
 		else
 		{
@@ -253,7 +260,7 @@ void CDOSClient::OnRecvData(const CEasyBuffer& DataBuffer)
 				OnDOSMessage(pMsg);
 			}
 		}
-		
+
 		m_AssembleBuffer.PopFront(NULL,PacketSize);
 		PeekPos=0;
 		PacketSize=0;

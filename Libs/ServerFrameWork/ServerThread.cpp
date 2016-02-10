@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 IMPLEMENT_CLASS_INFO_STATIC(CServerThread,CNetServer);
@@ -26,7 +26,7 @@ CServerThread::CServerThread()
 CServerThread::~CServerThread(void)
 {
 	FUNCTION_BEGIN
-	
+
 	FUNCTION_END;
 }
 
@@ -34,7 +34,7 @@ void CServerThread::Execute()
 {
 	FUNCTION_BEGIN;
 
-	
+
 
 
 #ifndef _DEBUG
@@ -49,7 +49,7 @@ void CServerThread::Execute()
 #ifndef _DEBUG
 		CMainGuardThread::GetInstance()->MakeKeepAlive();
 #endif
-	}	
+	}
 #ifndef _DEBUG
 	CMainGuardThread::GetInstance()->SafeTerminate();
 #endif
@@ -58,7 +58,7 @@ void CServerThread::Execute()
 	while(GetTimeToTime(Time,CEasyTimer::GetTime())<SERVER_ENDING_TIME&&OnTerminating())
 	{
 	}
-	
+
 	FUNCTION_END;
 }
 
@@ -67,7 +67,7 @@ BOOL CServerThread::OnStart()
 {
 	FUNCTION_BEGIN;
 
-	
+
 	m_TCPRecvBytes=0;
 	m_TCPSendBytes=0;
 	m_UDPRecvBytes=0;
@@ -101,11 +101,11 @@ BOOL CServerThread::OnStart()
 	CCSVFileLogPrinter * pCSVLog=new CCSVFileLogPrinter();
 	pCSVLog->Init(CSystemConfig::GetInstance()->GetLogLevel(),LogFileName,
 		"CycleTime,CPUUsed,TCPRecvFlow,TCPSendFlow,UDPRecvFlow,UDPSendFlow,"
-		"TCPRecvCount,TCPSendCount,UDPRecvCount=,UDPSendCount,ClientCount");	
+		"TCPRecvCount,TCPSendCount,UDPRecvCount=,UDPSendCount,ClientCount");
 	CLogManager::GetInstance()->AddChannel(SERVER_STATUS_LOG_CHANNEL,pCSVLog);
 	SAFE_RELEASE(pCSVLog);
 
-	
+
 
 	LogFileName.Format("%s/Log/%s.NetLib",(LPCTSTR)ModulePath,g_ProgramName);
 	pLog=new CServerLogPrinter(this,CServerLogPrinter::LOM_FILE,
@@ -117,7 +117,7 @@ BOOL CServerThread::OnStart()
 	pLog=new CServerLogPrinter(this,CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(),LogFileName);
 	CLogManager::GetInstance()->AddChannel(LOG_DB_ERROR_CHANNEL,pLog);
-	SAFE_RELEASE(pLog);	
+	SAFE_RELEASE(pLog);
 
 
 
@@ -168,19 +168,19 @@ BOOL CServerThread::OnStart()
 		{
 			Log("不合法的系统连接配置文件%s",GetConfigFileName());
 		}
-		
+
 	}
 	else
 	{
 		Log("未找到系统连接配置文件%s",GetConfigFileName());
 	}
-	
+
 	m_pUDPSystemControlPort=new CSystemControlPort();
 	if(!m_pUDPSystemControlPort->Init(this))
 	{
 		Log("初始化UDP系统控制端口失败");
 	}
-	
+
 
 	m_ServerStatus.Create(SERVER_STATUS_BLOCK_SIZE);
 
@@ -203,23 +203,23 @@ BOOL CServerThread::OnStart()
 
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(),SERVER_INFO_COUNT_TIME);
 
-	
+
 
 	Log("服务器成功启动");
-	
+
 	FUNCTION_END;
 	return TRUE;
 }
 
 void CServerThread::OnBeginTerminate()
 {
-	
+
 }
 
 void CServerThread::OnTerminate()
 {
-	FUNCTION_BEGIN;	
-	
+	FUNCTION_BEGIN;
+
 	SAFE_RELEASE(m_pSysNetLinkManager);
 	SAFE_RELEASE(m_pUDPSystemControlPort);
 	CNetServer::OnTerminate();
@@ -229,7 +229,7 @@ void CServerThread::OnTerminate()
 
 BOOL CServerThread::OnRun()
 {
-	FUNCTION_BEGIN;		
+	FUNCTION_BEGIN;
 
 	if(!CBaseServer::OnRun())
 		return FALSE;
@@ -243,7 +243,7 @@ BOOL CServerThread::OnRun()
 
 	//计算服务器循环时间
 	if(m_CountTimer.IsTimeOut(SERVER_INFO_COUNT_TIME))
-	{		
+	{
 		m_CountTimer.SaveTime();
 		DoServerStat();
 	}
@@ -252,7 +252,7 @@ BOOL CServerThread::OnRun()
 	PANEL_MSG * pCommand=CControlPanel::GetInstance()->GetCommand();
 	if(pCommand)
 	{
-		
+
 		ExecCommand(pCommand->Msg);
 		CControlPanel::GetInstance()->ReleaseCommand(pCommand->ID);
 	}
@@ -264,8 +264,8 @@ BOOL CServerThread::OnRun()
 int CServerThread::Update(int ProcessPacketLimit)
 {
 	FUNCTION_BEGIN;
-	int Process=0;	
-	Process+=CNetServer::Update(ProcessPacketLimit);		
+	int Process=0;
+	Process+=CNetServer::Update(ProcessPacketLimit);
 	Process+=m_pSysNetLinkManager->Update(ProcessPacketLimit);
 	Process+=m_pUDPSystemControlPort->Update(ProcessPacketLimit);
 	return Process;
@@ -383,21 +383,21 @@ int CServerThread::StartLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pP
 	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
 			GetChannel(SERVER_LOG_CHANNEL);
-	}	
+	}
 	else if(_stricmp(pParams[0].StrValue,"Status")==0)
 	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
 			GetChannel(SERVER_STATUS_LOG_CHANNEL);
 	}
 	else if(_stricmp(pParams[0].StrValue,"DB")==0)
-	{		
+	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
 			GetChannel(LOG_DB_ERROR_CHANNEL);
 	}
 	else if(_stricmp(pParams[0].StrValue,"Net")==0)
 	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(LOG_NET_CHANNEL);	
+			GetChannel(LOG_NET_CHANNEL);
 	}
 	if(pLog)
 	{
@@ -431,7 +431,7 @@ int CServerThread::StartLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pP
 				CEasyString ModulePath=GetModulePath(NULL);
 				LogFileName.Format("%s/Log/%s",(LPCTSTR)ModulePath,(LPCTSTR)pParams[2].StrValue);
 			}
-			
+
 
 			pLog->SetLogMode(Mode,Level,LogFileName);
 			Log("Log模块[%s],模式[%s]的输出已被开启",
@@ -451,7 +451,7 @@ int CServerThread::StopLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pPa
 	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
 			GetChannel(SERVER_LOG_CHANNEL);
-	}	
+	}
 	else if(_stricmp(pParams[0].StrValue,"Status")==0)
 	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
@@ -463,7 +463,7 @@ int CServerThread::StopLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pPa
 			GetChannel(LOG_DB_ERROR_CHANNEL);
 	}
 	else if(_stricmp(pParams[0].StrValue,"Net")==0)
-	{		
+	{
 		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
 			GetChannel(LOG_NET_CHANNEL);
 	}
@@ -508,16 +508,9 @@ int CServerThread::TestLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pPa
 	else if(_stricmp(pParams[0].StrValue,"Debug")==0)
 	{
 		LogDebug("Debug");
-	}	
-	else if(_stricmp(pParams[0].StrValue,"DB")==0)
-	{
-		PrintDBLog(0,"DB");
-	}
-	else if(_stricmp(pParams[0].StrValue,"Net")==0)
-	{
-		PrintNetLog(0,"Net");
 	}
 	
+
 	FUNCTION_END;
 	return 0;
 }
@@ -525,7 +518,7 @@ int CServerThread::TestLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pPa
 int CServerThread::RebuildUDPControlPort(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)
 {
 	FUNCTION_BEGIN;
-	
+
 	if(!m_pUDPSystemControlPort->Init(this))
 	{
 		Log("重建UDP系统控制端口失败");
@@ -534,7 +527,7 @@ int CServerThread::RebuildUDPControlPort(CESThread * pESThread,ES_BOLAN* pResult
 	{
 		Log("重建UDP系统控制端口成功");
 	}
-	
+
 	FUNCTION_END;
 	return 0;
 }
@@ -542,10 +535,10 @@ int CServerThread::RebuildUDPControlPort(CESThread * pESThread,ES_BOLAN* pResult
 int CServerThread::SFSetConsoleLogLevel(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)
 {
 	FUNCTION_BEGIN;
-	
+
 	SetConsoleLogLevel(pParams[0]);
 	Log("控制台Log输出等级设置为%d",GetConsoleLogLevel());
-	
+
 	FUNCTION_END;
 	return 0;
 }
@@ -601,6 +594,6 @@ void CServerThread::DoServerStat()
 	if(CSystemConfig::GetInstance()->IsLogServerObjectUse())
 	{
 		PrintObjectStatus();
-	}		
+	}
 	FUNCTION_END;
 }

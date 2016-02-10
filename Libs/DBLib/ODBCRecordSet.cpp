@@ -98,7 +98,7 @@ int CODBCRecordSet::Init(CODBCConnection * pDBConnection,SQLHSTMT hStmt)
 		m_ColInfos[i].Type=m_pDBConnection->ODBCCTypeTODBLibType(m_BindTypes[i],m_ColInfos[i].Size);		
 		if(m_ColInfos[i].Size>MAX_FEILD_LEN)
 			m_ColInfos[i].Size=MAX_FEILD_LEN;
-		RecordLineLen+=m_ColInfos[i].Size;		
+		RecordLineLen+=(UINT)m_ColInfos[i].Size;		
 	}	
 
 
@@ -190,7 +190,7 @@ int CODBCRecordSet::FetchRow(int Orientation,int Offset)
 			}
 			else
 			{
-				m_RowBuffer[i].SetValue(m_ColInfos[i].Type,pFieldBuffer,m_FieldSize[i],m_ColInfos[i].DigitSize);
+				m_RowBuffer[i].SetValue(m_ColInfos[i].Type,pFieldBuffer,(int)m_FieldSize[i],m_ColInfos[i].DigitSize);
 			}
 			
 			pFieldBuffer+=m_ColInfos[i].Size;

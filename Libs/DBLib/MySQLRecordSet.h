@@ -10,7 +10,7 @@
 /*                                                                          */
 /****************************************************************************/
 #pragma once
-#include "dbinterfaces.h"
+#include "DBInterfaces.h"
 
 namespace DBLib
 {
@@ -50,7 +50,7 @@ public:
 	virtual int MoveLast();
 	virtual int MoveNext();
 	virtual int MovePrevious();
-	virtual int MoveTo(int Index);	
+	virtual int MoveTo(int Index);
 	virtual bool IsEOF();
 	virtual bool IsBOF();
 

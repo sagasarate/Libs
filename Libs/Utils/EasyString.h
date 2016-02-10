@@ -34,7 +34,7 @@ inline int strncpy_0( wchar_t *strDest,size_t DestSize, const wchar_t *strSource
 	return 0;
 }
 
-inline TCHAR * __cdecl strstri (
+inline TCHAR *  strstri (
 					   const TCHAR * str1,
 					   const TCHAR * str2
 					   )
@@ -177,7 +177,7 @@ protected:
 	SIZE_TYPE	m_BufferSize;
 	SIZE_TYPE	m_StringLength;
 public:
-	
+
 	CEasyStringT()
 	{
 		m_pBuffer=new T[1];
@@ -632,9 +632,9 @@ public:
 			if(NewStrLen>=m_BufferSize)
 				Resize(NewStrLen);
 
-			memmove(m_pBuffer+Start+ReplaceDestLen,m_pBuffer+Start+Len,(m_StringLength-Start-Len)*sizeof(T));
-			memmove(m_pBuffer+Start,pNewStr,Len*sizeof(T));
-			
+			memmove(m_pBuffer + Start + ReplaceDestLen, m_pBuffer + Start + Len, (m_StringLength - Start - Len)*sizeof(T));
+			memmove(m_pBuffer + Start, pNewStr, ReplaceDestLen*sizeof(T));
+
 			m_StringLength=NewStrLen;
 			m_pBuffer[m_StringLength]=0;
 		}
@@ -863,17 +863,23 @@ inline void CEasyStringT<wchar_t>::AppendString(const char * pStr,SIZE_TYPE Size
 
 template<>
 inline void CEasyStringT<char>::FormatVL(const char * pFormat,va_list vl)
-{	
-	SIZE_TYPE Len=_vscprintf(pFormat,vl);
+{
+	va_list vl2;
+	va_copy(vl2, vl);
+	SIZE_TYPE Len=_vscprintf(pFormat,vl2);
+	va_end(vl2);
 	Resize(Len,false);
 	vsprintf_s(m_pBuffer,m_BufferSize,pFormat,vl);
-	m_StringLength=Len;	
+	m_StringLength=Len;
 }
 
 template<>
 inline void CEasyStringT<wchar_t>::FormatVL(const wchar_t * pFormat,va_list vl)
 {
+	va_list vl2;
+	va_copy(vl2, vl);
 	SIZE_TYPE Len=_vscwprintf(pFormat,vl);
+	va_end(vl2);
 	Resize(Len,false);
 	vswprintf_s(m_pBuffer,m_BufferSize,pFormat,vl);
 	m_StringLength=Len;

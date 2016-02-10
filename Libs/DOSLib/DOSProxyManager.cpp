@@ -35,7 +35,7 @@ bool CDOSProxyManager::Initialize(CDOSServer * pServer)
 	{
 		if (ProxyConfigs[i].ProxyType == BROAD_CAST_PROXY_TYPE)
 		{
-			PrintDOSLog(0, "代理类型码不能为%d,侦听地址为(%s:%d)的代理将被忽略", BROAD_CAST_PROXY_TYPE,
+			PrintDOSLog(0, _T("代理类型码不能为%d,侦听地址为(%s:%d)的代理将被忽略"), BROAD_CAST_PROXY_TYPE,
 				ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
 			ProxyConfigs.Delete(i);
 		}
@@ -47,13 +47,13 @@ bool CDOSProxyManager::Initialize(CDOSServer * pServer)
 			{
 				if (ProxyConfigs[i].ProxyType == ProxyConfigs[j].ProxyType)
 				{
-					PrintDOSLog(0, "代理类型码重复,侦听地址为(%s:%d)的代理将被忽略", ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
+					PrintDOSLog(0, _T("代理类型码重复,侦听地址为(%s:%d)的代理将被忽略"), ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
 					ProxyConfigs.Delete(i);
 					break;
 				}
 				else if (ProxyConfigs[i].ListenAddress == ProxyConfigs[j].ListenAddress)
 				{
-					PrintDOSLog(0, "侦听地址重复,侦听地址为(%s:%d)的代理将被忽略", ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
+					PrintDOSLog(0, _T("侦听地址重复,侦听地址为(%s:%d)的代理将被忽略"), ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
 					ProxyConfigs.Delete(i);
 					break;
 				}

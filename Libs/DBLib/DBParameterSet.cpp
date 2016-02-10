@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 namespace DBLib
@@ -19,7 +19,7 @@ IMPLEMENT_CLASS_INFO(CDBParameterSet,IDBParameterSet);
 
 CDBParameterSet::CDBParameterSet(void)
 {
-	
+
 }
 
 CDBParameterSet::~CDBParameterSet(void)

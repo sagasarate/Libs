@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 IMPLEMENT_CLASS_INFO(CDOSObjectManager,CNameObject);
 
@@ -39,7 +39,7 @@ bool CDOSObjectManager::Initialize()
 	{
 		PrintDOSLog(0xff0000,_T("服务器没有正确配置对象组数量，对象管理器无法初始化！"));
 		return false;
-	}	
+	}
 	m_ObjectGroups.Resize(m_pServer->GetConfig().ObjectGroupCount);
 	for(UINT i=0;i<m_pServer->GetConfig().ObjectGroupCount;i++)
 	{
@@ -51,7 +51,7 @@ bool CDOSObjectManager::Initialize()
 			return false;
 		}
 	}
-	
+
 	PrintDOSLog(0xffff,_T("对象管理器创建了%d个对象组！"),m_pServer->GetConfig().ObjectGroupCount);
 	return true;
 	FUNCTION_END;
@@ -60,13 +60,13 @@ bool CDOSObjectManager::Initialize()
 
 void CDOSObjectManager::Destory()
 {
-	FUNCTION_BEGIN;	
+	FUNCTION_BEGIN;
 	for(int i=0;i<(int)m_ObjectGroups.GetCount();i++)
 	{
-		m_ObjectGroups[i]->SafeTerminate();		
+		m_ObjectGroups[i]->SafeTerminate();
 	}
 	for(int i=0;i<(int)m_ObjectGroups.GetCount();i++)
-	{		
+	{
 		SAFE_RELEASE(m_ObjectGroups[i]);
 	}
 	m_ObjectGroups.Clear();
@@ -76,7 +76,7 @@ void CDOSObjectManager::Destory()
 BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterInfo)
 {
 	FUNCTION_BEGIN;
-	
+
 
 
 	if(ObjectRegisterInfo.pObject==NULL)
@@ -90,12 +90,12 @@ BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterI
 		PrintDOSLog(0xff0000,_T("对象权重必须大于零！"));
 		return FALSE;
 	}
-		
+
 
 	ObjectRegisterInfo.pObject->SetManager(this);
-	ObjectRegisterInfo.pObject->SetRouter(GetServer()->GetRouter());	
+	ObjectRegisterInfo.pObject->SetRouter(GetServer()->GetRouter());
 
-	
+
 	CDOSObjectGroup * pGroup=SelectGroup(ObjectRegisterInfo.ObjectGroupIndex);
 
 	if(pGroup==NULL)
@@ -105,9 +105,9 @@ BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterI
 	}
 
 	ObjectRegisterInfo.ObjectGroupIndex=pGroup->GetIndex();
-		
+
 	ObjectRegisterInfo.ObjectID.RouterID=GetServer()->GetRouter()->GetRouterID();
-		
+
 
 	if(!pGroup->RegisterObject(ObjectRegisterInfo))
 	{
@@ -123,7 +123,7 @@ BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterI
 
 BOOL CDOSObjectManager::UnregisterObject(OBJECT_ID ObjectID)
 {
-	FUNCTION_BEGIN;	
+	FUNCTION_BEGIN;
 
 
 	UINT GroupIndex=ObjectID.GroupIndex;
@@ -132,9 +132,9 @@ BOOL CDOSObjectManager::UnregisterObject(OBJECT_ID ObjectID)
 		PrintDOSLog(0xff0000,_T("对象所在组%u无效"),GroupIndex);
 		return FALSE;
 	}
-	
+
 	CDOSObjectGroup * pGroup=m_ObjectGroups[GroupIndex];
-	
+
 	if(pGroup)
 	{
 		if(!pGroup->UnregisterObject(ObjectID))
@@ -147,8 +147,8 @@ BOOL CDOSObjectManager::UnregisterObject(OBJECT_ID ObjectID)
 	{
 		PrintDOSLog(0xff0000,_T("无法找到对象所在的对象组"));
 		return FALSE;
-	}	
-	
+	}
+
 	return TRUE;
 	FUNCTION_END;
 	return FALSE;
@@ -176,7 +176,7 @@ BOOL CDOSObjectManager::PushMessage(OBJECT_ID ObjectID,CDOSMessagePacket * pPack
 		}
 		return m_ObjectGroups[GroupIndex]->PushMessage(ObjectID,pPacket);
 	}
-	
+
 	FUNCTION_END;
 	return FALSE;
 }
@@ -212,8 +212,8 @@ void CDOSObjectManager::PrintGroupInfo(UINT LogChannel)
 {
 	FUNCTION_BEGIN;
 	for(UINT i=0;i<m_ObjectGroups.GetCount();i++)
-	{		
-		
+	{
+
 		CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,
 			_T("对象组[%u]:对象数[%u],权重[%u],CPU占用率[%0.2f%%],循环时间[%gMS]"),
 			i,m_ObjectGroups[i]->GetObjectCount(),m_ObjectGroups[i]->GetWeight(),

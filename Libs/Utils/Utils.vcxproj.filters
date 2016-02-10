@@ -175,6 +175,9 @@
     <Filter Include="加解密\DES">
       <UniqueIdentifier>{9ace4b11-ec2e-4a60-b181-da257bcb1eb1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="内码转换">
+      <UniqueIdentifier>{afab9d34-d043-42e0-aa6e-52993093e0d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EasyTime.h">
@@ -666,7 +669,33 @@
     <ClInclude Include="Crypto\des.h">
       <Filter>加解密\DES</Filter>
     </ClInclude>
-    <ClInclude Include="TimerQueue.h" />
+    <ClInclude Include="TimerQueue.h">
+      <Filter>时间相关</Filter>
+    </ClInclude>
+    <ClInclude Include="iconv\cp936ext.h">
+      <Filter>内码转换</Filter>
+    </ClInclude>
+    <ClInclude Include="iconv\gbk.h">
+      <Filter>内码转换</Filter>
+    </ClInclude>
+    <ClInclude Include="iconv\gbkext_inv.h">
+      <Filter>内码转换</Filter>
+    </ClInclude>
+    <ClInclude Include="iconv\gbkext1.h">
+      <Filter>内码转换</Filter>
+    </ClInclude>
+    <ClInclude Include="iconv\gbkext2.h">
+      <Filter>内码转换</Filter>
+    </ClInclude>
+    <ClInclude Include="iconv\miniconv.h">
+      <Filter>内码转换</Filter>
+    </ClInclude>
+    <ClInclude Include="iconv\utf8.h">
+      <Filter>内码转换</Filter>
+    </ClInclude>
+    <ClInclude Include="iconv\gb2312.h">
+      <Filter>内码转换</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EasyTimerEx.cpp">
@@ -897,7 +926,12 @@
     <ClCompile Include="Crypto\des.c">
       <Filter>加解密\DES</Filter>
     </ClCompile>
-    <ClCompile Include="TimerQueue.cpp" />
+    <ClCompile Include="TimerQueue.cpp">
+      <Filter>时间相关</Filter>
+    </ClCompile>
+    <ClCompile Include="iconv\miniconv.c">
+      <Filter>内码转换</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LZO\README.LZO">

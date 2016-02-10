@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 IMPLEMENT_CLASS_INFO_STATIC(CCycleBuffer,CNameObject);
@@ -17,28 +17,28 @@ IMPLEMENT_CLASS_INFO_STATIC(CCycleBuffer,CNameObject);
 CCycleBuffer::CCycleBuffer(void):CNameObject()
 {
 	m_pBuffer=NULL;
-	m_BufferSize=0;	
+	m_BufferSize=0;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 }
 
 CCycleBuffer::CCycleBuffer(UINT Size):CNameObject()
 {
 	m_pBuffer=NULL;
-	m_BufferSize=0;	
+	m_BufferSize=0;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
-	Create(Size);	
+	Create(Size);
 }
 
 CCycleBuffer::CCycleBuffer(LPVOID pBuff,UINT Size):CNameObject()
 {
 	m_pBuffer=NULL;
-	m_BufferSize=0;	
+	m_BufferSize=0;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 	Create(pBuff,Size);
 }
@@ -54,7 +54,7 @@ BOOL CCycleBuffer::Create(UINT Size)
 	m_pBuffer=new BYTE[Size];
 	m_BufferSize=Size;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 	return TRUE;
 }
@@ -65,7 +65,7 @@ BOOL CCycleBuffer::Create(LPVOID pBuff,UINT Size)
 	m_pBuffer=(BYTE *)pBuff;
 	m_BufferSize=Size;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=false;
 	return TRUE;
 }
@@ -75,8 +75,8 @@ void CCycleBuffer::Destory()
 	if(m_IsSelfBuffer)
 		SAFE_DELETE_ARRAY(m_pBuffer);
 	m_pBuffer=NULL;
-	m_BufferSize=0;	
+	m_BufferSize=0;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 }

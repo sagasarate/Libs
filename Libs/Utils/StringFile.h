@@ -16,7 +16,7 @@ class CStringFile
 {
 protected:
 	TCHAR *	m_pData;
-	UINT	m_iDataSize;
+	size_t	m_iDataSize;
 	UINT	m_iLineCount;
 	TCHAR**	m_pLines;
 	int		m_FileChannel;
@@ -39,7 +39,7 @@ public:
 	{
 		return m_pData;
 	}
-	UINT GetDataLen()
+	size_t GetDataLen()
 	{
 		return m_iDataSize;
 	}

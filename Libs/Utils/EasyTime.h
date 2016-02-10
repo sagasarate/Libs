@@ -63,16 +63,18 @@ public:
 	CEasyTime(const FILETIME& Time)
 	{
 		SYSTEMTIME SysTime;
-		FileTimeToSystemTime(&Time,&SysTime);
-		m_wYear=SysTime.wYear;
-		m_wDayOfYear=0;
-		m_wMonth=SysTime.wMonth;
-		m_wDayOfWeek=SysTime.wDayOfWeek;
-		m_wDay=SysTime.wDay;
-		m_wHour=SysTime.wHour;
-		m_wMinute=SysTime.wMinute;
-		m_wSecond=SysTime.wSecond;
-		m_wMilliseconds=SysTime.wMilliseconds;
+		if(FileTimeToSystemTime(&Time,&SysTime))
+		{
+			m_wYear = SysTime.wYear;
+			m_wDayOfYear = 0;
+			m_wMonth = SysTime.wMonth;
+			m_wDayOfWeek = SysTime.wDayOfWeek;
+			m_wDay = SysTime.wDay;
+			m_wHour = SysTime.wHour;
+			m_wMinute = SysTime.wMinute;
+			m_wSecond = SysTime.wSecond;
+			m_wMilliseconds = SysTime.wMilliseconds;
+		}
 	}
 #endif
 	CEasyTime(const tm& Time)
@@ -140,16 +142,18 @@ public:
 	CEasyTime& operator=(const FILETIME& Time)
 	{
 		SYSTEMTIME SysTime;
-		FileTimeToSystemTime(&Time,&SysTime);
-		m_wYear=SysTime.wYear;
-		m_wDayOfYear=0;
-		m_wMonth=SysTime.wMonth;
-		m_wDayOfWeek=SysTime.wDayOfWeek;
-		m_wDay=SysTime.wDay;
-		m_wHour=SysTime.wHour;
-		m_wMinute=SysTime.wMinute;
-		m_wSecond=SysTime.wSecond;
-		m_wMilliseconds=SysTime.wMilliseconds;
+		if(FileTimeToSystemTime(&Time,&SysTime))
+		{
+			m_wYear = SysTime.wYear;
+			m_wDayOfYear = 0;
+			m_wMonth = SysTime.wMonth;
+			m_wDayOfWeek = SysTime.wDayOfWeek;
+			m_wDay = SysTime.wDay;
+			m_wHour = SysTime.wHour;
+			m_wMinute = SysTime.wMinute;
+			m_wSecond = SysTime.wSecond;
+			m_wMilliseconds = SysTime.wMilliseconds;
+		}
 
 		return *this;
 	}
@@ -285,7 +289,6 @@ public:
 		GetTime(Time);
 		return Time;
 	}
-
 #ifdef WIN32
 	void FetchLocalTime()
 	{
@@ -458,8 +461,10 @@ public:
 		WORD Minute;
 		WORD Second;
 	
-
-		int Count=_stscanf(szTime,_T("%hd-%hd-%hd %hd:%hd:%hd"),&Year,&Month,&Day,&Hour,&Minute,&Second);
+#pragma warning( push )
+#pragma warning (disable : 4996)
+		int Count=_stscanf(szTime,_T("%hu-%hu-%hu %hu:%hu:%hu"),&Year,&Month,&Day,&Hour,&Minute,&Second);
+#pragma warning( pop )
 		if(Count>=6)
 		{
 			m_wYear=Year;

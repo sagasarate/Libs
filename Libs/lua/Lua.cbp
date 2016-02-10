@@ -1,0 +1,816 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Lua" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="Lua/;LuaWrap/;MetaClass/;预编译/;" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../Bin/LuaD" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="debug" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-O0" />
+					<Add option="-D_DEBUG" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="../Bin/Lua" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="release" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++11" />
+			<Add option="-W" />
+			<Add option="-fPIC" />
+			<Add option="-DLUA_COMPAT_BITLIB" />
+			<Add option="-DLUA_COMPAT_APIINTCASTS" />
+			<Add option="-DLUA_USE_POSIX" />
+		</Compiler>
+		<Unit filename="LuaBaseMetaClass.cpp">
+			<Option virtualFolder="MetaClass/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaBaseMetaClass.h">
+			<Option virtualFolder="MetaClass/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaBaseStaticMetaClass.cpp">
+			<Option virtualFolder="MetaClass/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaBaseStaticMetaClass.h">
+			<Option virtualFolder="MetaClass/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaCallWrapTemplate.h">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaCallWraps.h">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaGrid.cpp">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaGrid.h">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaPlusCD.h">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaScript.cpp">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaScript.h">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaScriptPool.cpp">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaScriptPool.h">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaTable.cpp">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaTable.h">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaThread.cpp">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaThread.h">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaTypeWraps.h">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaValue.cpp">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaValue.h">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaWrap.h">
+			<Option virtualFolder="LuaWrap/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lapi.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lapi.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lauxlib.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lauxlib.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lbaselib.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lbitlib.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lcode.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lcode.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lcorolib.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lctype.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lctype.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/ldblib.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/ldebug.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/ldebug.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/ldo.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/ldo.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/ldump.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lfunc.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lfunc.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lgc.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lgc.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/linit.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/liolib.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/llex.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/llex.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/llimits.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lmathlib.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lmem.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lmem.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/loadlib.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lobject.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lobject.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lopcodes.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lopcodes.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/loslib.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lparser.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lparser.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lprefix.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lstate.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lstate.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lstring.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lstring.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lstrlib.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/ltable.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/ltable.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/ltablib.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/ltm.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/ltm.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lua.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lua.hpp">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/luaconf.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lualib.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lundump.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lundump.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lutf8lib.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lvm.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lvm.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lzio.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lzio.h">
+			<Option virtualFolder="Lua/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="stdafx.cpp">
+			<Option virtualFolder="预编译/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="stdafx.h">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option virtualFolder="预编译/" />
+			<Option target="Debug" />
+			<Option target="DebugUnicode Win32" />
+			<Option target="DebugUnicode x64" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 //#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
@@ -29,7 +29,7 @@ void xml_node::SaveToString(CEasyString& String)
 #ifdef UNICODE
 	std::wstringstream os;
 #else
-	std::stringstream os;		
+	std::stringstream os;
 #endif
 
 	os << (*this);
@@ -39,7 +39,7 @@ void xml_node::SaveToString(CEasyString& String)
 
 	String.Replace(_T("\n"),_T("\r\n"));
 
-	
+
 }
 bool xml_node::SaveToFile(int FileChannel,LPCTSTR FileName)
 {

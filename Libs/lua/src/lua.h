@@ -149,6 +149,7 @@ LUA_API lua_CFunction (lua_atpanic) (lua_State *L, lua_CFunction panicf);
 
 LUA_API const lua_Number *(lua_version) (lua_State *L);
 
+LUA_API void lua_reset_state(lua_State *L);
 
 /*
 ** basic stack manipulation

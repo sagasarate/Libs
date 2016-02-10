@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="DistributedObjectServer">
-		<Project filename="DistributedObjectServer/DistributedObjectServer.cbp" active="1">
+		<Project filename="DistributedObjectServer/DistributedObjectServer.cbp">
 			<Depends filename="../Libs/DOSLib/DOSLib.cbp" />
 			<Depends filename="../Libs/Utils/Utils.cbp" />
 			<Depends filename="../Libs/NetLib/NetLib.cbp" />
 			<Depends filename="../Libs/ServerFrameWork/ServerFrameWork.cbp" />
-			<Depends filename="LittleWorldDBPlugin/LittleWorldDBPlugin.cbp" />
-			<Depends filename="LittleWorldDOSPlugin/LittleWorldDOSPlugin.cbp" />
 		</Project>
 		<Project filename="../Libs/DOSLib/DOSLib.cbp" />
 		<Project filename="../Libs/Utils/Utils.cbp" />
@@ -24,5 +22,8 @@
 			<Depends filename="../Libs/Utils/Utils.cbp" />
 			<Depends filename="LittleWorldProtocol/LittleWorldProtocol.cbp" />
 		</Project>
+		<Project filename="../Libs/lua/Lua.cbp" />
+		<Project filename="../Libs/curl/cb/libcurl.cbp" />
+		<Project filename="../Libs/jsoncpp/lib_json.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

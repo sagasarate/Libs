@@ -21,10 +21,12 @@ protected:
 	
 	DECLARE_CLASS_INFO_STATIC(CEpollThread)
 public:
+	CEpollThread();
 	CEpollThread(CNetServer * pServer);
 	virtual ~CEpollThread(void);
 
 	void SetEpollHandle(UINT hEpoll);
+	void SetServer(CNetServer * pServer);
 protected:	
 	virtual BOOL OnStart();
 	virtual BOOL OnRun();
@@ -34,4 +36,9 @@ protected:
 inline void CEpollThread::SetEpollHandle(UINT hEpoll)
 {
 	m_hEpoll=hEpoll;
+}
+
+inline void CEpollThread::SetServer(CNetServer * pServer)
+{
+	m_pServer = pServer;
 }

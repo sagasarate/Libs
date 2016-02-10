@@ -10,29 +10,31 @@
 		<Build>
 			<Target title="Debug">
 				<Option platforms="Unix;" />
-				<Option output="../Bin/Debug/DOSLibD" prefix_auto="0" extension_auto="1" />
+				<Option output="../bin/DOSLibD" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="Debug" />
+				<Option object_output="debug" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="-W" />
 					<Add option="-g" />
+					<Add option="-W" />
 					<Add option="-O0" />
+					<Add option="-fPIC" />
 					<Add option="-D_DEBUG" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
 				<Option platforms="Unix;" />
-				<Option output="../Bin/Release/libDOSLib" prefix_auto="1" extension_auto="1" />
+				<Option output="../bin/DOSLib" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="Release" />
+				<Option object_output="release" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-W" />
+					<Add option="-fPIC" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -87,6 +89,12 @@
 		<Unit filename="DOSProxyConnection.h">
 			<Option virtualFolder="对象代理服务/" />
 		</Unit>
+		<Unit filename="DOSProxyManager.cpp">
+			<Option virtualFolder="对象代理服务/" />
+		</Unit>
+		<Unit filename="DOSProxyManager.h">
+			<Option virtualFolder="对象代理服务/" />
+		</Unit>
 		<Unit filename="DOSRouter.cpp">
 			<Option virtualFolder="路由服务/" />
 		</Unit>
@@ -119,6 +127,7 @@
 		<Extensions>
 			<code_completion />
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

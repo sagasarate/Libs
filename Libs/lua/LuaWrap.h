@@ -1,45 +1,47 @@
 #pragma once
-#include "src/lua.hpp"
-#include "src/lobject.h"
-#include "src/ldo.h"
-#include "src/lgc.h"
 
-#define luaL_argassert(arg, _index_) if (!Match(TypeWrapper<P##arg>(), L, _index_)) \
-				luaL_argerror(L, _index_, "bad argument")
+#include "LuaWrapBase.h"
 
-#define LUA_THREAD_RECYLE_CHECK_TIME				(60*1000)
-#define LUA_YIELD_TIME_OUT							(10*60*1000)
-#define LUA_OK 0
-#define LUA_TINTEGER 31
 
-enum LUA_YIELD_TYPE
+template<typename T>
+void CLuaThread::PushValue(T Value)
 {
-	LUA_YIELD_TYPE_NONE,
-	LUA_YIELD_TYPE_SLEEP,
-	LUA_YIELD_TYPE_MAX,
-};
+	LuaWrap::Push(m_pLuaThread, Value);
+}
 
+template<typename T>
+T CLuaThread::PopValue()
+{
+	if (LuaWrap::Match(TypeWrapper<T>(), m_pLuaThread, -1))
+	{
+		T Result = LuaWrap::Get(TypeWrapper<T>(), m_pLuaThread, -1);
+		lua_pop(m_pLuaThread, 1);
+		return Result;
+	}
+	return T();
+}
+template<typename T>
+T CLuaThread::GetValue(int Index)
+{
+	if (LuaWrap::Match(TypeWrapper<T>(), m_pLuaThread, Index))
+	{
+		T Result = LuaWrap::Get(TypeWrapper<T>(), m_pLuaThread, Index);
+		return Result;
+	}
+	return T();
+}
 
-
-
-
-template<class T> struct TypeWrapper {};
-
-
-
-#include "LuaTable.h"
-
-#include "LuaThread.h"
-#include "LuaScript.h"
-
-#include "LuaTypeWraps.h"
 #include "LuaCallWraps.h"
 
+#include "LuaBaseMetaClass.h"
+#include "LuaBaseStaticMetaClass.h"
 
+#include "LuaGrid.h"
 
 #include "LuaScriptPool.h"
 
-//#include "LuaPlusCD.h"
 
 
-#include "LuaBaseMetaClass.h"
+
+
+

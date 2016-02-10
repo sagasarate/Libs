@@ -19,7 +19,7 @@ CEasyStringA URLEncode(LPCSTR str,int Len)
 {
 	CEasyStringA strTemp = "";
 	if(Len<0)
-		Len=strlen(str);	
+		Len=(int)strlen(str);	
 	for (size_t i = 0; i < Len; i++)
 	{
 		if (isalnum((unsigned char)str[i]) || 
@@ -44,7 +44,7 @@ CEasyStringA URLDecode(LPCSTR str,int Len)
 {
 	CEasyStringA strTemp = "";
 	if(Len<0)
-		Len=strlen(str);
+		Len = (int)strlen(str);
 	for (size_t i = 0; i < Len; i++)
 	{
 		if (str[i] == '+') strTemp += ' ';

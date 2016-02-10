@@ -5,7 +5,7 @@ CLuaScript::CLuaScript()
 {
 	m_NeedReload = false;
 	m_IsLoadFromFile = false;
-	m_IsCloneScript = false;
+	m_IsSharedLuaState = false;
 	m_ScriptID = 0;
 	m_pLuaState = NULL;
 	m_LuaStackSize = 0;
@@ -14,35 +14,9 @@ CLuaScript::CLuaScript()
 	m_GrowLimit = 0;
 	m_pFunctionList = NULL;
 }
-CLuaScript::CLuaScript(const CLuaScript& LuaScript, bool ShareLuaState)
+CLuaScript::CLuaScript(const CLuaScript& LuaScript, int LuaStackSize, UINT ThreadCount, UINT GrowSize, UINT GrowLimit)
 {
-	m_NeedReload = LuaScript.m_NeedReload;
-	m_IsLoadFromFile = LuaScript.m_IsLoadFromFile;	
-	m_ScriptID = LuaScript.m_ScriptID;
-	m_ScriptName = LuaScript.m_ScriptName;
-	m_ScriptContent = LuaScript.m_ScriptName;
-	m_LuaStackSize = LuaScript.m_LuaStackSize;
-	m_ThreadCount = LuaScript.m_ThreadCount;
-	m_GrowSize = LuaScript.m_GrowSize;
-	m_GrowLimit = LuaScript.m_GrowLimit;
-	m_ReloadScriptContent = LuaScript.m_ReloadScriptContent;
-	m_pFunctionList = LuaScript.m_pFunctionList;
-
-	if (ShareLuaState)
-	{
-		m_IsCloneScript = true;
-		m_pLuaState = LuaScript.m_pLuaState;
-		m_LuaThreadPool.Create(m_ThreadCount, m_GrowSize, m_GrowLimit);
-	}
-	else
-	{
-		if (m_LuaThreadPool.Create(m_ThreadCount, m_GrowSize, m_GrowLimit))
-		{
-			LoadScript(m_ScriptName, m_ScriptContent, m_pFunctionList);
-		}
-	}
-	
-	
+	CloneFrom(LuaScript, LuaStackSize, ThreadCount, GrowSize, GrowLimit);
 }
 
 CLuaScript::~CLuaScript()
@@ -62,22 +36,27 @@ bool CLuaScript::Init(LPCTSTR ScriptName, LPCTSTR ScriptContent, CEasyArray<LUA_
 	m_GrowLimit = GrowLimit;
 	m_pFunctionList = pFunctionList;
 
-	if (m_LuaThreadPool.Create(m_ThreadCount, m_GrowSize, m_GrowLimit))
-	{
-		return LoadScript(m_ScriptName, m_ScriptContent, m_pFunctionList);
-	}
-	return false;	
+	return LoadScript(m_ScriptName, m_ScriptContent, m_pFunctionList);
 }
 
 CLuaThread * CLuaScript::AllocScriptThread(CBaseScriptHost * pObject, LPCTSTR szFunctionName)
 {
+	if (m_pLuaState == NULL)
+		return NULL;
+
+	if (m_LuaThreadPool.GetObjectCount() == m_LuaThreadPool.GetBufferSize())
+	{
+		//线程池已满，尝试回收无用线程
+		RecycleThread();
+	}	
 	CLuaThread * pLuaThread = m_LuaThreadPool.NewObject();
 	if (pLuaThread)
 	{
-		if (!pLuaThread->IsInit())
+		lua_checkstack(m_pLuaState, m_LuaThreadPool.GetBufferSize());
+		if (!pLuaThread->IsInited())
 		{
-			pLuaThread->Init(this, m_pLuaState, 0);
-		}		
+			pLuaThread->Init(this, m_ScriptID, m_LuaStackSize);
+		}
 		if (!pLuaThread->Prepare(pObject, szFunctionName))		
 		{
 			m_LuaThreadPool.DeleteObject(pLuaThread->GetID());
@@ -86,17 +65,38 @@ CLuaThread * CLuaScript::AllocScriptThread(CBaseScriptHost * pObject, LPCTSTR sz
 	}
 	else
 	{
-		Log(_T("CLuaScript::AllocScriptThread:Thread Pool Full (%u/%u)"), m_LuaThreadPool.GetObjectCount(), m_LuaThreadPool.GetBufferSize());
+		LogLua(_T("CLuaScript::AllocScriptThread:Thread Pool Full (%u/%u)"), m_LuaThreadPool.GetObjectCount(), m_LuaThreadPool.GetBufferSize());
 	}
 	return pLuaThread;
 }
 
 bool CLuaScript::DeleteScriptThread(CLuaThread * pLuaThread)
-{
-	pLuaThread->Destory();
-	return m_LuaThreadPool.DeleteObject(pLuaThread->GetID());
+{	
+	return m_LuaThreadPool.DeleteObject(pLuaThread->GetID()) ? true : false;
 }
-
+void CLuaScript::DeleteAllScriptThread()
+{
+	void * Pos = m_LuaThreadPool.GetFirstObjectPos();
+	while (Pos)
+	{
+		CLuaThread * pLuaThread = m_LuaThreadPool.GetNext(Pos);
+		pLuaThread->Release();
+	}
+	m_LuaThreadPool.Clear();
+}
+CLuaThread * CLuaScript::GetThreadByYeildType(int YeildType)
+{
+	void * Pos = m_LuaThreadPool.GetFirstObjectPos();
+	while (Pos)
+	{
+		CLuaThread * pLuaThread = m_LuaThreadPool.GetNext(Pos);
+		if (pLuaThread->GetLastLuaStatus() == LUA_YIELD&&pLuaThread->GetYeildType() == YeildType)
+		{
+			return pLuaThread;
+		}
+	}
+	return NULL;
+}
 void CLuaScript::ReloadScript(LPCTSTR ScriptContent)
 {
 	m_NeedReload = true;
@@ -108,13 +108,38 @@ void CLuaScript::Destory()
 	m_NeedReload = false;
 	m_ScriptContent.Clear();
 	m_ReloadScriptContent.Clear();
-	if (m_pLuaState)
+	CloseLuaState();		
+}
+
+void CLuaScript::CloneFrom(const CLuaScript& LuaScript, int LuaStackSize, UINT ThreadCount, UINT GrowSize, UINT GrowLimit)
+{
+	Destory();
+	m_NeedReload = LuaScript.m_NeedReload;
+	m_IsLoadFromFile = LuaScript.m_IsLoadFromFile;
+	m_ScriptID = LuaScript.m_ScriptID;
+	m_ScriptName = LuaScript.m_ScriptName;
+	m_ScriptContent = LuaScript.m_ScriptContent;
+	if (LuaStackSize)
+		m_LuaStackSize = LuaStackSize;
+	else
+		m_LuaStackSize = LuaScript.m_LuaStackSize;
+	if (ThreadCount)
 	{
-		if (!m_IsCloneScript)
-			lua_close(m_pLuaState);
-		m_pLuaState = NULL;
+		m_ThreadCount = ThreadCount;
+		m_GrowSize = GrowSize;
+		m_GrowLimit = GrowLimit;
 	}
-	m_LuaThreadPool.Clear();
+	else
+	{
+		m_ThreadCount = LuaScript.m_ThreadCount;
+		m_GrowSize = LuaScript.m_GrowSize;
+		m_GrowLimit = LuaScript.m_GrowLimit;
+	}	
+	m_ReloadScriptContent = LuaScript.m_ReloadScriptContent;
+	m_pFunctionList = LuaScript.m_pFunctionList;
+
+	
+	LoadScript(m_ScriptName, m_ScriptContent, m_pFunctionList);
 }
 
 void CLuaScript::Update()
@@ -122,14 +147,7 @@ void CLuaScript::Update()
 	if (m_ThreadRecyleTimer.IsTimeOut(LUA_THREAD_RECYLE_CHECK_TIME))
 	{
 		m_ThreadRecyleTimer.SaveTime();
-		void * Pos = m_LuaThreadPool.GetFirstObjectPos();
-		{
-			CLuaThread * pLuaThread = m_LuaThreadPool.GetNext(Pos);
-			if (pLuaThread->GetLastLuaStatus() != LUA_YIELD)			
-			{
-				m_LuaThreadPool.DeleteObject(pLuaThread->GetID());
-			}
-		}
+		RecycleThread();
 	}
 	if (m_NeedReload)
 	{
@@ -147,31 +165,61 @@ void CLuaScript::Update()
 		if (CanReload)
 		{
 			m_NeedReload = false;
-			if (!m_IsCloneScript)
+			if (!m_IsSharedLuaState)
 			{
-				if (!LoadScript(m_ScriptName, m_ReloadScriptContent, m_pFunctionList))
+				if (LoadScript(m_ScriptName, m_ReloadScriptContent, m_pFunctionList))
+				{
+					LogLuaDebug(_T("CLuaScript::Update:已重新加载脚本[%s]"), (LPCTSTR)m_ScriptName);
+				}
+				else
 				{
 					LoadScript(m_ScriptName, m_ScriptContent, m_pFunctionList);
-					Log(_T("CLuaScript::Update:重新加载脚本失败，返回加载源脚本"));
+					LogLua(_T("CLuaScript::Update:重新加载脚本[%s]失败，返回加载源脚本"), (LPCTSTR)m_ScriptName);
 				}
 			}
 		}
 	}
 }
-
-bool CLuaScript::LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent, CEasyArray<LUA_CFUN_INFO>* pFunctionList)
-{	
+//bool CLuaScript::PopLuaThread(lua_State * pThreadState)
+//{
+//	if (m_pLuaState == NULL)
+//		return false;
+//	for (int i = 1; i <= lua_gettop(m_pLuaState); i++)
+//	{
+//		if (lua_isthread(m_pLuaState, i))
+//		{
+//			if (lua_tothread(m_pLuaState, i) == pThreadState)
+//			{
+//				lua_remove(m_pLuaState, i);
+//				return true;
+//			}
+//		}
+//	}
+//	LogLua(_T("CLuaScript::Update:无法弹出线程"));
+//	return false;
+//}
+void CLuaScript::CloseLuaState()
+{
+	m_LuaThreadPool.Destory();
 	if (m_pLuaState)
 	{
-		lua_close(m_pLuaState);
+		if (!m_IsSharedLuaState)
+			lua_close(m_pLuaState);
 		m_pLuaState = NULL;
 	}
+	m_IsSharedLuaState = false;
+}
+bool CLuaScript::LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent, CEasyArray<LUA_CFUN_INFO>* pFunctionList)
+{	
+	CloseLuaState();
 	m_pLuaState = luaL_newstate();
 	if (m_pLuaState)
 	{
-		luaopen_base(m_pLuaState);
-		luaopen_string(m_pLuaState);
-		luaopen_math(m_pLuaState);
+		luaL_openlibs(m_pLuaState);
+		//luaopen_bit32(m_pLuaState);
+		//luaopen_base(m_pLuaState);
+		//luaopen_string(m_pLuaState);
+		//luaopen_math(m_pLuaState);
 
 		if (pFunctionList)
 		{
@@ -179,7 +227,7 @@ bool CLuaScript::LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent, CEasyArra
 			{
 #ifdef UNICODE
 				CEasyStringA FunName;
-				FunName=pFunctionList->GetObject(i)->FunName;
+				FunName = pFunctionList->GetObject(i)->FunName;
 				RegisterLuaCFun(m_pLuaState, FunName, pFunctionList->GetObject(i)->pLuaCFun,
 					pFunctionList->GetObject(i)->FunAddr, pFunctionList->GetObject(i)->FunSize);
 #else
@@ -190,16 +238,25 @@ bool CLuaScript::LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent, CEasyArra
 		}
 #ifdef UNICODE
 		CEasyStringA ScriptContentA,ScriptNameA;
-		ScriptContentA=ScriptContent;
+		ScriptContentA = ScriptContent;
 		ScriptNameA = ScriptName;
 		if (luaL_dostring(m_pLuaState, ScriptContentA, ScriptNameA) == 0)
 #else
 		if (luaL_dostring(m_pLuaState, ScriptContent, ScriptName) == 0)
 #endif
 		{
-			lua_checkstack(m_pLuaState, m_LuaStackSize);
+			lua_checkstack(m_pLuaState, m_ThreadCount);
 			m_LuaThreadPool.Create(m_ThreadCount, m_GrowSize, m_GrowLimit);
-			LogDebug(_T("CLuaScript::LoadScript:创建了%u个lua线程"),
+			for (UINT ID = 1; ID <= m_LuaThreadPool.GetBufferSize();ID++)
+			{
+				CLuaThread * pLuaThread = m_LuaThreadPool.GetObject(ID);
+				if (pLuaThread)
+				{
+					pLuaThread->Init(this, m_ScriptID, m_LuaStackSize);
+				}
+			}
+			LogLuaDebug(_T("CLuaScript::LoadScript:[%s]创建了%u个lua线程"), 
+				(LPCTSTR)m_ScriptName,
 				m_LuaThreadPool.GetBufferSize());
 
 			return true;
@@ -207,14 +264,14 @@ bool CLuaScript::LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent, CEasyArra
 		else
 		{
 			if (lua_type(m_pLuaState, -1) == LUA_TSTRING)
-				Log(_T("CLuaScript::InitLuaScript:%s"), lua_tolstring(m_pLuaState, -1, NULL));
+				LogLua(_T("CLuaScript::InitLuaScript:%s"), lua_tolstring(m_pLuaState, -1, NULL));
 		}
 		lua_close(m_pLuaState);
 		m_pLuaState = NULL;
 	}
 	else
 	{
-		Log(_T("CLuaScript::LoadScript:初始化lua失败"));
+		LogLua(_T("CLuaScript::LoadScript:初始化lua失败"));
 	}
 	return false;
 }
@@ -228,4 +285,18 @@ void CLuaScript::RegisterLuaCFun(lua_State * pLuaState, const char* funcName, lu
 	lua_pushcclosure(pLuaState, function, 1);
 
 	lua_setglobal(pLuaState, funcName);
+}
+
+void CLuaScript::RecycleThread()
+{	
+	void * Pos = m_LuaThreadPool.GetFirstObjectPos();
+	while (Pos)
+	{
+		CLuaThread * pLuaThread = m_LuaThreadPool.GetNext(Pos);
+		if (pLuaThread->GetLastLuaStatus() != LUA_YIELD)
+		{
+			m_LuaThreadPool.DeleteObject(pLuaThread->GetID());
+			pLuaThread->Release();
+		}
+	}
 }

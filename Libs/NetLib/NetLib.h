@@ -20,7 +20,6 @@
 #pragma comment(lib,"Ws2_32.lib")
 #pragma comment(lib,"Mswsock.lib")
 
-#define EWOULDBLOCK		WSAEWOULDBLOCK
 
 typedef int	socklen_t;
 
@@ -50,7 +49,6 @@ typedef int SOCKET;
 #define MAX_LISTEN_BACKLOG						64
 
 #define DEFAULT_THREAD_NUMBER_PER_CPU			2
-#define LOG_NET_CHANNEL							1101
 #define DEFAULT_SERVER_ACCEPT_QUEUE				1024
 #define DEFAULT_SERVER_RECV_DATA_QUEUE			4096
 #define DEFAULT_SERVER_SEND_DATA_QUEUE			4096

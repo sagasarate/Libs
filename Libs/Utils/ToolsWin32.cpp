@@ -83,7 +83,7 @@ CEasyString GetFontNameEN(LOGFONT * pFont)
 							else
 							{
 								WCHAR * pUStr=(WCHAR *)(pStringTable+pRecords[i].NameStringOffset);
-								for(UINT c=0;c<pRecords[i].NameStringLen/2;c++)
+								for(UINT c=0;c<(UINT)(pRecords[i].NameStringLen/2);c++)
 								{
 									pUStr[c]=SWAPWORD(pUStr[c]);
 								}
@@ -170,7 +170,7 @@ CEasyString GetFontNameCN(LOGFONT * pFont)
 							else
 							{
 								WCHAR * pUStr=(WCHAR *)(pStringTable+pRecords[i].NameStringOffset);
-								for(UINT c=0;c<pRecords[i].NameStringLen/2;c++)
+								for (UINT c = 0; c<(UINT)(pRecords[i].NameStringLen / 2); c++)
 								{
 									pUStr[c]=SWAPWORD(pUStr[c]);
 								}

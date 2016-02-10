@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 
@@ -89,7 +89,7 @@ bool CUSOResourceManager::Import(IFileAccessor * pFile)
 		}
 		pFile->Read(&BlockHead,sizeof(BlockHead));
 	}
-	
+
 	return true;
 }
 
@@ -123,14 +123,14 @@ bool CUSOResourceManager::Export(IFileAccessor * pFile)
 	if(pFile==NULL)
 		return false;
 
-	
+
 	FileHead.Flag=USO_FILE_FLAG;
 	FileHead.Version=USO_FILE_CUR_VERSION;
 
 	//写入文件头
 	pFile->Write(&FileHead,sizeof(FileHead));
 
-	
+
 	if(!WriteResourceBlock(pFile,NULL))
 		return false;
 
@@ -145,7 +145,7 @@ bool CUSOResourceManager::ExportToDir(LPCTSTR Dir)
 	CEasyString ExportDir=MakeFullPath(Dir);
 
 	if(!CreateDirEx(ExportDir+_T("\\Resource")))
-		return false;	
+		return false;
 
 	IFileAccessor * pFile;
 
@@ -157,7 +157,7 @@ bool CUSOResourceManager::ExportToDir(LPCTSTR Dir)
 
 	ResourceList.Reserve(m_Resources.GetObjectCount());
 
-	
+
 
 	void * Pos=m_Resources.GetFirstObjectPos();
 	while(Pos)
@@ -177,8 +177,8 @@ bool CUSOResourceManager::ExportToDir(LPCTSTR Dir)
 		CEasyString ObjectName=ResourceList[i]->GetName();
 		ObjectName.Replace(':','_');
 		ObjectName=_T("Resource\\")+ObjectName+_T(".USO");
-		
-		
+
+
 		ResourceList[i]->SetName(ObjectName);
 
 		AddResource(ResourceList[i]);
@@ -213,11 +213,11 @@ bool CUSOResourceManager::ExportToDir(LPCTSTR Dir)
 	for(int i=0;i<(int)m_Objects.GetCount();i++)
 	{
 		CEasyString ObjectName=m_Objects[i]->GetName();
-		ObjectName.Replace(':','_');		
+		ObjectName.Replace(':','_');
 		ObjectName=ExportDir+_T("\\")+ObjectName+_T(".USO");
 		CEasyString PathDir=GetPathDirectory(ObjectName);
 		CreateDirEx(PathDir);
-		
+
 
 		if(!pFile->Open(ObjectName,IFileAccessor::modeCreateAlways|IFileAccessor::modeReadWrite))
 		{
@@ -256,7 +256,7 @@ CNameObject * CUSOResourceManager::FindResource(LPCTSTR szResourceName,CLASS_INF
 	{
 		if((*ppResource)->IsKindOf(ClassInfo))
 			return (*ppResource);
-	}	
+	}
 	return NULL;
 }
 
@@ -294,8 +294,8 @@ bool CUSOResourceManager::AddResource(CNameObject * pResource)
 		}
 		SAFE_RELEASE(*ppOldResource);
 	}
-	
-	m_Resources[ResourceName]=pResource;	
+
+	m_Resources[ResourceName]=pResource;
 	pResource->AddUseRef();
 	return true;
 }
@@ -386,7 +386,7 @@ CNameObject * CUSOResourceManager::GetObjectRecursive(LPCTSTR ObjectName)
 
 UINT CUSOResourceManager::GetObjectCount()
 {
-	return m_Objects.GetCount();
+	return (UINT)m_Objects.GetCount();
 }
 
 CNameObject * CUSOResourceManager::GetObjectByIndex(UINT Index)
@@ -454,7 +454,7 @@ bool CUSOResourceManager::ReadResourceBlock(IFileAccessor * pFile,USO_BLOCK_HEAD
 
 		LPCTSTR szType=ObjectPacket.GetMember(CNameObject::SST_NO_CLASS_NAME);
 		LPCTSTR szName=ObjectPacket.GetMember(CNameObject::SST_NO_OBJECT_NAME);
-		
+
 		CNameObject * pObject=CreateObject(szType,szName);
 		if(pObject)
 		{
@@ -462,8 +462,8 @@ bool CUSOResourceManager::ReadResourceBlock(IFileAccessor * pFile,USO_BLOCK_HEAD
 			ObjectTimer.SaveTime();
 			if(pObject->FromSmartStruct(ObjectPacket,this,0))
 			{
-				AddResource(pObject);				
-			}			
+				AddResource(pObject);
+			}
 			if(pObject->IsKindOf(_T("CD3DFX")))
 			{
 				FXLoadTime+=ObjectTimer.GetPastTime();
@@ -473,9 +473,9 @@ bool CUSOResourceManager::ReadResourceBlock(IFileAccessor * pFile,USO_BLOCK_HEAD
 				TextureLoadTime+=ObjectTimer.GetPastTime();
 			}
 			SAFE_RELEASE(pObject);
-		}		
+		}
 		ReadSize+=ObjectPacket.GetDataLen();
-	}	
+	}
 	PrintSystemLog(0,_T("读取%u个资源对象,花费%u毫秒,其中读取FX花费%u毫秒,读取纹理花费%u毫秒"),
 		m_Resources.GetObjectCount(),Timer.GetPastTime(),FXLoadTime,TextureLoadTime);
 	if(ReadSize>=BlockHead.Size)
@@ -526,11 +526,11 @@ bool CUSOResourceManager::ReadObjectBlock(IFileAccessor * pFile,USO_BLOCK_HEAD& 
 			else
 			{
 				PrintSystemLog(0,_T("CUSOFile::ReadObjectBlock:装载对象%s:%s失败"),szType,szName);
-				
+
 			}
 
 		}
-		
+
 
 		ReadSize+=ObjectPacket.GetDataLen();
 	}
@@ -583,7 +583,7 @@ bool CUSOResourceManager::WriteResourceBlock(IFileAccessor * pFile,CNameObject *
 			}
 		}
 	}
-	
+
 	//计算块大小
 	UINT SavedOffset=(UINT)pFile->GetCurPos();
 	BlockHead.Size=SavedOffset-BlockHeadOffset;
@@ -627,7 +627,7 @@ bool CUSOResourceManager::WriteObjectBlock(IFileAccessor * pFile,CNameObject * p
 				return false;
 			UINT WriteSize=(UINT)pFile->Write(Packet.GetData(),Packet.GetDataLen());
 			if(WriteSize<Packet.GetDataLen())
-				return false;		
+				return false;
 		}
 	}
 

@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 IMPLEMENT_CLASS_INFO_STATIC(CCycleBufferEx,CNameObject);
@@ -17,31 +17,31 @@ IMPLEMENT_CLASS_INFO_STATIC(CCycleBufferEx,CNameObject);
 CCycleBufferEx::CCycleBufferEx(void):CNameObject()
 {
 	m_pBuffer=NULL;
-	m_BufferSize=0;	
+	m_BufferSize=0;
 	m_SmoothSize=0;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 }
 
 CCycleBufferEx::CCycleBufferEx(UINT Size,UINT SmoothSize):CNameObject()
 {
 	m_pBuffer=NULL;
-	m_BufferSize=0;	
+	m_BufferSize=0;
 	m_SmoothSize=0;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
-	Create(Size,SmoothSize);	
+	Create(Size,SmoothSize);
 }
 
 CCycleBufferEx::CCycleBufferEx(LPVOID pBuff,UINT Size,UINT SmoothSize):CNameObject()
 {
 	m_pBuffer=NULL;
-	m_BufferSize=0;	
+	m_BufferSize=0;
 	m_SmoothSize=0;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 	Create(pBuff,Size,SmoothSize);
 }
@@ -62,7 +62,7 @@ BOOL CCycleBufferEx::Create(UINT Size,UINT SmoothSize)
 	m_BufferSize=Size-SmoothSize;
 	m_SmoothSize=SmoothSize;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 	return TRUE;
 }
@@ -79,7 +79,7 @@ BOOL CCycleBufferEx::Create(LPVOID pBuff,UINT Size,UINT SmoothSize)
 	m_BufferSize=Size-SmoothSize;
 	m_SmoothSize=SmoothSize;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=false;
 	return TRUE;
 }
@@ -90,9 +90,9 @@ void CCycleBufferEx::Destory()
 		SAFE_DELETE_ARRAY(m_pBuffer);
 
 	m_pBuffer=NULL;
-	m_BufferSize=0;	
+	m_BufferSize=0;
 	m_SmoothSize=0;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 }

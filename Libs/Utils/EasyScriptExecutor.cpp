@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 LPCTSTR OPERATOR_STRINGS[OPERATOR_MAX]={_T("加"),_T("减"),_T("乘"),_T("除"),_T("右括号"),_T("左括号"),_T("取负"),_T("逗号"),
 			_T("小于"),_T("大于"),_T("小于等于"),_T("大于等于"),_T("等于"),_T("不等于"),_T("赋值"),_T("与"),_T("或"),_T("非"),_T("跳转"),
@@ -47,7 +47,7 @@ LPCTSTR ESGetErrorMsg(int ErrCode)
 		break;
 	case 2001:
 		return _T("有IF语句未正确配对");
-		break;	
+		break;
 	case 2011:
 		return _T("WHILE DO与ENDWHILE未能配对");
 		break;
@@ -71,7 +71,7 @@ LPCTSTR ESGetErrorMsg(int ErrCode)
 		break;
 	case 2019:
 		return _T("函数定义格式错误");
-		break;	
+		break;
 	case 2020:
 		return _T("IF,ELSEIF,WHILE所需的表达式必须有返回值");
 		break;
@@ -80,7 +80,7 @@ LPCTSTR ESGetErrorMsg(int ErrCode)
 		break;
 	case 3001:
 		return _T("赋值目标不是变量");
-		break;	
+		break;
 	case 3002:
 		return _T("字符串不能进行减法操作");
 		break;
@@ -125,10 +125,10 @@ LPCTSTR ESGetErrorMsg(int ErrCode)
 		return _T("操作符不支持此操作数类型");
 	case 3019:
 		return _T("未知操作符");
-	case 4010:	
-		return _T("定义变量错误");		
+	case 4010:
+		return _T("定义变量错误");
 	case 4012:
-		return _T("未知标识符");	
+		return _T("未知标识符");
 	case 4013:
 		return _T("操作符参数不足");
 	case 4016:
@@ -195,7 +195,7 @@ int CEasyScriptExecutor::ContinueScript(CESThread& ESThread)
 	{
 		ESThread.SetResultCode(6005);
 		return 	6005;
-	}	
+	}
 	int Ret=ExecScript(ESThread,0,-1);
 	ESThread.SetResultCode(Ret);
 	ES_BOLAN * pResult=ESThread.GetStack()->Pop();
@@ -248,14 +248,14 @@ int CEasyScriptExecutor::CallFunction(CESThread& ESThread,LPCTSTR szFunctionName
 
 int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 {
-	ES_BOLAN *			pBolan;		
-	ES_VARIABLE *		pVar;	
+	ES_BOLAN *			pBolan;
+	ES_VARIABLE *		pVar;
 	ES_BOLAN *			t1;
-	ES_BOLAN *			t2;	
-	ES_BOLAN			FnResult;		
+	ES_BOLAN *			t2;
+	ES_BOLAN			FnResult;
 	int					ResultCode;
 	CESBolanStack *		pScript=ESThread.GetScript();
-	CESBolanStack * 	pStack=ESThread.GetStack();	
+	CESBolanStack * 	pStack=ESThread.GetStack();
 	CESFunctionList *	pFunctionList=ESThread.GetFunctionList();
 
 
@@ -271,7 +271,7 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 		ESThread.ClearInterrupt();
 	}
 
-	
+
 
 	while(StartPos<(int)pScript->GetSize())
 	{
@@ -280,28 +280,28 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 		pBolan=pScript->GetAt(StartPos);
 		ESThread.SetLastLine(pBolan->Line);
 		//BLOCK_END;
-		
+
 		switch(pBolan->Type)
 		{
-		case BOLAN_TYPE_VALUE:			
+		case BOLAN_TYPE_VALUE:
 			//BLOCK_BEGIN("BOLAN_TYPE_VALUE");
 			pStack->PushValue(pBolan);
-			StartPos++;			
+			StartPos++;
 			//BLOCK_END;
 			break;
-		case BOLAN_TYPE_VARIABLE:	
+		case BOLAN_TYPE_VARIABLE:
 			//BLOCK_BEGIN("BOLAN_TYPE_VARIABLE");
-			pVar=ESThread.FindVariable(pBolan->Index);				
+			pVar=ESThread.FindVariable(pBolan->Index);
 			if(pVar==NULL)
 				return 4012;
 			if(pBolan->ValueType==VALUE_TYPE_STRING)
 				pBolan->StrValue=pVar->StrValue;
 			else
 				pBolan->ValueInt64=pVar->ValueInt64;
-			pStack->PushValue(pBolan);			
+			pStack->PushValue(pBolan);
 			StartPos++;
 			//BLOCK_END;
-			break;		
+			break;
 		case BOLAN_TYPE_OPERATOR:
 			switch((int)(pBolan->Index))
 			{
@@ -326,7 +326,7 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 			case OPERATOR_SUB:
 				//BLOCK_BEGIN("OPERATOR_SUB");
 				t2=pStack->Pop();
-				t1=pStack->GetTop();			
+				t1=pStack->GetTop();
 				ResultCode=DoSub(t1,t2,t1);
 				if(ResultCode)
 					return ResultCode;
@@ -351,7 +351,7 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 				break;
 			case OPERATOR_EQU:
 				t2=pStack->Pop();
-				t1=pStack->GetTop();				
+				t1=pStack->GetTop();
 				ResultCode=DoEqu(t1,t2,t1);
 				if(ResultCode)
 					return ResultCode;
@@ -359,7 +359,7 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 				break;
 			case OPERATOR_DIFF:
 				t2=pStack->Pop();
-				t1=pStack->GetTop();				
+				t1=pStack->GetTop();
 				ResultCode=DoDiff(t1,t2,t1);
 				if(ResultCode)
 					return ResultCode;
@@ -367,7 +367,7 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 				break;
 			case OPERATOR_LESS:
 				t2=pStack->Pop();
-				t1=pStack->GetTop();				
+				t1=pStack->GetTop();
 				ResultCode=DoLess(t1,t2,t1);
 				if(ResultCode)
 					return ResultCode;
@@ -375,7 +375,7 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 				break;
 			case OPERATOR_MORE:
 				t2=pStack->Pop();
-				t1=pStack->GetTop();				
+				t1=pStack->GetTop();
 				ResultCode=DoMore(t1,t2,t1);
 				if(ResultCode)
 					return ResultCode;
@@ -383,7 +383,7 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 				break;
 			case OPERATOR_LESS_EQU:
 				t2=pStack->Pop();
-				t1=pStack->GetTop();				
+				t1=pStack->GetTop();
 				ResultCode=DoLessEqu(t1,t2,t1);
 				if(ResultCode)
 					return ResultCode;
@@ -391,14 +391,14 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 				break;
 			case OPERATOR_MORE_EQU:
 				t2=pStack->Pop();
-				t1=pStack->GetTop();				
+				t1=pStack->GetTop();
 				ResultCode=DoMoreEqu(t1,t2,t1);
 				if(ResultCode)
 					return ResultCode;
 				StartPos++;
 				break;
 			case OPERATOR_NEG:
-				t1=pStack->GetTop();				
+				t1=pStack->GetTop();
 				ResultCode=DoNeg(t1,t1);
 				if(ResultCode)
 					return ResultCode;
@@ -406,7 +406,7 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 				break;
 			case OPERATOR_AND:
 				t2=pStack->Pop();
-				t1=pStack->GetTop();				
+				t1=pStack->GetTop();
 				ResultCode=DoAnd(t1,t2,t1);
 				if(ResultCode)
 					return ResultCode;
@@ -414,13 +414,13 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 				break;
 			case OPERATOR_OR:
 				t2=pStack->Pop();
-				t1=pStack->GetTop();				
+				t1=pStack->GetTop();
 				ResultCode=DoOr(t1,t2,t1);
 				if(ResultCode)
 					return ResultCode;
 				StartPos++;
 				break;
-			case OPERATOR_NOT:				
+			case OPERATOR_NOT:
 				t1=pStack->GetTop();
 				ResultCode=DoNot(t1,t1);
 				if(ResultCode)
@@ -436,7 +436,7 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 				break;
 			case OPERATOR_JZ:
 				//BLOCK_BEGIN("OPERATOR_JZ");
-				t1=pStack->Pop();				
+				t1=pStack->Pop();
 				ResultCode=IsZero(t1);
 				if(ResultCode>0)
 					return ResultCode;
@@ -454,7 +454,7 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 					ES_FUNCTION * pFunction=pFunctionList->FindFunction(pBolan->Level);
 
 					if(pFunction->Type==FUNCTION_TYPE_C)
-					{					
+					{
 						if(pStack->GetSize()<pFunction->ParaCount)
 							return 3007;
 
@@ -474,18 +474,18 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 
 
 
-						if(ResultCode<0) 
-							return 3009;					//调用函数出错				
+						if(ResultCode<0)
+							return 3009;					//调用函数出错
 						if(ResultCode>0)
-						{							
+						{
 							ESThread.SetInterruptCode(ResultCode);
-							ESThread.SetInterruptPos(StartPos+1);					
+							ESThread.SetInterruptPos(StartPos+1);
 							return -1;
 						}
 						else
 						{
 							pStack->PushValue(&FnResult);
-						}		
+						}
 						StartPos++;
 					}
 					else
@@ -504,14 +504,14 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 
 						ESThread.PushCallStack(StartPos+1);
 						ESThread.NewLocalVariableList();
-						StartPos=pFunction->FunStartPos;											
-						
-						
+						StartPos=pFunction->FunStartPos;
+
+
 						//ResultCode=CallFunction(ESThread,pFunction);
 						//if(ResultCode)
-						//	return ResultCode;					
+						//	return ResultCode;
 					}
-				}				
+				}
 				break;
 			case OPERATOR_RET:
 				ESThread.ReleaseLocalVariableList();
@@ -523,7 +523,7 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 				pStack->Clear();
 				StartPos++;
 				break;
-			case OPERATOR_ADD_VAR:				
+			case OPERATOR_ADD_VAR:
 				pVar=ESThread.AddEmptyLocalVariable(pBolan->StrValue,pBolan->ValueType);
 				if(pVar==NULL)
 				{
@@ -538,7 +538,7 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 					{
 						return 6009;
 					}
-					t1=pStack->Pop();					
+					t1=pStack->Pop();
 					ES_BOLAN LeftValue;
 					LeftValue.Type=BOLAN_TYPE_VARIABLE;
 					LeftValue.Index=pVar->ID;
@@ -558,12 +558,12 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 			default:
 				return 3019;
 				break;
-			}			
-			break;		
+			}
+			break;
 		default:
 			return 10000;
 			break;
-		}		
+		}
 		if(EndPos>=0)
 		{
 			if(StartPos>=EndPos)
@@ -593,7 +593,7 @@ int CEasyScriptExecutor::ExecScript(CESThread& ESThread,int StartPos,int EndPos)
 //	ESThread.NewLocalVariableList();
 //	RetCode=ExecScript(ESThread,pFunction->FunStartPos,pFunction->FunEndPos);
 //	if(RetCode)
-//		return RetCode;	
+//		return RetCode;
 //	return 0;
 //}
 
@@ -616,7 +616,7 @@ int CEasyScriptExecutor::DoEva(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,CEST
 			switch(pRightValue->ValueType)
 			{
 				case VALUE_TYPE_INT:
-					pVar->ValueInt=pRightValue->ValueInt;					
+					pVar->ValueInt=pRightValue->ValueInt;
 					break;
 				case VALUE_TYPE_INT64:
 					pVar->ValueInt=(int)pRightValue->ValueInt64;
@@ -709,14 +709,14 @@ int CEasyScriptExecutor::DoEva(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,CEST
 			case VALUE_TYPE_DOUBLE:
 				return 3004;
 			case VALUE_TYPE_STRING:
-				pVar->StrValue=pRightValue->StrValue;				
+				pVar->StrValue=pRightValue->StrValue;
 				break;
 			}
 			//pLeftValue->StrValue=pVar->StrValue;
 		}
 		break;
-	}	
-	return 0;	
+	}
+	return 0;
 	//FUNCTION_END;
 	//return 0;
 }
@@ -731,8 +731,8 @@ int CEasyScriptExecutor::DoAdd(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_B
 	if(pRightValue->Type!=BOLAN_TYPE_VARIABLE&&pRightValue->Type!=BOLAN_TYPE_VALUE)
 		return 3017;
 
-	
-	
+
+
 	switch(pLeftValue->ValueType)
 	{
 	case VALUE_TYPE_INT:
@@ -974,7 +974,7 @@ int CEasyScriptExecutor::DoSub(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_B
 		}
 		break;
 	case VALUE_TYPE_STRING:
-		return 3018;			
+		return 3018;
 	}
 
 	pResult->Type=BOLAN_TYPE_VALUE;
@@ -1244,7 +1244,7 @@ int CEasyScriptExecutor::DoEqu(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_B
 	if(pRightValue->Type!=BOLAN_TYPE_VARIABLE&&pRightValue->Type!=BOLAN_TYPE_VALUE)
 		return 3017;
 
-	
+
 
 	switch(pLeftValue->ValueType)
 	{
@@ -1252,7 +1252,7 @@ int CEasyScriptExecutor::DoEqu(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_B
 		{
 			switch(pRightValue->ValueType)
 			{
-			case VALUE_TYPE_INT:				
+			case VALUE_TYPE_INT:
 				pResult->ValueInt=(pLeftValue->ValueInt==pRightValue->ValueInt);
 				break;
 			case VALUE_TYPE_INT64:
@@ -1366,7 +1366,7 @@ int CEasyScriptExecutor::DoDiff(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_
 	if(pRightValue->Type!=BOLAN_TYPE_VARIABLE&&pRightValue->Type!=BOLAN_TYPE_VALUE)
 		return 3017;
 
-	
+
 
 	switch(pLeftValue->ValueType)
 	{
@@ -1374,7 +1374,7 @@ int CEasyScriptExecutor::DoDiff(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_
 		{
 			switch(pRightValue->ValueType)
 			{
-			case VALUE_TYPE_INT:				
+			case VALUE_TYPE_INT:
 				pResult->ValueInt=(pLeftValue->ValueInt!=pRightValue->ValueInt);
 				break;
 			case VALUE_TYPE_INT64:
@@ -1488,7 +1488,7 @@ int CEasyScriptExecutor::DoLess(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_
 	if(pRightValue->Type!=BOLAN_TYPE_VARIABLE&&pRightValue->Type!=BOLAN_TYPE_VALUE)
 		return 3017;
 
-	
+
 
 	switch(pLeftValue->ValueType)
 	{
@@ -1496,7 +1496,7 @@ int CEasyScriptExecutor::DoLess(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_
 		{
 			switch(pRightValue->ValueType)
 			{
-			case VALUE_TYPE_INT:				
+			case VALUE_TYPE_INT:
 				pResult->ValueInt=(pLeftValue->ValueInt<pRightValue->ValueInt);
 				break;
 			case VALUE_TYPE_INT64:
@@ -1611,7 +1611,7 @@ int CEasyScriptExecutor::DoMore(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_
 	if(pRightValue->Type!=BOLAN_TYPE_VARIABLE&&pRightValue->Type!=BOLAN_TYPE_VALUE)
 		return 3017;
 
-	
+
 
 	switch(pLeftValue->ValueType)
 	{
@@ -1619,7 +1619,7 @@ int CEasyScriptExecutor::DoMore(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_
 		{
 			switch(pRightValue->ValueType)
 			{
-			case VALUE_TYPE_INT:				
+			case VALUE_TYPE_INT:
 				pResult->ValueInt=(pLeftValue->ValueInt>pRightValue->ValueInt);
 				break;
 			case VALUE_TYPE_INT64:
@@ -1734,7 +1734,7 @@ int CEasyScriptExecutor::DoLessEqu(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,
 	if(pRightValue->Type!=BOLAN_TYPE_VARIABLE&&pRightValue->Type!=BOLAN_TYPE_VALUE)
 		return 3017;
 
-	
+
 
 	switch(pLeftValue->ValueType)
 	{
@@ -1742,7 +1742,7 @@ int CEasyScriptExecutor::DoLessEqu(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,
 		{
 			switch(pRightValue->ValueType)
 			{
-			case VALUE_TYPE_INT:				
+			case VALUE_TYPE_INT:
 				pResult->ValueInt=(pLeftValue->ValueInt<=pRightValue->ValueInt);
 				break;
 			case VALUE_TYPE_INT64:
@@ -1857,7 +1857,7 @@ int CEasyScriptExecutor::DoMoreEqu(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,
 	if(pRightValue->Type!=BOLAN_TYPE_VARIABLE&&pRightValue->Type!=BOLAN_TYPE_VALUE)
 		return 3017;
 
-	
+
 
 	switch(pLeftValue->ValueType)
 	{
@@ -1865,7 +1865,7 @@ int CEasyScriptExecutor::DoMoreEqu(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,
 		{
 			switch(pRightValue->ValueType)
 			{
-			case VALUE_TYPE_INT:				
+			case VALUE_TYPE_INT:
 				pResult->ValueInt=(pLeftValue->ValueInt>=pRightValue->ValueInt);
 				break;
 			case VALUE_TYPE_INT64:
@@ -1979,19 +1979,19 @@ int CEasyScriptExecutor::DoNeg(ES_BOLAN * pValue,ES_BOLAN * pResult)
 	if(pValue->Type!=BOLAN_TYPE_VARIABLE&&pValue->Type!=BOLAN_TYPE_VALUE)
 		return 3017;
 
-	
+
 	switch(pValue->ValueType)
 	{
 	case VALUE_TYPE_INT:
 		pResult->ValueInt=-pValue->ValueInt;
 		break;
-	case VALUE_TYPE_INT64:		
+	case VALUE_TYPE_INT64:
 		pResult->ValueInt64=-pValue->ValueInt64;
 		break;
-	case VALUE_TYPE_FLOAT:		
+	case VALUE_TYPE_FLOAT:
 		pResult->ValueFloat=-pValue->ValueFloat;
 		break;
-	case VALUE_TYPE_DOUBLE:		
+	case VALUE_TYPE_DOUBLE:
 		pResult->ValueDouble=-pValue->ValueDouble;
 		break;
 	case VALUE_TYPE_STRING:
@@ -2017,7 +2017,7 @@ int CEasyScriptExecutor::DoAnd(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_B
 	if(pRightValue->Type!=BOLAN_TYPE_VARIABLE&&pRightValue->Type!=BOLAN_TYPE_VALUE)
 		return 3017;
 
-	
+
 
 	switch(pLeftValue->ValueType)
 	{
@@ -2025,7 +2025,7 @@ int CEasyScriptExecutor::DoAnd(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_B
 		{
 			switch(pRightValue->ValueType)
 			{
-			case VALUE_TYPE_INT:				
+			case VALUE_TYPE_INT:
 				pResult->ValueInt=(pLeftValue->ValueInt&&pRightValue->ValueInt);
 				break;
 			case VALUE_TYPE_INT64:
@@ -2126,7 +2126,7 @@ int CEasyScriptExecutor::DoOr(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_BO
 	if(pRightValue->Type!=BOLAN_TYPE_VARIABLE&&pRightValue->Type!=BOLAN_TYPE_VALUE)
 		return 3017;
 
-	
+
 
 	switch(pLeftValue->ValueType)
 	{
@@ -2134,7 +2134,7 @@ int CEasyScriptExecutor::DoOr(ES_BOLAN * pLeftValue,ES_BOLAN * pRightValue,ES_BO
 		{
 			switch(pRightValue->ValueType)
 			{
-			case VALUE_TYPE_INT:				
+			case VALUE_TYPE_INT:
 				pResult->ValueInt=(pLeftValue->ValueInt||pRightValue->ValueInt);
 				break;
 			case VALUE_TYPE_INT64:
@@ -2236,19 +2236,19 @@ int CEasyScriptExecutor::DoNot(ES_BOLAN * pValue,ES_BOLAN * pResult)
 	if(pValue->Type!=BOLAN_TYPE_VARIABLE&&pValue->Type!=BOLAN_TYPE_VALUE)
 		return 3017;
 
-	
+
 	switch(pValue->ValueType)
 	{
 	case VALUE_TYPE_INT:
 		pResult->ValueInt=!pValue->ValueInt;
 		break;
-	case VALUE_TYPE_INT64:		
+	case VALUE_TYPE_INT64:
 		pResult->ValueInt=!pValue->ValueInt64;
 		break;
-	case VALUE_TYPE_FLOAT:		
+	case VALUE_TYPE_FLOAT:
 		pResult->ValueInt=!pValue->ValueFloat;
 		break;
-	case VALUE_TYPE_DOUBLE:		
+	case VALUE_TYPE_DOUBLE:
 		pResult->ValueInt=!pValue->ValueDouble;
 		break;
 	case VALUE_TYPE_STRING:

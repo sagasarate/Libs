@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 CServerLogPrinter::CServerLogPrinter(IBaseServer * pServer,UINT Mode,int Level,LPCTSTR FileName,int FileLogQueueLen)
 {
@@ -24,7 +24,7 @@ CServerLogPrinter::~CServerLogPrinter(void)
 void CServerLogPrinter::SetLogMode(UINT Mode,int Level,LPCTSTR FileName,int FileLogBufferLen)
 {
 	m_LogOutputMode=Mode;
-	
+
 	if(m_LogOutputMode==0)
 		return;
 

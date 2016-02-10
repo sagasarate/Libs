@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 IMPLEMENT_CLASS_INFO_STATIC(CThreadSafeCycleBufferEx,CCycleBufferEx);
@@ -22,7 +22,7 @@ CThreadSafeCycleBufferEx::CThreadSafeCycleBufferEx(void):CCycleBufferEx()
 
 CThreadSafeCycleBufferEx::CThreadSafeCycleBufferEx(UINT Size,UINT SmoothSize):CCycleBufferEx()
 {
-	Create(Size,SmoothSize);	
+	Create(Size,SmoothSize);
 }
 
 CThreadSafeCycleBufferEx::CThreadSafeCycleBufferEx(LPVOID pBuff,UINT Size,UINT SmoothSize):CCycleBufferEx()
@@ -57,7 +57,7 @@ BOOL CThreadSafeCycleBufferEx::Create(UINT Size,UINT SmoothSize)
 	m_BufferSize=Size-SmoothSize;
 	m_SmoothSize=SmoothSize;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 	return TRUE;
 }
@@ -75,7 +75,7 @@ BOOL CThreadSafeCycleBufferEx::Create(LPVOID pBuff,UINT Size,UINT SmoothSize)
 	{
 		BackLock.Lock(m_BackLock);
 	}
-	
+
 	if(Size<=SmoothSize*2)
 	{
 		return FALSE;
@@ -85,7 +85,7 @@ BOOL CThreadSafeCycleBufferEx::Create(LPVOID pBuff,UINT Size,UINT SmoothSize)
 	m_BufferSize=Size-SmoothSize;
 	m_SmoothSize=SmoothSize;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=false;
 	return TRUE;
 }
@@ -106,9 +106,9 @@ void CThreadSafeCycleBufferEx::Destory()
 		SAFE_DELETE_ARRAY(m_pBuffer);
 
 	m_pBuffer=NULL;
-	m_BufferSize=0;	
+	m_BufferSize=0;
 	m_SmoothSize=0;
 	m_BufferHead=0;
-	m_BufferTail=0;	
+	m_BufferTail=0;
 	m_IsSelfBuffer=true;
 }

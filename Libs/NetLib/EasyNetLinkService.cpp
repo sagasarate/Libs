@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 IMPLEMENT_CLASS_INFO_STATIC(CEasyNetLinkService,CNetService);
@@ -18,7 +18,7 @@ CEasyNetLinkService::CEasyNetLinkService(void)
 {
 	m_pManager=NULL;
 	m_NeedReallocConnectionID=FALSE;
-	m_MaxPacketSize=0;	
+	m_MaxPacketSize=0;
 }
 
 CEasyNetLinkService::~CEasyNetLinkService(void)

@@ -643,7 +643,7 @@ void CExceptionParser::LogException(LPCTSTR Format,...)
 		TCHAR szBuff[4096];
 		_vstprintf_s(szBuff,4096,Format,vl);
 		_tcscat_s(szBuff,4096,_T("\r\n"));
-		DWORD Len=_tcslen(szBuff);
+		DWORD Len=(DWORD)_tcslen(szBuff);
 		WriteFile(m_hExceptionLog,szBuff,Len,&Len,NULL);
 		va_end( vl);
 	}

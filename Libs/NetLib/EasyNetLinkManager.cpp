@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 
@@ -342,7 +342,7 @@ CEasyNetLinkService * CEasyNetLinkManager::GetService(UINT ID)
 
 UINT CEasyNetLinkManager::GetConnectionCount()
 {
-	return m_ConnectionList.GetCount();
+	return (UINT)m_ConnectionList.GetCount();
 }
 
 CEasyNetLinkConnection * CEasyNetLinkManager::GetConnectionByIndex(UINT Index)

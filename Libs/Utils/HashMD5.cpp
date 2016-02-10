@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 static unsigned char PADDING[64] = {
@@ -27,7 +27,7 @@ static unsigned char PADDING[64] = {
 #define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
 #define G(x, y, z) (((x) & (z)) | ((y) & (~z)))
 #define H(x, y, z) ((x) ^ (y) ^ (z))
-#define I(x, y, z) ((y) ^ ((x) | (~z))) 
+#define I(x, y, z) ((y) ^ ((x) | (~z)))
 
 /* ROTATE_LEFT rotates x left n bits */
 #define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
@@ -71,7 +71,7 @@ CHashMD5::~CHashMD5(void)
 {
 }
 
-void CHashMD5::AddData(BYTE * inBuf, unsigned int inLen)
+void CHashMD5::AddData(BYTE * inBuf, size_t inLen)
 {
 	UINT4 in[16];
 	int mdi;
@@ -86,13 +86,13 @@ void CHashMD5::AddData(BYTE * inBuf, unsigned int inLen)
 	m_mdContext.i[0] += ((UINT4)inLen << 3);
 	m_mdContext.i[1] += ((UINT4)inLen >> 29);
 
-	while (inLen--) 
+	while (inLen--)
 	{
 		/* add new character to buffer, increment mdi */
 		m_mdContext.in[mdi++] = *inBuf++;
 
 		/* transform if necessary */
-		if (mdi == 0x40) 
+		if (mdi == 0x40)
 		{
 			for (i = 0, ii = 0; i < 16; i++, ii += 4)
 			in[i] = (((UINT4)m_mdContext.in[ii+3]) << 24) |
@@ -101,7 +101,7 @@ void CHashMD5::AddData(BYTE * inBuf, unsigned int inLen)
 					((UINT4)m_mdContext.in[ii]);
 			Transform ((UINT4 *)(&(m_mdContext.buf)), in);
 			mdi = 0;
-		}	
+		}
 	}
 }
 
@@ -132,7 +132,7 @@ void CHashMD5::MD5Final(void)
 	Transform ((UINT4 *)(&(m_mdContext.buf)), in);
 
 	/* store buffer in digest */
-	for (i = 0, ii = 0; i < 4; i++, ii += 4) 
+	for (i = 0, ii = 0; i < 4; i++, ii += 4)
 	{
 		m_mdContext.digest[ii] = (unsigned char)(m_mdContext.buf[i] & 0xFF);
 		m_mdContext.digest[ii+1] =

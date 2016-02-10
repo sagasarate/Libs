@@ -45,8 +45,8 @@ class CHMAC_SHA1 : public CSHA1
             delete[] SHA1_Key ;
         }
 
-        void HMAC_SHA1(BYTE *text, int text_len, BYTE *key, int key_len, BYTE *digest);
-		CEasyString HMAC_SHA1_String(BYTE *text, int text_len, BYTE *key, int key_len);
+		void HMAC_SHA1(BYTE *text, size_t text_len, BYTE *key, size_t key_len, BYTE *digest);
+		CEasyString HMAC_SHA1_String(BYTE *text, size_t text_len, BYTE *key, size_t key_len);
 };
 
 

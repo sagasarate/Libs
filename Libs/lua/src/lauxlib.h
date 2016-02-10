@@ -79,7 +79,7 @@ LUALIB_API int (luaL_loadfilex) (lua_State *L, const char *filename,
 
 LUALIB_API int (luaL_loadbufferx) (lua_State *L, const char *buff, size_t sz,
                                    const char *name, const char *mode);
-LUALIB_API int (luaL_loadstring) (lua_State *L, const char *s);
+LUALIB_API int (luaL_loadstring)(lua_State *L, const char *s, const char *name);
 
 LUALIB_API lua_State *(luaL_newstate) (void);
 
@@ -121,8 +121,8 @@ LUALIB_API void (luaL_requiref) (lua_State *L, const char *modname,
 #define luaL_dofile(L, fn) \
 	(luaL_loadfile(L, fn) || lua_pcall(L, 0, LUA_MULTRET, 0))
 
-#define luaL_dostring(L, s) \
-	(luaL_loadstring(L, s) || lua_pcall(L, 0, LUA_MULTRET, 0))
+#define luaL_dostring(L, s, n) \
+	(luaL_loadstring(L, s, n) || lua_pcall(L, 0, LUA_MULTRET, 0))
 
 #define luaL_getmetatable(L,n)	(lua_getfield(L, LUA_REGISTRYINDEX, (n)))
 

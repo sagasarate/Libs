@@ -2,14 +2,7 @@
 
 class CLuaThread;
 class CLuaScript;
-class CBaseScriptHost
-{
-public:
-	virtual ~CBaseScriptHost()
-	{
 
-	}	
-};
 
 class CLuaThread
 {
@@ -21,15 +14,14 @@ public:
 		SSID_LUA_VALUE_TABLE_VALUE = 102,
 	};
 protected:
-	CLuaScript *		m_pLuaScript;
 	UINT				m_ID;
+	CLuaScript *		m_pLuaScript;	
 	UINT				m_ScriptID;
-	void *				m_Param;
+	void *				m_Param1;
+	void *				m_Param2;
 	CBaseScriptHost *	m_pHostObject;
-	//lua_State *			m_pLuaStatus;
 	lua_State *			m_pLuaThread;
 	int					m_ThreadType;
-	int					m_StackInitSize;
 	bool				m_IsInExec;
 	bool				m_IsNeedYield;
 	int					m_LastLuaStatus;
@@ -37,41 +29,39 @@ protected:
 	int					m_YieldType;
 	int					m_YeildReturnCount;
 	CEasyTimer			m_SleepTimer;
-
+	ITimeManager *		m_pTimeManager;
+	float				m_SleepTime;
+	float				m_SleepPastTime;
 public:
 	CLuaThread()
 	{
-		m_pLuaScript = NULL;
 		m_ID = 0;
+		m_pLuaScript = NULL;
 		m_ScriptID = 0;
+		m_Param1 = NULL;
+		m_Param2 = NULL;
 		m_pHostObject = NULL;
-		//m_pLuaStatus = NULL;
 		m_pLuaThread = NULL;
 		m_ThreadType = 0;
-		m_StackInitSize = 0;
 		m_IsInExec = false;
 		m_IsNeedYield = false;
-		m_LastLuaStatus = LUA_OK;
+		m_LastLuaStatus = LUA_OK;		
 		m_YieldType = LUA_YIELD_TYPE_NONE;
-		m_YeildReturnCount = 0;
+		m_YeildReturnCount = 0;		
+		m_pTimeManager = NULL;
+		m_SleepTime = 0;
+		m_SleepPastTime = 0;
 	}
 	~CLuaThread()
 	{
-		Clear();
+		//Destory();
 	}
-	bool IsInit()
+	bool IsInited()
 	{
 		return m_pLuaThread != NULL;
 	}
-	bool Init(CLuaScript * pLuaScript, lua_State * pLuaState, UINT ScriptID);
-	void Destory()
-	{
-		Clear();		
-		m_ScriptID = 0;
-		m_StackInitSize = 0;
-		//m_pLuaStatus = NULL;
-		m_pLuaThread = NULL;
-	}
+	bool Init(CLuaScript * pLuaScript, UINT ScriptID, int StackSize);
+	//void Destory();
 	void Release();
 	void SetID(UINT ID)
 	{
@@ -84,6 +74,10 @@ public:
 	CBaseScriptHost * GetHostObject()
 	{
 		return m_pHostObject;
+	}
+	CLuaScript * GetLuaScript()
+	{
+		return m_pLuaScript;
 	}
 	int GetLastLuaStatus()
 	{
@@ -101,13 +95,21 @@ public:
 	{
 		return m_pLuaThread;
 	}
-	void SetParam(void * Param)
+	void SetParam1(void * Param)
 	{
-		m_Param = Param;
+		m_Param1 = Param;
 	}
-	void * GetParam()
+	void * GetParam1()
 	{
-		return m_Param;
+		return m_Param1;
+	}
+	void SetParam2(void * Param)
+	{
+		m_Param2 = Param;
+	}
+	void * GetParam2()
+	{
+		return m_Param2;
 	}
 	void SetThreadType(int Type)
 	{
@@ -123,19 +125,29 @@ public:
 		m_YieldType = YeildType;
 		m_YeildReturnCount = YeildReturnCount;
 		m_YieldTimer.SaveTime();
-	}
-	void SetYeildReturnCount(int YeildReturnCount)
-	{
-		m_YeildReturnCount = YeildReturnCount;
-	}
+	}	
 	bool IsNeedYield()
 	{
 		return m_IsNeedYield;
+	}
+	void ClearYeild()
+	{
+		m_IsNeedYield = false;
+		m_LastLuaStatus = LUA_OK;
+		m_YieldType = LUA_YIELD_TYPE_NONE;
+		m_YeildReturnCount = 0;
 	}
 	void DoSleep(UINT Time)
 	{
 		m_YieldType = LUA_YIELD_TYPE_SLEEP;
 		m_SleepTimer.SetTimeOut(Time);
+	}
+	void DoSleep(ITimeManager * pTimeManager,float Time)
+	{
+		m_YieldType = LUA_YIELD_TYPE_SLEEP;
+		m_pTimeManager = pTimeManager;
+		m_SleepTime = Time;
+		m_SleepPastTime = 0;
 	}
 	void PushNil()
 	{
@@ -156,25 +168,25 @@ public:
 		lua_pushstring(m_pLuaThread, StringA);
 	}
 	template<typename T>
-	void PushValue(T Value)
-	{
-		LuaWrap::Push(m_pLuaThread, Value);
-	}
+	void PushValue(T Value);
+	bool PushPacketValue(const CSmartValue& Value);
 	int PushPacket(const CSmartStruct& Packet);
 	bool PushTablePacket(const CSmartStruct& Packet);
-	void Clear()
-	{
-		m_IsNeedYield = false;
-		m_YieldType = LUA_YIELD_TYPE_NONE;
-		m_YeildReturnCount = 0;
-		m_LastLuaStatus = LUA_OK;
-		m_Param = 0;
-	}
-	void Reset()
-	{
-		Clear();
-		lua_pop(m_pLuaThread, lua_gettop(m_pLuaThread));		
-	}
+	//void Clear()
+	//{
+	//	m_pLuaScript = NULL;
+	//	m_IsNeedYield = false;
+	//	m_YieldType = LUA_YIELD_TYPE_NONE;
+	//	m_YeildReturnCount = 0;
+	//	m_LastLuaStatus = LUA_OK;
+	//	m_Param1 = NULL;
+	//	m_Param2 = NULL;
+	//	m_pTimeManager = NULL;
+	//	m_SleepTime = 0;
+	//	m_SleepPastTime = 0;
+	//	if (m_pLuaThread)
+	//		lua_pop(m_pLuaThread, lua_gettop(m_pLuaThread));
+	//}
 
 	bool Prepare(CBaseScriptHost * pObject, LPCSTR szFunctionName);
 	inline bool Prepare(CBaseScriptHost * pObject, LPCWSTR szFunctionName)
@@ -201,42 +213,25 @@ public:
 	}
 	int GetResultCount()
 	{
-		return lua_gettop(m_pLuaThread) - m_StackInitSize + 1;
+		return lua_gettop(m_pLuaThread) - 2;
 	}
 	int GetValueType(int Index)
 	{
-		return lua_type(m_pLuaThread, Index);
+		return GetLuaObjectType(m_pLuaThread, Index);
 	}
 	bool PackResult(CSmartStruct& Packet);
 	bool PackTable(CSmartStruct& Packet, int Index);
 	template<typename T>
-	T PopValue()
-	{
-		if (LuaWrap::Match(TypeWrapper<T>(), m_pLuaThread, -1))
-		{
-			T Result = LuaWrap::Get(TypeWrapper<T>(), m_pLuaThread, -1);
-			lua_pop(m_pLuaThread, 1);
-			return Result;
-		}
-		return T();
-	}	
+	T PopValue();
 	template<typename T>
-	T GetValue(int Index)
-	{
-		if (LuaWrap::Match(TypeWrapper<T>(), m_pLuaThread, Index))
-		{
-			T Result = LuaWrap::Get(TypeWrapper<T>(), m_pLuaThread, Index);
-			return Result;
-		}
-		return T();
-	}
+	T GetValue(int Index);
 	int GetValueCount()
 	{
 		return lua_gettop(m_pLuaThread);
 	}
 	int MoveResultToLThread(CLuaThread * pLThread, LUA_META_CLASS_COPY_FUNCTION pExtendCopyFN = NULL);
-	int CopyStack(CLuaThread * pTargetLThread, int StartIndex, int Count, LUA_META_CLASS_COPY_FUNCTION pExtendCopyFN = NULL);
+	//int CopyStack(CLuaThread * pTargetLThread, int StartIndex, int Count, LUA_META_CLASS_COPY_FUNCTION pExtendCopyFN = NULL);
 	void Update();
-	
+	static bool IsSiblingThread(CLuaThread * pThread1, CLuaThread * pThread2);
 };
 

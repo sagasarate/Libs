@@ -9,18 +9,18 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 
 CESThread::CESThread(void)
 {
-	m_pVariableList=NULL;	
+	m_pVariableList=NULL;
 	m_MaxLocalVariableCount=DEFAULT_LOCAL_VARIABLE_COUNT;
 	m_pCurLocalVariableList=NULL;
 	m_pFunctionList=NULL;
 	m_pScript=NULL;
 	m_IsInInterrupt=false;
-	m_InterruptPos=-1;	
+	m_InterruptPos=-1;
 	m_ResultCode=0;
 	m_CallStack.Create(DEFAULT_CALL_STACK_SIZE,DEFAULT_CALL_STACK_SIZE);
 
@@ -34,7 +34,7 @@ CESThread::CESThread(UINT MaxLocalVariableCount)
 	m_pFunctionList=NULL;
 	m_pScript=NULL;
 	m_IsInInterrupt=false;
-	m_InterruptPos=-1;	
+	m_InterruptPos=-1;
 	m_ResultCode=0;
 	m_CallStack.Create(DEFAULT_CALL_STACK_SIZE,DEFAULT_CALL_STACK_SIZE);
 }

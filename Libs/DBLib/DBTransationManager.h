@@ -15,7 +15,6 @@ namespace DBLib
 {
 
 #define DEFAULT_TRANS_THREAD	4
-#define DEFAULT_PROCESS_LIMIT	32
 #define PERFORMANCE_COUNT_TIME	(5*60*1000)
 
 

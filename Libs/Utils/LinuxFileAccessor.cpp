@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -71,7 +71,7 @@ BOOL CLinuxFileAccessor::Open(LPCTSTR FileName,int OpenMode)
 		m_IsWriteFlush=true;
 	else
 		m_IsWriteFlush=false;
-	
+
 	m_FileDescriptor=open(FileName,Flag,S_IRWXU);
 
 	if(m_FileDescriptor==INVALID_HANDLE_VALUE)

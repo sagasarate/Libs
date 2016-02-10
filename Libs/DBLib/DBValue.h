@@ -10,7 +10,7 @@
 /*                                                                          */
 /****************************************************************************/
 #pragma once
-#include "dbinterfaces.h"
+#include "DBInterfaces.h"
 
 namespace DBLib
 {
@@ -34,8 +34,8 @@ public:
 	CDBValue(unsigned short Value);
 	CDBValue(int Value);
 	CDBValue(unsigned int Value);
-	CDBValue(long Value);
-	CDBValue(unsigned long Value);
+	//CDBValue(long Value);
+	//CDBValue(unsigned long Value);
 	CDBValue(__int64 Value);
 	CDBValue(unsigned __int64 Value);
 	CDBValue(float Value);
@@ -66,29 +66,29 @@ public:
 	int GetDigitalLength();
 	bool IsNull();
 
-	operator bool();
-	operator char();
-	operator unsigned char();
-	operator short();
-	operator unsigned short();
-	operator int();
-	operator unsigned int();
-	operator long();
-	operator unsigned long();
-	operator __int64();
-	operator unsigned __int64();
-	operator float();
-	operator double();
-	operator const char *();
-	operator const wchar_t *();
+	operator bool() const;
+	operator char() const;
+	operator unsigned char() const;
+	operator short() const;
+	operator unsigned short() const;
+	operator int() const;
+	operator unsigned int() const;
+	//operator long() const;
+	//operator unsigned long() const;
+	operator __int64() const;
+	operator unsigned __int64() const;
+	operator float() const;
+	operator double() const;
+	operator const char *() const;
+	operator const wchar_t *() const;
 	//operator SYSTEMTIME();
 	//operator FILETIME();
-	operator DB_DATE();
-	operator DB_TIME();
-	operator DB_TIMESTAMP();
-	operator CEasyTime();
-	operator DB_GUID();
-	operator const void *();
+	operator DB_DATE() const;
+	operator DB_TIME() const;
+	operator DB_TIMESTAMP() const;
+	operator CEasyTime() const;
+	operator DB_GUID() const;
+	operator const void *() const;
 
 	void operator=(const CDBValue& Value);
 	void operator=(bool Value);
@@ -98,8 +98,8 @@ public:
 	void operator=(unsigned short Value);
 	void operator=(int Value);
 	void operator=(unsigned int Value);
-	void operator=(long Value);
-	void operator=(unsigned long Value);
+	//void operator=(long Value);
+	//void operator=(unsigned long Value);
 	void operator=(__int64 Value);
 	void operator=(unsigned __int64 Value);
 	void operator=(float Value);

@@ -9,7 +9,7 @@
 /*      必须保留此版权声明                                                  */
 /*                                                                          */
 /****************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 
 IMPLEMENT_CLASS_INFO(CDOSObjectGroup,CEasyThread);
 
@@ -18,7 +18,7 @@ CDOSObjectGroup::CDOSObjectGroup(void)
 	FUNCTION_BEGIN;
 	m_pManager=NULL;
 	m_Index=0;
-	m_Weight=0;	
+	m_Weight=0;
 	m_StatObjectCPUCost=false;
 	FUNCTION_END;
 }
@@ -77,7 +77,7 @@ void CDOSObjectGroup::Destory()
 	m_ObjectUnregisterQueue.Clear();
 	void * Pos=m_ObjectPool.GetLastObjectPos();
 	while(Pos)
-	{		
+	{
 		DOS_OBJECT_INFO *pObjectInfo=m_ObjectPool.GetPrev(Pos);
 		if(pObjectInfo)
 		{
@@ -96,7 +96,7 @@ BOOL CDOSObjectGroup::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterInf
 	ObjectRegisterInfo.pObject->AddUseRef();
 	if(m_ObjectRegisterQueue.PushBack(ObjectRegisterInfo))
 	{
-		m_Weight+=ObjectRegisterInfo.Weight;		
+		m_Weight+=ObjectRegisterInfo.Weight;
 		return TRUE;
 	}
 	else
@@ -152,14 +152,14 @@ BOOL CDOSObjectGroup::OnStart()
 BOOL CDOSObjectGroup::OnRun()
 {
 	FUNCTION_BEGIN;
-	
+
 	if(!CEasyThread::OnRun())
 		return FALSE;
 
 	int ProcessCount=0;
-	
 
-	ProcessCount+=ProcessObjectRegister();	
+
+	ProcessCount+=ProcessObjectRegister();
 
 	void * Pos=m_ObjectPool.GetFirstObjectPos();
 	while(Pos)
@@ -171,7 +171,7 @@ BOOL CDOSObjectGroup::OnRun()
 			if(m_StatObjectCPUCost)
 				CPUCost=CEasyTimerEx::GetTimeOrigin();
 
-			ProcessCount+=pObjectInfo->pObject->DoCycle();	
+			ProcessCount+=pObjectInfo->pObject->DoCycle();
 
 			if(m_StatObjectCPUCost)
 			{
@@ -184,13 +184,13 @@ BOOL CDOSObjectGroup::OnRun()
 	ProcessCount+=ProcessObjectUnregister();
 
 	m_ThreadPerformanceCounter.DoPerformanceCount();
-	
-	
+
+
 	if(ProcessCount==0)
 	{
 		DoSleep(1);
 	}
-	
+
 	return TRUE;
 	FUNCTION_END;
 	return FALSE;
@@ -221,9 +221,9 @@ BOOL CDOSObjectGroup::PushMessage(OBJECT_ID ObjectID,CDOSMessagePacket * pPacket
 				{
 					pObjectInfo->pObject->PushMessage(pPacket);
 				}
-				
+
 			}
-		}		
+		}
 		return TRUE;
 	}
 	else
@@ -275,7 +275,7 @@ int CDOSObjectGroup::ProcessObjectRegister(int ProcessLimit)
 		DOS_OBJECT_INFO * pObjectInfo=NULL;
 		ID=m_ObjectPool.NewObject(&pObjectInfo);
 		if(pObjectInfo)
-		{			
+		{
 			pObjectInfo->ObjectID=ObjectRegisterInfo.ObjectID;
 			pObjectInfo->ObjectID.GroupIndex=m_Index;
 			pObjectInfo->ObjectID.ObjectIndex=ID;
@@ -296,7 +296,7 @@ int CDOSObjectGroup::ProcessObjectRegister(int ProcessLimit)
 			m_Weight-=ObjectRegisterInfo.Weight;
 			ObjectRegisterInfo.pObject->Destory();
 			SAFE_RELEASE(ObjectRegisterInfo.pObject);
-		}		
+		}
 		ProcessLimit--;
 		ProcessCount++;
 		if(ProcessLimit<=0)
@@ -312,7 +312,7 @@ int CDOSObjectGroup::ProcessObjectUnregister(int ProcessLimit)
 	CAutoLock Lock(m_EasyCriticalSection);
 
 	int ProcessCount=0;
-	OBJECT_ID UnregisterObjectID;	
+	OBJECT_ID UnregisterObjectID;
 	while(m_ObjectUnregisterQueue.PopFront(UnregisterObjectID))
 	{
 		DOS_OBJECT_INFO * pObjectInfo=m_ObjectPool.GetObject(UnregisterObjectID.ObjectIndex);
@@ -382,7 +382,7 @@ void CDOSObjectGroup::AddObjectCPUCost(OBJECT_ID ObjectID,UINT64 CPUCost)
 	OBJECT_STAT_INFO * pInfo=m_ObjectCountStatMap.Find(ObjectID);
 	if(pInfo)
 	{
-		pInfo->CPUCost+=CPUCost;		
+		pInfo->CPUCost+=CPUCost;
 	}
 	else
 	{
