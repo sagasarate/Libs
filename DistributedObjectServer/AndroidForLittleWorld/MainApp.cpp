@@ -192,15 +192,15 @@ bool CMainApp::LoadConfig(LPCTSTR szConfigName)
 			{
 				CLIENT_GROUP_CONFIG GroupConfig;
 				GroupConfig.ServerAddress.SetIP(Group.attribute("ServerIP").getvalue());
-				GroupConfig.ServerAddress.SetPort((long)Group.attribute("ServerPort"));
+				GroupConfig.ServerAddress.SetPort((WORD)Group.attribute("ServerPort"));
 				GroupConfig.AccountName=Group.attribute("AccountName").getvalue();
 				GroupConfig.Password=Group.attribute("Password").getvalue();
-				GroupConfig.FirstConnectDelay=(long)Group.attribute("FirstConnectDelay");
-				GroupConfig.ReconnectDelay=(long)Group.attribute("ReconnectDelay");
+				GroupConfig.FirstConnectDelay=(UINT)Group.attribute("FirstConnectDelay");
+				GroupConfig.ReconnectDelay = (UINT)Group.attribute("ReconnectDelay");
 				GroupConfig.AutoReconect=Group.attribute("AutoReconect");
 				GroupConfig.ScriptFileName=Group.attribute("ScriptFile").getvalue();
-				GroupConfig.ClientCount=(long)Group.attribute("ClientCount");
-				GroupConfig.StartIndex=(long)Group.attribute("StartIndex");
+				GroupConfig.ClientCount = (UINT)Group.attribute("ClientCount");
+				GroupConfig.StartIndex = (UINT)Group.attribute("StartIndex");
 
 				CClientGroup * pGroup=new CClientGroup();
 				pGroup->SetIndex(m_GroupList.GetCount());

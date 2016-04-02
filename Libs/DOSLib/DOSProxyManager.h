@@ -18,7 +18,7 @@ class CDOSProxyManager :
 	CDOSServer *							m_pServer;
 	CEasyArray<CDOSObjectProxyService *>	m_ProxyServiceList;
 
-	DECLARE_CLASS_INFO(CDOSProxyManager);
+	DECLARE_CLASS_INFO_STATIC(CDOSProxyManager);
 public:
 	CDOSProxyManager();
 	~CDOSProxyManager();

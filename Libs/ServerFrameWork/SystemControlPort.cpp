@@ -60,17 +60,17 @@ void CSystemControlPort::OnClose()
 
 }
 
-void CSystemControlPort::OnRecvData(const CIPAddress& IPAddress,const CEasyBuffer& DataBuffer)
+void CSystemControlPort::OnRecvData(const CIPAddress& IPAddress, const BYTE * pData, UINT DataSize)
 {
 
 	if(m_pServer==NULL)
 		return;
 
-	if(DataBuffer.GetUsedSize()<sizeof(SMSG_HEADER))
+	if (DataSize<sizeof(SMSG_HEADER))
 		return;
 
-	SMSG * pMsg=(SMSG *)DataBuffer.GetBuffer();
-	UINT DataSize=DataBuffer.GetUsedSize()-sizeof(SMSG_HEADER);
+	SMSG * pMsg = (SMSG *)pData;
+	DataSize = DataSize - sizeof(SMSG_HEADER);
 
 	switch(pMsg->Header.MsgID)
 	{

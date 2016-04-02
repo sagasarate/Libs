@@ -94,18 +94,12 @@ CEasyString CFileSearcher::GetFileDirect()
 
 CEasyString CFileSearcher::GetFileTitle()
 {
-	TCHAR Title[MAX_PATH];
-
-	_tsplitpath_s(m_FindedFileInfo.cFileName,NULL,0,NULL,0,Title,MAX_PATH,NULL,0);
-	return Title;
+	return GetPathFileName(m_FindedFileInfo.cFileName);	
 }
 
 CEasyString CFileSearcher::GetFileExt()
 {
-	TCHAR Ext[MAX_PATH];
-
-	_tsplitpath_s(m_FindedFileInfo.cFileName,NULL,0,NULL,0,NULL,0,Ext,MAX_PATH);
-	return Ext;
+	return GetPathFileExtName(m_FindedFileInfo.cFileName);
 }
 
 CEasyString CFileSearcher::GetFileURL()

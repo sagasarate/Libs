@@ -26,7 +26,7 @@ CEasyNetLinkConnection::CEasyNetLinkConnection(void)
 	m_Status=ENL_LINK_NONE;
 	m_ReportID=0;
 	m_IsKeepConnect=false;
-	m_AssembleBuffer.Create(MAX_EASY_NET_LINK_MSG_SIZE+MAX_DATA_PACKET_SIZE);
+	m_AssembleBuffer.Create(MAX_EASY_NET_LINK_MSG_SIZE+NET_DATA_BLOCK_SIZE);
 	m_SendBuffer.Create(MAX_EASY_NET_LINK_MSG_SIZE);
 	m_KeepAliveCount=0;
 	m_NeedReallocConnectionID=FALSE;
@@ -46,7 +46,7 @@ void CEasyNetLinkConnection::SetMaxPacketSize(UINT MaxPacketSize)
 {
 	if (MaxPacketSize>m_SendBuffer.GetBufferSize())
 	{
-		m_AssembleBuffer.Create(MaxPacketSize+MAX_DATA_PACKET_SIZE);
+		m_AssembleBuffer.Create(MaxPacketSize+NET_DATA_BLOCK_SIZE);
 		m_SendBuffer.Create(MaxPacketSize);
 	}
 }
@@ -153,12 +153,12 @@ int CEasyNetLinkConnection::Update(int ProcessPacketLimit)
 }
 
 
-void CEasyNetLinkConnection::OnRecvData(const CEasyBuffer& DataBuffer)
+void CEasyNetLinkConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 {
 
-	if(!m_AssembleBuffer.PushBack(DataBuffer.GetBuffer(),DataBuffer.GetUsedSize()))
+	if (!m_AssembleBuffer.PushBack(pData, DataSize))
 	{
-		PrintNetLog(0xffffffff,_T("CEasyNetLinkConnection::OnRecvData 接受缓冲区,连接断开"));
+		PrintNetLog(0xffffffff,_T("CEasyNetLinkConnection::OnRecvData 拼包缓冲区溢出,连接断开"));
 		Disconnect();
 		return;
 	}

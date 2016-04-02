@@ -58,6 +58,8 @@ public:
 
 
 	BOOL BindSocket(SOCKET Socket,CEpollEventRouter * pEpollEventRouter);	
+	BOOL ModifySendEvent(SOCKET Socket, CEpollEventRouter * pEpollEventRouter, bool IsSet);
+	BOOL UnbindSocket(SOCKET Socket);
 	BOOL BindFile(HANDLE FileHandle);
 
 

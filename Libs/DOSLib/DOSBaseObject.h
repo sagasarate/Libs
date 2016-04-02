@@ -44,7 +44,7 @@ protected:
 
 	CThreadSafeIDStorage<CDOSMessagePacket *>	m_MsgQueue;
 
-	DECLARE_CLASS_INFO(CDOSBaseObject);
+	DECLARE_CLASS_INFO_STATIC(CDOSBaseObject);
 public:
 	CDOSBaseObject(void);
 	virtual ~CDOSBaseObject(void);
@@ -88,7 +88,7 @@ public:
 	BOOL DeleteConcernedObject(OBJECT_ID ObjectID);
 
 	BOOL FindObject(UINT ObjectType);
-	BOOL ReportObject(OBJECT_ID TargetID,const CSmartStruct& ObjectInfo);
+	BOOL ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize);
 	BOOL CloseProxyObject(OBJECT_ID ProxyObjectID,UINT Delay);
 	BOOL RequestProxyObjectIP(OBJECT_ID ProxyObjectID);
 	BOOL QueryShutDown(OBJECT_ID TargetID,int Level);
@@ -98,7 +98,7 @@ protected:
 	virtual BOOL OnSystemMessage(CDOSMessage * pMessage);
 	virtual void OnConcernedObjectLost(OBJECT_ID ObjectID);
 	virtual void OnFindObject(OBJECT_ID CallerID);
-	virtual void OnObjectReport(OBJECT_ID ObjectID,const CSmartStruct& ObjectInfo);
+	virtual void OnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize);
 	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID,UINT IP,UINT Port,LPCSTR szIPString);
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 

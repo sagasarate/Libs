@@ -82,26 +82,26 @@ public:
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CIDStorage<T,StorageMode>::AddObject(Object);
 	}		
-	LPVOID GetObjectPos(UINT ID)
-	{
-		CAutoLock Lock(m_EasyCriticalSection);
-		return CIDStorage<T,StorageMode>::GetObjectPos(ID);
-	}
-	T* GetObject(LPVOID Pos)
-	{
-		CAutoLock Lock(m_EasyCriticalSection);
-		return CIDStorage<T,StorageMode>::GetObject(Pos);
-	}	
-	T* GetObject(UINT ID)
-	{
-		CAutoLock Lock(m_EasyCriticalSection);
-		return CIDStorage<T,StorageMode>::GetObject(ID);
-	}
-	UINT GetObjectID(LPVOID Pos)
-	{
-		CAutoLock Lock(m_EasyCriticalSection);
-		return CIDStorage<T,StorageMode>::GetObjectID(Pos);
-	}
+	//LPVOID GetObjectPos(UINT ID)
+	//{
+	//	CAutoLock Lock(m_EasyCriticalSection);
+	//	return CIDStorage<T,StorageMode>::GetObjectPos(ID);
+	//}
+	//T* GetObject(LPVOID Pos)
+	//{
+	//	CAutoLock Lock(m_EasyCriticalSection);
+	//	return CIDStorage<T,StorageMode>::GetObject(Pos);
+	//}	
+	//T* GetObject(UINT ID)
+	//{
+	//	CAutoLock Lock(m_EasyCriticalSection);
+	//	return CIDStorage<T,StorageMode>::GetObject(ID);
+	//}
+	//UINT GetObjectID(LPVOID Pos)
+	//{
+	//	CAutoLock Lock(m_EasyCriticalSection);
+	//	return CIDStorage<T,StorageMode>::GetObjectID(Pos);
+	//}
 	BOOL DeleteObject(UINT ID)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);

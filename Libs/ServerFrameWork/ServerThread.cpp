@@ -549,10 +549,10 @@ void CServerThread::DoServerStat()
 	int ClientCount=GetClientCount();
 	float CycleTime=m_ThreadPerformanceCounter.GetCycleTime();
 	float CPUCost=m_ThreadPerformanceCounter.GetCPUUsedRate();
-	float TCPRecvFlow=(float)m_TCPRecvBytes*1000/1024/SERVER_INFO_COUNT_TIME;
-	float TCPSendFlow=(float)m_TCPSendBytes*1000/1024/SERVER_INFO_COUNT_TIME;
-	float UDPRecvFlow=(float)m_UDPRecvBytes*1000/1024/SERVER_INFO_COUNT_TIME;
-	float UDPSendFlow=(float)m_UDPSendBytes*1000/1024/SERVER_INFO_COUNT_TIME;
+	float TCPRecvFlow=(float)m_TCPRecvBytes*1000/SERVER_INFO_COUNT_TIME;
+	float TCPSendFlow=(float)m_TCPSendBytes*1000/SERVER_INFO_COUNT_TIME;
+	float UDPRecvFlow=(float)m_UDPRecvBytes*1000/SERVER_INFO_COUNT_TIME;
+	float UDPSendFlow=(float)m_UDPSendBytes*1000/SERVER_INFO_COUNT_TIME;
 
 	float TCPRecvCount=(float)m_TCPRecvCount*1000/SERVER_INFO_COUNT_TIME;
 	float TCPSendCount=(float)m_TCPSendCount*1000/SERVER_INFO_COUNT_TIME;

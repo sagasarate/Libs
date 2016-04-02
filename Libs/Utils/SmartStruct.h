@@ -16,7 +16,7 @@
 #define CHECK_SMART_STRUCT_ADD_AND_RETURN(Opt)		{if(!(Opt)) return false;}
 //#define SMART_STRUCT_FIX_MEMBER_SIZE(DataSize)		(sizeof(WORD)+sizeof(BYTE)+DataSize)
 //#define SMART_STRUCT_STRING_MEMBER_SIZE(StrLen)		(sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+sizeof(char)*(StrLen+1))
-//#define SMART_STRUCT_WSTRING_MEMBER_SIZE(StrLen)	(sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+sizeof(wchar_t)*(StrLen+1))
+//#define SMART_STRUCT_WSTRING_MEMBER_SIZE(StrLen)	(sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+sizeof(WCHAR)*(StrLen+1))
 //#define SMART_STRUCT_STRUCT_MEMBER_SIZE(StructLen)	(sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+StructLen)
 
 template < typename LENGTH_TYPE,typename ID_TYPE >
@@ -367,7 +367,7 @@ public:
 			return true;
 		return AddMember(ID,pszStr,(LENGTH_TYPE)strlen(pszStr));
 	}
-	bool AddMember(ID_TYPE ID,const wchar_t * pszStr)
+	bool AddMember(ID_TYPE ID,const WCHAR * pszStr)
 	{
 		if(pszStr==NULL)
 			return true;
@@ -397,7 +397,7 @@ public:
 		return true;
 	}
 	bool AddMember(ID_TYPE ID,const char * pszStr,LENGTH_TYPE nStrLen);
-	bool AddMember(ID_TYPE ID,const wchar_t * pszStr,LENGTH_TYPE nStrLen);
+	bool AddMember(ID_TYPE ID,const WCHAR * pszStr,LENGTH_TYPE nStrLen);
 	bool AddMember(ID_TYPE ID,const CEasyString& Str)
 	{
 		return AddMember(ID,Str,(UINT)Str.GetLength());
@@ -670,17 +670,11 @@ public:
 	}
 	static LENGTH_TYPE GetStringMemberSize(LENGTH_TYPE StrLen)
 	{		
-		if(CSmartValue::IsConvertWideCharToUTF8())
-			return sizeof(ID_TYPE)+sizeof(BYTE)+sizeof(LENGTH_TYPE)+sizeof(char)*3*(StrLen+1);
-		else
-			return sizeof(ID_TYPE)+sizeof(BYTE)+sizeof(LENGTH_TYPE)+sizeof(char)*(StrLen+1);
+		return sizeof(ID_TYPE)+sizeof(BYTE)+sizeof(LENGTH_TYPE)+sizeof(char)*(StrLen+1);
 	}
 	static LENGTH_TYPE GetWStringMemberSize(LENGTH_TYPE StrLen)
 	{
-		if(CSmartValue::IsConvertWideCharToUTF8())
-			return sizeof(ID_TYPE)+sizeof(BYTE)+sizeof(LENGTH_TYPE)+sizeof(char)*3*(StrLen+1);
-		else
-			return sizeof(ID_TYPE)+sizeof(BYTE)+sizeof(LENGTH_TYPE)+sizeof(wchar_t)*(StrLen+1);
+		return sizeof(ID_TYPE)+sizeof(BYTE)+sizeof(LENGTH_TYPE)+sizeof(WCHAR)*(StrLen+1);
 	}
 
 	LENGTH_TYPE GetFreeLen()
@@ -798,112 +792,62 @@ inline bool CSmartStructBase<WORD,BYTE>::AddMember(BYTE ID,const char * pszStr,W
 }
 
 template < >
-inline bool CSmartStructBase<UINT,WORD>::AddMember(WORD ID,const wchar_t * pszStr,UINT nStrLen)
+inline bool CSmartStructBase<UINT,WORD>::AddMember(WORD ID,const WCHAR * pszStr,UINT nStrLen)
 {
 	if(m_pData==NULL)
 		return false;
 	if(ID==0)
 		return false;	
-#ifdef WIN32
-	if(CSmartValue::IsConvertWideCharToUTF8())
+
+	
+	UINT NeedSize=sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+sizeof(WCHAR)*(nStrLen+1);
+	if(GetFreeLen()<NeedSize)
 	{
-		UINT UTF8Len=(UINT)UnicodeToUTF8(pszStr,nStrLen,NULL,0);
-		UINT NeedSize=sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+sizeof(char)*(UTF8Len+1);
-		if(GetFreeLen()<NeedSize)
-		{
-			return false;
-		}
-		BYTE * pFreeBuffer=m_pData+sizeof(BYTE)+sizeof(UINT)+GetLength();
-		*((WORD *)pFreeBuffer)=ID;
-		pFreeBuffer+=sizeof(WORD);
-		*((BYTE *)pFreeBuffer)=CSmartValue::VT_STRING;
-		pFreeBuffer+=sizeof(BYTE);
-		*((UINT *)pFreeBuffer)=UTF8Len;
-		pFreeBuffer+=sizeof(UINT);
-		if(pszStr&&nStrLen)
-		{
-			UnicodeToUTF8(pszStr,nStrLen,(char *)pFreeBuffer,UTF8Len);
-		}
-		pFreeBuffer+=sizeof(char)*UTF8Len;
-		*((wchar_t *)pFreeBuffer)=0;
-		*((UINT *)(m_pData+1))+=NeedSize;
+		return false;
 	}
-	else
-#endif
-	{
-		UINT NeedSize=sizeof(WORD)+sizeof(BYTE)+sizeof(UINT)+sizeof(wchar_t)*(nStrLen+1);
-		if(GetFreeLen()<NeedSize)
-		{
-			return false;
-		}
-		BYTE * pFreeBuffer=m_pData+sizeof(BYTE)+sizeof(UINT)+GetLength();
-		*((WORD *)pFreeBuffer)=ID;
-		pFreeBuffer+=sizeof(WORD);
-		*((BYTE *)pFreeBuffer)=CSmartValue::VT_USTRING;
-		pFreeBuffer+=sizeof(BYTE);
-		*((UINT *)pFreeBuffer)=nStrLen;
-		pFreeBuffer+=sizeof(UINT);
-		if(pszStr&&nStrLen)
-			memcpy(pFreeBuffer,pszStr,sizeof(wchar_t)*nStrLen);
-		pFreeBuffer+=sizeof(wchar_t)*nStrLen;
-		*((wchar_t *)pFreeBuffer)=0;
-		*((UINT *)(m_pData+1))+=NeedSize;
-	}
+	BYTE * pFreeBuffer=m_pData+sizeof(BYTE)+sizeof(UINT)+GetLength();
+	*((WORD *)pFreeBuffer)=ID;
+	pFreeBuffer+=sizeof(WORD);
+	*((BYTE *)pFreeBuffer)=CSmartValue::VT_USTRING;
+	pFreeBuffer+=sizeof(BYTE);
+	*((UINT *)pFreeBuffer)=nStrLen;
+	pFreeBuffer+=sizeof(UINT);
+	if(pszStr&&nStrLen)
+		memcpy(pFreeBuffer,pszStr,sizeof(WCHAR)*nStrLen);
+	pFreeBuffer+=sizeof(WCHAR)*nStrLen;
+	*((WCHAR *)pFreeBuffer)=0;
+	*((UINT *)(m_pData+1))+=NeedSize;
+	
 	return true;
 }
 
 template < >
-inline bool CSmartStructBase<WORD,BYTE>::AddMember(BYTE ID,const wchar_t * pszStr,WORD nStrLen)
+inline bool CSmartStructBase<WORD,BYTE>::AddMember(BYTE ID,const WCHAR * pszStr,WORD nStrLen)
 {
 	if(m_pData==NULL)
 		return false;
 	if(ID==0)
 		return false;	
-#ifdef WIN32
-	if(CSmartValue::IsConvertWideCharToUTF8())
+
+
+	WORD NeedSize = sizeof(BYTE) + sizeof(BYTE) + sizeof(WORD) + sizeof(WCHAR)*(nStrLen + 1);
+	if (GetFreeLen() < NeedSize)
 	{
-		UINT UTF8Len=(UINT)UnicodeToUTF8(pszStr,nStrLen,NULL,0);
-		WORD NeedSize=(WORD)(sizeof(BYTE)+sizeof(BYTE)+sizeof(WORD)+sizeof(char)*(UTF8Len+1));
-		if(GetFreeLen()<NeedSize)
-		{
-			return false;
-		}
-		BYTE * pFreeBuffer=m_pData+sizeof(BYTE)+sizeof(WORD)+GetLength();
-		*((BYTE *)pFreeBuffer)=ID;
-		pFreeBuffer+=sizeof(BYTE);
-		*((BYTE *)pFreeBuffer)=CSmartValue::VT_STRING_TINY;
-		pFreeBuffer+=sizeof(BYTE);
-		*((WORD *)pFreeBuffer)=UTF8Len;
-		pFreeBuffer+=sizeof(WORD);
-		if(pszStr&&nStrLen)
-		{
-			UnicodeToUTF8(pszStr,nStrLen,(char *)pFreeBuffer,UTF8Len);
-		}
-		pFreeBuffer+=sizeof(char)*UTF8Len;
-		*((wchar_t *)pFreeBuffer)=0;
-		*((WORD *)(m_pData+1))+=NeedSize;
+		return false;
 	}
-	else
-#endif
-	{
-		WORD NeedSize=sizeof(BYTE)+sizeof(BYTE)+sizeof(WORD)+sizeof(wchar_t)*(nStrLen+1);
-		if(GetFreeLen()<NeedSize)
-		{
-			return false;
-		}
-		BYTE * pFreeBuffer=m_pData+sizeof(BYTE)+sizeof(WORD)+GetLength();
-		*((BYTE *)pFreeBuffer)=ID;
-		pFreeBuffer+=sizeof(BYTE);
-		*((BYTE *)pFreeBuffer)=CSmartValue::VT_USTRING_TINY;
-		pFreeBuffer+=sizeof(BYTE);
-		*((WORD *)pFreeBuffer)=nStrLen;
-		pFreeBuffer+=sizeof(WORD);
-		if(pszStr&&nStrLen)
-			memcpy(pFreeBuffer,pszStr,sizeof(wchar_t)*nStrLen);
-		pFreeBuffer+=sizeof(wchar_t)*nStrLen;
-		*((wchar_t *)pFreeBuffer)=0;
-		*((WORD *)(m_pData+1))+=NeedSize;
-	}
+	BYTE * pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(WORD) + GetLength();
+	*((BYTE *)pFreeBuffer) = ID;
+	pFreeBuffer += sizeof(BYTE);
+	*((BYTE *)pFreeBuffer) = CSmartValue::VT_USTRING_TINY;
+	pFreeBuffer += sizeof(BYTE);
+	*((WORD *)pFreeBuffer) = nStrLen;
+	pFreeBuffer += sizeof(WORD);
+	if (pszStr&&nStrLen)
+		memcpy(pFreeBuffer, pszStr, sizeof(WCHAR)*nStrLen);
+	pFreeBuffer += sizeof(WCHAR)*nStrLen;
+	*((WCHAR *)pFreeBuffer) = 0;
+	*((WORD *)(m_pData + 1)) += NeedSize;
+
 	return true;
 }
 

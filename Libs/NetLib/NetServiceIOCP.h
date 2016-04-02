@@ -71,7 +71,7 @@ public:
 
 	BOOL QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int Size);
 
-	virtual void OnRecvData(const CIPAddress& IPAddress,const CEasyBuffer& DataBuffer);
+	virtual void OnRecvData(const CIPAddress& IPAddress, const BYTE * pData, UINT DataSize);
 
 	
 

@@ -15,7 +15,7 @@
 #define CONCERNED_OBJECT_ONCE_TEST_COUNT	512
 #define CONCERNED_OBJECT_TEST_FACTOR		512
 
-IMPLEMENT_CLASS_INFO(CDOSBaseObject,CNameObject);
+IMPLEMENT_CLASS_INFO_STATIC(CDOSBaseObject, CNameObject);
 
 
 
@@ -331,10 +331,10 @@ BOOL CDOSBaseObject::FindObject(UINT ObjectType)
 	FUNCTION_END;
 	return FALSE;
 }
-BOOL CDOSBaseObject::ReportObject(OBJECT_ID TargetID,const CSmartStruct& ObjectInfo)
+BOOL CDOSBaseObject::ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
-	return SendMessage(TargetID,DSM_OBJECT_REPORT,DOS_MESSAGE_FLAG_SYSTEM_MESSAGE,ObjectInfo.GetData(),ObjectInfo.GetDataLen());
+	return SendMessage(TargetID, DSM_OBJECT_REPORT, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, pObjectInfoData, DataSize);
 	FUNCTION_END;
 	return FALSE;
 }
@@ -404,7 +404,7 @@ BOOL CDOSBaseObject::OnSystemMessage(CDOSMessage * pMessage)
 		OnFindObject(pMessage->GetSenderID());
 		return TRUE;
 	case DSM_OBJECT_REPORT:
-		OnObjectReport(pMessage->GetSenderID(),pMessage->GetDataPacket());
+		OnObjectReport(pMessage->GetSenderID(), pMessage->GetDataBuffer(), pMessage->GetDataLength());
 		return TRUE;
 	case DSM_SYSTEM_SHUTDOWN:
 		if(pMessage->GetDataLength()>=sizeof(int))
@@ -412,7 +412,7 @@ BOOL CDOSBaseObject::OnSystemMessage(CDOSMessage * pMessage)
 			int * pLevel=((int *)pMessage->GetDataBuffer());
 			OnShutDown(*pLevel);
 		}
-		return true;
+		return TRUE;
 	}
 	FUNCTION_END;
 	return FALSE;
@@ -426,13 +426,12 @@ void CDOSBaseObject::OnConcernedObjectLost(OBJECT_ID ObjectID)
 
 void CDOSBaseObject::OnFindObject(OBJECT_ID CallerID)
 {
-	FUNCTION_BEGIN;
-	CSmartStruct ObjectInfo;
-	ReportObject(CallerID,ObjectInfo);
+	FUNCTION_BEGIN;	
+	ReportObject(CallerID, NULL, 0);
 	FUNCTION_END;
 }
 
-void CDOSBaseObject::OnObjectReport(OBJECT_ID ObjectID,const CSmartStruct& ObjectInfo)
+void CDOSBaseObject::OnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
 	FUNCTION_END;

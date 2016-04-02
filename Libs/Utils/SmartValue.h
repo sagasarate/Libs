@@ -21,7 +21,7 @@ protected:
 	bool			m_IsSelfData;
 	bool			m_AllowChange;
 
-	static bool		m_ConvertWideCharToUTF8;
+	
 public:
 	enum SMART_VALUE_TYPE
 	{
@@ -174,7 +174,7 @@ public:
 		}
 	}
 
-	CSmartValue(const wchar_t * Value)
+	CSmartValue(const WCHAR * Value)
 	{
 		m_pData=NULL;
 		m_DataLen=0;
@@ -283,11 +283,11 @@ public:
 			*((char *)(m_pData+sizeof(BYTE)+sizeof(UINT)))=0;
 			break;
 		case VT_USTRING:
-			m_DataLen=sizeof(wchar_t)*(Len/sizeof(wchar_t)+1)+sizeof(BYTE)+sizeof(UINT);
+			m_DataLen=sizeof(WCHAR)*(Len/sizeof(WCHAR)+1)+sizeof(BYTE)+sizeof(UINT);
 			m_pData=new BYTE[m_DataLen];
 			m_pData[0]=Type;
 			*((UINT *)(m_pData+sizeof(BYTE)))=0;
-			*((wchar_t *)(m_pData+sizeof(BYTE)+sizeof(UINT)))=0;
+			*((WCHAR *)(m_pData+sizeof(BYTE)+sizeof(UINT)))=0;
 			break;
 		case VT_STRUCT:
 			m_DataLen=Len+sizeof(BYTE)+sizeof(UINT);
@@ -303,11 +303,11 @@ public:
 			*((char *)(m_pData+sizeof(BYTE)+sizeof(WORD)))=0;
 			break;
 		case VT_USTRING_TINY:
-			m_DataLen=sizeof(wchar_t)*(Len/sizeof(wchar_t)+1)+sizeof(BYTE)+sizeof(WORD);
+			m_DataLen=sizeof(WCHAR)*(Len/sizeof(WCHAR)+1)+sizeof(BYTE)+sizeof(WORD);
 			m_pData=new BYTE[m_DataLen];
 			m_pData[0]=Type;
 			*((WORD *)(m_pData+sizeof(BYTE)))=0;
-			*((wchar_t *)(m_pData+sizeof(BYTE)+sizeof(WORD)))=0;
+			*((WCHAR *)(m_pData+sizeof(BYTE)+sizeof(WORD)))=0;
 			break;
 		case VT_STRUCT_TINY:
 			m_DataLen=Len+sizeof(BYTE)+sizeof(WORD);
@@ -372,7 +372,7 @@ public:
 			m_DataLen=BinaryDataLen+sizeof(BYTE)+sizeof(UINT)+sizeof(char);
 			break;
 		case VT_USTRING:
-			m_DataLen=BinaryDataLen+sizeof(BYTE)+sizeof(UINT)+sizeof(wchar_t);
+			m_DataLen=BinaryDataLen+sizeof(BYTE)+sizeof(UINT)+sizeof(WCHAR);
 			break;
 		case VT_STRUCT:
 			m_DataLen=BinaryDataLen+sizeof(BYTE)+sizeof(UINT);
@@ -381,7 +381,7 @@ public:
 			m_DataLen=BinaryDataLen+sizeof(BYTE)+sizeof(WORD)+sizeof(char);
 			break;
 		case VT_USTRING_TINY:
-			m_DataLen=BinaryDataLen+sizeof(BYTE)+sizeof(WORD)+sizeof(wchar_t);
+			m_DataLen=BinaryDataLen+sizeof(BYTE)+sizeof(WORD)+sizeof(WCHAR);
 			break;
 		case VT_STRUCT_TINY:
 			m_DataLen=BinaryDataLen+sizeof(BYTE)+sizeof(WORD);
@@ -409,13 +409,13 @@ public:
 				*((char *)(m_pData+BinaryDataLen+sizeof(BYTE)+sizeof(UINT)))=0;
 				break;
 			case VT_USTRING:
-				*((wchar_t *)(m_pData+BinaryDataLen+sizeof(BYTE)+sizeof(UINT)))=0;
+				*((WCHAR *)(m_pData+BinaryDataLen+sizeof(BYTE)+sizeof(UINT)))=0;
 				break;		
 			case VT_STRING_TINY:
 				*((char *)(m_pData+BinaryDataLen+sizeof(BYTE)+sizeof(WORD)))=0;
 				break;
 			case VT_USTRING_TINY:
-				*((wchar_t *)(m_pData+BinaryDataLen+sizeof(BYTE)+sizeof(WORD)))=0;
+				*((WCHAR *)(m_pData+BinaryDataLen+sizeof(BYTE)+sizeof(WORD)))=0;
 				break;
 			}
 		}
@@ -459,7 +459,7 @@ public:
 			case VT_USTRING:
 				m_pData[0]=ClearType;
 				*((UINT *)(m_pData+sizeof(BYTE)))=0;
-				*((wchar_t *)(m_pData+sizeof(BYTE)+sizeof(UINT)))=0;
+				*((WCHAR *)(m_pData+sizeof(BYTE)+sizeof(UINT)))=0;
 				break;	
 			case VT_STRUCT:
 				m_pData[0]=ClearType;
@@ -473,7 +473,7 @@ public:
 			case VT_USTRING_TINY:
 				m_pData[0]=ClearType;
 				*((WORD *)(m_pData+sizeof(BYTE)))=0;
-				*((wchar_t *)(m_pData+sizeof(BYTE)+sizeof(WORD)))=0;
+				*((WCHAR *)(m_pData+sizeof(BYTE)+sizeof(WORD)))=0;
 				break;
 			case VT_STRUCT_TINY:
 				m_pData[0]=ClearType;
@@ -571,13 +571,13 @@ public:
 		case VT_STRING:
 			return *((UINT *)(m_pData+sizeof(BYTE)))+sizeof(BYTE)+sizeof(UINT)+sizeof(char);
 		case VT_USTRING:
-			return *((UINT *)(m_pData+sizeof(BYTE)))+sizeof(BYTE)+sizeof(UINT)+sizeof(wchar_t);
+			return *((UINT *)(m_pData+sizeof(BYTE)))+sizeof(BYTE)+sizeof(UINT)+sizeof(WCHAR);
 		case VT_STRUCT:
 			return *((UINT *)(m_pData+sizeof(BYTE)))+sizeof(BYTE)+sizeof(UINT);
 		case VT_STRING_TINY:
 			return *((WORD *)(m_pData+sizeof(BYTE)))+sizeof(BYTE)+sizeof(WORD)+sizeof(char);
 		case VT_USTRING_TINY:
-			return *((WORD *)(m_pData+sizeof(BYTE)))+sizeof(BYTE)+sizeof(WORD)+sizeof(wchar_t);
+			return *((WORD *)(m_pData+sizeof(BYTE)))+sizeof(BYTE)+sizeof(WORD)+sizeof(WCHAR);
 		case VT_STRUCT_TINY:
 			return *((WORD *)(m_pData+sizeof(BYTE)))+sizeof(BYTE)+sizeof(WORD);
 		case VT_BOOL:
@@ -953,17 +953,32 @@ public:
 		return "";
 	}
 
-	operator const wchar_t *() const
+	operator const WCHAR *() const
 	{
-		static wchar_t pEmptyStr[1]={0};
+		static WCHAR pEmptyStr[1]={0};
 		switch(GetType())
 		{			
 		case VT_USTRING:
-			return (wchar_t *)(m_pData+sizeof(BYTE)+sizeof(UINT));
+			return (WCHAR *)(m_pData+sizeof(BYTE)+sizeof(UINT));
 		case VT_USTRING_TINY:
-			return (wchar_t *)(m_pData+sizeof(BYTE)+sizeof(WORD));
+			return (WCHAR *)(m_pData+sizeof(BYTE)+sizeof(WORD));
 		}		
 		return pEmptyStr;
+	}
+
+	operator CEasyString() const
+	{
+		switch (GetType())
+		{
+		case VT_STRING:
+			return CEasyString((const char *)(m_pData + sizeof(BYTE) + sizeof(UINT)));
+		case VT_STRING_TINY:
+			return CEasyString((const char *)(m_pData + sizeof(BYTE) + sizeof(WORD)));
+		case VT_USTRING:
+			return CEasyString((WCHAR *)(m_pData + sizeof(BYTE) + sizeof(UINT)));
+		case VT_USTRING_TINY:
+			return CEasyString((WCHAR *)(m_pData + sizeof(BYTE) + sizeof(WORD)));
+		}
 	}
 
 
@@ -997,61 +1012,61 @@ public:
 		return false;
 	}
 
-	const CEasyString ToStr() const
-	{
-		CEasyString String;
-		GetStr(String);		
-		return String;
-	}
-
-	void GetStr(CEasyString& String) const
-	{
-		switch(GetType())
-		{	
-		case VT_STRING:
-#ifdef WIN32
-			if(CSmartValue::IsConvertWideCharToUTF8()&&String.IsUnicode())
-			{
-				const char * szSrc=(const char *)(m_pData+sizeof(BYTE)+sizeof(UINT));
-				int SrcLen=(int)strlen(szSrc);
-				int DestLen=0;
-				DestLen=MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,NULL,0);
-				String.Resize(DestLen,false);
-				MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,(wchar_t *)String.GetBuffer(),DestLen);
-				String.TrimBuffer();
-			}
-			else
-#endif
-			{
-				String=(const char *)(m_pData+sizeof(BYTE)+sizeof(UINT));
-			}			
-			break;
-		case VT_STRING_TINY:
-#ifdef WIN32
-			if(CSmartValue::IsConvertWideCharToUTF8()&&String.IsUnicode())
-			{
-				const char * szSrc=(const char *)(m_pData+sizeof(BYTE)+sizeof(WORD));
-				int SrcLen = (int)strlen(szSrc);
-				int DestLen=0;
-				DestLen=MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,NULL,0);
-				String.Resize(DestLen,false);
-				MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,(wchar_t *)String.GetBuffer(),DestLen);
-				String.TrimBuffer();
-			}
-			else
-#endif
-			{
-				String=(const char *)(m_pData+sizeof(BYTE)+sizeof(WORD));
-			}			
-			break;
-		case VT_USTRING:
-			String=(wchar_t *)(m_pData+sizeof(BYTE)+sizeof(UINT));
-			break;
-		case VT_USTRING_TINY:
-			String=(wchar_t *)(m_pData+sizeof(BYTE)+sizeof(WORD));
-			break;
-		}
-	}
+//	const CEasyString ToStr() const
+//	{
+//		CEasyString String;
+//		GetStr(String);		
+//		return String;
+//	}
+//
+//	void GetStr(CEasyString& String) const
+//	{
+//		switch(GetType())
+//		{	
+//		case VT_STRING:
+//#ifdef WIN32
+//			if(CSmartValue::IsConvertWideCharToUTF8()&&String.IsUnicode())
+//			{
+//				const char * szSrc=(const char *)(m_pData+sizeof(BYTE)+sizeof(UINT));
+//				int SrcLen=(int)strlen(szSrc);
+//				int DestLen=0;
+//				DestLen=MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,NULL,0);
+//				String.Resize(DestLen,false);
+//				MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,(WCHAR *)String.GetBuffer(),DestLen);
+//				String.TrimBuffer();
+//			}
+//			else
+//#endif
+//			{
+//				String=(const char *)(m_pData+sizeof(BYTE)+sizeof(UINT));
+//			}			
+//			break;
+//		case VT_STRING_TINY:
+//#ifdef WIN32
+//			if(CSmartValue::IsConvertWideCharToUTF8()&&String.IsUnicode())
+//			{
+//				const char * szSrc=(const char *)(m_pData+sizeof(BYTE)+sizeof(WORD));
+//				int SrcLen = (int)strlen(szSrc);
+//				int DestLen=0;
+//				DestLen=MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,NULL,0);
+//				String.Resize(DestLen,false);
+//				MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,(WCHAR *)String.GetBuffer(),DestLen);
+//				String.TrimBuffer();
+//			}
+//			else
+//#endif
+//			{
+//				String=(const char *)(m_pData+sizeof(BYTE)+sizeof(WORD));
+//			}			
+//			break;
+//		case VT_USTRING:
+//			String=(WCHAR *)(m_pData+sizeof(BYTE)+sizeof(UINT));
+//			break;
+//		case VT_USTRING_TINY:
+//			String=(WCHAR *)(m_pData+sizeof(BYTE)+sizeof(WORD));
+//			break;
+//		}
+//	}
 	
 	void operator=(const CSmartValue& Value)
 	{
@@ -1608,7 +1623,7 @@ public:
 			SetString(Value,(UINT)strlen(Value));
 	}
 
-	void operator=(const wchar_t * Value)
+	void operator=(const WCHAR * Value)
 	{
 		Destory();
 		if(Value)
@@ -1643,51 +1658,48 @@ public:
 		}
 	}
 
-	void SetString(const wchar_t * pStr,UINT Len)
+	void SetString(const WCHAR * pStr,UINT Len)
 	{
 		if(GetType()==VT_USTRING)			
 		{
-			UINT MaxLen=m_DataLen-sizeof(BYTE)-sizeof(UINT)-sizeof(wchar_t);
+			UINT MaxLen=m_DataLen-sizeof(BYTE)-sizeof(UINT)-sizeof(WCHAR);
 			if(Len>MaxLen)
 				Len=MaxLen;		
-			*((UINT *)(m_pData+sizeof(BYTE)))=Len*sizeof(wchar_t);
-			memcpy(m_pData+sizeof(BYTE)+sizeof(UINT),pStr,Len*sizeof(wchar_t));
-			*((wchar_t *)(m_pData+sizeof(BYTE)+sizeof(UINT)+Len*sizeof(wchar_t)))=0;
+			*((UINT *)(m_pData+sizeof(BYTE)))=Len*sizeof(WCHAR);
+			memcpy(m_pData+sizeof(BYTE)+sizeof(UINT),pStr,Len*sizeof(WCHAR));
+			*((WCHAR *)(m_pData+sizeof(BYTE)+sizeof(UINT)+Len*sizeof(WCHAR)))=0;
 		}
 		else if(GetType()==VT_USTRING_TINY)
 		{
-			WORD MaxLen=(WORD)(m_DataLen-sizeof(BYTE)-sizeof(WORD)-sizeof(wchar_t));
+			WORD MaxLen=(WORD)(m_DataLen-sizeof(BYTE)-sizeof(WORD)-sizeof(WCHAR));
 			if(Len>MaxLen)
 				Len=MaxLen;		
-			*((WORD *)(m_pData+sizeof(BYTE)))=(WORD)(Len*sizeof(wchar_t));
-			memcpy(m_pData+sizeof(BYTE)+sizeof(WORD),pStr,Len*sizeof(wchar_t));
-			*((wchar_t *)(m_pData+sizeof(BYTE)+sizeof(WORD)+Len*sizeof(wchar_t)))=0;
+			*((WORD *)(m_pData+sizeof(BYTE)))=(WORD)(Len*sizeof(WCHAR));
+			memcpy(m_pData+sizeof(BYTE)+sizeof(WORD),pStr,Len*sizeof(WCHAR));
+			*((WCHAR *)(m_pData+sizeof(BYTE)+sizeof(WORD)+Len*sizeof(WCHAR)))=0;
 		}
-#ifdef WIN32
-		else if(GetType()==VT_STRING&&IsConvertWideCharToUTF8())			
-		{
-			UINT UTF8Len=(UINT)UnicodeToUTF8(pStr,Len,NULL,0);
-			UINT MaxLen=m_DataLen-sizeof(BYTE)-sizeof(UINT)-sizeof(char);
-			if(UTF8Len>MaxLen)
-				UTF8Len=MaxLen;
-			*((UINT *)(m_pData+sizeof(BYTE)))=UTF8Len*sizeof(char);
-			UnicodeToUTF8(pStr,Len,(char *)m_pData+sizeof(BYTE)+sizeof(UINT),UTF8Len);			
-			*((char *)(m_pData+sizeof(BYTE)+sizeof(UINT)+UTF8Len*sizeof(char)))=0;
-		}
-		else if(GetType()==VT_STRING_TINY&&IsConvertWideCharToUTF8())
-		{
-			UINT UTF8Len=(UINT)UnicodeToUTF8(pStr,Len,NULL,0);
-			WORD MaxLen=(WORD)(m_DataLen-sizeof(BYTE)-sizeof(WORD)-sizeof(char));
-			if(UTF8Len>MaxLen)
-				UTF8Len=MaxLen;
-			*((WORD *)(m_pData+sizeof(BYTE)))=(WORD)(UTF8Len*sizeof(char));
-			UnicodeToUTF8(pStr,Len,(char *)m_pData+sizeof(BYTE)+sizeof(WORD),UTF8Len);
-			*((char *)(m_pData+sizeof(BYTE)+sizeof(WORD)+UTF8Len*sizeof(char)))=0;
-		}
-#endif
+		//else if(GetType()==VT_STRING)			
+		//{
+		//	UINT UTF8Len=(UINT)UnicodeToUTF8(pStr,Len,NULL,0);
+		//	UINT MaxLen=m_DataLen-sizeof(BYTE)-sizeof(UINT)-sizeof(char);
+		//	if(UTF8Len>MaxLen)
+		//		UTF8Len=MaxLen;
+		//	*((UINT *)(m_pData+sizeof(BYTE)))=UTF8Len*sizeof(char);
+		//	UnicodeToUTF8(pStr,Len,(char *)m_pData+sizeof(BYTE)+sizeof(UINT),UTF8Len);			
+		//	*((char *)(m_pData+sizeof(BYTE)+sizeof(UINT)+UTF8Len*sizeof(char)))=0;
+		//}
+		//else if(GetType()==VT_STRING_TINY)
+		//{
+		//	UINT UTF8Len=(UINT)UnicodeToUTF8(pStr,Len,NULL,0);
+		//	WORD MaxLen=(WORD)(m_DataLen-sizeof(BYTE)-sizeof(WORD)-sizeof(char));
+		//	if(UTF8Len>MaxLen)
+		//		UTF8Len=MaxLen;
+		//	*((WORD *)(m_pData+sizeof(BYTE)))=(WORD)(UTF8Len*sizeof(char));
+		//	UnicodeToUTF8(pStr,Len,(char *)m_pData+sizeof(BYTE)+sizeof(WORD),UTF8Len);
+		//	*((char *)(m_pData+sizeof(BYTE)+sizeof(WORD)+UTF8Len*sizeof(char)))=0;
+		//}
 	}
 
 	static int GetTypeFromData(LPCVOID pData,UINT DataSize);
-	static void EnableConvertWideCharToUTF8(bool Enable);
-	static bool IsConvertWideCharToUTF8();
+	
 };

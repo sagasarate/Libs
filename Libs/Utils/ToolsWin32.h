@@ -50,9 +50,15 @@ inline CEasyString MakeFullPath(LPCTSTR Path)
 {
 	CEasyString FilePath;
 	FilePath.Resize(MAX_PATH);
-	_tfullpath(FilePath,Path,MAX_PATH);
-	FilePath.TrimBuffer();
-	return FilePath;
+	if(_tfullpath(FilePath,Path,MAX_PATH))
+	{
+		FilePath.TrimBuffer();
+		return FilePath;
+	}
+	else
+	{
+		return CEasyString();
+	}
 }
 
 inline CEasyString MakeModuleFullPath(HMODULE hModule,LPCTSTR Path)
@@ -130,6 +136,26 @@ inline bool CreateDirEx(LPCTSTR szDirName)
 		return true;
 	else
 		return false;
+}
+
+inline bool IsFileExist(LPCTSTR szFileName)
+{
+	WIN32_FILE_ATTRIBUTE_DATA FileAttr;
+	if (GetFileAttributesEx(szFileName, GetFileExInfoStandard, &FileAttr))
+	{
+		return (FileAttr.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) == 0;
+	}
+	return false;
+}
+
+inline bool IsDirExist(LPCTSTR szDirName)
+{
+	WIN32_FILE_ATTRIBUTE_DATA FileAttr;
+	if (GetFileAttributesEx(szDirName, GetFileExInfoStandard, &FileAttr))
+	{
+		return (FileAttr.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) != 0;
+	}
+	return false;
 }
 
 inline UINT GetCurProcessID()

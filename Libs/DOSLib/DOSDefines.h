@@ -16,6 +16,8 @@
 //#define DOS_PROXY_KEEP_ALIVE_TIME		(10000)
 //#define DOS_PROXY_KEEP_ALIVE_MAX_COUNT	(20)
 
+typedef bool (*DOS_GROUP_INIT_FN)(UINT GroupIndex);
+
 enum MSG_COMPRESS_TYPE
 {
 	MSG_COMPRESS_NONE,
@@ -90,10 +92,11 @@ struct DOS_CONFIG
 	UINT										ObjectAliveCheckTime;
 	UINT										ObjectKeepAliveCount;
 	bool										StatObjectCPUCost;
+	DOS_GROUP_INIT_FN							pDOSGroupInitFN;
 
 	DOS_CONFIG()
 	{
-		RouterID=1;	
+		RouterID=0;	
 		MaxRouterSendMsgQueue=10240;
 		RouterMsgProcessLimit=32;
 		
@@ -107,6 +110,7 @@ struct DOS_CONFIG
 		ObjectAliveCheckTime=1000;
 		ObjectKeepAliveCount=5;
 		StatObjectCPUCost=false;
+		pDOSGroupInitFN = NULL;
 	}
 };
 
@@ -120,7 +124,7 @@ struct DOS_OBJECT_REGISTER_INFO
 	UINT				MsgQueueSize;
 	UINT				MsgProcessLimit;
 	CDOSBaseObject *	pObject;
-	UINT				Param;
+	//UINT				Param;
 
 	DOS_OBJECT_REGISTER_INFO()
 	{
@@ -130,7 +134,7 @@ struct DOS_OBJECT_REGISTER_INFO
 		MsgQueueSize=0;
 		MsgProcessLimit=0;
 		pObject=NULL;
-		Param=0;
+		//Param=0;
 	}
 };
 

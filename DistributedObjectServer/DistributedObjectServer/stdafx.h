@@ -1,45 +1,45 @@
-// stdafx.h : ±ê×¼ÏµÍ³°üº¬ÎÄ¼şµÄ°üº¬ÎÄ¼ş£¬
-// »òÊÇ¾­³£Ê¹ÓÃµ«²»³£¸ü¸ÄµÄ
-// ÏîÄ¿ÌØ¶¨µÄ°üº¬ÎÄ¼ş
+ï»¿// stdafx.h : æ ‡å‡†ç³»ç»ŸåŒ…å«æ–‡ä»¶çš„åŒ…å«æ–‡ä»¶ï¼Œ
+// æˆ–æ˜¯ç»å¸¸ä½¿ç”¨ä½†ä¸å¸¸æ›´æ”¹çš„
+// é¡¹ç›®ç‰¹å®šçš„åŒ…å«æ–‡ä»¶
 
 #pragma once
 
 #ifdef WIN32
 
 #ifndef VC_EXTRALEAN
-#define VC_EXTRALEAN		// ´Ó Windows ±êÍ·ÖĞÅÅ³ı²»³£Ê¹ÓÃµÄ×ÊÁÏ
+#define VC_EXTRALEAN		// ä» Windows æ ‡å¤´ä¸­æ’é™¤ä¸å¸¸ä½¿ç”¨çš„èµ„æ–™
 #endif
 
-// Èç¹ûÄú±ØĞëÊ¹ÓÃÏÂÁĞËùÖ¸¶¨µÄÆ½Ì¨Ö®Ç°µÄÆ½Ì¨£¬ÔòĞŞ¸ÄÏÂÃæµÄ¶¨Òå¡£
-// ÓĞ¹Ø²»Í¬Æ½Ì¨µÄÏàÓ¦ÖµµÄ×îĞÂĞÅÏ¢£¬Çë²Î¿¼ MSDN¡£
-#ifndef WINVER				// ÔÊĞíÊ¹ÓÃ Windows 95 ºÍ Windows NT 4 »ò¸ü¸ß°æ±¾µÄÌØ¶¨¹¦ÄÜ¡£
-#define WINVER 0x0501		//Îª Windows98 ºÍ Windows 2000 ¼°¸üĞÂ°æ±¾¸Ä±äÎªÊÊµ±µÄÖµ¡£
+// å¦‚æœæ‚¨å¿…é¡»ä½¿ç”¨ä¸‹åˆ—æ‰€æŒ‡å®šçš„å¹³å°ä¹‹å‰çš„å¹³å°ï¼Œåˆ™ä¿®æ”¹ä¸‹é¢çš„å®šä¹‰ã€‚
+// æœ‰å…³ä¸åŒå¹³å°çš„ç›¸åº”å€¼çš„æœ€æ–°ä¿¡æ¯ï¼Œè¯·å‚è€ƒ MSDNã€‚
+#ifndef WINVER				// å…è®¸ä½¿ç”¨ Windows 95 å’Œ Windows NT 4 æˆ–æ›´é«˜ç‰ˆæœ¬çš„ç‰¹å®šåŠŸèƒ½ã€‚
+#define WINVER 0x0501		//ä¸º Windows98 å’Œ Windows 2000 åŠæ›´æ–°ç‰ˆæœ¬æ”¹å˜ä¸ºé€‚å½“çš„å€¼ã€‚
 #endif
 
-#ifndef _WIN32_WINNT		// ÔÊĞíÊ¹ÓÃ Windows NT 4 »ò¸ü¸ß°æ±¾µÄÌØ¶¨¹¦ÄÜ¡£
-#define _WIN32_WINNT 0x0501		//Îª Windows98 ºÍ Windows 2000 ¼°¸üĞÂ°æ±¾¸Ä±äÎªÊÊµ±µÄÖµ¡£
+#ifndef _WIN32_WINNT		// å…è®¸ä½¿ç”¨ Windows NT 4 æˆ–æ›´é«˜ç‰ˆæœ¬çš„ç‰¹å®šåŠŸèƒ½ã€‚
+#define _WIN32_WINNT 0x0501		//ä¸º Windows98 å’Œ Windows 2000 åŠæ›´æ–°ç‰ˆæœ¬æ”¹å˜ä¸ºé€‚å½“çš„å€¼ã€‚
 #endif
 
-#ifndef _WIN32_WINDOWS		// ÔÊĞíÊ¹ÓÃ Windows 98 »ò¸ü¸ß°æ±¾µÄÌØ¶¨¹¦ÄÜ¡£
-#define _WIN32_WINDOWS 0x0510 //Îª Windows Me ¼°¸üĞÂ°æ±¾¸Ä±äÎªÊÊµ±µÄÖµ¡£
+#ifndef _WIN32_WINDOWS		// å…è®¸ä½¿ç”¨ Windows 98 æˆ–æ›´é«˜ç‰ˆæœ¬çš„ç‰¹å®šåŠŸèƒ½ã€‚
+#define _WIN32_WINDOWS 0x0510 //ä¸º Windows Me åŠæ›´æ–°ç‰ˆæœ¬æ”¹å˜ä¸ºé€‚å½“çš„å€¼ã€‚
 #endif
 
-#ifndef _WIN32_IE			// ÔÊĞíÊ¹ÓÃ IE 4.0 »ò¸ü¸ß°æ±¾µÄÌØ¶¨¹¦ÄÜ¡£
-#define _WIN32_IE 0x0501	//Îª IE 5.0 ¼°¸üĞÂ°æ±¾¸Ä±äÎªÊÊµ±µÄÖµ¡£
+#ifndef _WIN32_IE			// å…è®¸ä½¿ç”¨ IE 4.0 æˆ–æ›´é«˜ç‰ˆæœ¬çš„ç‰¹å®šåŠŸèƒ½ã€‚
+#define _WIN32_IE 0x0501	//ä¸º IE 5.0 åŠæ›´æ–°ç‰ˆæœ¬æ”¹å˜ä¸ºé€‚å½“çš„å€¼ã€‚
 #endif
 
-#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// Ä³Ğ© CString ¹¹Ôìº¯Êı½«ÊÇÏÔÊ½µÄ
+#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// æŸäº› CString æ„é€ å‡½æ•°å°†æ˜¯æ˜¾å¼çš„
 
-// ¹Ø±Õ MFC ¶ÔÄ³Ğ©³£¼ûµ«¾­³£±»°²È«ºöÂÔµÄ¾¯¸æÏûÏ¢µÄÒş²Ø
+// å…³é—­ MFC å¯¹æŸäº›å¸¸è§ä½†ç»å¸¸è¢«å®‰å…¨å¿½ç•¥çš„è­¦å‘Šæ¶ˆæ¯çš„éšè—
 #define _AFX_ALL_WARNINGS
 
-#include <afxwin.h>         // MFC ºËĞÄºÍ±ê×¼×é¼ş
-#include <afxext.h>         // MFC À©Õ¹
-#include <afxdisp.h>        // MFC ×Ô¶¯»¯Àà
+#include <afxwin.h>         // MFC æ ¸å¿ƒå’Œæ ‡å‡†ç»„ä»¶
+#include <afxext.h>         // MFC æ‰©å±•
+#include <afxdisp.h>        // MFC è‡ªåŠ¨åŒ–ç±»
 
-#include <afxdtctl.h>		// Internet Explorer 4 ¹«¹²¿Ø¼şµÄ MFC Ö§³Ö
+#include <afxdtctl.h>		// Internet Explorer 4 å…¬å…±æ§ä»¶çš„ MFC æ”¯æŒ
 #ifndef _AFX_NO_AFXCMN_SUPPORT
-#include <afxcmn.h>			// Windows ¹«¹²¿Ø¼şµÄ MFC Ö§³Ö
+#include <afxcmn.h>			// Windows å…¬å…±æ§ä»¶çš„ MFC æ”¯æŒ
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
 
@@ -61,6 +61,54 @@
 #define PLUGIN_QUERY_RELEASE_FN_NAME	"QueryReleasePlugin"
 #define PLUGIN_RELEASE_FN_NAME			"ReleasePlugin"
 
+#define MONO_ASSEMBLY_DOSSYSTEM							"DOSSystem.dll"
+#define MONO_NAME_SPACE_DOSSYSTEM						"DOSSystem"
+#define MONO_CLASS_NAME_OBJECT_ID						"OBJECT_ID"
+#define MONO_CLASS_NAME_DISTRIBUTED_OBJECT_OPERATOR		"DistributedObjectOperator"
+#define MONO_CLASS_NAME_DOS_OBJECT_REGISTER_INFO_EX		"DOS_OBJECT_REGISTER_INFO_EX"
+
+#define MONO_CLASS_FIELD_NAME_OBJECT_ID_ID				"ID"
+
+#define MONO_CLASS_FIELD_NAME_DORI_OBJECT_ID			"ObjectID"
+#define MONO_CLASS_FIELD_NAME_DORI_WEIGHT				"Weight"
+#define MONO_CLASS_FIELD_NAME_DORI_OBJECT_GROUP_INDEX	"ObjectGroupIndex"
+#define MONO_CLASS_FIELD_NAME_DORI_MSG_QUEUE_SIZE		"MsgQueueSize"
+#define MONO_CLASS_FIELD_NAME_DORI_MSG_PROCESS_LIMIT	"MsgProcessLimit"
+#define MONO_CLASS_FIELD_NAME_DORI_OBJECT				"Object"
+
+
+#define MONO_CLASS_METHOD_NAME_DO_INITIALIZE				"Initialize"
+#define MONO_CLASS_METHOD_NAME_DO_DESTORY					"Destory"
+#define MONO_CLASS_METHOD_NAME_DO_ONPRETRANSLATEMESSAGE		"OnPreTranslateMessage"
+#define MONO_CLASS_METHOD_NAME_DO_ONMESSAGE					"OnMessage"
+#define MONO_CLASS_METHOD_NAME_DO_ONSYSTEMMESSAGE			"OnSystemMessage"
+#define MONO_CLASS_METHOD_NAME_DO_ONCONCERNEDOBJECTLOST		"OnConcernedObjectLost"
+#define MONO_CLASS_METHOD_NAME_DO_ONFINDOBJECT				"OnFindObject"
+#define MONO_CLASS_METHOD_NAME_DO_ONOBJECTREPORT			"OnObjectReport"
+#define MONO_CLASS_METHOD_NAME_DO_ONPROXYOBJECTIPREPORT		"OnProxyObjectIPReport"
+#define MONO_CLASS_METHOD_NAME_DO_ONSHUTDOWN				"OnShutDown"
+#define MONO_CLASS_METHOD_NAME_DO_UPDATE					"Update"
+
+#define MONO_CLASS_METHOD_PARAM_DO_INITIALIZE				1
+#define MONO_CLASS_METHOD_PARAM_DO_DESTORY					0
+#define MONO_CLASS_METHOD_PARAM_DO_ONPRETRANSLATEMESSAGE	1
+#define MONO_CLASS_METHOD_PARAM_DO_ONMESSAGE				1
+#define MONO_CLASS_METHOD_PARAM_DO_ONSYSTEMMESSAGE			1
+#define MONO_CLASS_METHOD_PARAM_DO_ONCONCERNEDOBJECTLOST	1
+#define MONO_CLASS_METHOD_PARAM_DO_ONFINDOBJECT				1
+#define MONO_CLASS_METHOD_PARAM_DO_ONOBJECTREPORT			2
+#define MONO_CLASS_METHOD_PARAM_DO_ONPROXYOBJECTIPREPORT	4
+#define MONO_CLASS_METHOD_PARAM_DO_ONSHUTDOWN				1
+#define MONO_CLASS_METHOD_PARAM_DO_UPDATE					1
+
+
+#define MONO_CLASS_METHOD_NAME_OBJECT_ID_CTOR			".ctor"
+#define MONO_CLASS_METHOD_PARAM_OBJECT_ID_CTOR			1
+#define MONO_CLASS_METHOD_NAME_DOO_CTOR					".ctor"
+#define MONO_CLASS_METHOD_PARAM_DOO_CTOR				1
+
+#define MONO_DOMAIN_FINALIZE_TIMEOUT					(5*60*1000)
+
 #define PLUGIN_LOG_CHANNEL_START	12000
 
 #ifdef WIN32
@@ -72,6 +120,7 @@
 #include "../../Libs/ServerFrameWork/ServerFrameWork.h"
 
 #include "../../Libs/DOSLib/DOSLib.h"
+#include "../../Libs//MonoWrapper/MonoWrapper.h"
 
 #ifndef WIN32
 
@@ -95,16 +144,182 @@
 #define OBJECT_EXCEPTION_CATCH_END
 #endif
 
+extern "C" typedef BOOL(*PLUGIN_INIT_FN)(IDistributedObjectManager* pObjectManager, UINT PluginID, UINT LogChannel);
+extern "C" typedef void(*PLUGIN_QUERY_RELEASE_FN)();
+extern "C" typedef void(*PLUGIN_RELEASE_FN)();
+
+enum PLUGIN_TYPE
+{
+	PLUGIN_TYPE_NATIVE,
+	PLUGIN_TYPE_CSHARP,
+};
+enum PLUGIN_LOAD_TYPE
+{
+	PLUGIN_LOAD_TYPE_ASSEMBLY,
+	PLUGIN_LOAD_TYPE_SOURCE_CODE,
+};
+enum PLUGIN_STATUS
+{
+	PLUGIN_STATUS_NONE,
+	PLUGIN_STATUS_COMPILEING,
+	PLUGIN_STATUS_COMPILED,
+	PLUGIN_STATUS_RUNNING,
+	PLUGIN_STATUS_ERROR,
+};
+
+struct MONO_CLASS_INFO_DORI
+{
+	MonoClass *			pClass;
+	MonoClassField *	pFeildObjectID;
+	MonoClassField *	pFeildWeight;
+	MonoClassField *	pFeildObjectGroupIndex;
+	MonoClassField *	pFeildMsgQueueSize;
+	MonoClassField *	pFeildMsgProcessLimit;
+	MonoClassField *	pFeildObject;
+	MONO_CLASS_INFO_DORI()
+	{
+		pClass = NULL;
+		pFeildObjectID = NULL;
+		pFeildWeight = NULL;
+		pFeildObjectGroupIndex = NULL;
+		pFeildMsgQueueSize = NULL;
+		pFeildMsgProcessLimit = NULL;
+		pFeildObject = NULL;
+	}
+	bool IsValid()
+	{
+		return pClass != NULL&&pFeildObjectID != NULL&&pFeildWeight != NULL&&
+			pFeildObjectGroupIndex != NULL&&pFeildMsgQueueSize != NULL&&
+			pFeildMsgProcessLimit != NULL&&pFeildObject != NULL;
+	}
+};
+
+struct MONO_DOMAIN_INFO
+{
+	MonoDomain *						pMonoDomain;
+	MonoAssembly *						pMonoAssembly_DOSSystem;
+	MonoClass *							pMonoClass_ObjectID;
+	MonoClassField *					pMonoClassField_ObjectID_ID;
+	MonoMethod *						pMonoClassMethod_ObjectID_Ctor;
+	MonoClass *							pMonoClass_DistributedObjectOperator;
+	MonoMethod *						pMonoClassMethod_DistributedObjectOperator_Ctor;
+	MONO_CLASS_INFO_DORI				MonoClassInfo_DORI;
+
+	MONO_DOMAIN_INFO()
+	{
+		pMonoDomain = NULL;
+		pMonoAssembly_DOSSystem = NULL;
+		pMonoClass_ObjectID = NULL;
+		pMonoClassField_ObjectID_ID = NULL;
+		pMonoClassMethod_ObjectID_Ctor = NULL;
+		pMonoClass_DistributedObjectOperator = NULL;
+		pMonoClassMethod_DistributedObjectOperator_Ctor = NULL;
+	}
+};
+
+struct PLUGIN_INFO
+{
+	PLUGIN_TYPE					PluginType;
+	CEasyString					PluginName;
+	PLUGIN_LOAD_TYPE			LoadType;
+	CEasyArray<CEasyString>		SourceDirs;
+	CEasyString					MainClassNameSpace;
+	CEasyString					MainClass;
+
+	UINT						ID;
+	PLUGIN_STATUS				PluginStatus;
+	CEasyString					ModuleFileName;
+	HMODULE						hModule;
+	PLUGIN_INIT_FN				pInitFN;
+	PLUGIN_QUERY_RELEASE_FN		pQueryReleaseFN;
+	PLUGIN_RELEASE_FN			pReleaseFN;
+	MonoAssembly *				pCSPluginAssembly;
+	UINT						hCSMainObj;
+	HANDLE						hMCSProcess;
+	UINT						LogChannel;
+	MONO_DOMAIN_INFO			MonoDomainInfo;
+
+	PLUGIN_INFO()
+	{
+		PluginType = PLUGIN_TYPE_NATIVE;
+		LoadType = PLUGIN_LOAD_TYPE_ASSEMBLY;
+
+
+		ID = 0;
+		PluginStatus = PLUGIN_STATUS_NONE;
+		hModule = NULL;
+		pInitFN = NULL;
+		pQueryReleaseFN = NULL;
+		pReleaseFN = NULL;
+		pCSPluginAssembly = NULL;
+		hCSMainObj = 0;
+		hMCSProcess = NULL;
+		LogChannel = 0;
+	}
+};
+
+struct DOS_OBJECT_REGISTER_INFO_FOR_CS
+{
+	OBJECT_ID				ObjectID;
+	int						Weight;
+	int						ObjectGroupIndex;
+	UINT					MsgQueueSize;
+	UINT					MsgProcessLimit;
+	MonoObject * 			pObject;
+};
+
+
+
+struct MONO_CLASS_INFO_DO
+{
+	MonoClass *			pClass;
+	MonoMethod *		pInitializeMethod;
+	MonoMethod *		pDestoryMethod;
+	MonoMethod *		pOnPreTranslateMessageMethod;
+	MonoMethod *		pOnMessageMethod;
+	MonoMethod *		pOnSystemMessageMethod;
+	MonoMethod *		pOnConcernedObjectLostMethod;
+	MonoMethod *		pOnFindObjectMethod;
+	MonoMethod *		pOnObjectReportMethod;
+	MonoMethod *		pOnProxyObjectIPReportMethod;
+	MonoMethod *		pOnShutDownMethod;
+	MonoMethod *		pUpdateMethod;
+	MONO_CLASS_INFO_DO()
+	{
+		pClass = NULL;
+		pInitializeMethod = NULL;
+		pDestoryMethod = NULL;
+		pOnPreTranslateMessageMethod = NULL;
+		pOnMessageMethod = NULL;
+		pOnSystemMessageMethod = NULL;
+		pOnConcernedObjectLostMethod = NULL;
+		pOnFindObjectMethod = NULL;
+		pOnObjectReportMethod = NULL;
+		pOnProxyObjectIPReportMethod = NULL;
+		pOnShutDownMethod = NULL;
+		pUpdateMethod = NULL;
+	}
+	bool IsValid()
+	{
+		return pClass != NULL&&pInitializeMethod != NULL&&pDestoryMethod != NULL&&
+			pOnPreTranslateMessageMethod != NULL&&pOnMessageMethod != NULL&&
+			pOnSystemMessageMethod != NULL&&pOnConcernedObjectLostMethod != NULL&&
+			pOnFindObjectMethod != NULL&&pOnObjectReportMethod != NULL&&
+			pOnProxyObjectIPReportMethod != NULL&&pOnShutDownMethod != NULL&&
+			pUpdateMethod != NULL;
+	}
+};
+
+
 #include "DistributedObjectOperator.h"
 #include "DistributedObjectManager.h"
 
-extern "C" typedef BOOL (*PLUGIN_INIT_FN)(IDistributedObjectManager* pObjectManager,UINT PluginID,UINT LogChannel);
-extern "C" typedef void (*PLUGIN_QUERY_RELEASE_FN)();
-extern "C" typedef void (*PLUGIN_RELEASE_FN)();
 
+
+#include "DOSMainApp.h"
 #include "DOSServerThread.h"
-#include "MainConfig.h"
-#include "MainThread.h"
+#include "DOSConfig.h"
+#include "DOSMainThread.h"
 
 
 //#define PERFORMANCE_STAT

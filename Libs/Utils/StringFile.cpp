@@ -165,15 +165,15 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 	{
 		if(m_LocalCodePage==CP_UTF8)
 		{
-			m_iDataSize=UnicodeToUTF8((wchar_t *)Buffer.GetBuffer()+1,FileSize/2-1,NULL,0);
+			m_iDataSize=UnicodeToUTF8((WCHAR *)Buffer.GetBuffer()+1,FileSize/2-1,NULL,0);
 			m_pData=new TCHAR[m_iDataSize+1];
-			UnicodeToUTF8((wchar_t *)Buffer.GetBuffer()+1,FileSize/2-1,m_pData,m_iDataSize);
+			UnicodeToUTF8((WCHAR *)Buffer.GetBuffer()+1,FileSize/2-1,m_pData,m_iDataSize);
 		}
 		else
 		{
-			m_iDataSize=UnicodeToAnsi((wchar_t *)Buffer.GetBuffer()+1,FileSize/2-1,NULL,0);
+			m_iDataSize=UnicodeToAnsi((WCHAR *)Buffer.GetBuffer()+1,FileSize/2-1,NULL,0);
 			m_pData=new TCHAR[m_iDataSize+1];
-			UnicodeToAnsi((wchar_t *)Buffer.GetBuffer()+1,FileSize/2-1,m_pData,m_iDataSize);
+			UnicodeToAnsi((WCHAR *)Buffer.GetBuffer()+1,FileSize/2-1,m_pData,m_iDataSize);
 		}
 	}
 	else if(BomHeader==BMT_UTF_8)
@@ -288,7 +288,7 @@ BOOL CStringFile::SaveToFile(IFileAccessor * pFile)
 		UINT BomHeader=BMT_UTF_8;
 		pFile->Write(&BomHeader,3);
 		size_t StrLen=_tcslen(m_pData);
-		UINT64 WriteLen=AnsiToUTF8(m_pData,StrLen,NULL,0);
+		size_t WriteLen = AnsiToUTF8(m_pData, StrLen, NULL, 0);
 		char * pBuffer=new char[WriteLen+1];
 		WriteLen=AnsiToUTF8(m_pData,StrLen,pBuffer,WriteLen);
 		if(pFile->Write(pBuffer,WriteLen)!=WriteLen)
@@ -300,9 +300,9 @@ BOOL CStringFile::SaveToFile(IFileAccessor * pFile)
 		UINT BomHeader = BMT_UNICODE;
 		pFile->Write(&BomHeader, 2);
 		size_t StrLen = _tcslen(m_pData);
-		UINT64 WriteLen = AnsiToUnicode(m_pData, StrLen, NULL, 0);
-		wchar_t * pBuffer = new wchar_t[WriteLen + 1];
-		WriteLen = AnsiToUnicode(m_pData, StrLen, pBuffer, WriteLen)*sizeof(wchar_t);
+		size_t WriteLen = AnsiToUnicode(m_pData, StrLen, NULL, 0);
+		WCHAR * pBuffer = new WCHAR[WriteLen + 1];
+		WriteLen = AnsiToUnicode(m_pData, StrLen, pBuffer, WriteLen)*sizeof(WCHAR);
 		if (pFile->Write(pBuffer, WriteLen) != WriteLen)
 			Ret = FALSE;
 		delete[] pBuffer;
@@ -395,7 +395,7 @@ UINT	CStringFile::ProcData()
 		linecount++;
 
 	m_pData[rptr++] = 0;
-	m_pData[rptr++] = 0;
-	m_iDataSize = rptr;
+	//m_pData[rptr++] = 0;
+	//m_iDataSize = rptr;
 	return linecount;
 }

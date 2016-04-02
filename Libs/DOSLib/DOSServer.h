@@ -22,14 +22,14 @@ protected:
 	CDOSRouter*					m_pDOSRouterService;		
 	CDOSObjectManager *			m_pObjectManager;
 
-	CFastMemoryPool				m_MemoryPool;
+	CFastMemoryPool				m_MemoryPool;	
 
 	DECLARE_CLASS_INFO_STATIC(CDOSServer);
 public:
 	CDOSServer(void);
 	virtual ~CDOSServer(void);		
 
-	void SetConfig(DOS_CONFIG& Config);
+	void SetConfig(const DOS_CONFIG& Config);
 	DOS_CONFIG& GetConfig();
 
 	CDOSProxyManager * GetProxyManager();
@@ -46,10 +46,7 @@ protected:
 	
 };
 
-inline void CDOSServer::SetConfig(DOS_CONFIG& Config)
-{
-	m_ServerConfig=Config;
-}
+
 inline DOS_CONFIG& CDOSServer::GetConfig()
 {
 	return m_ServerConfig;

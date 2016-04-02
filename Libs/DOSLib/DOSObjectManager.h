@@ -23,7 +23,7 @@ protected:
 	CDOSServer *						m_pServer;	
 	CEasyArray<CDOSObjectGroup *>		m_ObjectGroups;	
 
-	DECLARE_CLASS_INFO(CDOSObjectManager);
+	DECLARE_CLASS_INFO_STATIC(CDOSObjectManager);
 public:
 	CDOSObjectManager(void);
 	virtual ~CDOSObjectManager(void);

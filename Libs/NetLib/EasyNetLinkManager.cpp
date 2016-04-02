@@ -28,7 +28,7 @@ CEasyNetLinkManager::~CEasyNetLinkManager(void)
 }
 
 
-BOOL CEasyNetLinkManager::Init(CNetServer * pServer,LPCTSTR ConfigFileName)
+BOOL CEasyNetLinkManager::Init(CNetServer * pServer, LPCTSTR ConfigFileName, UINT InitServerID)
 {
 	xml_parser Parser;
 
@@ -40,10 +40,10 @@ BOOL CEasyNetLinkManager::Init(CNetServer * pServer,LPCTSTR ConfigFileName)
 	if(!Config.moveto_child(_T("EasyLink")))
 		return FALSE;
 
-	return Init(pServer,Config);
+	return Init(pServer, Config, InitServerID);
 }
 
-BOOL CEasyNetLinkManager::Init(CNetServer * pServer,xml_node& Config)
+BOOL CEasyNetLinkManager::Init(CNetServer * pServer, xml_node& Config, UINT InitServerID)
 {
 	m_pServer=pServer;
 	if(m_pServer==NULL)
@@ -53,7 +53,12 @@ BOOL CEasyNetLinkManager::Init(CNetServer * pServer,xml_node& Config)
 	{
 		return FALSE;
 	}
-	CClassifiedID ServerID=(LPCTSTR)Config.attribute(_T("ServerID")).getvalue();
+	CClassifiedID ServerID;
+
+	if (InitServerID)
+		ServerID = InitServerID;
+	else
+		ServerID = (LPCTSTR)Config.attribute(_T("ServerID")).getvalue();
 
 	UINT ReallocIDRange=2048;
 	if(Config.has_attribute(_T("ReallocIDRange")))
@@ -78,13 +83,20 @@ BOOL CEasyNetLinkManager::Init(CNetServer * pServer,xml_node& Config)
 				NeedReallocConnectionID=(bool)Services.attribute(_T("ReallocConnectionID"));
 
 			CClassifiedID ReportID;
-			if(Services.has_attribute(_T("ReportID")))
+			if (InitServerID)
 			{
-				ReportID=Services.attribute(_T("ReportID")).getvalue();
+				ReportID = InitServerID;
 			}
 			else
 			{
-				ReportID=ServerID;
+				if (Services.has_attribute(_T("ReportID")))
+				{
+					ReportID = Services.attribute(_T("ReportID")).getvalue();
+				}
+				else
+				{
+					ReportID = ServerID;
+				}
 			}
 
 			for(UINT j=0;j<Services.children();j++)
@@ -97,7 +109,7 @@ BOOL CEasyNetLinkManager::Init(CNetServer * pServer,xml_node& Config)
 					{
 						CClassifiedID ID=(LPCTSTR)Service.attribute(_T("ID")).getvalue();
 						CIPAddress Address;
-						UINT MaxPacketSize=MAX_DATA_PACKET_SIZE;
+						UINT MaxPacketSize=NET_DATA_BLOCK_SIZE;
 						bool IsUseListenThread=true;
 						int ParallelAcceptCount=DEFAULT_PARALLEL_ACCEPT;
 						UINT AcceptQueueSize=DEFAULT_SERVER_ACCEPT_QUEUE;
@@ -161,13 +173,20 @@ BOOL CEasyNetLinkManager::Init(CNetServer * pServer,xml_node& Config)
 			xml_node Connections=Config.child(i);
 
 			CClassifiedID ReportID;
-			if(Connections.has_attribute(_T("ReportID")))
+			if (InitServerID)
 			{
-				ReportID=Connections.attribute(_T("ReportID")).getvalue();
+				ReportID = InitServerID;
 			}
 			else
 			{
-				ReportID=ServerID;
+				if (Connections.has_attribute(_T("ReportID")))
+				{
+					ReportID = Connections.attribute(_T("ReportID")).getvalue();
+				}
+				else
+				{
+					ReportID = ServerID;
+				}
 			}
 
 			for(UINT j=0;j<Connections.children();j++)
@@ -179,7 +198,7 @@ BOOL CEasyNetLinkManager::Init(CNetServer * pServer,xml_node& Config)
 						Connection.has_attribute(_T("Port")))
 					{
 						CIPAddress Address;
-						UINT MaxPacketSize=MAX_DATA_PACKET_SIZE;
+						UINT MaxPacketSize=NET_DATA_BLOCK_SIZE;
 						UINT RecvQueueSize=DEFAULT_SERVER_RECV_DATA_QUEUE;
 						UINT SendQueueSize=0;
 						CEasyStringA IPStr=Connection.attribute(_T("IP")).getvalue();

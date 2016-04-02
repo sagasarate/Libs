@@ -220,7 +220,8 @@ int CNetService::Update(int ProcessPacketLimit)
 		}
 		else if(pEpollEventObject->GetType()==IO_RECV)
 		{
-			OnRecvData(pEpollEventObject->GetAddress(),*pEpollEventObject->GetDataBuff());
+			OnRecvData(pEpollEventObject->GetAddress(),
+				(BYTE *)pEpollEventObject->GetDataBuff()->GetBuffer(), pEpollEventObject->GetDataBuff()->GetUsedSize());
 		}
 		else
 		{
@@ -283,7 +284,7 @@ BOOL CNetService::QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int Siz
 	return FALSE;
 }
 
-void CNetService::OnRecvData(const CIPAddress& IPAddress,const CEasyBuffer& DataBuffer)
+void CNetService::OnRecvData(const CIPAddress& IPAddress, const BYTE * pData, UINT DataSize)
 {
 }
 
@@ -412,7 +413,7 @@ void CNetService::DoUDPRecv()
 		{
 			PrintNetLog(0xffffffff,"CNetService创建Recv用EpollEventObject失败,数据将被丢弃！");
 
-			static char RecvBuffer[MAX_DATA_PACKET_SIZE];
+			static char RecvBuffer[NET_DATA_BLOCK_SIZE];
 			static sockaddr_in FromAddr;
 			static socklen_t FromAddrLen;
 
@@ -420,7 +421,7 @@ void CNetService::DoUDPRecv()
 			RecvSize=recvfrom(
 				m_Socket.GetSocket(),
 				RecvBuffer,
-				MAX_DATA_PACKET_SIZE,
+				NET_DATA_BLOCK_SIZE,
 				0,
 				(sockaddr*)&FromAddr,
 				&FromAddrLen);

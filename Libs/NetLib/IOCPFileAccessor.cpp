@@ -384,8 +384,8 @@ BOOL CIOCPFileAccessor::QueryRead(ULONG64 StartPos,ULONG64 ReadSize)
 			Pos.QuadPart=StartPos;
 
 			ULONG64 PacketSize=ReadSize;
-			if(PacketSize>MAX_DATA_PACKET_SIZE)
-				PacketSize=MAX_DATA_PACKET_SIZE;
+			if(PacketSize>NET_DATA_BLOCK_SIZE)
+				PacketSize=NET_DATA_BLOCK_SIZE;
 			ReadSize-=PacketSize;
 
 			COverLappedObject * pOverLappedObject=GetServer()->CreateOverLappedObject();
@@ -451,8 +451,8 @@ BOOL CIOCPFileAccessor::QueryWrite(ULONG64 StartPos,LPVOID pData,ULONG64 WriteSi
 			Pos.QuadPart=StartPos;
 
 			ULONG64 PacketSize=WriteSize;
-			if(PacketSize>MAX_DATA_PACKET_SIZE)
-				PacketSize=MAX_DATA_PACKET_SIZE;
+			if(PacketSize>NET_DATA_BLOCK_SIZE)
+				PacketSize=NET_DATA_BLOCK_SIZE;
 			WriteSize-=PacketSize;
 
 			COverLappedObject * pOverLappedObject=GetServer()->CreateOverLappedObject();

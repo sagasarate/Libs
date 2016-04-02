@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CDistributedObjectManager :
 	public IDistributedObjectManager
@@ -16,10 +16,12 @@ public:
 	
 
 	virtual BOOL RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& ObjectRegisterInfo);
+	BOOL RegisterObject(DOS_OBJECT_REGISTER_INFO_FOR_CS& ObjectRegisterInfo, MONO_DOMAIN_INFO& MonoDomainInfo);
 
 	BOOL UnregisterObject(CDistributedObjectOperator * pObjectOperator);
 
 	CDistributedObjectOperator * CreateObjectOperator(IDistributedObject * pObject,OBJECT_ID ObjectID);
+	CDistributedObjectOperator * CreateObjectOperator(MONO_DOMAIN_INFO& MonoDomainInfo, MonoObject * pObject, OBJECT_ID ObjectID);
 	BOOL DeleteObjectOperator(CDistributedObjectOperator * pObjectOperator);
 
 	void PrintObjectCount();

@@ -330,7 +330,8 @@ int CNetService::Update(int ProcessPacketLimit)
 		}
 		else if(pOverLappedObject->GetType()==IO_RECV)
 		{				
-			OnRecvData(pOverLappedObject->GetAddress(),*pOverLappedObject->GetDataBuff());
+			OnRecvData(pOverLappedObject->GetAddress(),
+				(const BYTE *)pOverLappedObject->GetDataBuff()->GetBuffer(), pOverLappedObject->GetDataBuff()->GetUsedSize());
 		}
 		else
 		{
@@ -482,7 +483,7 @@ BOOL CNetService::QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int Siz
 	return FALSE;
 }
 
-void CNetService::OnRecvData(const CIPAddress& IPAddress,const CEasyBuffer& DataBuffer)
+void CNetService::OnRecvData(const CIPAddress& IPAddress, const BYTE * pData, UINT DataSize)
 {
 }
 

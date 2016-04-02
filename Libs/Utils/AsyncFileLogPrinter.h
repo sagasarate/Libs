@@ -43,8 +43,9 @@ public:
 	void ResetLog(int Level,LPCTSTR FileName,int FileLogQueueLen=DEFAULT_ASYNC_FILE_LOG_BUFFER_LEN);
 	void CloseLog();
 
+	virtual void PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg);
 	virtual void PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl);	
 
-	void PrintLogDirect(int Level,DWORD Color,LPCTSTR szMsg);
+	
 
 };

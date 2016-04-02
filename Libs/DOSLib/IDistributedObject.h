@@ -145,7 +145,7 @@ struct DOS_OBJECT_REGISTER_INFO_EX
 	UINT					MsgQueueSize;
 	UINT					MsgProcessLimit;
 	IDistributedObject *	pObject;
-	UINT					Param;
+	//UINT					Param;
 
 	DOS_OBJECT_REGISTER_INFO_EX()
 	{
@@ -155,7 +155,7 @@ struct DOS_OBJECT_REGISTER_INFO_EX
 		MsgQueueSize=0;
 		MsgProcessLimit=0;
 		pObject=NULL;
-		Param=0;
+		//Param=0;
 	}
 };
 
@@ -181,7 +181,7 @@ public:
 	virtual BOOL DeleteConcernedObject(OBJECT_ID ObjectID)=0;
 
 	virtual BOOL FindObject(UINT ObjectType)=0;
-	virtual BOOL ReportObject(OBJECT_ID TargetID,const CSmartStruct& ObjectInfo)=0;
+	virtual BOOL ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize) = 0;
 	virtual BOOL CloseProxyObject(OBJECT_ID ProxyObjectID,UINT Delay)=0;
 	virtual BOOL RequestProxyObjectIP(OBJECT_ID ProxyObjectID)=0;
 
@@ -212,7 +212,7 @@ public:
 	virtual BOOL OnSystemMessage(CDOSMessage * pMessage){return FALSE;}
 	virtual void OnConcernedObjectLost(OBJECT_ID ObjectID){}
 	virtual BOOL OnFindObject(OBJECT_ID CallerID){return FALSE;}
-	virtual void OnObjectReport(OBJECT_ID ObjectID,const CSmartStruct& ObjectInfo){}
+	virtual void OnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize){}
 	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID,UINT IP,UINT Port,LPCSTR szIPString){}
 	virtual void OnShutDown(int Level){}
 	virtual int Update(int ProcessPacketLimit){return 0;}

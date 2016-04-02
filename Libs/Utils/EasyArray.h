@@ -326,15 +326,18 @@ protected:
 			return;
 		}
 		T * pNewBuffer=(T *)malloc(sizeof(T)*NewSize);
-		size_t CopySize;
-		if(NewSize>m_ArrayLength)
-			CopySize=m_ArrayLength;
-		else
-			CopySize=NewSize;
-		memcpy(pNewBuffer,m_pBuffer,sizeof(T)*CopySize);		
-		m_BufferSize=NewSize;
-		free(m_pBuffer);
-		m_pBuffer=pNewBuffer;
+		if (pNewBuffer)
+		{
+			size_t CopySize;
+			if (NewSize > m_ArrayLength)
+				CopySize = m_ArrayLength;
+			else
+				CopySize = NewSize;
+			memcpy(pNewBuffer, m_pBuffer, sizeof(T)*CopySize);
+			m_BufferSize = NewSize;
+			free(m_pBuffer);
+			m_pBuffer = pNewBuffer;
+		}
 	}	
 	void ShrinkBuffer(size_t NewSize)
 	{		
@@ -349,10 +352,13 @@ protected:
 			return;
 		}
 		T * pNewBuffer=(T *)malloc(sizeof(T)*NewSize);				
-		memcpy(pNewBuffer,m_pBuffer,sizeof(T)*m_ArrayLength);
-		m_BufferSize=NewSize;
-		free(m_pBuffer);
-		m_pBuffer=pNewBuffer;
+		if (pNewBuffer)
+		{
+			memcpy(pNewBuffer, m_pBuffer, sizeof(T)*m_ArrayLength);
+			m_BufferSize = NewSize;
+			free(m_pBuffer);
+			m_pBuffer = pNewBuffer;
+		}
 	}
 };
 

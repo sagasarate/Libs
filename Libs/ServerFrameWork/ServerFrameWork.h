@@ -12,8 +12,8 @@
 #pragma once
 
 
-#include "../Protocol/BaseProtocol.h"
-#include "../Protocol/ServerConsoleProtocol.h"
+#include "BaseProtocol.h"
+#include "ServerConsoleProtocol.h"
 
 
 

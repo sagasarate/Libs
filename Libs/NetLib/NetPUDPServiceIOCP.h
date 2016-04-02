@@ -48,9 +48,6 @@ public:
 
 	BOOL QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int Size);
 
-	virtual void OnRecvData(const CIPAddress& IPAddress,const CEasyBuffer& DataBuffer);
-
-
 	
 protected:	
 	BOOL QueryUDPRecv();

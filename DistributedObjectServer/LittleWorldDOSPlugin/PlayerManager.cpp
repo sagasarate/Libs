@@ -77,7 +77,14 @@ void CPlayerManager::Destory()
 	FUNCTION_END;
 }
 
-
+UINT CPlayerManager::AddUseRef()
+{
+	return CNameObject::AddUseRef();
+}
+void CPlayerManager::Release()
+{
+	CNameObject::Release();
+}
 
 BOOL CPlayerManager::CreatePlayer(OBJECT_ID ClientProxyID,LPCTSTR szAccountName,LPCTSTR szPassword)
 {

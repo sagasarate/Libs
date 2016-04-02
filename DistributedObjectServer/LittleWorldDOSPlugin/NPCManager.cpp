@@ -58,6 +58,15 @@ void CNPCManager::Destory()
 	FUNCTION_END;
 }
 
+UINT CNPCManager::AddUseRef()
+{
+	return CNameObject::AddUseRef();
+}
+void CNPCManager::Release()
+{
+	CNameObject::Release();
+}
+
 BOOL CNPCManager::CreateNPC(UINT64 CharID,LPCTSTR CharName,float XPos,float YPos,float Height,float Direction)
 {
 	CBaseNPC * pNPC=NULL;

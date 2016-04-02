@@ -1,6 +1,7 @@
 #pragma once
 
 class CNPCManager :
+	public CNameObject,
 	public IDistributedObject,
 	public CMapAreaAckMsgHandler
 {
@@ -19,6 +20,8 @@ public:
 
 	virtual BOOL Initialize(IDistributedObjectOperator * pOperator);
 	virtual void Destory();
+	virtual UINT AddUseRef();
+	virtual void Release();
 
 	BOOL CreateNPC(UINT64 CharID,LPCTSTR CharName,float XPos,float YPos,float Height,float Direction);
 	BOOL DeleteNPC(UINT PoolID);

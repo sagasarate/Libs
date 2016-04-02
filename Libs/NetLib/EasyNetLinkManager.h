@@ -33,8 +33,8 @@ public:
 	CEasyNetLinkManager(void);
 	virtual ~CEasyNetLinkManager(void);
 
-	BOOL Init(CNetServer * pServer,LPCTSTR ConfigFileName);
-	BOOL Init(CNetServer * pServer,xml_node& Config);
+	BOOL Init(CNetServer * pServer, LPCTSTR ConfigFileName, UINT InitServerID = 0);
+	BOOL Init(CNetServer * pServer, xml_node& Config, UINT InitServerID = 0);
 	BOOL Init(CNetServer * pServer);
 	virtual void Destory();
 

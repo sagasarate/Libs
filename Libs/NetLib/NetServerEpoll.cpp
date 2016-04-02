@@ -223,13 +223,43 @@ BOOL CNetServer::BindSocket(SOCKET Socket,CEpollEventRouter * pEpollEventRouter)
 	Param64.LowPart=(DWORD)pEpollEventRouter->GetID();
 	Param64.HighPart=(DWORD)(pEpollEventRouter->GetSessionID());
 	EpollEvent.data.u64=Param64.QuadPart;
-	EpollEvent.events=EPOLLIN|EPOLLOUT|EPOLLERR|EPOLLHUP|EPOLLET;
+	EpollEvent.events = EPOLLIN | EPOLLERR | EPOLLHUP ;
 	if(epoll_ctl(m_hEpoll,EPOLL_CTL_ADD,Socket,&EpollEvent)==0)
 		return TRUE;
 	else
 		return FALSE;
 }
 
+BOOL CNetServer::ModifySendEvent(SOCKET Socket, CEpollEventRouter * pEpollEventRouter, bool IsSet)
+{
+	epoll_event EpollEvent;
+	ULONG64_CONVERTER Param64;
+	Param64.LowPart = (DWORD)pEpollEventRouter->GetID();
+	Param64.HighPart = (DWORD)(pEpollEventRouter->GetSessionID());
+	EpollEvent.data.u64 = Param64.QuadPart;
+	if (IsSet)
+		EpollEvent.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP ;
+	else
+		EpollEvent.events = EPOLLIN | EPOLLERR | EPOLLHUP ;
+	if (epoll_ctl(m_hEpoll, EPOLL_CTL_MOD, Socket, &EpollEvent) == 0)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+BOOL CNetServer::UnbindSocket(SOCKET Socket)
+{
+	if (Socket == INVALID_SOCKET)
+	{
+		PrintNetLog(0xffffffff, "(%d)Socket没有初始化,无法解绑Socket！", GetID());
+		return FALSE;
+	}
+
+	if (epoll_ctl(m_hEpoll, EPOLL_CTL_DEL, Socket, NULL) == 0)
+		return TRUE;
+	else
+		return FALSE;
+}
 
 BOOL CNetServer::OnStartUp()
 {

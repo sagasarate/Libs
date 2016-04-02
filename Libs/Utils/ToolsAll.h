@@ -40,23 +40,7 @@ inline void Swap(FLOAT& v1,FLOAT& v2)
 	v2=temp;
 }
 
-inline BOOL PrintSystemLog(DWORD Color,LPCTSTR Format,...)
-{
-	va_list vl;
-	va_start(vl,Format);
-	BOOL ret=CLogManager::GetInstance()->PrintLogVL(LOG_SYSTEM_CHANNEL,ILogPrinter::LOG_LEVEL_NORMAL,Color,Format,vl);
-	va_end(vl);
-	return ret;
-}
 
-inline BOOL PrintImportantLog(DWORD Color,LPCTSTR Format,...)
-{
-	va_list vl;
-	va_start(vl,Format);
-	BOOL ret=CLogManager::GetInstance()->PrintLogVL(LOG_IMPORTANT_CHANNEL,ILogPrinter::LOG_LEVEL_NORMAL,Color,Format,vl);
-	va_end(vl);
-	return ret;
-}
 
 inline int Saturate(int Value, int Min, int Max)
 {
@@ -322,4 +306,105 @@ inline double __ntohd(UINT64 Value)
 		}
 		return Temp;
 	}
+}
+
+inline bool IsDirSlash(TCHAR Char)
+{
+	return Char == '/' || Char == '\\';
+}
+
+
+inline CEasyString GetRelativePath(LPCTSTR szSrcDir, LPCTSTR szSrcPath)
+{
+
+	if (szSrcDir == NULL || szSrcPath == NULL)
+		return CEasyString();
+
+	
+
+	CEasyString SrcDir = MakeFullPath(szSrcDir);
+
+	CEasyString SrcPath = MakeFullPath(szSrcPath);
+
+	if (SrcDir.IsEmpty() || SrcPath.IsEmpty())
+		return CEasyString();
+
+	UINT DirReturnCount = 0;
+	UINT SameDirLen = 0;
+	bool IsInSameDir = true;
+	UINT SrcLeftLen = 0;
+	for (UINT i = 0; i < SrcDir.GetLength(); i++)
+	{
+		if (IsInSameDir)
+		{
+			if (i >= SrcPath.GetLength() || _totlower(SrcDir[i]) != _totlower(SrcPath[i]))
+			{
+				IsInSameDir = false;
+			}				
+			else if (IsDirSlash(SrcPath[i]))
+			{
+				SameDirLen = i + 1;
+			}
+		}
+		
+		if (!IsInSameDir)
+		{
+			SrcLeftLen++;
+			if (IsDirSlash(SrcDir[i]))
+			{
+				DirReturnCount++;
+				SrcLeftLen = 0;
+			}
+		}
+	}
+
+	if (SrcLeftLen)
+	{
+		DirReturnCount++;
+	}
+
+	CEasyString RelativePath;
+
+	RelativePath.Resize(DirReturnCount * 3 + SrcPath.GetLength() - SameDirLen);
+
+	for (UINT i = 0; i < DirReturnCount; i++)
+	{
+		RelativePath[i * 3] = '.';
+		RelativePath[i * 3 + 1] = '.';
+		RelativePath[i * 3 + 2] = DIR_SLASH;
+	}
+
+	memcpy((LPTSTR)RelativePath.GetBuffer() + DirReturnCount * 3, SrcPath.GetBuffer() + SameDirLen, (SrcPath.GetLength() - SameDirLen)*sizeof(TCHAR));	
+	RelativePath.TrimBuffer(DirReturnCount * 3 + SrcPath.GetLength() - SameDirLen);
+	return RelativePath;
+}
+
+
+inline CEasyString CombineString(CEasyArray<CEasyString>& StrList, TCHAR Separator)
+{
+	CEasyString ResultStr;
+	UINT Len = 0;
+	for (UINT i = 0; i < StrList.GetCount(); i++)
+	{
+		Len += StrList[i].GetLength();
+	}
+	if (Len)
+	{
+		Len += StrList.GetCount() - 1;
+		ResultStr.Resize(Len);
+		ResultStr.SetLength(Len);
+		UINT BuffPtr = 0;
+		TCHAR * pBuff = (TCHAR *)ResultStr;
+		for (UINT i = 0; i < StrList.GetCount(); i++)
+		{
+			_tcscpy_s(pBuff + BuffPtr, Len - BuffPtr + 1, StrList[i]);
+			BuffPtr += StrList[i].GetLength();
+			if (i < StrList.GetCount() - 1)
+			{
+				pBuff[BuffPtr] = Separator;
+				BuffPtr++;
+			}
+		}
+	}
+	return ResultStr;
 }

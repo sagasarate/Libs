@@ -30,7 +30,7 @@ protected:
 	
 	CThreadPerformanceCounter						m_ThreadPerformanceCounter;
 
-	DECLARE_CLASS_INFO(CDOSRouter);
+	DECLARE_CLASS_INFO_STATIC(CDOSRouter);
 public:
 	CDOSRouter(void);
 	virtual ~CDOSRouter(void);

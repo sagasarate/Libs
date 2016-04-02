@@ -37,7 +37,7 @@ protected:
 	static CEasyBuffer							m_CompressBuffer;
 
 
-	DECLARE_CLASS_INFO(CDOSProxyConnection);
+	DECLARE_CLASS_INFO_STATIC(CDOSProxyConnection);
 public:
 	CDOSProxyConnection(void);
 	virtual ~CDOSProxyConnection(void);
@@ -51,7 +51,7 @@ public:
 	virtual void OnConnection(BOOL IsSucceed);
 	virtual void OnDisconnection();
 
-	virtual void OnRecvData(const CEasyBuffer& DataBuffer);
+	virtual void OnRecvData(const BYTE * pData, UINT DataSize);
 	void OnMsg(CDOSSimpleMessage * pMessage);
 
 	BOOL PushMessage(CDOSMessagePacket * pPacket);

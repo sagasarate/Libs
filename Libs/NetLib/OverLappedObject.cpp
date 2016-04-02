@@ -15,7 +15,7 @@
 COverLappedObject::COverLappedObject(void)		
 {
 	m_ID=0;	
-	m_DataBuff.Create(MAX_DATA_PACKET_SIZE);
+	m_DataBuff.Create(NET_DATA_BLOCK_SIZE);
 	Create(NULL);
 }
 

@@ -2,6 +2,7 @@
 
 
 class CCharacter :
+	public CNameObject,
 	public IDistributedObject,
 	public CCharacterMsgHandler,
 	public CMapAreaAckMsgHandler
@@ -34,6 +35,8 @@ public:
 
 	virtual BOOL Initialize(IDistributedObjectOperator * pOperator);
 	virtual void Destory();
+	virtual UINT AddUseRef();
+	virtual void Release();
 
 	void ForceRelease();
 

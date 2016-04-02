@@ -208,7 +208,7 @@ void CExceptionParser::ParseException(LPEXCEPTION_POINTERS pException)
 
 	GetLocalTime(&CurTime);
 
-	_stprintf_s(szExceptionLogFileName,MAX_PATH,_T("%s.Exception%d-%02d-%02d %02d-%02d-%02d.log"),
+	_stprintf_s(szExceptionLogFileName,MAX_PATH,_T("%s.Exception%u-%02u-%02u %02u-%02u-%02u.log"),
 		szModulePath,
 		CurTime.wYear,CurTime.wMonth,CurTime.wDay,
 		CurTime.wHour,CurTime.wMinute,CurTime.wSecond);
@@ -456,7 +456,7 @@ BOOL CExceptionParser::WriteDump(LPEXCEPTION_POINTERS pException)
 
 	GetLocalTime(&CurTime);
 
-	_stprintf_s(szDumpFileName,MAX_PATH,_T("%s.Dump%d-%02d-%02d %02d-%02d-%02d.dmp"),
+	_stprintf_s(szDumpFileName,MAX_PATH,_T("%s.Dump%u-%02u-%02u %02u-%02u-%02u.dmp"),
 		szModuleFileName,
 		CurTime.wYear,CurTime.wMonth,CurTime.wDay,
 		CurTime.wHour,CurTime.wMinute,CurTime.wSecond);	
@@ -510,6 +510,7 @@ BOOL CExceptionParser::WriteDump(LPEXCEPTION_POINTERS pException)
 BOOL CExceptionParser::SymInit()
 {
 	TCHAR szModulePath[MAX_PATH];
+	szModulePath[0] = 0;
 
 	PrintImportantLog(0xff,_T("开始初始化符号"));
 
@@ -527,13 +528,14 @@ BOOL CExceptionParser::SymInit()
 
 	
 	
-	GetModuleFileName(NULL,szModulePath,MAX_PATH);
-
-	TCHAR * pTail=_tcsrchr(szModulePath,'\\');
-	if(pTail)
+	if(GetModuleFileName(NULL,szModulePath,MAX_PATH))
 	{
-		pTail++;
-		*pTail=0;
+		TCHAR * pTail = _tcsrchr(szModulePath, '\\');
+		if (pTail)
+		{
+			pTail++;
+			*pTail = 0;
+		}
 	}
 
 
@@ -649,7 +651,7 @@ void CExceptionParser::LogException(LPCTSTR Format,...)
 	}
 }
 
-void CExceptionParser::InvalidParameterHandler(const wchar_t * expression,const wchar_t * function,const wchar_t * file,unsigned int line,uintptr_t pReserved)
+void CExceptionParser::InvalidParameterHandler(const WCHAR * expression,const WCHAR * function,const WCHAR * file,unsigned int line,uintptr_t pReserved)
 {
 #ifdef UNICODE
 	PrintImportantLog(0xff,_T("非法的调用参数[%s][%s][%s][%d]"),
@@ -689,53 +691,58 @@ BOOL CExceptionParser::GetInMemoryFileVersion(LPCTSTR szFile, LPTSTR szFileFullN
 
 	// Get the full filename of the loaded version.
 	TCHAR szImageHlp[MAX_PATH];
-	GetModuleFileName(hInstIH, szImageHlp, MAX_PATH);
+	szImageHlp[0] = 0;
 
-	if (szFileFullName)
+	if(GetModuleFileName(hInstIH, szImageHlp, MAX_PATH))
+
 	{
-		_tcscpy_s(szFileFullName, MAX_PATH, szImageHlp);
-	}
+		if (szFileFullName)
+		{
+			_tcscpy_s(szFileFullName, MAX_PATH, szImageHlp);
+		}
 
-	dwMS = 0;
-	dwLS = 0;
+		dwMS = 0;
+		dwLS = 0;
 
-	// Get the version information size.
-	DWORD dwVerInfoHandle;
-	DWORD dwVerSize;
+		// Get the version information size.
+		DWORD dwVerInfoHandle;
+		DWORD dwVerSize;
 
-	dwVerSize = GetFileVersionInfoSize(szImageHlp,
-		&dwVerInfoHandle);
-	if (0 == dwVerSize)
-	{
-		return (FALSE);
-	}
+		dwVerSize = GetFileVersionInfoSize(szImageHlp,
+			&dwVerInfoHandle);
+		if (0 == dwVerSize)
+		{
+			return (FALSE);
+		}
 
-	// Got the version size, now get the version information.
-	LPVOID lpData = (LPVOID)new TCHAR[dwVerSize];
-	if (FALSE == GetFileVersionInfo(szImageHlp,
-		dwVerInfoHandle,
-		dwVerSize,
-		lpData))
-	{
+		// Got the version size, now get the version information.
+		LPVOID lpData = (LPVOID)new TCHAR[dwVerSize];
+		if (FALSE == GetFileVersionInfo(szImageHlp,
+			dwVerInfoHandle,
+			dwVerSize,
+			lpData))
+		{
+			delete[] lpData;
+			return (FALSE);
+		}
+
+		VS_FIXEDFILEINFO * lpVerInfo;
+		UINT uiLen;
+		BOOL bRet = VerQueryValue(lpData,
+			_T("\\"),
+			(LPVOID*)&lpVerInfo,
+			&uiLen);
+		if (TRUE == bRet)
+		{
+			dwMS = lpVerInfo->dwFileVersionMS;
+			dwLS = lpVerInfo->dwFileVersionLS;
+		}
+
 		delete[] lpData;
-		return (FALSE);
+
+		return (bRet);
 	}
-
-	VS_FIXEDFILEINFO * lpVerInfo;
-	UINT uiLen;
-	BOOL bRet = VerQueryValue(lpData,
-		_T("\\"),
-		(LPVOID*)&lpVerInfo,
-		&uiLen);
-	if (TRUE == bRet)
-	{
-		dwMS = lpVerInfo->dwFileVersionMS;
-		dwLS = lpVerInfo->dwFileVersionLS;
-	}
-
-	delete[] lpData;
-
-	return (bRet);
+	return FALSE;
 }
 
 BOOL CALLBACK EnumModulesCallback(LPCSTR   ModuleName, DWORD64 BaseOfDll, PVOID   UserContext)

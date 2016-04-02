@@ -21,6 +21,7 @@ public:
 	};
 	ILogPrinter(void):CNameObject(){};
 	virtual ~ILogPrinter(void){};
+	virtual void PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg) = 0;
 	virtual void PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl)=0;
 
 };

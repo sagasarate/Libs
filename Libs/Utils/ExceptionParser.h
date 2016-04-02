@@ -97,9 +97,9 @@ protected:
 
 
 	static void InvalidParameterHandler(
-		const wchar_t * expression,
-		const wchar_t * function, 
-		const wchar_t * file, 
+		const WCHAR * expression,
+		const WCHAR * function, 
+		const WCHAR * file, 
 		unsigned int line,
 		uintptr_t pReserved
 		);

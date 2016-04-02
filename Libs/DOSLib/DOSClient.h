@@ -29,7 +29,7 @@ protected:
 
 	int											m_MsgCompressType;
 
-	DECLARE_CLASS_INFO(CDOSClient);
+	DECLARE_CLASS_INFO_STATIC(CDOSClient);
 public:
 	CDOSClient(void);
 	virtual ~CDOSClient(void);	
@@ -60,7 +60,7 @@ public:
 	virtual BOOL DeleteConcernedObject(OBJECT_ID ObjectID);
 
 	virtual BOOL FindObject(UINT ObjectType);
-	virtual BOOL ReportObject(OBJECT_ID TargetID,const CSmartStruct& ObjectInfo);
+	virtual BOOL ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize);
 	virtual BOOL CloseProxyObject(OBJECT_ID ProxyObjectID,UINT Delay);
 	virtual BOOL RequestProxyObjectIP(OBJECT_ID ProxyObjectID);
 
@@ -73,7 +73,7 @@ public:
 	virtual BOOL RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader);
 
 protected:
-	virtual void OnRecvData(const CEasyBuffer& DataBuffer);
+	virtual void OnRecvData(const BYTE * pData, UINT DataSize);
 	virtual BOOL OnDOSMessage(CDOSSimpleMessage * pMessage);
 
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);

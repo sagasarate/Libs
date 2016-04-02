@@ -46,9 +46,6 @@
     <Filter Include="数据结构">
       <UniqueIdentifier>{42efbbca-ba2f-4579-b82a-093139073e9b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="数据结构\数据存储">
-      <UniqueIdentifier>{cfeaf771-9801-49d4-8ab1-1fe168176d63}</UniqueIdentifier>
-    </Filter>
     <Filter Include="头文件">
       <UniqueIdentifier>{eaa31b8a-1e60-424d-8de1-526b4de4c911}</UniqueIdentifier>
     </Filter>
@@ -178,6 +175,12 @@
     <Filter Include="内码转换">
       <UniqueIdentifier>{afab9d34-d043-42e0-aa6e-52993093e0d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="加解密\Base32">
+      <UniqueIdentifier>{7e38388f-5713-4441-b985-7dd2bd6d7a23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="数据存储">
+      <UniqueIdentifier>{cfeaf771-9801-49d4-8ab1-1fe168176d63}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EasyTime.h">
@@ -253,16 +256,16 @@
       <Filter>数据结构</Filter>
     </ClInclude>
     <ClInclude Include="CycleBuffer.h">
-      <Filter>数据结构\数据存储</Filter>
+      <Filter>数据存储</Filter>
     </ClInclude>
     <ClInclude Include="CycleBufferEx.h">
-      <Filter>数据结构\数据存储</Filter>
+      <Filter>数据存储</Filter>
     </ClInclude>
     <ClInclude Include="EasyBuffer.h">
-      <Filter>数据结构\数据存储</Filter>
+      <Filter>数据存储</Filter>
     </ClInclude>
     <ClInclude Include="GrowBuffer.h">
-      <Filter>数据结构\数据存储</Filter>
+      <Filter>数据存储</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h">
       <Filter>头文件</Filter>
@@ -696,6 +699,12 @@
     <ClInclude Include="iconv\gb2312.h">
       <Filter>内码转换</Filter>
     </ClInclude>
+    <ClInclude Include="iconv\ucs2internal.h">
+      <Filter>内码转换</Filter>
+    </ClInclude>
+    <ClInclude Include="Base32.h">
+      <Filter>加解密\Base32</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EasyTimerEx.cpp">
@@ -753,16 +762,16 @@
       <Filter>对象基类</Filter>
     </ClCompile>
     <ClCompile Include="CycleBuffer.cpp">
-      <Filter>数据结构\数据存储</Filter>
+      <Filter>数据存储</Filter>
     </ClCompile>
     <ClCompile Include="CycleBufferEx.cpp">
-      <Filter>数据结构\数据存储</Filter>
+      <Filter>数据存储</Filter>
     </ClCompile>
     <ClCompile Include="EasyBuffer.cpp">
-      <Filter>数据结构\数据存储</Filter>
+      <Filter>数据存储</Filter>
     </ClCompile>
     <ClCompile Include="GrowBuffer.cpp">
-      <Filter>数据结构\数据存储</Filter>
+      <Filter>数据存储</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">
       <Filter>头文件</Filter>
@@ -931,6 +940,9 @@
     </ClCompile>
     <ClCompile Include="iconv\miniconv.c">
       <Filter>内码转换</Filter>
+    </ClCompile>
+    <ClCompile Include="Base32.cpp">
+      <Filter>加解密\Base32</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

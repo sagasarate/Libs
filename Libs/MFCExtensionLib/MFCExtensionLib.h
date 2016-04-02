@@ -15,3 +15,5 @@ inline int AfxMessageBoxEx(UINT nType,UINT nIDHelp,LPCTSTR szFormat,...)
 }
 
 extern bool ExportListViewToCSV(CListCtrl& ListView,LPCTSTR szExportFileName,int ExportCodePage);
+
+extern bool AfxBrowseForFolder(LPCTSTR szTitke, CString& SelectedFolder, UINT Flag = BIF_RETURNONLYFSDIRS);

@@ -21,6 +21,16 @@ CVSOutputLogPrinter::~CVSOutputLogPrinter(void)
 {
 }
 
+void CVSOutputLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
+{
+#ifdef WIN32	
+	OutputDebugString(Msg);
+	OutputDebugString(_T("\r\n"));
+#else
+	printf(_T("%s\n"),Msg);
+#endif
+}
+
 void CVSOutputLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl)
 {
 #ifdef WIN32

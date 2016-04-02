@@ -79,6 +79,17 @@ BOOL CLogManager::DelChannel(UINT ChannelID)
 	return FALSE;
 }
 
+BOOL CLogManager::PrintLogDirect(UINT ChannelID, int Level, DWORD Color, LPCTSTR Msg)
+{
+	ILogPrinter * pLogPrinter = GetChannel(ChannelID);
+	if (pLogPrinter)
+	{
+		pLogPrinter->PrintLogDirect(Level, Color, Msg);
+		return TRUE;
+	}
+	return FALSE;
+}
+
 BOOL CLogManager::PrintLog(UINT ChannelID,int Level,DWORD Color,LPCTSTR Format,...)
 {
 	ILogPrinter * pLogPrinter=GetChannel(ChannelID);

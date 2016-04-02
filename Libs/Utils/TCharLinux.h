@@ -21,6 +21,8 @@
 #define CP_ACP                    0           // default to ANSI code page
 #define CP_UTF8                   65001       // UTF-8 translation
 
+#define _TRUNCATE		(((size_t)-1))
+
 #define _tcscmp			strcmp
 #define _tcsncmp		strncmp
 #define _tcsicmp		strcasecmp

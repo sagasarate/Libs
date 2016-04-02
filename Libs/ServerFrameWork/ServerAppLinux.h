@@ -11,7 +11,7 @@
 /****************************************************************************/
 #pragma once
 
-
+#include <signal.h>
 
 
 class CServerApp
@@ -32,5 +32,10 @@ public:
 
 protected:
 	void GetProgamVersion();
+	void InitSignals();
+	static void OnQuitSignal(int SignalNum, siginfo_t * pSigInfo, void * pContext);
+	static void OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * pContext);
 
 };
+
+extern bool g_IsService;

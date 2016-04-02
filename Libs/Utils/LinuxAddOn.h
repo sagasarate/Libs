@@ -32,6 +32,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <unistd.h>
+#include <uuid/uuid.h>
 #include "atomic_ops/include/atomic_ops.h"
 
 
@@ -80,7 +81,7 @@ typedef unsigned int  LRESULT;
 typedef int BOOL;
 typedef float FLOAT;
 typedef double DOUBLE;
-typedef wchar_t WCHAR;
+typedef unsigned short WCHAR;
 typedef char * LPSTR;
 typedef const char * LPCSTR;
 typedef WCHAR * LPWSTR;
@@ -92,6 +93,8 @@ typedef void * HANDLE;
 typedef int INT_PTR, *PINT_PTR;
 typedef unsigned int UINT_PTR, *PUINT_PTR;
 typedef unsigned int DWORD_PTR, *PDWORD_PTR;
+
+const char DIR_SLASH = '/';
 
 
 #define MAKEWORD(a, b)      ((WORD)(((BYTE)(((DWORD_PTR)(a)) & 0xff)) | ((WORD)((BYTE)(((DWORD_PTR)(b)) & 0xff))) << 8))
@@ -125,12 +128,18 @@ typedef const TCHAR * LPCTSTR;
 
 #define _stricmp		strcasecmp
 #define _strnicmp		strncasecmp
-#define _wcsicmp		wcscasecmp
-#define _wcsnicmp		wcsncasecmp
+//#define _wcsicmp		wcscasecmp
+//#define _wcsnicmp		wcsncasecmp
 #define _atoi64			atoll
 #define _strtoui64		strtoull
 #define GetLastError()	errno
 
+inline WCHAR tolower(WCHAR c)
+{
+	if (c >= 'A'&&c <= 'Z')
+		return c - ('A' - 'a');
+	return c;
+}
 
 inline int fopen_s(FILE ** _File, const char * _Filename, const char * _Mode)
 {
@@ -151,7 +160,18 @@ inline int strcpy_s(char * _Dst, size_t _SizeInBytes, const char * _Src)
 
 inline int wcscpy_s(WCHAR * _Dst, size_t _SizeInWords, const WCHAR * _Src)
 {
-	wcscpy(_Dst,_Src);
+	if (_Dst == NULL || _SizeInWords == 0)
+		return -1;
+	size_t CpyCount = 0;
+	while ((*_Src) && (CpyCount < _SizeInWords))
+	{
+		*_Dst = *_Src;
+		_Dst++;
+		_Src++;
+		CpyCount++;
+	}
+	if (CpyCount < _SizeInWords)
+		*_Dst = 0;	
 	return 0;
 }
 
@@ -163,7 +183,18 @@ inline int strncpy_s(char * _Dst, size_t _SizeInBytes, const char * _Src, size_t
 
 inline int wcsncpy_s(WCHAR * _Dst, size_t _SizeInWords, const WCHAR * _Src, size_t _MaxCount)
 {
-	wcsncpy(_Dst,_Src,_MaxCount);
+	if (_Dst == NULL || _SizeInWords == 0)
+		return -1;
+	size_t CpyCount = 0;
+	while ((*_Src) && (CpyCount < _SizeInWords) && (CpyCount < _MaxCount))
+	{
+		*_Dst = *_Src;
+		_Dst++;
+		_Src++;
+		CpyCount++;
+	}
+	if (CpyCount < _SizeInWords)
+		*_Dst = 0;
 	return 0;
 }
 
@@ -175,7 +206,23 @@ inline int strcat_s(char * _Dst, size_t _SizeInBytes, const char * _Src)
 
 inline int wcscat_s(WCHAR * _Dst, size_t _SizeInWords, const WCHAR * _Src)
 {
-	wcscat(_Dst,_Src);
+	if (_Dst == NULL || _SizeInWords == 0)
+		return -1;
+	size_t CpyCount = 0;
+	while ((*_Dst) && (CpyCount < _SizeInWords))
+	{
+		_Dst++;
+		CpyCount++;
+	}
+	while ((*_Src) && (CpyCount < _SizeInWords))
+	{
+		*_Dst = *_Src;
+		_Dst++;
+		_Src++;
+		CpyCount++;
+	}
+	if (CpyCount < _SizeInWords)
+		*_Dst = 0;
 	return 0;
 }
 
@@ -201,6 +248,152 @@ inline int _itoa_s(int _Value, char * _DstBuf, size_t _Size, int _Radix)
 	return 0;
 }
 
+inline int wcscmp(const WCHAR *string1, const WCHAR *string2)
+{
+	while ((*string1) && (*string2))
+	{
+		if ((*string1) > (*string2))
+			return 1;
+		else if ((*string1) < (*string2))
+			return -1;
+		string1++;
+		string2++;
+	}
+	if ((*string1) > (*string2))
+		return 1;
+	else if ((*string1) < (*string2))
+		return -1;
+	else
+		return 0;
+}
+
+inline int wcsncmp(const WCHAR *string1, const WCHAR *string2, size_t count)
+{
+	while ((*string1) && (*string2) && (count))
+	{
+		if ((*string1) > (*string2))
+			return 1;
+		else if ((*string1) < (*string2))
+			return -1;
+		string1++;
+		string2++;
+		count--;
+	}
+	return 0;
+}
+
+inline int _wcsicmp(const WCHAR *string1, const WCHAR *string2)
+{
+	WCHAR c1, c2;
+	while ((*string1) && (*string2))
+	{
+		c1 = tolower(*string1);
+		c2 = tolower(*string2);
+		if (c1 > c2)
+			return 1;
+		else if (c1 < c2)
+			return -1;
+		string1++;
+		string2++;
+	}
+	c1 = tolower(*string1);
+	c2 = tolower(*string2);
+	if (c1 > c2)
+		return 1;
+	else if (c1 < c2)
+		return -1;
+	else
+		return 0;
+}
+
+inline int _wcsnicmp(const WCHAR *string1, const WCHAR *string2, size_t count)
+{
+	WCHAR c1, c2;
+	while ((*string1) && (*string2) && (count))
+	{
+		c1 = tolower(*string1);
+		c2 = tolower(*string2);
+		if (c1 > c2)
+			return 1;
+		else if (c1 < c2)
+			return -1;
+		string1++;
+		string2++;
+		count++;
+	}
+	c1 = tolower(*string1);
+	c2 = tolower(*string2);
+	if (c1 > c2)
+		return 1;
+	else if (c1 < c2)
+		return -1;
+	else
+		return 0;
+}
+
+inline size_t wcslen(const WCHAR *string)
+{
+	size_t len = 0;
+	if (string)
+	{
+		while (*string)
+		{
+			string++;
+		}
+	}
+	return len;
+}
+
+inline WCHAR * wcsstr(const WCHAR *string, const WCHAR *strCharSet)
+{
+	if (string == NULL || strCharSet == NULL)
+		return NULL;
+
+	const WCHAR *s = string;
+
+	const WCHAR *t = strCharSet;
+
+	for (; *t != '\0'; ++string)
+	{
+		for (s = string, t = strCharSet; *t != '\0' && *s == *t; ++s, ++t)
+			NULL;
+
+		if (*t == '\0')
+			return (WCHAR *)string;
+	}
+
+	return NULL;
+}
+
+inline  WCHAR * wcschr(const WCHAR *string, WCHAR c)
+{
+	if (string)
+	{
+		while (*string)
+		{
+			if (*string == c)
+				return (WCHAR *)string;
+			string++;
+		}
+	}
+	return NULL;
+}
+
+inline WCHAR * wcsrchr(const WCHAR * string, WCHAR c)
+{
+	if (string)
+	{
+		WCHAR * finded = NULL;
+		while (*string)
+		{
+			if (*string == c)
+				finded = (WCHAR *)string;
+			string++;
+		}
+		return finded;
+	}
+	return NULL;
+}
 //inline int _ltoa_s(long _Val, char * _DstBuf, size_t _Size, int _Radix)
 //{
 //	if(_Radix==16)
@@ -216,9 +409,19 @@ inline int _itoa_s(int _Value, char * _DstBuf, size_t _Size, int _Radix)
 
 #define sprintf_s(_DstBuf, _SizeInBytes, _Format, ...)	sprintf(_DstBuf,_Format,##__VA_ARGS__)
 #define _vscprintf(_Format, _ArgList)		vsnprintf(NULL,0,_Format,_ArgList)
-#define _vscwprintf(_Format, _ArgList)		vswprintf(NULL,0,_Format,_ArgList)
+//#define _vscwprintf(_Format, _ArgList)		vswprintf(NULL,0,_Format,_ArgList)
 #define vsprintf_s(_DstBuf,_SizeInBytes,_Format,_ArgList)	vsnprintf(_DstBuf,_SizeInBytes,_Format,_ArgList)
-#define vswprintf_s(_DstBuf,_SizeInBytes,_Format,_ArgList)	vswprintf(_DstBuf,_SizeInBytes,_Format,_ArgList)
+//#define vswprintf_s(_DstBuf,_SizeInBytes,_Format,_ArgList)	vswprintf(_DstBuf,_SizeInBytes,_Format,_ArgList)
+
+inline int _vscwprintf(const WCHAR *format, va_list argptr)
+{
+	return 0;
+}
+
+inline int vswprintf_s(WCHAR *buffer, size_t numberOfElements, const WCHAR *format, va_list argptr)
+{
+	return 0;
+}
 
 //inline int vsprintf_s(char * _DstBuf, size_t _SizeInBytes, const char * _Format, va_list _ArgList)
 //{
@@ -366,19 +569,28 @@ inline unsigned int AtomicSub(volatile unsigned int * pVal,int SubVal)
 
 #define ZeroMemory(Destination,Length) memset((Destination),0,(Length))
 
-inline size_t AnsiToUnicode(const char * SrcStr,size_t SrcLen,wchar_t * DestStr,size_t DestLen)
+inline size_t AnsiToUnicode(const char * SrcStr,size_t SrcLen,WCHAR * DestStr,size_t DestLen)
 {
-	return mbstowcs(DestStr,SrcStr,SrcLen);
+	DestLen = DestLen * sizeof(WCHAR);
+	return iconv_gbk2ucs2(SrcStr, SrcLen, (char *)DestStr, DestLen) / sizeof(WCHAR);
 }
 
-inline size_t UnicodeToAnsi(const wchar_t * SrcStr,size_t SrcLen,char * DestStr,size_t DestLen)
+inline size_t UnicodeToAnsi(const WCHAR * SrcStr,size_t SrcLen,char * DestStr,size_t DestLen)
 {
-	return wcstombs(DestStr,SrcStr,SrcLen);
+	SrcLen = SrcLen * sizeof(WCHAR);
+	return iconv_ucs22gbk((char *)SrcStr, SrcLen, DestStr, DestLen);
 }
 
-inline size_t UnicodeToUTF8(const wchar_t * SrcStr, size_t SrcLen, char * DestStr, size_t DestLen)
+inline size_t UTF8ToUnicode(const char * SrcStr, size_t SrcLen, WCHAR * DestStr, size_t DestLen)
 {
-	return 0;
+	DestLen = DestLen * sizeof(WCHAR);
+	return iconv_utf82ucs2(SrcStr, SrcLen, (char *)DestStr, DestLen) / sizeof(WCHAR);
+}
+
+inline size_t UnicodeToUTF8(const WCHAR * SrcStr, size_t SrcLen, char * DestStr, size_t DestLen)
+{
+	SrcLen = SrcLen * sizeof(WCHAR);
+	return iconv_ucs22utf8((char *)SrcStr, SrcLen, DestStr, DestLen);
 }
 
 inline size_t AnsiToUTF8(const char * SrcStr, size_t SrcLen, char * DestStr, size_t DestLen)

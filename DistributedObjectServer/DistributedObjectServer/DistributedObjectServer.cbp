@@ -50,13 +50,37 @@
 				</Linker>
 			</Target>
 		</Build>
+		<Compiler>
+			<Add option="-fPIE" />
+		</Compiler>
 		<Linker>
 			<Add option="-static-libgcc" />
 			<Add option="-static-libstdc++" />
+			<Add option="-rdynamic" />
+			<Add library="../../Libs/MonoWrapper/lib/x64/libmono.a" />
+			<Add library="uuid" />
 			<Add library="pthread" />
 			<Add library="rt" />
 			<Add library="dl" />
 		</Linker>
+		<Unit filename="DOSConfig.cpp">
+			<Option virtualFolder="主配置/" />
+		</Unit>
+		<Unit filename="DOSConfig.h">
+			<Option virtualFolder="主配置/" />
+		</Unit>
+		<Unit filename="DOSMainApp.cpp">
+			<Option virtualFolder="主程序/" />
+		</Unit>
+		<Unit filename="DOSMainApp.h">
+			<Option virtualFolder="主程序/" />
+		</Unit>
+		<Unit filename="DOSMainThread.cpp">
+			<Option virtualFolder="主线程/" />
+		</Unit>
+		<Unit filename="DOSMainThread.h">
+			<Option virtualFolder="主线程/" />
+		</Unit>
 		<Unit filename="DOSServerThread.cpp">
 			<Option virtualFolder="服务器线程/" />
 		</Unit>
@@ -74,24 +98,6 @@
 		</Unit>
 		<Unit filename="DistributedObjectOperator.h">
 			<Option virtualFolder="逻辑对象插件/" />
-		</Unit>
-		<Unit filename="MainApp.cpp">
-			<Option virtualFolder="主程序/" />
-		</Unit>
-		<Unit filename="MainApp.h">
-			<Option virtualFolder="主程序/" />
-		</Unit>
-		<Unit filename="MainConfig.cpp">
-			<Option virtualFolder="主配置/" />
-		</Unit>
-		<Unit filename="MainConfig.h">
-			<Option virtualFolder="主配置/" />
-		</Unit>
-		<Unit filename="MainThread.cpp">
-			<Option virtualFolder="主线程/" />
-		</Unit>
-		<Unit filename="MainThread.h">
-			<Option virtualFolder="主线程/" />
 		</Unit>
 		<Unit filename="stdafx.cpp">
 			<Option virtualFolder="预编译/" />

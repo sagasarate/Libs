@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 
 IMPLEMENT_CLASS_INFO_STATIC(CDOSServerThread,CDOSServer);
@@ -60,7 +60,7 @@ BOOL CDOSServerThread::OnStart()
 	m_UDPSendCount=0;
 	m_CountTimer.SaveTime();
 
-	//×°ÔØÏµÍ³ÅäÖÃ
+	//è£…è½½ç³»ç»Ÿé…ç½®
 	CSystemConfig::GetInstance()->LoadConfig(MakeModuleFullPath(NULL,GetConfigFileName()));
 
 
@@ -106,9 +106,15 @@ BOOL CDOSServerThread::OnStart()
 	CLogManager::GetInstance()->AddChannel(LOG_DB_ERROR_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
+	LogFileName.Format("%s/Log/Mono", (LPCTSTR)ModulePath);
+	pLog = new CServerLogPrinter(this, CServerLogPrinter::LOM_FILE,
+		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName);
+	CLogManager::GetInstance()->AddChannel(LOG_MONO_CHANNEL, pLog);
+	SAFE_RELEASE(pLog);
 
 
-	Log("¿ªÊ¼Æô¶¯·şÎñÆ÷,µ±Ç°°æ±¾:%u.%u.%u.%u",
+
+	Log("å¼€å§‹å¯åŠ¨æœåŠ¡å™¨,å½“å‰ç‰ˆæœ¬:%u.%u.%u.%u",
 		g_ProgramVersion[3],
 		g_ProgramVersion[2],
 		g_ProgramVersion[1],
@@ -136,7 +142,7 @@ BOOL CDOSServerThread::OnStart()
 	if(!CDOSServer::OnStart())
 		return FALSE;
 
-	//³õÊ¼»¯ÏµÍ³Á¬½Ó
+	//åˆå§‹åŒ–ç³»ç»Ÿè¿æ¥
 	m_pSysNetLinkManager=new CSystemNetLinkManager();
 	m_pSysNetLinkManager->SetServerThread(this);
 
@@ -149,28 +155,28 @@ BOOL CDOSServerThread::OnStart()
 		{
 			if(m_pSysNetLinkManager->Init(this,Config))
 			{
-				Log("³õÊ¼»¯ÏµÍ³Á¬½Ó¹ÜÀíÆ÷³É¹¦");
+				Log("åˆå§‹åŒ–ç³»ç»Ÿè¿æ¥ç®¡ç†å™¨æˆåŠŸ");
 			}
 			else
 			{
-				Log("³õÊ¼»¯ÏµÍ³Á¬½Ó¹ÜÀíÆ÷Ê§°Ü");
+				Log("åˆå§‹åŒ–ç³»ç»Ÿè¿æ¥ç®¡ç†å™¨å¤±è´¥");
 			}
 		}
 		else
 		{
-			Log("²»ºÏ·¨µÄÏµÍ³Á¬½ÓÅäÖÃÎÄ¼ş%s",GetConfigFileName());
+			Log("ä¸åˆæ³•çš„ç³»ç»Ÿè¿æ¥é…ç½®æ–‡ä»¶%s",GetConfigFileName());
 		}
 
 	}
 	else
 	{
-		Log("Î´ÕÒµ½ÏµÍ³Á¬½ÓÅäÖÃÎÄ¼ş%s",GetConfigFileName());
+		Log("æœªæ‰¾åˆ°ç³»ç»Ÿè¿æ¥é…ç½®æ–‡ä»¶%s",GetConfigFileName());
 	}
 
 	m_pUDPSystemControlPort=new CSystemControlPort();
 	if(!m_pUDPSystemControlPort->Init(this))
 	{
-		Log("³õÊ¼»¯UDPÏµÍ³¿ØÖÆ¶Ë¿ÚÊ§°Ü");
+		Log("åˆå§‹åŒ–UDPç³»ç»Ÿæ§åˆ¶ç«¯å£å¤±è´¥");
 	}
 
 
@@ -182,33 +188,35 @@ BOOL CDOSServerThread::OnStart()
 	CEasyString Temp;
 
 	SetServerStatus(SC_SST_SS_PROGRAM_VERSION,CSmartValue(Version.QuadPart));
-	SetServerStatusFormat(SC_SST_SS_PROGRAM_VERSION,"·şÎñÆ÷°æ±¾",SSFT_VERSION);
-	SetServerStatusFormat(SC_SST_SS_CYCLE_TIME,"Ñ­»·Ê±¼ä(ºÁÃë)");
-	SetServerStatusFormat(SC_SST_SS_CPU_COST,"CPUÕ¼ÓÃÂÊ",SSFT_PERCENT);
-	SetServerStatusFormat(SC_SST_SS_TCP_RECV_FLOW,"TCP½ÓÊÕÁ÷Á¿(Byte/S)",SSFT_FLOW);
-	SetServerStatusFormat(SC_SST_SS_TCP_SEND_FLOW,"TCP·¢ËÍÁ÷Á¿(Byte/S)",SSFT_FLOW);
-	SetServerStatusFormat(SC_SST_SS_TCP_RECV_COUNT,"TCP½ÓÊÕ´ÎÊı(´Î/S)");
-	SetServerStatusFormat(SC_SST_SS_TCP_SEND_COUNT,"TCP·¢ËÍ´ÎÊı(´Î/S)");
-	SetServerStatusFormat(SST_SS_OBJECT_COUNT,"ÏµÍ³¶ÔÏóÊı");
-	SetServerStatusFormat(SST_SS_ROUTE_IN_MSG_COUNT,"Â·ÓÉÊäÈëÏûÏ¢Êı");
-	SetServerStatusFormat(SST_SS_ROUTE_IN_MSG_FLOW,"Â·ÓÉÊäÈëÏûÏ¢Á÷Á¿",SSFT_FLOW);
-	SetServerStatusFormat(SST_SS_ROUTE_OUT_MSG_COUNT,"Â·ÓÉÊä³öÏûÏ¢Êı");
-	SetServerStatusFormat(SST_SS_ROUTE_OUT_MSG_FLOW,"Â·ÓÉÊä³öÏûÏ¢Á÷Á¿",SSFT_FLOW);
-	SetServerStatusFormat(SST_SS_ROUTE_CYCLE_TIME,"Â·ÓÉÑ­»·Ê±¼ä(MS)");
-	SetServerStatusFormat(SST_SS_ROUTE_MSG_QUEUE_LEN,"Â·ÓÉÏûÏ¢¶ÓÁĞ³¤¶È");
-	Temp.Format("Â·ÓÉ(%u)CPUÕ¼ÓÃÂÊ",GetRouter()->GetThreadID());
+	SetServerStatusFormat(SC_SST_SS_PROGRAM_VERSION,"æœåŠ¡å™¨ç‰ˆæœ¬",SSFT_VERSION);
+	SetServerStatusFormat(SC_SST_SS_CYCLE_TIME,"å¾ªç¯æ—¶é—´(æ¯«ç§’)");
+	SetServerStatusFormat(SC_SST_SS_CPU_COST,"CPUå ç”¨ç‡",SSFT_PERCENT);
+	SetServerStatusFormat(SC_SST_SS_TCP_RECV_FLOW,"TCPæ¥æ”¶æµé‡(Byte/S)",SSFT_FLOW);
+	SetServerStatusFormat(SC_SST_SS_TCP_SEND_FLOW,"TCPå‘é€æµé‡(Byte/S)",SSFT_FLOW);
+	SetServerStatusFormat(SC_SST_SS_TCP_RECV_COUNT,"TCPæ¥æ”¶æ¬¡æ•°(æ¬¡/S)");
+	SetServerStatusFormat(SC_SST_SS_TCP_SEND_COUNT,"TCPå‘é€æ¬¡æ•°(æ¬¡/S)");
+	SetServerStatusFormat(SST_SS_OBJECT_COUNT,"ç³»ç»Ÿå¯¹è±¡æ•°");
+	SetServerStatusFormat(SST_SS_ROUTE_IN_MSG_COUNT,"è·¯ç”±è¾“å…¥æ¶ˆæ¯æ•°");
+	SetServerStatusFormat(SST_SS_ROUTE_IN_MSG_FLOW,"è·¯ç”±è¾“å…¥æ¶ˆæ¯æµé‡",SSFT_FLOW);
+	SetServerStatusFormat(SST_SS_ROUTE_OUT_MSG_COUNT,"è·¯ç”±è¾“å‡ºæ¶ˆæ¯æ•°");
+	SetServerStatusFormat(SST_SS_ROUTE_OUT_MSG_FLOW,"è·¯ç”±è¾“å‡ºæ¶ˆæ¯æµé‡",SSFT_FLOW);
+	SetServerStatusFormat(SST_SS_ROUTE_CYCLE_TIME,"è·¯ç”±å¾ªç¯æ—¶é—´(MS)");
+	SetServerStatusFormat(SST_SS_ROUTE_MSG_QUEUE_LEN,"è·¯ç”±æ¶ˆæ¯é˜Ÿåˆ—é•¿åº¦");	
+	Temp.Format("è·¯ç”±(%u)CPUå ç”¨ç‡",GetRouter()->GetThreadID());
 	SetServerStatusFormat(SST_SS_ROUTE_CPU_USED_RATE,Temp,SSFT_PERCENT);
+	SetServerStatusFormat(SST_SS_MONO_GC_USED_SIZE, "MonoGCå†…å­˜ä½¿ç”¨é‡", SSFT_FLOW);
+	SetServerStatusFormat(SST_SS_MONO_GC_HEAP_SIZE, "MonoGCå †å¤§å°", SSFT_FLOW);
 
 
 	CEasyString CSVLogHeader="CycleTime,CPUUsed,TCPRecvFlow,TCPSendFlow,TCPRecvCount,TCPSendCount,ObjectCount,"
-		"RouteInMsgCount,RouteInMsgFlow,RouteOutMsgCount,RouteOutMsgFlow,RouteCycleTime,RouteMsgQueueLen,RouteCPUUsed";
+		"RouteInMsgCount,RouteInMsgFlow,RouteOutMsgCount,RouteOutMsgFlow,RouteCycleTime,RouteMsgQueueLen,RouteCPUUsed,MonoGCUsedSize,MonoGCHeapSize";
 
 	for (UINT i = 0; i < GetProxyManager()->GetProxyServiceCount(); i++)
 	{
 		CDOSObjectProxyService * pProxyService = GetProxyManager()->GetProxyService(i);
 		if (pProxyService)
 		{
-			Temp.Format("¶ÔÏó´úÀí(%u)CPUÕ¼ÓÃÂÊ", pProxyService->GetID());
+			Temp.Format("å¯¹è±¡ä»£ç†(%u)CPUå ç”¨ç‡", pProxyService->GetID());
 			SetServerStatusFormat(SST_SS_OBJECT_PROXY_CPU_USED_RATE + i, Temp, SSFT_PERCENT);
 
 			Temp.Format(",Proxy%dCPUUsed", pProxyService->GetID());
@@ -219,11 +227,11 @@ BOOL CDOSServerThread::OnStart()
 	for(UINT i=0;i<GetObjectManager()->GetGroupCount();i++)
 	{
 
-		Temp.Format("¶ÔÏó×é%dÑ­»·Ê±¼ä(MS)",i);
+		Temp.Format("å¯¹è±¡ç»„%då¾ªç¯æ—¶é—´(MS)",i);
 		SetServerStatusFormat(SST_SS_GROUP_CYCLE_TIME+i,Temp);
-		Temp.Format("¶ÔÏó×é%d×î³¤¶ÔÏóÏûÏ¢¶ÓÁĞ",i);
+		Temp.Format("å¯¹è±¡ç»„%dæœ€é•¿å¯¹è±¡æ¶ˆæ¯é˜Ÿåˆ—",i);
 		SetServerStatusFormat(SST_SS_GROUP_MAX_OBJECT_MSG_QUEUE_LEN+i,Temp);
-		Temp.Format("¶ÔÏó×é%d(%u)CPUÕ¼ÓÃÂÊ",i,GetObjectManager()->GetGroup(i)->GetThreadID());
+		Temp.Format("å¯¹è±¡ç»„%d(%u)CPUå ç”¨ç‡",i,GetObjectManager()->GetGroup(i)->GetThreadID());
 		SetServerStatusFormat(SST_SS_GROUP_CPU_USED_RATE+i,Temp,SSFT_PERCENT);
 		Temp.Format(",Group%dCycleTime,Group%dMaxMsgQueueLen,Group%dCPUUsed",i,i,i);
 		CSVLogHeader+=Temp;
@@ -238,7 +246,7 @@ BOOL CDOSServerThread::OnStart()
 
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(),SERVER_INFO_COUNT_TIME);
 
-	Log("·şÎñÆ÷³É¹¦Æô¶¯");
+	Log("æœåŠ¡å™¨æˆåŠŸå¯åŠ¨");
 
 	FUNCTION_END;
 	return TRUE;
@@ -256,7 +264,7 @@ void CDOSServerThread::OnTerminate()
 	SAFE_RELEASE(m_pSysNetLinkManager);
 	SAFE_RELEASE(m_pUDPSystemControlPort);
 	CDOSServer::OnTerminate();
-	Log("·şÎñÆ÷¹Ø±Õ");
+	Log("æœåŠ¡å™¨å…³é—­");
 	FUNCTION_END;
 }
 
@@ -273,14 +281,14 @@ BOOL CDOSServerThread::OnRun()
 	}
 
 	m_ThreadPerformanceCounter.DoPerformanceCount();
-	//¼ÆËã·şÎñÆ÷Ñ­»·Ê±¼ä
+	//è®¡ç®—æœåŠ¡å™¨å¾ªç¯æ—¶é—´
 	if(m_CountTimer.IsTimeOut(SERVER_INFO_COUNT_TIME))
 	{
 		m_CountTimer.SaveTime();
 		DoServerStat();
 	}
 
-	//Ö´ĞĞ¿ØÖÆÌ¨ÃüÁî
+	//æ‰§è¡Œæ§åˆ¶å°å‘½ä»¤
 	PANEL_MSG * pCommand=CControlPanel::GetInstance()->GetCommand();
 	if(pCommand)
 	{
@@ -344,25 +352,25 @@ void CDOSServerThread::ExecCommand(LPCTSTR szCommand)
 	int RetCode;
 	ES_BOLAN Result;
 
-	Log("Ö´ĞĞÃüÁî:%s",szCommand);
+	Log("æ‰§è¡Œå‘½ä»¤:%s",szCommand);
 
 	RetCode=m_ESThread.PushScript(szCommand);
 	if(RetCode)
 	{
-		Log("½âÎöÃüÁî³ö´í:Line=%d,%s",
+		Log("è§£æå‘½ä»¤å‡ºé”™:Line=%d,%s",
 			m_ESThread.GetLastLine(),
 			ESGetErrorMsg(RetCode));
 	}
 	RetCode=m_ScriptExecutor.ExecScript(m_ESThread);
 	if(RetCode)
 	{
-		Log("½âÎöÃüÁî³ö´í:Line=%d,%s",
+		Log("è§£æå‘½ä»¤å‡ºé”™:Line=%d,%s",
 			m_ESThread.GetLastLine(),
 			ESGetErrorMsg(RetCode));
 	}
 	else
 	{
-		Log("Ö´ĞĞÃüÁî½á¹û:%s",
+		Log("æ‰§è¡Œå‘½ä»¤ç»“æœ:%s",
 			(LPCTSTR)BolanToString(m_ESThread.GetResult()));
 	}
 	FUNCTION_END;
@@ -393,7 +401,7 @@ void CDOSServerThread::SetServerStatusFormat(WORD StatusID,LPCTSTR szStatusName,
 void CDOSServerThread::QueryShowDown()
 {
 	FUNCTION_BEGIN;
-	Log("·şÎñÆ÷×¼±¸¹Ø±Õ");
+	Log("æœåŠ¡å™¨å‡†å¤‡å…³é—­");
 	Terminate();
 	FUNCTION_END;
 }
@@ -465,7 +473,7 @@ int CDOSServerThread::StartLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN*
 
 
 			pLog->SetLogMode(Mode,Level,LogFileName);
-			Log("LogÄ£¿é[%s],Ä£Ê½[%s]µÄÊä³öÒÑ±»¿ªÆô",
+			Log("Logæ¨¡å—[%s],æ¨¡å¼[%s]çš„è¾“å‡ºå·²è¢«å¼€å¯",
 				(LPCTSTR)(pParams[0].StrValue),
 				(LPCTSTR)(pParams[1].StrValue));
 		}
@@ -519,7 +527,7 @@ int CDOSServerThread::StopLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* 
 			Mode&=~WitchMode;
 			int Level=pLog->GetLogLevel();
 			pLog->SetLogMode(Mode,Level,NULL);
-			Log("LogÄ£¿é[%s],Ä£Ê½[%s]µÄÊä³öÒÑ±»¹Ø±Õ",
+			Log("Logæ¨¡å—[%s],æ¨¡å¼[%s]çš„è¾“å‡ºå·²è¢«å…³é—­",
 				(LPCTSTR)(pParams[0].StrValue),
 				(LPCTSTR)(pParams[1].StrValue));
 		}
@@ -552,11 +560,11 @@ int CDOSServerThread::RebuildUDPControlPort(CESThread * pESThread,ES_BOLAN* pRes
 	FUNCTION_BEGIN;
 	if(!m_pUDPSystemControlPort->Init(this))
 	{
-		Log("ÖØ½¨UDPÏµÍ³¿ØÖÆ¶Ë¿ÚÊ§°Ü");
+		Log("é‡å»ºUDPç³»ç»Ÿæ§åˆ¶ç«¯å£å¤±è´¥");
 	}
 	else
 	{
-		Log("ÖØ½¨UDPÏµÍ³¿ØÖÆ¶Ë¿Ú³É¹¦");
+		Log("é‡å»ºUDPç³»ç»Ÿæ§åˆ¶ç«¯å£æˆåŠŸ");
 	}
 	FUNCTION_END;
 	return 0;
@@ -567,7 +575,7 @@ int CDOSServerThread::SFSetConsoleLogLevel(CESThread * pESThread,ES_BOLAN* pResu
 	FUNCTION_BEGIN;
 
 	SetConsoleLogLevel(pParams[0]);
-	Log("¿ØÖÆÌ¨LogÊä³öµÈ¼¶ÉèÖÃÎª%d",GetConsoleLogLevel());
+	Log("æ§åˆ¶å°Logè¾“å‡ºç­‰çº§è®¾ç½®ä¸º%d",GetConsoleLogLevel());
 
 	FUNCTION_END;
 	return 0;
@@ -603,6 +611,10 @@ void CDOSServerThread::DoServerStat()
 	float RouteOutMsgFlow=(float)GetRouter()->GetOutMsgFlow()*1000/SERVER_INFO_COUNT_TIME;
 	GetRouter()->ResetStatData();
 
+	UINT64 MonoGCUsedSize = mono_gc_get_used_size();
+	UINT64 MonoGCHeapSize = mono_gc_get_heap_size();
+	
+
 	SetServerStatus(SC_SST_SS_CYCLE_TIME,CSmartValue(CycleTime));
 	SetServerStatus(SC_SST_SS_CPU_COST,CSmartValue(CPUCost));
 	SetServerStatus(SC_SST_SS_TCP_RECV_FLOW,CSmartValue(TCPRecvFlow));
@@ -617,6 +629,8 @@ void CDOSServerThread::DoServerStat()
 	SetServerStatus(SST_SS_ROUTE_CYCLE_TIME,CSmartValue(GetRouter()->GetCycleTime()));
 	SetServerStatus(SST_SS_ROUTE_MSG_QUEUE_LEN,CSmartValue(GetRouter()->GetMsgQueueLen()));
 	SetServerStatus(SST_SS_ROUTE_CPU_USED_RATE,CSmartValue(GetRouter()->GetCPUUsedRate()));
+	SetServerStatus(SST_SS_MONO_GC_USED_SIZE, CSmartValue(MonoGCUsedSize));
+	SetServerStatus(SST_SS_MONO_GC_HEAP_SIZE, CSmartValue(MonoGCHeapSize));
 
 
 	CEasyString ProxyStatData;
@@ -656,7 +670,7 @@ void CDOSServerThread::DoServerStat()
 	CControlPanel::GetInstance()->SetServerStatus(m_ServerStatus.GetData(),m_ServerStatus.GetDataLen());
 
 	CLogManager::GetInstance()->PrintLog(SERVER_STATUS_LOG_CHANNEL,ILogPrinter::LOG_LEVEL_NORMAL,0,
-		"%g,%g,%s,%s,%g,%g,%u,%s,%s,%s,%s,%g,%u,%g%s%s",
+		"%g,%g,%s,%s,%g,%g,%u,%s,%s,%s,%s,%g,%u,%g,%s,%s%s%s",
 		CycleTime,
 		CPUCost,
 		(LPCTSTR)FormatNumberWordsFloat(TCPRecvFlow,true),
@@ -671,6 +685,8 @@ void CDOSServerThread::DoServerStat()
 		GetRouter()->GetCycleTime(),
 		GetRouter()->GetMsgQueueLen(),
 		GetRouter()->GetCPUUsedRate(),
+		(LPCTSTR)FormatNumberWords(MonoGCUsedSize, true),
+		(LPCTSTR)FormatNumberWords(MonoGCHeapSize, true),
 		(LPCTSTR)ProxyStatData,
 		(LPCTSTR)GroupStatData);
 
@@ -681,7 +697,7 @@ void CDOSServerThread::DoServerStat()
 		PrintObjectStatus();
 	}
 	PrintDOSObjectStatLog(0,"================================================================");
-	PrintDOSObjectStatLog(0,"¿ªÊ¼Í³¼Æ¶ÔÏóÊ¹ÓÃÇé¿ö");
+	PrintDOSObjectStatLog(0,"å¼€å§‹ç»Ÿè®¡å¯¹è±¡ä½¿ç”¨æƒ…å†µ");
 	PrintDOSObjectStatLog(0,"================================================================");
 	GetObjectManager()->PrintGroupInfo(LOG_DOS_OBJECT_STATE_CHANNEL);
 
@@ -690,9 +706,9 @@ void CDOSServerThread::DoServerStat()
 	UINT SystemAllocCount=((CDOSServer *)GetServer())->GetMemoryPool()->GetSystemAllocCount();
 	UINT SystemFreeCount=((CDOSServer *)GetServer())->GetMemoryPool()->GetSystemFreeCount();
 
-	PrintDOSObjectStatLog(0,"ÄÚ´æ³Ø·ÖÅäÊı:%u",AllocCount);
-	PrintDOSObjectStatLog(0,"ÄÚ´æ³ØÊÍ·ÅÊı:%u,%u",FreeCount,AllocCount-FreeCount);
-	PrintDOSObjectStatLog(0,"ÏµÍ³ÄÚ´æ·ÖÅäÊı:%u",SystemAllocCount);
-	PrintDOSObjectStatLog(0,"ÏµÍ³ÄÚ´æÊÍ·ÅÊı:%u,%u",SystemFreeCount,SystemAllocCount-SystemFreeCount);
+	PrintDOSObjectStatLog(0,"å†…å­˜æ± åˆ†é…æ•°:%u",AllocCount);
+	PrintDOSObjectStatLog(0,"å†…å­˜æ± é‡Šæ”¾æ•°:%u,%u",FreeCount,AllocCount-FreeCount);
+	PrintDOSObjectStatLog(0,"ç³»ç»Ÿå†…å­˜åˆ†é…æ•°:%u",SystemAllocCount);
+	PrintDOSObjectStatLog(0,"ç³»ç»Ÿå†…å­˜é‡Šæ”¾æ•°:%u,%u",SystemFreeCount,SystemAllocCount-SystemFreeCount);
 	FUNCTION_END;
 }

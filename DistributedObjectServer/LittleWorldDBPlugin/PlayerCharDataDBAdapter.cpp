@@ -75,6 +75,14 @@ void CPlayerCharDataDBAdapter::Destory()
 	FUNCTION_END;
 }
 
+UINT CPlayerCharDataDBAdapter::AddUseRef()
+{
+	return CNameObject::AddUseRef();
+}
+void CPlayerCharDataDBAdapter::Release()
+{
+	CNameObject::Release();
+}
 
 int CPlayerCharDataDBAdapter::Update(int ProcessPacketLimit)
 {

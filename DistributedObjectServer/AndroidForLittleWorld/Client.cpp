@@ -664,11 +664,11 @@ BOOL CClient::SendMessagePacket(CDOSMessagePacket * pPacket)
 		m_pMainControlView->AddSendBytes(pPacket->GetPacketLength());
 	return CDOSClient::SendMessagePacket(pPacket);
 }
-void CClient::OnRecvData(const CEasyBuffer& DataBuffer)
+void CClient::OnRecvData(const BYTE * pData, UINT DataSize)
 {
 	if(m_pMainControlView)
-		m_pMainControlView->AddRecvBytes(DataBuffer.GetUsedSize());
-	CDOSClient::OnRecvData(DataBuffer);
+		m_pMainControlView->AddRecvBytes(DataSize);
+	CDOSClient::OnRecvData(pData, DataSize);
 }
 
 int CClient::SFLogin(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)

@@ -51,7 +51,7 @@ public:
 	virtual void OnConnection(BOOL IsSucceed);
 	virtual void OnDisconnection();
 
-	BOOL QuerySend(LPCVOID pData,int Size);
+	BOOL QuerySend(LPCVOID pData, UINT Size);
 
 
 	virtual void OnRecvData(const CEasyBuffer& DataBuffer);

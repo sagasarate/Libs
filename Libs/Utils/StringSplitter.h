@@ -42,6 +42,8 @@ public:
 			return 0;
 		if(StrLen==0)
 			StrLen=strlen(pStr);
+		if (StrLen == 0)
+			return 0;
 
 		SAFE_DELETE_ARRAY(m_pBuffer);
 		m_pBuffer=new char[StrLen+1];
@@ -68,20 +70,22 @@ public:
 
 		return GetCount();
 	}
-	size_t Splitter(const wchar_t * pStr,wchar_t SplitterChar,size_t StrLen=0)
+	size_t Splitter(const WCHAR * pStr,WCHAR SplitterChar,size_t StrLen=0)
 	{
 		if(pStr==NULL)
 			return 0;
 		if(StrLen==0)
 			StrLen=wcslen(pStr);
+		if (StrLen == 0)
+			return 0;
 
 		SAFE_DELETE_ARRAY(m_pBuffer);
-		m_pBuffer=new wchar_t[StrLen+1];
+		m_pBuffer=new WCHAR[StrLen+1];
 		wcsncpy_s(m_pBuffer,StrLen+1,pStr,StrLen);
 		m_pBuffer[StrLen]=0;
 
-		wchar_t * pSrc=m_pBuffer;
-		wchar_t * pFinded=NULL;
+		WCHAR * pSrc=m_pBuffer;
+		WCHAR * pFinded=NULL;
 
 		do{
 			pFinded=wcschr(pSrc,SplitterChar);
@@ -117,7 +121,7 @@ public:
 	}
 };
 
-typedef CStringSplitterT<wchar_t> CStringSplitterW;
+typedef CStringSplitterT<WCHAR> CStringSplitterW;
 
 typedef CStringSplitterT<char> CStringSplitterA;
 

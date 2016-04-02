@@ -44,6 +44,42 @@ void CAsyncFileLogPrinter::CloseLog()
 	m_FileLogWorkThread.SafeTerminate();
 }
 
+void CAsyncFileLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
+{
+	try
+	{
+		if ((Level&m_LogLevel) == 0)
+		{
+			return;
+		}
+
+		TCHAR MsgBuff[5000];
+
+		CEasyTime CurTime;
+		CurTime.FetchLocalTime();
+
+		if (Level == LOG_LEVEL_DEBUG)
+		{
+			_stprintf_s(MsgBuff, 5000, _T("[%02u-%02u][%02u:%02u:%02u][D]"),
+				CurTime.Month(), CurTime.Day(),
+				CurTime.Hour(), CurTime.Minute(), CurTime.Second());
+		}
+		else
+		{
+			_stprintf_s(MsgBuff, 5000, _T("[%02u-%02u][%02u:%02u:%02u][N]"),
+				CurTime.Month(), CurTime.Day(),
+				CurTime.Hour(), CurTime.Minute(), CurTime.Second());
+		}
+		_tcsncat_s(MsgBuff, 5000, Msg, _TRUNCATE);
+		_tcsncat_s(MsgBuff, 5000, _T("\r\n"), _TRUNCATE);
+
+		m_FileLogWorkThread.PushLog(MsgBuff);
+	}
+	catch (...)
+	{
+		PrintImportantLog(0, _T("Log[%s]输出发生异常"), (LPCTSTR)m_LogFileName, Msg);
+	}
+}
 
 void CAsyncFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl)
 {
@@ -74,7 +110,7 @@ void CAsyncFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_li
 
 		_vstprintf_s(MsgBuff+20,4096-20,Format, vl );
 		MsgBuff[4095]=0;
-		_tcsncat_s(MsgBuff,5000,_T("\r\n"),4096);
+		_tcsncat_s(MsgBuff, 5000, _T("\r\n"), _TRUNCATE);
 
 		m_FileLogWorkThread.PushLog(MsgBuff);
 
@@ -87,12 +123,4 @@ void CAsyncFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_li
 }
 
 
-void CAsyncFileLogPrinter::PrintLogDirect(int Level,DWORD Color,LPCTSTR szMsg)
-{
-	if((Level&m_LogLevel)==0)
-	{
-		return;
-	}
 
-	m_FileLogWorkThread.PushLog(szMsg);
-}

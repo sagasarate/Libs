@@ -45,7 +45,7 @@ protected:
 	CStaticMap<OBJECT_ID,OBJECT_STAT_INFO>			m_ObjectCountStatMap;
 
 	CEasyCriticalSection							m_EasyCriticalSection;
-	DECLARE_CLASS_INFO(CDOSObjectGroup);
+	DECLARE_CLASS_INFO_STATIC(CDOSObjectGroup);
 public:
 	CDOSObjectGroup(void);
 	virtual ~CDOSObjectGroup(void);

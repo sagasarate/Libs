@@ -13,7 +13,7 @@
 #include "stdafx.h"
 
 
-IMPLEMENT_CLASS_INFO(CDOSProxyManager, CNameObject);
+IMPLEMENT_CLASS_INFO_STATIC(CDOSProxyManager, CNameObject);
 CDOSProxyManager::CDOSProxyManager()
 {
 	m_pServer = NULL;

@@ -41,7 +41,7 @@ public:
 	CDBValue(float Value);
 	CDBValue(double Value);
 	CDBValue(const char * Value);
-	CDBValue(const wchar_t * Value);
+	CDBValue(const WCHAR * Value);
 	//CDBValue(const SYSTEMTIME& Value);
 	//CDBValue(const FILETIME& Value);
 	CDBValue(const DB_DATE& Value);
@@ -80,7 +80,7 @@ public:
 	operator float() const;
 	operator double() const;
 	operator const char *() const;
-	operator const wchar_t *() const;
+	operator const WCHAR *() const;
 	//operator SYSTEMTIME();
 	//operator FILETIME();
 	operator DB_DATE() const;
@@ -105,7 +105,7 @@ public:
 	void operator=(float Value);
 	void operator=(double Value);
 	void operator=(const char * Value);
-	void operator=(const wchar_t * Value);
+	void operator=(const WCHAR * Value);
 	//void operator=(const SYSTEMTIME& Value);
 	//void operator=(const FILETIME& Value);
 	void operator=(const DB_DATE& Value);

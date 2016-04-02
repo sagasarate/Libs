@@ -11,7 +11,7 @@
 /****************************************************************************/
 #include "stdafx.h"
 
-IMPLEMENT_CLASS_INFO(CDOSObjectGroup,CEasyThread);
+IMPLEMENT_CLASS_INFO_STATIC(CDOSObjectGroup, CEasyThread);
 
 CDOSObjectGroup::CDOSObjectGroup(void)
 {
@@ -142,6 +142,12 @@ BOOL CDOSObjectGroup::OnStart()
 		return FALSE;
 
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(),THREAD_CPU_COUNT_TIME);
+
+	DOS_GROUP_INIT_FN pDOSGroupInitFN = GetManager()->GetServer()->GetConfig().pDOSGroupInitFN;
+	if (pDOSGroupInitFN)
+	{
+		pDOSGroupInitFN(m_Index);
+	}
 
 	PrintDOSLog(0xff0000,_T("对象组[%d]线程[%u]已启动"),m_Index,GetThreadID());
 	return TRUE;
@@ -281,7 +287,7 @@ int CDOSObjectGroup::ProcessObjectRegister(int ProcessLimit)
 			pObjectInfo->ObjectID.ObjectIndex=ID;
 			OnObjectRegister(pObjectInfo->ObjectID);
 			pObjectInfo->Weight=ObjectRegisterInfo.Weight;
-			pObjectInfo->Param=ObjectRegisterInfo.Param;
+			//pObjectInfo->Param=ObjectRegisterInfo.Param;
 			pObjectInfo->pObject=ObjectRegisterInfo.pObject;
 			pObjectInfo->pObject->SetObjectID(pObjectInfo->ObjectID);
 			pObjectInfo->pObject->SetGroup(this);

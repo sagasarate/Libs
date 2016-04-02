@@ -76,8 +76,9 @@
 //#endif
 
 
-#include "windows.h"
-#include "Winsvc.h"
+#include <windows.h>
+#include <Winsvc.h>
+#include <minwindef.h>
 
 #include "shlobj.h"
 #include "tchar.h"
@@ -103,6 +104,8 @@
 #pragma intrinsic(_InterlockedAnd)
 #pragma intrinsic(_InterlockedOr)
 
+
+typedef unsigned int UINT32;
 typedef double DOUBLE;
 
 typedef unsigned __int64 ULONG64;
@@ -110,6 +113,8 @@ typedef unsigned __int64 UINTG64;
 
 typedef __int64 LONG64;
 typedef __int64 INTG64;
+
+const TCHAR DIR_SLASH = '\\';
 
 inline unsigned int AtomicInc(volatile unsigned int * pVal)
 {
@@ -174,25 +179,32 @@ inline bool SetEnvVar(LPCTSTR pszVarName,LPTSTR pszValue)
 	return false;
 }
 
-inline size_t AnsiToUnicode(const char * SrcStr,size_t SrcLen,wchar_t * DestStr,size_t DestLen)
+inline size_t AnsiToUnicode(const char * SrcStr,size_t SrcLen,WCHAR * DestStr,size_t DestLen)
 {
 	return (size_t)MultiByteToWideChar(CP_ACP,0,SrcStr,(int)SrcLen,(LPWSTR)DestStr,(int)DestLen);
 }
 
-inline size_t UnicodeToAnsi(const wchar_t * SrcStr,size_t SrcLen,char * DestStr,size_t DestLen)
+inline size_t UnicodeToAnsi(const WCHAR * SrcStr,size_t SrcLen,char * DestStr,size_t DestLen)
 {
 	return (size_t)WideCharToMultiByte(CP_ACP,0,(LPWSTR)SrcStr,(int)SrcLen,DestStr,(int)DestLen,NULL,NULL);
 }
 
-inline size_t UnicodeToUTF8(const wchar_t * SrcStr,size_t SrcLen,char * DestStr,size_t DestLen)
+inline size_t UTF8ToUnicode(const char * SrcStr, size_t SrcLen, WCHAR * DestStr, size_t DestLen)
+{
+	return (size_t)MultiByteToWideChar(CP_UTF8, 0, SrcStr, (int)SrcLen, (LPWSTR)DestStr, (int)DestLen);
+}
+
+inline size_t UnicodeToUTF8(const WCHAR * SrcStr,size_t SrcLen,char * DestStr,size_t DestLen)
 {
 	return (size_t)WideCharToMultiByte(CP_UTF8,0,(LPWSTR)SrcStr,(int)SrcLen,DestStr,(int)DestLen,NULL,NULL);
 }
 
+
+
 inline size_t AnsiToUTF8(const char * SrcStr,size_t SrcLen,char * DestStr,size_t DestLen)
 {
 	int WLen=MultiByteToWideChar(CP_ACP,0,SrcStr,(int)SrcLen,NULL,0);
-	wchar_t * pWBuffer=new wchar_t[WLen+1];
+	WCHAR * pWBuffer=new WCHAR[WLen+1];
 	WLen=MultiByteToWideChar(CP_ACP,0,SrcStr,(int)SrcLen,pWBuffer,WLen);
 	pWBuffer[WLen]=0;
 
@@ -204,7 +216,7 @@ inline size_t AnsiToUTF8(const char * SrcStr,size_t SrcLen,char * DestStr,size_t
 inline size_t UTF8ToAnsi(const char * SrcStr,size_t SrcLen,char * DestStr,size_t DestLen)
 {
 	int WLen=MultiByteToWideChar(CP_UTF8,0,SrcStr,(int)SrcLen,NULL,0);
-	wchar_t * pWBuffer=new wchar_t[WLen+1];
+	WCHAR * pWBuffer=new WCHAR[WLen+1];
 	WLen=MultiByteToWideChar(CP_UTF8,0,SrcStr,(int)SrcLen,pWBuffer,WLen);
 	pWBuffer[WLen]=0;
 

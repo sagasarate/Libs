@@ -261,8 +261,8 @@ BOOL CNetPTCPConnection::QuerySend(LPCVOID pData,int Size)
 		while(Size)
 		{
 			int PacketSize=Size;
-			if(PacketSize>MAX_DATA_PACKET_SIZE)
-				PacketSize=MAX_DATA_PACKET_SIZE;
+			if(PacketSize>NET_DATA_BLOCK_SIZE)
+				PacketSize=NET_DATA_BLOCK_SIZE;
 			Size-=PacketSize;
 		
 

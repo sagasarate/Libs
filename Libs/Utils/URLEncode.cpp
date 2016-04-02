@@ -18,9 +18,9 @@ static unsigned char FromHex(unsigned char x)
 CEasyStringA URLEncode(LPCSTR str,int Len)
 {
 	CEasyStringA strTemp = "";
-	if(Len<0)
+	if(Len<=0)
 		Len=(int)strlen(str);	
-	for (size_t i = 0; i < Len; i++)
+	for (size_t i = 0; i < (size_t)Len; i++)
 	{
 		if (isalnum((unsigned char)str[i]) || 
 			(str[i] == '-') ||
@@ -43,14 +43,14 @@ CEasyStringA URLEncode(LPCSTR str,int Len)
 CEasyStringA URLDecode(LPCSTR str,int Len)
 {
 	CEasyStringA strTemp = "";
-	if(Len<0)
+	if(Len<=0)
 		Len = (int)strlen(str);
-	for (size_t i = 0; i < Len; i++)
+	for (size_t i = 0; i < (size_t)Len; i++)
 	{
 		if (str[i] == '+') strTemp += ' ';
 		else if (str[i] == '%')
 		{
-			assert(i + 2 < Len);
+			assert(i + 2 < (size_t)Len);
 			unsigned char high = FromHex((unsigned char)str[++i]);
 			unsigned char low = FromHex((unsigned char)str[++i]);
 			strTemp += (char)(high*16 + low);

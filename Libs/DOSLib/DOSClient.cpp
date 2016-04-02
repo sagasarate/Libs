@@ -11,7 +11,7 @@
 /****************************************************************************/
 #include "stdafx.h"
 
-IMPLEMENT_CLASS_INFO(CDOSClient,CNameObject);
+IMPLEMENT_CLASS_INFO_STATIC(CDOSClient, CNameObject);
 
 CDOSClient::CDOSClient(void)
 {
@@ -142,7 +142,7 @@ BOOL CDOSClient::FindObject(UINT ObjectType)
 {
 	return FALSE;
 }
-BOOL CDOSClient::ReportObject(OBJECT_ID TargetID,const CSmartStruct& ObjectInfo)
+BOOL CDOSClient::ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize)
 {
 	return FALSE;
 }
@@ -181,17 +181,17 @@ BOOL CDOSClient::RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CS
 {
 	return FALSE;
 }
-void CDOSClient::OnRecvData(const CEasyBuffer& DataBuffer)
+void CDOSClient::OnRecvData(const BYTE * pData, UINT DataSize)
 {
 	MSG_LEN_TYPE PacketSize=0;
 	UINT PeekPos=0;
-	if(DataBuffer.GetUsedSize()>m_AssembleBuffer.GetFreeSize())
+	if (DataSize>m_AssembleBuffer.GetFreeSize())
 	{
 		Close();
 		PrintDOSLog(0xff0000,_T("(%d)拼包缓冲溢出，连接断开！"),GetID());
 		return;
 	}
-	m_AssembleBuffer.PushBack(DataBuffer.GetBuffer(),DataBuffer.GetUsedSize());
+	m_AssembleBuffer.PushBack(pData, DataSize);
 	m_AssembleBuffer.Peek(PeekPos,&PacketSize,sizeof(MSG_LEN_TYPE));
 	while(m_AssembleBuffer.GetUsedSize()>=PacketSize&&PacketSize)
 	{

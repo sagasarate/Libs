@@ -37,6 +37,9 @@
     <Filter Include="系统配置">
       <UniqueIdentifier>{beb678a0-65a4-498d-9082-cd734f6ee2e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="协议">
+      <UniqueIdentifier>{f9ff35d9-e448-4568-8497-629d77c94bed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ServerFrameWork.rc">
@@ -100,6 +103,12 @@
     </ClInclude>
     <ClInclude Include="SystemConfig.h">
       <Filter>系统配置</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseProtocol.h">
+      <Filter>协议</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerConsoleProtocol.h">
+      <Filter>协议</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

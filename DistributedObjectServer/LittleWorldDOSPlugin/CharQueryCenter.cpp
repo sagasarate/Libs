@@ -42,6 +42,15 @@ void CCharQueryCenter::Destory()
 	m_pOperator=NULL;
 }
 
+UINT CCharQueryCenter::AddUseRef()
+{
+	return CNameObject::AddUseRef();
+}
+void CCharQueryCenter::Release()
+{
+	CNameObject::Release();
+}
+
 int CCharQueryCenter::RegisterChar(UINT64 CharID )
 {
 	LogDebug("CCharQueryCenter::RegisterChar:½ÇÉ«[0x%llX:0x%llX]×¢²á",

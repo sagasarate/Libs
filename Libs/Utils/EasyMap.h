@@ -834,13 +834,14 @@ protected:
 	//}
 	void BalanceInsert(StorageNode * pNode)
 	{
-		//assert(pNode->Color==NC_RED);
+		//assert(pNode->Color==NC_RED);		
 		if(pNode==m_pTreeRoot)
 		{
 			pNode->Color=NC_BLACK;
 		}
 		else
-		{			
+		{		
+			assert(pNode->pParent != NULL);
 			if(pNode->pParent->Color==NC_RED)
 			{
 				StorageNode * pParentParent=pNode->pParent->pParent;

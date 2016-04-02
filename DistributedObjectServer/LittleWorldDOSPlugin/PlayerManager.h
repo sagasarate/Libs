@@ -2,6 +2,7 @@
 
 
 class CPlayerManager :
+	public CNameObject,
 	public IDistributedObject,
 	public CPlayerManagerMsgHandler,
 	public CMapAreaAckMsgHandler,
@@ -23,6 +24,8 @@ public:
 
 	virtual BOOL Initialize(IDistributedObjectOperator * pOperator);
 	virtual void Destory();
+	virtual UINT AddUseRef();
+	virtual void Release();
 
 	BOOL CreatePlayer(OBJECT_ID ClientProxyID,LPCTSTR szAccountName,LPCTSTR szPassword);
 	BOOL DeletePlayer(UINT PoolID);

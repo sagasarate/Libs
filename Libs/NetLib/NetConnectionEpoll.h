@@ -22,12 +22,15 @@ protected:
 	CNetServer*									m_pServer;
 	volatile BOOL								m_WantClose;
 	bool										m_UseSafeDisconnect;
-	CThreadSafeIDStorage<CEpollEventObject *>	m_RecvQueue;
-	CThreadSafeIDStorage<CEpollEventObject *>	m_SendQueue;
+	CCycleBuffer								m_RecvQueue;
+	CCycleBuffer								m_SendQueue;
+	//CThreadSafeIDStorage<CEpollEventObject *>	m_RecvQueue;
+	//CThreadSafeIDStorage<CEpollEventObject *>	m_SendQueue;
 	CEpollEventRouter *							m_pEpollEventRouter;
 
-	CEasyCriticalSection						m_RecvLock;
+	//CEasyCriticalSection						m_RecvLock;
 	CEasyCriticalSection						m_SendLock;
+	bool										m_EnableSendLock;
 
 	DECLARE_CLASS_INFO_STATIC(CNetConnection);
 public:
@@ -38,9 +41,11 @@ public:
 
 	virtual BOOL Create(UINT RecvQueueSize=DEFAULT_SERVER_RECV_DATA_QUEUE,
 		UINT SendQueueSize=DEFAULT_SERVER_SEND_DATA_QUEUE);
-	virtual BOOL Create(SOCKET Socket,UINT RecvQueueSize,UINT SendQueueSize);
+	virtual BOOL Create(SOCKET Socket, UINT RecvQueueSize = DEFAULT_SERVER_RECV_DATA_QUEUE,
+		UINT SendQueueSize = DEFAULT_SERVER_SEND_DATA_QUEUE);
 	virtual void Destory();
 
+	void EnableSendQueueLock(bool Enable);
 
 
 	BOOL Connect(const CIPAddress& Address,DWORD TimeOut=NO_CONNECTION_TIME_OUT);
@@ -53,10 +58,9 @@ public:
 	virtual void OnConnection(BOOL IsSucceed);
 	virtual void OnDisconnection();
 
-	BOOL Send(LPCVOID pData,int Size);
+	BOOL Send(LPCVOID pData, UINT Size);
 	BOOL SendDirect(LPCVOID pData,UINT Size);
-
-	virtual void OnRecvData(const CEasyBuffer& DataBuffer);
+	
 
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 
@@ -74,7 +78,13 @@ public:
 protected:
 	void DoRecv();
 	void DoSend();
+	UINT TrySend(LPCVOID pData, UINT Size);
 };
+
+inline void CNetConnection::EnableSendQueueLock(bool Enable)
+{
+	m_EnableSendLock = Enable;
+}
 
 inline BOOL CNetConnection::SendDirect(LPCVOID pData,UINT Size)
 {

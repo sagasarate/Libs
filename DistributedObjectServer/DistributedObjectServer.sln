@@ -36,6 +36,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DBLib", "..\Libs\DBLib\DBLi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DistributedObjectServer", "DistributedObjectServer\DistributedObjectServer.vcxproj", "{5FF197C2-1281-4989-9582-E26D2DF4E343}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MonoWrapper", "..\Libs\MonoWrapper\MonoWrapper.vcxproj", "{4018C851-E5BD-45FC-B5FD-FD06D1F490C3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DOSSystem_Src", "DOSSystem_Src", "{C6BDCB56-466C-4EC5-87E0-96CB2085DB16}"
+	ProjectSection(SolutionItems) = preProject
+		Work\DOSSystem_Src\CSmartStruct.cs = Work\DOSSystem_Src\CSmartStruct.cs
+		Work\DOSSystem_Src\CSmartValue.cs = Work\DOSSystem_Src\CSmartValue.cs
+		Work\DOSSystem_Src\CSVReader.cs = Work\DOSSystem_Src\CSVReader.cs
+		Work\DOSSystem_Src\DistributedObjectOperator.cs = Work\DOSSystem_Src\DistributedObjectOperator.cs
+		Work\DOSSystem_Src\DOSBase.cs = Work\DOSSystem_Src\DOSBase.cs
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -134,6 +145,12 @@ Global
 		{5FF197C2-1281-4989-9582-E26D2DF4E343}.Release|Win32.Build.0 = Release|Win32
 		{5FF197C2-1281-4989-9582-E26D2DF4E343}.Release|x64.ActiveCfg = Release|x64
 		{5FF197C2-1281-4989-9582-E26D2DF4E343}.Release|x64.Build.0 = Release|x64
+		{4018C851-E5BD-45FC-B5FD-FD06D1F490C3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4018C851-E5BD-45FC-B5FD-FD06D1F490C3}.Debug|Win32.Build.0 = Debug|Win32
+		{4018C851-E5BD-45FC-B5FD-FD06D1F490C3}.Debug|x64.ActiveCfg = Debug|Win32
+		{4018C851-E5BD-45FC-B5FD-FD06D1F490C3}.Release|Win32.ActiveCfg = Release|Win32
+		{4018C851-E5BD-45FC-B5FD-FD06D1F490C3}.Release|Win32.Build.0 = Release|Win32
+		{4018C851-E5BD-45FC-B5FD-FD06D1F490C3}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

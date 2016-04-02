@@ -40,6 +40,11 @@ public:
 	~CFileLogPrinter(void);
 
 	bool Create(LPCTSTR FileName,DWORD Flag);
+	IFileAccessor * GetFile()
+	{
+		return m_pFileAccessor;
+	}
 
+	virtual void PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg);
 	virtual void PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl);
 };

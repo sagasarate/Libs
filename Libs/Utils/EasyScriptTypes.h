@@ -628,6 +628,7 @@ inline void StrToNumber(LPCTSTR szNumberStr,ES_BOLAN& Value)
 		if(IsHex)
 #pragma warning( push )
 #pragma warning (disable : 4996)
+#pragma warning (disable : 6031)
 			_stscanf(szNumberStr,_T("0X%llX"),&ValueMax);
 #pragma warning( pop )
 		else

@@ -41,7 +41,7 @@ public:
 	virtual CBaseTCPConnection * CreateConnection(CIPAddress& RemoteAddress)=0;
 	virtual BOOL DeleteConnection(CBaseTCPConnection * pConnection)=0;
 
-	virtual void OnRecvData(const CIPAddress& IPAddress,const CEasyBuffer& DataBuffer)=0;
+	virtual void OnRecvData(const CIPAddress& IPAddress, const BYTE * pData, UINT DataSize) = 0;
 };
 
 inline CNetSocket * CBaseService::GetSocket()

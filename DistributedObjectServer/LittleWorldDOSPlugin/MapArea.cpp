@@ -109,6 +109,14 @@ void CMapArea::Destory()
 	FUNCTION_END;
 }
 
+UINT CMapArea::AddUseRef()
+{
+	return CNameObject::AddUseRef();
+}
+void CMapArea::Release()
+{
+	CNameObject::Release();
+}
 
 
 void CMapArea::OnConcernedObjectLost(OBJECT_ID ObjectID)

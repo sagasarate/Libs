@@ -17,8 +17,8 @@ class CThreadSafeCycleBuffer :
 protected:
 	BYTE *						m_pBuffer;
 	UINT						m_BufferSize;	
-	UINT						m_BufferHead;
-	UINT						m_BufferTail;	
+	volatile UINT				m_BufferHead;
+	volatile UINT				m_BufferTail;
 	bool						m_IsSelfBuffer;
 	CEasyCriticalSection		m_FrontLock;
 	CEasyCriticalSection		m_BackLock;
@@ -35,11 +35,13 @@ public:
 	BOOL Create(UINT Size);
 	BOOL Create(LPVOID pBuff,UINT Size);
 	void Destory();
+	void Clear();
 
 	void SetLockMode(bool IsLockFront,bool IsLockBack);
 
 	UINT GetBufferSize();
 	UINT GetUsedSize();	
+	UINT GetFreeSize();
 
 	BOOL PushFront(LPCVOID pData,UINT Size);
 	BOOL PushFront(UINT Data,UINT Size);
@@ -52,7 +54,13 @@ public:
 	BOOL PopBack(UINT Data,UINT Size);
 
 	LPVOID GetUsedBuffer();
-	int GetSmoothUsedSize();
+	UINT GetSmoothUsedSize();
+
+	LPVOID GetFreeBuffer();
+	UINT GetSmoothFreeSize();
+
+
+	void CloneFrom(const CThreadSafeCycleBuffer& TargetBuffer);
 };
 
 
@@ -65,15 +73,33 @@ inline void CThreadSafeCycleBuffer::SetLockMode(bool IsLockFront,bool IsLockBack
 inline UINT CThreadSafeCycleBuffer::GetBufferSize()
 {
 	//Buffer的可使用大小比创建大小小1，防止首尾指针重叠
-	return m_BufferSize-1;
+	if (m_BufferSize)
+		return m_BufferSize - 1;
+	else
+		return 0;
 }
 inline UINT CThreadSafeCycleBuffer::GetUsedSize()
 {
-	if(m_BufferTail>=m_BufferHead)
-		return m_BufferTail-m_BufferHead;
+	if (m_BufferTail >= m_BufferHead)
+		return m_BufferTail - m_BufferHead;
 	else
-		return (m_BufferSize-m_BufferHead)+m_BufferTail;
+		return (m_BufferSize - m_BufferHead) + m_BufferTail;
 
+}
+
+inline UINT CThreadSafeCycleBuffer::GetFreeSize()
+{
+	if (m_BufferSize)
+	{
+		if (m_BufferTail >= m_BufferHead)
+			return m_BufferSize - (m_BufferTail - m_BufferHead) - 1;
+		else
+			return m_BufferHead - m_BufferTail - 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 
@@ -220,11 +246,24 @@ inline LPVOID CThreadSafeCycleBuffer::GetUsedBuffer()
 	return m_pBuffer+m_BufferHead;
 }
 
-inline int CThreadSafeCycleBuffer::GetSmoothUsedSize()
+inline UINT CThreadSafeCycleBuffer::GetSmoothUsedSize()
 {		
-	if(m_BufferTail>=m_BufferHead)
-		return m_BufferTail-m_BufferHead;
+	UINT BufferTail = m_BufferTail;
+	if (BufferTail >= m_BufferHead)
+		return BufferTail - m_BufferHead;
 	else
-		return m_BufferSize-m_BufferHead;
+		return m_BufferSize - m_BufferHead;
 }
 
+inline LPVOID CThreadSafeCycleBuffer::GetFreeBuffer()
+{
+	return m_pBuffer + m_BufferTail;
+}
+inline UINT CThreadSafeCycleBuffer::GetSmoothFreeSize()
+{
+	UINT BufferHead = m_BufferHead;
+	if (m_BufferTail >= BufferHead)
+		return m_BufferSize - m_BufferTail;
+	else
+		return BufferHead - m_BufferTail - 1;
+}

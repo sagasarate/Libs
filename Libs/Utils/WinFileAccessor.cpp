@@ -160,11 +160,10 @@ ULONG64 CWinFileAccessor::Read(LPVOID pBuff,ULONG64 Size)
 	if(m_hFile!=INVALID_HANDLE_VALUE)
 	{
 		DWORD RealSize=0;
-		ReadFile(m_hFile,pBuff,(DWORD)Size,&RealSize,NULL);
-		return RealSize;
-	}
-	else
-		return 0;
+		if(ReadFile(m_hFile,pBuff,(DWORD)Size,&RealSize,NULL))
+			return RealSize;
+	}	
+	return 0;
 }
 
 ULONG64 CWinFileAccessor::Write(LPCVOID pBuff,ULONG64 Size)

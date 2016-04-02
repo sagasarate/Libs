@@ -19,6 +19,7 @@
 #define LOG_DB_ERROR_CHANNEL			1202
 #define LOG_DOS_CHANNEL					1301
 #define LOG_DOS_OBJECT_STATE_CHANNEL	1302
+#define LOG_MONO_CHANNEL				1401
 
 #define IMPORTANT_LOG_FILE_NAME	_T("ImportantError")
 
@@ -41,6 +42,26 @@ public:
 	ILogPrinter * GetChannel(UINT ChannelID);
 	BOOL DelChannel(UINT ChannelID);
 
+	BOOL PrintLogDirect(UINT ChannelID, int Level, DWORD Color, LPCTSTR Msg);
 	BOOL PrintLog(UINT ChannelID,int Level,DWORD Color,LPCTSTR Format,...);
 	BOOL PrintLogVL(UINT ChannelID,int Level,DWORD Color,LPCTSTR Format,va_list vl);
 };
+
+
+inline BOOL PrintSystemLog(DWORD Color, LPCTSTR Format, ...)
+{
+	va_list vl;
+	va_start(vl, Format);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_SYSTEM_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Color, Format, vl);
+	va_end(vl);
+	return ret;
+}
+
+inline BOOL PrintImportantLog(DWORD Color, LPCTSTR Format, ...)
+{
+	va_list vl;
+	va_start(vl, Format);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_IMPORTANT_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Color, Format, vl);
+	va_end(vl);
+	return ret;
+}

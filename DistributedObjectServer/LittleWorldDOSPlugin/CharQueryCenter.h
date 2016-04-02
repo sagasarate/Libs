@@ -1,6 +1,7 @@
 #pragma once
 
 class CCharQueryCenter :
+	public CNameObject,
 	public IDistributedObject,
 	public CCharQueryCenterMsgHandler
 {
@@ -16,6 +17,8 @@ public:
 
 	virtual BOOL Initialize(IDistributedObjectOperator * pOperator);
 	virtual void Destory();
+	virtual UINT AddUseRef();
+	virtual void Release();
 
 protected:
 

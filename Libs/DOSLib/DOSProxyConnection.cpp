@@ -11,7 +11,7 @@
 /****************************************************************************/
 #include "stdafx.h"
 
-IMPLEMENT_CLASS_INFO(CDOSProxyConnection,CNetConnection);
+IMPLEMENT_CLASS_INFO_STATIC(CDOSProxyConnection, CNetConnection);
 
 
 CEasyBuffer	CDOSProxyConnection::m_CompressBuffer;
@@ -167,12 +167,12 @@ void CDOSProxyConnection::OnDisconnection()
 	FUNCTION_END;
 }
 
-void CDOSProxyConnection::OnRecvData(const CEasyBuffer& DataBuffer)
+void CDOSProxyConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
 	MSG_LEN_TYPE PacketSize=0;
 	UINT PeekPos=0;
-	if(!m_AssembleBuffer.PushBack(DataBuffer.GetBuffer(),DataBuffer.GetUsedSize()))
+	if (!m_AssembleBuffer.PushBack(pData, DataSize))
 	{
 		Disconnect();
 		PrintDOSLog(0xff0000,_T("对象代理(%d)拼包缓冲溢出，连接断开！"),GetID());

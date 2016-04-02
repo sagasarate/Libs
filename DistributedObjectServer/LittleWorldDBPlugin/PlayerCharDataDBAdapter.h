@@ -1,6 +1,7 @@
 #pragma once
 
 class CPlayerCharDataDBAdapter :
+	public CNameObject,
 	public IDistributedObject,
 	public CPlayerCharDBMsgHandler
 {
@@ -19,6 +20,8 @@ public:
 
 	virtual BOOL Initialize(IDistributedObjectOperator * pOperator);
 	virtual void Destory();
+	virtual UINT AddUseRef();
+	virtual void Release();
 
 protected:
 	virtual int Update(int ProcessPacketLimit);

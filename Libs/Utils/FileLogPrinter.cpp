@@ -70,6 +70,42 @@ CFileLogPrinter::~CFileLogPrinter(void)
 	SAFE_RELEASE(m_pFileAccessor);
 }
 
+void CFileLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
+{
+	CAutoLock Lock(m_EasyCriticalSection);
+
+	if ((m_LogLevel&Level) == 0)
+		return;
+
+	if (m_pFileAccessor == NULL)
+		return;
+
+	CEasyTime CurTime;
+	CurTime.FetchLocalTime();
+	if (m_Flag&FILE_LOG_SPLIT_BY_DAY)
+	{
+		if (!CEasyTime::IsSameDate(m_RecentLogTime, CurTime))
+		{
+			CEasyString LogFileName;
+
+			m_pFileAccessor->Close();
+			m_RecentLogTime = CurTime;
+			LogFileName.Format(_T("%s.%u-%02u-%02u.log"),
+				(LPCTSTR)m_LogFileName,
+				m_RecentLogTime.Year(),
+				m_RecentLogTime.Month(),
+				m_RecentLogTime.Day());
+			m_pFileAccessor->Open(LogFileName, m_FileOpenMode);
+			if (m_Flag&FILE_LOG_APPEND)
+				m_pFileAccessor->Seek(0, IFileAccessor::seekEnd);
+		}
+	}
+	CurTime.Format(m_MsgBuff, 40960, _T("[%m-%d %H:%M:%S]:"));
+
+	m_pFileAccessor->Write(m_MsgBuff, _tcslen(m_MsgBuff));
+	m_pFileAccessor->Write(Msg, _tcslen(Msg));
+	m_pFileAccessor->Write(_T("\r\n"), 2);
+}
 void CFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl)
 {
 	CAutoLock Lock(m_EasyCriticalSection);

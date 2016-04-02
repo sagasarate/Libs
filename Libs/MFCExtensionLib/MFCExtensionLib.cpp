@@ -47,3 +47,46 @@ bool ExportListViewToCSV(CListCtrl& ListView,LPCTSTR szExportFileName,int Export
 	}
 	return false;
 }
+
+static CString s_DefaultBrowseFolder;
+int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+{
+	if (uMsg == BFFM_INITIALIZED)
+	{
+		if (!s_DefaultBrowseFolder.IsEmpty())
+		{
+			SendMessage(hwnd, BFFM_SETSELECTION,
+				TRUE, (LPARAM)((LPCTSTR)s_DefaultBrowseFolder));
+		}
+	}
+	return 0;
+}
+
+bool AfxBrowseForFolder(LPCTSTR szTitke, CString& SelectedFolder, UINT Flag)
+{
+	BROWSEINFO bi;
+	TCHAR FilePath[MAX_PATH];
+	LPITEMIDLIST pidl;
+
+	ZeroMemory(&bi, sizeof(bi));
+
+	//bi.pszDisplayName=FilePath;
+	s_DefaultBrowseFolder = SelectedFolder;
+	bi.lpszTitle = szTitke;
+	bi.ulFlags = Flag;
+	bi.lpfn = BrowseCallbackProc;
+	pidl = ::SHBrowseForFolder(&bi);
+	if (pidl != NULL)
+	{
+		::SHGetPathFromIDList(pidl, FilePath);
+		IMalloc *pMalloc = NULL;
+		::SHGetMalloc(&pMalloc);
+		pMalloc->Free(pidl);
+		pMalloc->Release();
+		pMalloc = NULL;
+
+		SelectedFolder = FilePath;
+		return true;
+	}
+	return false;
+}

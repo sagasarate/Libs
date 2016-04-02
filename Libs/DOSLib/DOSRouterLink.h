@@ -21,7 +21,7 @@ class CDOSRouterLink :
 protected:
 	
 
-	DECLARE_CLASS_INFO(CDOSRouterLink);
+	DECLARE_CLASS_INFO_STATIC(CDOSRouterLink);
 
 	
 public:

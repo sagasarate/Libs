@@ -12,9 +12,9 @@
 #pragma once
 
 
-#define MAXTIME	(DWORD(0xffffffff))
+#define MAXTIME	(UINT32(0xffffffff))
 
-inline DWORD	GetTimeToTime(DWORD t1,DWORD t2 )
+inline UINT32	GetTimeToTime(UINT32 t1,UINT32 t2 )
 {
 	return (t1<=t2?(t2-t1):(MAXTIME-t1+t2));
 }
@@ -22,8 +22,8 @@ inline DWORD	GetTimeToTime(DWORD t1,DWORD t2 )
 class CEasyTimer
 {
 protected:
-	DWORD	m_dwSavedTime;
-	DWORD	m_dwTimeoutTime;
+	UINT32	m_dwSavedTime;
+	UINT32	m_dwTimeoutTime;
 public:
 	CEasyTimer():m_dwSavedTime(0),m_dwTimeoutTime(0)
 	{
@@ -41,19 +41,19 @@ public:
 		return *this;
 	}
 #ifdef WIN32
-	static inline DWORD	GetTime()
+	static inline UINT32	GetTime()
 	{
 		return GetTickCount();
 	}
 #else
-	static inline DWORD	GetTime()
+	static inline UINT32	GetTime()
 	{
 		struct timeval CurTime;
 		gettimeofday(&CurTime,NULL);
 		return CurTime.tv_sec*1000+CurTime.tv_usec/1000;
 	}	
 #endif
-	void	SaveTime(DWORD dwCurTime)
+	void	SaveTime(UINT32 dwCurTime)
 	{
 		m_dwSavedTime = dwCurTime;
 	}
@@ -61,37 +61,37 @@ public:
 	{
 		SaveTime(CEasyTimer::GetTime());
 	}
-	static BOOL	IsTimeOut( DWORD starttime, DWORD timeout )
+	static BOOL	IsTimeOut( UINT32 starttime, UINT32 timeout )
 	{
-		DWORD	dwTime = CEasyTimer::GetTime();
+		UINT32	dwTime = CEasyTimer::GetTime();
 		if( GetTimeToTime(starttime, dwTime) >= timeout )
 		{
 			return TRUE;
 		}
 		return FALSE;
 	}
-	BOOL	IsTimeOut( DWORD dwTimeOut )
+	BOOL	IsTimeOut( UINT32 dwTimeOut )
 	{
-		DWORD	dwTime = CEasyTimer::GetTime();
+		UINT32	dwTime = CEasyTimer::GetTime();
 		if( GetTimeToTime(m_dwSavedTime, dwTime)>= dwTimeOut )
 		{
 			return TRUE;
 		}
 		return FALSE;
 	}
-	void	SetTimeOut( DWORD	dwTimeOut)
+	void	SetTimeOut( UINT32	dwTimeOut)
 	{
 		m_dwSavedTime = CEasyTimer::GetTime();
 		m_dwTimeoutTime = dwTimeOut;
 	}
 	BOOL	IsTimeOut()
 	{
-		DWORD	dwTime = CEasyTimer::GetTime();
+		UINT32	dwTime = CEasyTimer::GetTime();
 		if( GetTimeToTime(m_dwSavedTime, dwTime)>= m_dwTimeoutTime )
 			return TRUE;
 		return FALSE;
 	}
-	void Reset(DWORD dwCurTime)
+	void Reset(UINT32 dwCurTime)
 	{
 		m_dwSavedTime=dwCurTime;
 	}
@@ -99,25 +99,25 @@ public:
 	{
 		Reset(CEasyTimer::GetTime());
 	}
-	DWORD	GetLeftTime(DWORD dwCurTime)
+	UINT32	GetLeftTime(UINT32 dwCurTime)
 	{
-		DWORD dwTime = GetTimeToTime( m_dwSavedTime, dwCurTime );
+		UINT32 dwTime = GetTimeToTime( m_dwSavedTime, dwCurTime );
 		if( dwTime >= m_dwTimeoutTime )return 0;
 		return (m_dwTimeoutTime - dwTime);
 	}
-	DWORD	GetLeftTime()
+	UINT32	GetLeftTime()
 	{
 		return GetLeftTime(CEasyTimer::GetTime());
 	}
-	DWORD GetPastTime(DWORD dwCurTime)
+	UINT32 GetPastTime(UINT32 dwCurTime)
 	{		
 		return GetTimeToTime( m_dwSavedTime, dwCurTime );
 	}
-	DWORD GetPastTime()
+	UINT32 GetPastTime()
 	{
 		return GetPastTime(CEasyTimer::GetTime());
 	}
-	DWORD	GetTimeOut(){ return m_dwTimeoutTime;}
-	DWORD	GetSavedTime(){ return m_dwSavedTime;}
+	UINT32	GetTimeOut(){ return m_dwTimeoutTime;}
+	UINT32	GetSavedTime(){ return m_dwSavedTime;}
 
 };

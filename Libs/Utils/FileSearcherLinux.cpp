@@ -105,9 +105,7 @@ CEasyString CFileSearcher::GetFileTitle()
 {
 	if(m_FetchIndex>=0&&m_FetchIndex<(int)m_FileInfoList.GetCount())
 	{
-		CEasyString FileName=m_FileInfoList[m_FetchIndex].FileInfo.d_name;
-		int Pos=FileName.Find('.');
-		return FileName.Left(Pos);
+		return GetPathFileName(m_FileInfoList[m_FetchIndex].FileInfo.d_name);		
 	}
 	else
 	{
@@ -119,9 +117,7 @@ CEasyString CFileSearcher::GetFileExt()
 {
 	if(m_FetchIndex>=0&&m_FetchIndex<(int)m_FileInfoList.GetCount())
 	{
-		CEasyString FileName=m_FileInfoList[m_FetchIndex].FileInfo.d_name;
-		int Pos=FileName.ReverseFind('.');
-		return FileName.Right(FileName.GetLength()-Pos-1);
+		return GetPathFileExtName(m_FileInfoList[m_FetchIndex].FileInfo.d_name);
 	}
 	else
 	{

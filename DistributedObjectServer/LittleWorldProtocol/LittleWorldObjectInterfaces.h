@@ -24,7 +24,7 @@ inline UINT CaculateMsgPacketSize(UINT MsgDataLen)
 }
 
 
-inline bool PackMsgToMsgPacket(CSmartStruct& Packet,MSG_ID_TYPE MsgID,CSmartStruct& MsgData)
+inline bool PackMsgToMsgPacket(CSmartStruct& Packet,UINT MsgID,CSmartStruct& MsgData)
 {
 	UINT BufferSize;
 	void * pBuffer=Packet.PrepareMember(BufferSize);

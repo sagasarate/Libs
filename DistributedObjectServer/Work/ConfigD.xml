@@ -4,7 +4,7 @@
     <EventObjectPool StartSize="10240" GrowSize="1024" GrowLimit="32" />
     <EventRouterPool StartSize="2048" GrowSize="512" GrowLimit="32" />
   </Net>
-  <Router RouterID="200" MsgQueueSize="10240" MsgProcessLimit="32" />
+  <Router RouterID="0" MsgQueueSize="10240" MsgProcessLimit="32" />
 
   <ClientProxys>
     <ClientProxy ProxyType="1" ListenIP="0" ListenPort="9800" MaxConnection="2048" ConnectionMsgQueueSize="256" 
@@ -15,9 +15,16 @@
   </ClientProxys>
 
   <MemoryPool BlockSize="64" LevelSize="1048576" LevelCount="7" />
-  <Object GroupCount="10" MaxGroupObjectCount="512" MsgQueueSize="4096" StatObjectCPUCost="true" />
+  <Object GroupCount="2" MaxGroupObjectCount="512" MsgQueueSize="4096" StatObjectCPUCost="true" />
+  
+  <Mono Enable="true" LibraryDir="lib" RunDir="./" CompilerPath="build/mcs.exe" CreateProj="false" ConfigFilePath="" EnableDebug="false"
+        DebugAgentListenIP="0" DebugAgentListenPort="56600" IsDebugSuspend="false" 
+        BaseGCInterval="200" AdvanceGCMul="5" FullGCInterval="60000"/>
+  
   <Plugins MaxPluginObject="4096">   
-    <Plugin  FileName="ServerListProviderD.so" />
+    <Plugin  Type="CSharp" Name="ServerListProvider" LoadType="Assembly" MainClassNameSpace="" MainClass="PluginMain" >
+      <SourceDir Name="src"/>
+    </Plugin>
   </Plugins>
     
 </Main>

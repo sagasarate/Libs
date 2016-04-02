@@ -163,6 +163,8 @@
     <ResourceCompile Include="ServerFrameWork.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseProtocol.h" />
+    <ClInclude Include="ServerConsoleProtocol.h" />
     <ClInclude Include="ServerFrameWorkResource.h" />
     <ClInclude Include="ControlPanel.h" />
     <ClInclude Include="DlgServerStatus.h" />

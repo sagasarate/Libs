@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 
 CDistributedObjectManager::CDistributedObjectManager(void)
@@ -18,7 +18,7 @@ BOOL CDistributedObjectManager::Init(CDOSObjectManager * pDOSObjectManager,UINT 
 	m_pDOSObjectManager=pDOSObjectManager;
 	if(!m_ObjectPool.Create(MaxObjectCount))
 	{
-		Log("ÎŞ·¨´´½¨%u´óĞ¡µÄ²å¼ş¶ÔÏó³Ø",MaxObjectCount);
+		Log("æ— æ³•åˆ›å»º%uå¤§å°çš„æ’ä»¶å¯¹è±¡æ± ",MaxObjectCount);
 		return FALSE;
 	}
 
@@ -51,17 +51,54 @@ BOOL CDistributedObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& Obje
 			RegisterInfo.ObjectGroupIndex=ObjectRegisterInfo.ObjectGroupIndex;
 			RegisterInfo.MsgQueueSize=ObjectRegisterInfo.MsgQueueSize;
 			RegisterInfo.MsgProcessLimit=ObjectRegisterInfo.MsgProcessLimit;
-			RegisterInfo.Param=ObjectRegisterInfo.Param;
+			//RegisterInfo.Param=ObjectRegisterInfo.Param;
 
 			if(m_pDOSObjectManager->RegisterObject(RegisterInfo))
 			{
-				//LogDebug("CDistributedObjectManager::RegisterObject:³É¹¦×¢²á¶ÔÏó0x%llX",
+				//LogDebug("CDistributedObjectManager::RegisterObject:æˆåŠŸæ³¨å†Œå¯¹è±¡0x%llX",
 				//	pObjectOperator->GetObjectID().ID);
 				return TRUE;
 			}
 			else
 			{
-				Log("CDistributedObjectManager::RegisterObject:×¢²á¶ÔÏó0x%llXÊ§°Ü",
+				Log("CDistributedObjectManager::RegisterObject:æ³¨å†Œå¯¹è±¡0x%llXå¤±è´¥",
+					ObjectRegisterInfo.ObjectID.ID);
+			}
+		}
+
+	}
+
+	FUNCTION_END;
+	return FALSE;
+}
+
+BOOL CDistributedObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO_FOR_CS& ObjectRegisterInfo, MONO_DOMAIN_INFO& MonoDomainInfo)
+{
+	FUNCTION_BEGIN;
+	if (m_pDOSObjectManager&&ObjectRegisterInfo.pObject)
+	{
+		CDistributedObjectOperator * pObjectOperator = CreateObjectOperator(MonoDomainInfo, ObjectRegisterInfo.pObject, ObjectRegisterInfo.ObjectID);
+		if (pObjectOperator)
+		{
+			DOS_OBJECT_REGISTER_INFO RegisterInfo;
+
+			RegisterInfo.ObjectID = ObjectRegisterInfo.ObjectID;
+			RegisterInfo.pObject = pObjectOperator;
+			RegisterInfo.Weight = ObjectRegisterInfo.Weight;
+			RegisterInfo.ObjectGroupIndex = ObjectRegisterInfo.ObjectGroupIndex;
+			RegisterInfo.MsgQueueSize = ObjectRegisterInfo.MsgQueueSize;
+			RegisterInfo.MsgProcessLimit = ObjectRegisterInfo.MsgProcessLimit;
+			//RegisterInfo.Param=ObjectRegisterInfo.Param;
+
+			if (m_pDOSObjectManager->RegisterObject(RegisterInfo))
+			{
+				//LogDebug("CDistributedObjectManager::RegisterObject:æˆåŠŸæ³¨å†Œå¯¹è±¡0x%llX",
+				//	pObjectOperator->GetObjectID().ID);
+				return TRUE;
+			}
+			else
+			{
+				Log("CDistributedObjectManager::RegisterObject:æ³¨å†Œå¯¹è±¡0x%llXå¤±è´¥",
 					ObjectRegisterInfo.ObjectID.ID);
 			}
 		}
@@ -80,13 +117,13 @@ BOOL CDistributedObjectManager::UnregisterObject(CDistributedObjectOperator * pO
 
 		if(m_pDOSObjectManager->UnregisterObject(pObjectOperator->GetObjectID()))
 		{
-			//LogDebug("CDistributedObjectManager::UnregisterObject:³É¹¦×¢Ïú¶ÔÏó0x%llX",
+			//LogDebug("CDistributedObjectManager::UnregisterObject:æˆåŠŸæ³¨é”€å¯¹è±¡0x%llX",
 			//	pObjectOperator->GetObjectID().ID);
 			return TRUE;
 		}
 		else
 		{
-			Log("CDistributedObjectManager::UnregisterObject:×¢Ïú¶ÔÏó0x%llXÊ§°Ü",
+			Log("CDistributedObjectManager::UnregisterObject:æ³¨é”€å¯¹è±¡0x%llXå¤±è´¥",
 				pObjectOperator->GetObjectID().ID);
 		}
 	}
@@ -103,7 +140,7 @@ CDistributedObjectOperator * CDistributedObjectManager::CreateObjectOperator(IDi
 	{
 		if(pObjectOperator->Init(this,ID,pObject))
 		{
-			//LogDebug("CDistributedObjectManager::CreateObjectOperator:³É¹¦ĞÂ½¨¶ÔÏó%u[%llX],ÏÖÓĞ¶ÔÏó%u",ID,ObjectID.ID,m_ObjectPool.GetObjectCount());
+			//LogDebug("CDistributedObjectManager::CreateObjectOperator:æˆåŠŸæ–°å»ºå¯¹è±¡%u[%llX],ç°æœ‰å¯¹è±¡%u",ID,ObjectID.ID,m_ObjectPool.GetObjectCount());
 			return pObjectOperator;
 		}
 		else
@@ -111,10 +148,32 @@ CDistributedObjectOperator * CDistributedObjectManager::CreateObjectOperator(IDi
 			m_ObjectPool.DeleteObject(ID);
 		}
 	}
-	LogDebug("CDistributedObjectManager::CreateObjectOperator:ĞÂ½¨¶ÔÏóÊ§°Ü,ÏÖÓĞ¶ÔÏó%u",m_ObjectPool.GetObjectCount());
+	LogDebug("CDistributedObjectManager::CreateObjectOperator:æ–°å»ºå¯¹è±¡å¤±è´¥,ç°æœ‰å¯¹è±¡%u",m_ObjectPool.GetObjectCount());
 	FUNCTION_END;
 	return NULL;
 
+}
+
+CDistributedObjectOperator * CDistributedObjectManager::CreateObjectOperator(MONO_DOMAIN_INFO& MonoDomainInfo, MonoObject * pObject, OBJECT_ID ObjectID)
+{
+	FUNCTION_BEGIN;
+	CDistributedObjectOperator * pObjectOperator = NULL;
+	UINT ID = m_ObjectPool.NewObject(&pObjectOperator);
+	if (pObjectOperator)
+	{
+		if (pObjectOperator->Init(this, ID, MonoDomainInfo, pObject))
+		{
+			//LogDebug("CDistributedObjectManager::CreateObjectOperator:æˆåŠŸæ–°å»ºå¯¹è±¡%u[%llX],ç°æœ‰å¯¹è±¡%u",ID,ObjectID.ID,m_ObjectPool.GetObjectCount());
+			return pObjectOperator;
+		}
+		else
+		{
+			m_ObjectPool.DeleteObject(ID);
+		}
+	}
+	LogDebug("CDistributedObjectManager::CreateObjectOperator:æ–°å»ºå¯¹è±¡å¤±è´¥,ç°æœ‰å¯¹è±¡%u", m_ObjectPool.GetObjectCount());
+	FUNCTION_END;
+	return NULL;
 }
 
 BOOL CDistributedObjectManager::DeleteObjectOperator(CDistributedObjectOperator * pObjectOperator)
@@ -124,12 +183,12 @@ BOOL CDistributedObjectManager::DeleteObjectOperator(CDistributedObjectOperator 
 
 	if(m_ObjectPool.DeleteObject(ID))
 	{
-		//LogDebug("CDistributedObjectManager::CreateObjectOperator:É¾³ı¶ÔÏó%u,ÏÖÓĞ¶ÔÏó%u",ID,m_ObjectPool.GetObjectCount());
+		//LogDebug("CDistributedObjectManager::CreateObjectOperator:åˆ é™¤å¯¹è±¡%u,ç°æœ‰å¯¹è±¡%u",ID,m_ObjectPool.GetObjectCount());
 		return TRUE;
 	}
 	else
 	{
-		LogDebug("CDistributedObjectManager::CreateObjectOperator:É¾³ı¶ÔÏó%uÊ§°Ü,ÏÖÓĞ¶ÔÏó%u",ID,m_ObjectPool.GetObjectCount());
+		LogDebug("CDistributedObjectManager::CreateObjectOperator:åˆ é™¤å¯¹è±¡%uå¤±è´¥,ç°æœ‰å¯¹è±¡%u",ID,m_ObjectPool.GetObjectCount());
 	}
 	FUNCTION_END;
 	return FALSE;
@@ -137,6 +196,6 @@ BOOL CDistributedObjectManager::DeleteObjectOperator(CDistributedObjectOperator 
 
 void CDistributedObjectManager::PrintObjectCount()
 {
-	Log("Ò»¹²ÓĞ%u¸ö²å¼ş¶ÔÏó",
+	Log("ä¸€å…±æœ‰%uä¸ªæ’ä»¶å¯¹è±¡",
 		m_ObjectPool.GetObjectCount());
 }

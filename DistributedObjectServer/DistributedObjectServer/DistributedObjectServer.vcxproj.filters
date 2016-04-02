@@ -30,20 +30,20 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>预编译</Filter>
     </ClCompile>
-    <ClCompile Include="MainApp.cpp">
-      <Filter>主程序</Filter>
-    </ClCompile>
-    <ClCompile Include="MainThread.cpp">
-      <Filter>主线程</Filter>
-    </ClCompile>
-    <ClCompile Include="MainConfig.cpp">
-      <Filter>主配置</Filter>
-    </ClCompile>
     <ClCompile Include="DistributedObjectManager.cpp">
       <Filter>逻辑对象插件</Filter>
     </ClCompile>
     <ClCompile Include="DistributedObjectOperator.cpp">
       <Filter>逻辑对象插件</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSConfig.cpp">
+      <Filter>主配置</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSMainThread.cpp">
+      <Filter>主线程</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSMainApp.cpp">
+      <Filter>主程序</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -53,15 +53,6 @@
     <ClInclude Include="stdafx.h">
       <Filter>预编译</Filter>
     </ClInclude>
-    <ClInclude Include="MainApp.h">
-      <Filter>主程序</Filter>
-    </ClInclude>
-    <ClInclude Include="MainThread.h">
-      <Filter>主线程</Filter>
-    </ClInclude>
-    <ClInclude Include="MainConfig.h">
-      <Filter>主配置</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>资源</Filter>
     </ClInclude>
@@ -70,6 +61,15 @@
     </ClInclude>
     <ClInclude Include="DistributedObjectOperator.h">
       <Filter>逻辑对象插件</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSConfig.h">
+      <Filter>主配置</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSMainThread.h">
+      <Filter>主线程</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSMainApp.h">
+      <Filter>主程序</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

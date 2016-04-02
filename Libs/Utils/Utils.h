@@ -129,13 +129,15 @@ enum EASY_DATA_STORAGE_MODE
 #include "ILogPrinter.h"
 #include "LogManager.h"
 
-#include "ToolsAll.h"
+
 
 #ifdef WIN32
 #include "ToolsWin32.h"
 #else
 #include "ToolsLinux.h"
 #endif
+
+#include "ToolsAll.h"
 
 #include "LZMA/LzmaLib.h"
 #include "LZO/minilzo.h"
@@ -199,6 +201,10 @@ enum EASY_DATA_STORAGE_MODE
 #pragma warning (disable : 4267)	// type conversion
 #pragma warning (disable : 4311)	// pointer truncation
 #pragma warning (disable : 4244)	// type conversion
+#pragma warning (disable : 6011)
+#pragma warning (disable : 28182)
+#pragma warning (disable : 6387)
+#pragma warning (disable : 6308)
 
 #include "pugxml.h"
 using namespace pug;
@@ -263,6 +269,7 @@ using namespace pug;
 
 #include "HashMD5.h"
 #include "Base64.h"
+#include "Base32.h"
 #include "SHA1.h"
 #include "HMAC_SHA1.h"
 #include "URLEncode.h"

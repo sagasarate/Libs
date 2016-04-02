@@ -11,7 +11,7 @@
 /****************************************************************************/
 #include "stdafx.h"
 
-IMPLEMENT_CLASS_INFO(CDOSObjectManager,CNameObject);
+IMPLEMENT_CLASS_INFO_STATIC(CDOSObjectManager, CNameObject);
 
 CDOSObjectManager::CDOSObjectManager(void)
 {
@@ -88,6 +88,12 @@ BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterI
 	if(ObjectRegisterInfo.Weight<=0)
 	{
 		PrintDOSLog(0xff0000,_T("对象权重必须大于零！"));
+		return FALSE;
+	}
+
+	if (ObjectRegisterInfo.ObjectID.ObjectTypeID < DOT_NORMAL_OBJECT)
+	{
+		PrintDOSLog(0xff0000, _T("对象类型不能使用系统保留类型！"));
 		return FALSE;
 	}
 
@@ -185,7 +191,7 @@ BOOL CDOSObjectManager::PushMessage(OBJECT_ID ObjectID,CDOSMessagePacket * pPack
 CDOSObjectGroup * CDOSObjectManager::SelectGroup(int GroupIndex)
 {
 	FUNCTION_BEGIN;
-	if(GroupIndex>=0&&GroupIndex<m_ObjectGroups.GetCount())
+	if(GroupIndex>=0&&(UINT)GroupIndex<m_ObjectGroups.GetCount())
 	{
 		return m_ObjectGroups[GroupIndex];
 	}

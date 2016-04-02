@@ -29,7 +29,27 @@ CDOSServer::~CDOSServer(void)
 	FUNCTION_END;
 }
 
+void CDOSServer::SetConfig(const DOS_CONFIG& Config)
+{
+	m_ServerConfig = Config;
 
+	if (m_ServerConfig.RouterID == 0)
+	{
+		CEasyArray<CIPAddress> AddressList;
+		CIPAddress::FetchAllHostAddress(AddressList);
+
+		for (size_t i = 0; i < AddressList.GetCount(); i++)
+		{
+			if ((AddressList[i].GetIP() & 0xFFFF) != 0x80)
+			{
+				m_ServerConfig.RouterID = AddressList[i].GetIP() >> 16;
+				break;
+			}
+		}
+
+		PrintDOSLog(0xffff, _T("RouteID为零，自动设置RouteID=%d"), m_ServerConfig.RouterID);
+	}
+}
 
 BOOL CDOSServer::OnStartUp()
 {

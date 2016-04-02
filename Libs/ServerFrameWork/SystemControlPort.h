@@ -25,7 +25,7 @@ public:
 	virtual void OnStartUp();
 	virtual void OnClose();
 
-	virtual void OnRecvData(const CIPAddress& IPAddress,const CEasyBuffer& DataBuffer);
+	virtual void OnRecvData(const CIPAddress& IPAddress, const BYTE * pData, UINT DataSize);
 
 	void SendMsg(const CIPAddress& Address,WORD Msg,LPCVOID pData=NULL,int DataLen=0);
 };

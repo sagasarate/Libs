@@ -64,7 +64,7 @@ public:
 	BOOL Send(LPCVOID pData,UINT Size);
 	BOOL SendDirect(LPCVOID pData,UINT Size);
 
-	virtual void OnRecvData(const CEasyBuffer& DataBuffer);
+	
 
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 	

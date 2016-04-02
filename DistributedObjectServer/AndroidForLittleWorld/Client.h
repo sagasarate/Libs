@@ -160,7 +160,7 @@ protected:
 
 
 	virtual BOOL SendMessagePacket(CDOSMessagePacket * pPacket);
-	virtual void OnRecvData(const CEasyBuffer& DataBuffer);
+	virtual void OnRecvData(const BYTE * pData, UINT DataSize);
 
 protected:
 	int SFLogin(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount);

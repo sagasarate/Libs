@@ -11,7 +11,7 @@
 /****************************************************************************/
 #include "stdafx.h"
 
-IMPLEMENT_CLASS_INFO(CDOSRouterLink,CEasyNetLinkConnection);
+IMPLEMENT_CLASS_INFO_STATIC(CDOSRouterLink, CEasyNetLinkConnection);
 
 CDOSRouterLink::CDOSRouterLink()
 {

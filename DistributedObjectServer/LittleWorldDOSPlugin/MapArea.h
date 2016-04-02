@@ -2,7 +2,9 @@
 
 
 class CMapArea :
-	public IDistributedObject,public CMapAreaMsgHandler
+	public CNameObject,
+	public IDistributedObject,
+	public CMapAreaMsgHandler
 {
 public:
 	
@@ -39,6 +41,8 @@ public:
 
 	virtual BOOL Initialize(IDistributedObjectOperator * pOperator);
 	virtual void Destory();
+	virtual UINT AddUseRef();
+	virtual void Release();
 
 protected:
 	virtual void OnConcernedObjectLost(OBJECT_ID ObjectID);

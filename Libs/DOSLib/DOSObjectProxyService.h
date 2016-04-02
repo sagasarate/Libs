@@ -26,7 +26,7 @@ protected:
 	CThreadPerformanceCounter					m_ThreadPerformanceCounter;
 	
 
-	DECLARE_CLASS_INFO(CDOSObjectProxyService);
+	DECLARE_CLASS_INFO_STATIC(CDOSObjectProxyService);
 public:
 	CDOSObjectProxyService(void);
 	virtual ~CDOSObjectProxyService(void);

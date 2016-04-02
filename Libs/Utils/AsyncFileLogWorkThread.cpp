@@ -82,9 +82,14 @@ BOOL CAsyncFileLogWorkThread::Init(LPCTSTR FileName,LPCTSTR FileExtName,int LogB
 		return FALSE;
 	}
 	m_pLogFile->Seek(0,IFileAccessor::seekEnd);
-	if(m_LogFileHeaderString.GetLength()&&m_pLogFile->GetCurPos()==0)
+	if(m_pLogFile->GetCurPos()==0)
 	{
-		m_pLogFile->Write(m_LogFileHeaderString.GetBuffer(),m_LogFileHeaderString.GetLength());
+#ifndef WIN32
+		UINT BomHeader = BMT_UTF_8;
+		m_pLogFile->Write(&BomHeader,3);
+#endif
+		if (m_LogFileHeaderString.GetLength())
+			m_pLogFile->Write(m_LogFileHeaderString.GetBuffer(),m_LogFileHeaderString.GetLength());
 	}
 	return TRUE;
 }

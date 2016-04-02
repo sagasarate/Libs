@@ -68,7 +68,7 @@ public:
 	
 
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
-	virtual void OnRecvData(const CEasyBuffer& DataBuffer);
+	virtual void OnRecvData(const BYTE * pData, UINT DataSize);
 	virtual void OnConnection(BOOL IsSucceed);
 	virtual void OnDisconnection();
 

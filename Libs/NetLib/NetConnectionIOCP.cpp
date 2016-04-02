@@ -357,10 +357,10 @@ BOOL CNetConnection::Send(LPCVOID pData,UINT Size)
 {
 	if(m_UseSendBuffer)
 	{
-		UINT FreeSize=(m_SendBuffer.GetBufferSize()-m_SendBuffer.GetObjectCount())*MAX_DATA_PACKET_SIZE;
+		UINT FreeSize=(m_SendBuffer.GetBufferSize()-m_SendBuffer.GetObjectCount())*NET_DATA_BLOCK_SIZE;
 		if(FreeSize<Size)
 		{
-			int FlushCount=(Size/MAX_DATA_PACKET_SIZE)*2;
+			int FlushCount=(Size/NET_DATA_BLOCK_SIZE)*2;
 			DoBufferSend(FlushCount);			
 		}
 		void * Pos=m_SendBuffer.GetLastObjectPos();
@@ -384,8 +384,8 @@ BOOL CNetConnection::Send(LPCVOID pData,UINT Size)
 		while(Size)
 		{
 			int PacketSize=Size;
-			if(PacketSize>MAX_DATA_PACKET_SIZE)
-				PacketSize=MAX_DATA_PACKET_SIZE;
+			if(PacketSize>NET_DATA_BLOCK_SIZE)
+				PacketSize=NET_DATA_BLOCK_SIZE;
 
 			COverLappedObject * pOverLappedObject=GetServer()->CreateOverLappedObject();
 			if(pOverLappedObject)
@@ -447,8 +447,8 @@ BOOL CNetConnection::QuerySend(LPCVOID pData,UINT Size)
 		while(Size)
 		{
 			int PacketSize=Size;
-			if(PacketSize>MAX_DATA_PACKET_SIZE)
-				PacketSize=MAX_DATA_PACKET_SIZE;
+			if(PacketSize>NET_DATA_BLOCK_SIZE)
+				PacketSize=NET_DATA_BLOCK_SIZE;
 			Size-=PacketSize;
 
 			
@@ -551,9 +551,7 @@ BOOL CNetConnection::QueryRecv()
 	return FALSE;
 }
 
-void CNetConnection::OnRecvData(const CEasyBuffer& DataBuffer)
-{
-}
+
 
 int CNetConnection::Update(int ProcessPacketLimit)
 {
@@ -577,7 +575,7 @@ int CNetConnection::Update(int ProcessPacketLimit)
 		COverLappedObject * pOverLappedObject;
 		while(m_DataQueue.PopFront(pOverLappedObject))
 		{			
-			OnRecvData(*(pOverLappedObject->GetDataBuff()));
+			OnRecvData((const BYTE *)pOverLappedObject->GetDataBuff()->GetBuffer(), pOverLappedObject->GetDataBuff()->GetUsedSize());
 			GetServer()->DeleteOverLappedObject(pOverLappedObject);
 			PacketCount++;
 			if(PacketCount>=ProcessPacketLimit)

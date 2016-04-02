@@ -117,7 +117,7 @@ CDBValue::CDBValue(const char * Value)
 	m_DataSize=0;
 	*this=Value;
 }
-CDBValue::CDBValue(const wchar_t * Value)
+CDBValue::CDBValue(const WCHAR * Value)
 {
 	m_pData=NULL;
 	m_DataSize=0;
@@ -775,9 +775,9 @@ CDBValue::operator const char *() const
 	return Default;
 }
 
-CDBValue::operator const wchar_t *() const
+CDBValue::operator const WCHAR *() const
 {
-	wchar_t * Default=NULL;
+	WCHAR * Default=NULL;
 	if(m_pData==NULL)
 		return Default;
 	switch(m_ValueType)
@@ -785,7 +785,7 @@ CDBValue::operator const wchar_t *() const
 	case DB_TYPE_BINARY:
 	case DB_TYPE_STRING:
 	case DB_TYPE_WSTRING:
-		return (const wchar_t *)m_pData;
+		return (const WCHAR *)m_pData;
 	}
 	return Default;
 }
@@ -1022,7 +1022,7 @@ void CDBValue::operator=(const char * Value)
 	SetValue(DB_TYPE_STRING,Value,(int)strlen(Value),0);
 }
 
-void CDBValue::operator=(const wchar_t * Value)
+void CDBValue::operator=(const WCHAR * Value)
 {
 	Destory();
 	SetValue(DB_TYPE_WSTRING,Value,(int)wcslen(Value)*2,0);

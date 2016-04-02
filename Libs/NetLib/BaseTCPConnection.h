@@ -42,6 +42,8 @@ public:
 	virtual void OnConnection(BOOL IsSucceed)=0;
 	virtual void OnDisconnection()=0;
 
+	virtual void OnRecvData(const BYTE * pData, UINT DataSize) = 0;
+
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT)=0;
 
 	virtual UINT GetCurSendQueryCount();

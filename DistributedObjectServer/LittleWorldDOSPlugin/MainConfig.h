@@ -113,7 +113,7 @@ public:
 	{
 		if(m_PlayerBormPoints.GetCount())
 		{
-			UINT Index=GetRand(0,m_PlayerBormPoints.GetCount()-1);
+			UINT Index = GetRand((UINT)0, (UINT)m_PlayerBormPoints.GetCount() - 1);
 			Point=m_PlayerBormPoints[Index];
 			return true;
 		}

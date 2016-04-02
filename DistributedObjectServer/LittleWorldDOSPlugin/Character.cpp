@@ -67,6 +67,15 @@ void CCharacter::Destory()
 	FUNCTION_END;
 }
 
+UINT CCharacter::AddUseRef()
+{
+	return CNameObject::AddUseRef();
+}
+void CCharacter::Release()
+{
+	CNameObject::Release();
+}
+
 void CCharacter::ForceRelease()
 {
 	FUNCTION_BEGIN;

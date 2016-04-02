@@ -104,9 +104,9 @@ enum DOS_OBJECT_TYPE
 
 //#define MAX_MESSAGE_PACKET_SIZE		4096
 
-typedef DWORD	MSG_ID_TYPE;
-typedef DWORD	MSG_LEN_TYPE;
-typedef WORD	ID_LIST_COUNT_TYPE;
+typedef unsigned int	MSG_ID_TYPE;
+typedef unsigned int	MSG_LEN_TYPE;
+typedef unsigned short	ID_LIST_COUNT_TYPE;
 
 
 #pragma pack(push)

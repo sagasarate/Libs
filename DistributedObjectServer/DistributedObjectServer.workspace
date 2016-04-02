@@ -25,5 +25,6 @@
 		<Project filename="../Libs/lua/Lua.cbp" />
 		<Project filename="../Libs/curl/cb/libcurl.cbp" />
 		<Project filename="../Libs/jsoncpp/lib_json.cbp" />
+		<Project filename="../Libs/MonoWrapper/MonoWrapper.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

@@ -44,7 +44,8 @@ BOOL CNetPUDPService::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObj
 			if(EventID==IOE_PACKET)
 			{
 				GetServer()->AddUDPRecvBytes(pOverLappedObject->GetDataBuff()->GetUsedSize());
-				OnRecvData(pOverLappedObject->GetAddress(),*pOverLappedObject->GetDataBuff());
+				OnRecvData(pOverLappedObject->GetAddress(),
+					(const BYTE *)pOverLappedObject->GetDataBuff()->GetBuffer(), pOverLappedObject->GetDataBuff()->GetUsedSize());
 				GetServer()->DeleteOverLappedObject(pOverLappedObject);
 				return TRUE;
 			}
@@ -245,7 +246,4 @@ BOOL CNetPUDPService::QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int
 	return FALSE;
 }
 
-void CNetPUDPService::OnRecvData(const CIPAddress& IPAddress,const CEasyBuffer& DataBuffer)
-{
-}
 

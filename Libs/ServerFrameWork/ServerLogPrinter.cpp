@@ -38,6 +38,62 @@ void CServerLogPrinter::SetLogMode(UINT Mode,int Level,LPCTSTR FileName,int File
 	}
 }
 
+void CServerLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
+{
+	try
+	{
+		if ((Level&m_LogLevel) == 0)
+		{
+			return;
+		}
+
+		TCHAR MsgBuff[5000];
+
+		CEasyTime CurTime;
+		CurTime.FetchLocalTime();
+
+		if (Level == LOG_LEVEL_DEBUG)
+		{
+			_stprintf_s(MsgBuff, 5000, _T("[%02u-%02u][%02u:%02u:%02u][D]"),
+				CurTime.Month(), CurTime.Day(),
+				CurTime.Hour(), CurTime.Minute(), CurTime.Second());
+		}
+		else
+		{
+			_stprintf_s(MsgBuff, 5000, _T("[%02u-%02u][%02u:%02u:%02u][N]"),
+				CurTime.Month(), CurTime.Day(),
+				CurTime.Hour(), CurTime.Minute(), CurTime.Second());
+		}
+		_tcsncat_s(MsgBuff, 5000, Msg, _TRUNCATE);
+
+		if ((m_LogOutputMode&LOM_CONSOLE) && m_pServer)
+		{
+			m_pServer->PrintConsoleLog(Level, MsgBuff + 7);
+		}
+
+		_tcsncat_s(MsgBuff, 5000, _T("\r\n"), _TRUNCATE);
+
+		if (m_LogOutputMode&LOM_VS)
+		{
+#ifdef WIN32
+			OutputDebugString(MsgBuff + 7);
+#else
+			if(!g_IsService)
+				printf("%s", MsgBuff + 7);
+#endif
+		}
+
+		if (m_LogOutputMode&LOM_FILE)
+		{
+			m_FileLogWorkThread.PushLog(MsgBuff);
+		}
+	}
+	catch (...)
+	{
+		PrintImportantLog(0, _T("Log[%s]输出发生异常"), (LPCTSTR)m_LogFileName, Msg);
+	}
+}
+
 
 void CServerLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl)
 {
@@ -55,13 +111,13 @@ void CServerLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list 
 
 		if(Level==LOG_LEVEL_DEBUG)
 		{
-			_stprintf_s(MsgBuff,5000,_T("[%02d-%02d][%02d:%02d:%02d][D]"),
+			_stprintf_s(MsgBuff,5000,_T("[%02u-%02u][%02u:%02u:%02u][D]"),
 				CurTime.Month(),CurTime.Day(),
 				CurTime.Hour(),CurTime.Minute(),CurTime.Second());
 		}
 		else
 		{
-			_stprintf_s(MsgBuff,5000,_T("[%02d-%02d][%02d:%02d:%02d][N]"),
+			_stprintf_s(MsgBuff,5000,_T("[%02u-%02u][%02u:%02u:%02u][N]"),
 				CurTime.Month(),CurTime.Day(),
 				CurTime.Hour(),CurTime.Minute(),CurTime.Second());
 		}
@@ -83,7 +139,8 @@ void CServerLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list 
 #ifdef WIN32
 			OutputDebugString(MsgBuff+7);
 #else
-			printf("%s",MsgBuff+7);
+			if(!g_IsService)
+				printf("%s",MsgBuff+7);
 #endif
 		}
 

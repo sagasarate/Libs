@@ -11,7 +11,7 @@
 /****************************************************************************/
 #include "stdafx.h"
 
-IMPLEMENT_CLASS_INFO(CDOSRouter,CEasyNetLinkManager);
+IMPLEMENT_CLASS_INFO_STATIC(CDOSRouter, CEasyNetLinkManager);
 
 CDOSRouter::CDOSRouter(void)
 {
@@ -71,7 +71,7 @@ BOOL CDOSRouter::OnStart()
 
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(),THREAD_CPU_COUNT_TIME);
 
-	if(!CEasyNetLinkManager::Init(m_pServer,LinkConfig))
+	if (!CEasyNetLinkManager::Init(m_pServer, LinkConfig, GetRouterID()))
 	{
 		PrintDOSLog(0xff0000,_T("连接管理器初始化失败！"));
 		return FALSE;

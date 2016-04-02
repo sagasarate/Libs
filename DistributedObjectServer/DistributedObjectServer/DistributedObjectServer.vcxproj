@@ -70,7 +70,7 @@
     <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\..\WOPServer\Work\</OutDir>
+    <OutDir>..\Work\</OutDir>
     <IntDir>Debug\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)D</TargetName>
@@ -224,18 +224,18 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="MainApp.cpp" />
-    <ClCompile Include="MainThread.cpp" />
-    <ClCompile Include="MainConfig.cpp" />
+    <ClCompile Include="DOSMainApp.cpp" />
+    <ClCompile Include="DOSMainThread.cpp" />
+    <ClCompile Include="DOSConfig.cpp" />
     <ClCompile Include="DistributedObjectManager.cpp" />
     <ClCompile Include="DistributedObjectOperator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DOSServerThread.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="MainApp.h" />
-    <ClInclude Include="MainThread.h" />
-    <ClInclude Include="MainConfig.h" />
+    <ClInclude Include="DOSMainApp.h" />
+    <ClInclude Include="DOSMainThread.h" />
+    <ClInclude Include="DOSConfig.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="DistributedObjectManager.h" />
     <ClInclude Include="DistributedObjectOperator.h" />
@@ -255,6 +255,9 @@
     <ProjectReference Include="..\..\Libs\DOSLib\DOSLib.vcxproj">
       <Project>{07dd3af0-80c1-450e-947f-66a394709e80}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Libs\MonoWrapper\MonoWrapper.vcxproj">
+      <Project>{4018c851-e5bd-45fc-b5fd-fd06d1f490c3}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\Libs\NetLib\NetLib.vcxproj">
       <Project>{4b66b9df-5bc1-4fbd-aa7e-aa517b99d9d9}</Project>

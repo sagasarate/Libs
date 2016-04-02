@@ -118,9 +118,12 @@ typedef struct {
 #include "gb2312.h"
 #include "gbk.h"
 #include "utf8.h"
+#include "ucs2internal.h"
 
+typedef int (*INPUT_FN)(conv_t conv, ucs4_t *pwc, const unsigned char *s, int n);
+typedef int (*OUTPUT_FN)(conv_t conv, unsigned char *r, ucs4_t wc, int n);
 
-size_t iconv_gbk2utf8(const char * szSrv, size_t SrcLen, char * szDest, size_t DestLen)
+size_t CodePageConv(const char * szSrv, size_t SrcLen, char * szDest, size_t DestLen, INPUT_FN InputFN, OUTPUT_FN OutputFN)
 {
 	if (szSrv == NULL)
 		return 0;
@@ -134,75 +137,11 @@ size_t iconv_gbk2utf8(const char * szSrv, size_t SrcLen, char * szDest, size_t D
 	char ConvBuff[6];
 	while (SrcPtr < SrcLen)
 	{
-		
-		int Ret = gbk_mbtowc(conv, &MidChar, szSrv + SrcPtr, SrcCharLen);
+
+		int Ret = InputFN(conv, &MidChar, szSrv + SrcPtr, SrcCharLen);
 		if (Ret == RET_ILSEQ)
 		{
-			//非GBK编码字符，直接输出
-			if (szDest != NULL&&DestPtr + SrcCharLen <= DestLen)
-			{
-				for (int i = 0; i < SrcCharLen; i++)
-					szDest[DestPtr + i] = szSrv[SrcPtr + i];				
-			}
-			SrcPtr += SrcCharLen;
-			DestPtr += SrcCharLen;
-			SrcCharLen = 1;
-		}
-		else if (Ret <= RET_TOOSMALL)
-		{
-			//还需要获取更多字节
-			SrcCharLen += (-1 - Ret);
-		}
-		else
-		{
-			//转换成功
-			int Ret = utf8_wctomb(conv, ConvBuff, MidChar, 6);
-			if (Ret>0)
-			{
-				if (szDest != NULL&&DestPtr + Ret <= DestLen)
-				{
-					for (int i = 0; i < Ret; i++)
-						szDest[DestPtr + i] = ConvBuff[i];
-				}
-				SrcPtr += SrcCharLen;
-				DestPtr += Ret;
-			}
-			else
-			{
-				//UTF8转换失败，直接输出
-				if (szDest != NULL&&DestPtr + SrcCharLen <= DestLen)
-				{
-					for (int i = 0; i < SrcCharLen; i++)
-						szDest[DestPtr + i] = szSrv[SrcPtr + i];
-				}
-				SrcPtr += SrcCharLen;
-				DestPtr += SrcCharLen;				
-			}
-			SrcCharLen = 1;
-		}
-	}
-	return DestPtr;
-}
-
-size_t iconv_utf82gbk(const char * szSrv, size_t SrcLen, char * szDest, size_t DestLen)
-{
-	if (szSrv == NULL)
-		return 0;
-	if (SrcLen <= 0)
-		SrcLen = strlen(szSrv);
-	size_t SrcPtr = 0;
-	int SrcCharLen = 1;
-	size_t DestPtr = 0;
-	conv_t conv = NULL;
-	ucs4_t MidChar;
-	char ConvBuff[2];
-	while (SrcPtr < SrcLen)
-	{
-
-		int Ret = utf8_mbtowc(conv, &MidChar, szSrv + SrcPtr, SrcCharLen);
-		if (Ret == RET_ILSEQ)
-		{
-			//非UTF8编码字符，直接输出
+			//非编码字符，直接输出
 			if (szDest != NULL&&DestPtr + SrcCharLen <= DestLen)
 			{
 				for (int i = 0; i < SrcCharLen; i++)
@@ -220,7 +159,7 @@ size_t iconv_utf82gbk(const char * szSrv, size_t SrcLen, char * szDest, size_t D
 		else
 		{
 			//转换成功
-			int Ret = gbk_wctomb(conv, ConvBuff, MidChar, 2);
+			int Ret = OutputFN(conv, ConvBuff, MidChar, 6);
 			if (Ret > 0)
 			{
 				if (szDest != NULL&&DestPtr + Ret <= DestLen)
@@ -233,7 +172,7 @@ size_t iconv_utf82gbk(const char * szSrv, size_t SrcLen, char * szDest, size_t D
 			}
 			else
 			{
-				//GBK转换失败，直接输出
+				//转换失败，直接输出
 				if (szDest != NULL&&DestPtr + SrcCharLen <= DestLen)
 				{
 					for (int i = 0; i < SrcCharLen; i++)
@@ -246,4 +185,34 @@ size_t iconv_utf82gbk(const char * szSrv, size_t SrcLen, char * szDest, size_t D
 		}
 	}
 	return DestPtr;
+}
+
+size_t iconv_gbk2utf8(const char * szSrv, size_t SrcLen, char * szDest, size_t DestLen)
+{
+	return CodePageConv(szSrv, SrcLen, szDest, DestLen, gbk_mbtowc, utf8_wctomb);	
+}
+
+size_t iconv_utf82gbk(const char * szSrv, size_t SrcLen, char * szDest, size_t DestLen)
+{
+	return CodePageConv(szSrv, SrcLen, szDest, DestLen, utf8_mbtowc, gbk_wctomb);
+}
+
+
+size_t iconv_gbk2ucs2(const char * szSrv, size_t SrcLen, char * szDest, size_t DestLen)
+{
+	return CodePageConv(szSrv, SrcLen, szDest, DestLen, gbk_mbtowc, ucs2internal_wctomb);
+}
+size_t iconv_ucs22gbk(const char * szSrv, size_t SrcLen, char * szDest, size_t DestLen)
+{
+	return CodePageConv(szSrv, SrcLen, szDest, DestLen, ucs2internal_mbtowc, gbk_wctomb);
+}
+
+size_t iconv_ucs22utf8(const char * szSrv, size_t SrcLen, char * szDest, size_t DestLen)
+{
+	return CodePageConv(szSrv, SrcLen, szDest, DestLen, ucs2internal_mbtowc, utf8_wctomb);
+}
+
+size_t iconv_utf82ucs2(const char * szSrv, size_t SrcLen, char * szDest, size_t DestLen)
+{
+	return CodePageConv(szSrv, SrcLen, szDest, DestLen, utf8_mbtowc, ucs2internal_wctomb);
 }
