@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    EpollEventObject.cpp                                     */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    EpollEventObject.cpp                                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -32,7 +32,7 @@ BOOL CEpollEventObject::Create(CNetServer * pCreator)
 	m_AcceptSocket=INVALID_SOCKET;
 	m_Address.SetIP((DWORD)0);
 	m_Address.SetPort(0);
-	m_AddressLen=sizeof(sockaddr_in);
+	m_AddressLen = sizeof(CIPAddress);
 	m_ParentID=0;
 	m_ErrorCode=0;
 	m_EventID=0;
@@ -45,7 +45,7 @@ void CEpollEventObject::Destory()
 	m_AcceptSocket=INVALID_SOCKET;
 	m_Address.SetIP((DWORD)0);
 	m_Address.SetPort(0);
-	m_AddressLen=sizeof(sockaddr_in);
+	m_AddressLen = sizeof(CIPAddress);
 	m_ParentID=0;
 	m_ErrorCode=0;
 	m_EventID=0;

@@ -6,7 +6,7 @@
 		<Option platforms="Unix;" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="头文件/;客户端组件/;对象代理服务/;对象和对象管理/;服务器/;消息协议/;路由服务/;预编译/;对象和对象管理/对象基类/;对象和对象管理/对象插件接口/;对象和对象管理/对象管理器/;对象和对象管理/对象组/;" />
+		<Option virtualFolders="头文件/;客户端组件/;对象代理服务/;对象和对象管理/;服务器/;消息协议/;路由服务/;预编译/;对象和对象管理/对象基类/;对象和对象管理/对象插件接口/;对象和对象管理/对象管理器/;对象和对象管理/对象组/;对象代理服务/基础类/;对象代理服务/缺省实现/;" />
 		<Build>
 			<Target title="Debug">
 				<Option platforms="Unix;" />
@@ -77,17 +77,17 @@
 		<Unit filename="DOSObjectManager.h">
 			<Option virtualFolder="对象和对象管理/对象管理器/" />
 		</Unit>
-		<Unit filename="DOSObjectProxyService.cpp">
-			<Option virtualFolder="对象代理服务/" />
+		<Unit filename="DOSObjectProxyConnectionDefault.cpp">
+			<Option virtualFolder="对象代理服务/缺省实现/" />
 		</Unit>
-		<Unit filename="DOSObjectProxyService.h">
-			<Option virtualFolder="对象代理服务/" />
+		<Unit filename="DOSObjectProxyConnectionDefault.h">
+			<Option virtualFolder="对象代理服务/缺省实现/" />
 		</Unit>
-		<Unit filename="DOSProxyConnection.cpp">
-			<Option virtualFolder="对象代理服务/" />
+		<Unit filename="DOSObjectProxyServiceDefault.cpp">
+			<Option virtualFolder="对象代理服务/缺省实现/" />
 		</Unit>
-		<Unit filename="DOSProxyConnection.h">
-			<Option virtualFolder="对象代理服务/" />
+		<Unit filename="DOSObjectProxyServiceDefault.h">
+			<Option virtualFolder="对象代理服务/缺省实现/" />
 		</Unit>
 		<Unit filename="DOSProxyManager.cpp">
 			<Option virtualFolder="对象代理服务/" />
@@ -112,6 +112,9 @@
 		</Unit>
 		<Unit filename="DOSServer.h">
 			<Option virtualFolder="服务器/" />
+		</Unit>
+		<Unit filename="IDOSObjectProxy.h">
+			<Option virtualFolder="对象代理服务/基础类/" />
 		</Unit>
 		<Unit filename="IDistributedObject.h">
 			<Option virtualFolder="对象和对象管理/对象插件接口/" />

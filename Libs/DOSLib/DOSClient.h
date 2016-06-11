@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DOSClient.h                                              */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ15ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSClient.h                                              */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ15æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -23,6 +23,7 @@ protected:
 	UINT										m_MaxKeepAliveCount;
 	UINT										m_KeepAliveTime;
 	CEasyTimer									m_KeepAliveTimer;
+	UINT										m_RecentPingDelay;
 
 	CDOSSimpleMessage *							m_pCurHandleMsg;
 	CEasyMap<MSG_ID_TYPE,DOS_MSG_HANDLE_INFO>	m_MsgFnMap;
@@ -55,6 +56,7 @@ public:
 	virtual BOOL UnregisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount);
 	virtual BOOL RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount);
 	virtual BOOL UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount);
+	virtual BOOL SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType);
 
 	virtual BOOL AddConcernedObject(OBJECT_ID ObjectID,bool NeedTest);
 	virtual BOOL DeleteConcernedObject(OBJECT_ID ObjectID);
@@ -75,8 +77,11 @@ public:
 protected:
 	virtual void OnRecvData(const BYTE * pData, UINT DataSize);
 	virtual BOOL OnDOSMessage(CDOSSimpleMessage * pMessage);
+	virtual BOOL OnSystemMessage(CDOSSimpleMessage * pMessage);
 
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
+
+	void SendKeepAlivePing();
 
 };
 

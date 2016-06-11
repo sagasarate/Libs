@@ -135,6 +135,8 @@ size_t CodePageConv(const char * szSrv, size_t SrcLen, char * szDest, size_t Des
 	conv_t conv = NULL;
 	ucs4_t MidChar;
 	char ConvBuff[6];
+	int i;
+
 	while (SrcPtr < SrcLen)
 	{
 
@@ -144,7 +146,7 @@ size_t CodePageConv(const char * szSrv, size_t SrcLen, char * szDest, size_t Des
 			//非编码字符，直接输出
 			if (szDest != NULL&&DestPtr + SrcCharLen <= DestLen)
 			{
-				for (int i = 0; i < SrcCharLen; i++)
+				for (i = 0; i < SrcCharLen; i++)
 					szDest[DestPtr + i] = szSrv[SrcPtr + i];
 			}
 			SrcPtr += SrcCharLen;
@@ -164,7 +166,7 @@ size_t CodePageConv(const char * szSrv, size_t SrcLen, char * szDest, size_t Des
 			{
 				if (szDest != NULL&&DestPtr + Ret <= DestLen)
 				{
-					for (int i = 0; i < Ret; i++)
+					for (i = 0; i < Ret; i++)
 						szDest[DestPtr + i] = ConvBuff[i];
 				}
 				SrcPtr += SrcCharLen;
@@ -175,7 +177,7 @@ size_t CodePageConv(const char * szSrv, size_t SrcLen, char * szDest, size_t Des
 				//转换失败，直接输出
 				if (szDest != NULL&&DestPtr + SrcCharLen <= DestLen)
 				{
-					for (int i = 0; i < SrcCharLen; i++)
+					for (i = 0; i < SrcCharLen; i++)
 						szDest[DestPtr + i] = szSrv[SrcPtr + i];
 				}
 				SrcPtr += SrcCharLen;

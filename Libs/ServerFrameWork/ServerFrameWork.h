@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    ServerFrameWork.h                                        */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    ServerFrameWork.h                                        */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -25,20 +25,20 @@
 #define SYSTEM_NET_LINK_CONFIG_FILE_NAME	"SysLink.XML"
 
 
-#define MAX_CONTROL_PANEL_MSG_LEN			20480						//¿ØÖÆÌ¨¿ÉÏÔÊ¾µÄ×î¶àÏûÏ¢
+#define MAX_CONTROL_PANEL_MSG_LEN			20480						//æ§åˆ¶å°å¯æ˜¾ç¤ºçš„æœ€å¤šæ¶ˆæ¯
 
-#define SERVER_STATUS_BLOCK_SIZE			10240
+
 
 #define SERVER_INFO_COUNT_TIME				5000
 
-#define SERVER_STATUS_FORMAT_INFO_SIZE	(MAX_SERVER_STATUS_NAME_LEN+64)
 
-#include "IBaseServer.h"
+
+#include "BaseServer.h"
 
 
 #include "SystemConfig.h"
 
-#include "ControlPanel.h"
+//#include "ControlPanel.h"
 
 
 #include "ServerLogPrinter.h"

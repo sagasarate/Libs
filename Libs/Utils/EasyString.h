@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    EasyString.h                                             */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    EasyString.h                                             */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -343,15 +343,19 @@ public:
 	{
 		return m_pBuffer;
 	}
-	operator T*() const
+	operator T*()
 	{
 		return m_pBuffer;
 	}
-	T& operator[](int Index) const
-	{
-		return m_pBuffer[Index];
-	}
-	void SetChar(int Index,T Char)
+	//const T& operator[](SIZE_TYPE Index) const
+	//{
+	//	return m_pBuffer[Index];
+	//}
+	//T& operator[](SIZE_TYPE Index)
+	//{
+	//	return m_pBuffer[Index];
+	//}
+	void SetChar(SIZE_TYPE Index, T Char)
 	{
 		m_pBuffer[Index]=Char;
 	}
@@ -412,23 +416,91 @@ public:
 			return CompareStringNoCaseWithLen(m_pBuffer+Start,pStr,Len);
 		else
 			return ERROR_CHAR_POS;
-	}
-	bool operator==(const T* pStr)
+	}	
+
+
+	friend bool operator==(const T* pStr1,const CEasyStringT& Str2)
 	{
-		return Compare(pStr)==0;
+		return Str2.Compare(pStr1) == 0;
 	}
-	bool operator!=(const T* pStr)
+	friend bool operator==(const CEasyStringT& Str1, const T* pStr2)
 	{
-		return Compare(pStr)!=0;
+		return Str1.Compare(pStr2) == 0;
 	}
-	bool operator>(const T* pStr)
+	friend bool operator==(const CEasyStringT& Str1, const CEasyStringT& Str2)
 	{
-		return Compare(pStr)>0;
+		return Str1.Compare(Str2) == 0;
 	}
-	bool operator<(const T* pStr)
+
+
+	friend bool operator!=(const T* pStr1, const CEasyStringT& Str2)
 	{
-		return Compare(pStr)<0;
+		return Str2.Compare(pStr1) != 0;
 	}
+	friend bool operator!=(const CEasyStringT& Str1, const T* pStr2)
+	{
+		return Str1.Compare(pStr2) != 0;
+	}
+	friend bool operator!=(const CEasyStringT& Str1, const CEasyStringT& Str2)
+	{
+		return Str1.Compare(Str2) != 0;
+	}
+
+
+	friend bool operator>(const T* pStr1, const CEasyStringT& Str2)
+	{
+		return Str2.Compare(pStr1) > 0;
+	}
+	friend bool operator>(const CEasyStringT& Str1, const T* pStr2)
+	{
+		return Str1.Compare(pStr2) > 0;
+	}
+	friend bool operator>(const CEasyStringT& Str1, const CEasyStringT& Str2)
+	{
+		return Str1.Compare(Str2) > 0;
+	}
+
+
+	friend bool operator<(const T* pStr1, const CEasyStringT& Str2)
+	{
+		return Str2.Compare(pStr1) < 0;
+	}
+	friend bool operator<(const CEasyStringT& Str1, const T* pStr2)
+	{
+		return Str1.Compare(pStr2) < 0;
+	}
+	friend bool operator<(const CEasyStringT& Str1, const CEasyStringT& Str2)
+	{
+		return Str1.Compare(Str2) < 0;
+	}
+
+	friend bool operator>=(const T* pStr1, const CEasyStringT& Str2)
+	{
+		return Str2.Compare(pStr1) >= 0;
+	}
+	friend bool operator>=(const CEasyStringT& Str1, const T* pStr2)
+	{
+		return Str1.Compare(pStr2) >= 0;
+	}
+	friend bool operator>=(const CEasyStringT& Str1, const CEasyStringT& Str2)
+	{
+		return Str1.Compare(Str2) >= 0;
+	}
+
+	friend bool operator<=(const T* pStr1, const CEasyStringT& Str2)
+	{
+		return Str2.Compare(pStr1) <= 0;
+	}
+	friend bool operator<=(const CEasyStringT& Str1, const T* pStr2)
+	{
+		return Str1.Compare(pStr2) <= 0;
+	}
+	friend bool operator<=(const CEasyStringT& Str1, const CEasyStringT& Str2)
+	{
+		return Str1.Compare(Str2) <= 0;
+	}
+
+
 	const CEasyStringT<T>& operator+=(const char * pStr)
 	{
 		AppendString(pStr,GetStrLen(pStr));
@@ -534,12 +606,8 @@ public:
 	}
 	CEasyStringT<T> SubStr(SIZE_TYPE Start,SIZE_TYPE Number) const
 	{
-		if(Start<0)
-			Start=0;
 		if(Start>m_StringLength)
 			Start=m_StringLength;
-		if(Number<0)
-			Number=m_StringLength-Start;
 		if(Start+Number>m_StringLength)
 			Number=m_StringLength-Start;
 		return CEasyStringT<T>(m_pBuffer+Start,Number);

@@ -1,20 +1,23 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    IDistributedObject.h                                     */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    IDistributedObject.h                                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
 
-#define MAKE_MSG_ID(InterfaceID,MethodID,IsAck)		((((DWORD)InterfaceID&0x7FFF)<<16)|(((DWORD)MethodID)&0xFFFF)|(IsAck?0x80000000:0))
-#define GET_INTERFACE_ID(MsgID)						(((DWORD)MsgID&0x7FFF)>>16)
-#define GET_METHOD_ID(MsgID)						((DWORD)MsgID&0xFFFF)
-#define IS_ACK_MSG(MsgID)							((DWORD)MsgID&0x7FFFFFFF)
+#include "DOSMessage.h"
+
+#define MAKE_MSG_ID(ModuleID,InterfaceID,MethodID,IsAck)		((((DWORD)ModuleID&0x7F)<<24)|(((DWORD)InterfaceID&0xFF)<<16)|(((DWORD)MethodID)&0xFFFF)|(IsAck?0x80000000:0))
+#define GET_MODULE_ID(MsgID)									((((DWORD)MsgID)>>24)&0x7F)
+#define GET_INTERFACE_ID(MsgID)									((((DWORD)MsgID)>>16)&0xFF)
+#define GET_METHOD_ID(MsgID)									((DWORD)MsgID&0xFFFF)
+#define IS_ACK_MSG(MsgID)										((DWORD)MsgID&0x7FFFFFFF)
 
 
 
@@ -176,6 +179,7 @@ public:
 	virtual BOOL UnregisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount)=0;
 	virtual BOOL RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount) = 0;
 	virtual BOOL UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount) = 0;
+	virtual BOOL SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType) = 0;
 
 	virtual BOOL AddConcernedObject(OBJECT_ID ObjectID,bool NeedTest)=0;
 	virtual BOOL DeleteConcernedObject(OBJECT_ID ObjectID)=0;
@@ -213,7 +217,7 @@ public:
 	virtual void OnConcernedObjectLost(OBJECT_ID ObjectID){}
 	virtual BOOL OnFindObject(OBJECT_ID CallerID){return FALSE;}
 	virtual void OnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize){}
-	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID,UINT IP,UINT Port,LPCSTR szIPString){}
+	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString){}
 	virtual void OnShutDown(int Level){}
 	virtual int Update(int ProcessPacketLimit){return 0;}
 

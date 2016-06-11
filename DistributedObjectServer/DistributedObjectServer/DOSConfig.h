@@ -16,8 +16,8 @@ public:
 		POOL_CONFIG()
 		{
 			StartSize=16;
-			GrowSize=1;
-			GrowLimit=0;
+			GrowSize=16;
+			GrowLimit=16;
 		}
 	};
 
@@ -62,13 +62,15 @@ public:
 
 	
 protected:
-	CEasyString					m_ServiceName;
-	CEasyString					m_ServiceDesc;
-	NET_CONFIG					m_NetConfig;
-	DOS_CONFIG					m_DOSConfig;
-	MONO_CONFIG					m_MonoConfig;
-	UINT						m_MaxPluginObject;
-	CEasyArray<PLUGIN_INFO>		m_PluginList;
+	CEasyString								m_ServiceName;
+	CEasyString								m_ServiceDesc;
+	NET_CONFIG								m_NetConfig;
+	DOS_CONFIG								m_DOSConfig;
+	MONO_CONFIG								m_MonoConfig;
+	POOL_CONFIG								m_PluginObjectPoolConfig;
+	CEasyArray<PLUGIN_INFO>					m_PluginList;
+	CEasyArray<LIB_INFO>					m_LibList;
+	CEasyArray<CLIENT_PROXY_PLUGIN_INFO>	m_ProxyPluginList;
 public:
 	CDOSConfig(void);
 	~CDOSConfig(void);
@@ -101,17 +103,26 @@ public:
 	{
 		return m_MonoConfig;
 	}
-	UINT GetMaxPluginObject()
+	const POOL_CONFIG& GetPluginObjectPoolConfig()
 	{
-		return m_MaxPluginObject;
+		return m_PluginObjectPoolConfig;
 	}
 	const CEasyArray<PLUGIN_INFO>& GetPluginList()
 	{
 		return m_PluginList;
 	}
+	const CEasyArray<LIB_INFO>& GetLibList()
+	{
+		return m_LibList;
+	}
+	const CEasyArray<CLIENT_PROXY_PLUGIN_INFO>& GetProxyPluginList()
+	{
+		return m_ProxyPluginList;
+	}
 	
 protected:
 	bool ReadPoolConfig(xml_node& XMLContent,POOL_CONFIG& Config);
-	bool ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_CONFIG& Config);
+	bool ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO& Config);
+	bool LoadLibInfo(xml_node& XMLContent);
 	bool LoadPluginInfo(xml_node& XMLContent);
 };

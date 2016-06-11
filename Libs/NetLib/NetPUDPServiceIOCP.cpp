@@ -1,18 +1,18 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    NetPUDPServiceIOCP.cpp                                   */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    NetPUDPServiceIOCP.cpp                                   */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
 
 
-IMPLEMENT_CLASS_INFO_STATIC(CNetPUDPService,CBaseService);
+IMPLEMENT_CLASS_INFO_STATIC(CNetPUDPService,CBaseNetService);
 
 CNetPUDPService::CNetPUDPService()
 {
@@ -37,7 +37,7 @@ BOOL CNetPUDPService::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObj
 		{			
 			if(!QueryUDPRecv())
 			{
-				PrintNetLog(0xffffffff,_T("PUDPServiceÎÞ·¨·¢³ö¸ü¶àµÄUDPRecvÇëÇó£¡"));
+				PrintNetLog(_T("NetLib"),_T("PUDPServiceæ— æ³•å‘å‡ºæ›´å¤šçš„UDPRecvè¯·æ±‚ï¼"));
 				Close();
 			}
 
@@ -51,7 +51,7 @@ BOOL CNetPUDPService::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObj
 			}
 			else
 			{
-				PrintNetLog(0xffffffff,_T("½ÓÊÕÊ§°Ü£¡"));
+				PrintNetLog(_T("NetLib"),_T("æŽ¥æ”¶å¤±è´¥ï¼"));
 			}				
 		}
 		else if(pOverLappedObject->GetType()==IO_SEND)
@@ -63,13 +63,13 @@ BOOL CNetPUDPService::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObj
 				return TRUE;
 			}
 			else
-				PrintNetLog(0xffffffff,_T("·¢ËÍÊ§°Ü£¡"));
+				PrintNetLog(_T("NetLib"),_T("å‘é€å¤±è´¥ï¼"));
 		}			
 		else
-			PrintNetLog(0xffffffff,_T("PUDPServiceÊÕµ½·Ç·¨IOCP°ü£¡"));
+			PrintNetLog(_T("NetLib"),_T("PUDPServiceæ”¶åˆ°éžæ³•IOCPåŒ…ï¼"));
 	}
 	else
-		PrintNetLog(0xffffffff,_T("PUDPServiceÎ´ÆôÓÃ£¬IOCP°ü±»ºöÂÔ£¡"));
+		PrintNetLog(_T("NetLib"),_T("PUDPServiceæœªå¯ç”¨ï¼ŒIOCPåŒ…è¢«å¿½ç•¥ï¼"));
 	GetServer()->DeleteOverLappedObject(pOverLappedObject);
 	return FALSE;
 }
@@ -85,8 +85,7 @@ BOOL CNetPUDPService::Create(int ParallelRecvCount)
 		m_pIOCPEventRouter->Init(this);
 	}
 
-	m_ParallelRecvCount=ParallelRecvCount;	
-	m_Socket.MakeSocket(AF_INET,SOCK_DGRAM,IPPROTO_UDP);	
+	m_ParallelRecvCount=ParallelRecvCount;		
 	InterlockedExchange((LPLONG)&(m_WantClose),FALSE);
 	
 	return TRUE;
@@ -117,9 +116,25 @@ BOOL CNetPUDPService::StartListen(const CIPAddress& Address)
 		if(!Create())
 			return FALSE;
 	}
+
+	int af = AF_INET;
+
+	if (Address.IsIPv4())
+		af = AF_INET;
+	else if (Address.IsIPv6())
+		af = AF_INET6;
+	else
+	{
+		PrintNetLog(_T("NetLib"), _T("(%d)PUDPServiceåè®®é”™è¯¯ï¼"), GetID());
+		return FALSE;
+	}
+
+	if (!m_Socket.MakeSocket(af, SOCK_DGRAM, IPPROTO_UDP))
+		return FALSE;
+
 	if(!m_Socket.Listen(Address))
 	{
-		PrintNetLog(0xffffffff,_T("(%d)PUDPServiceÕìÌýÊ§°Ü£¡"),GetID());
+		PrintNetLog(_T("NetLib"),_T("(%d)PUDPServiceä¾¦å¬å¤±è´¥ï¼"),GetID());
 		return FALSE;
 	}
 
@@ -128,7 +143,7 @@ BOOL CNetPUDPService::StartListen(const CIPAddress& Address)
 	
 	if(!GetServer()->BindSocket(m_Socket.GetSocket()))
 	{
-		PrintNetLog(0xffffffff,_T("(%d)PUDPService°ó¶¨IOCPÊ§°Ü£¡"),GetID());
+		PrintNetLog(_T("NetLib"),_T("(%d)PUDPServiceç»‘å®šIOCPå¤±è´¥ï¼"),GetID());
 		Close();
 		return FALSE;
 	}	
@@ -139,7 +154,7 @@ BOOL CNetPUDPService::StartListen(const CIPAddress& Address)
 	{
 		if(!QueryUDPRecv())
 		{
-			PrintNetLog(0xffffffff,_T("(%d)Service·¢³öUDPRecvÇëÇóÊ§°Ü£¡"),GetID());
+			PrintNetLog(_T("NetLib"),_T("(%d)Serviceå‘å‡ºUDPRecvè¯·æ±‚å¤±è´¥ï¼"),GetID());
 			Close();
 			return FALSE;
 		}
@@ -174,7 +189,7 @@ BOOL CNetPUDPService::QueryUDPRecv()
 	COverLappedObject * pOverLappedObject=GetServer()->CreateOverLappedObject();
 	if(pOverLappedObject==NULL)
 	{
-		PrintNetLog(0xffffffff,_T("(%d)PUDPService´´½¨ÈÈUDPRecvÓÃOverLappedObjectÊ§°Ü£¡"),GetID());
+		PrintNetLog(_T("NetLib"),_T("(%d)PUDPServiceåˆ›å»ºçƒ­UDPRecvç”¨OverLappedObjectå¤±è´¥ï¼"),GetID());
 		return FALSE;
 	}
 
@@ -198,7 +213,7 @@ BOOL CNetPUDPService::QueryUDPRecv()
 	{
 		return TRUE;
 	}
-	PrintNetLog(0xffffffff,_T("(%d)PUDPService·¢³öUDPRecvÇëÇóÊ§°Ü£¡"),GetID());	
+	PrintNetLog(_T("NetLib"),_T("(%d)PUDPServiceå‘å‡ºUDPRecvè¯·æ±‚å¤±è´¥ï¼"),GetID());	
 	GetServer()->DeleteOverLappedObject(pOverLappedObject);
 	return FALSE;
 }
@@ -208,11 +223,11 @@ BOOL CNetPUDPService::QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int
 	COverLappedObject * pOverLappedObject=GetServer()->CreateOverLappedObject();
 	if(pOverLappedObject==NULL)
 	{
-		PrintNetLog(0xffffffff,_T("(%d)PUDPService´´½¨UDPSendÓÃOverLappedObjectÊ§°Ü£¡"),GetID());
+		PrintNetLog(_T("NetLib"),_T("(%d)PUDPServiceåˆ›å»ºUDPSendç”¨OverLappedObjectå¤±è´¥ï¼"),GetID());
 		return FALSE;
 	}
 
-	pOverLappedObject->SetAddress(IPAddress.GetSockAddr());
+	pOverLappedObject->SetAddress(IPAddress);
 
 	pOverLappedObject->SetType(IO_SEND);	
 	pOverLappedObject->SetIOCPEventRouter(m_pIOCPEventRouter);
@@ -222,7 +237,7 @@ BOOL CNetPUDPService::QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int
 	if(!pOverLappedObject->GetDataBuff()->PushBack(pData,Size))
 	{
 		GetServer()->DeleteOverLappedObject(pOverLappedObject);
-		PrintNetLog(0xffffffff,_T("(%d)PUDPServiceÒª·¢ËÍµÄÊý¾Ý°ü¹ý´ó£¡"),GetID());
+		PrintNetLog(_T("NetLib"),_T("(%d)PUDPServiceè¦å‘é€çš„æ•°æ®åŒ…è¿‡å¤§ï¼"),GetID());
 		return FALSE;
 	}
 	
@@ -241,7 +256,7 @@ BOOL CNetPUDPService::QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int
 	{				
 		return TRUE;
 	}
-	PrintNetLog(0xffffffff,_T("(%d)PUDPService·¢³öUDPSendÇëÇóÊ§°Ü£¡"),GetID());	
+	PrintNetLog(_T("NetLib"),_T("(%d)PUDPServiceå‘å‡ºUDPSendè¯·æ±‚å¤±è´¥ï¼"),GetID());	
 	GetServer()->DeleteOverLappedObject(pOverLappedObject);
 	return FALSE;
 }

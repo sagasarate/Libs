@@ -1,4 +1,4 @@
-//******************************************************************************
+﻿//******************************************************************************
 //* HMAC_SHA1.cpp : Implementation of HMAC SHA1 algorithm
 //*                 Comfort to RFC 2104
 //*
@@ -29,9 +29,9 @@ void CHMAC_SHA1::HMAC_SHA1(BYTE *text, size_t text_len, BYTE *key, size_t key_le
 		memcpy(SHA1_Key, key, key_len);
 
 	/* STEP 2 */
-	for (int i=0; i<sizeof(m_ipad); i++)
+	for (size_t i=0; i<sizeof(m_ipad); i++)
 	{
-		m_ipad[i] ^= SHA1_Key[i];		
+		m_ipad[i] ^= SHA1_Key[i];
 	}
 
 	/* STEP 3 */
@@ -46,7 +46,7 @@ void CHMAC_SHA1::HMAC_SHA1(BYTE *text, size_t text_len, BYTE *key, size_t key_le
 	CSHA1::GetHash((UINT_8 *)szReport);
 
 	/* STEP 5 */
-	for (int j=0; j<sizeof(m_opad); j++)
+	for (size_t j=0; j<sizeof(m_opad); j++)
 	{
 		m_opad[j] ^= SHA1_Key[j];
 	}

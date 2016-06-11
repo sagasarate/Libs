@@ -12,13 +12,13 @@ CDistributedObjectManager::~CDistributedObjectManager(void)
 {
 }
 
-BOOL CDistributedObjectManager::Init(CDOSObjectManager * pDOSObjectManager,UINT MaxObjectCount)
+BOOL CDistributedObjectManager::Init(CDOSObjectManager * pDOSObjectManager, const CDOSConfig::POOL_CONFIG& PoolConfig)
 {
 	FUNCTION_BEGIN;
 	m_pDOSObjectManager=pDOSObjectManager;
-	if(!m_ObjectPool.Create(MaxObjectCount))
+	if (!m_ObjectPool.Create(PoolConfig.StartSize, PoolConfig.GrowSize, PoolConfig.GrowLimit))
 	{
-		Log("无法创建%u大小的插件对象池",MaxObjectCount);
+		Log("无法创建[%u,%u,%u]大小的插件对象池", PoolConfig.StartSize, PoolConfig.GrowSize, PoolConfig.GrowLimit);
 		return FALSE;
 	}
 
@@ -30,8 +30,8 @@ BOOL CDistributedObjectManager::Init(CDOSObjectManager * pDOSObjectManager,UINT 
 void CDistributedObjectManager::Destory()
 {
 	FUNCTION_BEGIN;
-	m_pDOSObjectManager=NULL;
 	m_ObjectPool.Destory();
+	m_pDOSObjectManager=NULL;	
 	FUNCTION_END;
 }
 

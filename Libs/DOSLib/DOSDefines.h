@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    DOSDefines.h                                             */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ23ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSDefines.h                                             */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ23æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -17,6 +17,7 @@
 //#define DOS_PROXY_KEEP_ALIVE_MAX_COUNT	(20)
 
 typedef bool (*DOS_GROUP_INIT_FN)(UINT GroupIndex);
+typedef bool(*DOS_GROUP_DESTORY_FN)(UINT GroupIndex);
 
 enum MSG_COMPRESS_TYPE
 {
@@ -27,12 +28,22 @@ enum MSG_COMPRESS_TYPE
 	MSG_COMPRESS_ZIP_SLOW,
 };
 
+enum CLIENT_PROXY_MODE
+{
+	CLIENT_PROXY_MODE_DEFAULT,
+	CLIENT_PROXY_MODE_CUSTOM,
+};
+
 struct CLIENT_PROXY_CONFIG
 {
 	UINT										ProxyType;
+	CLIENT_PROXY_MODE							ProxyMode;
 	CIPAddress									ListenAddress;
 	UINT										MaxConnection;	
 	UINT										ConnectionMsgQueueSize;
+	UINT										AcceptQueueSize;
+	UINT										ParallelAcceptCount;
+	UINT										RecvBufferSize;
 	UINT										SendBufferSize;
 	UINT										SendDelay;
 	UINT										SendQueryLimit;	
@@ -52,13 +63,17 @@ struct CLIENT_PROXY_CONFIG
 	CLIENT_PROXY_CONFIG()
 	{
 		ProxyType = 0;
+		ProxyMode = CLIENT_PROXY_MODE_DEFAULT;
 		MaxConnection = 128;
 		MsgQueueSize = 512;
 		ConnectionMsgQueueSize = 128;
 		GlobalMsgMapSize = 512;
 		MsgMapSize = 512;
 		MaxMsgSize = 4096;
-		SendBufferSize = 0;
+		AcceptQueueSize = DEFAULT_SERVER_ACCEPT_QUEUE;
+		ParallelAcceptCount = DEFAULT_PARALLEL_ACCEPT;
+		RecvBufferSize = DEFAULT_SERVER_RECV_DATA_QUEUE;
+		SendBufferSize = DEFAULT_SERVER_SEND_DATA_QUEUE;
 		SendDelay = 0;
 		SendQueryLimit = 0;
 		MsgCompressType = MSG_COMPRESS_NONE;
@@ -74,7 +89,7 @@ struct CLIENT_PROXY_CONFIG
 struct DOS_CONFIG
 {
 	UINT										RouterID;	
-	CEasyString									RouterLinkConfigFileName;	
+	CEasyNetLinkManager::ENL_CONFIG				RouterLinkConfig;
 	UINT										MaxRouterSendMsgQueue;
 	UINT										RouterMsgProcessLimit;
 	
@@ -93,6 +108,7 @@ struct DOS_CONFIG
 	UINT										ObjectKeepAliveCount;
 	bool										StatObjectCPUCost;
 	DOS_GROUP_INIT_FN							pDOSGroupInitFN;
+	DOS_GROUP_DESTORY_FN						pDOSGroupDestoryFN;
 
 	DOS_CONFIG()
 	{
@@ -111,6 +127,7 @@ struct DOS_CONFIG
 		ObjectKeepAliveCount=5;
 		StatObjectCPUCost=false;
 		pDOSGroupInitFN = NULL;
+		pDOSGroupDestoryFN = NULL;
 	}
 };
 
@@ -140,30 +157,30 @@ struct DOS_OBJECT_REGISTER_INFO
 
 extern UINT DistinctObjectID(OBJECT_ID * pObjectIDs,UINT Count);
 
-inline BOOL PrintDOSLog(DWORD Color,LPCTSTR Format,...)
+inline BOOL PrintDOSLog(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl,Format);
-	BOOL ret=CLogManager::GetInstance()->PrintLogVL(LOG_DOS_CHANNEL,ILogPrinter::LOG_LEVEL_NORMAL,Color,Format,vl);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DOS_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }
 
 
-inline BOOL PrintDOSDebugLog(DWORD Color,LPCTSTR Format,...)
+inline BOOL PrintDOSDebugLog(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl,Format);
-	BOOL ret=CLogManager::GetInstance()->PrintLogVL(LOG_DOS_CHANNEL,ILogPrinter::LOG_LEVEL_DEBUG,Color,Format,vl);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DOS_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }
 
-inline BOOL PrintDOSObjectStatLog(DWORD Color,LPCTSTR Format,...)
+inline BOOL PrintDOSObjectStatLog(LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl,Format);
-	BOOL ret=CLogManager::GetInstance()->PrintLogVL(LOG_DOS_OBJECT_STATE_CHANNEL,ILogPrinter::LOG_LEVEL_NORMAL,Color,Format,vl);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DOS_OBJECT_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, NULL, Format, vl);
 	va_end(vl);
 	return ret;
 }

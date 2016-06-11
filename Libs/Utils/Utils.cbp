@@ -40,9 +40,6 @@
 				</Compiler>
 			</Target>
 		</Build>
-		<Compiler>
-			<Add option="-std=c++11" />
-		</Compiler>
 		<Unit filename="AsyncFileLogPrinter.cpp">
 			<Option virtualFolder="Log/缺省实现/" />
 		</Unit>

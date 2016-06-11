@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    EasyNetLinkService.cpp                                   */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    EasyNetLinkService.cpp                                   */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -17,16 +17,48 @@ IMPLEMENT_CLASS_INFO_STATIC(CEasyNetLinkService,CNetService);
 CEasyNetLinkService::CEasyNetLinkService(void)
 {
 	m_pManager=NULL;
-	m_NeedReallocConnectionID=FALSE;
+	m_NeedReallocConnectionID = false;
+	m_RecvQueueSize = 0;
+	m_SendQueueSize = 0;
 	m_MaxPacketSize=0;
+	m_DataCompressType = CEasyNetLinkManager::DATA_COMPRESS_TYPE_NONE;
+	m_MinCompressSize = CEasyNetLinkManager::DEFAULT_MIN_COMPRESS_SIZE;
 }
 
 CEasyNetLinkService::~CEasyNetLinkService(void)
 {
 }
 
+bool CEasyNetLinkService::Init(CEasyNetLinkManager* pManager, UINT ReportID, const CIPAddress& ListenAddress,
+	bool NeedReallocConnectionID, bool IsUseListenThread,
+	int ParallelAcceptCount, UINT AcceptQueueSize,
+	UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize,
+	CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
+{
+	m_pManager = pManager;
+	m_ReportID = ReportID;
+	m_NeedReallocConnectionID = NeedReallocConnectionID;
+	m_RecvQueueSize = RecvQueueSize;
+	m_SendQueueSize = SendQueueSize;
+	m_MaxPacketSize = MaxPacketSize;
+	m_DataCompressType = DataCompressType;
+	m_MinCompressSize = MinCompressSize;
 
-CBaseTCPConnection * CEasyNetLinkService::CreateConnection(CIPAddress& RemoteAddress)
+	SetServer(m_pManager->GetServer());
+	if (Create(IPPROTO_TCP, AcceptQueueSize,
+		RecvQueueSize, SendQueueSize,
+		ParallelAcceptCount, DEFAULT_PARALLEL_RECV, IsUseListenThread))
+	{
+		if (StartListen(ListenAddress))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+CBaseNetConnection * CEasyNetLinkService::CreateConnection(CIPAddress& RemoteAddress)
 {
 	if(m_IPList.GetCount())
 	{
@@ -41,30 +73,35 @@ CBaseTCPConnection * CEasyNetLinkService::CreateConnection(CIPAddress& RemoteAdd
 		}
 		if(!IsMatch)
 		{
-			PrintNetLog(0xffffff,_T("Á¬½Ó[%s]²»ÔÚIPÁÐ±íÖÐ£¬±»¾Ü¾ø"),RemoteAddress.GetIPString());
+			PrintNetLog(_T("NetLib"), _T("è¿žæŽ¥[%s]ä¸åœ¨IPåˆ—è¡¨ä¸­ï¼Œè¢«æ‹’ç»"), RemoteAddress.GetIPString());
 			return NULL;
 		}
 	}
-	CEasyNetLinkConnection * pConnection=NULL;
+	CEasyNetLink * pLink = NULL;
 	if(m_pManager)
 	{
-		pConnection=m_pManager->CreateAcceptConnection(GetReportID());
-		if(pConnection)
+		pLink = m_pManager->CreateAcceptLink();
+		if (pLink)
 		{
-			pConnection->SetMaxPacketSize(m_MaxPacketSize);
-			pConnection->EnableReallocConnectionID(NeedReallocConnectionID());
-
+			if (pLink->Init(m_pManager, GetReportID(), m_MaxPacketSize, m_DataCompressType, m_MinCompressSize, NeedReallocConnectionID()))
+			{
+				return pLink->GetConnection();
+			}
+			else
+			{
+				PrintNetLog(_T("NetLib"), _T("CEasyNetLinkService::CreateConnection:åˆå§‹åŒ–è¿žæŽ¥å¤±è´¥"));
+				m_pManager->DeleteLink(pLink);
+			}			
 		}
 	}
-	return pConnection;
+	return NULL;
 }
 
-BOOL CEasyNetLinkService::DeleteConnection(CBaseTCPConnection * pConnection)
+BOOL CEasyNetLinkService::DeleteConnection(CBaseNetConnection * pConnection)
 {
 	if(m_pManager)
 	{
-		m_pManager->DeleteConnection((CEasyNetLinkConnection *)pConnection);
-		SAFE_RELEASE(pConnection);
+		m_pManager->DeleteLink(((CENLConnection *)pConnection)->GetParent());
 	}
 	return TRUE;
 }

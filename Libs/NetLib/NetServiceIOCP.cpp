@@ -1,23 +1,25 @@
-/****************************************************************************/
+Ôªø/****************************************************************************/
 /*                                                                          */
-/*      Œƒº˛√˚:    NetServiceIOCP.cpp                                       */
-/*      ¥¥Ω®»’∆⁄:  2010ƒÍ02‘¬09»’                                           */
-/*      ◊˜’ﬂ:      Sagasarate                                               */
+/*      Êñá‰ª∂Âêç:    NetServiceIOCP.cpp                                       */
+/*      ÂàõÂª∫Êó•Êúü:  2010Âπ¥02Êúà09Êó•                                           */
+/*      ‰ΩúËÄÖ:      Sagasarate                                               */
 /*                                                                          */
-/*      ±æ»Ìº˛∞Ê»®πÈSagasarate(sagasarate@sina.com)À˘”–                     */
-/*      ƒ„ø…“‘Ω´±æ»Ìº˛”√”⁄»Œ∫Œ…Ã“µ∫Õ∑«…Ã“µ»Ìº˛ø™∑¢£¨µ´                      */
-/*      ±ÿ–Î±£¡Ù¥À∞Ê»®…˘√˜                                                  */
+/*      Êú¨ËΩØ‰ª∂ÁâàÊùÉÂΩíSagasarate(sagasarate@sina.com)ÊâÄÊúâ                     */
+/*      ‰Ω†ÂèØ‰ª•Â∞ÜÊú¨ËΩØ‰ª∂Áî®‰∫é‰ªª‰ΩïÂïÜ‰∏öÂíåÈùûÂïÜ‰∏öËΩØ‰ª∂ÂºÄÂèëÔºå‰ΩÜ                      */
+/*      ÂøÖÈ°ª‰øùÁïôÊ≠§ÁâàÊùÉÂ£∞Êòé                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
 
-IMPLEMENT_CLASS_INFO_STATIC(CNetService,CBaseService);
+IMPLEMENT_CLASS_INFO_STATIC(CNetService,CBaseNetService);
 
 CNetService::CNetService()
 {
 	m_WantClose=FALSE;
 	m_pServer=NULL;
-	m_CurProtocol=IPPROTO_TCP;
+	m_CurProtocol = IPPROTO_TCP;
+	m_CurAddressFamily = AF_INET;
+	m_IPv6Only = false;
 	m_AcceptQueueSize=0;
 	m_RecvQueueSize=0;
 	m_SendQueueSize=0;
@@ -42,7 +44,7 @@ BOOL CNetService::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject)
 		{			
 			if(!QueryAccept())
 			{
-				PrintNetLog(0xffffffff,_T("Œﬁ∑®∑¢≥ˆ∏¸∂‡µƒAccept«Î«Û£°"));
+				PrintNetLog(_T("NetLib"),_T("Êó†Ê≥ïÂèëÂá∫Êõ¥Â§öÁöÑAcceptËØ∑Ê±ÇÔºÅ"));
 				QueryClose();
 			}
 
@@ -59,17 +61,17 @@ BOOL CNetService::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject)
 					}
 					else
 					{
-						PrintNetLog(0xffffffff,_T("Accept∂”¡–“—¬˙£°"));
+						PrintNetLog(_T("NetLib"),_T("AcceptÈòüÂàóÂ∑≤Êª°ÔºÅ"));
 					}
 				}				
 				else
 				{
-					PrintNetLog(0xffffffff,_T("∏¸–¬AcceptScoket◊¥Ã¨ ß∞‹£°"));
+					PrintNetLog(_T("NetLib"),_T("Êõ¥Êñ∞AcceptScoketÁä∂ÊÄÅÂ§±Ë¥•ÔºÅ"));
 				}
 			}
 			else
 			{
-				PrintNetLog(0xffffffff,_T("Accept∑µªÿ¥ÌŒÛ£°"));
+				PrintNetLog(_T("NetLib"),_T("AcceptËøîÂõûÈîôËØØÔºÅ"));
 			}
 
 			closesocket(pOverLappedObject->GetAcceptSocket());
@@ -83,12 +85,12 @@ BOOL CNetService::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject)
 					return TRUE;
 				}
 				else
-					PrintNetLog(0xffffffff,_T("Accept∂”¡–“—¬˙£°"));
+					PrintNetLog(_T("NetLib"),_T("AcceptÈòüÂàóÂ∑≤Êª°ÔºÅ"));
 				closesocket(pOverLappedObject->GetAcceptSocket());
 			}			
 			else
 			{
-				PrintNetLog(0xffffffff,_T("’ÏÃ˝ ß∞‹£¨πÿ±’’ÏÃ˝£°"));
+				PrintNetLog(_T("NetLib"),_T("‰æ¶Âê¨Â§±Ë¥•ÔºåÂÖ≥Èó≠‰æ¶Âê¨ÔºÅ"));
 				QueryClose();
 			}
 		}
@@ -96,7 +98,7 @@ BOOL CNetService::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject)
 		{			
 			if(!QueryUDPRecv())
 			{
-				PrintNetLog(0xffffffff,_T("Œﬁ∑®∑¢≥ˆ∏¸∂‡µƒUDPRecv«Î«Û£°"));
+				PrintNetLog(_T("NetLib"),_T("Êó†Ê≥ïÂèëÂá∫Êõ¥Â§öÁöÑUDPRecvËØ∑Ê±ÇÔºÅ"));
 				QueryClose();
 			}
 
@@ -109,11 +111,11 @@ BOOL CNetService::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject)
 					return TRUE;
 				}
 				else
-					PrintNetLog(0xffffffff,_T("Accept∂”¡–“—¬˙£°"));		
+					PrintNetLog(_T("NetLib"),_T("AcceptÈòüÂàóÂ∑≤Êª°ÔºÅ"));		
 			}
 			else
 			{
-				PrintNetLog(0xffffffff,_T("Ω” ’ ß∞‹£°"));
+				PrintNetLog(_T("NetLib"),_T("Êé•Êî∂Â§±Ë¥•ÔºÅ"));
 			}				
 		}
 		else if(pOverLappedObject->GetType()==IO_SEND)
@@ -125,90 +127,84 @@ BOOL CNetService::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject)
 				return TRUE;
 			}
 			else
-				PrintNetLog(0xffffffff,_T("∑¢ÀÕ ß∞‹£°"));
+				PrintNetLog(_T("NetLib"),_T("ÂèëÈÄÅÂ§±Ë¥•ÔºÅ"));
 		}			
 		else
-			PrintNetLog(0xffffffff,_T("Service ’µΩ∑«∑®IOCP∞¸£°"));
+			PrintNetLog(_T("NetLib"),_T("ServiceÊî∂Âà∞ÈùûÊ≥ïIOCPÂåÖÔºÅ"));
 	}
 	else
-		PrintNetLog(0xffffffff,_T("ServiceŒ¥∆Ù”√£¨IOCP∞¸±ª∫ˆ¬‘£°"));
+		PrintNetLog(_T("NetLib"),_T("ServiceÊú™ÂêØÁî®ÔºåIOCPÂåÖË¢´ÂøΩÁï•ÔºÅ"));
 	GetServer()->DeleteOverLappedObject(pOverLappedObject);
 
 
 	return FALSE;
 }
 
-BOOL CNetService::Create(int Protocol,int AcceptQueueSize,int RecvQueueSize,int SendQueueSize,int ParallelAcceptCount,int ParallelRecvCount,bool IsUseListenThread)
+BOOL CNetService::Create(int Protocol, int AcceptQueueSize, int RecvQueueSize, int SendQueueSize, int ParallelAcceptCount, int ParallelRecvCount, bool IsUseListenThread, bool IPv6Only)
 {	
 	
 
 	if(GetServer()==NULL)
 		return FALSE;
 
-	Destory();
+	Close();
 
 	if(m_pIOCPEventRouter==NULL)
 	{
 		m_pIOCPEventRouter=GetServer()->CreateEventRouter();
 		m_pIOCPEventRouter->Init(this);
 	}
+	m_CurProtocol = Protocol;
 	m_AcceptQueueSize=AcceptQueueSize;
 	m_RecvQueueSize=RecvQueueSize;
 	m_SendQueueSize=SendQueueSize;
 	m_ParallelAcceptCount=ParallelAcceptCount;
 	m_ParallelRecvCount=ParallelRecvCount;
 	m_IsUseListenThread=IsUseListenThread;
-	if(Protocol==IPPROTO_UDP)
-	{
-		m_Socket.MakeSocket(AF_INET,SOCK_DGRAM,IPPROTO_UDP);	
-		m_AcceptQueue.Create(m_RecvQueueSize);
-	}
-	else
-	{
-		m_Socket.MakeSocket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
-		m_AcceptQueue.Create(m_AcceptQueueSize);
-	}
-	InterlockedExchange((LPLONG)&(m_WantClose),FALSE);
-	m_CurProtocol=m_Socket.GetProtocol();
+	m_IPv6Only = IPv6Only;	
+	InterlockedExchange((LPLONG)&(m_WantClose),FALSE);	
 	return TRUE;
 }
+
 void CNetService::Destory()
 {
-	
-
-	if(m_pIOCPEventRouter)
-	{
-		m_pIOCPEventRouter->SetEventHander(NULL);
-		GetServer()->DeleteEventRouter(m_pIOCPEventRouter);
-		m_pIOCPEventRouter=NULL;
-	}
-
-
-	m_Socket.Close();	
-
-	SAFE_RELEASE(m_pListenThread);
-
-	COverLappedObject * pOverLappedObject;
-	while(m_AcceptQueue.PopFront(pOverLappedObject))
-	{	
-		GetServer()->DeleteOverLappedObject(pOverLappedObject);		
-	}
-
-	
-	
-	InterlockedExchange((LPLONG)&(m_WantClose),FALSE);
+	Close();
 }
-
 
 BOOL CNetService::StartListen(const CIPAddress& Address)
 {
-	
+	if (Address.IsIPv4())
+		m_CurAddressFamily = AF_INET;
+	else if (Address.IsIPv6())
+		m_CurAddressFamily = AF_INET6;
 
-	if(m_Socket.GetState()==CNetSocket::SS_UNINITED)
+	if (m_CurProtocol == IPPROTO_UDP)
 	{
-		if(!Create())
+		if (!m_Socket.MakeSocket(m_CurAddressFamily, SOCK_DGRAM, IPPROTO_UDP))
 			return FALSE;
+		m_AcceptQueue.Create(m_RecvQueueSize);
 	}
+	else if (m_CurProtocol == IPPROTO_TCP)
+	{
+		if (!m_Socket.MakeSocket(m_CurAddressFamily, SOCK_STREAM, IPPROTO_TCP))
+			return FALSE;
+		m_AcceptQueue.Create(m_AcceptQueueSize);
+	}
+	else
+	{
+		PrintNetLog(_T("NetLib"), _T("(%d)ServiceÂçèËÆÆÈîôËØØ%dÔºÅ"), GetID(), m_CurProtocol);
+		return FALSE;
+	}
+
+	if (!m_IPv6Only)
+	{
+		//ÂêØÁî®ÂêåÊó∂‰æ¶Âê¨IPv6ÂíåIPv4
+		DWORD Value = 0;
+		socklen_t Len = sizeof(Value);
+		m_Socket.SetOption(IPPROTO_IPV6, IPV6_V6ONLY, (char *)&Value, Len);
+	}
+	
+	
 	
 	m_pIOCPEventRouter->Init(this);
 
@@ -218,7 +214,7 @@ BOOL CNetService::StartListen(const CIPAddress& Address)
 	
 		if(!GetServer()->BindSocket(m_Socket.GetSocket()))
 		{
-			PrintNetLog(0xffffffff,_T("(%d)Service∞Û∂®IOCP ß∞‹£°"),GetID());
+			PrintNetLog(_T("NetLib"),_T("(%d)ServiceÁªëÂÆöIOCPÂ§±Ë¥•ÔºÅ"),GetID());
 			Close();
 			return FALSE;
 		}	
@@ -229,7 +225,7 @@ BOOL CNetService::StartListen(const CIPAddress& Address)
 	{		
 		if(!m_Socket.Bind(Address))
 		{
-			PrintNetLog(0xffffffff,_T("(%d)Service∞Û∂® ß∞‹£°"),GetID());
+			PrintNetLog(_T("NetLib"),_T("(%d)ServiceÁªëÂÆöÂ§±Ë¥•ÔºÅ"),GetID());
 			return FALSE;
 		}
 
@@ -239,7 +235,7 @@ BOOL CNetService::StartListen(const CIPAddress& Address)
 		{
 			if(!QueryUDPRecv())
 			{
-				PrintNetLog(0xffffffff,_T("(%d)Service∑¢≥ˆUDPRecv«Î«Û ß∞‹£°"),GetID());
+				PrintNetLog(_T("NetLib"),_T("(%d)ServiceÂèëÂá∫UDPRecvËØ∑Ê±ÇÂ§±Ë¥•ÔºÅ"),GetID());
 				Close();
 				return FALSE;
 			}
@@ -249,13 +245,13 @@ BOOL CNetService::StartListen(const CIPAddress& Address)
 	{
 		if(!m_Socket.Listen(Address))
 		{
-			PrintNetLog(0xffffffff,_T("(%d)Service’ÏÃ˝ ß∞‹£°"),GetID());
+			PrintNetLog(_T("NetLib"),_T("(%d)Service‰æ¶Âê¨Â§±Ë¥•ÔºÅ"),GetID());
 			return FALSE;
 		}
 
 		if(m_IsUseListenThread)
 		{
-			PrintNetLog(0xffffffff,_T("(%d)Service∆Ù”√œﬂ≥Ã’ÏÃ˝ƒ£ Ω£°"),GetID());
+			PrintNetLog(_T("NetLib"),_T("(%d)ServiceÂêØÁî®Á∫øÁ®ã‰æ¶Âê¨Ê®°ÂºèÔºÅ"),GetID());
 			if(m_pListenThread==NULL)
 				m_pListenThread=new CIOCPListenThread();
 			m_pListenThread->Init(this,m_Socket.GetSocket());
@@ -263,12 +259,12 @@ BOOL CNetService::StartListen(const CIPAddress& Address)
 		}
 		else
 		{		
-			PrintNetLog(0xffffffff,_T("(%d)Service∆Ù”√IOCP’ÏÃ˝ƒ£ Ω£°"),GetID());
+			PrintNetLog(_T("NetLib"),_T("(%d)ServiceÂêØÁî®IOCP‰æ¶Âê¨Ê®°ÂºèÔºÅ"),GetID());
 			for(int i=0;i<m_ParallelAcceptCount;i++)
 			{
 				if(!QueryAccept())
 				{
-					PrintNetLog(0xffffffff,_T("(%d)Service∑¢≥ˆAccpet«Î«Û ß∞‹£°"),GetID());
+					PrintNetLog(_T("NetLib"),_T("(%d)ServiceÂèëÂá∫AccpetËØ∑Ê±ÇÂ§±Ë¥•ÔºÅ"),GetID());
 					Close();
 					return FALSE;
 				}
@@ -278,13 +274,26 @@ BOOL CNetService::StartListen(const CIPAddress& Address)
 	OnStartUp();
 	return TRUE;
 }
+
+
+
 void CNetService::Close()
 {
-	
+	if (m_Socket.GetState()!=CNetSocket::SS_UNINITED)
+		OnClose();
 
 	m_Socket.Close();
-	
-	InterlockedExchange((LPLONG)&(m_WantClose),FALSE);
+
+	SAFE_RELEASE(m_pListenThread);
+
+	m_WantClose = FALSE;
+
+	if (m_pIOCPEventRouter)
+	{
+		m_pIOCPEventRouter->SetEventHander(NULL);
+		GetServer()->DeleteEventRouter(m_pIOCPEventRouter);
+		m_pIOCPEventRouter = NULL;
+	}
 
 	COverLappedObject * pOverLappedObject;
 	while(m_AcceptQueue.PopFront(pOverLappedObject))
@@ -292,7 +301,7 @@ void CNetService::Close()
 		GetServer()->DeleteOverLappedObject(pOverLappedObject);		
 	}	
 
-	OnClose();	
+	
 }
 void CNetService::QueryClose()
 {
@@ -309,7 +318,7 @@ int CNetService::Update(int ProcessPacketLimit)
 {	
 	
 
-	//¥¶¿ÌAccept
+	//Â§ÑÁêÜAccept
 	int PacketCount=0;
 	COverLappedObject * pOverLappedObject;
 	while(m_AcceptQueue.PopFront(pOverLappedObject))
@@ -318,14 +327,14 @@ int CNetService::Update(int ProcessPacketLimit)
 		{
 			if(!AcceptSocketEx(pOverLappedObject->GetAcceptSocket(),pOverLappedObject->GetDataBuff()))
 			{
-				PrintNetLog(0xffffffff,_T("(%d)AcceptSocketEx ß∞‹£°"),GetID());
+				PrintNetLog(_T("NetLib"),_T("(%d)AcceptSocketExÂ§±Ë¥•ÔºÅ"),GetID());
 			}
 		}
 		else if(pOverLappedObject->GetType()==IO_ACCEPT2)
 		{					
 			if(!AcceptSocket(pOverLappedObject->GetAcceptSocket()))
 			{
-				PrintNetLog(0xffffffff,_T("(%d)AcceptSocket ß∞‹£°"),GetID());
+				PrintNetLog(_T("NetLib"),_T("(%d)AcceptSocketÂ§±Ë¥•ÔºÅ"),GetID());
 			}
 		}
 		else if(pOverLappedObject->GetType()==IO_RECV)
@@ -335,7 +344,7 @@ int CNetService::Update(int ProcessPacketLimit)
 		}
 		else
 		{
-			PrintNetLog(0xffffffff,_T("(%d)Servicec ’µΩ≤ª√˜¿‡–ÕµƒOverLapped£°"),GetID());			
+			PrintNetLog(_T("NetLib"),_T("(%d)ServicecÊî∂Âà∞‰∏çÊòéÁ±ªÂûãÁöÑOverLappedÔºÅ"),GetID());			
 		}
 		GetServer()->DeleteOverLappedObject(pOverLappedObject);
 		PacketCount++;
@@ -343,7 +352,7 @@ int CNetService::Update(int ProcessPacketLimit)
 			break;
 	}	
 
-	//¥¶¿Ìπÿ±’
+	//Â§ÑÁêÜÂÖ≥Èó≠
 	if(m_WantClose)
 	{
 		Close();		
@@ -351,12 +360,12 @@ int CNetService::Update(int ProcessPacketLimit)
 	return PacketCount;
 }
 
-CBaseTCPConnection * CNetService::CreateConnection(CIPAddress& RemoteAddress)
+CBaseNetConnection * CNetService::CreateConnection(CIPAddress& RemoteAddress)
 {
 	return NULL;
 }
 
-BOOL CNetService::DeleteConnection(CBaseTCPConnection * pConnection)
+BOOL CNetService::DeleteConnection(CBaseNetConnection * pConnection)
 {
 	return FALSE;
 }
@@ -365,20 +374,20 @@ BOOL CNetService::DeleteConnection(CBaseTCPConnection * pConnection)
 BOOL CNetService::QueryAccept()
 {		
 
-	//PrintNetLog(0xffffffff,_T("(%d)∑¢≥ˆAcceptEx«Î«Û£°"),GetID());
+	//PrintNetLog(_T("NetLib"),_T("(%d)ÂèëÂá∫AcceptExËØ∑Ê±ÇÔºÅ"),GetID());
 
 	SOCKET	AcceptSocket=0;
-	AcceptSocket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+	AcceptSocket = socket(m_CurAddressFamily, SOCK_STREAM, IPPROTO_TCP);
 	if(AcceptSocket==INVALID_SOCKET)
 	{
-		PrintNetLog(0xffffffff,_T("(%d)¥¥Ω®AcceptSocket ß∞‹(%u)£°"),GetID(),GetLastError());
+		PrintNetLog(_T("NetLib"),_T("(%d)ÂàõÂª∫AcceptSocketÂ§±Ë¥•(%u)ÔºÅ"),GetID(),GetLastError());
 		return FALSE;
 	}
 
 	COverLappedObject * pOverLappedObject=GetServer()->CreateOverLappedObject();
 	if(pOverLappedObject==NULL)
 	{
-		PrintNetLog(0xffffffff,_T("(%d)Service¥¥Ω®OverLappedObject ß∞‹£°"),GetID());
+		PrintNetLog(_T("NetLib"),_T("(%d)ServiceÂàõÂª∫OverLappedObjectÂ§±Ë¥•ÔºÅ"),GetID());
 		return FALSE;
 	}
 
@@ -388,8 +397,7 @@ BOOL CNetService::QueryAccept()
 	pOverLappedObject->SetParentID(GetID());
 	
 	static DWORD NumberOfBytes;	
-
-	NumberOfBytes=0;
+		
 	if(m_Socket.AcceptOverlapped(pOverLappedObject->GetAcceptSocket(),
 		pOverLappedObject->GetDataBuff()->GetBuffer(),
 		0,
@@ -397,7 +405,7 @@ BOOL CNetService::QueryAccept()
 	{
 		return TRUE;
 	}
-	PrintNetLog(0xffffffff,_T("(%d)∑¢≥ˆAccept«Î«Û ß∞‹£°"),GetID());
+	PrintNetLog(_T("NetLib"),_T("(%d)ÂèëÂá∫AcceptËØ∑Ê±ÇÂ§±Ë¥•ÔºÅ"),GetID());
 	closesocket(AcceptSocket);
 	GetServer()->DeleteOverLappedObject(pOverLappedObject);
 
@@ -410,7 +418,7 @@ BOOL CNetService::QueryUDPRecv()
 	COverLappedObject * pOverLappedObject=GetServer()->CreateOverLappedObject();
 	if(pOverLappedObject==NULL)
 	{
-		PrintNetLog(0xffffffff,_T("(%d)Service¥¥Ω®»»UDPRecv”√OverLappedObject ß∞‹£°"),GetID());
+		PrintNetLog(_T("NetLib"),_T("(%d)ServiceÂàõÂª∫ÁÉ≠UDPRecvÁî®OverLappedObjectÂ§±Ë¥•ÔºÅ"),GetID());
 		return FALSE;
 	}
 
@@ -434,7 +442,7 @@ BOOL CNetService::QueryUDPRecv()
 	{
 		return TRUE;
 	}
-	PrintNetLog(0xffffffff,_T("(%d)Service∑¢≥ˆUDPRecv«Î«Û ß∞‹£°"),GetID());	
+	PrintNetLog(_T("NetLib"),_T("(%d)ServiceÂèëÂá∫UDPRecvËØ∑Ê±ÇÂ§±Ë¥•ÔºÅ"),GetID());	
 	GetServer()->DeleteOverLappedObject(pOverLappedObject);
 	return FALSE;
 }
@@ -445,11 +453,11 @@ BOOL CNetService::QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int Siz
 	COverLappedObject * pOverLappedObject=GetServer()->CreateOverLappedObject();
 	if(pOverLappedObject==NULL)
 	{
-		PrintNetLog(0xffffffff,_T("(%d)Service¥¥Ω®UDPSend”√OverLappedObject ß∞‹£°"),GetID());
+		PrintNetLog(_T("NetLib"),_T("(%d)ServiceÂàõÂª∫UDPSendÁî®OverLappedObjectÂ§±Ë¥•ÔºÅ"),GetID());
 		return FALSE;
 	}
 
-	pOverLappedObject->SetAddress(IPAddress.GetSockAddr());
+	pOverLappedObject->SetAddress(IPAddress);
 
 	pOverLappedObject->SetType(IO_SEND);	
 	pOverLappedObject->SetIOCPEventRouter(m_pIOCPEventRouter);
@@ -459,7 +467,7 @@ BOOL CNetService::QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int Siz
 	if(!pOverLappedObject->GetDataBuff()->PushBack(pData,Size))
 	{
 		GetServer()->DeleteOverLappedObject(pOverLappedObject);
-		PrintNetLog(0xffffffff,_T("(%d)Service“™∑¢ÀÕµƒ ˝æ›∞¸π˝¥Û£°"),GetID());
+		PrintNetLog(_T("NetLib"),_T("(%d)ServiceË¶ÅÂèëÈÄÅÁöÑÊï∞ÊçÆÂåÖËøáÂ§ßÔºÅ"),GetID());
 		return FALSE;
 	}
 	
@@ -478,7 +486,7 @@ BOOL CNetService::QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int Siz
 	{		
 		return TRUE;
 	}
-	PrintNetLog(0xffffffff,_T("(%d)Service∑¢≥ˆUDPSend«Î«Û ß∞‹£°"),GetID());	
+	PrintNetLog(_T("NetLib"),_T("(%d)ServiceÂèëÂá∫UDPSendËØ∑Ê±ÇÂ§±Ë¥•ÔºÅ"),GetID());	
 	GetServer()->DeleteOverLappedObject(pOverLappedObject);
 	return FALSE;
 }
@@ -493,18 +501,18 @@ BOOL CNetService::AcceptSocket(SOCKET Socket)
 	CIPAddress LocalAddress;
 	CIPAddress RemoteAddress;			
 
-	socklen_t LocalAddressLen=sizeof(sockaddr_in);
-	socklen_t RemoteAddressLen=sizeof(sockaddr_in);
+	socklen_t LocalAddressLen = sizeof(CIPAddress);
+	socklen_t RemoteAddressLen = sizeof(CIPAddress);
 
 	getsockname(Socket,
-		(sockaddr *)&(LocalAddress.GetSockAddr()),
+		LocalAddress.GetSockAddrPtr(),
 		&LocalAddressLen);
 
 	getpeername(Socket,
-		(sockaddr *)&(RemoteAddress.GetSockAddr()),
+		RemoteAddress.GetSockAddrPtr(),
 		&RemoteAddressLen);
 
-	CBaseTCPConnection * pConnection=dynamic_cast<CBaseTCPConnection *>(CreateConnection(RemoteAddress));
+	CBaseNetConnection * pConnection=dynamic_cast<CBaseNetConnection *>(CreateConnection(RemoteAddress));
 	if(pConnection)
 	{
 		if(pConnection->Create(Socket,m_RecvQueueSize,m_SendQueueSize))	
@@ -517,18 +525,18 @@ BOOL CNetService::AcceptSocket(SOCKET Socket)
 				return TRUE;	
 			}
 			else
-				PrintNetLog(0xffffffff,_T("(%d)Service∆Ù∂ØConnection ß∞‹£°"),GetID());
+				PrintNetLog(_T("NetLib"),_T("(%d)ServiceÂêØÂä®ConnectionÂ§±Ë¥•ÔºÅ"),GetID());
 		}
 		else
 		{
-			PrintNetLog(0xffffffff,_T("(%d)Service≥ı ºªØConnection ß∞‹£°"),GetID());
+			PrintNetLog(_T("NetLib"),_T("(%d)ServiceÂàùÂßãÂåñConnectionÂ§±Ë¥•ÔºÅ"),GetID());
 			closesocket(Socket);
 		}
 		DeleteConnection(pConnection);
 	}
 	else
 	{
-		PrintNetLog(0xffffffff,_T("(%d)Servicec¥¥Ω®Connection ß∞‹£°"),GetID());	
+		PrintNetLog(_T("NetLib"),_T("(%d)ServicecÂàõÂª∫ConnectionÂ§±Ë¥•ÔºÅ"),GetID());	
 		closesocket(Socket);
 	}
 	return FALSE;
@@ -537,15 +545,15 @@ BOOL CNetService::AcceptSocket(SOCKET Socket)
 BOOL CNetService::AcceptSocketEx(SOCKET Socket,CEasyBuffer * pAcceptData)
 {
 
-	sockaddr_in * pLocalAddress=NULL;
-	sockaddr_in * pRemoteAddress=NULL;
+	sockaddr * pLocalAddress = NULL;
+	sockaddr * pRemoteAddress = NULL;
 	int LocalAddressLen,RemoteAddressLen;
 
-	GetAcceptExSockaddrs(pAcceptData->GetBuffer(),pAcceptData->GetUsedSize(),
-		sizeof( SOCKADDR_IN) + 16,
-		sizeof( SOCKADDR_IN) + 16,
-		(sockaddr**)&pLocalAddress,&LocalAddressLen,
-		(sockaddr**)&pRemoteAddress,&RemoteAddressLen);
+	GetAcceptExSockaddrs(pAcceptData->GetBuffer(), pAcceptData->GetUsedSize(),
+		sizeof(CIPAddress) + 16,
+		sizeof(CIPAddress) + 16,
+		(sockaddr**)&pLocalAddress, &LocalAddressLen,
+		(sockaddr**)&pRemoteAddress, &RemoteAddressLen);
 
 
 	CIPAddress LocalAddress;
@@ -553,15 +561,15 @@ BOOL CNetService::AcceptSocketEx(SOCKET Socket,CEasyBuffer * pAcceptData)
 
 	if(pLocalAddress)
 	{
-		LocalAddress=*pLocalAddress;
+		LocalAddress.SetAddress(pLocalAddress, LocalAddressLen);
 	}
 
 	if(pRemoteAddress)
 	{
-		RemoteAddress=*pRemoteAddress;
+		RemoteAddress.SetAddress(pRemoteAddress, RemoteAddressLen);
 	}
 
-	CBaseTCPConnection * pConnection=dynamic_cast<CBaseTCPConnection *>(CreateConnection(RemoteAddress));
+	CBaseNetConnection * pConnection=dynamic_cast<CBaseNetConnection *>(CreateConnection(RemoteAddress));
 	if(pConnection)
 	{
 		if(pConnection->Create(Socket,m_RecvQueueSize,m_SendQueueSize))	
@@ -574,18 +582,18 @@ BOOL CNetService::AcceptSocketEx(SOCKET Socket,CEasyBuffer * pAcceptData)
 				return TRUE;	
 			}
 			else
-				PrintNetLog(0xffffffff,_T("(%d)Service∆Ù∂ØConnection ß∞‹£°"),GetID());
+				PrintNetLog(_T("NetLib"),_T("(%d)ServiceÂêØÂä®ConnectionÂ§±Ë¥•ÔºÅ"),GetID());
 		}
 		else
 		{
-			PrintNetLog(0xffffffff,_T("(%d)Service≥ı ºªØConnection ß∞‹£°"),GetID());
+			PrintNetLog(_T("NetLib"),_T("(%d)ServiceÂàùÂßãÂåñConnectionÂ§±Ë¥•ÔºÅ"),GetID());
 			closesocket(Socket);
 		}
 		DeleteConnection(pConnection);
 	}
 	else
 	{
-		PrintNetLog(0xffffffff,_T("(%d)Servicec¥¥Ω®Connection ß∞‹£°"),GetID());	
+		PrintNetLog(_T("NetLib"),_T("(%d)ServicecÂàõÂª∫ConnectionÂ§±Ë¥•ÔºÅ"),GetID());	
 		closesocket(Socket);
 	}
 	return FALSE;

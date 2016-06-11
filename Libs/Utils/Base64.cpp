@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+﻿#include "StdAfx.h"
 
 const char *CBase64::bstr =
 "ABCDEFGHIJKLMNOPQ"

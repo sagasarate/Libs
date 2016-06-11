@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    MySQLConnection.cpp                                      */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    MySQLConnection.cpp                                      */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -93,14 +93,14 @@ int CMySQLConnection::Connect(LPCSTR ConnectStr)
 	if(mysql_real_connect(m_MySQLHandle,Host,User,Password,DB,Port,UnixSocket,
 		Flags)==NULL)
 	{
-		ProcessErrorMsg(NULL,"Á¬½ÓÊ§°Ü\r\n");
+		ProcessErrorMsg(NULL,"è¿æ¥å¤±è´¥\r\n");
 		return DBERR_MYSQL_CONNECTFAIL;
 	}
 
 	if(CharSetStr[0])
 	{
 		if(mysql_set_character_set(m_MySQLHandle,CharSetStr))
-			ProcessErrorMsg(NULL,"ÉèÖÃ×Ö·û¼¯Ê§°Ü\r\n");
+			ProcessErrorMsg(NULL,"è®¾ç½®å­—ç¬¦é›†å¤±è´¥\r\n");
 	}
 
 	return DBERR_SUCCEED;
@@ -201,7 +201,7 @@ int CMySQLConnection::GetAffectedRowCount()
 	int RowCount=(int)mysql_affected_rows(m_MySQLHandle);
 	if(RowCount==-1)
 	{
-		ProcessErrorMsg(NULL,"»ñÈ¡Ó°ÏìĞĞÊıÊ§°Ü\r\n");
+		ProcessErrorMsg(NULL,"è·å–å½±å“è¡Œæ•°å¤±è´¥\r\n");
 	}
 	return RowCount;
 }
@@ -212,7 +212,7 @@ int CMySQLConnection::EnableTransaction(BOOL IsEnable)
 		return DBERR_MYSQL_WANTCONNECT;
 	if(mysql_autocommit(m_MySQLHandle,!IsEnable))
 	{
-		ProcessErrorMsg(NULL,"ÉèÖÃÊÂÎñÊ§°Ü\r\n");
+		ProcessErrorMsg(NULL,"è®¾ç½®äº‹åŠ¡å¤±è´¥\r\n");
 		return DBERR_MYSQL_ENABLETRANSACTIONFAIL;
 	}
 	return DBERR_SUCCEED;
@@ -223,7 +223,7 @@ int CMySQLConnection::Commit()
 		return DBERR_MYSQL_WANTCONNECT;
 	if(mysql_commit(m_MySQLHandle))
 	{
-		ProcessErrorMsg(NULL,"Ìá½»ÊÂÎñÊ§°Ü\r\n");
+		ProcessErrorMsg(NULL,"æäº¤äº‹åŠ¡å¤±è´¥\r\n");
 		return DBERR_MYSQL_COMMITFAIL;
 	}
 	return DBERR_SUCCEED;
@@ -234,7 +234,7 @@ int CMySQLConnection::RollBack()
 		return DBERR_MYSQL_WANTCONNECT;
 	if(mysql_rollback(m_MySQLHandle))
 	{
-		ProcessErrorMsg(NULL,"»Ø¹öÊÂÎñÊ§°Ü\r\n");
+		ProcessErrorMsg(NULL,"å›æ»šäº‹åŠ¡å¤±è´¥\r\n");
 		return DBERR_MYSQL_ROLLBACKFAIL;
 	}
 	return DBERR_SUCCEED;
@@ -259,11 +259,11 @@ void CMySQLConnection::ProcessErrorMsg(MYSQL_STMT_HANDLE hStmt,LPCSTR Msg)
 {
 	if(hStmt)
 	{
-		PrintDBLog(0xff,"%s %s\r\n",Msg,mysql_stmt_error(hStmt));
+		PrintDBLog(_T("DBLib"),"%s %s\r\n",Msg,mysql_stmt_error(hStmt));
 	}
 	else
 	{
-		PrintDBLog(0xff,"%s %s\r\n",Msg,mysql_error(m_MySQLHandle));
+		PrintDBLog(_T("DBLib"),"%s %s\r\n",Msg,mysql_error(m_MySQLHandle));
 	}
 
 }
@@ -290,7 +290,7 @@ int CMySQLConnection::FetchStaticResult(CDBStaticRecordSet * pDBRecordset)
 				return DBERR_NO_RECORDS;
 			else
 			{
-				ProcessErrorMsg(NULL,"ÌáÈ¡½á¹û¼¯Ê§°Ü\r\n");
+				ProcessErrorMsg(NULL,"æå–ç»“æœé›†å¤±è´¥\r\n");
 				return DBERR_FETCH_RESULT_FAIL;
 			}
 		}
@@ -298,7 +298,7 @@ int CMySQLConnection::FetchStaticResult(CDBStaticRecordSet * pDBRecordset)
 
 
 
-	//¼ÆËãÊı¾İ¼¯´óĞ¡
+	//è®¡ç®—æ•°æ®é›†å¤§å°
 	int ColNum=mysql_num_fields(hResults);
 
 	if(ColNum<=0)
@@ -325,7 +325,7 @@ int CMySQLConnection::FetchStaticResult(CDBStaticRecordSet * pDBRecordset)
 	DataSize+=1024;
 	ResultBuff.Create(DataSize);
 
-	//»ñÈ¡½á¹û¼¯ÁĞĞÅÏ¢
+	//è·å–ç»“æœé›†åˆ—ä¿¡æ¯
 	ResultBuff.PushBack(&ColNum,sizeof(int));
 	int RecordLineLen=0;
 	if(ResultBuff.GetFreeSize()<sizeof(DB_COLUMN_INFO)*ColNum)
@@ -383,7 +383,7 @@ int CMySQLConnection::FetchResult(CMySQLRecordSet * pDBRecordset)
 			return DBERR_NO_RECORDS;
 		else
 		{
-			ProcessErrorMsg(NULL,"ÌáÈ¡½á¹û¼¯Ê§°Ü\r\n");
+			ProcessErrorMsg(NULL,"æå–ç»“æœé›†å¤±è´¥\r\n");
 			return DBERR_FETCH_RESULT_FAIL;
 		}
 	}
@@ -632,7 +632,7 @@ UINT CMySQLConnection::GetMySQLTypeBinLength(int Type,UINT Size,UINT DitigalSize
 }
 
 
-BOOL CMySQLConnection::MySQLStrValueToDBValue(int ValueType,LPCVOID pData,int DataSize,int DBType,int DitigalSize,CDBValue& DBValue)
+BOOL CMySQLConnection::MySQLStrValueToDBValue(int ValueType, LPCVOID pData, UINT DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue)
 {
 #pragma warning (push)
 #pragma warning (disable : 4996)
@@ -703,7 +703,7 @@ BOOL CMySQLConnection::MySQLStrValueToDBValue(int ValueType,LPCVOID pData,int Da
 		{
 			DBValue.SetEmptyValue(DBType,0,DitigalSize);
 			DB_TIMESTAMP * pValue=(DB_TIMESTAMP *)DBValue.GetBuffer();
-			int Ret=sscanf((LPCSTR)pData,"%hd-%hd-%hd %hd:%hd:%hd.%d",
+			int Ret=sscanf((LPCSTR)pData,"%hd-%hd-%hd %hd:%hd:%hd.%u",
 				&pValue->year,&pValue->month,&pValue->day,
 				&pValue->hour,&pValue->minute,&pValue->second,
 				&pValue->fraction);
@@ -757,7 +757,7 @@ BOOL CMySQLConnection::MySQLStrValueToDBValue(int ValueType,LPCVOID pData,int Da
 
 }
 
-BOOL CMySQLConnection::DBValueToMySQLBinValue(int Type,LPCVOID pDBValue,int DBValueSize,LPVOID pData,int DataSize)
+BOOL CMySQLConnection::DBValueToMySQLBinValue(int Type, LPCVOID pDBValue, UINT DBValueSize, LPVOID pData, UINT DataSize)
 {
 	switch(Type)
 	{
@@ -870,7 +870,7 @@ BOOL CMySQLConnection::DBValueToMySQLBinValue(int Type,LPCVOID pDBValue,int DBVa
 	return FALSE;
 }
 
-BOOL CMySQLConnection::MySQLBinValueToDBValue(int Type,LPCVOID pData,int DataSize,int DBType,int DitigalSize,CDBValue& DBValue)
+BOOL CMySQLConnection::MySQLBinValueToDBValue(int Type, LPCVOID pData, UINT DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue)
 {
 	switch(Type)
 	{
@@ -982,7 +982,7 @@ int CMySQLConnection::ExecuteSQLDirect(LPCSTR SQLStr,int StrLen)
 		StrLen=(int)strlen(SQLStr);
 	if(mysql_real_query(m_MySQLHandle,SQLStr,StrLen))
 	{
-		ProcessErrorMsg(NULL,"Ö´ĞĞSQLÊ§°Ü\r\n");
+		ProcessErrorMsg(NULL,"æ‰§è¡ŒSQLå¤±è´¥\r\n");
 		return DBERR_EXE_SQL_FAIL;
 	}
 
@@ -1007,7 +1007,7 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 	m_MySQLStmt=mysql_stmt_init(m_MySQLHandle);
 	if(m_MySQLStmt==NULL)
 	{
-		ProcessErrorMsg(NULL,"·ÖÅä»·¾³¾ä±úÊ§°Ü\r\n");
+		ProcessErrorMsg(NULL,"åˆ†é…ç¯å¢ƒå¥æŸ„å¤±è´¥\r\n");
 		return DBERR_SQLALLOCHANDLEFAIL;
 	}
 
@@ -1016,7 +1016,7 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 		StrLen=(int)strlen(SQLStr);
 	if(mysql_stmt_prepare(m_MySQLStmt,SQLStr,StrLen))
 	{
-		ProcessErrorMsg(m_MySQLStmt,"×¼±¸SQLÊ§°Ü\r\n");
+		ProcessErrorMsg(m_MySQLStmt,"å‡†å¤‡SQLå¤±è´¥\r\n");
 		return DBERR_EXE_SQL_FAIL;
 	}
 	CEasyArray<MYSQL_BIND> ParamList;
@@ -1028,13 +1028,13 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 	{
 		if(pParamSet==NULL)
 		{
-			ProcessErrorMsg(m_MySQLStmt,"Ã»ÓĞ×ã¹»µÄ²ÎÊı\r\n");
+			ProcessErrorMsg(m_MySQLStmt,"æ²¡æœ‰è¶³å¤Ÿçš„å‚æ•°\r\n");
 			return DBERR_NOTENOUGHPARAM;
 		}
 
 		if(ParamNum>(UINT)pParamSet->GetCount())
 		{
-			ProcessErrorMsg(m_MySQLStmt,"Ã»ÓĞ×ã¹»µÄ²ÎÊı\r\n");
+			ProcessErrorMsg(m_MySQLStmt,"æ²¡æœ‰è¶³å¤Ÿçš„å‚æ•°\r\n");
 			return DBERR_NOTENOUGHPARAM;
 		}
 
@@ -1043,7 +1043,7 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 		ParamList.Resize(ParamNum);
 		ZeroMemory(&(ParamList[0]),sizeof(MYSQL_BIND)*ParamNum);
 
-		//¼ÆËã²ÎÊıĞèÒªµÄ»º³å´óĞ¡
+		//è®¡ç®—å‚æ•°éœ€è¦çš„ç¼“å†²å¤§å°
 		UINT ParamBufferSize=0;
 		for(UINT i=0;i<ParamNum;i++)
 		{
@@ -1052,7 +1052,7 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 			ParamList[i].buffer_type=(enum_field_types)DBLibTypeToMySQLType(pParamSet->GetParamInfo(i)->Type,Size,DigitalSize);
 			ParamBufferSize+=Size+sizeof(ULONG)+sizeof(my_bool);
 		}
-		//×ª»»ÄÚÈİµ½»º³å
+		//è½¬æ¢å†…å®¹åˆ°ç¼“å†²
 		ParamBuffer.Create(ParamBufferSize);
 		for(UINT i=0;i<ParamNum;i++)
 		{
@@ -1091,21 +1091,21 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 			}
 		}
 
-		//°ó¶¨²ÎÊı
+		//ç»‘å®šå‚æ•°
 		if(mysql_stmt_bind_param(m_MySQLStmt,&(ParamList[0])))
 		{
-			ProcessErrorMsg(m_MySQLStmt,"°ó¶¨²ÎÊıÊ§°Ü\r\n");
+			ProcessErrorMsg(m_MySQLStmt,"ç»‘å®šå‚æ•°å¤±è´¥\r\n");
 			return DBERR_BINDPARAMFAIL;
 		}
 	}
 	if(mysql_stmt_execute(m_MySQLStmt))
 	{
-		ProcessErrorMsg(m_MySQLStmt,"Ö´ĞĞSQLÊ§°Ü\r\n");
+		ProcessErrorMsg(m_MySQLStmt,"æ‰§è¡ŒSQLå¤±è´¥\r\n");
 		return DBERR_EXE_SQL_FAIL;
 	}
 	if(ParamNum)
 	{
-		//´Ó»º³å½«ÄÚÈİ×ª»»³öÀ´
+		//ä»ç¼“å†²å°†å†…å®¹è½¬æ¢å‡ºæ¥
 		for(UINT i=0;i<ParamNum;i++)
 		{
 			if(pParamSet->GetParamInfo(i)->ParamType==DB_PARAM_TYPE_OUTPUT||

@@ -175,6 +175,11 @@ LUA_API void lua_reset_state(lua_State *L)
 	setnilvalue(L->top++);  /* 'function' entry for this 'ci' */
 	//ci->top = L->top + LUA_MINSTACK;
 	L->ci = ci;
+
+	L->errorJmp = NULL;
+	L->nCcalls = 0;
+	L->nny = 1;
+	L->errfunc = 0;
 }
 
 

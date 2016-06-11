@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DOSClient.cpp                                            */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ15ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSClient.cpp                                            */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ15æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -18,6 +18,7 @@ CDOSClient::CDOSClient(void)
 	m_KeepAliveCount=0;
 	m_MaxKeepAliveCount=10;
 	m_KeepAliveTime=30000;
+	m_RecentPingDelay = 0;
 
 	m_MsgCompressType=MSG_COMPRESS_LZO;
 }
@@ -44,6 +45,7 @@ BOOL CDOSClient::Start(UINT SendBufferSize,UINT AssembleBufferSize,const CIPAddr
 
 	m_KeepAliveTimer.SaveTime();
 	m_KeepAliveCount=0;
+	m_RecentPingDelay = 0;
 	return CNetConnection::Connect(Address,TimeOut);
 }
 
@@ -128,6 +130,11 @@ BOOL CDOSClient::UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyT
 	return FALSE;
 }
 
+BOOL CDOSClient::SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType)
+{
+	return FALSE;
+}
+
 BOOL CDOSClient::AddConcernedObject(OBJECT_ID ObjectID,bool NeedTest)
 {
 	return FALSE;
@@ -188,7 +195,7 @@ void CDOSClient::OnRecvData(const BYTE * pData, UINT DataSize)
 	if (DataSize>m_AssembleBuffer.GetFreeSize())
 	{
 		Close();
-		PrintDOSLog(0xff0000,_T("(%d)Æ´°ü»º³åÒç³ö£¬Á¬½Ó¶Ï¿ª£¡"),GetID());
+		PrintDOSLog(_T("DOSLib"),_T("(%d)æ‹¼åŒ…ç¼“å†²æº¢å‡ºï¼Œè¿æ¥æ–­å¼€ï¼"),GetID());
 		return;
 	}
 	m_AssembleBuffer.PushBack(pData, DataSize);
@@ -198,12 +205,13 @@ void CDOSClient::OnRecvData(const BYTE * pData, UINT DataSize)
 		if(PacketSize<sizeof(CDOSSimpleMessage::GetMsgHeaderLength()))
 		{
 			Close();
-			PrintDOSLog(0xff0000,_T("(%d)ÊÕµ½·Ç·¨°ü£¬Á¬½Ó¶Ï¿ª£¡"),GetID());
+			PrintDOSLog(_T("DOSLib"),_T("(%d)æ”¶åˆ°éæ³•åŒ…ï¼Œè¿æ¥æ–­å¼€ï¼"),GetID());
 		}
 		CDOSSimpleMessage * pMsg=(CDOSSimpleMessage *)m_AssembleBuffer.GetBuffer();
-		if(pMsg->GetMsgFlag()&DOS_MESSAGE_FLAG_COMPRESSED)
+		
+		if (pMsg->GetMsgFlag()&DOS_MESSAGE_FLAG_COMPRESSED)
 		{
-			switch(m_MsgCompressType)
+			switch (m_MsgCompressType)
 			{
 			case MSG_COMPRESS_ZIP_FAST:
 			case MSG_COMPRESS_ZIP_NORMAL:
@@ -222,45 +230,42 @@ void CDOSClient::OnRecvData(const BYTE * pData, UINT DataSize)
 				//	else
 				//	{
 				//		Close();
-				//		PrintDOSLog(0xff0000,_T("(%dÏûÏ¢zip½âÑ¹ËõÊ§°Ü£¬Á¬½Ó¶Ï¿ª£¡"),GetID());
+				//		PrintDOSLog(_T("DOSLib"),_T("(%dæ¶ˆæ¯zipè§£å‹ç¼©å¤±è´¥ï¼Œè¿æ¥æ–­å¼€ï¼"),GetID());
 				//	}
 				//}
 				break;
 			default:
+			{
+				CDOSSimpleMessage * pNewMsg = (CDOSSimpleMessage *)m_SendBuffer.GetBuffer();
+				pNewMsg->GetMsgHeader() = pMsg->GetMsgHeader();
+				lzo_uint OutLen = m_SendBuffer.GetBufferSize() - sizeof(CDOSSimpleMessage::DOS_SIMPLE_MESSAGE_HEAD);
+				int Result = lzo1x_decompress_safe((BYTE *)pMsg->GetDataBuffer(), pMsg->GetDataLength(),
+					(BYTE *)pNewMsg->GetDataBuffer(), &OutLen,
+					NULL);
+				if (Result == LZO_E_OK)
 				{
-					CDOSSimpleMessage * pNewMsg=(CDOSSimpleMessage *)m_SendBuffer.GetBuffer();
-					pNewMsg->GetMsgHeader()=pMsg->GetMsgHeader();
-					lzo_uint OutLen=m_SendBuffer.GetBufferSize()-sizeof(CDOSSimpleMessage::DOS_SIMPLE_MESSAGE_HEAD);
-					int Result=lzo1x_decompress_safe((BYTE *)pMsg->GetDataBuffer(),pMsg->GetDataLength(),
-						(BYTE *)pNewMsg->GetDataBuffer(),&OutLen,
-						NULL);
-					if(Result==LZO_E_OK)
-					{
-						pNewMsg->SetDataLength(OutLen);
-						OnDOSMessage(pNewMsg);
-					}
-					else
-					{
-						Close();
-						PrintDOSLog(0xff0000,_T("(%dÏûÏ¢lzo½âÑ¹ËõÊ§°Ü£¬Á¬½Ó¶Ï¿ª£¡"),GetID());
-					}
+					pNewMsg->SetDataLength((MSG_LEN_TYPE)OutLen);
+					pMsg = pNewMsg;
 				}
-				break;
+				else
+				{
+					Close();
+					PrintDOSLog(_T("DOSLib"), _T("(%dæ¶ˆæ¯lzoè§£å‹ç¼©å¤±è´¥ï¼Œè¿æ¥æ–­å¼€ï¼"), GetID());
+				}
 			}
+			break;
+			}
+		}
 
+		if (pMsg->GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
+		{
+			OnSystemMessage(pMsg);
 		}
 		else
 		{
-			switch(pMsg->GetMsgID())
-			{
-			case DSM_PROXY_KEEP_ALIVE:
-				m_KeepAliveCount=0;
-				break;
-			default:
-				OnDOSMessage(pMsg);
-			}
+			OnDOSMessage(pMsg);
 		}
-
+		m_KeepAliveCount = 0;
 		m_AssembleBuffer.PopFront(NULL,PacketSize);
 		PeekPos=0;
 		PacketSize=0;
@@ -270,7 +275,26 @@ void CDOSClient::OnRecvData(const BYTE * pData, UINT DataSize)
 
 BOOL CDOSClient::OnDOSMessage(CDOSSimpleMessage * pMessage)
 {
-	return TRUE;
+	return FALSE;
+}
+
+BOOL CDOSClient::OnSystemMessage(CDOSSimpleMessage * pMessage)
+{
+	switch (pMessage->GetMsgID())
+	{
+	case DSM_PROXY_KEEP_ALIVE_PING:
+		pMessage->SetMsgID(DSM_PROXY_KEEP_ALIVE_PONG);
+		Send(pMessage, pMessage->GetMsgLength());
+		return TRUE;
+	case DSM_PROXY_KEEP_ALIVE_PONG:
+		if (pMessage->GetDataLength() >= sizeof(PING_DATA))
+		{
+			PING_DATA * pPingData = (PING_DATA *)pMessage->GetDataBuffer();
+			m_RecentPingDelay = GetTimeToTime(pPingData->Time, CEasyTimer::GetTime());
+		}
+		return TRUE;
+	}
+	return FALSE;
 }
 
 int CDOSClient::Update(int ProcessPacketLimit)
@@ -281,11 +305,27 @@ int CDOSClient::Update(int ProcessPacketLimit)
 		m_KeepAliveCount++;
 		if(m_KeepAliveCount>=m_MaxKeepAliveCount)
 		{
-			PrintDOSLog(0xff0000,_T("CDOSClient::Update:KeepAlive³¬Ê±£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("CDOSClient::Update:KeepAliveè¶…æ—¶ï¼"));
 			m_KeepAliveCount=0;
 			Disconnect();
 		}
-		SendMessage(0,DSM_PROXY_KEEP_ALIVE);
+		SendKeepAlivePing();
 	}
 	return CNetConnection::Update(ProcessPacketLimit);
+}
+
+void CDOSClient::SendKeepAlivePing()
+{
+	CDOSSimpleMessage * pSimpleMessage = (CDOSSimpleMessage *)m_SendBuffer.GetBuffer();
+	m_SendBuffer.PushBack(NULL, CDOSSimpleMessage::GetMsgHeaderLength());
+
+	pSimpleMessage->Init();
+	pSimpleMessage->SetMsgID(DSM_PROXY_KEEP_ALIVE_PING);
+	pSimpleMessage->SetMsgFlag(DOS_MESSAGE_FLAG_SYSTEM_MESSAGE);
+	pSimpleMessage->SetDataLength(sizeof(sizeof(PING_DATA)));
+	PING_DATA * pPingData = (PING_DATA *)pSimpleMessage->GetDataBuffer();
+	pPingData->Time = CEasyTimer::GetTime();
+	pPingData->RecentDelay = m_RecentPingDelay;	
+
+	Send(pSimpleMessage, pSimpleMessage->GetMsgLength());
 }

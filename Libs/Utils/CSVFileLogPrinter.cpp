@@ -1,4 +1,4 @@
-#include "stdafx.h"
+Ôªø#include "stdafx.h"
 
 
 CCSVFileLogPrinter::CCSVFileLogPrinter(void)
@@ -23,7 +23,7 @@ bool CCSVFileLogPrinter::Init(int Level,LPCTSTR FileName,LPCTSTR LogHeader,int F
 
 	return true;
 }
-void CCSVFileLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
+void CCSVFileLogPrinter::PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg)
 {
 	try
 	{
@@ -41,7 +41,12 @@ void CCSVFileLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
 			CurTime.Month(), CurTime.Day(),
 			CurTime.Hour(), CurTime.Minute(), CurTime.Second());
 
-
+		if (Tag)
+		{
+			_tcsncat_s(MsgBuff, 5000, Tag, _TRUNCATE);			
+		}
+		_tcsncat_s(MsgBuff, 5000, _T(","), _TRUNCATE);
+		
 		_tcsncat_s(MsgBuff, 5000, Msg, _TRUNCATE);
 		_tcsncat_s(MsgBuff, 5000, _T("\r\n"), _TRUNCATE);
 
@@ -51,10 +56,10 @@ void CCSVFileLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
 	}
 	catch (...)
 	{
-		PrintImportantLog(0, _T("Log[%s] ‰≥ˆ∑¢…˙“Ï≥£[%s]"), (LPCTSTR)m_LogFileName, Msg);
+		PrintImportantLog(0, _T("Log[%s]ËæìÂá∫ÂèëÁîüÂºÇÂ∏∏[%s]"), (LPCTSTR)m_LogFileName, Msg);
 	}
 }
-void CCSVFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl)
+void CCSVFileLogPrinter::PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl)
 {
 	try
 	{
@@ -72,8 +77,15 @@ void CCSVFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list
 			CurTime.Month(),CurTime.Day(),
 			CurTime.Hour(),CurTime.Minute(),CurTime.Second());
 
+		if (Tag)
+		{
+			_tcsncat_s(MsgBuff, 5000, Tag, _TRUNCATE);
+		}
+		_tcsncat_s(MsgBuff, 5000, _T(","), _TRUNCATE);
 
-		_vstprintf_s(MsgBuff+17,4096-17,Format, vl );
+		size_t PrefixLen = _tcslen(MsgBuff);
+
+		_vstprintf_s(MsgBuff + PrefixLen, 4096 - PrefixLen, Format, vl);
 		MsgBuff[4095]=0;
 		_tcsncat_s(MsgBuff, 5000, _T("\r\n"), _TRUNCATE);
 
@@ -83,6 +95,6 @@ void CCSVFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list
 	}
 	catch(...)
 	{
-		PrintImportantLog(0,_T("Log[%s] ‰≥ˆ∑¢…˙“Ï≥£[%s]"),(LPCTSTR)m_LogFileName,Format);
+		PrintImportantLog(0,_T("Log[%s]ËæìÂá∫ÂèëÁîüÂºÇÂ∏∏[%s]"),(LPCTSTR)m_LogFileName,Format);
 	}
 }

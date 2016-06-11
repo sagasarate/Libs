@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DOSProxyConnection.h                                     */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSProxyConnection.h                                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -17,6 +17,30 @@ class CDOSProxyConnection :
 	public CNetConnection
 {
 protected:
+	enum WEB_SOCKET_STATUS
+	{
+		WEB_SOCKET_STATUS_NONE,
+		WEB_SOCKET_STATUS_ACCEPTED,
+	};
+	enum HTTP_REQUEST_PARSE_STATUS
+	{
+		HRPS_NONE,
+		HRPS_RETURN1,
+		HRPS_NEW_LINE1,
+		HRPS_RETURN2,
+		HRPS_NEW_LINE2,
+	};
+
+	enum WEB_SOCKET_OP_CODE
+	{
+		WEB_SOCKET_OP_CODE_CONTINUOUS_DATA = 0x00,
+		WEB_SOCKET_OP_CODE_TEXT_DATA = 0x01,
+		WEB_SOCKET_OP_CODE_BINARY_DATA = 0x02,
+		WEB_SOCKET_OP_CODE_CLOSE = 0x08,
+		WEB_SOCKET_OP_CODE_KEEP_ALIVE_PING = 0x09,
+		WEB_SOCKET_OP_CODE_KEEP_ALIVE_PONG = 0x0A,
+	};
+
 	OBJECT_ID									m_ObjectID;
 	CDOSObjectProxyService						*m_pService;
 
@@ -36,6 +60,8 @@ protected:
 
 	static CEasyBuffer							m_CompressBuffer;
 
+	bool										m_UseWebSocketProtocol;
+	WEB_SOCKET_STATUS							m_WebSocketStatus;
 
 	DECLARE_CLASS_INFO_STATIC(CDOSProxyConnection);
 public:
@@ -59,6 +85,7 @@ public:
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 protected:
 	CDOSServer * GetServer();	
+	BOOL OnSystemMessage(CDOSMessagePacket * pPacket);
 	BOOL SendInSideMsg(MSG_ID_TYPE MsgID,LPVOID pData=NULL,UINT DataSize=0);	
 	BOOL SendOutSideMsg(CDOSMessagePacket * pPacket);
 	BOOL SendDisconnectNotify();
@@ -71,6 +98,17 @@ protected:
 	void ClearMsgMapByRouterID(UINT RouterID);
 
 	CDOSSimpleMessage * CompressMsg(CDOSSimpleMessage * pMsg);
+
+	void ProcessHTTPMsg(const BYTE * pData, UINT DataSize);
+	void OnHTTPRequest(const char * szRequest);
+	void SendHTTPRespond(int Code, LPCSTR szContent);
+	void ParseStringLines(char * szStr, CEasyArray<char *>& StrLines);
+	void ProcessWebSocketData(const BYTE * pData, UINT DataSize);
+	void OnWebSocketFrame(BYTE OPCode, bool IsFinFrame, bool HaveMask, BYTE * MaskKey, BYTE * pFrameData, UINT FrameLen, UINT DataPos);
+	void SendWebSocketCloseMsg();
+	void SendWebSocketPingMsg();
+	BOOL SendMsgByWebSocket(CDOSSimpleMessage * pSimpleMessage);
+	BOOL SendWebSocketFrame(WEB_SOCKET_OP_CODE OPCode, BYTE * pData, UINT DataLen);
 };
 
 inline OBJECT_ID CDOSProxyConnection::GetObjectID()

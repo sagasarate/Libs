@@ -1,4 +1,4 @@
-#include "stdafx.h"
+Ôªø#include "stdafx.h"
 
 
 CThreadPerformanceCounter::CThreadPerformanceCounter(void)
@@ -35,7 +35,7 @@ void CThreadPerformanceCounter::Init(HANDLE ThreadHandle,UINT CountIntervalTime)
 		&CreationTime,&ExitTime,
 		&KernelTime,&UserTime))
 	{
-		PrintSystemLog(0,_T("ªÒ»°œﬂ≥ÃCPU ±º‰ ß∞‹%d"),GetLastError());
+		PrintSystemLog(0,_T("Ëé∑ÂèñÁ∫øÁ®ãCPUÊó∂Èó¥Â§±Ë¥•%d"),GetLastError());
 	}
 	m_StartCPUUsedTime=((UINT64)KernelTime.dwLowDateTime)|(((UINT64)KernelTime.dwHighDateTime)<<32);
 	m_StartCPUUsedTime+=((UINT64)UserTime.dwLowDateTime)|(((UINT64)UserTime.dwHighDateTime)<<32);
@@ -71,7 +71,7 @@ void CThreadPerformanceCounter::DoPerformanceCount()
 				&CreationTime,&ExitTime,
 				&KernelTime,&UserTime))
 			{
-				PrintSystemLog(0,_T("ªÒ»°œﬂ≥ÃCPU ±º‰ ß∞‹%d"),GetLastError());
+				PrintSystemLog(0,_T("Ëé∑ÂèñÁ∫øÁ®ãCPUÊó∂Èó¥Â§±Ë¥•%d"),GetLastError());
 			}
 			CurCPUUsedTime=((UINT64)KernelTime.dwLowDateTime)|(((UINT64)KernelTime.dwHighDateTime)<<32);
 			CurCPUUsedTime+=((UINT64)UserTime.dwLowDateTime)|(((UINT64)UserTime.dwHighDateTime)<<32);

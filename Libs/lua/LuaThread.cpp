@@ -141,7 +141,7 @@ bool CLuaThread::Prepare(CBaseScriptHost * pObject, LPCSTR szFunctionName)
 
 	if (!lua_isfunction(m_pLuaThread, -1))
 	{
-		lua_pop(m_pLuaThread, 1);
+		lua_pop(m_pLuaThread, 3);
 		LogLua(_T("CLuaScriptPool::InitLuaThread:Luaº¯Êý%sÎ´ÕÒµ½"),szFunctionName);
 		return false;
 	}

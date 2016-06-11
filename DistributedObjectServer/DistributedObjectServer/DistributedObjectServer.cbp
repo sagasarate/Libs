@@ -6,7 +6,7 @@
 		<Option platforms="Unix;" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="主程序/;主线程/;主配置/;服务器线程/;逻辑对象插件/;预编译/;" />
+		<Option virtualFolders="主程序/;主线程/;主配置/;服务器线程/;逻辑对象插件/;预编译/;客户端代理插件/;" />
 		<Build>
 			<Target title="Debug">
 				<Option platforms="Unix;" />
@@ -50,15 +50,12 @@
 				</Linker>
 			</Target>
 		</Build>
-		<Compiler>
-			<Add option="-fPIE" />
-		</Compiler>
 		<Linker>
 			<Add option="-static-libgcc" />
 			<Add option="-static-libstdc++" />
 			<Add option="-rdynamic" />
-			<Add library="../../Libs/MonoWrapper/lib/x64/libmono.a" />
-			<Add library="uuid" />
+			<Add option="-Wl,-Bstatic -luuid -Wl,-Bdynamic" />
+			<Add library="../../Libs/MonoWrapper/lib/x64/libmonosgen-2.0.a" />
 			<Add library="pthread" />
 			<Add library="rt" />
 			<Add library="dl" />
@@ -80,6 +77,18 @@
 		</Unit>
 		<Unit filename="DOSMainThread.h">
 			<Option virtualFolder="主线程/" />
+		</Unit>
+		<Unit filename="DOSObjectProxyConnectionCustom.cpp">
+			<Option virtualFolder="客户端代理插件/" />
+		</Unit>
+		<Unit filename="DOSObjectProxyConnectionCustom.h">
+			<Option virtualFolder="客户端代理插件/" />
+		</Unit>
+		<Unit filename="DOSObjectProxyServiceCustom.cpp">
+			<Option virtualFolder="客户端代理插件/" />
+		</Unit>
+		<Unit filename="DOSObjectProxyServiceCustom.h">
+			<Option virtualFolder="客户端代理插件/" />
 		</Unit>
 		<Unit filename="DOSServerThread.cpp">
 			<Option virtualFolder="服务器线程/" />

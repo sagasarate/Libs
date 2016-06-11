@@ -1,25 +1,25 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    NetServerIOCP.cpp                                        */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    NetServerIOCP.cpp                                        */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
 
-IMPLEMENT_CLASS_INFO_STATIC(CNetServer,CBaseServer);
+IMPLEMENT_CLASS_INFO_STATIC(CNetServer,CBaseNetServer);
 
-CNetServer::CNetServer(void):CBaseServer()
+CNetServer::CNetServer(void):CBaseNetServer()
 {
 	CNetSocket::NetStartup();
 	m_hIOCP=NULL;	
 	m_pIOCPThreads=NULL;	
 	m_IOCPThreadCount=0;
-	m_IOCPObjectPoolSize=MAX_EVENT_OBJECT;
+	m_IOCPObjectPoolSize=DEFAULT_EVENT_OBJECT_COUNT;
 	m_IOCPObjectPoolGrowSize=DEFAULT_EVENT_OBJECT_POOL_GROW_SIZE;
 	m_IOCPObjectPoolGrowLimit=DEFAULT_EVENT_OBJECT_POOL_GROW_LIMIT;
 	m_EventRouterPoolSize=DEFAULT_EVENT_ROUTER_COUNT;
@@ -59,7 +59,7 @@ void CNetServer::ShutDown(DWORD Milliseconds)
 
 BOOL CNetServer::OnStart()
 {
-	if(!CBaseServer::OnStart())
+	if(!CBaseNetServer::OnStart())
 		return FALSE;
 
 	if(m_hIOCP!=NULL)
@@ -73,7 +73,7 @@ BOOL CNetServer::OnStart()
 	m_hIOCP = CreateIoCompletionPort( INVALID_HANDLE_VALUE, NULL, 0, 0 );
 	if( m_hIOCP == NULL )
 	{
-		PrintNetLog(0xffffffff,_T("(%d)´´½¨Íê³É¶Ë¿ÚÊ§°Ü(%d)£¡"),GetID(),GetLastError());		
+		PrintNetLog(_T("NetLib"),_T("(%d)åˆ›å»ºå®Œæˆç«¯å£å¤±è´¥(%d)ï¼"),GetID(),GetLastError());		
 		return FALSE;
 	}
 
@@ -97,7 +97,7 @@ BOOL CNetServer::OnStart()
 
 BOOL CNetServer::OnRun()
 {
-	if(!CBaseServer::OnRun())
+	if(!CBaseNetServer::OnRun())
 		return FALSE;
 
 	if(Update()==0)
@@ -125,7 +125,7 @@ void CNetServer::OnTerminate()
 	m_hIOCP = NULL;	
 	if(m_OverLappedObjectPool.GetObjectCount())
 	{		
-		PrintNetLog(0xffffffff,_T("(%d)¹Ø±Õ£¬¿ªÊ¼Í³¼ÆOverLappedObjectÊ¹ÓÃ×´¿ö£¡"),GetID());
+		PrintNetLog(_T("NetLib"),_T("(%d)å…³é—­ï¼Œå¼€å§‹ç»Ÿè®¡OverLappedObjectä½¿ç”¨çŠ¶å†µï¼"),GetID());
 		PrintObjectStatus();
 	}
 
@@ -146,13 +146,13 @@ COverLappedObject * CNetServer::CreateOverLappedObject()
 	{
 		if(pOverLappedObject->GetParentID())
 		{
-			PrintImportantLog(0,_T("·ÖÅäÁËÎ´ÊÍ·ÅµÄOverLappedObject"));
+			PrintImportantLog(0,_T("åˆ†é…äº†æœªé‡Šæ”¾çš„OverLappedObject"));
 		}
 		pOverLappedObject->Create(this);
 		
 		return pOverLappedObject;
 	}
-	PrintNetLog(0xffffffff,_T("(%d)ServerÎŞ·¨´´½¨COverLappedObject£¡"),GetID());
+	PrintNetLog(_T("NetLib"),_T("(%d)Serveræ— æ³•åˆ›å»ºCOverLappedObjectï¼"),GetID());
 
 
 
@@ -164,7 +164,7 @@ BOOL CNetServer::DeleteOverLappedObject(COverLappedObject * pOverLappedObject)
 	pOverLappedObject->Destory();
 	if(!m_OverLappedObjectPool.DeleteObject(pOverLappedObject->GetID()))
 	{
-		PrintNetLog(0xffffffff,_T("(%d)ServerÎŞ·¨É¾³ıCOverLappedObject(%d)£¡"),GetID(),pOverLappedObject->GetID());
+		PrintNetLog(_T("NetLib"),_T("(%d)Serveræ— æ³•åˆ é™¤COverLappedObject(%d)ï¼"),GetID(),pOverLappedObject->GetID());
 		return FALSE;
 	}	
 	
@@ -184,7 +184,7 @@ CIOCPEventRouter * CNetServer::CreateEventRouter()
 		pEventRouter->SetID(ID);
 		return pEventRouter;
 	}
-	PrintNetLog(0xffffffff,_T("(%d)ServerÎŞ·¨´´½¨CIOCPEventRouter£¡"),GetID());
+	PrintNetLog(_T("NetLib"),_T("(%d)Serveræ— æ³•åˆ›å»ºCIOCPEventRouterï¼"),GetID());
 	return NULL;
 }
 
@@ -194,7 +194,7 @@ BOOL CNetServer::DeleteEventRouter(CIOCPEventRouter * pEventRouter)
 	pEventRouter->Destory();
 	if(!m_EventRouterPool.DeleteObject(pEventRouter->GetID()))
 	{
-		PrintNetLog(0xffffffff,_T("(%d)ServerÎŞ·¨É¾³ıCIOCPEventRouter(%d)£¡"),GetID(),pEventRouter->GetID());
+		PrintNetLog(_T("NetLib"),_T("(%d)Serveræ— æ³•åˆ é™¤CIOCPEventRouter(%d)ï¼"),GetID(),pEventRouter->GetID());
 		return FALSE;
 	}
 
@@ -206,12 +206,12 @@ BOOL CNetServer::BindSocket(SOCKET Socket)
 {
 	if(m_hIOCP == NULL)
 	{
-		PrintNetLog(0xffffffff,_T("(%d)Íê³É¶Ë¿ÚÃ»ÓĞ³õÊ¼»¯,ÎŞ·¨°ó¶¨Socket£¡"),GetID());		
+		PrintNetLog(_T("NetLib"),_T("(%d)å®Œæˆç«¯å£æ²¡æœ‰åˆå§‹åŒ–,æ— æ³•ç»‘å®šSocketï¼"),GetID());		
 		return FALSE;
 	}
 	if(Socket == INVALID_SOCKET)
 	{
-		PrintNetLog(0xffffffff,_T("(%d)SocketÃ»ÓĞ³õÊ¼»¯,ÎŞ·¨°ó¶¨Socket£¡"),GetID());		
+		PrintNetLog(_T("NetLib"),_T("(%d)Socketæ²¡æœ‰åˆå§‹åŒ–,æ— æ³•ç»‘å®šSocketï¼"),GetID());		
 		return FALSE;
 	}
 	HANDLE hPort = CreateIoCompletionPort((HANDLE)Socket, m_hIOCP, 0, 0 );
@@ -222,12 +222,12 @@ BOOL CNetServer::BindFile(HANDLE FileHandle)
 {
 	if(m_hIOCP == NULL)
 	{
-		PrintNetLog(0xffffffff,_T("(%d)Íê³É¶Ë¿ÚÃ»ÓĞ³õÊ¼»¯,ÎŞ·¨°ó¶¨FileHandle£¡"),GetID());		
+		PrintNetLog(_T("NetLib"),_T("(%d)å®Œæˆç«¯å£æ²¡æœ‰åˆå§‹åŒ–,æ— æ³•ç»‘å®šFileHandleï¼"),GetID());		
 		return FALSE;
 	}
 	if(FileHandle == INVALID_HANDLE_VALUE)
 	{
-		PrintNetLog(0xffffffff,_T("(%d)FileHandleÃ»ÓĞ³õÊ¼»¯,ÎŞ·¨°ó¶¨FileHandle£¡"),GetID());		
+		PrintNetLog(_T("NetLib"),_T("(%d)FileHandleæ²¡æœ‰åˆå§‹åŒ–,æ— æ³•ç»‘å®šFileHandleï¼"),GetID());		
 		return FALSE;
 	}
 	HANDLE hPort = CreateIoCompletionPort(FileHandle, m_hIOCP, 0, 0 );
@@ -282,12 +282,12 @@ void CNetServer::PrintObjectStatus()
 
 	m_OverLappedObjectPool.Verfy(UsedCount,FreeCount);
 
-	PrintNetLog(0,_T("ÓĞ%d(%u,%u,%u)¸öOverLapped¶ÔÏóÊ¹ÓÃÖĞ,ÆäÖĞAccept=%d,Recv=%d,Send=%d,Other=%d"),
+	PrintNetLog(0,_T("æœ‰%d(%u,%u,%u)ä¸ªOverLappedå¯¹è±¡ä½¿ç”¨ä¸­,å…¶ä¸­Accept=%d,Recv=%d,Send=%d,Other=%d"),
 		m_OverLappedObjectPool.GetObjectCount(),
 		UsedCount,FreeCount,UsedCount+FreeCount,
 		AcceptCount,
 		RecvCount,
 		SendCount,
 		OtherCount);
-	PrintNetLog(0,_T("ÓĞ%d¸öEventRouterÊ¹ÓÃÖĞ"),m_EventRouterPool.GetObjectCount());
+	PrintNetLog(0,_T("æœ‰%dä¸ªEventRouterä½¿ç”¨ä¸­"),m_EventRouterPool.GetObjectCount());
 }

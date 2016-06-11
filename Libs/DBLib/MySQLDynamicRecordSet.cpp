@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    MySQLDynamicRecordSet.cpp                                */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    MySQLDynamicRecordSet.cpp                                */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -81,14 +81,14 @@ int CMySQLDynamicRecordSet::Init(CMySQLConnection * pDBConnection,MYSQL_STMT_HAN
 
 	if(mysql_stmt_bind_result(m_hStmt,&(m_FetchBuffer[0])))
 	{
-		m_pDBConnection->ProcessErrorMsg(m_hStmt,"°ó¶¨½á¹û¼¯Ê§°Ü");
+		m_pDBConnection->ProcessErrorMsg(m_hStmt,"ç»‘å®šç»“æœé›†å¤±è´¥");
 		return DBERR_BINDCOLFAIL;
 	}
 	if(m_CacheAllData)
 	{
 		if(mysql_stmt_store_result(m_hStmt))
 		{
-			m_pDBConnection->ProcessErrorMsg(m_hStmt,"»º´æ½á¹û¼¯Ê§°Ü");
+			m_pDBConnection->ProcessErrorMsg(m_hStmt,"ç¼“å­˜ç»“æœé›†å¤±è´¥");
 			return DBERR_BUFFER_OVERFLOW;
 		}
 	}
@@ -108,14 +108,14 @@ int CMySQLDynamicRecordSet::NextResults()
 
 	if(mysql_stmt_bind_result(m_hStmt,&(m_FetchBuffer[0])))
 	{
-		m_pDBConnection->ProcessErrorMsg(m_hStmt,"°ó¶¨½á¹û¼¯Ê§°Ü");
+		m_pDBConnection->ProcessErrorMsg(m_hStmt,"ç»‘å®šç»“æœé›†å¤±è´¥");
 		return DBERR_BINDCOLFAIL;
 	}
 	if(m_CacheAllData)
 	{
 		if(mysql_stmt_store_result(m_hStmt))
 		{
-			m_pDBConnection->ProcessErrorMsg(m_hStmt,"»º´æ½á¹û¼¯Ê§°Ü");
+			m_pDBConnection->ProcessErrorMsg(m_hStmt,"ç¼“å­˜ç»“æœé›†å¤±è´¥");
 			return DBERR_BUFFER_OVERFLOW;
 		}
 	}
@@ -336,7 +336,7 @@ int CMySQLDynamicRecordSet::FetchRow()
 		{
 			if(Ret==MYSQL_DATA_TRUNCATED)
 			{
-				m_pDBConnection->ProcessErrorMsg(m_hStmt,"³öÏÖÊı¾İ½Ø¶Ï");
+				m_pDBConnection->ProcessErrorMsg(m_hStmt,"å‡ºç°æ•°æ®æˆªæ–­");
 				return DBERR_FETCH_RESULT_FAIL;
 			}
 			else if(Ret==MYSQL_NO_DATA)
@@ -346,7 +346,7 @@ int CMySQLDynamicRecordSet::FetchRow()
 			}
 			else
 			{
-				m_pDBConnection->ProcessErrorMsg(m_hStmt,"»ñÈ¡½á¹û¼¯Ê§°Ü");
+				m_pDBConnection->ProcessErrorMsg(m_hStmt,"è·å–ç»“æœé›†å¤±è´¥");
 				return DBERR_FETCH_RESULT_FAIL;
 			}
 		}

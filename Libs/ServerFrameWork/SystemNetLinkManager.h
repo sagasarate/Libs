@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    SystemNetLinkManager.h                                   */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    SystemNetLinkManager.h                                   */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -15,18 +15,18 @@ class CSystemNetLinkManager :
 	public CEasyNetLinkManager
 {
 protected:
-	IBaseServer *		m_pServer;
+	CBaseServer *		m_pServer;
 public:
 	CSystemNetLinkManager(void);
 	~CSystemNetLinkManager(void);
 
-	void SetServerThread(IBaseServer * pServer)
+	void SetServerThread(CBaseServer * pServer)
 	{
 		m_pServer=pServer;
 	}
 
 
-	virtual CEasyNetLinkConnection * OnCreateConnection(UINT ReportID);
+	virtual CEasyNetLink * OnCreateLink(UINT ReportID);
 	
 
 	void SendLogMsg(LPCTSTR LogMsg);

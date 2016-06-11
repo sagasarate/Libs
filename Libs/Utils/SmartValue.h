@@ -1,12 +1,12 @@
-/****************************************************************************/
+Ôªø/****************************************************************************/
 /*                                                                          */
-/*      Œƒº˛√˚:    SmartValue.h                                             */
-/*      ¥¥Ω®»’∆⁄:  2009ƒÍ09‘¬25»’                                           */
-/*      ◊˜’ﬂ:      Sagasarate                                               */
+/*      Êñá‰ª∂Âêç:    SmartValue.h                                             */
+/*      ÂàõÂª∫Êó•Êúü:  2009Âπ¥09Êúà25Êó•                                           */
+/*      ‰ΩúËÄÖ:      Sagasarate                                               */
 /*                                                                          */
-/*      ±æ»Ìº˛∞Ê»®πÈSagasarate(sagasarate@sina.com)À˘”–                     */
-/*      ƒ„ø…“‘Ω´±æ»Ìº˛”√”⁄»Œ∫Œ…Ã“µ∫Õ∑«…Ã“µ»Ìº˛ø™∑¢£¨µ´                      */
-/*      ±ÿ–Î±£¡Ù¥À∞Ê»®…˘√˜                                                  */
+/*      Êú¨ËΩØ‰ª∂ÁâàÊùÉÂΩíSagasarate(sagasarate@sina.com)ÊâÄÊúâ                     */
+/*      ‰Ω†ÂèØ‰ª•Â∞ÜÊú¨ËΩØ‰ª∂Áî®‰∫é‰ªª‰ΩïÂïÜ‰∏öÂíåÈùûÂïÜ‰∏öËΩØ‰ª∂ÂºÄÂèëÔºå‰ΩÜ                      */
+/*      ÂøÖÈ°ª‰øùÁïôÊ≠§ÁâàÊùÉÂ£∞Êòé                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -319,7 +319,7 @@ public:
 			m_DataLen=sizeof(bool)+sizeof(BYTE);
 			m_pData=new BYTE[m_DataLen];
 			m_pData[0]=Type;
-			*((bool *)(m_pData+1))=false;
+			*(m_pData + 1) = 0;
 			break;
 		default:
 			return false;
@@ -387,7 +387,7 @@ public:
 			m_DataLen=BinaryDataLen+sizeof(BYTE)+sizeof(WORD);
 			break;
 		case VT_BOOL:
-			m_DataLen=sizeof(bool)+sizeof(BYTE);
+			m_DataLen = sizeof(BYTE) + sizeof(BYTE);
 			break;
 		default:
 			return false;
@@ -481,7 +481,7 @@ public:
 				break;	
 			case VT_BOOL:
 				m_pData[0]=ClearType;
-				*((bool *)(m_pData+1))=false;
+				*(m_pData + 1) = 0;
 				break;
 			}
 		}
@@ -544,7 +544,7 @@ public:
 		case VT_STRUCT_TINY:
 			return *((WORD *)(m_pData+sizeof(BYTE)));
 		case VT_BOOL:
-			return sizeof(bool);
+			return sizeof(BYTE);
 		}
 		return 0;
 	}
@@ -581,7 +581,7 @@ public:
 		case VT_STRUCT_TINY:
 			return *((WORD *)(m_pData+sizeof(BYTE)))+sizeof(BYTE)+sizeof(WORD);
 		case VT_BOOL:
-			return sizeof(bool)+sizeof(BYTE);
+			return sizeof(BYTE) + sizeof(BYTE);
 		}
 		return 0;
 	}
@@ -615,7 +615,7 @@ public:
 		case VT_DOUBLE:
 			return (char)(*((double *)(m_pData+1)));
 		case VT_BOOL:
-			return (char)(*((bool *)(m_pData+1)));
+			return (*(m_pData + 1)) != 0;
 		}
 		return 0;
 	}
@@ -644,7 +644,7 @@ public:
 		case VT_DOUBLE:
 			return (unsigned char)(*((double *)(m_pData+1)));
 		case VT_BOOL:
-			return (unsigned char)(*((bool *)(m_pData+1)));
+			return (unsigned char)(*(m_pData+1));
 		}
 		return 0;
 	}
@@ -673,7 +673,7 @@ public:
 		case VT_DOUBLE:
 			return (short)(*((double *)(m_pData+1)));
 		case VT_BOOL:
-			return (short)(*((bool *)(m_pData+1)));
+			return (short)(*(m_pData + 1));
 		}
 		return 0;
 	}
@@ -702,7 +702,7 @@ public:
 		case VT_DOUBLE:
 			return (unsigned short)(*((double *)(m_pData+1)));
 		case VT_BOOL:
-			return (unsigned short)(*((bool *)(m_pData+1)));
+			return (unsigned short)(*(m_pData + 1));
 		}
 		return 0;
 	}
@@ -731,7 +731,7 @@ public:
 		case VT_DOUBLE:
 			return (int)(*((double *)(m_pData+1)));
 		case VT_BOOL:
-			return (int)(*((bool *)(m_pData+1)));
+			return (int)(*(m_pData + 1));
 		}
 		return 0;
 	}
@@ -760,7 +760,7 @@ public:
 		case VT_DOUBLE:
 			return (unsigned int)(*((double *)(m_pData+1)));
 		case VT_BOOL:
-			return (unsigned int)(*((bool *)(m_pData+1)));
+			return (unsigned int)(*(m_pData + 1));
 		}
 		return 0;
 	}
@@ -789,7 +789,7 @@ public:
 	//	case VT_DOUBLE:
 	//		return (long)(*((double *)(m_pData+1)));
 	//	case VT_BOOL:
-	//		return (long)(*((bool *)(m_pData+1)));
+	//		return (long)(*(m_pData+1));
 	//	}
 	//	return 0;
 	//}
@@ -818,7 +818,7 @@ public:
 	//	case VT_DOUBLE:
 	//		return (unsigned long)(*((double *)(m_pData+1)));
 	//	case VT_BOOL:
-	//		return (unsigned long)(*((bool *)(m_pData+1)));
+	//		return (unsigned long)(*(m_pData+1));
 	//	}
 	//	return 0;
 	//}
@@ -847,7 +847,7 @@ public:
 		case VT_DOUBLE:
 			return (__int64)(*((double *)(m_pData+1)));
 		case VT_BOOL:
-			return (__int64)(*((bool *)(m_pData+1)));
+			return (__int64)(*(m_pData + 1));
 		}
 		return 0;
 	}
@@ -876,7 +876,7 @@ public:
 		case VT_DOUBLE:
 			return (unsigned __int64)(*((double *)(m_pData+1)));
 		case VT_BOOL:
-			return (unsigned __int64)(*((bool *)(m_pData+1)));
+			return (unsigned __int64)(*(m_pData + 1));
 		}
 		return 0;
 	}
@@ -906,7 +906,7 @@ public:
 		case VT_DOUBLE:
 			return (float)(*((double *)(m_pData+1)));
 		case VT_BOOL:
-			return (float)(*((bool *)(m_pData+1)));
+			return (float)(*(m_pData + 1));
 		}
 		return 0;
 	}
@@ -936,7 +936,7 @@ public:
 		case VT_DOUBLE:
 			return (double)(*((double *)(m_pData+1)));
 		case VT_BOOL:
-			return (double)(*((bool *)(m_pData+1)));
+			return (double)(*(m_pData + 1));
 		}
 		return 0;
 	}
@@ -979,6 +979,7 @@ public:
 		case VT_USTRING_TINY:
 			return CEasyString((WCHAR *)(m_pData + sizeof(BYTE) + sizeof(WORD)));
 		}
+		return CEasyString();
 	}
 
 
@@ -1007,66 +1008,31 @@ public:
 		case VT_DOUBLE:
 			return (*((double *)(m_pData+1)))!=0;
 		case VT_BOOL:
-			return (*((bool *)(m_pData+1)));
+			return (*(m_pData + 1)) != 0;
 		}
 		return false;
 	}
 
-//	const CEasyString ToStr() const
-//	{
-//		CEasyString String;
-//		GetStr(String);		
-//		return String;
-//	}
-//
-//	void GetStr(CEasyString& String) const
-//	{
-//		switch(GetType())
-//		{	
-//		case VT_STRING:
-//#ifdef WIN32
-//			if(CSmartValue::IsConvertWideCharToUTF8()&&String.IsUnicode())
-//			{
-//				const char * szSrc=(const char *)(m_pData+sizeof(BYTE)+sizeof(UINT));
-//				int SrcLen=(int)strlen(szSrc);
-//				int DestLen=0;
-//				DestLen=MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,NULL,0);
-//				String.Resize(DestLen,false);
-//				MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,(WCHAR *)String.GetBuffer(),DestLen);
-//				String.TrimBuffer();
-//			}
-//			else
-//#endif
-//			{
-//				String=(const char *)(m_pData+sizeof(BYTE)+sizeof(UINT));
-//			}			
-//			break;
-//		case VT_STRING_TINY:
-//#ifdef WIN32
-//			if(CSmartValue::IsConvertWideCharToUTF8()&&String.IsUnicode())
-//			{
-//				const char * szSrc=(const char *)(m_pData+sizeof(BYTE)+sizeof(WORD));
-//				int SrcLen = (int)strlen(szSrc);
-//				int DestLen=0;
-//				DestLen=MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,NULL,0);
-//				String.Resize(DestLen,false);
-//				MultiByteToWideChar(CP_UTF8,0,szSrc,SrcLen,(WCHAR *)String.GetBuffer(),DestLen);
-//				String.TrimBuffer();
-//			}
-//			else
-//#endif
-//			{
-//				String=(const char *)(m_pData+sizeof(BYTE)+sizeof(WORD));
-//			}			
-//			break;
-//		case VT_USTRING:
-//			String=(WCHAR *)(m_pData+sizeof(BYTE)+sizeof(UINT));
-//			break;
-//		case VT_USTRING_TINY:
-//			String=(WCHAR *)(m_pData+sizeof(BYTE)+sizeof(WORD));
-//			break;
-//		}
-//	}
+
+	bool GetString(CEasyString& String) const
+	{
+		switch (GetType())
+		{
+		case VT_STRING:
+			String.SetString((const char *)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength());
+			return true;
+		case VT_STRING_TINY:
+			String.SetString((const char *)(m_pData + sizeof(BYTE) + sizeof(WORD)), GetLength());
+			return true;
+		case VT_USTRING:
+			String.SetString((WCHAR *)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength());
+			return true;
+		case VT_USTRING_TINY:
+			String.SetString((WCHAR *)(m_pData + sizeof(BYTE) + sizeof(WORD)), GetLength());
+			return true;
+		}
+		return false;
+	}
 	
 	void operator=(const CSmartValue& Value)
 	{
@@ -1159,7 +1125,7 @@ public:
 			*((double *)(m_pData+1))=(double)Value;
 			break;
 		case VT_BOOL:
-			*((bool *)(m_pData+1))=(Value!=0);
+			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
 			break;
 		}
 	}
@@ -1200,7 +1166,7 @@ public:
 			*((double *)(m_pData+1))=(double)Value;
 			break;
 		case VT_BOOL:
-			*((bool *)(m_pData+1))=(Value!=0);
+			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
 			break;
 		}
 	}
@@ -1241,7 +1207,7 @@ public:
 			*((double *)(m_pData+1))=(double)Value;
 			break;
 		case VT_BOOL:
-			*((bool *)(m_pData+1))=(Value!=0);
+			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
 			break;
 		}
 	}
@@ -1282,7 +1248,7 @@ public:
 			*((double *)(m_pData+1))=(double)Value;
 			break;
 		case VT_BOOL:
-			*((bool *)(m_pData+1))=(Value!=0);
+			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
 			break;
 		}
 	}	
@@ -1323,7 +1289,7 @@ public:
 			*((double *)(m_pData+1))=(double)Value;
 			break;
 		case VT_BOOL:
-			*((bool *)(m_pData+1))=(Value!=0);
+			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
 			break;
 		}
 	}
@@ -1364,7 +1330,7 @@ public:
 			*((double *)(m_pData+1))=(double)Value;
 			break;
 		case VT_BOOL:
-			*((bool *)(m_pData+1))=(Value!=0);
+			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
 			break;
 		}
 	}
@@ -1405,7 +1371,7 @@ public:
 	//		*((double *)(m_pData+1))=(double)Value;
 	//		break;
 	//	case VT_BOOL:
-	//		*((bool *)(m_pData+1))=(Value!=0);
+	//		(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
 	//		break;
 	//	}
 	//}
@@ -1446,7 +1412,7 @@ public:
 	//		*((double *)(m_pData+1))=(double)Value;
 	//		break;
 	//	case VT_BOOL:
-	//		*((bool *)(m_pData+1))=(Value!=0);
+	//		(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
 	//		break;
 	//	}
 	//}
@@ -1487,7 +1453,7 @@ public:
 			*((double *)(m_pData+1))=(double)Value;
 			break;
 		case VT_BOOL:
-			*((bool *)(m_pData+1))=(Value!=0);
+			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
 			break;
 		}
 	}
@@ -1528,7 +1494,7 @@ public:
 			*((double *)(m_pData+1))=(double)Value;
 			break;
 		case VT_BOOL:
-			*((bool *)(m_pData+1))=(Value!=0);
+			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
 			break;
 		}
 	}
@@ -1569,7 +1535,7 @@ public:
 			*((double *)(m_pData+1))=(double)Value;
 			break;
 		case VT_BOOL:
-			*((bool *)(m_pData+1))=(Value!=0);
+			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
 			break;
 		}
 	}
@@ -1611,7 +1577,7 @@ public:
 			*((double *)(m_pData+1))=(double)Value;
 			break;
 		case VT_BOOL:
-			*((bool *)(m_pData+1))=(Value!=0);
+			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
 			break;
 		}
 	}
@@ -1635,6 +1601,48 @@ public:
 		Destory();
 		SetString(Value,(UINT)Value.GetLength());
 	}	
+
+	void operator=(bool Value)
+	{
+		if (m_pData == NULL)
+			return;
+		switch (GetType())
+		{
+		case VT_CHAR:
+			*((char *)(m_pData + 1)) = Value ? 1 : 0;
+			break;
+		case VT_UCHAR:
+			*((unsigned char *)(m_pData + 1)) = Value ? 1 : 0;
+			break;
+		case VT_SHORT:
+			*((short *)(m_pData + 1)) = Value ? 1 : 0;
+			break;
+		case VT_USHORT:
+			*((unsigned short *)(m_pData + 1)) = Value ? 1 : 0;
+			break;
+		case VT_INT:
+			*((int *)(m_pData + 1)) = Value ? 1 : 0;
+			break;
+		case VT_UINT:
+			*((unsigned int *)(m_pData + 1)) = Value ? 1 : 0;
+			break;
+		case VT_BIGINT:
+			*((__int64 *)(m_pData + 1)) = Value ? 1 : 0;
+			break;
+		case VT_UBIGINT:
+			*((unsigned __int64 *)(m_pData + 1)) = Value ? 1 : 0;
+			break;
+		case VT_FLOAT:
+			*((float *)(m_pData + 1)) = Value ? 1.0f : 0.0f;
+			break;
+		case VT_DOUBLE:
+			*((double *)(m_pData + 1)) = Value ? 1 : 0;
+			break;
+		case VT_BOOL:
+			*((bool *)(m_pData + 1)) = Value ? 1 : 0;
+			break;
+		}
+	}
 
 	void SetString(const char * pStr,UINT Len)
 	{

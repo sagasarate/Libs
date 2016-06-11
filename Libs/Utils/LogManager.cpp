@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    LogManager.cpp                                           */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    LogManager.cpp                                           */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -79,36 +79,36 @@ BOOL CLogManager::DelChannel(UINT ChannelID)
 	return FALSE;
 }
 
-BOOL CLogManager::PrintLogDirect(UINT ChannelID, int Level, DWORD Color, LPCTSTR Msg)
+BOOL CLogManager::PrintLogDirect(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Msg)
 {
 	ILogPrinter * pLogPrinter = GetChannel(ChannelID);
 	if (pLogPrinter)
 	{
-		pLogPrinter->PrintLogDirect(Level, Color, Msg);
+		pLogPrinter->PrintLogDirect(Level, Tag, Msg);
 		return TRUE;
 	}
 	return FALSE;
 }
 
-BOOL CLogManager::PrintLog(UINT ChannelID,int Level,DWORD Color,LPCTSTR Format,...)
+BOOL CLogManager::PrintLog(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	ILogPrinter * pLogPrinter=GetChannel(ChannelID);
 	if(pLogPrinter)
 	{
 		va_list	vl;
 		va_start(vl,Format);
-		pLogPrinter->PrintLogVL(Level,Color,Format,vl);
+		pLogPrinter->PrintLogVL(Level, Tag, Format, vl);
 		va_end( vl);
 		return TRUE;
 	}
 	return FALSE;
 }
-BOOL CLogManager::PrintLogVL(UINT ChannelID,int Level,DWORD Color,LPCTSTR Format,va_list vl)
+BOOL CLogManager::PrintLogVL(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl)
 {
 	ILogPrinter * pLogPrinter=GetChannel(ChannelID);
 	if(pLogPrinter)
 	{
-		pLogPrinter->PrintLogVL(Level,Color,Format,vl);
+		pLogPrinter->PrintLogVL(Level, Tag, Format, vl);
 		return TRUE;
 	}
 	return FALSE;

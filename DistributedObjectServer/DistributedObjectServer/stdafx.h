@@ -13,19 +13,19 @@
 // 如果您必须使用下列所指定的平台之前的平台，则修改下面的定义。
 // 有关不同平台的相应值的最新信息，请参考 MSDN。
 #ifndef WINVER				// 允许使用 Windows 95 和 Windows NT 4 或更高版本的特定功能。
-#define WINVER 0x0501		//为 Windows98 和 Windows 2000 及更新版本改变为适当的值。
+#define WINVER 0x0600		//为 Windows98 和 Windows 2000 及更新版本改变为适当的值。
 #endif
 
 #ifndef _WIN32_WINNT		// 允许使用 Windows NT 4 或更高版本的特定功能。
-#define _WIN32_WINNT 0x0501		//为 Windows98 和 Windows 2000 及更新版本改变为适当的值。
+#define _WIN32_WINNT 0x0600		//为 Windows98 和 Windows 2000 及更新版本改变为适当的值。
 #endif
 
 #ifndef _WIN32_WINDOWS		// 允许使用 Windows 98 或更高版本的特定功能。
-#define _WIN32_WINDOWS 0x0510 //为 Windows Me 及更新版本改变为适当的值。
+#define _WIN32_WINDOWS 0x0600 //为 Windows Me 及更新版本改变为适当的值。
 #endif
 
 #ifndef _WIN32_IE			// 允许使用 IE 4.0 或更高版本的特定功能。
-#define _WIN32_IE 0x0501	//为 IE 5.0 及更新版本改变为适当的值。
+#define _WIN32_IE 0x0600	//为 IE 5.0 及更新版本改变为适当的值。
 #endif
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// 某些 CString 构造函数将是显式的
@@ -57,9 +57,12 @@
 #define SERVER_INFO_COUNT_TIME					5000
 #define MAX_SERVER_TERMINATE_WAIT_TIME			3000000
 
-#define PLUGIN_INIT_FN_NAME				"InitPlugin"
-#define PLUGIN_QUERY_RELEASE_FN_NAME	"QueryReleasePlugin"
-#define PLUGIN_RELEASE_FN_NAME			"ReleasePlugin"
+#define PLUGIN_INIT_FN_NAME						"InitPlugin"
+#define PLUGIN_QUERY_RELEASE_FN_NAME			"QueryReleasePlugin"
+#define PLUGIN_RELEASE_FN_NAME					"ReleasePlugin"
+#define CLIENT_PROXY_INIT_FN_NAME				"InitPlugin"
+#define CLIENT_PROXY_GET_SERVICE_FN_NAME		"GetProxyService"
+#define CLIENT_PROXY_CONNECTION_CREATE_FN_NAME	"CreateProxyConnection"
 
 #define MONO_ASSEMBLY_DOSSYSTEM							"DOSSystem.dll"
 #define MONO_NAME_SPACE_DOSSYSTEM						"DOSSystem"
@@ -91,13 +94,13 @@
 
 #define MONO_CLASS_METHOD_PARAM_DO_INITIALIZE				1
 #define MONO_CLASS_METHOD_PARAM_DO_DESTORY					0
-#define MONO_CLASS_METHOD_PARAM_DO_ONPRETRANSLATEMESSAGE	1
-#define MONO_CLASS_METHOD_PARAM_DO_ONMESSAGE				1
-#define MONO_CLASS_METHOD_PARAM_DO_ONSYSTEMMESSAGE			1
+#define MONO_CLASS_METHOD_PARAM_DO_ONPRETRANSLATEMESSAGE	4
+#define MONO_CLASS_METHOD_PARAM_DO_ONMESSAGE				4
+#define MONO_CLASS_METHOD_PARAM_DO_ONSYSTEMMESSAGE			4
 #define MONO_CLASS_METHOD_PARAM_DO_ONCONCERNEDOBJECTLOST	1
 #define MONO_CLASS_METHOD_PARAM_DO_ONFINDOBJECT				1
 #define MONO_CLASS_METHOD_PARAM_DO_ONOBJECTREPORT			2
-#define MONO_CLASS_METHOD_PARAM_DO_ONPROXYOBJECTIPREPORT	4
+#define MONO_CLASS_METHOD_PARAM_DO_ONPROXYOBJECTIPREPORT	3
 #define MONO_CLASS_METHOD_PARAM_DO_ONSHUTDOWN				1
 #define MONO_CLASS_METHOD_PARAM_DO_UPDATE					1
 
@@ -109,7 +112,8 @@
 
 #define MONO_DOMAIN_FINALIZE_TIMEOUT					(5*60*1000)
 
-#define PLUGIN_LOG_CHANNEL_START	12000
+#define PLUGIN_LOG_CHANNEL_START		12000
+#define PROXY_PLUGIN_LOG_CHANNEL_START	13000
 
 #ifdef WIN32
 #define USE_CRT_DETAIL_NEW
@@ -148,6 +152,10 @@ extern "C" typedef BOOL(*PLUGIN_INIT_FN)(IDistributedObjectManager* pObjectManag
 extern "C" typedef void(*PLUGIN_QUERY_RELEASE_FN)();
 extern "C" typedef void(*PLUGIN_RELEASE_FN)();
 
+extern "C" typedef bool (*CLIENT_PROXY_INIT_FN)(UINT PluginID, UINT LogChannel);
+extern "C" typedef IDOSObjectProxyService * (*CLIENT_PROXY_GET_SERVICE_FN)();
+extern "C" typedef IDOSObjectProxyConnection * (*CLIENT_PROXY_CONNECTION_CREATE_FN)();
+
 enum PLUGIN_TYPE
 {
 	PLUGIN_TYPE_NATIVE,
@@ -165,6 +173,14 @@ enum PLUGIN_STATUS
 	PLUGIN_STATUS_COMPILED,
 	PLUGIN_STATUS_RUNNING,
 	PLUGIN_STATUS_ERROR,
+};
+
+enum LIB_COMPILE_STATE
+{
+	LIB_COMPILE_STATE_NEED_COMPILE,
+	LIB_COMPILE_STATE_COMPILING,
+	LIB_COMPILE_STATE_COMPILED,
+	LIB_COMPILE_STATE_ERROR,
 };
 
 struct MONO_CLASS_INFO_DORI
@@ -258,6 +274,23 @@ struct PLUGIN_INFO
 	}
 };
 
+struct LIB_INFO
+{
+	CEasyString					LibName;
+	bool						NeedCompile;
+	CEasyString					OutDir;
+	CEasyString					PrjDir;
+	CEasyArray<CEasyString>		SourceDirs;
+	LIB_COMPILE_STATE			Status;
+	HANDLE						hMCSProcess;
+	LIB_INFO()
+	{
+		NeedCompile = false;
+		Status = LIB_COMPILE_STATE_NEED_COMPILE;
+		hMCSProcess = NULL;
+	}
+};
+
 struct DOS_OBJECT_REGISTER_INFO_FOR_CS
 {
 	OBJECT_ID				ObjectID;
@@ -311,6 +344,34 @@ struct MONO_CLASS_INFO_DO
 };
 
 
+struct CLIENT_PROXY_PLUGIN_INFO :CLIENT_PROXY_CONFIG
+{
+	UINT									ID;
+	CEasyString								PluginName;
+	PLUGIN_STATUS							PluginStatus;
+	CEasyString								ModuleFileName;
+	HMODULE									hModule;
+	CLIENT_PROXY_INIT_FN					pInitFN;
+	CLIENT_PROXY_GET_SERVICE_FN				pGetServiceFN;
+	CLIENT_PROXY_CONNECTION_CREATE_FN		pConnectionCreateFN;
+	UINT									LogChannel;
+	CLIENT_PROXY_PLUGIN_INFO()
+	{
+		ID = 0;
+		PluginStatus = PLUGIN_STATUS_NONE;
+		hModule = NULL;
+		pInitFN = NULL;
+		pGetServiceFN = NULL;
+		pConnectionCreateFN = NULL;
+		LogChannel = 0;
+	}
+};
+
+#include "DOSConfig.h"
+
+#include "DOSObjectProxyConnectionCustom.h"
+#include "DOSObjectProxyServiceCustom.h"
+
 #include "DistributedObjectOperator.h"
 #include "DistributedObjectManager.h"
 
@@ -318,7 +379,6 @@ struct MONO_CLASS_INFO_DO
 
 #include "DOSMainApp.h"
 #include "DOSServerThread.h"
-#include "DOSConfig.h"
 #include "DOSMainThread.h"
 
 

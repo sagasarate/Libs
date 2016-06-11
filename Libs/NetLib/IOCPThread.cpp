@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    IOCPThread.cpp                                           */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    IOCPThread.cpp                                           */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -26,7 +26,7 @@ CIOCPThread::~CIOCPThread(void)
 
 BOOL CIOCPThread::OnStart()
 {
-	PrintNetLog(0xff,_T("IOCP¹¤×÷Ïß³ÌÆô¶¯"));	
+	PrintNetLog(_T("NetLib"), _T("IOCPå·¥ä½œçº¿ç¨‹å¯åŠ¨"));
 	return TRUE;
 }
 
@@ -52,7 +52,7 @@ BOOL CIOCPThread::OnRun()
 		{			
 			UINT ErrorCode=GetLastError();
 			if(ErrorCode!=64&&ErrorCode!=1236)
-				PrintNetLog(0xff,_T("IOCP·µ»Ø´íÎó%d(%d)"),
+				PrintNetLog(_T("NetLib"), _T("IOCPè¿”å›žé”™è¯¯%d(%d)"),
 				ErrorCode,
 				pOverlapped->pOverLappedObject->GetType());
 			pOverlapped->pOverLappedObject->SetErrorCode(ErrorCode);
@@ -68,5 +68,5 @@ BOOL CIOCPThread::OnRun()
 
 void CIOCPThread::OnTerminate()
 {
-	PrintNetLog(0xff,_T("IOCP¹¤×÷Ïß³ÌÍË³ö"));
+	PrintNetLog(_T("NetLib"), _T("IOCPå·¥ä½œçº¿ç¨‹é€€å‡º"));
 }

@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DOSObjectGroup.h                                         */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ23ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSObjectGroup.h                                         */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ23æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -17,6 +17,13 @@ class CDOSObjectGroup :
 	public CEasyThread
 {
 protected:
+	enum STATUS
+	{
+		STATUS_NONE,
+		STATUS_WORKING,
+		STATUS_SUSPENDING,
+		STATUS_SUSPENDED,
+	};
 	struct DOS_OBJECT_INFO
 	{
 		OBJECT_ID			ObjectID;
@@ -31,6 +38,7 @@ protected:
 	};
 	CDOSObjectManager *								m_pManager;
 	UINT											m_Index;
+	STATUS											m_Status;
 	volatile int									m_Weight;
 	bool											m_StatObjectCPUCost;
 
@@ -65,6 +73,11 @@ public:
 	float GetCycleTime();
 	UINT GetMaxObjectMsgQueueLen();
 	UINT GetIndex();
+
+	bool Suspend();
+	bool Resume();
+	bool IsWorking();
+
 
 	virtual BOOL OnStart();
 	virtual BOOL OnRun();
@@ -109,4 +122,29 @@ inline float CDOSObjectGroup::GetCycleTime()
 inline UINT CDOSObjectGroup::GetIndex()
 {
 	return m_Index;
+}
+
+inline bool CDOSObjectGroup::Suspend()
+{
+	if (m_Status == STATUS_WORKING)
+	{
+		m_Status = STATUS_SUSPENDING;
+		return true;
+	}
+	return false;
+}
+
+inline bool CDOSObjectGroup::Resume()
+{
+	if (m_Status == STATUS_SUSPENDING || m_Status == STATUS_SUSPENDED)
+	{
+		m_Status = STATUS_WORKING;
+		return true;
+	}
+	return false;
+}
+
+inline bool CDOSObjectGroup::IsWorking()
+{
+	return m_Status == STATUS_WORKING;
 }

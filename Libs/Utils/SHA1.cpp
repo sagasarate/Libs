@@ -1,4 +1,4 @@
-/*
+﻿/*
 	100% free public domain implementation of the SHA-1 algorithm
 	by Dominik Reichl <dominik.reichl@t-online.de>
 	Web: http://www.dominik-reichl.de/
@@ -86,7 +86,7 @@ void CSHA1::Reset()
 	m_count[1] = 0;
 }
 
-void CSHA1::Transform(UINT_32 *state, UINT_8 *buffer)
+void CSHA1::Transform(UINT_32 *state, const UINT_8 *buffer)
 {
 	// Copy state[] to working vars
 	UINT_32 a = state[0], b = state[1], c = state[2], d = state[3], e = state[4];
@@ -129,7 +129,7 @@ void CSHA1::Transform(UINT_32 *state, UINT_8 *buffer)
 }
 
 // Use this function to hash in binary data and strings
-void CSHA1::Update(UINT_8 *data, UINT_32 len)
+void CSHA1::Update(const UINT_8 *data, UINT_32 len)
 {
 	UINT_32 i, j;
 

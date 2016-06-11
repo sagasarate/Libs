@@ -1,16 +1,15 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    SystemConfig.cpp                                         */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    SystemConfig.cpp                                         */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
-#include "SystemConfig.h"
 
 CSystemConfig::CSystemConfig(void)
 {
@@ -41,83 +40,90 @@ bool CSystemConfig::LoadConfig(LPCTSTR ConfigFileName)
 	if(Parser.parse_file(ConfigFileName,pug::parse_trim_attribute))
 	{
 		xml_node Config=Parser.document();
-		if(Config.moveto_child("System"))
+		if (Config.moveto_child("Main"))
 		{
-
-			xml_node MainThread=Config;
-			if(MainThread.moveto_child("MainThread"))
+			if (Config.moveto_child("System"))
 			{
-				if(MainThread.has_attribute("ProcessLimit"))
-					m_MainThreadProcessLimit=MainThread.attribute("ProcessLimit");
+
+				xml_node MainThread = Config;
+				if (MainThread.moveto_child("MainThread"))
+				{
+					if (MainThread.has_attribute("ProcessLimit"))
+						m_MainThreadProcessLimit = MainThread.attribute("ProcessLimit");
+
+				}
+
+				xml_node UDPControlAddress = Config;
+				if (UDPControlAddress.moveto_child("UDPControlAddress"))
+				{
+					if (UDPControlAddress.has_attribute("IP"))
+						m_UDPControlAddress.SetIP(UDPControlAddress.attribute("IP").getvalue());
+
+					if (UDPControlAddress.has_attribute("Port"))
+						m_UDPControlAddress.SetPort(UDPControlAddress.attribute("Port"));
+
+				}
+
+				xml_node LogConfig = Config;
+				if (LogConfig.moveto_child("LogConfig"))
+				{
+					if (LogConfig.has_attribute("LogServerObjectUse"))
+						m_LogServerObjectUse = (bool)LogConfig.attribute("LogServerObjectUse");
+
+					if (LogConfig.has_attribute("PreLoadModuleSym"))
+						m_PreLoadModuleSym = (bool)LogConfig.attribute("PreLoadModuleSym");
+
+					if (LogConfig.has_attribute("MakeFullDump"))
+						m_MakeFullDump = (bool)LogConfig.attribute("MakeFullDump");
+
+					if (LogConfig.has_attribute("LogModuleSymStatus"))
+						m_LogModuleSymStatus = (bool)LogConfig.attribute("LogModuleSymStatus");
+
+
+
+					if (LogConfig.has_attribute("LogLevel"))
+						m_LogLevel = LogConfig.attribute("LogLevel");
+
+					if (LogConfig.has_attribute("ConsoleLogLevel"))
+						m_ConsoleLogLevel = LogConfig.attribute("ConsoleLogLevel");
+				}
+
+				xml_node GuardThread = Config;
+				if (GuardThread.moveto_child("GuardThread"))
+				{
+					if (GuardThread.has_attribute("KeepAliveTime"))
+						m_GuardThreadKeepAliveTime = GuardThread.attribute("KeepAliveTime");
+
+					if (GuardThread.has_attribute("KeepAliveCount"))
+						m_GuardThreadKeepAliveCount = GuardThread.attribute("KeepAliveCount");
+				}
+
+
+				PrintImportantLog(0, "ç³»ç»Ÿé…ç½®å·²è½½å…¥");
+				PrintImportantLog(0, "ä¸»çº¿ç¨‹å¤„ç†é™åˆ¶:%u", m_MainThreadProcessLimit);
+				PrintImportantLog(0, "UDPæ§åˆ¶æ¥å£:%s:%u", m_UDPControlAddress.GetIPString(), m_UDPControlAddress.GetPort());
+				PrintImportantLog(0, "æ˜¯å¦è®°å½•OverLappedå¯¹è±¡ä½¿ç”¨çŠ¶æ€:%s", m_LogServerObjectUse ? "æ˜¯" : "å¦");
+				PrintImportantLog(0, "Logè¾“å‡ºçº§åˆ«:%u", m_LogLevel);
+				PrintImportantLog(0, "æ§åˆ¶å°Logè¾“å‡ºçº§åˆ«:%u", m_ConsoleLogLevel);
+				PrintImportantLog(0, "ä¸»çº¿ç¨‹æ­»é”åˆ¤å®šæ—¶é—´:%u", m_GuardThreadKeepAliveTime);
+				PrintImportantLog(0, "ä¸»çº¿ç¨‹æ­»é”åˆ¤å®šæ¬¡æ•°:%u", m_GuardThreadKeepAliveCount);
 
 			}
-
-			xml_node UDPControlAddress=Config;
-			if(UDPControlAddress.moveto_child("UDPControlAddress"))
+			else
 			{
-				if(UDPControlAddress.has_attribute("IP"))
-					m_UDPControlAddress.SetIP(UDPControlAddress.attribute("IP").getvalue());
-
-				if(UDPControlAddress.has_attribute("Port"))
-					m_UDPControlAddress.SetPort(UDPControlAddress.attribute("Port"));
-
+				PrintImportantLog(0, "é…ç½®æ–‡ä»¶[%s]ä¸åˆæ³•", ConfigFileName);
+				return false;
 			}
-
-			xml_node LogConfig=Config;
-			if(LogConfig.moveto_child("LogConfig"))
-			{
-				if(LogConfig.has_attribute("LogServerObjectUse"))
-					m_LogServerObjectUse=(bool)LogConfig.attribute("LogServerObjectUse");
-
-				if(LogConfig.has_attribute("PreLoadModuleSym"))
-					m_PreLoadModuleSym=(bool)LogConfig.attribute("PreLoadModuleSym");
-
-				if(LogConfig.has_attribute("MakeFullDump"))
-					m_MakeFullDump=(bool)LogConfig.attribute("MakeFullDump");
-
-				if (LogConfig.has_attribute("LogModuleSymStatus"))
-					m_LogModuleSymStatus = (bool)LogConfig.attribute("LogModuleSymStatus");
-
-
-
-				if(LogConfig.has_attribute("LogLevel"))
-					m_LogLevel=LogConfig.attribute("LogLevel");
-
-				if(LogConfig.has_attribute("ConsoleLogLevel"))
-					m_ConsoleLogLevel=LogConfig.attribute("ConsoleLogLevel");
-			}
-
-			xml_node GuardThread=Config;
-			if(GuardThread.moveto_child("GuardThread"))
-			{
-				if(GuardThread.has_attribute("KeepAliveTime"))
-					m_GuardThreadKeepAliveTime=GuardThread.attribute("KeepAliveTime");
-
-				if(GuardThread.has_attribute("KeepAliveCount"))
-					m_GuardThreadKeepAliveCount=GuardThread.attribute("KeepAliveCount");
-			}
-
-
-			PrintImportantLog(0,"ÏµÍ³ÅäÖÃÒÑÔØÈë");
-			PrintImportantLog(0,"Ö÷Ïß³Ì´¦ÀíÏŞÖÆ:%u",m_MainThreadProcessLimit);
-			PrintImportantLog(0,"UDP¿ØÖÆ½Ó¿Ú:%s:%u",m_UDPControlAddress.GetIPString(),m_UDPControlAddress.GetPort());
-			PrintImportantLog(0,"ÊÇ·ñ¼ÇÂ¼OverLapped¶ÔÏóÊ¹ÓÃ×´Ì¬:%s",m_LogServerObjectUse?"ÊÇ":"·ñ");
-			PrintImportantLog(0,"LogÊä³ö¼¶±ğ:%u",m_LogLevel);
-			PrintImportantLog(0,"¿ØÖÆÌ¨LogÊä³ö¼¶±ğ:%u",m_ConsoleLogLevel);
-			PrintImportantLog(0,"Ö÷Ïß³ÌËÀËøÅĞ¶¨Ê±¼ä:%u",m_GuardThreadKeepAliveTime);
-			PrintImportantLog(0,"Ö÷Ïß³ÌËÀËøÅĞ¶¨´ÎÊı:%u",m_GuardThreadKeepAliveCount);
-
 		}
 		else
 		{
-			PrintImportantLog(0,"ÅäÖÃÎÄ¼ş[%s]²»ºÏ·¨",ConfigFileName);
+			PrintImportantLog(0, "é…ç½®æ–‡ä»¶[%s]ä¸åˆæ³•", ConfigFileName);
 			return false;
 		}
-
 	}
 	else
 	{
-		PrintImportantLog(0,"ÎŞ·¨´ò¿ªÅäÖÃÎÄ¼ş[%s]",ConfigFileName);
+		PrintImportantLog(0,"æ— æ³•æ‰“å¼€é…ç½®æ–‡ä»¶[%s]",ConfigFileName);
 		return false;
 	}
 	return true;

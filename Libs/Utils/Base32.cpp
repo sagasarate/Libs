@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 
 static const size_t BASE32_ENCODE_INPUT = 5;

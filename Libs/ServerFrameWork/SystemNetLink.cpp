@@ -1,17 +1,17 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    SystemNetLink.cpp                                        */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    SystemNetLink.cpp                                        */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
 
-CSystemNetLink::CSystemNetLink(IBaseServer * pServer)
+CSystemNetLink::CSystemNetLink(CBaseServer * pServer)
 {
 	FUNCTION_BEGIN;
 	m_pServer=pServer;
@@ -47,33 +47,14 @@ void CSystemNetLink::SendMsg(WORD Msg,LPCVOID pData,int DataLen)
 }
 
 
-void CSystemNetLink::OnLinkStart()
-{
-	FUNCTION_BEGIN;
-	CClassifiedID ID=GetID();
-	LogDebug("½¨Á¢Óë[%s][%s:%u]µÄÁ¬½Ó",
-		ID.ToStr(),
-		GetRemoteAddress().GetIPString(),
-		GetRemoteAddress().GetPort());
-	FUNCTION_END;
-}
-
-void CSystemNetLink::OnLinkEnd()
-{
-	FUNCTION_BEGIN;
-	CClassifiedID ID=GetID();
-	LogDebug("¶Ï¿ªÓë[%s]µÄÁ¬½Ó",ID.ToStr());
-	FUNCTION_END;
-}
-
-//½ÓÊÜÊý¾Ý
-void CSystemNetLink::OnData(const CEasyBuffer& DataBuffer)
+//æŽ¥å—æ•°æ®
+void CSystemNetLink::OnData(const BYTE * pData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
 
 
-	SMSG * pMsg=(SMSG *)DataBuffer.GetBuffer();
-	UINT DataSize=pMsg->Header.Size-sizeof(SMSG_HEADER);
+	SMSG * pMsg = (SMSG *)pData;
+	DataSize = DataSize - sizeof(SMSG_HEADER);
 
 	switch(pMsg->Header.MsgID)
 	{
@@ -107,40 +88,37 @@ void CSystemNetLink::OnData(const CEasyBuffer& DataBuffer)
 		break;
 	case SC_MSG_LINK_LOG:
 		m_IsLinkLog=TRUE;
-		Log("ÒÑ¿ªÆô½ÓÊÕLog");
+		Log("å·²å¼€å¯æŽ¥æ”¶Log");
 		break;
 	case SC_MSG_UNLINK_LOG:
-		Log("ÒÑ¹Ø±Õ½ÓÊÕLog");
+		Log("å·²å…³é—­æŽ¥æ”¶Log");
 		m_IsLinkLog=FALSE;
 		break;
 	case SC_MSG_EXEC_COMMAND:
 		{
 			CSmartStruct CommandInfo(pMsg->Data,DataSize,false);
 			LPCTSTR szCommand=CommandInfo.GetMember(SC_SST_EC_COMMAND_STR);
-			m_pServer->ExecCommand(szCommand);
+			m_pServer->PushConsoleCmd(szCommand);
 		}
 		break;
 	case SC_MSG_GET_SERVER_STATUS_FORMAT_INFO:
 		{
-			CEasyMap<WORD,SERVER_STATUS_FORMAT_INFO>& ServerStatusFormats=CControlPanel::GetInstance()->GetAllServerStatusFormat();
-			CSmartStruct Packet(SERVER_STATUS_FORMAT_INFO_SIZE*ServerStatusFormats.GetObjectCount());
+			CEasyArray<SERVER_STATUS_FORMAT_INFO> ServerStatusFormatList;
+			m_pServer->GetAllServerStatusFormat(ServerStatusFormatList);
+
+			CSmartStruct Packet(SERVER_STATUS_FORMAT_INFO_SIZE*(UINT)ServerStatusFormatList.GetCount());
 
 			UINT BufferSize;
 			void * pBuffer;
-			void * Pos=ServerStatusFormats.GetSortedFirstObjectPos();
-			while(Pos)
+			for (UINT i = 0; i < ServerStatusFormatList.GetCount(); i++)
 			{
-				WORD Key;
-				SERVER_STATUS_FORMAT_INFO * pInfo=ServerStatusFormats.GetNextObject(Pos,Key);
-				if(pInfo)
-				{
-					pBuffer=Packet.PrepareMember(BufferSize);
-					CSmartStruct FormatInfo(pBuffer,BufferSize,true);
-					FormatInfo.AddMember(SC_SST_SSFI_STATUS_ID,Key);
-					FormatInfo.AddMember(SC_SST_SSFI_FORMAT_TYPE,pInfo->FormatType);
-					FormatInfo.AddMember(SC_SST_SSFI_NAME,pInfo->szName);
-					Packet.FinishMember(SC_SST_SSFIL_SERVER_STATUS_FORMAT_INFO,FormatInfo.GetDataLen());
-				}
+				SERVER_STATUS_FORMAT_INFO& Info = ServerStatusFormatList[i];
+				pBuffer = Packet.PrepareMember(BufferSize);
+				CSmartStruct FormatInfo(pBuffer, BufferSize, true);
+				FormatInfo.AddMember(SC_SST_SSFI_STATUS_ID, Info.StatusID);
+				FormatInfo.AddMember(SC_SST_SSFI_FORMAT_TYPE, Info.FormatType);
+				FormatInfo.AddMember(SC_SST_SSFI_NAME, Info.szName);
+				Packet.FinishMember(SC_SST_SSFIL_SERVER_STATUS_FORMAT_INFO, FormatInfo.GetDataLen());
 			}
 
 			SendMsg(SC_MSG_GET_SERVER_STATUS_FORMAT_INFO_RESULT,

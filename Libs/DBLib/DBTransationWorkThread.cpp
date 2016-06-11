@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    DBTransationWorkThread.cpp                               */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DBTransationWorkThread.cpp                               */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -56,7 +56,7 @@ bool CDBTransationWorkThread::Init(IDBConnection * pConnection,LPCSTR ConnectStr
 	m_FinishTransQueue.Create(QueueSize);
 	m_ConnectionTestTimer.SaveTime();
 
-	PrintDBLog(0xff,"¹¤×÷Ïß³Ì¶ÓÁÐ³¤¶È%d",QueueSize);
+	PrintDBLog(_T("DBLib"), "å·¥ä½œçº¿ç¨‹é˜Ÿåˆ—é•¿åº¦%d", QueueSize);
 
 	return Start()!=FALSE;
 }
@@ -71,7 +71,7 @@ bool CDBTransationWorkThread::AddTransaction(CDBTransaction * pDBTansaction)
 		}
 		else
 		{
-			PrintDBLog(0xff,"ÊÂÎñ¶ÓÁÐÒÑÂú(%u,%u)",m_TransQueue.GetObjectCount(),m_TransQueue.GetBufferSize());
+			PrintDBLog(_T("DBLib"),"äº‹åŠ¡é˜Ÿåˆ—å·²æ»¡(%u,%u)",m_TransQueue.GetObjectCount(),m_TransQueue.GetBufferSize());
 			return false;
 		}
 	}
@@ -107,7 +107,7 @@ BOOL CDBTransationWorkThread::OnRun()
 		}
 		else
 		{
-			PrintDBLog(0xff,"Êý¾Ý¿âÊÂÎñÖ´ÐÐ³ö´í£¬»Ø¹ö");
+			PrintDBLog(_T("DBLib"),"æ•°æ®åº“äº‹åŠ¡æ‰§è¡Œå‡ºé”™ï¼Œå›žæ»š");
 			m_pConnection->RollBack();
 		}
 		pDBTansaction->SetResult(Ret);
@@ -122,7 +122,7 @@ BOOL CDBTransationWorkThread::OnRun()
 	{
 		if(!m_pConnection->IsConnected())
 		{
-			PrintDBLog(0xff,"Á¬½ÓÒÑ¶Ï¿ª£¬ÖØÐÂÁ¬½Ó");
+			PrintDBLog(_T("DBLib"),"è¿žæŽ¥å·²æ–­å¼€ï¼Œé‡æ–°è¿žæŽ¥");
 			m_pConnection->Disconnect();
 			m_pConnection->Connect((LPCSTR)m_ConnectString);
 		}

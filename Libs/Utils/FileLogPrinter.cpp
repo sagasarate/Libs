@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    FileLogPrinter.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    FileLogPrinter.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -70,7 +70,7 @@ CFileLogPrinter::~CFileLogPrinter(void)
 	SAFE_RELEASE(m_pFileAccessor);
 }
 
-void CFileLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
+void CFileLogPrinter::PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg)
 {
 	CAutoLock Lock(m_EasyCriticalSection);
 
@@ -100,13 +100,18 @@ void CFileLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
 				m_pFileAccessor->Seek(0, IFileAccessor::seekEnd);
 		}
 	}
-	CurTime.Format(m_MsgBuff, 40960, _T("[%m-%d %H:%M:%S]:"));
-
-	m_pFileAccessor->Write(m_MsgBuff, _tcslen(m_MsgBuff));
-	m_pFileAccessor->Write(Msg, _tcslen(Msg));
-	m_pFileAccessor->Write(_T("\r\n"), 2);
+	CurTime.Format(m_MsgBuff, 40960, _T("[%m-%d %H:%M:%S]:"));	
+	m_pFileAccessor->Write(m_MsgBuff, _tcslen(m_MsgBuff)*sizeof(TCHAR));
+	if (Tag)
+	{
+		m_pFileAccessor->Write(_T("["), sizeof(TCHAR));
+		m_pFileAccessor->Write(Tag, _tcslen(Tag) * sizeof(TCHAR));
+		m_pFileAccessor->Write(_T("]"), sizeof(TCHAR));
+	}
+	m_pFileAccessor->Write(Msg, _tcslen(Msg)*sizeof(TCHAR));
+	m_pFileAccessor->Write(_T("\r\n"), 2 * sizeof(TCHAR));
 }
-void CFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl)
+void CFileLogPrinter::PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl)
 {
 	CAutoLock Lock(m_EasyCriticalSection);
 
@@ -136,11 +141,16 @@ void CFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl
 				m_pFileAccessor->Seek(0,IFileAccessor::seekEnd);
 		}
 	}
-	CurTime.Format(m_MsgBuff,40960,_T("[%m-%d %H:%M:%S]:"));
-
-	m_pFileAccessor->Write(m_MsgBuff,_tcslen(m_MsgBuff));
+	CurTime.Format(m_MsgBuff,40960,_T("[%m-%d %H:%M:%S]:"));	
+	m_pFileAccessor->Write(m_MsgBuff, _tcslen(m_MsgBuff)*sizeof(TCHAR));
+	if (Tag)
+	{
+		m_pFileAccessor->Write(_T("["), sizeof(TCHAR));
+		m_pFileAccessor->Write(Tag, _tcslen(Tag)*sizeof(TCHAR));
+		m_pFileAccessor->Write(_T("]"), sizeof(TCHAR));
+	}
 	_vstprintf_s( m_MsgBuff,40960, Format, vl );
-	m_pFileAccessor->Write(m_MsgBuff,_tcslen(m_MsgBuff));
-	m_pFileAccessor->Write(_T("\r\n"),2);
+	m_pFileAccessor->Write(m_MsgBuff, _tcslen(m_MsgBuff)*sizeof(TCHAR));
+	m_pFileAccessor->Write(_T("\r\n"), 2 * sizeof(TCHAR));
 
 }

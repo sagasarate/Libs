@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    ServerThread.h                                           */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    ServerThread.h                                           */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -15,7 +15,7 @@
 
 class CServerThread : 
 	public CNetServer,
-	public IBaseServer
+	public CBaseServer
 {
 protected:	
 	CESVariableList				m_ESVariableList;
@@ -25,10 +25,9 @@ protected:
 	CEasyScriptExecutor			m_ScriptExecutor;
 
 
-	CSystemNetLinkManager		*m_pSysNetLinkManager;
-	CSystemControlPort			*m_pUDPSystemControlPort;
-	CSmartStruct				m_ServerStatus;
-	int							m_ConsoleLogLevel;
+	CSystemNetLinkManager *		m_pSysNetLinkManager;
+	CSystemControlPort *		m_pUDPSystemControlPort;
+	
 
 
 	CEasyTimer					m_CountTimer;
@@ -48,29 +47,10 @@ public:
 		return this;
 	}
 
-	virtual BOOL PrintConsoleLog(int Level,LPCTSTR szLogMsg);
+	virtual bool PrintConsoleLog(int Level, LPCTSTR szLogMsg);
 
 	virtual void ExecCommand(LPCTSTR szCommand);
-
-	virtual BOOL SetServerStatus(WORD StatusID,const CSmartValue& Value);
-	virtual void SetServerStatusFormat(WORD StatusID,LPCTSTR szStatusName,int FormatType=SSFT_DEFAULT);
-	virtual CSmartValue GetServerStatus(WORD StatusID)
-	{
-		return m_ServerStatus.GetMember(StatusID);
-	}
-	virtual CSmartStruct& GetAllServerStatus()
-	{
-		return m_ServerStatus;
-	}
-
-	void SetConsoleLogLevel(int Level)
-	{
-		m_ConsoleLogLevel=Level;
-	}
-	int GetConsoleLogLevel()
-	{
-		return m_ConsoleLogLevel;
-	}
+	
 
 	virtual void QueryShowDown();
 	virtual bool IsServerTerminated();

@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    IOCPListenThread.cpp                                     */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    IOCPListenThread.cpp                                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -30,19 +30,19 @@ bool CIOCPListenThread::Init(CNetService * pService,SOCKET ListenSocket)
 
 BOOL CIOCPListenThread::OnStart()
 {
-	PrintNetLog(0xffffffff,_T("ListenThreadÆô¶¯"));
+	PrintNetLog(_T("NetLib"),_T("ListenThreadå¯åŠ¨"));
 	return TRUE;
 }
 
 BOOL CIOCPListenThread::OnRun()
 {
 	CIPAddress Address;
-	int AddressLen=sizeof(sockaddr_in);	
-	SOCKET AcceptSocket=WSAAccept(m_ListenSocket,(sockaddr*)&(Address.GetSockAddr()),&AddressLen,NULL,0);
+	int AddressLen = sizeof(CIPAddress);
+	SOCKET AcceptSocket = WSAAccept(m_ListenSocket, Address.GetSockAddrPtr(), &AddressLen, NULL, 0);
 	if(AcceptSocket==INVALID_SOCKET)
 	{
 		int ErrorCode=GetLastError();
-		PrintNetLog(0xffffffff,_T("AcceptÊ§°Ü(%u)"),ErrorCode);
+		PrintNetLog(_T("NetLib"),_T("Acceptå¤±è´¥(%u)"),ErrorCode);
 		if(ErrorCode!=WSAECONNRESET&&ErrorCode!=WSAEINTR&&
 			ErrorCode!=WSAEINPROGRESS&&ErrorCode!=WSAEMFILE&&
 			ErrorCode!=WSAENOBUFS&&ErrorCode!=WSAEWOULDBLOCK&&
@@ -58,7 +58,7 @@ BOOL CIOCPListenThread::OnRun()
 			}
 			else
 			{
-				PrintNetLog(0xffffffff,_T("CIOCPListenThread´´½¨AcceptÓÃOverLappedObjectÊ§°Ü£¡"));			
+				PrintNetLog(_T("NetLib"),_T("CIOCPListenThreadåˆ›å»ºAcceptç”¨OverLappedObjectå¤±è´¥ï¼"));			
 			}
 		}
 	}
@@ -78,11 +78,11 @@ BOOL CIOCPListenThread::OnRun()
 			}
 			else
 			{
-				PrintNetLog(0xffffffff,_T("CIOCPListenThread´´½¨AcceptÓÃOverLappedObjectÊ§°Ü£¡"));			
+				PrintNetLog(_T("NetLib"),_T("CIOCPListenThreadåˆ›å»ºAcceptç”¨OverLappedObjectå¤±è´¥ï¼"));			
 			}
 		//}				
 		//else
-		//	PrintNetLog(0xffffffff,_T("CIOCPListenThread¸üĞÂAcceptScoket×´Ì¬Ê§°Ü£¡"),GetID());
+		//	PrintNetLog(_T("NetLib"),_T("CIOCPListenThreadæ›´æ–°AcceptScoketçŠ¶æ€å¤±è´¥ï¼"),GetID());
 
 		closesocket(AcceptSocket);
 	}
@@ -91,5 +91,5 @@ BOOL CIOCPListenThread::OnRun()
 
 void CIOCPListenThread::OnTerminate()
 {
-	PrintNetLog(0xffffffff,_T("ListenThread¹Ø±Õ"));
+	PrintNetLog(_T("NetLib"),_T("ListenThreadå…³é—­"));
 }

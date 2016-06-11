@@ -9,7 +9,8 @@ struct LuaTableElement
 };
 
 class CLuaTable :
-	public CEasyArray<LuaTableElement>
+	public CEasyArray<LuaTableElement>,
+	public CNameObject
 {
 public:
 	CLuaTable(void);

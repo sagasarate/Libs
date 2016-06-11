@@ -37,6 +37,12 @@
     <Filter Include="头文件">
       <UniqueIdentifier>{ddae1ef2-454f-43cc-90fc-d8fa6064437f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="对象代理服务\基础类">
+      <UniqueIdentifier>{13dd9f63-d685-41fd-8f53-eb061fd35c49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="对象代理服务\缺省实现">
+      <UniqueIdentifier>{8e1181f3-21f4-43bd-a050-e51a5cb1cf9a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -44,12 +50,6 @@
     </ClCompile>
     <ClCompile Include="DOSServer.cpp">
       <Filter>服务器</Filter>
-    </ClCompile>
-    <ClCompile Include="DOSObjectProxyService.cpp">
-      <Filter>对象代理服务</Filter>
-    </ClCompile>
-    <ClCompile Include="DOSProxyConnection.cpp">
-      <Filter>对象代理服务</Filter>
     </ClCompile>
     <ClCompile Include="DOSRouter.cpp">
       <Filter>路由服务</Filter>
@@ -75,6 +75,12 @@
     <ClCompile Include="DOSProxyManager.cpp">
       <Filter>对象代理服务</Filter>
     </ClCompile>
+    <ClCompile Include="DOSObjectProxyServiceDefault.cpp">
+      <Filter>对象代理服务\缺省实现</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSObjectProxyConnectionDefault.cpp">
+      <Filter>对象代理服务\缺省实现</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -82,12 +88,6 @@
     </ClInclude>
     <ClInclude Include="DOSServer.h">
       <Filter>服务器</Filter>
-    </ClInclude>
-    <ClInclude Include="DOSObjectProxyService.h">
-      <Filter>对象代理服务</Filter>
-    </ClInclude>
-    <ClInclude Include="DOSProxyConnection.h">
-      <Filter>对象代理服务</Filter>
     </ClInclude>
     <ClInclude Include="DOSRouter.h">
       <Filter>路由服务</Filter>
@@ -121,6 +121,15 @@
     </ClInclude>
     <ClInclude Include="DOSProxyManager.h">
       <Filter>对象代理服务</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSObjectProxyServiceDefault.h">
+      <Filter>对象代理服务\缺省实现</Filter>
+    </ClInclude>
+    <ClInclude Include="IDOSObjectProxy.h">
+      <Filter>对象代理服务\基础类</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSObjectProxyConnectionDefault.h">
+      <Filter>对象代理服务\缺省实现</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    USOResourceManager.cpp                                   */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ25ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    USOResourceManager.cpp                                   */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ25æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -127,7 +127,7 @@ bool CUSOResourceManager::Export(IFileAccessor * pFile)
 	FileHead.Flag=USO_FILE_FLAG;
 	FileHead.Version=USO_FILE_CUR_VERSION;
 
-	//Ð´ÈëÎÄ¼þÍ·
+	//å†™å…¥æ–‡ä»¶å¤´
 	pFile->Write(&FileHead,sizeof(FileHead));
 
 
@@ -290,7 +290,7 @@ bool CUSOResourceManager::AddResource(CNameObject * pResource)
 	{
 		if((*ppOldResource)!=pResource)
 		{
-			PrintSystemLog(0,_T("×ÊÔ´[%s]ÒÑ¾­´æÔÚÇÒ¶ÔÏó²»Í¬£¬¾É¶ÔÏó½«±»Ìæ´ú"),(*ppOldResource)->GetName());
+			PrintSystemLog(0,_T("èµ„æº[%s]å·²ç»å­˜åœ¨ä¸”å¯¹è±¡ä¸åŒï¼Œæ—§å¯¹è±¡å°†è¢«æ›¿ä»£"),(*ppOldResource)->GetName());
 		}
 		SAFE_RELEASE(*ppOldResource);
 	}
@@ -476,7 +476,7 @@ bool CUSOResourceManager::ReadResourceBlock(IFileAccessor * pFile,USO_BLOCK_HEAD
 		}
 		ReadSize+=ObjectPacket.GetDataLen();
 	}
-	PrintSystemLog(0,_T("¶ÁÈ¡%u¸ö×ÊÔ´¶ÔÏó,»¨·Ñ%uºÁÃë,ÆäÖÐ¶ÁÈ¡FX»¨·Ñ%uºÁÃë,¶ÁÈ¡ÎÆÀí»¨·Ñ%uºÁÃë"),
+	PrintSystemLog(0,_T("è¯»å–%uä¸ªèµ„æºå¯¹è±¡,èŠ±è´¹%uæ¯«ç§’,å…¶ä¸­è¯»å–FXèŠ±è´¹%uæ¯«ç§’,è¯»å–çº¹ç†èŠ±è´¹%uæ¯«ç§’"),
 		m_Resources.GetObjectCount(),Timer.GetPastTime(),FXLoadTime,TextureLoadTime);
 	if(ReadSize>=BlockHead.Size)
 		return true;
@@ -525,7 +525,7 @@ bool CUSOResourceManager::ReadObjectBlock(IFileAccessor * pFile,USO_BLOCK_HEAD& 
 			}
 			else
 			{
-				PrintSystemLog(0,_T("CUSOFile::ReadObjectBlock:×°ÔØ¶ÔÏó%s:%sÊ§°Ü"),szType,szName);
+				PrintSystemLog(0,_T("CUSOFile::ReadObjectBlock:è£…è½½å¯¹è±¡%s:%så¤±è´¥"),szType,szName);
 
 			}
 
@@ -534,7 +534,7 @@ bool CUSOResourceManager::ReadObjectBlock(IFileAccessor * pFile,USO_BLOCK_HEAD& 
 
 		ReadSize+=ObjectPacket.GetDataLen();
 	}
-	PrintSystemLog(0,_T("¶ÁÈ¡%u¸ö¶ÔÏó,»¨·Ñ%uºÁÃë"),
+	PrintSystemLog(0,_T("è¯»å–%uä¸ªå¯¹è±¡,èŠ±è´¹%uæ¯«ç§’"),
 		m_Objects.GetCount(),Timer.GetPastTime());
 	if(ReadSize>=BlockHead.Size)
 		return true;
@@ -545,13 +545,13 @@ bool CUSOResourceManager::WriteResourceBlock(IFileAccessor * pFile,CNameObject *
 {
 	USO_BLOCK_HEAD BlockHead;
 
-	//Ð´Èë×ÊÔ´¿éÍ·
+	//å†™å…¥èµ„æºå—å¤´
 	UINT BlockHeadOffset=(UINT)pFile->GetCurPos();
 	BlockHead.Type=USO_BLOCK_RESOURCE;
 	BlockHead.Size=0;
 	pFile->Write(&BlockHead,sizeof(BlockHead));
 
-	//Ð´Èë×ÊÔ´
+	//å†™å…¥èµ„æº
 	if(pObject)
 	{
 		UINT ObjectSize=pObject->GetSmartStructSize(0);
@@ -584,10 +584,10 @@ bool CUSOResourceManager::WriteResourceBlock(IFileAccessor * pFile,CNameObject *
 		}
 	}
 
-	//¼ÆËã¿é´óÐ¡
+	//è®¡ç®—å—å¤§å°
 	UINT SavedOffset=(UINT)pFile->GetCurPos();
 	BlockHead.Size=SavedOffset-BlockHeadOffset;
-	//ÖØÐÂÐ´Èë¿éÍ·
+	//é‡æ–°å†™å…¥å—å¤´
 	pFile->Seek(BlockHeadOffset,IFileAccessor::seekBegin);
 	pFile->Write(&BlockHead,sizeof(BlockHead));
 	pFile->Seek(SavedOffset,IFileAccessor::seekBegin);
@@ -599,12 +599,12 @@ bool CUSOResourceManager::WriteObjectBlock(IFileAccessor * pFile,CNameObject * p
 {
 	USO_BLOCK_HEAD BlockHead;
 
-	//Ð´Èë¶ÔÏó¿éÍ·
+	//å†™å…¥å¯¹è±¡å—å¤´
 	UINT BlockHeadOffset=(UINT)pFile->GetCurPos();
 	BlockHead.Type=USO_BLOCK_OBJECT;
 	BlockHead.Size=0;
 	pFile->Write(&BlockHead,sizeof(BlockHead));
-	//Ð´Èë¶ÔÏó
+	//å†™å…¥å¯¹è±¡
 	if(pObject)
 	{
 		UINT ObjectSize=pObject->GetSmartStructSize(0);
@@ -631,10 +631,10 @@ bool CUSOResourceManager::WriteObjectBlock(IFileAccessor * pFile,CNameObject * p
 		}
 	}
 
-	//¼ÆËã¿é´óÐ¡
+	//è®¡ç®—å—å¤§å°
 	UINT SavedOffset=(UINT)pFile->GetCurPos();
 	BlockHead.Size=SavedOffset-BlockHeadOffset;
-	//ÖØÐÂÐ´Èë¿éÍ·
+	//é‡æ–°å†™å…¥å—å¤´
 	pFile->Seek(BlockHeadOffset,IFileAccessor::seekBegin);
 	pFile->Write(&BlockHead,sizeof(BlockHead));
 

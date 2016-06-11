@@ -5,7 +5,7 @@
 		<Option title="NetLib" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="Socket/;头文件/;工具/;服务器组件/;预编译/;服务器组件/EasyNetLink/;工具组建/;服务器组件/Epoll/;服务器组件/Epoll/Epoll事件处理/;服务器组件/Epoll/Epoll工作线程/;服务器组件/Epoll/Epoll服务/;服务器组件/Epoll/Epoll服务器/;服务器组件/Epoll/Epoll连接/;服务器组件/Epoll/事件对象/;服务器组件/Epoll/Epoll连接/并行TCP/;工具组建/EasyNetLink/;基本对象/;基本对象/服务/;基本对象/服务器/;基本对象/连接/;服务器组件/Epoll/Epoll服务/Epoll连接/;服务器组件/Epoll/Epoll服务/Epoll连接/并行TCP/;" />
+		<Option virtualFolders="Socket/;头文件/;工具/;服务器组件/;预编译/;工具组建/;服务器组件/Epoll/;服务器组件/Epoll/Epoll事件处理/;服务器组件/Epoll/Epoll工作线程/;服务器组件/Epoll/Epoll服务/;服务器组件/Epoll/Epoll服务器/;服务器组件/Epoll/Epoll连接/;服务器组件/Epoll/事件对象/;工具组建/EasyNetLink/;基本对象/;基本对象/服务/;基本对象/服务器/;基本对象/连接/;" />
 		<Build>
 			<Target title="Debug">
 				<Option output="../Bin/NetLibD" prefix_auto="0" extension_auto="1" />
@@ -35,34 +35,37 @@
 				</Compiler>
 			</Target>
 		</Build>
-		<Compiler>
-			<Add option="-std=c++11" />
-		</Compiler>
-		<Unit filename="BaseServer.cpp">
-			<Option virtualFolder="基本对象/服务器/" />
-		</Unit>
-		<Unit filename="BaseServer.h">
-			<Option virtualFolder="基本对象/服务器/" />
-		</Unit>
-		<Unit filename="BaseService.cpp">
-			<Option virtualFolder="基本对象/服务/" />
-		</Unit>
-		<Unit filename="BaseService.h">
-			<Option virtualFolder="基本对象/服务/" />
-		</Unit>
-		<Unit filename="BaseTCPConnection.cpp">
+		<Unit filename="BaseNetConnection.cpp">
 			<Option virtualFolder="基本对象/连接/" />
 		</Unit>
-		<Unit filename="BaseTCPConnection.h">
+		<Unit filename="BaseNetConnection.h">
 			<Option virtualFolder="基本对象/连接/" />
+		</Unit>
+		<Unit filename="BaseNetServer.cpp">
+			<Option virtualFolder="基本对象/服务器/" />
+		</Unit>
+		<Unit filename="BaseNetServer.h">
+			<Option virtualFolder="基本对象/服务器/" />
+		</Unit>
+		<Unit filename="BaseNetService.cpp">
+			<Option virtualFolder="基本对象/服务/" />
+		</Unit>
+		<Unit filename="BaseNetService.h">
+			<Option virtualFolder="基本对象/服务/" />
 		</Unit>
 		<Unit filename="ClassifiedID.h">
 			<Option virtualFolder="工具/" />
 		</Unit>
-		<Unit filename="EasyNetLinkConnection.cpp">
+		<Unit filename="ENLConnection.cpp">
 			<Option virtualFolder="工具组建/EasyNetLink/" />
 		</Unit>
-		<Unit filename="EasyNetLinkConnection.h">
+		<Unit filename="ENLConnection.h">
+			<Option virtualFolder="工具组建/EasyNetLink/" />
+		</Unit>
+		<Unit filename="EasyNetLink.cpp">
+			<Option virtualFolder="工具组建/EasyNetLink/" />
+		</Unit>
+		<Unit filename="EasyNetLink.h">
 			<Option virtualFolder="工具组建/EasyNetLink/" />
 		</Unit>
 		<Unit filename="EasyNetLinkManager.cpp">
@@ -75,6 +78,12 @@
 			<Option virtualFolder="工具组建/EasyNetLink/" />
 		</Unit>
 		<Unit filename="EasyNetLinkService.h">
+			<Option virtualFolder="工具组建/EasyNetLink/" />
+		</Unit>
+		<Unit filename="EasyNetTempLink.cpp">
+			<Option virtualFolder="工具组建/EasyNetLink/" />
+		</Unit>
+		<Unit filename="EasyNetTempLink.h">
 			<Option virtualFolder="工具组建/EasyNetLink/" />
 		</Unit>
 		<Unit filename="EpollEventObject.cpp">
@@ -108,19 +117,13 @@
 			<Option virtualFolder="工具/" />
 		</Unit>
 		<Unit filename="NetConnectionEpoll.cpp">
-			<Option virtualFolder="服务器组件/Epoll/Epoll服务/Epoll连接/" />
+			<Option virtualFolder="服务器组件/Epoll/Epoll连接/" />
 		</Unit>
 		<Unit filename="NetConnectionEpoll.h">
-			<Option virtualFolder="服务器组件/Epoll/Epoll服务/Epoll连接/" />
+			<Option virtualFolder="服务器组件/Epoll/Epoll连接/" />
 		</Unit>
 		<Unit filename="NetLib.h">
 			<Option virtualFolder="头文件/" />
-		</Unit>
-		<Unit filename="NetPTCPConnectionEpoll.cpp">
-			<Option virtualFolder="服务器组件/Epoll/Epoll服务/Epoll连接/并行TCP/" />
-		</Unit>
-		<Unit filename="NetPTCPConnectionEpoll.h">
-			<Option virtualFolder="服务器组件/Epoll/Epoll服务/Epoll连接/并行TCP/" />
 		</Unit>
 		<Unit filename="NetServerEpoll.cpp">
 			<Option virtualFolder="服务器组件/Epoll/Epoll服务器/" />

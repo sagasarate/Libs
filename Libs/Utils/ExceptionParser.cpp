@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    ExceptionParser.cpp                                      */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    ExceptionParser.cpp                                      */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -64,7 +64,7 @@ void DisableSetUnhandledExceptionFilter()
 		{
 			if(WriteProcessMemory(GetCurrentProcess(), addr, code, size, NULL))
 			{
-				PrintImportantLog(0xff,_T("ÆÁ±ÎSetUnhandledExceptionFilter³É¹¦"));
+				PrintImportantLog(_T("Exception"), _T("å±è”½SetUnhandledExceptionFilteræˆåŠŸ"));
 			}
 			VirtualProtect(addr, size, dwOldFlag, &dwTempFlag);
 		}
@@ -79,7 +79,7 @@ void DisableSetUnhandledExceptionFilter()
 
 LONG CExceptionParser::ExceptionHander(LPEXCEPTION_POINTERS pException)
 {
-	PrintImportantLog(0xff,_T("ÊÕµ½Î´´¦ÀíµÄÒì³£"));
+	PrintImportantLog(_T("Exception"), _T("æ”¶åˆ°æœªå¤„ç†çš„å¼‚å¸¸"));
 	CExceptionParser::GetInstance()->ParseException(pException);
 	return 0;
 }
@@ -87,13 +87,13 @@ LONG CExceptionParser::ExceptionHander(LPEXCEPTION_POINTERS pException)
 
 void CExceptionParser::ExceptionTranslator(UINT Code,LPEXCEPTION_POINTERS pException)
 {
-	PrintImportantLog(0xff,_T("²¶×½µ½Òì³£,Code=%u"),Code);
+	PrintImportantLog(_T("Exception"), _T("æ•æ‰åˆ°å¼‚å¸¸,Code=%u"), Code);
 	CExceptionParser::GetInstance()->ParseException(pException);	
 }
 
 LONG CExceptionParser::ExceptionPrinter(LPEXCEPTION_POINTERS pException,UINT64 DebugInfo1,LPCTSTR szFunName)
 {
-	PrintImportantLog(0xff,_T("¿ªÊ¼Êä³öÒì³£,DebugInfo1=0x%llX,ÔÚº¯Êı%s"),DebugInfo1,szFunName);
+	PrintImportantLog(_T("Exception"), _T("å¼€å§‹è¾“å‡ºå¼‚å¸¸,DebugInfo1=0x%llX,åœ¨å‡½æ•°%s"), DebugInfo1, szFunName);
 	CExceptionParser::GetInstance()->ParseException(pException);
 	return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -119,7 +119,7 @@ void CExceptionParser::Init(UINT Flag)
 
 	if(m_Flag&EXCEPTION_SET_DEFAULT_HANDLER)
 	{
-		PrintImportantLog(0xff,_T("ÆôÓÃÎ´´¦ÀíÒì³£²¶×½"));
+		PrintImportantLog(_T("Exception"), _T("å¯ç”¨æœªå¤„ç†å¼‚å¸¸æ•æ‰"));
 		SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)ExceptionHander);
 
 		
@@ -131,34 +131,34 @@ void CExceptionParser::Init(UINT Flag)
 	}
 	if(m_Flag&EXCEPTION_USE_API_HOOK)
 	{
-		PrintImportantLog(0xff,_T("ÆÁ±ÎÏµÍ³Òì³£²¶×½"));
+		PrintImportantLog(_T("Exception"),_T("å±è”½ç³»ç»Ÿå¼‚å¸¸æ•æ‰"));
 		DisableSetUnhandledExceptionFilter();
 	}
 	if(m_Flag&EXCEPTION_SET_TRANSLATOR)
 	{
-		PrintImportantLog(0xff,_T("ÆôÓÃÒì³£´¦Àí¹ıÂË"));
+		PrintImportantLog(_T("Exception"),_T("å¯ç”¨å¼‚å¸¸å¤„ç†è¿‡æ»¤"));
 		_set_se_translator(ExceptionTranslator);
 	}
 
 	if (m_Flag&EXCEPTION_PRE_INIT_SYM)
 	{
-		PrintImportantLog(0xff, _T("ÆôÓÃ·ûºÅÔ¤¼ÓÔØ"));
+		PrintImportantLog(_T("Exception"), _T("å¯ç”¨ç¬¦å·é¢„åŠ è½½"));
 		SymInit();
 	}
 
 	if (m_Flag&EXCEPTION_MAKE_DUMP)
 	{
-		PrintImportantLog(0xff, _T("ÆôÓÃDumpÊä³ö"));
+		PrintImportantLog(_T("Exception"), _T("å¯ç”¨Dumpè¾“å‡º"));
 	}
 
 	if (m_Flag&EXCEPTION_MAKE_FULL_DUMP)
 	{
-		PrintImportantLog(0xff, _T("ÆôÓÃFullDumpÊä³ö"));
+		PrintImportantLog(_T("Exception"), _T("å¯ç”¨FullDumpè¾“å‡º"));
 	}
 
 	if (m_Flag&EXCEPTION_LOG_MODULE_SYM_STATUS)
 	{
-		PrintImportantLog(0xff, _T("Êä³öÄ£¿é·ûºÅ¼ÓÔØ×´Ì¬"));
+		PrintImportantLog(_T("Exception"), _T("è¾“å‡ºæ¨¡å—ç¬¦å·åŠ è½½çŠ¶æ€"));
 	}
 }
 
@@ -168,25 +168,25 @@ void CExceptionParser::ParseException(LPEXCEPTION_POINTERS pException)
 
 	m_hProcess=GetCurrentProcess();	
 
-	PrintImportantLog(0xff,_T("½øĞĞÒì³£´¦Àí"));
+	PrintImportantLog(_T("Exception"),_T("è¿›è¡Œå¼‚å¸¸å¤„ç†"));
 
 	PROCESS_MEMORY_COUNTERS MemoryInfo;
 	if(GetProcessMemoryInfo(m_hProcess,&MemoryInfo,sizeof(MemoryInfo)))
 	{
 #ifdef _WIN64
-		PrintImportantLog(0xff,_T("½ø³ÌÄÚ´æÕ¼ÓÃ:%llu,ĞéÄâÄÚ´æÕ¼ÓÃ:%llu"),MemoryInfo.WorkingSetSize,MemoryInfo.PagefileUsage);
+		PrintImportantLog(_T("Exception"),_T("è¿›ç¨‹å†…å­˜å ç”¨:%llu,è™šæ‹Ÿå†…å­˜å ç”¨:%llu"),MemoryInfo.WorkingSetSize,MemoryInfo.PagefileUsage);
 #else
-		PrintImportantLog(0xff,_T("½ø³ÌÄÚ´æÕ¼ÓÃ:%u,ĞéÄâÄÚ´æÕ¼ÓÃ:%u"),MemoryInfo.WorkingSetSize,MemoryInfo.PagefileUsage);
+		PrintImportantLog(_T("Exception"),_T("è¿›ç¨‹å†…å­˜å ç”¨:%u,è™šæ‹Ÿå†…å­˜å ç”¨:%u"),MemoryInfo.WorkingSetSize,MemoryInfo.PagefileUsage);
 #endif		
 	}
 	else
 	{
-		PrintImportantLog(0xff,_T("»ñÈ¡½ø³ÌÄÚ´æÊ¹ÓÃÇé¿öÊ§°Ü%d"),GetLastError());
+		PrintImportantLog(_T("Exception"),_T("è·å–è¿›ç¨‹å†…å­˜ä½¿ç”¨æƒ…å†µå¤±è´¥%d"),GetLastError());
 	}
 
 	if(m_ExceptionCount>0)
 	{
-		PrintImportantLog(0xff,_T("·¢Éú¶à´ÎÒì³£²¶×½%d"),m_ExceptionCount);
+		PrintImportantLog(_T("Exception"),_T("å‘ç”Ÿå¤šæ¬¡å¼‚å¸¸æ•æ‰%d"),m_ExceptionCount);
 		return;
 	}
 	m_ExceptionCount++;
@@ -213,29 +213,29 @@ void CExceptionParser::ParseException(LPEXCEPTION_POINTERS pException)
 		CurTime.wYear,CurTime.wMonth,CurTime.wDay,
 		CurTime.wHour,CurTime.wMinute,CurTime.wSecond);
 
-	PrintImportantLog(0,_T("¿ªÊ¼Êä³öÒì³£LogÎÄ¼ş:%s.Log"),
+	PrintImportantLog(0,_T("å¼€å§‹è¾“å‡ºå¼‚å¸¸Logæ–‡ä»¶:%s.Log"),
 		szExceptionLogFileName);
 
 	m_hExceptionLog=CreateFile(szExceptionLogFileName,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_WRITE_THROUGH,NULL);
 	if(m_hExceptionLog==INVALID_HANDLE_VALUE)
 	{
-		PrintImportantLog(0,_T("ÎŞ·¨´´½¨Òì³£LogÎÄ¼ş:%s.Log"),
+		PrintImportantLog(0,_T("æ— æ³•åˆ›å»ºå¼‚å¸¸Logæ–‡ä»¶:%s.Log"),
 			szExceptionLogFileName);
 	}
 	
 	
 	LogException(_T("-----------------------------------------------------------------"));
 
-	LogException(_T("³ÌĞò·¢ÉúÒì³£:ÀàĞÍ: 0x%x  µØÖ·: 0x%x"), 
+	LogException(_T("ç¨‹åºå‘ç”Ÿå¼‚å¸¸:ç±»å‹: 0x%x  åœ°å€: 0x%x"), 
 		pException->ExceptionRecord->ExceptionCode ,pException->ExceptionRecord->ExceptionAddress);
 
 	switch(pException->ExceptionRecord->ExceptionCode)
 	{
 	case EXCEPTION_ACCESS_VIOLATION:
 		{
-			LogException(_T("µØÖ·:0x%x%s"),
+			LogException(_T("åœ°å€:0x%x%s"),
 				pException->ExceptionRecord->ExceptionInformation[1],
-				pException->ExceptionRecord->ExceptionInformation[0]?_T("²»¿ÉĞ´"):_T("²»¿É¶Á"));
+				pException->ExceptionRecord->ExceptionInformation[0]?_T("ä¸å¯å†™"):_T("ä¸å¯è¯»"));
 		}
 		break;
 	case EXCEPTION_DATATYPE_MISALIGNMENT:
@@ -290,7 +290,7 @@ void CExceptionParser::ParseException(LPEXCEPTION_POINTERS pException)
 		LogException(_T("EXCEPTION_NONCONTINUABLE_EXCEPTION"));
 		break;
 	case EXCEPTION_STACK_OVERFLOW:
-		LogException(_T("Õ»Òç³ö"));
+		LogException(_T("æ ˆæº¢å‡º"));
 		break;
 	case EXCEPTION_INVALID_DISPOSITION:
 		LogException(_T("EXCEPTION_INVALID_DISPOSITION"));
@@ -306,9 +306,9 @@ void CExceptionParser::ParseException(LPEXCEPTION_POINTERS pException)
 	static ADDRESS_INFO AddressInfo;
 
 	GetAddressInfo((DWORD64)pException->ExceptionRecord->ExceptionAddress,&AddressInfo);
-	LogException(_T("µØÖ·ÃèÊö:º¯Êı(%s),ÎÄ¼ş(%s)(%d)"),AddressInfo.SymbolInfo.Name,AddressInfo.CppFileName,AddressInfo.LineNumber);
+	LogException(_T("åœ°å€æè¿°:å‡½æ•°(%s),æ–‡ä»¶(%s)(%d)"),AddressInfo.SymbolInfo.Name,AddressInfo.CppFileName,AddressInfo.LineNumber);
 
-	LogException(_T("µ÷ÓÃ¶ÑÕ»:"));
+	LogException(_T("è°ƒç”¨å †æ ˆ:"));
 
 	ParseCallStack(pException->ContextRecord);
 
@@ -368,11 +368,11 @@ void CExceptionParser::ParseCallStack(PCONTEXT pContextRecord,UINT MaxLoopCount)
 		if(LastInstance!=AddressInfo.hInstance)
 		{	
 			LastInstance=AddressInfo.hInstance;
-			LogException(_T("µ÷ÓÃÄ£¿é:[0x%llX]%s"),(UINT64)LastInstance,AddressInfo.ModuleName);
+			LogException(_T("è°ƒç”¨æ¨¡å—:[0x%llX]%s"),(UINT64)LastInstance,AddressInfo.ModuleName);
 		}
-		LogException(_T("µ÷ÓÃµØÖ·:0x%llX"),(DWORD64)StackFrame.AddrPC.Offset);
+		LogException(_T("è°ƒç”¨åœ°å€:0x%llX"),(DWORD64)StackFrame.AddrPC.Offset);
 		if(Ret)
-			LogException(_T("µØÖ·ÃèÊö:º¯Êı(%s),ÎÄ¼ş(%s)(%d)"),AddressInfo.SymbolInfo.Name,AddressInfo.CppFileName,AddressInfo.LineNumber);
+			LogException(_T("åœ°å€æè¿°:å‡½æ•°(%s),æ–‡ä»¶(%s)(%d)"),AddressInfo.SymbolInfo.Name,AddressInfo.CppFileName,AddressInfo.LineNumber);
 		
 		
 		MaxLoopCount--;
@@ -389,7 +389,7 @@ BOOL CExceptionParser::GetAddressInfo(DWORD64 Address,ADDRESS_INFO * pAddressInf
 
 	pAddressInfo->Address=Address;
 
-	//»ñÈ¡µØÖ·¶ÔÓ¦µÄÄ£¿éĞÅÏ¢
+	//è·å–åœ°å€å¯¹åº”çš„æ¨¡å—ä¿¡æ¯
 	MEMORY_BASIC_INFORMATION mbi ;
 	ZeroMemory(&mbi,sizeof(mbi));
 	VirtualQuery((LPCVOID)Address, &mbi, sizeof( mbi ) ) ;			
@@ -461,8 +461,8 @@ BOOL CExceptionParser::WriteDump(LPEXCEPTION_POINTERS pException)
 		CurTime.wYear,CurTime.wMonth,CurTime.wDay,
 		CurTime.wHour,CurTime.wMinute,CurTime.wSecond);	
 
-	PrintImportantLog(0xff,_T("¿ªÊ¼Ğ´Èë%sDumpÎÄ¼ş%s"),
-		m_Flag&EXCEPTION_MAKE_FULL_DUMP?_T("ÍêÕû"):_T("×îĞ¡"),
+	PrintImportantLog(_T("Exception"),_T("å¼€å§‹å†™å…¥%sDumpæ–‡ä»¶%s"),
+		m_Flag&EXCEPTION_MAKE_FULL_DUMP?_T("å®Œæ•´"):_T("æœ€å°"),
 		szDumpFileName);
 	hDumpFile=CreateFile(szDumpFileName,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
 	if(hDumpFile!=INVALID_HANDLE_VALUE)
@@ -481,26 +481,26 @@ BOOL CExceptionParser::WriteDump(LPEXCEPTION_POINTERS pException)
 			pExceptionInfo=&ExceptionInfo;
 		}
 		
-		PrintImportantLog(0xff,_T("´´½¨DumpÎÄ¼ş³É¹¦"));
+		PrintImportantLog(_T("Exception"),_T("åˆ›å»ºDumpæ–‡ä»¶æˆåŠŸ"));
 
 		if(MiniDumpWriteDump(m_hProcess,ProcessID,hDumpFile,
 			m_Flag&EXCEPTION_MAKE_FULL_DUMP?MiniDumpWithFullMemory:MiniDumpNormal,
 			pExceptionInfo,NULL,NULL))
 		{
-			PrintImportantLog(0xff,_T("Ğ´ÈëDumpÎÄ¼ş³É¹¦%s"),szDumpFileName);
+			PrintImportantLog(_T("Exception"),_T("å†™å…¥Dumpæ–‡ä»¶æˆåŠŸ%s"),szDumpFileName);
 			CloseHandle(hDumpFile);
 			return TRUE;
 		}
 		else
 		{
-			PrintImportantLog(0xff,_T("Ğ´ÈëDumpÎÄ¼şÊ§°Ü%s"),szDumpFileName);
+			PrintImportantLog(_T("Exception"),_T("å†™å…¥Dumpæ–‡ä»¶å¤±è´¥%s"),szDumpFileName);
 		}
 		CloseHandle(hDumpFile);
 		
 	}
 	else
 	{
-		PrintImportantLog(0xff,_T("´ò¿ªDumpÎÄ¼şÊ§°Ü%s"),szDumpFileName);
+		PrintImportantLog(_T("Exception"),_T("æ‰“å¼€Dumpæ–‡ä»¶å¤±è´¥%s"),szDumpFileName);
 	}
 
 	return FALSE;
@@ -512,14 +512,14 @@ BOOL CExceptionParser::SymInit()
 	TCHAR szModulePath[MAX_PATH];
 	szModulePath[0] = 0;
 
-	PrintImportantLog(0xff,_T("¿ªÊ¼³õÊ¼»¯·ûºÅ"));
+	PrintImportantLog(_T("Exception"),_T("å¼€å§‹åˆå§‹åŒ–ç¬¦å·"));
 
 	DWORD dwMS, dwLS;
 
 	dwMS = 0;
 	dwLS = 0;
 	GetInMemoryFileVersion(_T("dbghelp.dll"), szModulePath,dwMS, dwLS);
-	PrintImportantLog(0xff, _T("dbghelp.dll°æ±¾%d.%d.%d.%d,Â·¾¶:%s"),
+	PrintImportantLog(_T("Exception"), _T("dbghelp.dllç‰ˆæœ¬%d.%d.%d.%d,è·¯å¾„:%s"),
 		HIWORD(dwMS), LOWORD(dwMS), HIWORD(dwLS), LOWORD(dwLS), szModulePath);
 
 	m_hProcess=GetCurrentProcess();	
@@ -539,17 +539,17 @@ BOOL CExceptionParser::SymInit()
 	}
 
 
-	PrintImportantLog(0xff, _T("ËÑË÷·ûºÅÎÄ¼şÔÚ:%s"), szModulePath);
+	PrintImportantLog(_T("Exception"), _T("æœç´¢ç¬¦å·æ–‡ä»¶åœ¨:%s"), szModulePath);
 	if (!SymInitializeT(m_hProcess, szModulePath, TRUE))
 	{
-		PrintImportantLog(0xff,_T("ÎŞ·¨ÔÚµ±Ç°Ä£¿éÂ·¾¶ÕÒµ½PDBÎÄ¼ş£¬³¢ÊÔ½øĞĞÄ¿Â¼ËÑË÷"));
+		PrintImportantLog(_T("Exception"),_T("æ— æ³•åœ¨å½“å‰æ¨¡å—è·¯å¾„æ‰¾åˆ°PDBæ–‡ä»¶ï¼Œå°è¯•è¿›è¡Œç›®å½•æœç´¢"));
 		if(!SymInitialize(m_hProcess,NULL,TRUE))
 		{
-			PrintImportantLog(0xff,_T("ÎŞ·¨µ½PDBÎÄ¼ş"));
+			PrintImportantLog(_T("Exception"),_T("æ— æ³•åˆ°PDBæ–‡ä»¶"));
 			return FALSE;
 		}
 	}
-	PrintImportantLog(0xff,_T("³õÊ¼»¯·ûºÅÍê±Ï"));
+	PrintImportantLog(_T("Exception"),_T("åˆå§‹åŒ–ç¬¦å·å®Œæ¯•"));
 	
 	return TRUE;
 }
@@ -558,7 +558,7 @@ BOOL CExceptionParser::SymInit()
 
 BOOL CExceptionParser::SymLoadFromModule(LPCTSTR szModuleFileName)
 {
-	PrintImportantLog(0xff,_T("¿ªÊ¼´Ó%s¼ÓÔØ·ûºÅ"),szModuleFileName);
+	PrintImportantLog(_T("Exception"),_T("å¼€å§‹ä»%såŠ è½½ç¬¦å·"),szModuleFileName);
 	HMODULE hModule=GetModuleHandle(szModuleFileName);
 	if(hModule)
 	{
@@ -566,25 +566,25 @@ BOOL CExceptionParser::SymLoadFromModule(LPCTSTR szModuleFileName)
 		ZeroMemory(&ModuleInfo,sizeof(ModuleInfo));
 		if(GetModuleInformation(m_hProcess,hModule,&ModuleInfo,sizeof(ModuleInfo)))
 		{
-			PrintImportantLog(0xff,_T("Ä£¿éÆğÊ¼µØÖ·:0x%llX"),(DWORD64)ModuleInfo.lpBaseOfDll);
+			PrintImportantLog(_T("Exception"),_T("æ¨¡å—èµ·å§‹åœ°å€:0x%llX"),(DWORD64)ModuleInfo.lpBaseOfDll);
 			if(SymLoadModuleExT(m_hProcess,NULL,szModuleFileName,NULL,(DWORD64)ModuleInfo.lpBaseOfDll,0,NULL,0))
 			{
-				PrintImportantLog(0xff,_T("¼ÓÔØ·ûºÅ³É¹¦"));
+				PrintImportantLog(_T("Exception"),_T("åŠ è½½ç¬¦å·æˆåŠŸ"));
 				return TRUE;
 			}
 			else
 			{
-				PrintImportantLog(0xff,_T("¼ÓÔØ·ûºÅÊ§°Ü%d"),GetLastError());			
+				PrintImportantLog(_T("Exception"),_T("åŠ è½½ç¬¦å·å¤±è´¥%d"),GetLastError());			
 			}
 		}
 		else
 		{
-			PrintImportantLog(0xff,_T("»ñÈ¡Ä£¿éĞÅÏ¢Ê§°Ü%d"),GetLastError());
+			PrintImportantLog(_T("Exception"),_T("è·å–æ¨¡å—ä¿¡æ¯å¤±è´¥%d"),GetLastError());
 		}
 	}
 	else
 	{
-		PrintImportantLog(0xff,_T("»ñÈ¡Ä£¿é¾ä±úÊ§°Ü%d"),GetLastError());
+		PrintImportantLog(_T("Exception"),_T("è·å–æ¨¡å—å¥æŸ„å¤±è´¥%d"),GetLastError());
 	}
 	return FALSE;
 }
@@ -654,7 +654,7 @@ void CExceptionParser::LogException(LPCTSTR Format,...)
 void CExceptionParser::InvalidParameterHandler(const WCHAR * expression,const WCHAR * function,const WCHAR * file,unsigned int line,uintptr_t pReserved)
 {
 #ifdef UNICODE
-	PrintImportantLog(0xff,_T("·Ç·¨µÄµ÷ÓÃ²ÎÊı[%s][%s][%s][%d]"),
+	PrintImportantLog(_T("Exception"),_T("éæ³•çš„è°ƒç”¨å‚æ•°[%s][%s][%s][%d]"),
 		expression,
 		function,
 		file,
@@ -672,7 +672,7 @@ void CExceptionParser::InvalidParameterHandler(const WCHAR * expression,const WC
 	szFunction[1023]=0;
 	szFile[MAX_PATH-1]=0;
 
-	PrintImportantLog(0xff,_T("·Ç·¨µÄµ÷ÓÃ²ÎÊı[%s][%s][%s][%d]"),
+	PrintImportantLog(_T("Exception"),_T("éæ³•çš„è°ƒç”¨å‚æ•°[%s][%s][%s][%d]"),
 		szExpression,
 		szFunction,
 		szFile,
@@ -682,7 +682,7 @@ void CExceptionParser::InvalidParameterHandler(const WCHAR * expression,const WC
 
 void CExceptionParser::SignalHandler(int signal)
 {
-	PrintImportantLog(0xff,_T("ÏµÍ³ÌáÊ¾%d"),signal);
+	PrintImportantLog(_T("Exception"),_T("ç³»ç»Ÿæç¤º%d"),signal);
 }
 
 BOOL CExceptionParser::GetInMemoryFileVersion(LPCTSTR szFile, LPTSTR szFileFullName, DWORD & dwMS, DWORD & dwLS)
@@ -754,10 +754,10 @@ BOOL CALLBACK EnumModulesCallback(LPCSTR   ModuleName, DWORD64 BaseOfDll, PVOID 
 
 	if (!SymGetModuleInfo64((HANDLE)UserContext, BaseOfDll, &ModuleInfo))
 	{
-		PrintImportantLog(0xff, _T("»ñÈ¡Ä£¿éĞÅÏ¢Ê§°Ü%d"), GetLastError());
+		PrintImportantLog(_T("Exception"), _T("è·å–æ¨¡å—ä¿¡æ¯å¤±è´¥%d"), GetLastError());
 	}
 
-	PrintImportantLog(0xff, _T("%08llX %s SymType=%d NumSyms=%d CVSig=0x%X PDBSig=0x%X Age=%d PDBUnmatched=%d Image=%s PDB=%s"),
+	PrintImportantLog(_T("Exception"), _T("%08llX %s SymType=%d NumSyms=%d CVSig=0x%X PDBSig=0x%X Age=%d PDBUnmatched=%d Image=%s PDB=%s"),
 		BaseOfDll, ModuleName, ModuleInfo.SymType, ModuleInfo.NumSyms, ModuleInfo.CVSig, ModuleInfo.PdbSig, ModuleInfo.PdbAge, 
 		ModuleInfo.PdbUnmatched, ModuleInfo.ImageName, ModuleInfo.LoadedPdbName);
 	return TRUE;
@@ -765,10 +765,10 @@ BOOL CALLBACK EnumModulesCallback(LPCSTR   ModuleName, DWORD64 BaseOfDll, PVOID 
 
 void CExceptionParser::EnumModuleSymStatus(HANDLE hProcess)
 {
-	PrintImportantLog(0xff, _T("¿ªÊ¼Ã¶¾ÙÄ£¿é·ûºÅ¼ÓÔØ×´Ì¬"));
+	PrintImportantLog(_T("Exception"), _T("å¼€å§‹æšä¸¾æ¨¡å—ç¬¦å·åŠ è½½çŠ¶æ€"));
 	if (!SymEnumerateModules64(hProcess, EnumModulesCallback, hProcess))
 	{
-		PrintImportantLog(0xff, _T("Ã¶¾ÙÄ£¿éÊ§°Ü%d"), GetLastError());
+		PrintImportantLog(_T("Exception"), _T("æšä¸¾æ¨¡å—å¤±è´¥%d"), GetLastError());
 	}
-	PrintImportantLog(0xff, _T("Ã¶¾ÙÄ£¿é·ûºÅ¼ÓÔØ×´Ì¬Íê±Ï"));
+	PrintImportantLog(_T("Exception"), _T("æšä¸¾æ¨¡å—ç¬¦å·åŠ è½½çŠ¶æ€å®Œæ¯•"));
 }

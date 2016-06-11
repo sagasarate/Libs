@@ -44,6 +44,7 @@ public:
 	virtual BOOL UnregisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount);
 	virtual BOOL RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount);
 	virtual BOOL UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount);
+	virtual BOOL SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType);
 
 	virtual BOOL AddConcernedObject(OBJECT_ID ObjectID,bool NeedTest);
 	virtual BOOL DeleteConcernedObject(OBJECT_ID ObjectID);
@@ -69,19 +70,19 @@ protected:
 	virtual void OnConcernedObjectLost(OBJECT_ID ObjectID);
 	virtual void OnFindObject(OBJECT_ID CallerID);
 	virtual void OnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize);
-	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID,UINT IP,UINT Port,LPCSTR szIPString);
+	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString);
 	virtual void OnShutDown(int Level);
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 
 	bool CallCSInitialize();
 	void CallCSDestory();
-	BOOL CallCSOnPreTranslateMessage(CDOSMessage * pMessage);
-	BOOL CallCSOnMessage(CDOSMessage * pMessage);
-	BOOL CallCSOnSystemMessage(CDOSMessage * pMessage);
+	BOOL CallCSOnPreTranslateMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, OBJECT_ID SenderID, BYTE * pData, UINT DataSize);
+	BOOL CallCSOnMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, OBJECT_ID SenderID, BYTE * pData, UINT DataSize);
+	BOOL CallCSOnSystemMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, OBJECT_ID SenderID, BYTE * pData, UINT DataSize);
 	void CallCSOnConcernedObjectLost(OBJECT_ID ObjectID);
 	BOOL CallCSOnFindObject(OBJECT_ID CallerID);
 	void CallCSOnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize);
-	void CallCSOnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT IP, UINT Port, LPCSTR szIPString);
+	void CallCSOnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString);
 	void CallCSOnShutDown(int Level);
 	int CallCSUpdate(int ProcessPacketLimit);
 
@@ -92,22 +93,23 @@ public:
 	static UINT InternalCallGetRouterID();
 	static UINT64 InternalCallGetObjectID(CDistributedObjectOperator * pOperator);
 	static int InternalCallGetGroupIndex(CDistributedObjectOperator * pOperator);
-	static bool InternalCallSendMessage(CDistributedObjectOperator * pOperator, MonoObject * ReceiverID, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen);
+	static bool InternalCallSendMessage(CDistributedObjectOperator * pOperator, OBJECT_ID ReceiverID, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen);
 	static bool InternalCallSendMessageMulti(CDistributedObjectOperator * pOperator, MonoArray * ReceiverIDList, bool IsSorted, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen);
-	static bool InternalCallRegisterMsgMap(CDistributedObjectOperator * pOperator, MonoObject * ProxyObjectID, MonoArray * MsgIDList);
-	static bool InternalCallUnregisterMsgMap(CDistributedObjectOperator * pOperator, MonoObject * ProxyObjectID, MonoArray * MsgIDList);
+	static bool InternalCallRegisterMsgMap(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, MonoArray * MsgIDList);
+	static bool InternalCallUnregisterMsgMap(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, MonoArray * MsgIDList);
 	static bool InternalCallRegisterGlobalMsgMap(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType, MonoArray * MsgIDList);
 	static bool InternalCallUnregisterGlobalMsgMap(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType, MonoArray * MsgIDList);
-	static bool InternalCallAddConcernedObject(CDistributedObjectOperator * pOperator, MonoObject * ObjectID, bool NeedTest);
-	static bool InternalCallDeleteConcernedObject(CDistributedObjectOperator * pOperator, MonoObject * ObjectID);
+	static bool InternalCallSetUnhanleMsgReceiver(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType);
+	static bool InternalCallAddConcernedObject(CDistributedObjectOperator * pOperator, OBJECT_ID ObjectID, bool NeedTest);
+	static bool InternalCallDeleteConcernedObject(CDistributedObjectOperator * pOperator, OBJECT_ID ObjectID);
 	static bool InternalCallFindObject(CDistributedObjectOperator * pOperator, UINT ObjectType);
-	static bool InternalCallReportObject(CDistributedObjectOperator * pOperator, MonoObject * TargetID, MonoArray * Data, int StartIndex, int DataLen);
-	static bool InternalCallCloseProxyObject(CDistributedObjectOperator * pOperator, MonoObject * ProxyObjectID, UINT Delay);
-	static bool InternalCallRequestProxyObjectIP(CDistributedObjectOperator * pOperator, MonoObject * ProxyObjectID);
+	static bool InternalCallReportObject(CDistributedObjectOperator * pOperator, OBJECT_ID TargetID, MonoArray * Data, int StartIndex, int DataLen);
+	static bool InternalCallCloseProxyObject(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, UINT Delay);
+	static bool InternalCallRequestProxyObjectIP(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID);
 	static bool InternalCallRegisterObjectStatic(UINT PluginID, MonoObject * ObjectRegisterInfo);
 	static bool InternalCallRegisterObject(CDistributedObjectOperator * pOperator, MonoObject * ObjectRegisterInfo);
 	static void InternalCallRelease(CDistributedObjectOperator * pOperator);
-	static bool InternalCallQueryShutDown(CDistributedObjectOperator * pOperator, MonoObject * TargetID, int Level);
+	static bool InternalCallQueryShutDown(CDistributedObjectOperator * pOperator, OBJECT_ID TargetID, int Level);
 	static void InternalCallShutDown(CDistributedObjectOperator * pOperator, UINT PluginID);
 	static bool InternalCallRegisterLogger(UINT LogChannel, MonoString * FileName);
 	static bool InternalCallRegisterCSVLogger(UINT LogChannel, MonoString * FileName, MonoString * CSVLogHeader);

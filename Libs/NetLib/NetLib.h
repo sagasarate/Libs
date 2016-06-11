@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    NetLib.h                                                 */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    NetLib.h                                                 */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -16,6 +16,7 @@
 #ifdef WIN32
 #include <WinSock2.h>
 #include <MSWSock.h>
+#include <Ws2tcpip.h>
 
 #pragma comment(lib,"Ws2_32.lib")
 #pragma comment(lib,"Mswsock.lib")
@@ -23,7 +24,17 @@
 
 typedef int	socklen_t;
 
+#ifdef UNICODE
+#define GetHostName	GetHostNameW
 #else
+#define GetHostName	gethostname
+#endif
+
+#else
+
+#ifndef __USE_MISC
+#define __USE_MISC
+#endif
 
 #include <netdb.h>
 #include <sys/socket.h>
@@ -31,6 +42,7 @@ typedef int	socklen_t;
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include <ifaddrs.h>
 
 
 #define INVALID_SOCKET						(-1)
@@ -40,7 +52,13 @@ typedef int	socklen_t;
 
 
 #define closesocket(s)						close(s)
+#define InetNtop							inet_ntop
+#define InetPton							inet_pton
+#define GetAddrInfo							getaddrinfo
+#define FreeAddrInfo						freeaddrinfo
+#define GetHostName							gethostname
 
+typedef struct addrinfo						ADDRINFOT;
 typedef int SOCKET;
 
 #endif
@@ -58,12 +76,12 @@ typedef int SOCKET;
 #define MAX_ONCE_SEND_COUNT						64
 #define DEFAULT_PARALLEL_ACCEPT					64
 #define DEFAULT_PARALLEL_RECV					64
-#define MAX_EVENT_OBJECT						10240
-#define DEFAULT_EVENT_ROUTER_COUNT				10240
-#define DEFAULT_EVENT_OBJECT_POOL_GROW_SIZE		0
-#define DEFAULT_EVENT_OBJECT_POOL_GROW_LIMIT	0
-#define DEFAULT_EVENT_ROUTER_POOL_GROW_SIZE		0
-#define DEFAULT_EVENT_ROUTER_POOL_GROW_LIMIT	0
+#define DEFAULT_EVENT_OBJECT_COUNT				4096
+#define DEFAULT_EVENT_ROUTER_COUNT				1024
+#define DEFAULT_EVENT_OBJECT_POOL_GROW_SIZE		2048
+#define DEFAULT_EVENT_OBJECT_POOL_GROW_LIMIT	32
+#define DEFAULT_EVENT_ROUTER_POOL_GROW_SIZE		1024
+#define DEFAULT_EVENT_ROUTER_POOL_GROW_LIMIT	32
 #define NET_DATA_BLOCK_SIZE						4096
 #define EPOLL_DATA_BLOCK_SIZE					16
 #define DEFAULT_SERVER_PROCESS_PACKET_LIMIT		32
@@ -77,21 +95,22 @@ typedef int SOCKET;
 
 struct EASY_NET_LINK_MSG_HEAD
 {
-	DWORD Size;					//ÏûÏ¢°ü´óĞ¡£¬°üÀ¨Í·²¿
-	DWORD MsgID;				//ÏûÏ¢ID
+	DWORD Size;					//æ¶ˆæ¯åŒ…å¤§å°ï¼ŒåŒ…æ‹¬å¤´éƒ¨
+	DWORD MsgID;				//æ¶ˆæ¯ID
 };
 
 struct EASY_NET_LINK_MSG
 {
-	EASY_NET_LINK_MSG_HEAD	Header;		//ÏûÏ¢Í·²¿
-	char					Data[1];	//ÏûÏ¢ÌåÊı¾İ
+	EASY_NET_LINK_MSG_HEAD	Header;		//æ¶ˆæ¯å¤´éƒ¨
+	char					Data[1];	//æ¶ˆæ¯ä½“æ•°æ®
 };
 
 enum EASY_NET_LINK_MSG_ID
 {
-	EASY_NET_LINK_MSG_LINK_START,		
+	EASY_NET_LINK_MSG_LINK_START,
 	EASY_NET_LINK_MSG_KEEP_ALIVE,
 	EASY_NET_LINK_MSG_USER_DATA,
+	EASY_NET_LINK_MSG_COMPRESSED_USER_DATA,
 };
 
 struct EASY_NET_LINK_INFO
@@ -100,20 +119,20 @@ struct EASY_NET_LINK_INFO
 };
 
 
-inline BOOL PrintNetLog(DWORD Color,LPCTSTR Format,...)
+inline BOOL PrintNetLog(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl,Format);
-	BOOL ret=CLogManager::GetInstance()->PrintLogVL(LOG_NET_CHANNEL,ILogPrinter::LOG_LEVEL_NORMAL,Color,Format,vl);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_NET_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }
 
-inline BOOL PrintNetDebugLog(DWORD Color,LPCTSTR Format,...)
+inline BOOL PrintNetDebugLog(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl,Format);
-	BOOL ret=CLogManager::GetInstance()->PrintLogVL(LOG_NET_CHANNEL,ILogPrinter::LOG_LEVEL_DEBUG,Color,Format,vl);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_NET_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }
@@ -124,9 +143,9 @@ inline BOOL PrintNetDebugLog(DWORD Color,LPCTSTR Format,...)
 #include "IPPattern.h"
 #include "NetSocket.h"
 
-#include "BaseTCPConnection.h"
-#include "BaseService.h"
-#include "BaseServer.h"
+#include "BaseNetConnection.h"
+#include "BaseNetService.h"
+#include "BaseNetServer.h"
 
 
 #ifdef WIN32
@@ -138,7 +157,6 @@ inline BOOL PrintNetDebugLog(DWORD Color,LPCTSTR Format,...)
 #include "IOCPListenThread.h"
 #include "NetServerIOCP.h"
 #include "NetConnectionIOCP.h"
-#include "NetPTCPConnectionIOCP.h"
 #include "NetServiceIOCP.h"
 #include "NetPUDPServiceIOCP.h"
 #include "IOCPFileAccessor.h"
@@ -155,11 +173,17 @@ inline BOOL PrintNetDebugLog(DWORD Color,LPCTSTR Format,...)
 #include "NetServerEpoll.h"
 #include "NetServiceEpoll.h"
 #include "NetConnectionEpoll.h"
-#include "NetPTCPConnectionEpoll.h"
 
 #endif
 
-#include "EasyNetLinkConnection.h"
-#include "EasyNetLinkService.h"
 #include "EasyNetLinkManager.h"
+#include "EasyNetLinkService.h"
+#include "ENLConnection.h"
+#include "EasyNetLink.h"
+#include "EasyNetTempLink.h"
 
+
+#include "DHTDefines.h"
+#include "BencodingValue.h"
+#include "TRConnection.h"
+#include "DHTService.h"

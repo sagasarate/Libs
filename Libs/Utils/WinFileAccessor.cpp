@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    WinFileAccessor.cpp                                      */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    WinFileAccessor.cpp                                      */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -134,11 +134,11 @@ ULONG64 CWinFileAccessor::GetSize()
 {
 	if(m_hFile!=INVALID_HANDLE_VALUE)
 	{
-		ULONG64_CONVERTER Size;
+		UINT64_CONVERTER Size;
 
 		Size.QuadPart=0;
 
-		Size.LowPart=GetFileSize(m_hFile,&(Size.HighPart));
+		Size.LowPart=GetFileSize(m_hFile,(LPDWORD)&(Size.HighPart));
 		if(Size.LowPart==0xFFFFFFFF)
 		{
 			if(GetLastError()==NO_ERROR)
@@ -188,7 +188,7 @@ BOOL CWinFileAccessor::Seek(LONG64 Offset,int SeekMode)
 {
 	if(m_hFile!=INVALID_HANDLE_VALUE)
 	{
-		ULONG64_CONVERTER Size;
+		UINT64_CONVERTER Size;
 		Size.QuadPart=Offset;
 		SetFilePointer(m_hFile,Size.LowPart,(PLONG)&(Size.HighPart),SeekMode);
 		if(Size.LowPart==0xFFFFFFFF&&GetLastError()!=NO_ERROR)
@@ -204,7 +204,7 @@ ULONG64 CWinFileAccessor::GetCurPos()
 {
 	if(m_hFile!=INVALID_HANDLE_VALUE)
 	{
-		ULONG64_CONVERTER Size;
+		UINT64_CONVERTER Size;
 		Size.QuadPart=0;
 		Size.LowPart=SetFilePointer(m_hFile,0,(PLONG)&(Size.HighPart),FILE_CURRENT);
 		if(Size.LowPart==0xFFFFFFFF)

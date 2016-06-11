@@ -1,28 +1,28 @@
-#pragma once
+ï»¿#pragma once
 #include "afxcmn.h"
 
 
-// CDlgServerStatus ¶Ô»°¿ò
+// CDlgServerStatus å¯¹è¯æ¡†
 
 class CDlgServerStatus : public CDialog
 {
 	DECLARE_DYNAMIC(CDlgServerStatus)
 
 public:
-	CDlgServerStatus(CWnd* pParent = NULL);   // ±ê×¼¹¹Ôìº¯Êı
+	CDlgServerStatus(CWnd* pParent = NULL);   // æ ‡å‡†æ„é€ å‡½æ•°
 	virtual ~CDlgServerStatus();
 
-// ¶Ô»°¿òÊı¾İ
+// å¯¹è¯æ¡†æ•°æ®
 	enum { IDD = IDD_SERVER_STATUS };
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV æ”¯æŒ
 
 	DECLARE_MESSAGE_MAP()
 public:
 	CListCtrl m_lvServerStatus;
 	virtual BOOL OnInitDialog();
 
-	void FlushStatus(CSmartStruct& ServerStatus);
+	void FlushStatus(CSmartStruct& ServerStatus, CEasyArray<SERVER_STATUS_FORMAT_INFO>& FormatInfoList);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 };

@@ -4,7 +4,7 @@
 
 class CDOSServerThread : 
 	public CDOSServer,
-	public IBaseServer
+	public CBaseServer
 {
 protected:		
 	enum SST_SERVER_STATUS
@@ -32,8 +32,6 @@ protected:
 
 	CSystemNetLinkManager		*m_pSysNetLinkManager;
 	CSystemControlPort			*m_pUDPSystemControlPort;
-	CSmartStruct				m_ServerStatus;
-	int							m_ConsoleLogLevel;
 
 	
 
@@ -54,29 +52,11 @@ public:
 		return this;
 	}
 
-	virtual BOOL PrintConsoleLog(int Level,LPCTSTR szLogMsg);
+	virtual bool PrintConsoleLog(int Level, LPCTSTR szLogMsg);
 
 	virtual void ExecCommand(LPCTSTR szCommand);
 
-	virtual BOOL SetServerStatus(WORD StatusID,const CSmartValue& Value);
-	virtual void SetServerStatusFormat(WORD StatusID,LPCTSTR szStatusName,int FormatType=SSFT_DEFAULT);
-	virtual CSmartValue GetServerStatus(WORD StatusID)
-	{
-		return m_ServerStatus.GetMember(StatusID);
-	}
-	virtual CSmartStruct& GetAllServerStatus()
-	{
-		return m_ServerStatus;
-	}
-
-	void SetConsoleLogLevel(int Level)
-	{
-		m_ConsoleLogLevel=Level;
-	}
-	int GetConsoleLogLevel()
-	{
-		return m_ConsoleLogLevel;
-	}
+	
 
 	virtual void QueryShowDown();
 

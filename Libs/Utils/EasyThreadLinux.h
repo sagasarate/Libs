@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    EasyThreadLinux.h                                        */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    EasyThreadLinux.h                                        */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -35,6 +35,14 @@ enum THREAD_PRIORITY
 	ET_PRIORITY_ERROR_RETURN=-1,
 };
 
+
+enum THREAD_EXIT_CODE
+{
+	THREAD_EXIT_CODE_OK = 0,
+	THREAD_EXIT_CODE_FETCH_EXIT_CODE_ERROR = -1,
+	THREAD_EXIT_CODE_STILL_ACTIVE = -2,
+};
+
 class CEasyThread :
 	public CNameObject
 {
@@ -48,38 +56,38 @@ public:
 	CEasyThread();
 	virtual ~CEasyThread();
 
-	///Æô¶¯Ïß³Ì
+	///å¯åŠ¨çº¿ç¨‹
 	BOOL Start(BOOL IsSuspended = FALSE,DWORD StartWaitTime=DEFAULT_THREAD_STARTUP_TIME);
 
-	///¼ÌĞøÏß³Ì
+	///ç»§ç»­çº¿ç¨‹
 	BOOL Resume();
 
-	/// ¹ÒÆğÏß³Ì
+	/// æŒ‚èµ·çº¿ç¨‹
 	BOOL Suspend();
 
-	///ÖÕÖ¹Ïß³Ì
+	///ç»ˆæ­¢çº¿ç¨‹
 	void Terminate();
 
-	//Ç¿ÖÆ½áÊø
+	//å¼ºåˆ¶ç»“æŸ
 	void ForceTerminate();
 	void SafeTerminate(DWORD Milliseconds=DEFAULT_THREAD_TERMINATE_TIME);
 
-	//Ïß³ÌÊÇ·ñ±»½áÊøÁË
+	//çº¿ç¨‹æ˜¯å¦è¢«ç»“æŸäº†
 	BOOL IsTerminated();
 
-	//Ïß³ÌÊÇ·ñ±»¹ÒÆğ
+	//çº¿ç¨‹æ˜¯å¦è¢«æŒ‚èµ·
 	BOOL IsSuspend();
 
-	//Ïß³ÌÊÇ·ñÔËĞĞÖĞ
+	//çº¿ç¨‹æ˜¯å¦è¿è¡Œä¸­
 	BOOL IsWorking();
 
-	///»ñµÃÏß³Ì×´Ì¬
+	///è·å¾—çº¿ç¨‹çŠ¶æ€
 	int GetStatus();
 
-	///µÈ´ıÏß³Ì¿ªÊ¼¹¤×÷
+	///ç­‰å¾…çº¿ç¨‹å¼€å§‹å·¥ä½œ
 	BOOL WaitForWorking(DWORD Milliseconds=INFINITE);
 
-	///µÈ´ıÏß³ÌÍË³ö
+	///ç­‰å¾…çº¿ç¨‹é€€å‡º
 	BOOL WaitForTerminate(DWORD Milliseconds=INFINITE);
 
 
@@ -95,7 +103,7 @@ protected:
 	virtual BOOL OnRun();
 	virtual void OnTerminate();
 
-	///Ïß³ÌÀı³Ì
+	///çº¿ç¨‹ä¾‹ç¨‹
 	static LPVOID ThreadProc(LPVOID pParam);
 };
 

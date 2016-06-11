@@ -11,7 +11,7 @@ public:
 	CDistributedObjectManager(void);
 	~CDistributedObjectManager(void);
 
-	BOOL Init(CDOSObjectManager * pDOSObjectManager,UINT MaxObjectCount);
+	BOOL Init(CDOSObjectManager * pDOSObjectManager, const CDOSConfig::POOL_CONFIG& PoolConfig);
 	virtual void Destory();
 	
 

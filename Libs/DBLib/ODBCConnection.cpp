@@ -1,18 +1,17 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    ODBCConnection.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    ODBCConnection.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
-#include ".\odbcconnection.h"
-#include "DBStaticRecordSet.h"
 #include <odbcss.h>
+
 
 #define MAX_MSG_BUFF	1024
 
@@ -74,7 +73,7 @@ int CODBCConnection::Init(CODBCDatabase * pDatabase)
 	nResult = SQLAllocHandle( SQL_HANDLE_DBC,m_pDatabase->GetHandle() , &m_hDBConn );
 	if ( nResult != SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_ENV, m_pDatabase->GetHandle(),"·ÖÅäÁ¬½Ó¾ä±úÊ§°Ü£¡\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_ENV, m_pDatabase->GetHandle(),"åˆ†é…è¿æ¥å¥æŸ„å¤±è´¥ï¼\r\n", TRUE);
 		return DBERR_SQLALLOCHANDLEFAIL;
 	}	
 
@@ -142,7 +141,7 @@ int CODBCConnection::Connect(LPCSTR ConnectStr)
 	{
 		if ( nResult != SQL_SUCCESS_WITH_INFO )
 		{
-			ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"Á¬½ÓÊ§°Ü£¡\r\n", TRUE);
+			ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"è¿æ¥å¤±è´¥ï¼\r\n", TRUE);
 			return DBERR_ODBC_SQLCONNECTFAIL;
 		}
 	}
@@ -159,7 +158,7 @@ int CODBCConnection::Disconnect()
 	}
 	if( SQLDisconnect( m_hDBConn ) != SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"¹Ø±ÕÁ¬½ÓÊ§°Ü£¡\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"å…³é—­è¿æ¥å¤±è´¥ï¼\r\n", TRUE);
 		return DBERR_ODBC_SQLDISCONNECTFAIL;
 	}
 	return DBERR_SUCCEED;
@@ -175,7 +174,7 @@ BOOL CODBCConnection::IsConnected()
 	nResult=SQLGetConnectAttr(m_hDBConn,SQL_ATTR_CONNECTION_DEAD,&Value,sizeof(Value),NULL);
 	if(nResult!=SQL_SUCCESS)
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"¼ì²éÁ¬½Ó×´Ì¬Ê§°Ü£¡\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"æ£€æŸ¥è¿æ¥çŠ¶æ€å¤±è´¥ï¼\r\n", TRUE);
 		return FALSE;
 	}
 	if(Value==SQL_CD_TRUE)
@@ -210,23 +209,23 @@ int CODBCConnection::GetTables()
 		m_hStmt = NULL;			
 	}
 
-	//·ÖÅä¾ä±ú
+	//åˆ†é…å¥æŸ„
 
 	nResult=SQLAllocHandle( SQL_HANDLE_STMT, m_hDBConn, &m_hStmt );	
 	if (  nResult!= SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"·ÖÅä¾²Ì¬Statement¾ä±úÊ§°Ü£¡\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"åˆ†é…é™æ€Statementå¥æŸ„å¤±è´¥ï¼\r\n", TRUE);
 		return DBERR_SQLALLOCHANDLEFAIL;
 	}	
 
 
-	// Ö´ĞĞ
+	// æ‰§è¡Œ
 	
 	nResult=SQLTables( m_hStmt, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
 
 	if ( (nResult != SQL_SUCCESS) && (nResult != SQL_SUCCESS_WITH_INFO) && (nResult != SQL_NO_DATA)) 
 	{	
-		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"»ñÈ¡ËùÓĞ±í", TRUE);		
+		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"è·å–æ‰€æœ‰è¡¨", TRUE);		
 		return DBERR_EXE_SQL_FAIL;
 	}	
 
@@ -281,7 +280,7 @@ int CODBCConnection::NextResults(IDBRecordSet * pDBRecordset)
 			return DBERR_NO_MORE_RESULTS;
 		else 
 		{
-			ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"Ö´ĞĞSQLÊ§°Ü£¡\r\n", TRUE);
+			ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"æ‰§è¡ŒSQLå¤±è´¥ï¼\r\n", TRUE);
 			return DBERR_EXE_SQL_FAIL;
 		}
 	}
@@ -299,7 +298,7 @@ int CODBCConnection::GetAffectedRowCount()
 	{
 		return (int)RowCount;
 	}
-	ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"»ñÈ¡Ó°ÏìĞĞÊıÊ§°Ü\r\n", TRUE);
+	ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"è·å–å½±å“è¡Œæ•°å¤±è´¥\r\n", TRUE);
 	return -1;
 }
 
@@ -310,11 +309,11 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 	UINT ColNum=0;
 
 	
-	//»ñÈ¡½á¹û¼¯ÁĞÊı
+	//è·å–ç»“æœé›†åˆ—æ•°
 	nResult=SQLNumResultCols(hStmt,(SQLSMALLINT *)&ColNum);
 	if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"»ñÈ¡½á¹û¼¯ÁĞÊıÊ§°Ü£¡\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"è·å–ç»“æœé›†åˆ—æ•°å¤±è´¥ï¼\r\n", TRUE);
 		return DBERR_ODBC_GETCOLNUMFAIL;
 	}
 	if(ColNum<=0)
@@ -328,7 +327,7 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 	BindTypes.Resize(ColNum);
 	
 
-	//»ñÈ¡½á¹û¼¯ÁĞĞÅÏ¢
+	//è·å–ç»“æœé›†åˆ—ä¿¡æ¯
 	for(UINT i=0;i<ColNum;i++)
 	{		
 		int ColNameLen;
@@ -340,7 +339,7 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 			(SQLSMALLINT *)&CanNULL);
 		if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 		{
-			ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"»ñÈ¡½á¹û¼¯ÁĞĞÅÏ¢Ê§°Ü£¡\r\n", TRUE);
+			ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"è·å–ç»“æœé›†åˆ—ä¿¡æ¯å¤±è´¥ï¼\r\n", TRUE);
 			return DBERR_ODBC_GETCOLINFOFAIL;
 		}
 		ColInfos[i].Name[MAX_COLUMN_NAME-1]=0;
@@ -351,7 +350,7 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 		RecordLineLen+=(UINT)ColInfos[i].Size;		
 	}
 
-	////»ñÈ¡½á¹û¼¯ĞĞÊı
+	////è·å–ç»“æœé›†è¡Œæ•°
 	//UINT RecordNum=0;
 
 	//do{	
@@ -361,7 +360,7 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 	//}while(nResult == SQL_SUCCESS || nResult == SQL_SUCCESS_WITH_INFO);
 
 
-	//¼ÆËãĞèÒªµÄ»º³åÍ·²¿´óĞ¡
+	//è®¡ç®—éœ€è¦çš„ç¼“å†²å¤´éƒ¨å¤§å°
 	int HeadSize=sizeof(UINT)+sizeof(DB_COLUMN_INFO)*ColNum+sizeof(UINT);
 
 	ResultBuff.Create(HeadSize,RecordLineLen+sizeof(UINT)*ColNum);
@@ -376,7 +375,7 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 	ResultBuff.PushConstBack(0,sizeof(UINT));
 	
 	
-	//°ó¶¨½á¹û¼¯ÁĞ
+	//ç»‘å®šç»“æœé›†åˆ—
 	CEasyBuffer RecordLineBuffer;
 	RecordLineBuffer.Create(RecordLineLen);
 	CEasyArray<SQLLEN> FieldSize;
@@ -390,13 +389,13 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 			&(FieldSize[i]));
 		if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO)
 		{
-			ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"°ó¶¨½á¹û¼¯ÁĞÊ§°Ü£¡\r\n", TRUE);
+			ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"ç»‘å®šç»“æœé›†åˆ—å¤±è´¥ï¼\r\n", TRUE);
 			return DBERR_BINDCOLFAIL;
 		}		
 		pFieldBuffer+=ColInfos[i].Size;
 	}
 	
-	//»ñÈ¡½á¹û¼¯Êı¾İ	
+	//è·å–ç»“æœé›†æ•°æ®	
 	do{
 		ZeroMemory(RecordLineBuffer.GetBuffer(),RecordLineLen);
 		nResult=SQLFetch(hStmt);
@@ -416,7 +415,7 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 
 	if(nResult != SQL_NO_DATA )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"»ñÈ¡½á¹û¼¯Êı¾İ£¡\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"è·å–ç»“æœé›†æ•°æ®ï¼\r\n", TRUE);
 		return DBERR_FETCH_RESULT_FAIL;
 	}
 	ResultBuff.MakeSmooth();
@@ -440,7 +439,7 @@ int CODBCConnection::EnableTransaction(BOOL IsEnable)
 
 	if ( nResult != SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"¸Ä±äÊÂÎñÉèÖÃÊ§°Ü£¡\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"æ”¹å˜äº‹åŠ¡è®¾ç½®å¤±è´¥ï¼\r\n", TRUE);
 		return DBERR_ODBC_ENABLETRANSACTIONFAIL;
 	}
 	else
@@ -451,7 +450,7 @@ int CODBCConnection::Commit()
 {
 	if (SQLEndTran(SQL_HANDLE_DBC , m_hDBConn, SQL_COMMIT)!= SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"Ìá½»ÊÂÎñÊ§°Ü£¡\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"æäº¤äº‹åŠ¡å¤±è´¥ï¼\r\n", TRUE);
 		return DBERR_ODBC_COMMITFAIL;
 	}
 	else
@@ -462,7 +461,7 @@ int CODBCConnection::RollBack()
 {
 	if (SQLEndTran(SQL_HANDLE_DBC , m_hDBConn, SQL_ROLLBACK)!= SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"»Ø¹öÊÂÎñÊ§°Ü£¡\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"å›æ»šäº‹åŠ¡å¤±è´¥ï¼\r\n", TRUE);
 		return DBERR_ODBC_ROLLBACKFAIL;
 	}
 	else
@@ -617,7 +616,7 @@ void CODBCConnection::ProcessMessagesODBC(SQLSMALLINT plm_handle_type,SQLHANDLE 
 		}
 		plm_cRecNmbr++; 
 	} 
-	PrintDBLog( 0xff,"%s",(LPCSTR)m_LastErrorString);
+	PrintDBLog(_T("DBLib"), "%s", (LPCSTR)m_LastErrorString);
 }
 
 int CODBCConnection::ODBCCTypeTODBLibType(int Type,UINT64& Size)
@@ -832,17 +831,17 @@ int CODBCConnection::ExecuteSQLDirect(LPCSTR SQLStr,int StrLen)
 		m_hStmt = NULL;			
 	}
 
-	//·ÖÅä¾ä±ú
+	//åˆ†é…å¥æŸ„
 
 	nResult=SQLAllocHandle( SQL_HANDLE_STMT, m_hDBConn, &m_hStmt );	
 	if (  nResult!= SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"·ÖÅä¾²Ì¬Statement¾ä±úÊ§°Ü£¡\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"åˆ†é…é™æ€Statementå¥æŸ„å¤±è´¥ï¼\r\n", TRUE);
 		return DBERR_SQLALLOCHANDLEFAIL;
 	}	
 
 
-	// Ö´ĞĞ
+	// æ‰§è¡Œ
 	if(StrLen==0)
 		StrLen=SQL_NTS;
 	nResult = SQLExecDirect(m_hStmt,(SQLCHAR*)SQLStr, StrLen);
@@ -851,11 +850,11 @@ int CODBCConnection::ExecuteSQLDirect(LPCSTR SQLStr,int StrLen)
 	if ( (nResult != SQL_SUCCESS) && (nResult != SQL_SUCCESS_WITH_INFO) && (nResult != SQL_NO_DATA)) 
 	{		
 		CEasyString ErrorSQL;
-		ErrorSQL="Ö´ĞĞSQL[";
+		ErrorSQL="æ‰§è¡ŒSQL[";
 		if(StrLen<=0)
 			StrLen=(int)strlen(SQLStr);
 		ErrorSQL.AppendString(SQLStr,StrLen);
-		ErrorSQL+="Ê§°Ü]";
+		ErrorSQL+="å¤±è´¥]";
 		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,ErrorSQL, TRUE);		
 		return DBERR_EXE_SQL_FAIL;
 	}	
@@ -878,17 +877,17 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 		m_hStmt = NULL;			
 	}
 
-	//·ÖÅä¾ä±ú
+	//åˆ†é…å¥æŸ„
 
 	nResult=SQLAllocHandle( SQL_HANDLE_STMT, m_hDBConn, &m_hStmt );	
 	if (  nResult!= SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"·ÖÅä¾²Ì¬Statement¾ä±úÊ§°Ü£¡\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"åˆ†é…é™æ€Statementå¥æŸ„å¤±è´¥ï¼\r\n", TRUE);
 		return DBERR_SQLALLOCHANDLEFAIL;
 	}	
 
 
-	// Ô¤Ö´ĞĞ
+	// é¢„æ‰§è¡Œ
 	if(StrLen==0)
 		StrLen=SQL_NTS;
 	nResult = SQLPrepare(m_hStmt,(SQLCHAR*)SQLStr, StrLen);
@@ -896,21 +895,21 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 	if ( (nResult != SQL_SUCCESS) && (nResult != SQL_SUCCESS_WITH_INFO) ) 
 	{		
 		CEasyString ErrorSQL;
-		ErrorSQL="Ô¤Ö´ĞĞSQL[";
+		ErrorSQL="é¢„æ‰§è¡ŒSQL[";
 		if(StrLen<=0)
 			StrLen=(int)strlen(SQLStr);
 		ErrorSQL.AppendString(SQLStr,StrLen);
-		ErrorSQL+="Ê§°Ü]";
+		ErrorSQL+="å¤±è´¥]";
 		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,ErrorSQL, TRUE);		
 		return DBERR_EXE_SQL_FAIL;
 	}	
 
-	//»ñÈ¡²ÎÊıÊıÁ¿
+	//è·å–å‚æ•°æ•°é‡
 	int ParamNum=0;
 	nResult=SQLNumParams (m_hStmt,(SQLSMALLINT *)&ParamNum);
 	if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"»ñÈ¡²ÎÊıÊıÁ¿Ê§°Ü£¡\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"è·å–å‚æ•°æ•°é‡å¤±è´¥ï¼\r\n", TRUE);
 		return DBERR_PARAMCOUNTFAIL;
 	}
 
@@ -928,7 +927,7 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 
 		SQLLEN * pParamDataLen=(SQLLEN *)ParamDataLenBuffer.GetBuffer();
 
-		//°ó¶¨²ÎÊı
+		//ç»‘å®šå‚æ•°
 		for(int i=0;i<ParamNum;i++)
 		{
 			int ParamType=DBParamTypeToODBCParamType(pParamSet->GetParamInfo(i)->ParamType);
@@ -943,7 +942,7 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 			nResult=SQLDescribeParam(m_hStmt,i+1,&tParamType,&tParamSize,&tParamDigitalSize,&tParamCanNull);
 			if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 			{
-				ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"°ó¶¨²ÎÊıÊ§°Ü£¡\r\n", TRUE);
+				ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"ç»‘å®šå‚æ•°å¤±è´¥ï¼\r\n", TRUE);
 				return DBERR_BINDPARAMFAIL;
 			}
 			
@@ -972,24 +971,24 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 
 			if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 			{
-				ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"°ó¶¨²ÎÊıÊ§°Ü£¡\r\n", TRUE);
+				ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"ç»‘å®šå‚æ•°å¤±è´¥ï¼\r\n", TRUE);
 				return DBERR_BINDPARAMFAIL;
 			}
 		}
 	}
 
 
-	//ÕıÊ½Ö´ĞĞ
+	//æ­£å¼æ‰§è¡Œ
 	nResult = SQLExecute(m_hStmt);
 
 	if ( (nResult != SQL_SUCCESS) && (nResult != SQL_SUCCESS_WITH_INFO) && (nResult != SQL_NO_DATA)) 
 	{		
 		CEasyString ErrorSQL;
-		ErrorSQL="Ô¤Ö´ĞĞSQL[";
+		ErrorSQL="é¢„æ‰§è¡ŒSQL[";
 		if(StrLen<=0)
 			StrLen=(int)strlen(SQLStr);
 		ErrorSQL.AppendString(SQLStr,StrLen);
-		ErrorSQL+="Ê§°Ü]";
+		ErrorSQL+="å¤±è´¥]";
 		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,ErrorSQL, TRUE);		
 		return DBERR_EXE_SQL_FAIL;
 	}	
@@ -1005,11 +1004,11 @@ void CODBCConnection::SetConnectFlags(LPCSTR szFlags)
 		Flag.Trim(' ');
 		if(Flag.CompareNoCase("NC_MARS_ENABLED")==0)
 		{
-			PrintDBDebugLog(0,"Ó¦ÓÃ²ÎÊıNC_MARS_ENABLED");
+			PrintDBDebugLog(0,"åº”ç”¨å‚æ•°NC_MARS_ENABLED");
 			int nResult=SQLSetConnectAttr(m_hDBConn, SQL_COPT_SS_MARS_ENABLED, (SQLPOINTER)1, SQL_IS_UINTEGER);
 			if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 			{
-				ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"Ó¦ÓÃ²ÎÊıNC_MARS_ENABLEDÊ§°Ü£¡\r\n", TRUE);
+				ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"åº”ç”¨å‚æ•°NC_MARS_ENABLEDå¤±è´¥ï¼\r\n", TRUE);
 			}
 		}		
 	}

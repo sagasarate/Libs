@@ -1,16 +1,15 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    GuardThread.cpp                                          */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    GuardThread.cpp                                          */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
-#include "GuardThread.h"
 
 IMPLEMENT_CLASS_INFO_STATIC(CGuardThread,CEasyThread);
 
@@ -47,11 +46,11 @@ BOOL CGuardThread::OnRun()
 		{
 			m_RecentKeepAliveTime=CurTime;
 			m_LostAliveCount++;
-			PrintImportantLog(0,_T("¼ì²âµ½Ïß³Ì[%u]Ê§È¥ÏìÓ¦,µÚ%d´Î"),m_TargetThreadID,m_LostAliveCount);
+			PrintImportantLog(0,_T("æ£€æµ‹åˆ°çº¿ç¨‹[%u]å¤±åŽ»å“åº”,ç¬¬%dæ¬¡"),m_TargetThreadID,m_LostAliveCount);
 			if(m_LostAliveCount>m_MaxLostAliveCount)
 			{
-				PrintImportantLog(0,_T("¼ì²âµ½Ïß³Ì[%u]ËÀËø£¬×öDump²¢¹Ø±Õ"),m_TargetThreadID);
-				PrintImportantLog(0,_T("×î½üº¯ÊýÎ»ÖÃ[%s,%d]"),m_RecentSourceFileName,m_RecentSourceLine);
+				PrintImportantLog(0,_T("æ£€æµ‹åˆ°çº¿ç¨‹[%u]æ­»é”ï¼ŒåšDumpå¹¶å…³é—­"),m_TargetThreadID);
+				PrintImportantLog(0,_T("æœ€è¿‘å‡½æ•°ä½ç½®[%s,%d]"),m_RecentSourceFileName,m_RecentSourceLine);
 #ifdef WIN32
 				CExceptionParser::GetInstance()->WriteDump(NULL);
 #endif

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 IMPLEMENT_FILE_CHANNEL_MANAGER(CCSVReader)
 
@@ -57,7 +57,7 @@ bool CCSVReader::Open(IFileAccessor * pFileAccessor,bool HaveHeader)
 		return false;
 	}
 
-	m_DataSize = StringFile.GetDataLen();
+	m_DataSize = (UINT)StringFile.GetDataLen();
 	m_pData=new TCHAR[m_DataSize+1];
 	memcpy(m_pData, StringFile.GetData(), m_DataSize*sizeof(TCHAR));
 	m_pData[m_DataSize]=0;

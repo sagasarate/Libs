@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    ClassifiedID.h                                           */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    ClassifiedID.h                                           */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -22,15 +22,15 @@ protected:
 		UINT	ID;
 		struct CLASSIFIED_4
 		{
-			BYTE	Index;			//Ë÷Òı±àºÅ
-			BYTE	Group;			//·Ö×éºÅ
-			BYTE	SubType;		//×ÓÀàĞÍ
-			BYTE	MainType;		//Ö÷ÀàĞÍ
+			BYTE	Index;			//ç´¢å¼•ç¼–å·
+			BYTE	Group;			//åˆ†ç»„å·
+			BYTE	SubType;		//å­ç±»å‹
+			BYTE	MainType;		//ä¸»ç±»å‹
 		}ClassifiedID_4;
 		struct CLASSIFIED_2
 		{
-			WORD	Index;		//Ë÷Òı±àºÅ		
-			WORD	Type;		//ÀàĞÍ			
+			WORD	Index;		//ç´¢å¼•ç¼–å·		
+			WORD	Type;		//ç±»å‹			
 		}ClassifiedID_2;
 	};
 
@@ -107,6 +107,16 @@ public:
 			m_ID.ClassifiedID_4.Group,
 			m_ID.ClassifiedID_4.Index);
 		return Buffer;
+	}
+	static CClassifiedID StrToID(LPCTSTR IDStr)
+	{
+		CClassifiedID ID;
+		ID.FromStr(IDStr);
+		return ID;
+	}
+	static LPCTSTR IDToStr(const CClassifiedID& ID)
+	{
+		return ID.ToStr();
 	}
 	BYTE& MainType()
 	{

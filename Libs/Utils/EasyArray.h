@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    EasyArray.h                                              */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    EasyArray.h                                              */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -141,6 +141,22 @@ public:
 			return true;
 		}
 		return false;
+	}
+	T * InsertEmpty(size_t BeforeIndex)
+	{
+		if (BeforeIndex <= m_ArrayLength)
+		{
+			if (m_ArrayLength >= m_BufferSize)
+			{
+				ResizeBuffer(m_BufferSize + m_GrowSize);
+			}
+			if (m_ArrayLength - BeforeIndex)
+				memmove(m_pBuffer + BeforeIndex + 1, m_pBuffer + BeforeIndex, sizeof(T)*(m_ArrayLength - BeforeIndex));
+			ConstructObjects(m_pBuffer + BeforeIndex, 1);
+			m_ArrayLength++;
+			return m_pBuffer + BeforeIndex;
+		}
+		return NULL;
 	}
 	bool Insert(size_t BeforeIndex,const CEasyArray<T>& Array)
 	{

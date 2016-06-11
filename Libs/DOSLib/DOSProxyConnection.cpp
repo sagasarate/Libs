@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DOSProxyConnection.cpp                                   */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ23ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSProxyConnection.cpp                                   */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ23æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -28,6 +28,8 @@ CDOSProxyConnection::CDOSProxyConnection(void):CNetConnection()
 	m_KeepAliveTime=30000;
 	m_NeedDelayClose=false;
 	m_UseServerInitiativeKeepAlive=false;
+	m_UseWebSocketProtocol = false;
+	m_WebSocketStatus = WEB_SOCKET_STATUS_NONE;
 	FUNCTION_END;
 }
 
@@ -51,11 +53,13 @@ BOOL CDOSProxyConnection::Init(CDOSObjectProxyService * pService,UINT ID)
 	m_KeepAliveTime=m_pService->GetConfig().KeepAliveTime;
 	m_UseServerInitiativeKeepAlive=m_pService->GetConfig().UseServerInitiativeKeepAlive;
 
+	m_UseWebSocketProtocol = m_pService->GetConfig().UseWebSocketProtocol;
+
 	if(m_AssembleBuffer.GetBufferSize()<m_pService->GetConfig().MaxMsgSize*2)
 	{
 		if(!m_AssembleBuffer.Create(m_pService->GetConfig().MaxMsgSize*2))
 		{
-			PrintDOSLog(0xff0000,_T("´´½¨%u´óĞ¡µÄÆ´°ü»º³åÊ§°Ü£¡"),
+			PrintDOSLog(_T("DOSLib"),_T("åˆ›å»º%uå¤§å°çš„æ‹¼åŒ…ç¼“å†²å¤±è´¥ï¼"),
 				m_pService->GetConfig().MaxMsgSize*2);
 			return FALSE;
 		}
@@ -67,7 +71,7 @@ BOOL CDOSProxyConnection::Init(CDOSObjectProxyService * pService,UINT ID)
 		{
 			if(!m_CompressBuffer.Create(m_pService->GetConfig().MaxMsgSize))
 			{
-				PrintDOSLog(0xff0000,_T("´´½¨%u´óĞ¡µÄÑ¹Ëõ»º³åÊ§°Ü£¡"),
+				PrintDOSLog(_T("DOSLib"),_T("åˆ›å»º%uå¤§å°çš„å‹ç¼©ç¼“å†²å¤±è´¥ï¼"),
 					m_pService->GetConfig().MaxMsgSize);
 				return FALSE;
 			}
@@ -79,7 +83,7 @@ BOOL CDOSProxyConnection::Init(CDOSObjectProxyService * pService,UINT ID)
 	{
 		if(!GetServer()->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(0xff0000,_T("CDOSProxyConnection::OnDisconnection:ÊÍ·ÅÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("CDOSProxyConnection::OnDisconnection:é‡Šæ”¾æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 		}
 	}
 
@@ -87,7 +91,7 @@ BOOL CDOSProxyConnection::Init(CDOSObjectProxyService * pService,UINT ID)
 	{
 		if (!m_MsgQueue.Create(m_pService->GetConfig().ConnectionMsgQueueSize))
 		{
-			PrintDOSLog(0xff0000,_T("´´½¨%u´óĞ¡µÄÏûÏ¢¶ÓÁĞÊ§°Ü£¡"),
+			PrintDOSLog(_T("DOSLib"),_T("åˆ›å»º%uå¤§å°çš„æ¶ˆæ¯é˜Ÿåˆ—å¤±è´¥ï¼"),
 				m_pService->GetConfig().ConnectionMsgQueueSize);
 			return FALSE;
 		}
@@ -97,7 +101,7 @@ BOOL CDOSProxyConnection::Init(CDOSObjectProxyService * pService,UINT ID)
 	{
 		if (!m_MessageMap.Create(m_pService->GetConfig().MsgMapSize))
 		{
-			PrintDOSLog(0xff0000,_T("´´½¨%u´óĞ¡µÄÏûÏ¢Ó³Éä±íÊ§°Ü£¡"),
+			PrintDOSLog(_T("DOSLib"),_T("åˆ›å»º%uå¤§å°çš„æ¶ˆæ¯æ˜ å°„è¡¨å¤±è´¥ï¼"),
 				m_pService->GetConfig().MsgMapSize);
 			return FALSE;
 		}
@@ -127,7 +131,7 @@ void CDOSProxyConnection::Destory()
 	//{
 	//	if(!GetServer()->ReleaseMessagePacket(pPacket))
 	//	{
-	//		PrintDOSLog(0xff0000,_T("CDOSProxyConnection::Destory:ÊÍ·ÅÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+	//		PrintDOSLog(_T("DOSLib"),_T("CDOSProxyConnection::Destory:é‡Šæ”¾æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 	//	}
 	//}
 	//m_MessageMap.Clear();
@@ -137,10 +141,10 @@ void CDOSProxyConnection::Destory()
 void CDOSProxyConnection::OnConnection(BOOL IsSucceed)
 {
 	FUNCTION_BEGIN;
-	PrintDOSDebugLog(0xff0000,_T("ÊÕµ½´úÀí¶ÔÏóµÄÁ¬½Ó£¡IP=%s"),GetRemoteAddress().GetIPString());
+	PrintDOSLog(_T("DOSLib"),_T("æ”¶åˆ°ä»£ç†å¯¹è±¡çš„è¿æ¥ï¼IP=%s"),GetRemoteAddress().GetIPString());
 	SetSendDelay(m_pService->GetConfig().SendDelay);
 	SetSendQueryLimit(m_pService->GetConfig().SendQueryLimit);
-	PrintDOSDebugLog(0xff0000,_T("·¢ËÍÑÓÊ±ÉèÖÃÎª%u,²¢·¢·¢ËÍÏŞÖÆÎª%u"),
+	PrintDOSLog(_T("DOSLib"),_T("å‘é€å»¶æ—¶è®¾ç½®ä¸º%u,å¹¶å‘å‘é€é™åˆ¶ä¸º%u"),
 		m_pService->GetConfig().SendDelay,
 		m_pService->GetConfig().SendQueryLimit);
 	m_NeedDelayClose=false;
@@ -151,7 +155,7 @@ void CDOSProxyConnection::OnConnection(BOOL IsSucceed)
 void CDOSProxyConnection::OnDisconnection()
 {
 	FUNCTION_BEGIN;
-	PrintDOSDebugLog(0xff0000, _T("¶ÔÏó´úÀí(%d)µÄÁ¬½Ó¶Ï¿ª£¡IP=%s"), GetID(), GetRemoteAddress().GetIPString());
+	PrintDOSLog(_T("DOSLib"), _T("å¯¹è±¡ä»£ç†(%d)çš„è¿æ¥æ–­å¼€ï¼IP=%s"), GetID(), GetRemoteAddress().GetIPString());
 	SendDisconnectNotify();
 
 	CDOSMessagePacket * pPacket;
@@ -159,7 +163,7 @@ void CDOSProxyConnection::OnDisconnection()
 	{
 		if(!GetServer()->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(0xff0000,_T("CDOSProxyConnection::OnDisconnection:ÊÍ·ÅÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("CDOSProxyConnection::OnDisconnection:é‡Šæ”¾æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 		}
 	}
 	m_MessageMap.Clear();
@@ -170,30 +174,45 @@ void CDOSProxyConnection::OnDisconnection()
 void CDOSProxyConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
-	MSG_LEN_TYPE PacketSize=0;
-	UINT PeekPos=0;
-	if (!m_AssembleBuffer.PushBack(pData, DataSize))
+	if (m_UseWebSocketProtocol)
 	{
-		Disconnect();
-		PrintDOSLog(0xff0000,_T("¶ÔÏó´úÀí(%d)Æ´°ü»º³åÒç³ö£¬Á¬½Ó¶Ï¿ª£¡"),GetID());
+		switch (m_WebSocketStatus)
+		{
+		case WEB_SOCKET_STATUS_NONE:
+			ProcessHTTPMsg(pData, DataSize);
+			break;
+		case WEB_SOCKET_STATUS_ACCEPTED:
+			ProcessWebSocketData(pData, DataSize);
+			break;
+		}
 	}
 	else
 	{
-		if(m_AssembleBuffer.Peek(PeekPos,&PacketSize,sizeof(MSG_LEN_TYPE)))
+		MSG_LEN_TYPE PacketSize = 0;
+		UINT PeekPos = 0;
+		if (!m_AssembleBuffer.PushBack(pData, DataSize))
 		{
-			while(m_AssembleBuffer.GetUsedSize()>=PacketSize&&PacketSize)
+			Disconnect();
+			PrintDOSLog(_T("DOSLib"), _T("å¯¹è±¡ä»£ç†(%d)æ‹¼åŒ…ç¼“å†²æº¢å‡ºï¼Œè¿æ¥æ–­å¼€ï¼"), GetID());
+		}
+		else
+		{
+			if (m_AssembleBuffer.Peek(PeekPos, &PacketSize, sizeof(MSG_LEN_TYPE)))
 			{
-				if(PacketSize<CDOSSimpleMessage::GetMsgHeaderLength())
+				while (m_AssembleBuffer.GetUsedSize() >= PacketSize&&PacketSize)
 				{
-					Disconnect();
-					PrintDOSLog(0xff0000,_T("¶ÔÏó´úÀí(%d)ÊÕµ½·Ç·¨°ü£¬Á¬½Ó¶Ï¿ª£¡"),GetID());
+					if (PacketSize < CDOSSimpleMessage::GetMsgHeaderLength())
+					{
+						Disconnect();
+						PrintDOSLog(_T("DOSLib"), _T("å¯¹è±¡ä»£ç†(%d)æ”¶åˆ°éæ³•åŒ…ï¼Œè¿æ¥æ–­å¼€ï¼"), GetID());
+					}
+					OnMsg((CDOSSimpleMessage *)m_AssembleBuffer.GetBuffer());
+					m_AssembleBuffer.PopFront(NULL, PacketSize);
+					PeekPos = 0;
+					PacketSize = 0;
+					if (!m_AssembleBuffer.Peek(PeekPos, &PacketSize, sizeof(MSG_LEN_TYPE)))
+						break;
 				}
-				OnMsg((CDOSSimpleMessage *)m_AssembleBuffer.GetBuffer());
-				m_AssembleBuffer.PopFront(NULL,PacketSize);
-				PeekPos=0;
-				PacketSize=0;
-				if(!m_AssembleBuffer.Peek(PeekPos,&PacketSize,sizeof(MSG_LEN_TYPE)))
-					break;
 			}
 		}
 	}
@@ -205,7 +224,7 @@ void CDOSProxyConnection::OnMsg(CDOSSimpleMessage * pMessage)
 	FUNCTION_BEGIN;
 	switch(pMessage->GetMsgID())
 	{
-	case DSM_PROXY_KEEP_ALIVE:
+	case DSM_PROXY_KEEP_ALIVE:		
 		{
 			if(!m_UseServerInitiativeKeepAlive)
 			{
@@ -242,7 +261,7 @@ BOOL CDOSProxyConnection::PushMessage(CDOSMessagePacket * pPacket)
 	{
 		if(!GetServer()->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(0xff0000,_T("CDOSProxyConnection::PushMessage:ÊÍ·ÅÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("CDOSProxyConnection::PushMessage:é‡Šæ”¾æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 		}
 	}
 	FUNCTION_END;
@@ -259,10 +278,13 @@ int CDOSProxyConnection::Update(int ProcessPacketLimit)
 	while(m_MsgQueue.PopFront(pPacket))
 	{
 		pPacket->SetAllocTime(32);
-		SendOutSideMsg(pPacket);
+		if (pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
+			OnSystemMessage(pPacket);
+		else
+			SendOutSideMsg(pPacket);
 		if(!GetServer()->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(0xff0000,_T("CDOSProxyConnection::Update:ÊÍ·ÅÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("CDOSProxyConnection::Update:é‡Šæ”¾æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 		}
 		PacketCount++;
 		if(PacketCount>=PacketLimit&&(!m_WantClose))
@@ -277,16 +299,23 @@ int CDOSProxyConnection::Update(int ProcessPacketLimit)
 		m_KeepAliveCount++;
 		if(m_UseServerInitiativeKeepAlive)
 		{
-			CDOSSimpleMessage KeepAliveMsg;
-			KeepAliveMsg.Init();
-			KeepAliveMsg.SetMsgID(DSM_PROXY_KEEP_ALIVE);
-			KeepAliveMsg.SetDataLength(0);
-			KeepAliveMsg.SetMsgFlag(DOS_MESSAGE_FLAG_SYSTEM_MESSAGE);
-			Send(&KeepAliveMsg,KeepAliveMsg.GetMsgLength());
+			if (m_UseWebSocketProtocol)
+			{
+				SendWebSocketPingMsg();
+			}
+			else
+			{
+				CDOSSimpleMessage KeepAliveMsg;
+				KeepAliveMsg.Init();
+				KeepAliveMsg.SetMsgID(DSM_PROXY_KEEP_ALIVE);
+				KeepAliveMsg.SetDataLength(0);
+				KeepAliveMsg.SetMsgFlag(DOS_MESSAGE_FLAG_SYSTEM_MESSAGE);
+				Send(&KeepAliveMsg, KeepAliveMsg.GetMsgLength());
+			}
 		}
 		if(m_KeepAliveCount>=m_MaxKeepAliveCount)
 		{
-			PrintDOSLog(0xff0000,_T("CDOSProxyConnection::Update:KeepAlive³¬Ê±£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("CDOSProxyConnection::Update:KeepAliveè¶…æ—¶ï¼"));
 			m_KeepAliveCount=0;
 			Disconnect();
 		}
@@ -296,7 +325,7 @@ int CDOSProxyConnection::Update(int ProcessPacketLimit)
 	{
 		if(m_UnacceptConnectionKeepTimer.IsTimeOut(m_pService->GetConfig().UnacceptConnectionKeepTime))
 		{
-			PrintDOSLog(0xff0000,_T("CDOSProxyConnection::Update:Î´È·ÈÏÁ¬½Ó´æÔÚÊ±¼ä¹ı³¤£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("CDOSProxyConnection::Update:æœªç¡®è®¤è¿æ¥å­˜åœ¨æ—¶é—´è¿‡é•¿ï¼"));
 			Disconnect();
 		}
 	}
@@ -305,7 +334,7 @@ int CDOSProxyConnection::Update(int ProcessPacketLimit)
 	{
 		if(m_DelayCloseTimer.IsTimeOut())
 		{
-			PrintDOSLog(0xff0000,_T("CDOSProxyConnection::Update:Á¬½ÓÑÓÊ±¹Ø±Õ£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("CDOSProxyConnection::Update:è¿æ¥å»¶æ—¶å…³é—­ï¼"));
 			Disconnect();
 		}
 	}
@@ -323,6 +352,72 @@ inline CDOSServer * CDOSProxyConnection::GetServer()
 	return NULL;
 }
 
+BOOL CDOSProxyConnection::OnSystemMessage(CDOSMessagePacket * pPacket)
+{
+	FUNCTION_BEGIN;
+	switch (pPacket->GetMessage().GetMsgID())
+	{
+	case DSM_PROXY_REGISTER_MSG_MAP:
+		if (pPacket->GetMessage().GetDataLength() >= sizeof(MSG_ID_TYPE))
+		{
+			int Count = (pPacket->GetMessage().GetDataLength()) / sizeof(MSG_ID_TYPE);
+			MSG_ID_TYPE * pMsgIDs = (MSG_ID_TYPE *)(pPacket->GetMessage().GetDataBuffer());
+			for (int i = 0; i < Count; i++)
+			{
+				RegisterMsgMap(pMsgIDs[i], pPacket->GetMessage().GetSenderID());
+			}
+		}
+		return TRUE;
+	case DSM_PROXY_UNREGISTER_MSG_MAP:
+		if (pPacket->GetMessage().GetDataLength() >= sizeof(MSG_ID_TYPE))
+		{
+			int Count = (pPacket->GetMessage().GetDataLength()) / sizeof(MSG_ID_TYPE);
+			MSG_ID_TYPE * pMsgIDs = (MSG_ID_TYPE *)(pPacket->GetMessage().GetDataBuffer());
+			for (int i = 0; i < Count; i++)
+			{
+				UnregisterMsgMap(pMsgIDs[i], pPacket->GetMessage().GetSenderID());
+			}
+		}
+		return TRUE;
+	case DSM_PROXY_DISCONNECT:
+		if (pPacket->GetMessage().GetDataLength() >= sizeof(UINT))
+		{
+			UINT Delay = *((UINT *)(pPacket->GetMessage().GetDataBuffer()));
+			m_NeedDelayClose = true;
+			m_DelayCloseTimer.SetTimeOut(Delay);
+			if (m_UseWebSocketProtocol)
+			{
+				SendWebSocketCloseMsg();
+			}
+			PrintDOSLog(_T("DOSLib"), _T("0x%llXè¯·æ±‚åœ¨%uMSåæ–­å¼€è¿æ¥ï¼"), pPacket->GetMessage().GetSenderID().ID, Delay);
+		}
+		return TRUE;
+	case DSM_PROXY_GET_IP:
+		{
+			PROXY_CLIENT_IP_INFO IPInfo;
+			IPInfo.IP = GetRemoteAddress().GetIP();
+			IPInfo.Port = GetRemoteAddress().GetPort();
+
+			GetServer()->GetRouter()->RouterMessage(m_ObjectID, pPacket->GetMessage().GetSenderID(),
+				DSM_PROXY_IP_REPORT, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, &IPInfo, sizeof(IPInfo));
+		}
+		return TRUE;
+	case DSM_ROUTE_LINK_LOST:
+		ClearMsgMapByRouterID(pPacket->GetMessage().GetSenderID().RouterID);
+		return TRUE;
+	case DSM_OBJECT_ALIVE_TEST:
+		{
+			BYTE IsEcho = 1;
+			GetServer()->GetRouter()->RouterMessage(m_ObjectID, pPacket->GetMessage().GetSenderID(),
+				DSM_OBJECT_ALIVE_TEST, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, &IsEcho, sizeof(IsEcho));
+		}
+		return TRUE;	
+	default:
+		PrintDOSLog(_T("DOSLib"), _T("ProxyConnectionæ”¶åˆ°æœªçŸ¥ç³»ç»Ÿæ¶ˆæ¯0x%llX"), pPacket->GetMessage().GetMsgID());
+	}
+	FUNCTION_END;
+	return FALSE;
+}
 
 BOOL CDOSProxyConnection::SendInSideMsg(MSG_ID_TYPE MsgID,LPVOID pData,UINT DataSize)
 {
@@ -337,7 +432,7 @@ BOOL CDOSProxyConnection::SendInSideMsg(MSG_ID_TYPE MsgID,LPVOID pData,UINT Data
 	}
 	else
 	{
-		PrintDOSLog(0xff0000,_T("ÎŞ·¨ÕÒµ½ÏûÏ¢0X%xµÄ½ÓÊÕÕß£¡"),MsgID);
+		PrintDOSLog(_T("DOSLib"),_T("æ— æ³•æ‰¾åˆ°æ¶ˆæ¯0X%xçš„æ¥æ”¶è€…ï¼"),MsgID);
 		return FALSE;
 	}
 	FUNCTION_END;
@@ -349,92 +444,46 @@ BOOL CDOSProxyConnection::SendInSideMsg(MSG_ID_TYPE MsgID,LPVOID pData,UINT Data
 inline BOOL CDOSProxyConnection::SendOutSideMsg(CDOSMessagePacket * pPacket)
 {
 	FUNCTION_BEGIN;
-	switch(pPacket->GetMessage().GetMsgID())
+		
+	bool NeedSaveHead = pPacket->GetRefCount() > 1;
+
+	CDOSMessage::DOS_MESSAGE_HEAD SaveHeader;
+
+	if (NeedSaveHead)
 	{
-	case DSM_PROXY_REGISTER_MSG_MAP:
-		if(pPacket->GetMessage().GetDataLength()>=sizeof(MSG_ID_TYPE))
-		{
-			int Count=(pPacket->GetMessage().GetDataLength())/sizeof(MSG_ID_TYPE);
-			MSG_ID_TYPE * pMsgIDs=(MSG_ID_TYPE *)(pPacket->GetMessage().GetDataBuffer());
-			for(int i=0;i<Count;i++)
-			{
-				RegisterMsgMap(pMsgIDs[i],pPacket->GetMessage().GetSenderID());
-			}
-		}
-		return TRUE;
-	case DSM_PROXY_UNREGISTER_MSG_MAP:
-		if(pPacket->GetMessage().GetDataLength()>=sizeof(MSG_ID_TYPE))
-		{
-			int Count=(pPacket->GetMessage().GetDataLength())/sizeof(MSG_ID_TYPE);
-			MSG_ID_TYPE * pMsgIDs=(MSG_ID_TYPE *)(pPacket->GetMessage().GetDataBuffer());
-			for(int i=0;i<Count;i++)
-			{
-				UnregisterMsgMap(pMsgIDs[i],pPacket->GetMessage().GetSenderID());
-			}
-		}
-		return TRUE;
-	case DSM_PROXY_DISCONNECT:
-		if(pPacket->GetMessage().GetDataLength()>=sizeof(UINT))
-		{
-			UINT Delay=*((UINT *)(pPacket->GetMessage().GetDataBuffer()));
-			m_NeedDelayClose=true;
-			m_DelayCloseTimer.SetTimeOut(Delay);
-			PrintDOSDebugLog(0xff0000,_T("0x%llXÇëÇóÔÚ%uMSºó¶Ï¿ªÁ¬½Ó£¡"),pPacket->GetMessage().GetSenderID().ID,Delay);
-		}
-		return TRUE;
-	case DSM_PROXY_GET_IP:
-		{
-			PROXY_CLIENT_IP_INFO IPInfo;
-			IPInfo.IP=GetRemoteAddress().GetIP();
-			IPInfo.Port=GetRemoteAddress().GetPort();
-
-			GetServer()->GetRouter()->RouterMessage(m_ObjectID,pPacket->GetMessage().GetSenderID(),
-				DSM_PROXY_IP_REPORT,DOS_MESSAGE_FLAG_SYSTEM_MESSAGE,&IPInfo,sizeof(IPInfo));
-		}
-		return TRUE;
-	case DSM_ROUTE_LINK_LOST:
-		ClearMsgMapByRouterID(pPacket->GetMessage().GetSenderID().RouterID);
-		return TRUE;
-	case DSM_OBJECT_ALIVE_TEST:
-		{
-			BYTE IsEcho=1;
-			GetServer()->GetRouter()->RouterMessage(m_ObjectID,pPacket->GetMessage().GetSenderID(),
-				DSM_OBJECT_ALIVE_TEST,DOS_MESSAGE_FLAG_SYSTEM_MESSAGE,&IsEcho,sizeof(IsEcho));
-		}
-		return TRUE;
-	default:
-		{
-			bool NeedSaveHead=pPacket->GetRefCount()>1;
-
-			CDOSMessage::DOS_MESSAGE_HEAD SaveHeader;
-
-			if(NeedSaveHead)
-			{
-				SaveHeader=pPacket->GetMessage().GetMsgHeader();
-			}
-			CDOSSimpleMessage * pSimpleMessage=pPacket->GetMessage().MakeSimpleMessage();
-
-			pSimpleMessage=CompressMsg(pSimpleMessage);
-			if(pSimpleMessage==NULL)
-			{
-				if(NeedSaveHead)
-				{
-					pPacket->GetMessage().GetMsgHeader()=SaveHeader;
-				}
-				Disconnect();
-				return FALSE;
-			}
-
-			BOOL Ret=Send(pSimpleMessage,pSimpleMessage->GetMsgLength());
-
-			if(NeedSaveHead)
-			{
-				pPacket->GetMessage().GetMsgHeader()=SaveHeader;
-			}
-
-			return Ret;
-		}
+		SaveHeader = pPacket->GetMessage().GetMsgHeader();
 	}
+	CDOSSimpleMessage * pSimpleMessage = pPacket->GetMessage().MakeSimpleMessage();
+
+	pSimpleMessage = CompressMsg(pSimpleMessage);
+	if (pSimpleMessage == NULL)
+	{
+		if (NeedSaveHead)
+		{
+			pPacket->GetMessage().GetMsgHeader() = SaveHeader;
+		}
+		Disconnect();
+		return FALSE;
+	}
+
+	BOOL Ret = FALSE;
+
+	if (m_UseWebSocketProtocol)
+	{
+		Ret = SendMsgByWebSocket(pSimpleMessage);
+	}
+	else
+	{
+		Ret = Send(pSimpleMessage, pSimpleMessage->GetMsgLength());
+	}
+
+	if (NeedSaveHead)
+	{
+		pPacket->GetMessage().GetMsgHeader() = SaveHeader;
+	}
+
+	return Ret;
+	
 	FUNCTION_END;
 	return FALSE;
 }
@@ -450,7 +499,7 @@ BOOL CDOSProxyConnection::SendDisconnectNotify()
 		CDOSMessagePacket * pNewPacket=GetServer()->NewMessagePacket(PacketSize);
 		if(pNewPacket==NULL)
 		{
-			PrintDOSLog(0xff0000,_T("·ÖÅäÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("åˆ†é…æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 			return FALSE;
 		}
 
@@ -471,7 +520,7 @@ BOOL CDOSProxyConnection::SendDisconnectNotify()
 		UINT RealTargetIDCount=DistinctObjectID(pTargetObjectIDs,MsgMapCount);
 		for(UINT i=0;i<RealTargetIDCount;i++)
 		{
-			PrintDOSDebugLog(0xff0000,_T("Ïò[0x%llX]·¢ËÍ´úÀí¶ÔÏó¶ÏÏßÍ¨Öª"),pTargetObjectIDs[i]);
+			PrintDOSLog(_T("DOSLib"),_T("å‘[0x%llX]å‘é€ä»£ç†å¯¹è±¡æ–­çº¿é€šçŸ¥"),pTargetObjectIDs[i]);
 		}
 		pNewPacket->SetTargetIDs(RealTargetIDCount,NULL);
 		pNewPacket->MakePacketLength();
@@ -512,11 +561,11 @@ BOOL CDOSProxyConnection::RegisterMsgMap(MSG_ID_TYPE MsgID,OBJECT_ID ObjectID)
 	OBJECT_ID * pObjectID=m_MessageMap.Find(MsgID);
 	//if(pObjectID)
 	//{
-	//	PrintDOSDebugLog(0xff0000,_T("0x%llX×¢²áµÄ´úÀí[0x%X]ÏûÏ¢Ó³Éä[0x%X]±»[0x%llX]È¡´ú£¡"),*pObjectID,GetID(),MsgID,ObjectID);
+	//	PrintDOSLog(_T("DOSLib"),_T("0x%llXæ³¨å†Œçš„ä»£ç†[0x%X]æ¶ˆæ¯æ˜ å°„[0x%X]è¢«[0x%llX]å–ä»£ï¼"),*pObjectID,GetID(),MsgID,ObjectID);
 	//}
 	//else
 	//{
-	//	PrintDOSDebugLog(0xff0000,_T("0x%llX×¢²áÁË´úÀí[0x%X]ÏûÏ¢Ó³Éä[0x%X]£¡"),ObjectID.ID,GetID(),MsgID);
+	//	PrintDOSLog(_T("DOSLib"),_T("0x%llXæ³¨å†Œäº†ä»£ç†[0x%X]æ¶ˆæ¯æ˜ å°„[0x%X]ï¼"),ObjectID.ID,GetID(),MsgID);
 	//}
 
 	m_UnacceptConnectionKeepTimer.SaveTime();
@@ -532,19 +581,19 @@ BOOL CDOSProxyConnection::UnregisterMsgMap(MSG_ID_TYPE MsgID,OBJECT_ID ObjectID)
 	{
 		if(*pObjectID==ObjectID)
 		{
-			//PrintDOSDebugLog(0xff0000,_T("0x%llX×¢ÏúÁË´úÀí[0x%X]ÏûÏ¢Ó³Éä[0x%X]£¡"),ObjectID.ID,GetID(),MsgID);
+			//PrintDOSLog(_T("DOSLib"),_T("0x%llXæ³¨é”€äº†ä»£ç†[0x%X]æ¶ˆæ¯æ˜ å°„[0x%X]ï¼"),ObjectID.ID,GetID(),MsgID);
 			m_UnacceptConnectionKeepTimer.SaveTime();
 			return m_MessageMap.Delete(MsgID);
 		}
 		else
 		{
-			//PrintDOSDebugLog(0xff0000,_T("0x%llX×¢Ïú´úÀí[0x%X]ÏûÏ¢Ó³Éä[0x%X],ÏÖ×¢²á¶ÔÏóÊÇ[0x%llX],ÎŞ·¨×¢Ïú£¡"),ObjectID.ID,GetID(),MsgID,*pObjectID);
+			//PrintDOSLog(_T("DOSLib"),_T("0x%llXæ³¨é”€ä»£ç†[0x%X]æ¶ˆæ¯æ˜ å°„[0x%X],ç°æ³¨å†Œå¯¹è±¡æ˜¯[0x%llX],æ— æ³•æ³¨é”€ï¼"),ObjectID.ID,GetID(),MsgID,*pObjectID);
 			return FALSE;
 		}
 	}
 	else
 	{
-		PrintDOSDebugLog(0xff0000,_T("0x%llX×¢Ïú´úÀí[0x%X]ÏûÏ¢Ó³Éä[0x%X],Î´ÕÒµ½Ó³Éä¼ÇÂ¼£¡"),ObjectID.ID,GetID(),MsgID);
+		PrintDOSLog(_T("DOSLib"),_T("0x%llXæ³¨é”€ä»£ç†[0x%X]æ¶ˆæ¯æ˜ å°„[0x%X],æœªæ‰¾åˆ°æ˜ å°„è®°å½•ï¼"),ObjectID.ID,GetID(),MsgID);
 		return FALSE;
 	}
 	FUNCTION_END;
@@ -569,7 +618,7 @@ void CDOSProxyConnection::ClearMsgMapByRouterID(UINT RouterID)
 	}
 	if(m_MessageMap.GetObjectCount()<=0)
 	{
-		PrintDOSLog(0xff0000,_T("´úÀí[0x%X]ÒÑ¾­Ã»ÓĞÈÎºÎÏûÏ¢Ó³Éä£¬Á¬½Ó¶Ï¿ª£¡"),GetID());
+		PrintDOSLog(_T("DOSLib"),_T("ä»£ç†[0x%X]å·²ç»æ²¡æœ‰ä»»ä½•æ¶ˆæ¯æ˜ å°„ï¼Œè¿æ¥æ–­å¼€ï¼"),GetID());
 		Disconnect();
 	}
 	FUNCTION_END;
@@ -591,7 +640,7 @@ CDOSSimpleMessage * CDOSProxyConnection::CompressMsg(CDOSSimpleMessage * pMsg)
 				{
 					if(!m_CompressBuffer.Create(pMsg->GetMsgLength()))
 					{
-						PrintDOSLog(0xff0000,_T("´´½¨%u´óĞ¡µÄÑ¹Ëõ»º³åÊ§°Ü£¬¹Ø±ÕÁ¬½Ó£¡"),
+						PrintDOSLog(_T("DOSLib"),_T("åˆ›å»º%uå¤§å°çš„å‹ç¼©ç¼“å†²å¤±è´¥ï¼Œå…³é—­è¿æ¥ï¼"),
 							pMsg->GetMsgLength());
 
 						return NULL;
@@ -613,7 +662,7 @@ CDOSSimpleMessage * CDOSProxyConnection::CompressMsg(CDOSSimpleMessage * pMsg)
 				}
 				else
 				{
-					PrintDOSLog(0xff0000,_T("lzoÑ¹ËõÏûÏ¢Ê§°Ü(%d)£¬½«Ö±½Ó·¢ËÍ"),
+					PrintDOSLog(_T("DOSLib"),_T("lzoå‹ç¼©æ¶ˆæ¯å¤±è´¥(%d)ï¼Œå°†ç›´æ¥å‘é€"),
 						Result);
 				}
 			}
@@ -627,7 +676,7 @@ CDOSSimpleMessage * CDOSProxyConnection::CompressMsg(CDOSSimpleMessage * pMsg)
 			//	{
 			//		if(!m_CompressBuffer.Create(CompressBuffSize))
 			//		{
-			//			PrintDOSLog(0xff0000,_T("´´½¨%u´óĞ¡µÄÑ¹Ëõ»º³åÊ§°Ü£¬¹Ø±ÕÁ¬½Ó£¡"),
+			//			PrintDOSLog(_T("DOSLib"),_T("åˆ›å»º%uå¤§å°çš„å‹ç¼©ç¼“å†²å¤±è´¥ï¼Œå…³é—­è¿æ¥ï¼"),
 			//				pMsg->GetMsgLength());
 
 			//			return NULL;
@@ -662,7 +711,7 @@ CDOSSimpleMessage * CDOSProxyConnection::CompressMsg(CDOSSimpleMessage * pMsg)
 			//	}
 			//	else
 			//	{
-			//		PrintDOSLog(0xff0000,_T("zipÑ¹ËõÏûÏ¢Ê§°Ü(%d)£¬½«Ö±½Ó·¢ËÍ"),
+			//		PrintDOSLog(_T("DOSLib"),_T("zipå‹ç¼©æ¶ˆæ¯å¤±è´¥(%d)ï¼Œå°†ç›´æ¥å‘é€"),
 			//			Result);
 			//	}
 			//}
@@ -676,4 +725,309 @@ CDOSSimpleMessage * CDOSProxyConnection::CompressMsg(CDOSSimpleMessage * pMsg)
 
 	FUNCTION_END;
 	return NULL;
+}
+
+void CDOSProxyConnection::ProcessHTTPMsg(const BYTE * pData, UINT DataSize)
+{
+	UINT Ptr = 0;
+	HTTP_REQUEST_PARSE_STATUS ParseStatus = HRPS_NONE;
+	while (Ptr < DataSize)
+	{
+		switch (ParseStatus)
+		{
+		case HRPS_NONE:
+			if (pData[Ptr] == '\r')
+				ParseStatus = HRPS_RETURN1;
+			break;
+		case HRPS_RETURN1:
+			if (pData[Ptr] == '\n')
+				ParseStatus = HRPS_NEW_LINE1;
+			else
+				ParseStatus = HRPS_NONE;
+			break;
+		case HRPS_NEW_LINE1:
+			if (pData[Ptr] == '\r')
+				ParseStatus = HRPS_RETURN2;
+			else
+				ParseStatus = HRPS_NONE;
+			break;
+		case HRPS_RETURN2:
+			if (pData[Ptr] == '\n')
+			{
+				//è¯·æ±‚å‘½ä»¤å·²ç»å®Œæ•´
+				((BYTE *)pData)[Ptr] = 0;
+				((BYTE *)pData)[Ptr - 1] = 0;
+				OnHTTPRequest((const char *)pData);
+				break;
+			}
+			else
+			{
+				ParseStatus = HRPS_NONE;
+			}
+			break;
+		}
+		Ptr++;
+	}
+}
+
+void CDOSProxyConnection::OnHTTPRequest(const char * szRequest)
+{
+	PrintDOSLog(_T("DOSLib"), _T("CHTTPSession::OnHTTPRequest:%s"), szRequest);
+
+	CEasyArray<char *> Lines;
+	ParseStringLines((char *)szRequest, Lines);
+	CEasyString GetField;
+	CEasyString UpgradeField;
+	CEasyString ConnectionField;
+	CEasyString SecWebSocketKeyField;
+	CEasyString SecWebSocketVersionField;
+	CEasyString SecWebSocketExtensionsField;
+	CEasyString HostField;
+	CEasyString OriginField;
+	for (UINT i = 0; i < Lines.GetCount(); i++)
+	{
+		if (strncmp(Lines[i], "GET ", 4) == 0)
+		{
+			GetField = Lines[i] + 4;
+		}
+		else if (strncmp(Lines[i], "Upgrade:", 8) == 0)
+		{
+			UpgradeField = Lines[i] + 8;
+			UpgradeField.Trim();
+		}
+		else if (strncmp(Lines[i], "Connection:", 11) == 0)
+		{
+			ConnectionField = Lines[i] + 11;
+			ConnectionField.Trim();
+		}
+		else if (strncmp(Lines[i], "Sec-WebSocket-Key:", 18) == 0)
+		{
+			SecWebSocketKeyField = Lines[i] + 18;
+			SecWebSocketKeyField.Trim();
+		}
+		else if (strncmp(Lines[i], "Sec-WebSocket-Version:", 18) == 0)
+		{
+			SecWebSocketVersionField = Lines[i] + 22;
+			SecWebSocketVersionField.Trim();
+		}
+		else if (strncmp(Lines[i], "Sec-WebSocket-Extensions:", 25) == 0)
+		{
+			SecWebSocketExtensionsField = Lines[i] + 25;
+			SecWebSocketExtensionsField.Trim();
+		}
+		else if (strncmp(Lines[i], "Host:", 5) == 0)
+		{
+			HostField = Lines[i] + 5;
+			HostField.Trim();
+		}
+		else if (strncmp(Lines[i], "Origin:", 7) == 0)
+		{
+			OriginField = Lines[i] + 7;
+			OriginField.Trim();
+		}
+	}
+	if (!GetField.IsEmpty() && UpgradeField.CompareNoCase("websocket") == 0 && ConnectionField.CompareNoCase("Upgrade") == 0 &&
+		SecWebSocketVersionField == "13" && !SecWebSocketKeyField.IsEmpty())
+	{
+		SecWebSocketKeyField = SecWebSocketKeyField + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+		CSHA1 sha1;
+		BYTE HashBin[20];
+
+		sha1.Update((BYTE *)SecWebSocketKeyField.GetBuffer(), SecWebSocketKeyField.GetLength());
+		sha1.Final();
+		sha1.GetHash(HashBin);
+		CEasyString HashStr = CBase64::Encode(HashBin, 20);
+		SendHTTPRespond(101, HashStr);
+		m_WebSocketStatus = WEB_SOCKET_STATUS_ACCEPTED;
+	}
+	else
+	{
+		SendHTTPRespond(403, "Not Support");		
+	}
+}
+
+void CDOSProxyConnection::SendHTTPRespond(int Code, LPCSTR szContent)
+{
+	char Buff[4096];
+	switch (Code)
+	{
+	case 101:
+		sprintf_s(Buff, 4096, "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: %s\r\n\r\n",
+			szContent);
+		break;	
+	case 403:
+		sprintf_s(Buff, 4096, "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\r\nContent-Length: %u\r\n\r\n%s",
+			strlen(szContent), szContent);
+		break;
+	default:
+		sprintf_s(Buff, 4096, "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\r\nContent-Length: %u\r\n\r\n%s",
+			strlen(szContent), szContent);
+		break;
+	}
+	Send(Buff, strlen(Buff));
+	if (Code != 101)
+	{
+		m_NeedDelayClose = true;
+		m_DelayCloseTimer.SetTimeOut(1000);
+	}
+}
+
+void CDOSProxyConnection::ParseStringLines(char * szStr, CEasyArray<char *>& StrLines)
+{
+	char * szLine = szStr;
+	while (*szStr)
+	{
+		if (*szStr == '\r' || *szStr == '\n')
+		{
+			*szStr = 0;
+			if (szStr - szLine > 1)
+				StrLines.Add(szLine);
+			szLine = szStr + 1;
+		}
+		szStr++;
+	}
+	if (szStr - szLine > 1)
+		StrLines.Add(szLine);
+}
+
+void CDOSProxyConnection::ProcessWebSocketData(const BYTE * pData, UINT DataSize)
+{
+	if (m_AssembleBuffer.PushBack(pData, DataSize))
+	{
+		BYTE Header1, Header2;
+		UINT Pos = 0;
+		m_AssembleBuffer.Peek(Pos, &Header1, sizeof(Header1));
+		m_AssembleBuffer.Peek(Pos, &Header2, sizeof(Header2));
+		BYTE OPCode = Header1 & 0x0F;
+		BYTE ReserveCode = (Header1 >> 4) & 0x07;
+		bool IsFinFrame = (Header1 & 0x80) != 0;
+		bool HaveMask = (Header2 & 0x80) != 0;
+		UINT64 DataLen = Header2 & 0x7F;
+		if (DataLen == 126)
+		{
+			m_AssembleBuffer.Peek(Pos, &DataLen, sizeof(UINT));
+		}
+		else if (DataLen == 127)
+		{
+			m_AssembleBuffer.Peek(Pos, &DataLen, sizeof(UINT64));
+		}
+		BYTE MaskKey[4];
+		if (HaveMask)
+		{
+			m_AssembleBuffer.Peek(Pos, MaskKey, sizeof(BYTE) * 4);
+		}
+		if (m_AssembleBuffer.GetUsedSize() >= Pos + DataLen)
+		{
+			OnWebSocketFrame(OPCode, IsFinFrame, HaveMask, MaskKey, (BYTE *)m_AssembleBuffer.GetBuffer(), Pos + DataLen, Pos);
+			m_AssembleBuffer.PopBack(NULL, Pos + DataLen);
+		}
+	}
+	else
+	{
+		Disconnect();
+		PrintDOSLog(_T("DOSLib"), _T("å¯¹è±¡ä»£ç†(%d)æ‹¼åŒ…ç¼“å†²æº¢å‡ºï¼Œè¿æ¥æ–­å¼€ï¼"), GetID());
+	}
+}
+
+void CDOSProxyConnection::OnWebSocketFrame(BYTE OPCode, bool IsFinFrame, bool HaveMask, BYTE * MaskKey, BYTE * pFrameData, UINT FrameLen, UINT DataPos)
+{
+	switch (OPCode)
+	{
+	case WEB_SOCKET_OP_CODE_CONTINUOUS_DATA:
+	case WEB_SOCKET_OP_CODE_TEXT_DATA:
+	case WEB_SOCKET_OP_CODE_BINARY_DATA:
+		{
+			BYTE * pData = pFrameData + DataPos;
+			UINT DataLen = FrameLen - DataPos;
+			if (HaveMask)
+			{
+				for (UINT i = 0; i < DataLen; i++)
+				{
+					pData[i] = pData[i] ^ MaskKey[i % 4];
+				}
+			}
+			if (DataLen >= sizeof(MSG_ID_TYPE))
+			{
+				MSG_ID_TYPE MsgID = *((MSG_ID_TYPE *)pData);
+				SendInSideMsg(MsgID, pData + sizeof(MSG_ID_TYPE), DataLen - sizeof(MSG_ID_TYPE));
+			}
+		}
+		break;
+	case WEB_SOCKET_OP_CODE_CLOSE:
+		{
+			SendWebSocketCloseMsg();
+			m_NeedDelayClose = true;
+			m_DelayCloseTimer.SetTimeOut(1000);
+		}
+	case WEB_SOCKET_OP_CODE_KEEP_ALIVE_PING:
+		{
+			m_KeepAliveCount = 0;
+			*pFrameData = ((*pFrameData) & 0x0F) | WEB_SOCKET_OP_CODE_KEEP_ALIVE_PONG;
+			Send(pFrameData, FrameLen);
+		}
+		break;
+	case WEB_SOCKET_OP_CODE_KEEP_ALIVE_PONG:
+		{
+			m_KeepAliveCount = 0;
+		}
+		break;
+	default:
+		PrintDOSLog(_T("DOSLib"), _T("å¯¹è±¡ä»£ç†(%d)æœªçŸ¥çš„WebSocketçš„OPCode(%d)ï¼Œè¿æ¥æ–­å¼€ï¼"), GetID(), OPCode);
+		Disconnect();
+	}
+}
+
+void CDOSProxyConnection::SendWebSocketCloseMsg()
+{
+	static BYTE CloseFrame[] = { WEB_SOCKET_OP_CODE_CLOSE | 0x80, 0 };
+	if (m_WebSocketStatus == WEB_SOCKET_STATUS_ACCEPTED)
+		Send(CloseFrame, sizeof(CloseFrame));
+}
+void CDOSProxyConnection::SendWebSocketPingMsg()
+{
+	static BYTE PingFrame[] = { WEB_SOCKET_OP_CODE_KEEP_ALIVE_PING | 0x80, 0 };
+	if (m_WebSocketStatus == WEB_SOCKET_STATUS_ACCEPTED)
+		Send(PingFrame, sizeof(PingFrame));
+}
+
+BOOL CDOSProxyConnection::SendMsgByWebSocket(CDOSSimpleMessage * pSimpleMessage)
+{
+	return SendWebSocketFrame(WEB_SOCKET_OP_CODE_BINARY_DATA, (BYTE *)pSimpleMessage->GetDataBuffer(), pSimpleMessage->GetDataLength());
+}
+
+BOOL CDOSProxyConnection::SendWebSocketFrame(WEB_SOCKET_OP_CODE OPCode, BYTE * pData, UINT DataLen)
+{
+	BYTE FrameHeader[10];
+	UINT HeaderSize = 2;
+	FrameHeader[0] = OPCode | 0x80;
+	if (DataLen < 126)
+	{
+		FrameHeader[1] = DataLen;
+	}
+	else if (DataLen<0x10000)
+	{
+		FrameHeader[1] = 126;
+		WORD Len = htons(DataLen);
+		FrameHeader[2] = Len & 0xFF;
+		FrameHeader[3] = (Len>>8) & 0xFF;
+		HeaderSize += 2;
+	}
+	else
+	{
+		FrameHeader[1] = 127;
+		UINT64 Len = __htonll(DataLen);
+		FrameHeader[2] = Len & 0xFF;
+		FrameHeader[3] = (Len >> 8) & 0xFF;
+		FrameHeader[4] = (Len >> 16) & 0xFF;
+		FrameHeader[5] = (Len >> 24) & 0xFF;
+		FrameHeader[6] = (Len >> 32) & 0xFF;
+		FrameHeader[7] = (Len >> 40) & 0xFF;
+		FrameHeader[8] = (Len >> 48) & 0xFF;
+		FrameHeader[9] = (Len >> 56) & 0xFF;
+		HeaderSize += 8;
+	}
+	Send(FrameHeader, HeaderSize);
+	if (pData&&DataLen)
+		Send(pData, DataLen);
+	return TRUE;
 }

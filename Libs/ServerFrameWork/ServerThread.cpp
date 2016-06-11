@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    ServerThread.cpp                                         */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    ServerThread.cpp                                         */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -19,7 +19,7 @@ CServerThread::CServerThread()
 	FUNCTION_BEGIN
 	m_pSysNetLinkManager=NULL;
 	m_pUDPSystemControlPort=NULL;
-	m_ConsoleLogLevel=0;
+	
 	FUNCTION_END;
 }
 
@@ -78,7 +78,7 @@ BOOL CServerThread::OnStart()
 	m_UDPSendCount=0;
 	m_CountTimer.SaveTime();
 
-	//×°ÔØÏµÍ³ÅäÖÃ
+	//è£…è½½ç³»ç»Ÿé…ç½®
 	CSystemConfig::GetInstance()->LoadConfig(MakeModuleFullPath(NULL,GetConfigFileName()));
 
 
@@ -121,7 +121,7 @@ BOOL CServerThread::OnStart()
 
 
 
-	Log("¿ªÊ¼Æô¶¯·þÎñÆ÷,µ±Ç°°æ±¾:%u.%u.%u.%u",
+	Log("å¼€å§‹å¯åŠ¨æœåŠ¡å™¨,å½“å‰ç‰ˆæœ¬:%u.%u.%u.%u",
 		g_ProgramVersion[3],
 		g_ProgramVersion[2],
 		g_ProgramVersion[1],
@@ -144,7 +144,7 @@ BOOL CServerThread::OnStart()
 	if(!CNetServer::OnStart())
 		return FALSE;
 
-	//³õÊ¼»¯ÏµÍ³Á¬½Ó
+	//åˆå§‹åŒ–ç³»ç»Ÿè¿žæŽ¥
 	m_pSysNetLinkManager=new CSystemNetLinkManager();
 	m_pSysNetLinkManager->SetServerThread(this);
 
@@ -153,59 +153,65 @@ BOOL CServerThread::OnStart()
 	if(Parser.parse_file(MakeModuleFullPath(NULL,GetConfigFileName()),pug::parse_trim_attribute))
 	{
 		xml_node Config=Parser.document();
-		if(Config.moveto_child("SystemLink"))
+		if (Config.moveto_child("Main"))
 		{
-			if(m_pSysNetLinkManager->Init(this,Config))
+			if (Config.moveto_child("SystemLink"))
 			{
-				Log("³õÊ¼»¯ÏµÍ³Á¬½Ó¹ÜÀíÆ÷³É¹¦");
+				if (m_pSysNetLinkManager->Init(this, Config))
+				{
+					Log("åˆå§‹åŒ–ç³»ç»Ÿè¿žæŽ¥ç®¡ç†å™¨æˆåŠŸ");
+				}
+				else
+				{
+					Log("åˆå§‹åŒ–ç³»ç»Ÿè¿žæŽ¥ç®¡ç†å™¨å¤±è´¥");
+				}
 			}
 			else
 			{
-				Log("³õÊ¼»¯ÏµÍ³Á¬½Ó¹ÜÀíÆ÷Ê§°Ü");
+				Log("ä¸åˆæ³•çš„ç³»ç»Ÿè¿žæŽ¥é…ç½®æ–‡ä»¶%s", GetConfigFileName());
 			}
 		}
 		else
 		{
-			Log("²»ºÏ·¨µÄÏµÍ³Á¬½ÓÅäÖÃÎÄ¼þ%s",GetConfigFileName());
+			Log("ä¸åˆæ³•çš„ç³»ç»Ÿè¿žæŽ¥é…ç½®æ–‡ä»¶%s", GetConfigFileName());
 		}
-
 	}
 	else
 	{
-		Log("Î´ÕÒµ½ÏµÍ³Á¬½ÓÅäÖÃÎÄ¼þ%s",GetConfigFileName());
+		Log("æœªæ‰¾åˆ°ç³»ç»Ÿè¿žæŽ¥é…ç½®æ–‡ä»¶%s",GetConfigFileName());
 	}
 
 	m_pUDPSystemControlPort=new CSystemControlPort();
 	if(!m_pUDPSystemControlPort->Init(this))
 	{
-		Log("³õÊ¼»¯UDPÏµÍ³¿ØÖÆ¶Ë¿ÚÊ§°Ü");
+		Log("åˆå§‹åŒ–UDPç³»ç»ŸæŽ§åˆ¶ç«¯å£å¤±è´¥");
 	}
 
 
-	m_ServerStatus.Create(SERVER_STATUS_BLOCK_SIZE);
+	
 
 	ULONG64_CONVERTER Version;
 	memcpy(Version.Words,g_ProgramVersion,sizeof(ULONG64_CONVERTER));
 
 	SetServerStatus(SC_SST_SS_PROGRAM_VERSION,CSmartValue(Version.QuadPart));
-	SetServerStatusFormat(SC_SST_SS_PROGRAM_VERSION,"·þÎñÆ÷°æ±¾",SSFT_VERSION);
-	SetServerStatusFormat(SC_SST_SS_CLIENT_COUNT,"¿Í»§¶ËÊýÁ¿");
-	SetServerStatusFormat(SC_SST_SS_CYCLE_TIME,"Ñ­»·Ê±¼ä(ºÁÃë)");
-	SetServerStatusFormat(SC_SST_SS_CPU_COST,"CPUÕ¼ÓÃÂÊ",SSFT_PERCENT);
-	SetServerStatusFormat(SC_SST_SS_TCP_RECV_FLOW,"TCP½ÓÊÕÁ÷Á¿(Byte/S)",SSFT_FLOW);
-	SetServerStatusFormat(SC_SST_SS_TCP_SEND_FLOW,"TCP·¢ËÍÁ÷Á¿(Byte/S)",SSFT_FLOW);
-	SetServerStatusFormat(SC_SST_SS_UDP_RECV_FLOW,"UDP½ÓÊÕÁ÷Á¿(Byte/S)",SSFT_FLOW);
-	SetServerStatusFormat(SC_SST_SS_UDP_SEND_FLOW,"UDP·¢ËÍÁ÷Á¿(Byte/S)",SSFT_FLOW);
-	SetServerStatusFormat(SC_SST_SS_TCP_RECV_COUNT,"TCP½ÓÊÕ´ÎÊý(´Î/S)");
-	SetServerStatusFormat(SC_SST_SS_TCP_SEND_COUNT,"TCP·¢ËÍ´ÎÊý(´Î/S)");
-	SetServerStatusFormat(SC_SST_SS_UDP_RECV_COUNT,"UDP½ÓÊÕ´ÎÊý(´Î/S)");
-	SetServerStatusFormat(SC_SST_SS_UDP_SEND_COUNT,"UDP·¢ËÍ´ÎÊý(´Î/S)");
+	SetServerStatusFormat(SC_SST_SS_PROGRAM_VERSION,"æœåŠ¡å™¨ç‰ˆæœ¬",SSFT_VERSION);
+	SetServerStatusFormat(SC_SST_SS_CLIENT_COUNT,"å®¢æˆ·ç«¯æ•°é‡");
+	SetServerStatusFormat(SC_SST_SS_CYCLE_TIME,"å¾ªçŽ¯æ—¶é—´(æ¯«ç§’)");
+	SetServerStatusFormat(SC_SST_SS_CPU_COST,"CPUå ç”¨çŽ‡",SSFT_PERCENT);
+	SetServerStatusFormat(SC_SST_SS_TCP_RECV_FLOW,"TCPæŽ¥æ”¶æµé‡(Byte/S)",SSFT_FLOW);
+	SetServerStatusFormat(SC_SST_SS_TCP_SEND_FLOW,"TCPå‘é€æµé‡(Byte/S)",SSFT_FLOW);
+	SetServerStatusFormat(SC_SST_SS_UDP_RECV_FLOW,"UDPæŽ¥æ”¶æµé‡(Byte/S)",SSFT_FLOW);
+	SetServerStatusFormat(SC_SST_SS_UDP_SEND_FLOW,"UDPå‘é€æµé‡(Byte/S)",SSFT_FLOW);
+	SetServerStatusFormat(SC_SST_SS_TCP_RECV_COUNT,"TCPæŽ¥æ”¶æ¬¡æ•°(æ¬¡/S)");
+	SetServerStatusFormat(SC_SST_SS_TCP_SEND_COUNT,"TCPå‘é€æ¬¡æ•°(æ¬¡/S)");
+	SetServerStatusFormat(SC_SST_SS_UDP_RECV_COUNT,"UDPæŽ¥æ”¶æ¬¡æ•°(æ¬¡/S)");
+	SetServerStatusFormat(SC_SST_SS_UDP_SEND_COUNT,"UDPå‘é€æ¬¡æ•°(æ¬¡/S)");
 
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(),SERVER_INFO_COUNT_TIME);
 
 
 
-	Log("·þÎñÆ÷³É¹¦Æô¶¯");
+	Log("æœåŠ¡å™¨æˆåŠŸå¯åŠ¨");
 
 	FUNCTION_END;
 	return TRUE;
@@ -223,7 +229,7 @@ void CServerThread::OnTerminate()
 	SAFE_RELEASE(m_pSysNetLinkManager);
 	SAFE_RELEASE(m_pUDPSystemControlPort);
 	CNetServer::OnTerminate();
-	Log("·þÎñÆ÷¹Ø±Õ");
+	Log("æœåŠ¡å™¨å…³é—­");
 	FUNCTION_END;
 }
 
@@ -231,7 +237,7 @@ BOOL CServerThread::OnRun()
 {
 	FUNCTION_BEGIN;
 
-	if(!CBaseServer::OnRun())
+	if(!CNetServer::OnRun())
 		return FALSE;
 
 	if(Update(CSystemConfig::GetInstance()->GetMainThreadProcessLimit())==0)
@@ -241,21 +247,20 @@ BOOL CServerThread::OnRun()
 
 	m_ThreadPerformanceCounter.DoPerformanceCount();
 
-	//¼ÆËã·þÎñÆ÷Ñ­»·Ê±¼ä
+	//è®¡ç®—æœåŠ¡å™¨å¾ªçŽ¯æ—¶é—´
 	if(m_CountTimer.IsTimeOut(SERVER_INFO_COUNT_TIME))
 	{
 		m_CountTimer.SaveTime();
 		DoServerStat();
 	}
 
-	//Ö´ÐÐ¿ØÖÆÌ¨ÃüÁî
-	PANEL_MSG * pCommand=CControlPanel::GetInstance()->GetCommand();
-	if(pCommand)
+	//æ‰§è¡ŒæŽ§åˆ¶å°å‘½ä»¤
+	SERVER_COMMAND Command;
+	while (m_CommandPool.PopBack(Command))
 	{
-
-		ExecCommand(pCommand->Msg);
-		CControlPanel::GetInstance()->ReleaseCommand(pCommand->ID);
+		ExecCommand(Command.Command);
 	}
+	
 
 	FUNCTION_END;
 	return TRUE;
@@ -289,22 +294,14 @@ LPCTSTR CServerThread::GetConfigFileName()
 	return SYSTEM_NET_LINK_CONFIG_FILE_NAME;
 }
 
-BOOL CServerThread::PrintConsoleLog(int Level,LPCTSTR szLogMsg)
+bool CServerThread::PrintConsoleLog(int Level, LPCTSTR szLogMsg)
 {
-	FUNCTION_BEGIN;
-	if(m_ConsoleLogLevel&Level)
+	CBaseServer::PrintConsoleLog(Level, szLogMsg);
+	if (m_pSysNetLinkManager&&(m_ConsoleLogLevel&Level))
 	{
-#ifdef WIN32
-		CControlPanel::GetInstance()->PushMsg(szLogMsg);
-#else
-		printf("%s\n",szLogMsg);
-#endif
-		if(m_pSysNetLinkManager)
-			m_pSysNetLinkManager->SendLogMsg(szLogMsg);
+		m_pSysNetLinkManager->SendLogMsg(szLogMsg);
 	}
-	return TRUE;
-	FUNCTION_END;
-	return FALSE;
+	return true;
 }
 
 void CServerThread::ExecCommand(LPCTSTR szCommand)
@@ -313,56 +310,36 @@ void CServerThread::ExecCommand(LPCTSTR szCommand)
 	int RetCode;
 	ES_BOLAN Result;
 
-	Log("Ö´ÐÐÃüÁî:%s",szCommand);
+	Log("æ‰§è¡Œå‘½ä»¤:%s",szCommand);
 
 	RetCode=m_ESThread.PushScript(szCommand);
 	if(RetCode)
 	{
-		Log("½âÎöÃüÁî³ö´í:Line=%d,%s",
+		Log("è§£æžå‘½ä»¤å‡ºé”™:Line=%d,%s",
 			m_ESThread.GetLastLine(),
 			ESGetErrorMsg(RetCode));
 	}
 	RetCode=m_ScriptExecutor.ExecScript(m_ESThread);
 	if(RetCode)
 	{
-		Log("½âÎöÃüÁî³ö´í:Line=%d,%s",
+		Log("è§£æžå‘½ä»¤å‡ºé”™:Line=%d,%s",
 			m_ESThread.GetLastLine(),
 			ESGetErrorMsg(RetCode));
 	}
 	else
 	{
-		Log("Ö´ÐÐÃüÁî½á¹û:%s",
+		Log("æ‰§è¡Œå‘½ä»¤ç»“æžœ:%s",
 			(LPCTSTR)BolanToString(m_ESThread.GetResult()));
 	}
 	FUNCTION_END;
 }
 
-BOOL CServerThread::SetServerStatus(WORD StatusID,const CSmartValue& Value)
-{
-	FUNCTION_BEGIN;
-	if(m_ServerStatus.IDToIndex(StatusID)==CSmartStruct::INVALID_MEMBER_ID)
-	{
-		m_ServerStatus.AddMember(StatusID,Value);
-	}
-	else
-	{
-		m_ServerStatus.GetMember(StatusID).SetValue(Value);
-	}
-	FUNCTION_END;
-	return FALSE;
-}
 
-void CServerThread::SetServerStatusFormat(WORD StatusID,LPCTSTR szStatusName,int FormatType)
-{
-	FUNCTION_BEGIN;
-	CControlPanel::GetInstance()->SetServerStatusFormat(StatusID,szStatusName,FormatType);
-	FUNCTION_END;
-}
 
 void CServerThread::QueryShowDown()
 {
 	FUNCTION_BEGIN;
-	Log("·þÎñÆ÷×¼±¸¹Ø±Õ");
+	Log("æœåŠ¡å™¨å‡†å¤‡å…³é—­");
 	Terminate();
 	FUNCTION_END;
 }
@@ -434,7 +411,7 @@ int CServerThread::StartLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pP
 
 
 			pLog->SetLogMode(Mode,Level,LogFileName);
-			Log("LogÄ£¿é[%s],Ä£Ê½[%s]µÄÊä³öÒÑ±»¿ªÆô",
+			Log("Logæ¨¡å—[%s],æ¨¡å¼[%s]çš„è¾“å‡ºå·²è¢«å¼€å¯",
 				(LPCTSTR)(pParams[0].StrValue),
 				(LPCTSTR)(pParams[1].StrValue));
 		}
@@ -488,7 +465,7 @@ int CServerThread::StopLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pPa
 			Mode&=~WitchMode;
 			int Level=pLog->GetLogLevel();
 			pLog->SetLogMode(Mode,Level,NULL);
-			Log("LogÄ£¿é[%s],Ä£Ê½[%s]µÄÊä³öÒÑ±»¹Ø±Õ",
+			Log("Logæ¨¡å—[%s],æ¨¡å¼[%s]çš„è¾“å‡ºå·²è¢«å…³é—­",
 				(LPCTSTR)(pParams[0].StrValue),
 				(LPCTSTR)(pParams[1].StrValue));
 		}
@@ -521,11 +498,11 @@ int CServerThread::RebuildUDPControlPort(CESThread * pESThread,ES_BOLAN* pResult
 
 	if(!m_pUDPSystemControlPort->Init(this))
 	{
-		Log("ÖØ½¨UDPÏµÍ³¿ØÖÆ¶Ë¿ÚÊ§°Ü");
+		Log("é‡å»ºUDPç³»ç»ŸæŽ§åˆ¶ç«¯å£å¤±è´¥");
 	}
 	else
 	{
-		Log("ÖØ½¨UDPÏµÍ³¿ØÖÆ¶Ë¿Ú³É¹¦");
+		Log("é‡å»ºUDPç³»ç»ŸæŽ§åˆ¶ç«¯å£æˆåŠŸ");
 	}
 
 	FUNCTION_END;
@@ -537,7 +514,7 @@ int CServerThread::SFSetConsoleLogLevel(CESThread * pESThread,ES_BOLAN* pResult,
 	FUNCTION_BEGIN;
 
 	SetConsoleLogLevel(pParams[0]);
-	Log("¿ØÖÆÌ¨LogÊä³öµÈ¼¶ÉèÖÃÎª%d",GetConsoleLogLevel());
+	Log("æŽ§åˆ¶å°Logè¾“å‡ºç­‰çº§è®¾ç½®ä¸º%d",GetConsoleLogLevel());
 
 	FUNCTION_END;
 	return 0;
@@ -586,8 +563,6 @@ void CServerThread::DoServerStat()
 	SetServerStatus(SC_SST_SS_TCP_SEND_COUNT,CSmartValue(TCPSendCount));
 	SetServerStatus(SC_SST_SS_UDP_RECV_COUNT,CSmartValue(UDPRecvCount));
 	SetServerStatus(SC_SST_SS_UDP_SEND_COUNT,CSmartValue(UDPSendCount));
-
-	CControlPanel::GetInstance()->SetServerStatus(m_ServerStatus.GetData(),m_ServerStatus.GetDataLen());
 
 	ResetFluxStat();
 

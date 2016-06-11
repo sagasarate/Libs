@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    AsyncFileLogPrinter.h                                       */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    AsyncFileLogPrinter.h                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -43,8 +43,8 @@ public:
 	void ResetLog(int Level,LPCTSTR FileName,int FileLogQueueLen=DEFAULT_ASYNC_FILE_LOG_BUFFER_LEN);
 	void CloseLog();
 
-	virtual void PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg);
-	virtual void PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl);	
+	virtual void PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg);
+	virtual void PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl);
 
 	
 

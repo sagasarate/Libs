@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    ESBolanStack.cpp		                                    */
-/*      ´´½¨ÈÕÆÚ:  2010Äê08ÔÂ26ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    ESBolanStack.cpp		                                    */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´08æœˆ26æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -79,14 +79,14 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 	//CharUpper(ExpBuff);
 	ExpStr=ExpBuff;
 
-	//ÏÈÌáÈ¡Ô­Ê¼²¼À¼Ê½
+	//å…ˆæå–åŸå§‹å¸ƒå…°å¼
 	while(*ExpStr)
 	{
 		Bolan.Clear();
 		Bolan.Line=LastLine;
 		if(*ExpStr==' '||*ExpStr=='\r'||*ExpStr=='\n'||*ExpStr=='	')
 		{
-			//¿Õ¸ñ¡¢¿ÕĞĞºöÂÔ
+			//ç©ºæ ¼ã€ç©ºè¡Œå¿½ç•¥
 			if(*ExpStr=='\n')
 				LastLine++;
 			ExpStr++;
@@ -100,7 +100,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 				ExpStr++;
 			}
 		}
-		else if(*ExpStr=='"')//×Ö·û´®
+		else if(*ExpStr=='"')//å­—ç¬¦ä¸²
 		{
 			UINT i=0;
 			ExpStr++;
@@ -126,7 +126,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 			Bolan.Level=0;
 			OrginScript.Push(&Bolan);
 		}
-		else if((*ExpStr>='0'&&*ExpStr<='9')||*ExpStr=='.')	//Êı×Ö
+		else if((*ExpStr>='0'&&*ExpStr<='9')||*ExpStr=='.')	//æ•°å­—
 		{
 			UINT i=0;
 			while((*ExpStr>='0'&&*ExpStr<='9')||*ExpStr=='.'||*ExpStr=='F'||*ExpStr=='D'||*ExpStr=='I'||*ExpStr=='L'||*ExpStr=='E'||
@@ -140,7 +140,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 			StrToNumber(TempBuff,Bolan);
 			OrginScript.Push(&Bolan);
 		}
-		else if(*ExpStr==':')		//Ìø×ª±êÊ¶
+		else if(*ExpStr==':')		//è·³è½¬æ ‡è¯†
 		{
 			UINT i=0;
 			ExpStr++;
@@ -157,13 +157,13 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 			Bolan.StrValue=TempID;
 			OrginScript.Push(&Bolan);
 		}
-		else if(*ExpStr==';'||*ExpStr=='\r'||*ExpStr=='\n')//ĞĞ½áÊø·û
+		else if(*ExpStr==';'||*ExpStr=='\r'||*ExpStr=='\n')//è¡Œç»“æŸç¬¦
 		{
 			Bolan.Type=BOLAN_TYPE_KEYWORD;
 			Bolan.Level=0;
 			Bolan.Index=KW_LINEEND;
 			OrginScript.Push(&Bolan);
-			//³ıÈ¥¶àÓàµÄĞĞ½áÊø·û
+			//é™¤å»å¤šä½™çš„è¡Œç»“æŸç¬¦
 			while(*ExpStr==' '||*ExpStr==';'||*ExpStr=='\r'||*ExpStr=='\n')
 			{
 				if(*ExpStr=='\n')
@@ -171,7 +171,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 				ExpStr++;
 			}
 		}
-		else if(*ExpStr>='A'&&*ExpStr<='Z')//±êÊ¶·û
+		else if(*ExpStr>='A'&&*ExpStr<='Z')//æ ‡è¯†ç¬¦
 		{
 			UINT i=0;
 			while(CanMakeIdentifier(*ExpStr))
@@ -205,7 +205,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 			else
 			{
 				int KeyWord=FindKeyWord(TempBuff);
-				if(KeyWord>=0)//¹Ø¼ü×Ö
+				if(KeyWord>=0)//å…³é”®å­—
 				{
 					Bolan.Type=BOLAN_TYPE_KEYWORD;
 					Bolan.Level=0;
@@ -344,7 +344,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 		}
 		else
 		{
-			return 1005;				//·Ç·¨×Ö·û
+			return 1005;				//éæ³•å­—ç¬¦
 		}
 	}
 
@@ -474,7 +474,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 		Push(pTemp);
 	}
 
-	//ÉèÖÃ¸÷ÖÖ¿ØÖÆÓï¾ä
+	//è®¾ç½®å„ç§æ§åˆ¶è¯­å¥
 	ES_FUNCTION * pCurFunction=NULL;
 
 	for(UINT i=0;i<GetSize();i++)
@@ -637,14 +637,14 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 			}
 			pCurFunction->FunStartPos=i;
 
-			//·´×ªº¯Êı²ÎÊıË³Ğò
+			//åè½¬å‡½æ•°å‚æ•°é¡ºåº
 			RetCode=ReverseFunctionParam(this,i+1,pCurFunction->ParaCount);
 			if(RetCode)
 				return RetCode;
 		}
 	}
 
-	//É¾³ı¶àÓàµÄ²¼À¼Ê½
+	//åˆ é™¤å¤šä½™çš„å¸ƒå…°å¼
 	for(int i=(int)GetSize()-1;i>=0;i--)
 	{
 		ES_BOLAN * pBolan=GetAt(i);
@@ -656,7 +656,7 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 		}
 	}
 
-	//½øĞĞ±äÁ¿°ó¶¨
+	//è¿›è¡Œå˜é‡ç»‘å®š
 
 	ESThread.SetScript(this);
 	RetCode=DoVariableBind(&ESThread,LastLine);
@@ -686,9 +686,9 @@ int CESBolanStack::FindKeyWord(int KeyWord,int StartPos,int StopKeyWord)
 {
 	for(int i=StartPos;i<(int)GetSize();i++)
 	{
-		if(StopKeyWord>0&&GetAt(i)->Type==BOLAN_TYPE_KEYWORD&&GetAt(i)->Index==StopKeyWord)
+		if(StopKeyWord>0&&GetAt(i)->Type==BOLAN_TYPE_KEYWORD&&GetAt(i)->Index==(UINT)StopKeyWord)
 			return -1;
-		if(GetAt(i)->Type==BOLAN_TYPE_KEYWORD&&GetAt(i)->Index==KeyWord)
+		if (GetAt(i)->Type == BOLAN_TYPE_KEYWORD&&GetAt(i)->Index == (UINT)KeyWord)
 			return i;
 	}
 	return -1;
@@ -702,9 +702,9 @@ int CESBolanStack::FindKeyWordReverse(int KeyWord,int StartPos,int StopKeyWord)
 	{
 		if(GetAt(StartPos)->Type==BOLAN_TYPE_KEYWORD)
 		{
-			if(StopKeyWord>0&&GetAt(StartPos)->Index==StopKeyWord)
+			if (StopKeyWord>0 && GetAt(StartPos)->Index == (UINT)StopKeyWord)
 				return -1;
-			if(GetAt(StartPos)->Index==KeyWord)
+			if (GetAt(StartPos)->Index == (UINT)KeyWord)
 				return StartPos;
 		}
 	}
@@ -719,11 +719,11 @@ int CESBolanStack::FindCoupleKeyWord(int KeyWord,int CoupleKeyWord1,int CoupleKe
 	{
 		if(GetAt(i)->Type==BOLAN_TYPE_KEYWORD)
 		{
-			if(GetAt(i)->Index==KeyWord&&CoupleCount==0)
+			if (GetAt(i)->Index == (UINT)KeyWord&&CoupleCount == 0)
 				return i;
-			if(GetAt(i)->Index==CoupleKeyWord1)
+			if (GetAt(i)->Index == (UINT)CoupleKeyWord1)
 				CoupleCount++;
-			if(GetAt(i)->Index==CoupleKeyWord2)
+			if (GetAt(i)->Index == (UINT)CoupleKeyWord2)
 				CoupleCount--;
 		}
 	}
@@ -739,11 +739,11 @@ int CESBolanStack::FindCoupleKeyWordReverse(int KeyWord,int CoupleKeyWord1,int C
 	{
 		if(GetAt(i)->Type==BOLAN_TYPE_KEYWORD)
 		{
-			if(GetAt(i)->Index==KeyWord&&CoupleCount==0)
+			if (GetAt(i)->Index == (UINT)KeyWord&&CoupleCount == 0)
 				return i;
-			if(GetAt(i)->Index==CoupleKeyWord2)
+			if (GetAt(i)->Index == (UINT)CoupleKeyWord2)
 				CoupleCount++;
-			if(GetAt(i)->Index==CoupleKeyWord1)
+			if (GetAt(i)->Index == (UINT)CoupleKeyWord1)
 				CoupleCount--;
 		}
 	}
@@ -809,7 +809,7 @@ int CESBolanStack::DealIdentifiers(CESThread * pESThread,int StartPos,int EndPos
 					}
 					else
 					{
-						//ÔİÊ±²»·µ»Ø´íÎó£¬µÈÏÂ»ØÔÙ³öÀí
+						//æš‚æ—¶ä¸è¿”å›é”™è¯¯ï¼Œç­‰ä¸‹å›å†å‡ºç†
 						//return 4012;
 					}
 				}
@@ -817,7 +817,7 @@ int CESBolanStack::DealIdentifiers(CESThread * pESThread,int StartPos,int EndPos
 			CurPos++;
 			break;
 		case BOLAN_TYPE_OPERATOR:
-			//È¡¸ºÖµ²Ù×÷·ûÅĞ¶¨
+			//å–è´Ÿå€¼æ“ä½œç¬¦åˆ¤å®š
 			if(pBolan->Index==OPERATOR_SUB&&(!IsDealLocalVar))
 			{
 				int Pos=CurPos-1;

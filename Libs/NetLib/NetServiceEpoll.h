@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    NetServiceEpoll.h                                        */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    NetServiceEpoll.h                                        */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -15,12 +15,14 @@
 class CNetServer;
 
 class CNetService :	
-	public CBaseService,public IEpollEventHandler
+	public CBaseNetService,public IEpollEventHandler
 {
 protected:
 	volatile BOOL								m_WantClose;
 	CNetServer *								m_pServer;	
 	int											m_CurProtocol;	
+	int											m_CurAddressFamily;
+	bool										m_IPv6Only;
 	CThreadSafeIDStorage<CEpollEventObject *>	m_RecvQueue;
 	CThreadSafeIDStorage<CEpollEventObject *>	m_SendQueue;
 	int											m_AcceptQueueSize;
@@ -52,7 +54,8 @@ public:
 		int SendQueueSize=DEFAULT_SERVER_SEND_DATA_QUEUE,
 		int ParallelAcceptCount=DEFAULT_PARALLEL_ACCEPT,
 		int ParallelRecvCount=DEFAULT_PARALLEL_RECV,
-		bool IsUseListenThread=false);
+		bool IsUseListenThread = false,
+		bool IPv6Only = false);
 	virtual void Destory();
 	
 	BOOL StartListen(const CIPAddress& Address);
@@ -64,8 +67,8 @@ public:
 
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 
-	virtual CBaseTCPConnection * CreateConnection(CIPAddress& RemoteAddress);
-	virtual BOOL DeleteConnection(CBaseTCPConnection * pConnection);
+	virtual CBaseNetConnection * CreateConnection(CIPAddress& RemoteAddress);
+	virtual BOOL DeleteConnection(CBaseNetConnection * pConnection);
 	
 
 	BOOL QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int Size);

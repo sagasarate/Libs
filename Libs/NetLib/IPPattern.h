@@ -1,35 +1,39 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    IPPattern.h                                              */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    IPPattern.h                                              */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
 
-#define GET_IP_SECTION(IP,Section)		((IP>>(Section*8))&0xff)
+#define GET_IP_SECTION(IPAddr,Section)		(((IPAddr.sin_addr.s_addr)>>(Section*8))&0xff)
+
+#ifdef WIN32
+#define GET_IP_SECTION6(IPAddr,Section)		(IPAddr.sin6_addr.u.Word[Section])
+#else
+#define GET_IP_SECTION6(IPAddr,Section)		(IPAddr.sin6_addr.s6_addr16[Section])
+#endif
+
 
 class CIPPattern
 {
 protected:
-	short	m_Pattern[4];
+	int	m_Pattern[8];
 public:
 	CIPPattern()
 	{
-		m_Pattern[0]=-1;
-		m_Pattern[1]=-1;
-		m_Pattern[2]=-1;
-		m_Pattern[3]=-1;
+		SetMatchAll();
 	}
-	CIPPattern(short p1,short p2,short p3,short p4)
+	CIPPattern(int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8)
 	{
-		SetPattern(p1,p2,p3,p4);
+		SetPattern(p1, p2, p3, p4, p5, p6, p7, p8);
 	}
-	CIPPattern(LPCSTR Pattern)
+	CIPPattern(LPCTSTR Pattern)
 	{
 		SetPattern(Pattern);
 	}
@@ -45,40 +49,101 @@ public:
 		memcpy(m_Pattern,IPPattern.m_Pattern,sizeof(m_Pattern));
 		return *this;
 	}
-	void SetPattern(short p1,short p2,short p3,short p4)
+	void SetPattern(int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8)
 	{
-		m_Pattern[0]=p1;
-		m_Pattern[1]=p2;
-		m_Pattern[2]=p3;
-		m_Pattern[3]=p4;
+		m_Pattern[0] = p1;
+		m_Pattern[1] = p2;
+		m_Pattern[2] = p3;
+		m_Pattern[3] = p4;
+		m_Pattern[4] = p5;
+		m_Pattern[5] = p6;
+		m_Pattern[6] = p7;
+		m_Pattern[7] = p8;
 	}
-	void SetPattern(LPCSTR Pattern)
+	void SetPattern(LPCTSTR Pattern)
 	{
 		if(Pattern)
 		{
-			CStringSplitterA Split(Pattern,'.');
+			if (_tcschr(Pattern,'.'))
+			{
+				CStringSplitter Split(Pattern, '.');
 
-			if(Split.GetCount()>=4)
-			{				
-				for(int i=0;i<4;i++)
-				{				
-					if(strchr(Split[i],'*')!=NULL)
-						m_Pattern[i]=-1;
-					else
-						m_Pattern[i]=atoi(Split[i]);
+				if (Split.GetCount() >= 4)
+				{
+					for (int i = 0; i < 4; i++)
+					{
+						if (_tcschr(Split[i], '*') != NULL)
+							m_Pattern[i] = -1;
+						else
+							m_Pattern[i] = _ttoi(Split[i]);
+					}
+
 				}
-				
+				else
+				{
+					SetMatchAll();
+				}
+			}
+			else if (_tcschr(Pattern, ':'))
+			{
+				CStringSplitter Split(Pattern, ':');
+				if (Split.GetCount() >= 2 && Split.GetCount()<=8)
+				{
+					int p = 0;
+					for (UINT i = 0; i < Split.GetCount(); i++)
+					{
+						if (Split[i][0] == 0)
+						{
+							for (UINT j = 0; j <= 8 - Split.GetCount(); j++)
+							{
+								m_Pattern[p + j] = 0;
+							}							
+							p += 8 - Split.GetCount();
+						}							
+						else if (_tcschr(Split[i], '*') != NULL)
+							m_Pattern[p] = -1;
+						else
+							m_Pattern[p] = htons(_tcstol(Split[i], NULL, 16));
+						p++;
+					}
+				}
+				else
+				{
+					SetMatchAll();
+				}
 			}
 		}
 	}
-	bool IsMatch(CIPAddress& IPAddress)
+	void SetMatchAll()
 	{
-		return (m_Pattern[0]<0||GET_IP_SECTION(IPAddress.GetSockAddr().sin_addr.s_addr,0)==(BYTE)m_Pattern[0])&&
-			(m_Pattern[1]<0||GET_IP_SECTION(IPAddress.GetSockAddr().sin_addr.s_addr,1)==(BYTE)m_Pattern[1])&&
-			(m_Pattern[2]<0||GET_IP_SECTION(IPAddress.GetSockAddr().sin_addr.s_addr,2)==(BYTE)m_Pattern[2])&&
-			(m_Pattern[3]<0||GET_IP_SECTION(IPAddress.GetSockAddr().sin_addr.s_addr,3)==(BYTE)m_Pattern[3]);
+		for (int i = 0; i < 8; i++)
+		{
+			m_Pattern[i] = -1;
+		}
 	}
-	bool IsMatch(LPCSTR IPStr)
+	bool IsMatch(const CIPAddress& IPAddress) const
+	{
+		if (IPAddress.IsIPv4())
+		{
+			return (m_Pattern[0] < 0 || GET_IP_SECTION(IPAddress.GetSockAddr4(), 0) == (BYTE)m_Pattern[0]) &&
+				(m_Pattern[1] < 0 || GET_IP_SECTION(IPAddress.GetSockAddr4(), 1) == (BYTE)m_Pattern[1]) &&
+				(m_Pattern[2] < 0 || GET_IP_SECTION(IPAddress.GetSockAddr4(), 2) == (BYTE)m_Pattern[2]) &&
+				(m_Pattern[3] < 0 || GET_IP_SECTION(IPAddress.GetSockAddr4(), 3) == (BYTE)m_Pattern[3]);
+		}
+		else if (IPAddress.IsIPv6())
+		{
+			return (m_Pattern[0] < 0 || GET_IP_SECTION6(IPAddress.GetSockAddr6(), 0) == (WORD)m_Pattern[0]) &&
+				(m_Pattern[1] < 0 || GET_IP_SECTION6(IPAddress.GetSockAddr6(), 1) == (WORD)m_Pattern[1]) &&
+				(m_Pattern[2] < 0 || GET_IP_SECTION6(IPAddress.GetSockAddr6(), 2) == (WORD)m_Pattern[2]) &&
+				(m_Pattern[3] < 0 || GET_IP_SECTION6(IPAddress.GetSockAddr6(), 3) == (WORD)m_Pattern[3]) &&
+				(m_Pattern[4] < 0 || GET_IP_SECTION6(IPAddress.GetSockAddr6(), 4) == (WORD)m_Pattern[4]) &&
+				(m_Pattern[5] < 0 || GET_IP_SECTION6(IPAddress.GetSockAddr6(), 5) == (WORD)m_Pattern[5]) &&
+				(m_Pattern[6] < 0 || GET_IP_SECTION6(IPAddress.GetSockAddr6(), 6) == (WORD)m_Pattern[6]) &&
+				(m_Pattern[7] < 0 || GET_IP_SECTION6(IPAddress.GetSockAddr6(), 7) == (WORD)m_Pattern[7]);
+		}
+		return false;
+	}
+	bool IsMatch(LPCTSTR IPStr) const
 	{
 		CIPAddress IPAddress(IPStr,0);
 		return IsMatch(IPAddress);

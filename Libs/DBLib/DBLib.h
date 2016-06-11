@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    DBLib.h                                                  */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DBLib.h                                                  */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -16,26 +16,26 @@
 
 //typedef unsigned long ulong;
 
-inline BOOL PrintDBLog(DWORD Color, LPCSTR Format, ...)
+inline BOOL PrintDBLog(LPCTSTR Tag, LPCSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl, Format);
-	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DB_ERROR_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Color, Format, vl);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DB_ERROR_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }
 
-inline BOOL PrintDBDebugLog(DWORD Color, LPCSTR Format, ...)
+inline BOOL PrintDBDebugLog(LPCTSTR Tag, LPCSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl, Format);
-	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DB_ERROR_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, Color, Format, vl);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DB_ERROR_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }
 
+#include "DBTypes.h"
 #include "DBValue.h"
-
 #include "DBInterfaces.h"
 
 #include "DBParameterSet.h"

@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DOSObjectProxyService.cpp                                */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ23ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSObjectProxyService.cpp                                */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ23æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -40,14 +40,14 @@ BOOL CDOSObjectProxyService::OnStart()
 
 	if (!m_ConnectionPool.Create(m_Config.MaxConnection))
 	{
-		PrintDOSLog(0xff0000,_T("´úÀí·şÎñ[%u]´´½¨%u´óĞ¡µÄÁ¬½Ó³ØÊ§°Ü£¡"),
+		PrintDOSLog(_T("DOSLib"),_T("ä»£ç†æœåŠ¡[%u]åˆ›å»º%uå¤§å°çš„è¿æ¥æ± å¤±è´¥ï¼"),
 			GetID(),
 			m_Config.MaxConnection);
 		return FALSE;
 	}
 	if (!m_MsgQueue.Create(m_Config.ConnectionMsgQueueSize))
 	{
-		PrintDOSLog(0xff0000,_T("´úÀí·şÎñ[%u]´´½¨%u´óĞ¡µÄÏûÏ¢¶ÓÁĞÊ§°Ü£¡"),
+		PrintDOSLog(_T("DOSLib"),_T("ä»£ç†æœåŠ¡[%u]åˆ›å»º%uå¤§å°çš„æ¶ˆæ¯é˜Ÿåˆ—å¤±è´¥ï¼"),
 			GetID(),
 			m_Config.ConnectionMsgQueueSize);
 		return FALSE;
@@ -55,7 +55,7 @@ BOOL CDOSObjectProxyService::OnStart()
 
 	if (!m_MessageMap.Create(m_Config.GlobalMsgMapSize))
 	{
-		PrintDOSLog(0xff0000,_T("´úÀí·şÎñ[%u]´´½¨%u´óĞ¡µÄÏûÏ¢Ó³Éä±íÊ§°Ü£¡"),
+		PrintDOSLog(_T("DOSLib"),_T("ä»£ç†æœåŠ¡[%u]åˆ›å»º%uå¤§å°çš„æ¶ˆæ¯æ˜ å°„è¡¨å¤±è´¥ï¼"),
 			GetID(),
 			m_Config.GlobalMsgMapSize);
 		return FALSE;
@@ -69,15 +69,15 @@ BOOL CDOSObjectProxyService::OnStart()
 			{
 				if (lzo_init() != LZO_E_OK)
 				{
-					PrintDOSLog(0xff0000, _T("´úÀí·şÎñ¿ªÆôÏûÏ¢Ñ¹ËõÊ§°Ü"));
+					PrintDOSLog(_T("DOSLib"), _T("ä»£ç†æœåŠ¡å¼€å¯æ¶ˆæ¯å‹ç¼©å¤±è´¥"));
 					m_Config.MsgCompressType = MSG_COMPRESS_NONE;
 					m_Config.MinMsgCompressSize = 0;
 				}
-				PrintDOSDebugLog(0xff0000, _T("´úÀí·şÎñ¿ªÆôÏûÏ¢Ñ¹Ëõ"));
+				PrintDOSLog(_T("DOSLib"), _T("ä»£ç†æœåŠ¡å¼€å¯æ¶ˆæ¯å‹ç¼©"));
 			}
 			break;
 		default:
-			PrintDOSLog(0xff0000, _T("´úÀí·şÎñ[%u]²»Ö§³ÖÏûÏ¢Ñ¹ËõÄ£Ê½%u£¡"),
+			PrintDOSLog(_T("DOSLib"), _T("ä»£ç†æœåŠ¡[%u]ä¸æ”¯æŒæ¶ˆæ¯å‹ç¼©æ¨¡å¼%uï¼"),
 				GetID(), m_Config.MsgCompressType);
 			m_Config.MsgCompressType = MSG_COMPRESS_NONE;
 			m_Config.MinMsgCompressSize = 0;
@@ -90,31 +90,31 @@ BOOL CDOSObjectProxyService::OnStart()
 	}
 
 	if(!Create(IPPROTO_TCP,
-		DEFAULT_SERVER_ACCEPT_QUEUE,
-		DEFAULT_SERVER_RECV_DATA_QUEUE,
+		m_Config.AcceptQueueSize,
 		m_Config.SendBufferSize,
-		DEFAULT_PARALLEL_ACCEPT,
+		m_Config.SendBufferSize,
+		m_Config.ParallelAcceptCount,
 		DEFAULT_PARALLEL_RECV,
 		false))
 	{
-		PrintDOSLog(0xffff, _T("´úÀí·şÎñ[%u]´´½¨Ê§°Ü£¡"), GetID());
+		PrintDOSLog(_T("DOSLib"), _T("ä»£ç†æœåŠ¡[%u]åˆ›å»ºå¤±è´¥ï¼"), GetID());
 		return FALSE;
 	}
 
 	if (!StartListen(m_Config.ListenAddress))
 	{
-		PrintDOSLog(0xffff,_T("´úÀí·şÎñ[%u]ÕìÌıÓÚ(%s:%u)Ê§°Ü£¡"),
+		PrintDOSLog(_T("DOSLib"),_T("ä»£ç†æœåŠ¡[%u]ä¾¦å¬äº(%s:%u)å¤±è´¥ï¼"),
 			GetID(),
 			m_Config.ListenAddress.GetIPString(),
 			m_Config.ListenAddress.GetPort());
 		return FALSE;
 	}
-	PrintDOSLog(0xffff,_T("´úÀí·şÎñ[%u]ÕìÌıÓÚ(%s:%u)£¡"),
+	PrintDOSLog(_T("DOSLib"),_T("ä»£ç†æœåŠ¡[%u]ä¾¦å¬äº(%s:%u)ï¼"),
 		GetID(),
 		m_Config.ListenAddress.GetIPString(),
 		m_Config.ListenAddress.GetPort());
 
-	PrintDOSLog(0xff0000,_T("¶ÔÏó´úÀí[%u]Ïß³Ì[%u]ÒÑÆô¶¯"),GetID(),GetThreadID());
+	PrintDOSLog(_T("DOSLib"),_T("å¯¹è±¡ä»£ç†[%u]çº¿ç¨‹[%u]å·²å¯åŠ¨"),GetID(),GetThreadID());
 	return TRUE;
 	FUNCTION_END;
 	return FALSE;
@@ -130,7 +130,7 @@ void CDOSObjectProxyService::OnClose()
 	{
 		if(!((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(0xff0000,_T("CDOSObjectProxyService::OnClose:ÊÍ·ÅÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("CDOSObjectProxyService::OnClose:é‡Šæ”¾æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 		}
 	}
 
@@ -230,7 +230,7 @@ BOOL CDOSObjectProxyService::PushMessage(CDOSMessagePacket * pPacket)
 BOOL CDOSObjectProxyService::PushBroadcastMessage(CDOSMessagePacket * pPacket)
 {
 	FUNCTION_BEGIN;
-	//¿ÉÄÜ»áÒıÆğ¿çÏß³Ì³åÍ»£¿£¿£¿
+	//å¯èƒ½ä¼šå¼•èµ·è·¨çº¿ç¨‹å†²çªï¼Ÿï¼Ÿï¼Ÿ
 	LPVOID Pos=m_ConnectionPool.GetFirstObjectPos();
 	while(Pos)
 	{
@@ -264,12 +264,15 @@ int CDOSObjectProxyService::DoMessageProcess(int ProcessPacketLimit)
 	CDOSMessagePacket * pPacket;
 	while(m_MsgQueue.PopFront(pPacket))
 	{
-		//PrintDOSDebugLog(0,_T("·¢ËÍÁËÏûÏ¢[%u]"),pPacket->GetMessage().GetMsgID());
+		//PrintDOSDebugLog(0,_T("å‘é€äº†æ¶ˆæ¯[%u]"),pPacket->GetMessage().GetMsgID());
+		if (pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
+			OnMsg(&(pPacket->GetMessage()));
+		else
+			PrintDOSLog(_T("DOSLib"), _T("ProxyServiceæ”¶åˆ°éç³»ç»Ÿæ¶ˆæ¯0x%Xï¼"), pPacket->GetMessage().GetMsgID());
 
-		OnMsg(&(pPacket->GetMessage()));
 		if(!((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(0xff0000,_T("ÊÍ·ÅÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("é‡Šæ”¾æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 		}
 
 		ProcessCount++;
@@ -313,6 +316,8 @@ void CDOSObjectProxyService::OnMsg(CDOSMessage * pMessage)
 	case DSM_ROUTE_LINK_LOST:
 		ClearMsgMapByRouterID(pMessage->GetSenderID().RouterID);
 		break;
+	default:
+		PrintDOSLog(_T("DOSLib"), _T("ProxyServiceæ”¶åˆ°æœªçŸ¥ç³»ç»Ÿæ¶ˆæ¯0x%llX"), pMessage->GetMsgID());
 	}
 	FUNCTION_END;
 }
@@ -320,7 +325,7 @@ void CDOSObjectProxyService::OnMsg(CDOSMessage * pMessage)
 BOOL CDOSObjectProxyService::RegisterGlobalMsgMap(MSG_ID_TYPE MsgID,OBJECT_ID ObjectID)
 {
 	FUNCTION_BEGIN;
-	PrintDOSDebugLog(0xff0000,_T("0x%llX×¢²áÁËÈ«¾Ö´úÀíÏûÏ¢Ó³Éä[0x%X]£¡"),ObjectID.ID,MsgID);
+	PrintDOSLog(_T("DOSLib"),_T("0x%llXæ³¨å†Œäº†å…¨å±€ä»£ç†æ¶ˆæ¯æ˜ å°„[0x%X]ï¼"),ObjectID.ID,MsgID);
 	return m_MessageMap.Insert(MsgID,ObjectID);
 	FUNCTION_END;
 	return FALSE;
@@ -328,7 +333,7 @@ BOOL CDOSObjectProxyService::RegisterGlobalMsgMap(MSG_ID_TYPE MsgID,OBJECT_ID Ob
 BOOL CDOSObjectProxyService::UnregisterGlobalMsgMap(MSG_ID_TYPE MsgID,OBJECT_ID ObjectID)
 {
 	FUNCTION_BEGIN;
-	PrintDOSDebugLog(0xff0000,_T("0x%llX×¢ÏúÁËÈ«¾Ö´úÀíÏûÏ¢Ó³Éä[0x%X]£¡"),ObjectID.ID,MsgID);
+	PrintDOSLog(_T("DOSLib"),_T("0x%llXæ³¨é”€äº†å…¨å±€ä»£ç†æ¶ˆæ¯æ˜ å°„[0x%X]ï¼"),ObjectID.ID,MsgID);
 	return m_MessageMap.Delete(MsgID);
 	FUNCTION_END;
 	return FALSE;

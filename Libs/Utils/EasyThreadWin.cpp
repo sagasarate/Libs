@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    EasyThreadWin.cpp                                        */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    EasyThreadWin.cpp                                        */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -93,16 +93,22 @@ BOOL CEasyThread::Suspend()
 
 void CEasyThread::Terminate()
 {
-	m_WantTerminate=TRUE;
-	if(m_Status!=THREAD_STATUS_TERMINATED)
-		m_Status=THREAD_STATUS_ENDING;
+	if (!IsTerminated())
+	{
+		m_WantTerminate = TRUE;
+		m_Status = THREAD_STATUS_ENDING;
+	}
+		
 }
 
 
 void CEasyThread::ForceTerminate()
 {
-	TerminateThread(m_hThread,0);
-	OnTerminate();
+	if (!IsTerminated())
+	{
+		TerminateThread(m_hThread, 0);
+		OnTerminate();
+	}
 	if(m_hThread)
 	{
 		CloseHandle(m_hThread);
@@ -126,6 +132,8 @@ void CEasyThread::SafeTerminate(DWORD Milliseconds)
 
 BOOL CEasyThread::WaitForWorking(DWORD Milliseconds)
 {	
+	if (IsWorking())
+		return TRUE;
 	if(Milliseconds==INFINITE)
 	{	
 		while(m_Status==THREAD_STATUS_STARTING)
@@ -138,10 +146,12 @@ BOOL CEasyThread::WaitForWorking(DWORD Milliseconds)
 	{		
 		CEasyTimer Timer;
 		Timer.SetTimeOut(Milliseconds);
-		while(!Timer.IsTimeOut())
+		while(true)
 		{			
 			if(m_Status!=THREAD_STATUS_STARTING)
-				return TRUE;
+				return IsWorking();			
+			if (Timer.IsTimeOut())
+				break;
 			DoSleep(10);
 		}
 		return FALSE;
@@ -150,6 +160,8 @@ BOOL CEasyThread::WaitForWorking(DWORD Milliseconds)
 
 BOOL CEasyThread::WaitForTerminate(DWORD Milliseconds)
 {
+	if (IsTerminated())
+		return TRUE;
 	if(Milliseconds==INFINITE)
 	{	
 		while(m_Status!=THREAD_STATUS_TERMINATED)
@@ -162,10 +174,12 @@ BOOL CEasyThread::WaitForTerminate(DWORD Milliseconds)
 	{		
 		CEasyTimer Timer;
 		Timer.SetTimeOut(Milliseconds);
-		while(!Timer.IsTimeOut())
+		while(true)
 		{			
-			if(m_Status==THREAD_STATUS_TERMINATED)
+			if (IsTerminated())
 				return TRUE;
+			if (Timer.IsTimeOut())
+				break;
 			DoSleep(10);
 		}
 		return FALSE;
@@ -179,6 +193,19 @@ BOOL CEasyThread::SetThreadPriority(int Priority)
 int CEasyThread::GetThreadPriority()
 {
 	return ::GetThreadPriority(m_hThread);
+}
+
+int CEasyThread::GetExitCode()
+{
+	DWORD ExitCode;
+	if (GetExitCodeThread(m_hThread, &ExitCode))
+	{
+		if (ExitCode == STILL_ACTIVE)
+			return -2;
+		else
+			return (int)ExitCode;
+	}
+	return -1;
 }
 
 BOOL CEasyThread::OnStart()
@@ -220,7 +247,12 @@ UINT __stdcall CEasyThread::ThreadProc(LPVOID pParam)
 		}
 		pThread->m_Status=THREAD_STATUS_ENDING;
 		pThread->OnTerminate();
-		pThread->m_Status=THREAD_STATUS_TERMINATED;	
+		if (pThread->m_hThread)
+		{
+			CloseHandle(pThread->m_hThread);
+			pThread->m_hThread = NULL;
+		}
+		pThread->m_Status=THREAD_STATUS_TERMINATED;			
 		_endthreadex(0);			
 		
 		return 0;

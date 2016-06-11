@@ -1,16 +1,16 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    MySQLConnection.h                                        */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    MySQLConnection.h                                        */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
-#include "DBInterfaces.h"
+
 
 
 namespace DBLib
@@ -63,10 +63,10 @@ public:
 	static int MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize);
 	static UINT GetMySQLTypeBinLength(int Type,UINT Size,UINT DitigalSize);
 
-	static BOOL MySQLStrValueToDBValue(int ValueType,LPCVOID pData,int DataSize,int DBType,int DitigalSize,CDBValue& DBValue);
+	static BOOL MySQLStrValueToDBValue(int ValueType, LPCVOID pData, UINT DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue);
 
-	static BOOL DBValueToMySQLBinValue(int Type,LPCVOID pDBValue,int DBValueSize,LPVOID pData,int DataSize);
-	static BOOL MySQLBinValueToDBValue(int Type,LPCVOID pData,int DataSize,int DBType,int DitigalSize,CDBValue& DBValue);
+	static BOOL DBValueToMySQLBinValue(int Type, LPCVOID pDBValue, UINT DBValueSize, LPVOID pData, UINT DataSize);
+	static BOOL MySQLBinValueToDBValue(int Type, LPCVOID pData, UINT DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue);
 
 	void ProcessErrorMsg(MYSQL_STMT_HANDLE hStmt,LPCSTR Msg);
 protected:

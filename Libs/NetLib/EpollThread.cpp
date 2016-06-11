@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    EpollThread.cpp                                          */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    EpollThread.cpp                                          */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -18,13 +18,13 @@ IMPLEMENT_CLASS_INFO_STATIC(CEpollThread,CEasyThread);
 CEpollThread::CEpollThread() :CEasyThread()
 {
 	m_pServer = NULL;
-	m_hEpoll = NULL;
+	m_hEpoll = INVALID_HANDLE_VALUE;
 }
 
 CEpollThread::CEpollThread(CNetServer * pServer):CEasyThread()
 {
 	m_pServer=pServer;
-	m_hEpoll=NULL;
+	m_hEpoll = INVALID_HANDLE_VALUE;
 }
 
 CEpollThread::~CEpollThread(void)
@@ -33,7 +33,7 @@ CEpollThread::~CEpollThread(void)
 
 BOOL CEpollThread::OnStart()
 {
-	PrintNetLog(0xff,"Epoll¹¤×÷Ïß³ÌÆô¶¯");
+	PrintNetLog(_T("NetLib"),_T("Epollå·¥ä½œçº¿ç¨‹å¯åŠ¨"));
 	return TRUE;
 }
 
@@ -59,13 +59,13 @@ BOOL CEpollThread::OnRun()
 			}
 			else
 			{
-				PrintNetLog(0,"EpollÊÂ¼şÎŞ·¨ÕÒµ½½ÓÊÕÕß");
+				PrintNetLog(0,"Epolläº‹ä»¶æ— æ³•æ‰¾åˆ°æ¥æ”¶è€…");
 			}
 		}
 	}
 	else if(EventCount<0)
 	{
-		PrintNetLog(0,"epoll_wait·¢Éú´íÎó%d",errno);
+		PrintNetLog(0,"epoll_waitå‘ç”Ÿé”™è¯¯%d",errno);
 	}
 
 
@@ -74,5 +74,5 @@ BOOL CEpollThread::OnRun()
 
 void CEpollThread::OnTerminate()
 {
-	PrintNetLog(0xff,"Epoll¹¤×÷Ïß³ÌÍË³ö");
+	PrintNetLog(_T("NetLib"),"Epollå·¥ä½œçº¿ç¨‹é€€å‡º");
 }

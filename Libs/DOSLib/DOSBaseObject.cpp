@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    DOSBaseObject.cpp                                        */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ23ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSBaseObject.cpp                                        */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ23æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -52,7 +52,7 @@ bool CDOSBaseObject::Init(DOS_OBJECT_REGISTER_INFO& ObjectRegisterInfo)
 	{
 		if(!m_MsgQueue.Create(MsgQueueSize))
 		{
-			PrintDOSLog(0,_T("¶ÔÏó[%llX]´´½¨%u´óÐ¡µÄÏûÏ¢¶ÓÁÐÊ§°Ü"),
+			PrintDOSLog(0,_T("å¯¹è±¡[%llX]åˆ›å»º%uå¤§å°çš„æ¶ˆæ¯é˜Ÿåˆ—å¤±è´¥"),
 				GetObjectID().ID,MsgQueueSize);
 			return false;
 		}
@@ -65,7 +65,7 @@ bool CDOSBaseObject::Init(DOS_OBJECT_REGISTER_INFO& ObjectRegisterInfo)
 	{
 		if(!m_ConcernedObject.Create(CONCERNED_OBJECT_PAGE_SIZE,CONCERNED_OBJECT_PAGE_SIZE))
 		{
-			PrintDOSLog(0,_T("¶ÔÏó[%llX]´´½¨¹Ø×¢¶ÔÏó³ØÊ§°Ü"),
+			PrintDOSLog(0,_T("å¯¹è±¡[%llX]åˆ›å»ºå…³æ³¨å¯¹è±¡æ± å¤±è´¥"),
 				GetObjectID().ID);
 			return false;
 		}
@@ -102,7 +102,7 @@ void CDOSBaseObject::Destory()
 
 		if(!ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(0xff0000,_T("CDOSBaseObject::Destory:ÊÍ·ÅÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("CDOSBaseObject::Destory:é‡Šæ”¾æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 		}
 
 	}
@@ -149,7 +149,7 @@ int CDOSBaseObject::DoCycle(int ProcessPacketLimit)
 		}
 		if(!ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(0xff0000,_T("CDOSBaseObject::DoCycle:ÊÍ·ÅÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("CDOSBaseObject::DoCycle:é‡Šæ”¾æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 		}
 		Limit--;
 		ProcessCount++;
@@ -175,7 +175,7 @@ BOOL CDOSBaseObject::PushMessage(CDOSMessagePacket * pPacket)
 	else
 	{
 		ReleaseMessagePacket(pPacket);
-		PrintDOSLog(0xff0000,_T("CDOSBaseObject::PushMessage:ÏûÏ¢Ñ¹Õ»Ê§°Ü£¡"));
+		PrintDOSLog(_T("DOSLib"),_T("CDOSBaseObject::PushMessage:æ¶ˆæ¯åŽ‹æ ˆå¤±è´¥ï¼"));
 	}
 	FUNCTION_END;
 	return FALSE;
@@ -202,7 +202,7 @@ BOOL CDOSBaseObject::SendMessageMulti(OBJECT_ID * pReceiverIDList,UINT ReceiverC
 	CDOSMessagePacket * pNewPacket=m_pRouter->GetServer()->NewMessagePacket(PacketSize);
 	if(pNewPacket==NULL)
 	{
-		PrintDOSLog(0xff0000,_T("·ÖÅäÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+		PrintDOSLog(_T("DOSLib"),_T("åˆ†é…æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 		return FALSE;
 	}
 	pNewPacket->GetMessage().SetMsgID(MsgID);
@@ -291,6 +291,19 @@ BOOL CDOSBaseObject::UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE Pr
 	ProxyID.GroupIndex = MAKE_PROXY_GROUP_INDEX(ProxyType, BROAD_CAST_PROXY_ID);
 	ProxyID.ObjectIndex = 0;
 	return SendMessage(ProxyID,DSM_PROXY_UNREGISTER_GLOBAL_MSG_MAP,DOS_MESSAGE_FLAG_SYSTEM_MESSAGE,pMsgIDList,sizeof(MSG_ID_TYPE)*CmdCount);
+	FUNCTION_END;
+	return FALSE;
+}
+
+BOOL CDOSBaseObject::SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType)
+{
+	FUNCTION_BEGIN;
+	OBJECT_ID ProxyID;
+	ProxyID.RouterID = ProxyRouterID;
+	ProxyID.ObjectTypeID = DOT_PROXY_OBJECT;
+	ProxyID.GroupIndex = MAKE_PROXY_GROUP_INDEX(ProxyType, BROAD_CAST_PROXY_ID);
+	ProxyID.ObjectIndex = 0;
+	return SendMessage(ProxyID, DSM_PROXY_SET_UNHANDLE_MSG_RECEIVER, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, NULL, 0);
 	FUNCTION_END;
 	return FALSE;
 }
@@ -384,11 +397,13 @@ BOOL CDOSBaseObject::OnSystemMessage(CDOSMessage * pMessage)
 		OnProxyObjectDisconnect(pMessage->GetSenderID());
 		return TRUE;
 	case DSM_PROXY_IP_REPORT:
-		if(pMessage->GetDataLength()>=sizeof(PROXY_CLIENT_IP_INFO))
+		if (pMessage->GetDataLength() >= sizeof(WORD) + 1)
 		{
-			PROXY_CLIENT_IP_INFO * pIPInfo=((PROXY_CLIENT_IP_INFO *)pMessage->GetDataBuffer());
-			CIPAddress IPAddress(pIPInfo->IP,(WORD)pIPInfo->Port);
-			OnProxyObjectIPReport(pMessage->GetSenderID(),pIPInfo->IP,pIPInfo->Port,IPAddress.GetIPString());
+			WORD Port = *((WORD *)pMessage->GetDataBuffer());
+			char * pIPStr = (char *)pMessage->GetDataBuffer() + sizeof(WORD);
+			UINT StrLen = pMessage->GetDataLength() - sizeof(WORD) - 1;
+			pIPStr[StrLen] = 0;			
+			OnProxyObjectIPReport(pMessage->GetSenderID(), Port, pIPStr);
 		}
 		return TRUE;
 	case DSM_ROUTE_LINK_LOST:
@@ -437,7 +452,7 @@ void CDOSBaseObject::OnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfo
 	FUNCTION_END;
 }
 
-void CDOSBaseObject::OnProxyObjectIPReport(OBJECT_ID ProxyObjectID,UINT IP,UINT Port,LPCSTR szIPString)
+void CDOSBaseObject::OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString)
 {
 	FUNCTION_BEGIN;
 	FUNCTION_END;
@@ -456,7 +471,7 @@ void CDOSBaseObject::OnProxyObjectDisconnect(OBJECT_ID ProxyObjectID)
 	FUNCTION_BEGIN;
 	if(DeleteConcernedObject(ProxyObjectID))
 	{
-		PrintDOSDebugLog(0,_T("[0x%llX]±»¹Ø×¢µÄ´úÀí¶ÔÏó[0x%llX]ÒÑ¶ÏÏß"),
+		PrintDOSDebugLog(0,_T("[0x%llX]è¢«å…³æ³¨çš„ä»£ç†å¯¹è±¡[0x%llX]å·²æ–­çº¿"),
 				GetObjectID(),ProxyObjectID.ID);
 		OnConcernedObjectLost(ProxyObjectID);
 	}
@@ -492,7 +507,7 @@ void CDOSBaseObject::OnRouteLinkLost(UINT RouteID)
 		{
 			if(pInfo->ObjectID.RouterID==RouteID)
 			{
-				PrintDOSLog(0,_T("±»¹Ø×¢µÄ¶ÔÏó[0x%llX]¶ÔÓ¦µÄÂ·ÓÉÁ¬½ÓÒÑ¶Ï¿ª"),pInfo->ObjectID.ID);
+				PrintDOSLog(0,_T("è¢«å…³æ³¨çš„å¯¹è±¡[0x%llX]å¯¹åº”çš„è·¯ç”±è¿žæŽ¥å·²æ–­å¼€"),pInfo->ObjectID.ID);
 				DeleteConcernedObject(Key);
 				OnConcernedObjectLost(Key);
 			}
@@ -531,7 +546,7 @@ int CDOSBaseObject::DoConcernedObjectTest()
 
 						if(pInfo->AliveFailedCount>m_ConcernedObjectKeepAliveCount)
 						{
-							PrintDOSLog(0,_T("±»¹Ø×¢µÄ¶ÔÏó[0x%llX]»î¶¯²âÊÔÊ§°Ü"),
+							PrintDOSLog(0,_T("è¢«å…³æ³¨çš„å¯¹è±¡[0x%llX]æ´»åŠ¨æµ‹è¯•å¤±è´¥"),
 								pInfo->ObjectID.ID);
 							OBJECT_ID ObjectID=pInfo->ObjectID;
 							DeleteConcernedObject(ObjectID);

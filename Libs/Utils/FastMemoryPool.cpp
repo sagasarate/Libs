@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    FastMemoryPool.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ23ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    FastMemoryPool.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ23æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -42,7 +42,7 @@ BOOL CFastMemoryPool::Create(UINT BlockSize,UINT LevelSize,UINT MaxLevel,bool Is
 
 	UINT NodeAditionSize=sizeof(BlockNode)+sizeof(UINT);
 
-	//¼ÆËã×î¶à¿É»®·Ö¶àÉÙ¸ö¼¶±ğ
+	//è®¡ç®—æœ€å¤šå¯åˆ’åˆ†å¤šå°‘ä¸ªçº§åˆ«
 	UINT Block=BlockSize;
 	m_BlockLevelCount=0;
 	while(Block+NodeAditionSize<LevelSize&&MaxLevel)
@@ -107,7 +107,7 @@ void CFastMemoryPool::Destory()
 	for(UINT i=0;i<m_BlockLevelCount;i++)
 	{
 		if(m_pBlockLevels[i].UsedCount)
-			PrintImportantLog(0xff0000,_T("»¹ÓĞ%d¸öÄÚ´æ¿éÎ´ÊÍ·Å£¡"),m_pBlockLevels[i].UsedCount);
+			PrintImportantLog(NULL,_T("è¿˜æœ‰%dä¸ªå†…å­˜å—æœªé‡Šæ”¾ï¼"),m_pBlockLevels[i].UsedCount);
 	}
 #endif
 	SAFE_DELETE_ARRAY(m_pBlockLevels);
@@ -170,13 +170,13 @@ void CFastMemoryPool::Verfy(int LogChannel)
 			{
 				if(*((UINT *)(((BYTE *)pNode)+sizeof(BlockNode)+pNode->AllocSize))!=BF_TAIL)
 				{
-					PrintImportantLog(0,_T("CFastMemoryPool::FreeBlock:ÄÚ´æ¿é%pÎ²²¿ÒÑ±»ÆÆ»µ"));
+					PrintImportantLog(0,_T("CFastMemoryPool::FreeBlock:å†…å­˜å—%på°¾éƒ¨å·²è¢«ç ´å"));
 					assert(false);
 				}
 			}
 			else if(pNode->Flag!=BF_FREE)
 			{
-				PrintImportantLog(0,_T("CFastMemoryPool::FreeBlock:ÄÚ´æ¿é%pÍ·²¿ÒÑ±»ÆÆ»µ"));
+				PrintImportantLog(0,_T("CFastMemoryPool::FreeBlock:å†…å­˜å—%på¤´éƒ¨å·²è¢«ç ´å"));
 				assert(false);
 
 			}
@@ -300,7 +300,7 @@ BOOL CFastMemoryPool::FreeBlock(BlockNode * pNode)
 	{
 		if(pNode->Flag!=BF_USED)
 		{
-			PrintImportantLog(0,_T("CFastMemoryPool::FreeBlock:ÄÚ´æ¿é%pÍ·²¿ÒÑ±»ÆÆ»µ"));
+			PrintImportantLog(0,_T("CFastMemoryPool::FreeBlock:å†…å­˜å—%på¤´éƒ¨å·²è¢«ç ´å"));
 #ifdef LOG_MEM_CALL_STACK
 			PrintCallStackLog(pNode);
 #endif
@@ -309,7 +309,7 @@ BOOL CFastMemoryPool::FreeBlock(BlockNode * pNode)
 		}
 		if(*((UINT *)(((BYTE *)pNode)+sizeof(BlockNode)+pNode->AllocSize))!=BF_TAIL)
 		{
-			PrintImportantLog(0,_T("CFastMemoryPool::FreeBlock:ÄÚ´æ¿é%pÎ²²¿ÒÑ±»ÆÆ»µ"));
+			PrintImportantLog(0,_T("CFastMemoryPool::FreeBlock:å†…å­˜å—%på°¾éƒ¨å·²è¢«ç ´å"));
 #ifdef LOG_MEM_CALL_STACK
 			PrintCallStackLog(pNode);
 #endif
@@ -334,12 +334,12 @@ BOOL CFastMemoryPool::FreeBlock(BlockNode * pNode)
 #ifdef LOG_MEM_CALL_STACK
 void CFastMemoryPool::PrintCallStackLog(BlockNode * pNode)
 {
-	PrintImportantLog(0,_T("µ±Ç°¼ÇÂ¼ºÅ:%u"),pNode->RecentCallInfo);
+	PrintImportantLog(0,_T("å½“å‰è®°å½•å·:%u"),pNode->RecentCallInfo);
 	CExceptionParser::ADDRESS_INFO AddressInfo;
 	CExceptionParser::GetInstance()->SymInit();
 	for(UINT j=0;j<MAX_CALL_INFO;j++)
 	{
-		PrintImportantLog(0,_T("¼ÇÂ¼ºÅ"),j);
+		PrintImportantLog(0,_T("è®°å½•å·"),j);
 		for(UINT i=0;i<pNode->CallInfo[j].StackDepth;i++)
 		{
 			CExceptionParser::GetInstance()->GetAddressInfo(pNode->CallInfo[j].CallStack[i],&AddressInfo);

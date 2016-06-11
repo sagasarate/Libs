@@ -40,6 +40,9 @@
     <Filter Include="协议">
       <UniqueIdentifier>{f9ff35d9-e448-4568-8497-629d77c94bed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="基础类">
+      <UniqueIdentifier>{c9dc9967-34d7-4b41-af83-b932275478ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ServerFrameWork.rc">
@@ -50,17 +53,11 @@
     <ClInclude Include="ServerFrameWorkResource.h">
       <Filter>资源</Filter>
     </ClInclude>
-    <ClInclude Include="ControlPanel.h">
-      <Filter>服务器控制台</Filter>
-    </ClInclude>
     <ClInclude Include="DlgServerStatus.h">
       <Filter>服务器控制台</Filter>
     </ClInclude>
     <ClInclude Include="ServerConsoleDlg.h">
       <Filter>服务器控制台</Filter>
-    </ClInclude>
-    <ClInclude Include="IBaseServer.h">
-      <Filter>服务器线程</Filter>
     </ClInclude>
     <ClInclude Include="ServerThread.h">
       <Filter>服务器线程</Filter>
@@ -110,6 +107,9 @@
     <ClInclude Include="ServerConsoleProtocol.h">
       <Filter>协议</Filter>
     </ClInclude>
+    <ClInclude Include="BaseServer.h">
+      <Filter>基础类</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="TrayIcon.ico">
@@ -117,9 +117,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ControlPanel.cpp">
-      <Filter>服务器控制台</Filter>
-    </ClCompile>
     <ClCompile Include="DlgServerStatus.cpp">
       <Filter>服务器控制台</Filter>
     </ClCompile>
@@ -161,6 +158,9 @@
     </ClCompile>
     <ClCompile Include="SystemConfig.cpp">
       <Filter>系统配置</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseServer.cpp">
+      <Filter>基础类</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

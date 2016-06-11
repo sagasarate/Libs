@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    EasyMap.h                                                */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ23ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    EasyMap.h                                                */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ23æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -512,7 +512,7 @@ protected:
 		{
 			StorageNode * pBackNode=pNode->pBack;
 
-			//½»»»¸¸½Úµã
+			//äº¤æ¢çˆ¶èŠ‚ç‚¹
 			if(pNode->pParent&&pBackNode->pParent)
 			{
 				if(pNode->pParent->pLeftChild==pNode)
@@ -557,11 +557,11 @@ protected:
 				m_pTreeRoot=pBackNode;
 			}
 
-			//½»»»×ó×Ó½Úµã
+			//äº¤æ¢å·¦å­èŠ‚ç‚¹
 			pBackNode->pLeftChild=pNode->pLeftChild;
 			pNode->pLeftChild->pParent=pBackNode;
 			pNode->pLeftChild=NULL;
-			//½»»»ÓÒ×Ó½Úµã
+			//äº¤æ¢å³å­èŠ‚ç‚¹
 			if(pBackNode->pRightChild)
 			{
 				pNode->pRightChild->pParent=pBackNode;
@@ -576,7 +576,7 @@ protected:
 				pNode->pRightChild->pParent=pBackNode;
 				pNode->pRightChild=NULL;
 			}	
-			//½»»»ÑÕÉ«
+			//äº¤æ¢é¢œè‰²
 			enNodeColor Color=pNode->Color;
 			pNode->Color=pBackNode->Color;
 			pBackNode->Color=Color;
@@ -721,7 +721,7 @@ protected:
 	}
 	StorageNode * RotateRight(StorageNode * pNode)
 	{
-		//ÓÒÐý±ØÐë±£Ö¤ÓÐ×ó×ÓÊ÷
+		//å³æ—‹å¿…é¡»ä¿è¯æœ‰å·¦å­æ ‘
 		StorageNode * pLeftChild=pNode->pLeftChild;
 		if(pLeftChild==NULL)
 		{
@@ -754,7 +754,7 @@ protected:
 	}
 	StorageNode * RotateLeft(StorageNode * pNode)
 	{
-		//×óÐý±ØÐë±£Ö¤ÓÐÓÒ×ÓÊ÷
+		//å·¦æ—‹å¿…é¡»ä¿è¯æœ‰å³å­æ ‘
 		StorageNode * pRightChild=pNode->pRightChild;
 		if(pRightChild==NULL)
 		{

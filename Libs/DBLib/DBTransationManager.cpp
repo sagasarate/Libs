@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DBTransationManager.cpp                                  */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DBTransationManager.cpp                                  */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -54,7 +54,7 @@ bool CDBTransationManager::Init(IDatabase * pDatabase,LPCSTR szConnectStr,int Th
 		IDBConnection * pConnection=m_pDatabase->CreateConnection();
 		if(pConnection->Connect(szConnectStr)!=DBERR_SUCCEED)
 		{
-			PrintDBLog(0xff,"[%u]Êı¾İ¿âÎŞ·¨Á¬½Ó£¬µ«³õÊ¼»¯¼ÌĞø",GetID());
+			PrintDBLog(_T("DBLib"),"[%u]æ•°æ®åº“æ— æ³•è¿æ¥ï¼Œä½†åˆå§‹åŒ–ç»§ç»­",GetID());
 		}
 		CDBTransationWorkThread * pThread=new CDBTransationWorkThread(this);
 		if(!pThread->Init(pConnection,szConnectStr,QueueSize))
@@ -69,7 +69,7 @@ bool CDBTransationManager::Init(IDatabase * pDatabase,LPCSTR szConnectStr,int Th
 
 	m_PerformanceCountTimer.SaveTime();
 
-	PrintDBLog(0xff,"[%u]Ò»¹²½¨Á¢ÁË%d¸ö¹¤×÷Ïß³Ì",GetID(),ThreadCount);
+	PrintDBLog(_T("DBLib"),"[%u]ä¸€å…±å»ºç«‹äº†%dä¸ªå·¥ä½œçº¿ç¨‹",GetID(),ThreadCount);
 
 	return true;
 }
@@ -98,7 +98,7 @@ bool CDBTransationManager::AddTransaction(CDBTransaction * pDBTansaction)
 	}
 	else
 	{
-		PrintDBLog(0xff,"ÎŞ¹¤×÷Ïß³Ì¿É·ÖÅä");
+		PrintDBLog(_T("DBLib"),"æ— å·¥ä½œçº¿ç¨‹å¯åˆ†é…");
 		return false;
 	}
 }
@@ -138,7 +138,7 @@ int CDBTransationManager::Update(int ProcessLimit)
 		m_ExecTimes=0;
 		if(m_Flag&DBTM_FLAG_LOG_PERFORMANCE)
 		{
-			PrintDBLog(0xff,"[%u]Æ½¾ùÖ´ĞĞÊ±¼ä=%gºÁÃë,Ã¿ÃëÖ´ĞĞ´ÎÊı%g",GetID(),m_AvgExecTime,m_ExecTimesPerSec);
+			PrintDBLog(_T("DBLib"),"[%u]å¹³å‡æ‰§è¡Œæ—¶é—´=%gæ¯«ç§’,æ¯ç§’æ‰§è¡Œæ¬¡æ•°%g",GetID(),m_AvgExecTime,m_ExecTimesPerSec);
 		}
 	}
 

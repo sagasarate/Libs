@@ -1,24 +1,24 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    NetServerEpoll.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    NetServerEpoll.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
 
-IMPLEMENT_CLASS_INFO_STATIC(CNetServer,CBaseServer);
+IMPLEMENT_CLASS_INFO_STATIC(CNetServer,CBaseNetServer);
 
-CNetServer::CNetServer(void):CBaseServer()
+CNetServer::CNetServer(void):CBaseNetServer()
 {
 	m_hEpoll=INVALID_HANDLE_VALUE;
 	m_pEpollThreads=NULL;
 	m_EpollThreadCount=0;
-	m_EventObjectPoolSize=MAX_EVENT_OBJECT;
+	m_EventObjectPoolSize=DEFAULT_EVENT_OBJECT_COUNT;
 	m_EventObjectPoolGrowSize=DEFAULT_EVENT_OBJECT_POOL_GROW_SIZE;
 	m_EventObjectPoolGrowLimit=DEFAULT_EVENT_OBJECT_POOL_GROW_LIMIT;
 	m_EventRouterPoolSize=DEFAULT_EVENT_ROUTER_COUNT;
@@ -57,7 +57,7 @@ void CNetServer::ShutDown(DWORD Milliseconds)
 
 BOOL CNetServer::OnStart()
 {
-	if(!CBaseServer::OnStart())
+	if(!CBaseNetServer::OnStart())
 		return FALSE;
 
 	if(m_hEpoll!=INVALID_HANDLE_VALUE)
@@ -69,7 +69,7 @@ BOOL CNetServer::OnStart()
 	m_hEpoll = epoll_create( m_EventRouterPoolSize );
 	if( m_hEpoll == INVALID_HANDLE_VALUE )
 	{
-		PrintNetLog(0xffffffff,"(%d)´´½¨EpollÊ§°Ü(%d)£¡",GetID(),GetLastError());
+		PrintNetLog(_T("NetLib"),"(%d)åˆ›å»ºEpollå¤±è´¥(%d)ï¼",GetID(),GetLastError());
 		return FALSE;
 	}
 
@@ -92,7 +92,7 @@ BOOL CNetServer::OnStart()
 
 BOOL CNetServer::OnRun()
 {
-	if(!CBaseServer::OnRun())
+	if(!CBaseNetServer::OnRun())
 		return FALSE;
 
 	if(Update()==0)
@@ -124,7 +124,7 @@ void CNetServer::OnTerminate()
 
 	if(m_EpollEventObjectPool.GetObjectCount())
 	{
-		PrintNetLog(0xffffffff,"(%d)¹Ø±Õ£¬¿ªÊ¼Í³¼ÆObjectÊ¹ÓÃ×´¿ö£¡",GetID());
+		PrintNetLog(_T("NetLib"),"(%d)å…³é—­ï¼Œå¼€å§‹ç»Ÿè®¡Objectä½¿ç”¨çŠ¶å†µï¼",GetID());
 		PrintObjectStatus();
 	}
 
@@ -143,13 +143,13 @@ CEpollEventObject * CNetServer::CreateEventObject()
 	{
 		if(pEpollEventObject->GetParentID())
 		{
-			PrintImportantLog(0,"·ÖÅäÁËÎ´ÊÍ·ÅµÄEpollEventObject");
+			PrintImportantLog(0,"åˆ†é…äº†æœªé‡Šæ”¾çš„EpollEventObject");
 		}
 		pEpollEventObject->Create(this);
 
 		return pEpollEventObject;
 	}
-	PrintNetLog(0xffffffff,"(%d)ServerÎŞ·¨´´½¨EpollEventObject£¡",GetID());
+	PrintNetLog(_T("NetLib"),"(%d)Serveræ— æ³•åˆ›å»ºEpollEventObjectï¼",GetID());
 
 
 
@@ -161,7 +161,7 @@ BOOL CNetServer::DeleteEventObject(CEpollEventObject * pEpollEventObject)
 	pEpollEventObject->Destory();
 	if(!m_EpollEventObjectPool.DeleteObject(pEpollEventObject->GetID()))
 	{
-		PrintNetLog(0xffffffff,"(%d)ServerÎŞ·¨É¾³ıEpollEventObject(%d)£¡",GetID(),pEpollEventObject->GetID());
+		PrintNetLog(_T("NetLib"),"(%d)Serveræ— æ³•åˆ é™¤EpollEventObject(%d)ï¼",GetID(),pEpollEventObject->GetID());
 		return FALSE;
 	}
 
@@ -181,7 +181,7 @@ CEpollEventRouter * CNetServer::CreateEventRouter()
 		pEventRouter->SetID(ID);
 		return pEventRouter;
 	}
-	PrintNetLog(0xffffffff,"(%d)ServerÎŞ·¨´´½¨EpollEventRouter£¡",GetID());
+	PrintNetLog(_T("NetLib"),"(%d)Serveræ— æ³•åˆ›å»ºEpollEventRouterï¼",GetID());
 	return NULL;
 }
 
@@ -196,7 +196,7 @@ BOOL CNetServer::DeleteEventRouter(CEpollEventRouter * pEventRouter)
 	pEventRouter->Destory();
 	if(!m_EventRouterPool.DeleteObject(pEventRouter->GetID()))
 	{
-		PrintNetLog(0xffffffff,"(%d)ServerÎŞ·¨É¾³ıEpollEventRouter(%d)£¡",GetID(),pEventRouter->GetID());
+		PrintNetLog(_T("NetLib"),"(%d)Serveræ— æ³•åˆ é™¤EpollEventRouter(%d)ï¼",GetID(),pEventRouter->GetID());
 		return FALSE;
 	}
 
@@ -208,12 +208,12 @@ BOOL CNetServer::BindSocket(SOCKET Socket,CEpollEventRouter * pEpollEventRouter)
 {
 	if(m_hEpoll == INVALID_HANDLE_VALUE)
 	{
-		PrintNetLog(0xffffffff,"(%d)EpollÃ»ÓĞ³õÊ¼»¯,ÎŞ·¨°ó¶¨Socket£¡",GetID());
+		PrintNetLog(_T("NetLib"),"(%d)Epollæ²¡æœ‰åˆå§‹åŒ–,æ— æ³•ç»‘å®šSocketï¼",GetID());
 		return FALSE;
 	}
 	if(Socket == INVALID_SOCKET)
 	{
-		PrintNetLog(0xffffffff,"(%d)SocketÃ»ÓĞ³õÊ¼»¯,ÎŞ·¨°ó¶¨Socket£¡",GetID());
+		PrintNetLog(_T("NetLib"),"(%d)Socketæ²¡æœ‰åˆå§‹åŒ–,æ— æ³•ç»‘å®šSocketï¼",GetID());
 		return FALSE;
 	}
 
@@ -251,7 +251,7 @@ BOOL CNetServer::UnbindSocket(SOCKET Socket)
 {
 	if (Socket == INVALID_SOCKET)
 	{
-		PrintNetLog(0xffffffff, "(%d)SocketÃ»ÓĞ³õÊ¼»¯,ÎŞ·¨½â°óSocket£¡", GetID());
+		PrintNetLog(_T("NetLib"), "(%d)Socketæ²¡æœ‰åˆå§‹åŒ–,æ— æ³•è§£ç»‘Socketï¼", GetID());
 		return FALSE;
 	}
 
@@ -309,12 +309,12 @@ void CNetServer::PrintObjectStatus()
 
 	m_EpollEventObjectPool.Verfy(UsedCount,FreeCount);
 
-	PrintNetLog(0,"ÓĞ%d(%u,%u,%u)¸öEpollEventObject¶ÔÏóÊ¹ÓÃÖĞ,ÆäÖĞAccept=%d,Recv=%d,Send=%d,Other=%d",
+	PrintNetLog(0,"æœ‰%d(%u,%u,%u)ä¸ªEpollEventObjectå¯¹è±¡ä½¿ç”¨ä¸­,å…¶ä¸­Accept=%d,Recv=%d,Send=%d,Other=%d",
 		m_EpollEventObjectPool.GetObjectCount(),
 		UsedCount,FreeCount,UsedCount+FreeCount,
 		AcceptCount,
 		RecvCount,
 		SendCount,
 		OtherCount);
-	PrintNetLog(0,"ÓĞ%d¸öEventRouterÊ¹ÓÃÖĞ",m_EventRouterPool.GetObjectCount());
+	PrintNetLog(0,"æœ‰%dä¸ªEventRouterä½¿ç”¨ä¸­",m_EventRouterPool.GetObjectCount());
 }

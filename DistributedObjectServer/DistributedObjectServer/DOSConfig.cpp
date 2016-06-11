@@ -4,8 +4,6 @@ CDOSConfig::CDOSConfig(void)
 {
 	FUNCTION_BEGIN;
 
-	m_MaxPluginObject=1024;
-
 	FUNCTION_END;
 }
 
@@ -20,8 +18,6 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 
 	if(Parser.parse_file(FileName,pug::parse_trim_attribute))
 	{
-		m_DOSConfig.RouterLinkConfigFileName=FileName;
-
 		xml_node Config=Parser.document();
 		if(Config.moveto_child("Main"))
 		{
@@ -59,6 +55,12 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 
 			}
 
+			xml_node RouterLink = Config;
+			if (RouterLink.moveto_child("RouterLink"))
+			{
+				CEasyNetLinkManager::LoadConfig(RouterLink, m_DOSConfig.RouterLinkConfig);
+			}
+
 			xml_node ClientProxys=Config;
 			if(ClientProxys.moveto_child("ClientProxys"))
 			{
@@ -67,10 +69,13 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 					xml_node ClientProxy = ClientProxys.child(i);
 					if (_stricmp(ClientProxys.name(), "ClientProxy"))
 					{
-						CLIENT_PROXY_CONFIG ProxyConfig;
+						CLIENT_PROXY_PLUGIN_INFO ProxyConfig;
 						if (ReadProxyConfig(ClientProxy, ProxyConfig))
 						{
-							m_DOSConfig.ClientProxyConfigs.Add(ProxyConfig);
+							if (ProxyConfig.ProxyMode == CLIENT_PROXY_MODE_DEFAULT)
+								m_DOSConfig.ClientProxyConfigs.Add(ProxyConfig);
+							else
+								m_ProxyPluginList.Add(ProxyConfig);
 						}
 					}
 				}
@@ -103,6 +108,9 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 					m_DOSConfig.ObjectKeepAliveCount=(UINT)Object.attribute("KeepAliveCount");
 				if(Object.has_attribute("StatObjectCPUCost"))
 					m_DOSConfig.StatObjectCPUCost=Object.attribute("StatObjectCPUCost");
+
+				m_DOSConfig.pDOSGroupInitFN = CDOSMainThread::DosGroupInitFn;
+				m_DOSConfig.pDOSGroupDestoryFN = CDOSMainThread::DosGroupDestoryFn;
 			}
 
 			xml_node Mono = Config;
@@ -111,6 +119,10 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 				if (Mono.has_attribute("Enable"))
 				{
 					m_MonoConfig.EnableMono = Mono.attribute("Enable");
+#ifdef _WIN64
+					Log("win64不支持mono");
+					m_MonoConfig.EnableMono = false;
+#endif
 				}
 				if (Mono.has_attribute("LibraryDir"))
 				{
@@ -167,6 +179,12 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 						m_MonoConfig.FullGCInterval = Value;
 				}
 			}
+			xml_node Libs = Config;
+			if (Libs.moveto_child("Libs"))
+			{
+				LoadLibInfo(Libs);
+			}
+
 			xml_node Plugins=Config;
 			if(Plugins.moveto_child("Plugins"))
 			{
@@ -206,14 +224,15 @@ bool CDOSConfig::ReadPoolConfig(xml_node& XMLContent,POOL_CONFIG& Config)
 	return false;
 }
 
-bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_CONFIG& Config)
+bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO& Config)
 {
 	FUNCTION_BEGIN;
 
 	if (XMLContent.has_attribute("ProxyType"))
 		Config.ProxyType = XMLContent.attribute("ProxyType");
 
-
+	if (XMLContent.has_attribute("ProxyMode"))
+		Config.ProxyMode = (CLIENT_PROXY_MODE)((int)XMLContent.attribute("ProxyMode"));
 
 	if (XMLContent.has_attribute("ListenIP"))
 		Config.ListenAddress.SetIP(XMLContent.attribute("ListenIP").getvalue());
@@ -226,6 +245,15 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_CONFIG& Conf
 
 	if (XMLContent.has_attribute("ConnectionMsgQueueSize"))
 		Config.ConnectionMsgQueueSize = (UINT)XMLContent.attribute("ConnectionMsgQueueSize");
+
+	if (XMLContent.has_attribute("AcceptQueueSize"))
+		Config.AcceptQueueSize = (UINT)XMLContent.attribute("AcceptQueueSize");
+
+	if (XMLContent.has_attribute("ParallelAcceptCount"))
+		Config.ParallelAcceptCount = (UINT)XMLContent.attribute("ParallelAcceptCount");
+
+	if (XMLContent.has_attribute("RecvBufferSize"))
+		Config.RecvBufferSize = (UINT)XMLContent.attribute("RecvBufferSize");
 
 	if (XMLContent.has_attribute("SendBufferSize"))
 		Config.SendBufferSize = (UINT)XMLContent.attribute("SendBufferSize");
@@ -266,9 +294,6 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_CONFIG& Conf
 	if (XMLContent.has_attribute("MinMsgCompressSize"))
 		Config.MinMsgCompressSize = XMLContent.attribute("MinMsgCompressSize");
 
-
-
-
 	if (XMLContent.has_attribute("MsgQueueSize"))
 		Config.MsgQueueSize = (UINT)XMLContent.attribute("MsgQueueSize");
 
@@ -281,21 +306,69 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_CONFIG& Conf
 	if (XMLContent.has_attribute("MaxMsgSize"))
 		Config.MaxMsgSize = (UINT)XMLContent.attribute("MaxMsgSize");
 
+	if (XMLContent.has_attribute("PluginName"))
+	{
+		Config.PluginName = XMLContent.attribute("PluginName").getvalue();
+	}
+	if (XMLContent.has_attribute("PluginModuleFileName"))
+	{
+		Config.ModuleFileName = XMLContent.attribute("PluginModuleFileName").getvalue();
+	}
 
 	return true;
 	FUNCTION_END;
 	return false;
 }
+bool CDOSConfig::LoadLibInfo(xml_node& XMLContent)
+{
+	for (UINT i = 0; i < XMLContent.children(); i++)
+	{
+		xml_node Lib = XMLContent.child(i);
+		if (_stricmp(Lib.name(), "Lib") == 0)
+		{
+			if (Lib.has_attribute("Name"))
+			{
+				LIB_INFO LibInfo;
 
+				LibInfo.LibName = Lib.attribute("Name").getvalue();
+				LibInfo.LibName.Trim();
+				if (!LibInfo.LibName.IsEmpty())
+				{
+					if (Lib.has_attribute("NeedCompile"))
+						LibInfo.NeedCompile = Lib.attribute("NeedCompile");
+
+					if (Lib.has_attribute("OutDir"))
+						LibInfo.OutDir = Lib.attribute("OutDir").getvalue();
+
+					if (Lib.has_attribute("PrjDir"))
+						LibInfo.PrjDir = Lib.attribute("PrjDir").getvalue();
+
+					for (UINT j = 0; j < Lib.children(); j++)
+					{
+						xml_node SourceDir = Lib.child(j);
+						if (_stricmp(SourceDir.name(), "SourceDir") == 0)
+						{
+							LibInfo.SourceDirs.Add(SourceDir.attribute("Name").getvalue());
+						}
+					}
+					if (LibInfo.SourceDirs.GetCount())
+						m_LibList.Add(LibInfo);
+				}
+			}
+		}
+	}
+	return true;
+}
 bool CDOSConfig::LoadPluginInfo(xml_node& XMLContent)
 {
-	if (XMLContent.has_attribute("MaxPluginObject"))
-		m_MaxPluginObject = (UINT)XMLContent.attribute("MaxPluginObject");
-
 	for (UINT i = 0; i < XMLContent.children(); i++)
 	{
 		xml_node Plugin = XMLContent.child(i);
-		if (_stricmp(Plugin.name(), "Plugin") == 0)
+		if (_stricmp(Plugin.name(), "PluginObjectPool") == 0)
+		{
+			ReadPoolConfig(Plugin, m_PluginObjectPoolConfig);
+		}
+		else if (_stricmp(Plugin.name(), "Plugin") == 0)
 		{
 			PLUGIN_INFO PluginInfo;
 			if (Plugin.has_attribute("Type"))

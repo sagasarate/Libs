@@ -1,19 +1,19 @@
+ï»¿/****************************************************************************/
+/*                                                                          */
+/*      æ–‡ä»¶å:    ServerConsoleDlg.cpp                                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
+/*                                                                          */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
+/*                                                                          */
 /****************************************************************************/
-/*                                                                          */
-/*      ÎÄ¼şÃû:    ServerConsoleDlg.cpp                                     */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
-/*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
-/*                                                                          */
-/****************************************************************************/
-// SuperStarServerDlg.cpp : ÊµÏÖÎÄ¼ş
+// SuperStarServerDlg.cpp : å®ç°æ–‡ä»¶
 //
 
 #include "stdafx.h"
-#include "ServerConsoleDlg.h"
+
 
 
 //#ifdef _DEBUG
@@ -28,7 +28,7 @@
 
 #define LOG_MSG_FETCH_COUNT	50
 
-// CServerConsoleDlg ¶Ô»°¿ò
+// CServerConsoleDlg å¯¹è¯æ¡†
 
 
 
@@ -74,34 +74,32 @@ BEGIN_MESSAGE_MAP(CServerConsoleDlg, CDialog)
 END_MESSAGE_MAP()
 
 
-// CServerConsoleDlg ÏûÏ¢´¦Àí³ÌĞò
+// CServerConsoleDlg æ¶ˆæ¯å¤„ç†ç¨‹åº
 
 BOOL CServerConsoleDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	// ½«\¡°¹ØÓÚ...\¡±²Ëµ¥ÏîÌí¼Óµ½ÏµÍ³²Ëµ¥ÖĞ¡£
+	// å°†\â€œå…³äº...\â€èœå•é¡¹æ·»åŠ åˆ°ç³»ç»Ÿèœå•ä¸­ã€‚
 
 
-	// ÉèÖÃ´Ë¶Ô»°¿òµÄÍ¼±ê¡£µ±Ó¦ÓÃ³ÌĞòÖ÷´°¿Ú²»ÊÇ¶Ô»°¿òÊ±£¬¿ò¼Ü½«×Ô¶¯
-	//  Ö´ĞĞ´Ë²Ù×÷
-	SetIcon(m_hIcon, TRUE);			// ÉèÖÃ´óÍ¼±ê
-	SetIcon(m_hIcon, FALSE);		// ÉèÖÃĞ¡Í¼±ê
+	// è®¾ç½®æ­¤å¯¹è¯æ¡†çš„å›¾æ ‡ã€‚å½“åº”ç”¨ç¨‹åºä¸»çª—å£ä¸æ˜¯å¯¹è¯æ¡†æ—¶ï¼Œæ¡†æ¶å°†è‡ªåŠ¨
+	//  æ‰§è¡Œæ­¤æ“ä½œ
+	SetIcon(m_hIcon, TRUE);			// è®¾ç½®å¤§å›¾æ ‡
+	SetIcon(m_hIcon, FALSE);		// è®¾ç½®å°å›¾æ ‡
 
-	// TODO: ÔÚ´ËÌí¼Ó¶îÍâµÄ³õÊ¼»¯´úÂë
-	//³õÊ¼»¯°æ±¾ĞÅÏ¢
+	// TODO: åœ¨æ­¤æ·»åŠ é¢å¤–çš„åˆå§‹åŒ–ä»£ç 
+	//åˆå§‹åŒ–ç‰ˆæœ¬ä¿¡æ¯
 	ShowVersion();
 	
 	m_ServerStatus.Create(SERVER_STATUS_BLOCK_SIZE);
 	m_DlgServerStatus.Create(m_DlgServerStatus.IDD,this);
-
-	CControlPanel::GetInstance()->SetHwnd(GetSafeHwnd());
 	
 
 	SetTimer(PANEL_TIMER_ID,SERVER_INFO_COUNT_TIME,NULL);
 	SetTimer(LOG_MSG_FETCH_TIMER,LOG_MSG_FETCH_TIME,NULL);
 	
-	return TRUE;  // ³ı·ÇÉèÖÃÁË¿Ø¼şµÄ½¹µã£¬·ñÔò·µ»Ø TRUE
+	return TRUE;  // é™¤éè®¾ç½®äº†æ§ä»¶çš„ç„¦ç‚¹ï¼Œå¦åˆ™è¿”å› TRUE
 }
 
 void CServerConsoleDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -109,19 +107,19 @@ void CServerConsoleDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	CDialog::OnSysCommand(nID, lParam);
 }
 
-// Èç¹ûÏò¶Ô»°¿òÌí¼Ó×îĞ¡»¯°´Å¥£¬ÔòĞèÒªÏÂÃæµÄ´úÂë
-//  À´»æÖÆ¸ÃÍ¼±ê¡£¶ÔÓÚÊ¹ÓÃÎÄµµ/ÊÓÍ¼Ä£ĞÍµÄ MFC Ó¦ÓÃ³ÌĞò£¬
-//  Õâ½«ÓÉ¿ò¼Ü×Ô¶¯Íê³É¡£
+// å¦‚æœå‘å¯¹è¯æ¡†æ·»åŠ æœ€å°åŒ–æŒ‰é’®ï¼Œåˆ™éœ€è¦ä¸‹é¢çš„ä»£ç 
+//  æ¥ç»˜åˆ¶è¯¥å›¾æ ‡ã€‚å¯¹äºä½¿ç”¨æ–‡æ¡£/è§†å›¾æ¨¡å‹çš„ MFC åº”ç”¨ç¨‹åºï¼Œ
+//  è¿™å°†ç”±æ¡†æ¶è‡ªåŠ¨å®Œæˆã€‚
 
 void CServerConsoleDlg::OnPaint() 
 {
 	if (IsIconic())
 	{
-		CPaintDC dc(this); // ÓÃÓÚ»æÖÆµÄÉè±¸ÉÏÏÂÎÄ
+		CPaintDC dc(this); // ç”¨äºç»˜åˆ¶çš„è®¾å¤‡ä¸Šä¸‹æ–‡
 
 		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
 
-		// Ê¹Í¼±êÔÚ¹¤×÷¾ØĞÎÖĞ¾ÓÖĞ
+		// ä½¿å›¾æ ‡åœ¨å·¥ä½œçŸ©å½¢ä¸­å±…ä¸­
 		int cxIcon = GetSystemMetrics(SM_CXICON);
 		int cyIcon = GetSystemMetrics(SM_CYICON);
 		CRect rect;
@@ -129,7 +127,7 @@ void CServerConsoleDlg::OnPaint()
 		int x = (rect.Width() - cxIcon + 1) / 2;
 		int y = (rect.Height() - cyIcon + 1) / 2;
 
-		// »æÖÆÍ¼±ê
+		// ç»˜åˆ¶å›¾æ ‡
 		dc.DrawIcon(x, y, m_hIcon);
 	}
 	else
@@ -138,7 +136,7 @@ void CServerConsoleDlg::OnPaint()
 	}
 }
 
-//µ±ÓÃ»§ÍÏ¶¯×îĞ¡»¯´°¿ÚÊ±ÏµÍ³µ÷ÓÃ´Ëº¯ÊıÈ¡µÃ¹â±êÏÔÊ¾¡£
+//å½“ç”¨æˆ·æ‹–åŠ¨æœ€å°åŒ–çª—å£æ—¶ç³»ç»Ÿè°ƒç”¨æ­¤å‡½æ•°å–å¾—å…‰æ ‡æ˜¾ç¤ºã€‚
 HCURSOR CServerConsoleDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
@@ -150,7 +148,7 @@ void CServerConsoleDlg::OnOK()
 
 void CServerConsoleDlg::OnCancel()
 {
-	//int nRetCode = MessageBox("³ÌĞò½«Òª¹Ø±Õ?", "¾¯¸æ", MB_YESNO);
+	//int nRetCode = MessageBox("ç¨‹åºå°†è¦å…³é—­?", "è­¦å‘Š", MB_YESNO);
 	//if(nRetCode == IDYES)
 	{		
 		CDialog::OnCancel();
@@ -161,7 +159,7 @@ void CServerConsoleDlg::OnCancel()
 void CServerConsoleDlg::ShowVersion()
 {
 	CString Caption;
-	Caption.Format("[%s]°æ±¾:%u.%u.%u.%u  Æô¶¯Ê±¼ä:%s",
+	Caption.Format("[%s]ç‰ˆæœ¬:%u.%u.%u.%u  å¯åŠ¨æ—¶é—´:%s",
 		(LPCTSTR)g_ProgramName,
 		g_ProgramVersion[3],
 		g_ProgramVersion[2],
@@ -175,32 +173,35 @@ void CServerConsoleDlg::ShowVersion()
 int CServerConsoleDlg::FetchConsoleMsg(int ProcessLimit)
 {
 	int ProcessCount=0;
-	PANEL_MSG * pMsg=CControlPanel::GetInstance()->GetMsg();
-	while(pMsg)
+	if (m_pServer)
 	{
-		if(IsWindowVisible())
-			OnConsoleMsg(pMsg);
+		char Buffer[5001];
+		UINT MsgLen = 0;
+		LPCTSTR szMsg = m_pServer->GetConsoleLog(MsgLen);
+		while (szMsg&&MsgLen)
+		{
+			if (IsWindowVisible())
+			{
+				if (MsgLen > 5000)
+					MsgLen = 5000;
+				memcpy(Buffer, szMsg, MsgLen);
+				Buffer[MsgLen] = 0;
+				OnLogMsg(Buffer);
+			}
 
-		CControlPanel::GetInstance()->ReleaseMsg(pMsg->ID);
+			m_pServer->PopupConsoleLog(MsgLen);
 
-		ProcessCount++;
-		if(ProcessCount>ProcessLimit)
-			break;
-		pMsg=CControlPanel::GetInstance()->GetMsg();
+			ProcessCount++;
+			if (ProcessCount > ProcessLimit)
+				break;
+			szMsg = m_pServer->GetConsoleLog(MsgLen);
+		}
 	}
 
 	return ProcessCount;
 }
 
-void CServerConsoleDlg::OnConsoleMsg(PANEL_MSG * pMsg)
-{
-	switch(pMsg->MsgType)
-	{
-	case CON_MSG_LOG:
-		OnLogMsg(pMsg->Msg);
-		break;
-	}
-}
+
 
 void CServerConsoleDlg::OnLogMsg(LPCTSTR szLogMsg)
 {
@@ -237,7 +238,7 @@ void CServerConsoleDlg::OnLogMsg(LPCTSTR szLogMsg)
 	m_edMsgWnd.GetSel(s1,s2);
 	m_edMsgWnd.SetSel(s2,s2);	
 
-	m_edMsgWnd.ReplaceSel("\r\n");
+	//m_edMsgWnd.ReplaceSel("\r\n");
 
 
 
@@ -252,11 +253,15 @@ void CServerConsoleDlg::OnLogMsg(LPCTSTR szLogMsg)
 
 void CServerConsoleDlg::OnTimer(UINT_PTR nIDEvent)
 {
-	// TODO: ÔÚ´ËÌí¼ÓÏûÏ¢´¦Àí³ÌĞò´úÂëºÍ/»òµ÷ÓÃÄ¬ÈÏÖµ
-	if(nIDEvent==PANEL_TIMER_ID&&IsWindowVisible())
+	// TODO: åœ¨æ­¤æ·»åŠ æ¶ˆæ¯å¤„ç†ç¨‹åºä»£ç å’Œ/æˆ–è°ƒç”¨é»˜è®¤å€¼
+	if (nIDEvent == PANEL_TIMER_ID&&IsWindowVisible() && m_pServer)
 	{
-		UINT Size=CControlPanel::GetInstance()->GetServerStatus((LPVOID)m_ServerStatus.GetBuffer(),m_ServerStatus.GetBufferSize());
+		UINT Size=m_pServer->GetAllServerStatus((BYTE *)m_ServerStatus.GetBuffer(),m_ServerStatus.GetBufferSize());
 		CSmartStruct StatusPacket(m_ServerStatus.GetBuffer(),Size,false);
+
+		CEasyArray<SERVER_STATUS_FORMAT_INFO> FormatInfoList;
+		m_pServer->GetAllServerStatusFormat(FormatInfoList);
+
 		UpdateData(true);		
 		static char buff[128];
 		sprintf_s(buff,128,"%.2f",
@@ -269,7 +274,7 @@ void CServerConsoleDlg::OnTimer(UINT_PTR nIDEvent)
 
 		UpdateData(false);
 
-		m_DlgServerStatus.FlushStatus(StatusPacket);
+		m_DlgServerStatus.FlushStatus(StatusPacket, FormatInfoList);
 	}
 	if(nIDEvent==LOG_MSG_FETCH_TIMER)
 	{
@@ -281,7 +286,7 @@ void CServerConsoleDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CServerConsoleDlg::OnBnClickedExecCommand()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	UpdateData(true);
 	m_Command.Trim();
 	if(!m_Command.IsEmpty())
@@ -292,7 +297,8 @@ void CServerConsoleDlg::OnBnClickedExecCommand()
 
 void CServerConsoleDlg::OnCommand(LPCTSTR szCommand)
 {
-	CControlPanel::GetInstance()->PushCommand(szCommand);
+	if (m_pServer)
+		m_pServer->PushConsoleCmd(szCommand);
 }
 
 void CServerConsoleDlg::RegisterTrayIcon(LPCTSTR szTip)
@@ -351,8 +357,8 @@ void CServerConsoleDlg::OnBnClickedCloseServer()
 {
 	
 
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
-	if(MessageBox("ÊÇ·ñÒª¹Ø±Õ·şÎñÆ÷","ÌáÊ¾",MB_YESNO)==IDYES)
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
+	if(MessageBox("æ˜¯å¦è¦å…³é—­æœåŠ¡å™¨","æç¤º",MB_YESNO)==IDYES)
 	{		
 		if(m_pServer)
 			m_pServer->QueryShowDown();
@@ -362,6 +368,6 @@ void CServerConsoleDlg::OnBnClickedCloseServer()
 
 void CServerConsoleDlg::OnBnClickedShowServerStatus()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	m_DlgServerStatus.ShowWindow(SW_SHOW);
 }

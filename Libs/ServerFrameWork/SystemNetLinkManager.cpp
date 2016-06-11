@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    SystemNetLinkManager.cpp                                 */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    SystemNetLinkManager.cpp                                 */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -23,7 +23,7 @@ CSystemNetLinkManager::~CSystemNetLinkManager(void)
 }
 
 
-CEasyNetLinkConnection * CSystemNetLinkManager::OnCreateConnection(UINT ReportID)
+CEasyNetLink * CSystemNetLinkManager::OnCreateLink(UINT ReportID)
 {
 	FUNCTION_BEGIN;
 	return new CSystemNetLink(m_pServer);
@@ -38,7 +38,7 @@ void CSystemNetLinkManager::SendLogMsg(LPCTSTR LogMsg)
 
 	static char s_SendBuffer[65536];
 
-	if(m_ConnectionMap.GetObjectCount())
+	if(m_LinkMap.GetObjectCount())
 	{
 		CSmartStruct LogStr(5000);
 
@@ -54,11 +54,11 @@ void CSystemNetLinkManager::SendLogMsg(LPCTSTR LogMsg)
 
 		SendBuffer.PushBack(LogStr.GetData(),LogStr.GetDataLen());
 
-		void * Pos=m_ConnectionMap.GetFirstObjectPos();
+		void * Pos = m_LinkMap.GetFirstObjectPos();
 		while(Pos)
 		{
 			UINT Key;
-			CEasyNetLinkConnection ** ppValue=m_ConnectionMap.GetNextObject(Pos,Key);
+			CEasyNetLink ** ppValue = m_LinkMap.GetNextObject(Pos, Key);
 			if(ppValue)
 			{
 				CSystemNetLink * pLink=(CSystemNetLink *)(*ppValue);

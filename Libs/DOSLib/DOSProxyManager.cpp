@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DOSProxyManager.cpp                                     */
-/*      ´´½¨ÈÕÆÚ:  2015Äê1ÔÂ6ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSProxyManager.cpp                                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2015å¹´1æœˆ6æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 
@@ -30,46 +30,66 @@ bool CDOSProxyManager::Initialize(CDOSServer * pServer)
 {
 	m_pServer = pServer;
 	CEasyArray<CLIENT_PROXY_CONFIG>& ProxyConfigs = m_pServer->GetConfig().ClientProxyConfigs;
-	//¼ì²éÉèÖÃÓĞĞ§ĞÔ
-	for (int i = ProxyConfigs.GetCount() - 1; i >= 0; i--)
+	//æ£€æŸ¥è®¾ç½®æœ‰æ•ˆæ€§
+	for (int i = (int)ProxyConfigs.GetCount() - 1; i >= 0; i--)
 	{
-		if (ProxyConfigs[i].ProxyType == BROAD_CAST_PROXY_TYPE)
+		if (ProxyConfigs[i].ProxyMode == CLIENT_PROXY_MODE_DEFAULT)
 		{
-			PrintDOSLog(0, _T("´úÀíÀàĞÍÂë²»ÄÜÎª%d,ÕìÌıµØÖ·Îª(%s:%d)µÄ´úÀí½«±»ºöÂÔ"), BROAD_CAST_PROXY_TYPE,
-				ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
-			ProxyConfigs.Delete(i);
+			if (ProxyConfigs[i].ProxyType == BROAD_CAST_PROXY_TYPE)
+			{
+				PrintDOSLog(0, _T("ä»£ç†ç±»å‹ç ä¸èƒ½ä¸º%d,ä¾¦å¬åœ°å€ä¸º(%s:%d)çš„ä»£ç†å°†è¢«å¿½ç•¥"), BROAD_CAST_PROXY_TYPE,
+					ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
+				ProxyConfigs.Delete(i);
+			}
+			else
+			{
+				bool IsListenAddressExist = false;
+				bool IsProxyTypeExist = false;
+				for (int j = i - 1; j >= 0; j--)
+				{
+					if (ProxyConfigs[i].ProxyType == ProxyConfigs[j].ProxyType)
+					{
+						PrintDOSLog(0, _T("ä»£ç†ç±»å‹ç é‡å¤,ä¾¦å¬åœ°å€ä¸º(%s:%d)çš„ä»£ç†å°†è¢«å¿½ç•¥"), ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
+						ProxyConfigs.Delete(i);
+						break;
+					}
+					else if (ProxyConfigs[i].ListenAddress == ProxyConfigs[j].ListenAddress)
+					{
+						PrintDOSLog(0, _T("ä¾¦å¬åœ°å€é‡å¤,ä¾¦å¬åœ°å€ä¸º(%s:%d)çš„ä»£ç†å°†è¢«å¿½ç•¥"), ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
+						ProxyConfigs.Delete(i);
+						break;
+					}
+				}
+			}
 		}
 		else
 		{
-			bool IsListenAddressExist = false;
-			bool IsProxyTypeExist = false;
-			for (int j = i - 1; j >= 0; j--)
-			{
-				if (ProxyConfigs[i].ProxyType == ProxyConfigs[j].ProxyType)
-				{
-					PrintDOSLog(0, _T("´úÀíÀàĞÍÂëÖØ¸´,ÕìÌıµØÖ·Îª(%s:%d)µÄ´úÀí½«±»ºöÂÔ"), ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
-					ProxyConfigs.Delete(i);
-					break;
-				}
-				else if (ProxyConfigs[i].ListenAddress == ProxyConfigs[j].ListenAddress)
-				{
-					PrintDOSLog(0, _T("ÕìÌıµØÖ·ÖØ¸´,ÕìÌıµØÖ·Îª(%s:%d)µÄ´úÀí½«±»ºöÂÔ"), ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
-					ProxyConfigs.Delete(i);
-					break;
-				}
-			}
+			PrintDOSLog(0, _T("æ¨¡å¼ä¸º%dçš„ä»£ç†å°†è¢«å¿½ç•¥"), ProxyConfigs[i].ProxyMode);
+			ProxyConfigs.Delete(i);
 		}
 	}
 	if (ProxyConfigs.GetCount())
 	{
-		m_ProxyServiceList.Resize(ProxyConfigs.GetCount());
 		for (UINT i = 0; i < ProxyConfigs.GetCount(); i++)
 		{
-			m_ProxyServiceList[i] = new CDOSObjectProxyService();
-			m_ProxyServiceList[i]->SetID(i + 1);
-			if (!m_ProxyServiceList[i]->Init(m_pServer, ProxyConfigs[i]))			
+			CDOSObjectProxyServiceDefault * pProxyServiceList = new CDOSObjectProxyServiceDefault();
+			pProxyServiceList->SetID(i + 1);
+			if (pProxyServiceList->Init(m_pServer, ProxyConfigs[i]))
 			{
-				SAFE_DELETE(m_ProxyServiceList[i]);
+				if (pProxyServiceList->StartService())
+				{
+					m_ProxyServiceList.Add(pProxyServiceList);
+				}
+				else
+				{
+					PrintDOSLog(0, _T("ä»£ç†%dæ— æ³•å¯åŠ¨"), pProxyServiceList->GetProxyType());
+					SAFE_RELEASE(pProxyServiceList);
+				}
+				
+			}
+			else
+			{
+				SAFE_RELEASE(pProxyServiceList);
 			}
 		}
 	}
@@ -80,9 +100,37 @@ void CDOSProxyManager::Destory()
 	for (UINT i = 0; i < m_ProxyServiceList.GetCount(); i++)
 	{
 		if (m_ProxyServiceList[i])
-			m_ProxyServiceList[i]->SafeTerminate();
-		SAFE_DELETE(m_ProxyServiceList[i]);
+			m_ProxyServiceList[i]->StopService();
+		SAFE_RELEASE(m_ProxyServiceList[i]);
 	}
 	m_ProxyServiceList.Clear();
 }
 
+bool CDOSProxyManager::RegisterProxyService(IDOSObjectProxyServiceBase * pService)
+{
+	pService->SetID((UINT)m_ProxyServiceList.GetCount() + 1);
+	if (pService->StartService())
+	{
+		pService->AddUseRef();
+		m_ProxyServiceList.Add(pService);
+		PrintDOSLog(0, _T("ç±»å‹ä¸º%dçš„ä»£ç†å·²è¢«æ³¨å†Œ"), pService->GetProxyType());
+		return true;
+	}
+	else
+	{
+		PrintDOSLog(0, _T("ç±»å‹ä¸º%dçš„ä»£ç†æ— æ³•å¯åŠ¨"), pService->GetProxyType());
+		return false;
+	}	
+}
+
+bool CDOSProxyManager::UnregisterProxyService(BYTE ProxyID)
+{
+	ProxyID--;
+	if (ProxyID < m_ProxyServiceList.GetCount())
+	{
+		SAFE_RELEASE(m_ProxyServiceList[ProxyID]);
+		m_ProxyServiceList.Delete(ProxyID);
+		return true;
+	}
+	return false;
+}

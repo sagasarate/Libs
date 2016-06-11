@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+﻿#include "StdAfx.h"
 
 static unsigned char ToHex(unsigned char x) 
 { 

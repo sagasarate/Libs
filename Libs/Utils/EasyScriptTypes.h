@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    EasyScriptTypes.h	                                    */
-/*      ´´½¨ÈÕÆÚ:  2010Äê08ÔÂ26ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    EasyScriptTypes.h	                                    */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´08æœˆ26æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -672,19 +672,19 @@ inline CEasyString BolanToString(const ES_BOLAN& bolan)
 		switch(bolan.ValueType)
 		{
 		case VALUE_TYPE_INT:
-			temp.Format(_T("ÖµInt=%d"),bolan.ValueInt);
+			temp.Format(_T("å€¼Int=%d"),bolan.ValueInt);
 			break;
 		case VALUE_TYPE_INT64:
-			temp.Format(_T("ÖµInt64=%lld"),bolan.ValueInt64);
+			temp.Format(_T("å€¼Int64=%lld"),bolan.ValueInt64);
 			break;
 		case VALUE_TYPE_FLOAT:
-			temp.Format(_T("ÖµFloat=%g"),bolan.ValueFloat);
+			temp.Format(_T("å€¼Float=%g"),bolan.ValueFloat);
 			break;
 		case VALUE_TYPE_DOUBLE:
-			temp.Format(_T("ÖµDouble=%g"),bolan.ValueDouble);
+			temp.Format(_T("å€¼Double=%g"),bolan.ValueDouble);
 			break;
 		case VALUE_TYPE_STRING:
-			temp.Format(_T("ÖµStr=\"%s\""),(LPCTSTR)bolan.StrValue);
+			temp.Format(_T("å€¼Str=\"%s\""),(LPCTSTR)bolan.StrValue);
 			break;
 		}
 		break;	
@@ -693,44 +693,44 @@ inline CEasyString BolanToString(const ES_BOLAN& bolan)
 		{
 		case OPERATOR_JMP:
 		case OPERATOR_JZ:
-			temp.Format(_T("²Ù×÷·û<%s>%d"),
+			temp.Format(_T("æ“ä½œç¬¦<%s>%d"),
 				OPERATOR_STRINGS[bolan.Index],bolan.Level);
 			break;
 		case OPERATOR_CALL:
 		case OPERATOR_ADD_VAR:
 		case OPERATOR_ADD_CALL_PARAM:
-			temp.Format(_T("²Ù×÷·û<%s>%s"),
+			temp.Format(_T("æ“ä½œç¬¦<%s>%s"),
 				OPERATOR_STRINGS[bolan.Index],(LPCTSTR)bolan.StrValue);
 			break;
 		default:
 			if(bolan.Index<OPERATOR_MAX)
 			{
-				temp.Format(_T("²Ù×÷·û<%s>"),
+				temp.Format(_T("æ“ä½œç¬¦<%s>"),
 					OPERATOR_STRINGS[bolan.Index]);
 			}
 			else
 			{
-				temp.Format(_T("Î´Öª²Ù×÷·û<%d>"),
+				temp.Format(_T("æœªçŸ¥æ“ä½œç¬¦<%d>"),
 					bolan.Index);
 			}
 		}
 		
 		break;
 	case BOLAN_TYPE_FUNCTION:
-		temp.Format(_T("º¯Êı(%s)"),(LPCTSTR)bolan.StrValue);
+		temp.Format(_T("å‡½æ•°(%s)"),(LPCTSTR)bolan.StrValue);
 		break;
 	case BOLAN_TYPE_VARIABLE:	
-		temp.Format(_T("±äÁ¿(%s)"),(LPCTSTR)bolan.StrValue);
+		temp.Format(_T("å˜é‡(%s)"),(LPCTSTR)bolan.StrValue);
 		break;
 	case BOLAN_TYPE_KEYWORD:
-		temp.Format(_T("¹Ø¼ü×Ö<%s>(%d)"),
+		temp.Format(_T("å…³é”®å­—<%s>(%d)"),
 			KEYWORD_STRINGS[bolan.Index],bolan.Level);
 		break;
 	case BOLAN_TYPE_IDENTIFIER:
-		temp.Format(_T("±êÊ¶·û(%s)"),(LPCTSTR)bolan.StrValue);
+		temp.Format(_T("æ ‡è¯†ç¬¦(%s)"),(LPCTSTR)bolan.StrValue);
 		break;
 	default:
-		temp=_T("²»¿É½âÊÍµÄ·ûºÅ");
+		temp=_T("ä¸å¯è§£é‡Šçš„ç¬¦å·");
 	}
 	return temp;
 }

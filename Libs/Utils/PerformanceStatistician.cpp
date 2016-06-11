@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    PerformanceStatistician.cpp                              */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    PerformanceStatistician.cpp                              */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -49,7 +49,7 @@ void CPerformanceStatistician::PrintPerformanceStat(int LogChannel)
 {
 
 	CEasyArray<PERFORMANCE_INFO> PerformanceList;
-	CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,_T("ĞÔÄÜÍ³¼Æ¿ªÊ¼:"));
+	CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,_T("æ€§èƒ½ç»Ÿè®¡å¼€å§‹:"));
 	for(int i=0;i<MAX_PERFORMANCE_FUNCTION_NUM;i++)
 	{
 		if(m_PerformanceFunctionNames[i])
@@ -87,7 +87,7 @@ void CPerformanceStatistician::PrintPerformanceStat(int LogChannel)
 void CPerformanceStatistician::PrintPerformanceStatUnit(int LogChannel)
 {
 	CEasyArray<PERFORMANCE_INFO> PerformanceList;
-	CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,_T("ĞÔÄÜÍ³¼Æ¿ªÊ¼(µ¥Î»):"));
+	CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,_T("æ€§èƒ½ç»Ÿè®¡å¼€å§‹(å•ä½):"));
 	for(int i=0;i<MAX_PERFORMANCE_FUNCTION_NUM;i++)
 	{
 		if(m_PerformanceFunctionNames[i]&&m_PerformanceFunctionCalls[i])

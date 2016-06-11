@@ -34,9 +34,6 @@
     <Filter Include="服务器组件\IOCP\IOCP连接">
       <UniqueIdentifier>{6cbfd97e-d38c-40c3-a344-0967b4f45355}</UniqueIdentifier>
     </Filter>
-    <Filter Include="服务器组件\IOCP\IOCP连接\并行TCP">
-      <UniqueIdentifier>{c7a10754-8fc1-42aa-b9c9-19c8aaa30219}</UniqueIdentifier>
-    </Filter>
     <Filter Include="服务器组件\IOCP\IOCP事件处理">
       <UniqueIdentifier>{89d97e2c-6ad8-4cb8-98df-e9264936da4a}</UniqueIdentifier>
     </Filter>
@@ -88,11 +85,11 @@
     <Filter Include="服务器组件\Epoll\Epoll连接">
       <UniqueIdentifier>{0495054c-d258-4c6e-ab56-f43ac20e9e85}</UniqueIdentifier>
     </Filter>
-    <Filter Include="服务器组件\Epoll\Epoll连接\并行TCP">
-      <UniqueIdentifier>{eedeba04-cf15-4a5a-a99e-5aa68ff8369e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="工具">
       <UniqueIdentifier>{421cb2ad-57af-4901-ada6-9f8c7023886d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="服务器组件\工具组件\DHT">
+      <UniqueIdentifier>{02d42f26-c955-4d6c-9b91-32f40556fb57}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -123,9 +120,6 @@
     <ClInclude Include="NetConnectionIOCP.h">
       <Filter>服务器组件\IOCP\IOCP连接</Filter>
     </ClInclude>
-    <ClInclude Include="NetPTCPConnectionIOCP.h">
-      <Filter>服务器组件\IOCP\IOCP连接\并行TCP</Filter>
-    </ClInclude>
     <ClInclude Include="IIOCPEventHandler.h">
       <Filter>服务器组件\IOCP\IOCP事件处理</Filter>
     </ClInclude>
@@ -137,9 +131,6 @@
     </ClInclude>
     <ClInclude Include="IOCPFileAccessor.h">
       <Filter>服务器组件\IOCP\IOCP文件访问</Filter>
-    </ClInclude>
-    <ClInclude Include="EasyNetLinkConnection.h">
-      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
     </ClInclude>
     <ClInclude Include="EasyNetLinkManager.h">
       <Filter>服务器组件\工具组件\EasyNetLink</Filter>
@@ -153,23 +144,41 @@
     <ClInclude Include="EasyFileService.h">
       <Filter>服务器组件\工具组件\EasyFileService</Filter>
     </ClInclude>
-    <ClInclude Include="BaseTCPConnection.h">
-      <Filter>服务器组件\基本对象\连接</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseService.h">
-      <Filter>服务器组件\基本对象\服务</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseServer.h">
-      <Filter>服务器组件\基本对象\服务器</Filter>
-    </ClInclude>
-    <ClInclude Include="NetPTCPConnectionEpoll.h">
-      <Filter>服务器组件\Epoll\Epoll连接\并行TCP</Filter>
-    </ClInclude>
     <ClInclude Include="IPAddress.h">
       <Filter>工具</Filter>
     </ClInclude>
     <ClInclude Include="IPPattern.h">
       <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyNetLink.h">
+      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
+    </ClInclude>
+    <ClInclude Include="ENLConnection.h">
+      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyNetTempLink.h">
+      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseNetService.h">
+      <Filter>服务器组件\基本对象\服务</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseNetServer.h">
+      <Filter>服务器组件\基本对象\服务器</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseNetConnection.h">
+      <Filter>服务器组件\基本对象\连接</Filter>
+    </ClInclude>
+    <ClInclude Include="BencodingValue.h">
+      <Filter>服务器组件\工具组件\DHT</Filter>
+    </ClInclude>
+    <ClInclude Include="DHTDefines.h">
+      <Filter>服务器组件\工具组件\DHT</Filter>
+    </ClInclude>
+    <ClInclude Include="DHTService.h">
+      <Filter>服务器组件\工具组件\DHT</Filter>
+    </ClInclude>
+    <ClInclude Include="TRConnection.h">
+      <Filter>服务器组件\工具组件\DHT</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -197,9 +206,6 @@
     <ClCompile Include="NetConnectionIOCP.cpp">
       <Filter>服务器组件\IOCP\IOCP连接</Filter>
     </ClCompile>
-    <ClCompile Include="NetPTCPConnectionIOCP.cpp">
-      <Filter>服务器组件\IOCP\IOCP连接\并行TCP</Filter>
-    </ClCompile>
     <ClCompile Include="IIOCPEventHandler.cpp">
       <Filter>服务器组件\IOCP\IOCP事件处理</Filter>
     </ClCompile>
@@ -212,9 +218,6 @@
     <ClCompile Include="IOCPFileAccessor.cpp">
       <Filter>服务器组件\IOCP\IOCP文件访问</Filter>
     </ClCompile>
-    <ClCompile Include="EasyNetLinkConnection.cpp">
-      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
-    </ClCompile>
     <ClCompile Include="EasyNetLinkManager.cpp">
       <Filter>服务器组件\工具组件\EasyNetLink</Filter>
     </ClCompile>
@@ -226,15 +229,6 @@
     </ClCompile>
     <ClCompile Include="EasyFileService.cpp">
       <Filter>服务器组件\工具组件\EasyFileService</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseTCPConnection.cpp">
-      <Filter>服务器组件\基本对象\连接</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseService.cpp">
-      <Filter>服务器组件\基本对象\服务</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseServer.cpp">
-      <Filter>服务器组件\基本对象\服务器</Filter>
     </ClCompile>
     <ClCompile Include="EpollEventObject.cpp">
       <Filter>服务器组件\Epoll\事件对象</Filter>
@@ -257,8 +251,32 @@
     <ClCompile Include="NetConnectionEpoll.cpp">
       <Filter>服务器组件\Epoll\Epoll连接</Filter>
     </ClCompile>
-    <ClCompile Include="NetPTCPConnectionEpoll.cpp">
-      <Filter>服务器组件\Epoll\Epoll连接\并行TCP</Filter>
+    <ClCompile Include="EasyNetLink.cpp">
+      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
+    </ClCompile>
+    <ClCompile Include="ENLConnection.cpp">
+      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyNetTempLink.cpp">
+      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseNetService.cpp">
+      <Filter>服务器组件\基本对象\服务</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseNetServer.cpp">
+      <Filter>服务器组件\基本对象\服务器</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseNetConnection.cpp">
+      <Filter>服务器组件\基本对象\连接</Filter>
+    </ClCompile>
+    <ClCompile Include="BencodingValue.cpp">
+      <Filter>服务器组件\工具组件\DHT</Filter>
+    </ClCompile>
+    <ClCompile Include="DHTService.cpp">
+      <Filter>服务器组件\工具组件\DHT</Filter>
+    </ClCompile>
+    <ClCompile Include="TRConnection.cpp">
+      <Filter>服务器组件\工具组件\DHT</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

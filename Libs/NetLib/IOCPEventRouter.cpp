@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    IOCPEventRouter.cpp                                      */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    IOCPEventRouter.cpp                                      */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -27,13 +27,13 @@ BOOL CIOCPEventRouter::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedOb
 		}
 		else
 		{
-			PrintNetLog(0xffffffff,_T("EventRouterÃ»ÓÐEventHandler,Overlapped(%u)±»ºöÂÔ"),
+			PrintNetLog(_T("NetLib"),_T("EventRouteræ²¡æœ‰EventHandler,Overlapped(%u)è¢«å¿½ç•¥"),
 				pOverLappedObject->GetParentID());
 		}
 	}
 	else
 	{
-		PrintNetLog(0xffffffff,_T("EventRouterÊÕµ½²»ÊÇ±¾SessionµÄOverlapped(%u)£¬ºöÂÔ"),
+		PrintNetLog(_T("NetLib"),_T("EventRouteræ”¶åˆ°ä¸æ˜¯æœ¬Sessionçš„Overlapped(%u)ï¼Œå¿½ç•¥"),
 			pOverLappedObject->GetParentID());
 	}
 	pOverLappedObject->Release();

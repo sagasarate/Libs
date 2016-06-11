@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    LogManager.h                                             */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ23ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    LogManager.h                                             */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ23æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -42,26 +42,26 @@ public:
 	ILogPrinter * GetChannel(UINT ChannelID);
 	BOOL DelChannel(UINT ChannelID);
 
-	BOOL PrintLogDirect(UINT ChannelID, int Level, DWORD Color, LPCTSTR Msg);
-	BOOL PrintLog(UINT ChannelID,int Level,DWORD Color,LPCTSTR Format,...);
-	BOOL PrintLogVL(UINT ChannelID,int Level,DWORD Color,LPCTSTR Format,va_list vl);
+	BOOL PrintLogDirect(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Msg);
+	BOOL PrintLog(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Format, ...);
+	BOOL PrintLogVL(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl);
 };
 
 
-inline BOOL PrintSystemLog(DWORD Color, LPCTSTR Format, ...)
+inline BOOL PrintSystemLog(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl, Format);
-	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_SYSTEM_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Color, Format, vl);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_SYSTEM_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }
 
-inline BOOL PrintImportantLog(DWORD Color, LPCTSTR Format, ...)
+inline BOOL PrintImportantLog(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl, Format);
-	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_IMPORTANT_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Color, Format, vl);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_IMPORTANT_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }

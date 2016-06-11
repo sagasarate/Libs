@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    EpollEventRouter.cpp                                     */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    EpollEventRouter.cpp                                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -26,12 +26,12 @@ BOOL CEpollEventRouter::OnEpollEvent(UINT EventID,UINT SessionID)
 		}
 		else
 		{
-			PrintNetLog(0xffffffff,"EventRouterÃ»ÓĞEventHandler,Event(%u)±»ºöÂÔ",EventID);
+			PrintNetLog(_T("NetLib"),"EventRouteræ²¡æœ‰EventHandler,Event(%u)è¢«å¿½ç•¥",EventID);
 		}
 	}
 	else
 	{
-		PrintNetLog(0xffffffff,"²»ÊÇ±¾´ÎSessionµÄEvent,Event(%u)±»ºöÂÔ",EventID);
+		PrintNetLog(_T("NetLib"),"ä¸æ˜¯æœ¬æ¬¡Sessionçš„Event,Event(%u)è¢«å¿½ç•¥",EventID);
 	}
 
 	return FALSE;

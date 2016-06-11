@@ -1,16 +1,16 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    ODBCRecordSet.cpp                                        */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    ODBCRecordSet.cpp                                        */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
-#include ".\odbcrecordset.h"
+#include <odbcss.h>
 
 
 
@@ -52,7 +52,7 @@ int CODBCRecordSet::Init(CODBCConnection * pDBConnection,SQLHSTMT hStmt)
 	nResult=SQLGetStmtAttr(m_hStmt,SQL_ATTR_CURSOR_TYPE,&CursorType,sizeof(int),&AttrLen);
 	if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 	{
-		m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"»ñÈ¡»·¾³¾ä±úÊôĞÔÊ§°Ü£¡\r\n", TRUE);
+		m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"è·å–ç¯å¢ƒå¥æŸ„å±æ€§å¤±è´¥ï¼\r\n", TRUE);
 		return DBERR_ODBC_GETCOLNUMFAIL;
 	}
 	if(CursorType==SQL_CURSOR_FORWARD_ONLY)
@@ -60,11 +60,11 @@ int CODBCRecordSet::Init(CODBCConnection * pDBConnection,SQLHSTMT hStmt)
 	else
 		m_IsForwardOnly=false;
 
-	//»ñÈ¡½á¹û¼¯ÁĞÊı
+	//è·å–ç»“æœé›†åˆ—æ•°
 	nResult=SQLNumResultCols(m_hStmt,(SQLSMALLINT *)&ColNum);
 	if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 	{
-		m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"»ñÈ¡½á¹û¼¯ÁĞÊıÊ§°Ü£¡\r\n", TRUE);
+		m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"è·å–ç»“æœé›†åˆ—æ•°å¤±è´¥ï¼\r\n", TRUE);
 		return DBERR_ODBC_GETCOLNUMFAIL;
 	}
 
@@ -78,7 +78,7 @@ int CODBCRecordSet::Init(CODBCConnection * pDBConnection,SQLHSTMT hStmt)
 	UINT RecordLineLen=0;
 
 
-	//»ñÈ¡½á¹û¼¯ÁĞĞÅÏ¢
+	//è·å–ç»“æœé›†åˆ—ä¿¡æ¯
 	for(UINT i=0;i<ColNum;i++)
 	{		
 		int ColNameLen;
@@ -90,7 +90,7 @@ int CODBCRecordSet::Init(CODBCConnection * pDBConnection,SQLHSTMT hStmt)
 			(SQLSMALLINT *)&CanNULL);
 		if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 		{
-			m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"»ñÈ¡½á¹û¼¯ÁĞĞÅÏ¢Ê§°Ü£¡\r\n", TRUE);
+			m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"è·å–ç»“æœé›†åˆ—ä¿¡æ¯å¤±è´¥ï¼\r\n", TRUE);
 			return DBERR_ODBC_GETCOLINFOFAIL;
 		}
 		m_ColInfos[i].Name[MAX_COLUMN_NAME-1]=0;
@@ -117,7 +117,7 @@ int CODBCRecordSet::Init(CODBCConnection * pDBConnection,SQLHSTMT hStmt)
 			&(m_FieldSize[i]));
 		if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO)
 		{
-			m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"°ó¶¨½á¹û¼¯ÁĞÊ§°Ü£¡\r\n", TRUE);
+			m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"ç»‘å®šç»“æœé›†åˆ—å¤±è´¥ï¼\r\n", TRUE);
 			return DBERR_BINDCOLFAIL;
 		}		
 		pFieldBuffer+=m_ColInfos[i].Size;
@@ -169,7 +169,7 @@ int CODBCRecordSet::FetchRow(int Orientation,int Offset)
 		}	
 		else
 		{
-			m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"»ñÈ¡½á¹û¼¯Êı¾İÊ§°Ü£¡\r\n", TRUE);
+			m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"è·å–ç»“æœé›†æ•°æ®å¤±è´¥ï¼\r\n", TRUE);
 			Ret=DBERR_FETCH_RESULT_FAIL;
 			m_IsBOF=true;
 			m_IsEOF=true;

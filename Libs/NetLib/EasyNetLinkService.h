@@ -1,72 +1,64 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    EasyNetLinkService.h                                     */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    EasyNetLinkService.h                                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
 
-class CEasyNetLinkManager;
+class CENLConnection;
 
 class CEasyNetLinkService :
 	public CNetService
 {
 protected:
-	CEasyNetLinkManager*		m_pManager;
-	UINT						m_ReportID;
-	BOOL						m_NeedReallocConnectionID;
-	UINT						m_MaxPacketSize;	
-	CEasyArray<CIPPattern>		m_IPList;
+	CEasyNetLinkManager*						m_pManager;
+	UINT										m_ReportID;
+	bool										m_NeedReallocConnectionID;
+	UINT										m_RecvQueueSize;
+	UINT										m_SendQueueSize;
+	UINT										m_MaxPacketSize;
+	CEasyNetLinkManager::DATA_COMPRESS_TYPE		m_DataCompressType;
+	UINT										m_MinCompressSize;
+	CEasyArray<CIPPattern>						m_IPList;
 
 	DECLARE_CLASS_INFO_STATIC(CEasyNetLinkService);
 public:
 	CEasyNetLinkService(void);
 	virtual ~CEasyNetLinkService(void);		
 
-	void SetMaxPacketSize(UINT MaxPacketSize);
+	bool Init(CEasyNetLinkManager* pManager, UINT ReportID, const CIPAddress& ListenAddress,
+		bool NeedReallocConnectionID, bool IsUseListenThread,
+		int ParallelAcceptCount, UINT AcceptQueueSize,
+		UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize,
+		CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
 
-	virtual CBaseTCPConnection * CreateConnection(CIPAddress& RemoteAddress);
-	virtual BOOL DeleteConnection(CBaseTCPConnection * pConnection);
 
-	void SetManager(CEasyNetLinkManager* pManager);
+	virtual CBaseNetConnection * CreateConnection(CIPAddress& RemoteAddress);
+	virtual BOOL DeleteConnection(CBaseNetConnection * pConnection);
+
 	CEasyNetLinkManager* GetManager();
 
-	void SetReportID(UINT ID);
 	UINT GetReportID();
 
-	void EnableReallocConnectionID(BOOL Enable);
-	BOOL NeedReallocConnectionID();
+	bool NeedReallocConnectionID();
 
-	void SetIPList(CEasyArray<CIPPattern>& IPList);
+	void SetIPList(const CEasyArray<CIPPattern>& IPList);
 
 	void PrintInfo(UINT LogChannel);
 
 	
 };
 
-inline void CEasyNetLinkService::SetMaxPacketSize(UINT MaxPacketSize)
-{
-	m_MaxPacketSize=MaxPacketSize;
-}
-
-inline void CEasyNetLinkService::SetManager(CEasyNetLinkManager* pManager)
-{
-	m_pManager=pManager;
-}
 
 inline CEasyNetLinkManager* CEasyNetLinkService::GetManager()
 {
 	return m_pManager;
-}
-
-inline void CEasyNetLinkService::SetReportID(UINT ID)
-{
-	m_ReportID=ID;
 }
 
 inline UINT CEasyNetLinkService::GetReportID()
@@ -74,16 +66,12 @@ inline UINT CEasyNetLinkService::GetReportID()
 	return m_ReportID;
 }
 
-inline void CEasyNetLinkService::EnableReallocConnectionID(BOOL Enable)
-{
-	m_NeedReallocConnectionID=Enable;
-}
-inline BOOL CEasyNetLinkService::NeedReallocConnectionID()
+inline bool CEasyNetLinkService::NeedReallocConnectionID()
 {
 	return m_NeedReallocConnectionID;
 }
 
-inline void CEasyNetLinkService::SetIPList(CEasyArray<CIPPattern>& IPList)
+inline void CEasyNetLinkService::SetIPList(const CEasyArray<CIPPattern>& IPList)
 {
 	m_IPList=IPList;
 }

@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    pugxml.cpp                                      */
-/*      ´´½¨ÈÕÆÚ:  2012Äê02ÔÂ02ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    pugxml.cpp                                      */
+/*      åˆ›å»ºæ—¥æœŸ:  2012å¹´02æœˆ02æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -22,9 +22,29 @@
 //#define new new( __FILE__, __LINE__ )
 //#endif
 
-int xml_parser::FILE_CHANNEL=FILE_CHANNEL_NORMAL1;
 
-void xml_node::SaveToString(CEasyString& String)
+bool xml_parser::parse_file(const TCHAR* path, unsigned int optmsk, int FileChannel)
+{
+	bool Ret = false;
+	CStringFile XMLFile(FileChannel);
+
+	clear();
+	XMLFile.SetLocalCodePage(m_LocalCodePage);
+
+	if (XMLFile.LoadFile(path, false))
+	{
+		_buffer.SetString(XMLFile.GetData(), XMLFile.GetDataLen());
+
+		_xmldoc = new_node(node_document); //Allocate a new root.
+		_xmldoc->parent = _xmldoc; //Point to self.
+		if (optmsk != parse_noset) _optmsk = optmsk;
+		_strpos = parse(_buffer, _xmldoc, _growby, _optmsk);
+		return true;
+	}
+	return false;
+}
+
+void xml_parser::SaveToString(const xml_node& RootNode, CEasyString& String)
 {
 #ifdef UNICODE
 	std::wstringstream os;
@@ -32,7 +52,7 @@ void xml_node::SaveToString(CEasyString& String)
 	std::stringstream os;
 #endif
 
-	os << (*this);
+	os << RootNode;
 	os<<'\0';
 
 	String=os.str().c_str();
@@ -41,30 +61,19 @@ void xml_node::SaveToString(CEasyString& String)
 
 
 }
-bool xml_node::SaveToFile(int FileChannel,LPCTSTR FileName)
+bool xml_parser::SaveToFile(const xml_node& RootNode, LPCTSTR FileName, int FileCodePage, int FileChannel)
 {
-	IFileAccessor * pFile=CFileSystemManager::GetInstance()->CreateFileAccessor(FileChannel);
+	CStringFile XMLFile(FileChannel);
 
-	if(pFile==NULL)
-		return false;
+	XMLFile.SetLocalCodePage(m_LocalCodePage);
+	XMLFile.SetSaveCodePage(FileCodePage);
 
-	if(pFile->Open(FileName,IFileAccessor::modeCreateAlways|IFileAccessor::modeWrite))
-	{
-		CEasyString XMLString;
+	CEasyString XMLString;
 
-		SaveToString(XMLString);
+	SaveToString(RootNode, XMLString);
 
-#ifdef UNICODE
-		BYTE	UNICODEHeader[]={0xFF,0xFE};
-		pFile->Write(UNICODEHeader,sizeof(UNICODEHeader));
-#endif
-		pFile->Write(XMLString.GetBuffer(),XMLString.GetLength()*sizeof(TCHAR));
-		SAFE_RELEASE(pFile);
+	if (XMLFile.SaveToFile(XMLString, FileName))
 		return true;
-	}
-	else
-	{
-		SAFE_RELEASE(pFile);
-		return false;
-	}
+
+	return false;
 }

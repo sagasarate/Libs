@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    SmartPtr.h                                               */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    SmartPtr.h                                               */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -24,6 +24,12 @@ public:
 	CSmartPtr(const T * Pointer)
 	{
 		m_Pointer=(T *)Pointer;
+		//m_Pointer->AddUseRef();
+	}
+	CSmartPtr(const CSmartPtr& Pointer)
+	{
+		m_Pointer = Pointer.m_Pointer;
+		m_Pointer->AddUseRef();
 	}
 	~CSmartPtr()
 	{
@@ -53,11 +59,19 @@ public:
 	{
 		return m_Pointer != Pointer;
 	}
-	T* operator=(const T* Pointer)
+	const CSmartPtr& operator=(const T* Pointer)
 	{
 		SAFE_RELEASE(m_Pointer);
-		m_Pointer=(T *)Pointer;		
-		return m_Pointer;
+		m_Pointer=(T *)Pointer;	
+		//m_Pointer->AddUseRef();
+		return *this;
+	}
+	const CSmartPtr& operator=(const CSmartPtr& Pointer)
+	{
+		SAFE_RELEASE(m_Pointer);
+		m_Pointer = Pointer.m_Pointer;
+		m_Pointer->AddUseRef();
+		return *this;
 	}
 	void Detach()
 	{
@@ -66,105 +80,3 @@ public:
 	
 };
 
-template < class T>
-class CSmartPtrForDelete
-{
-protected:
-	T * m_Pointer;
-public:
-	CSmartPtrForDelete()
-	{
-		m_Pointer=NULL;
-	}
-	CSmartPtrForDelete(const T * Pointer)
-	{
-		m_Pointer=(T *)Pointer;
-	}
-	~CSmartPtrForDelete()
-	{
-		SAFE_DELETE(m_Pointer);
-	}
-	operator T*()
-	{
-		return m_Pointer;
-	}
-	T& operator *()
-	{
-		return *m_Pointer;
-	}
-	T** operator &()
-	{
-		return &m_Pointer;
-	}
-	T* operator->()
-	{		
-		return m_Pointer;
-	}	
-	bool operator==(const T* Pointer)
-	{
-		return m_Pointer == Pointer;
-	}
-	bool operator!=(const T* Pointer)
-	{
-		return m_Pointer != Pointer;
-	}
-	T* operator=(const T* Pointer)
-	{
-		SAFE_DELETE(m_Pointer);
-		m_Pointer=(T *)Pointer;		
-		return m_Pointer;
-	}
-
-};
-
-template < class T>
-class CSmartPtrForArray
-{
-protected:
-	T * m_Pointer;
-public:
-	CSmartPtrForArray()
-	{
-		m_Pointer=NULL;
-	}
-	CSmartPtrForArray(const T * Pointer)
-	{
-		m_Pointer=(T *)Pointer;
-	}
-	~CSmartPtrForArray()
-	{
-		SAFE_DELETE_ARRAY(m_Pointer);
-	}
-	operator T*()
-	{
-		return m_Pointer;
-	}
-	T& operator *()
-	{
-		return *m_Pointer;
-	}
-	T** operator &()
-	{
-		return &m_Pointer;
-	}
-	T* operator->()
-	{		
-		return m_Pointer;
-	}	
-	bool operator==(const T* Pointer)
-	{
-		return m_Pointer == Pointer;
-	}
-	bool operator!=(const T* Pointer)
-	{
-		return m_Pointer != Pointer;
-	}
-	T* operator=(const T* Pointer)
-	{
-		SAFE_DELETE_ARRAY(m_Pointer);
-		m_Pointer=(T *)Pointer;		
-		return m_Pointer;
-	}
-	
-
-};

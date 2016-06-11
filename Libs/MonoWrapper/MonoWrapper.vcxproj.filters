@@ -113,6 +113,12 @@
     <Library Include="lib\x86\libmonoD.lib">
       <Filter>lib\x86</Filter>
     </Library>
+    <Library Include="lib\x64\libmonoD.lib">
+      <Filter>lib\x64</Filter>
+    </Library>
+    <Library Include="lib\x64\libmono.lib">
+      <Filter>lib\x64</Filter>
+    </Library>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

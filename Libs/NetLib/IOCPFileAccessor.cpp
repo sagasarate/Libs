@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    IOCPFileAccessor.cpp                                     */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    IOCPFileAccessor.cpp                                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -53,7 +53,7 @@ BOOL CIOCPFileAccessor::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedO
 				}
 				else
 				{
-					PrintNetLog(0xffffffff,_T("CIOCPFileAccessor::Êý¾Ý¶ÓÁÐÒÑÂú£¡"));										
+					PrintNetLog(_T("NetLib"),_T("CIOCPFileAccessor::æ•°æ®é˜Ÿåˆ—å·²æ»¡ï¼"));										
 					PushError(FET_QUEUE_ERROR,FQEC_QUEUE_FULL,pOverLappedObject->GetType(),
 						pOverLappedObject->GetOverlapped()->OffsetHigh,
 						pOverLappedObject->GetOverlapped()->Offset,
@@ -74,7 +74,7 @@ BOOL CIOCPFileAccessor::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedO
 				}
 				else
 				{
-					PrintNetLog(0xffffffff,_T("CIOCPFileAccessor::Êý¾Ý¶ÓÁÐÒÑÂú£¡"));										
+					PrintNetLog(_T("NetLib"),_T("CIOCPFileAccessor::æ•°æ®é˜Ÿåˆ—å·²æ»¡ï¼"));										
 					PushError(FET_QUEUE_ERROR,FQEC_QUEUE_FULL,pOverLappedObject->GetType(),
 						pOverLappedObject->GetOverlapped()->OffsetHigh,
 						pOverLappedObject->GetOverlapped()->Offset,
@@ -83,7 +83,7 @@ BOOL CIOCPFileAccessor::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedO
 			}
 			else
 			{
-				PrintNetLog(0xffffffff,_T("CIOCPFileAccessor::ÊÕµ½·Ç·¨IOCP°ü£¡"));
+				PrintNetLog(_T("NetLib"),_T("CIOCPFileAccessor::æ”¶åˆ°éžæ³•IOCPåŒ…ï¼"));
 				PushError(FET_UNKNOW,0,
 					pOverLappedObject->GetOverlapped()->OffsetHigh,
 					pOverLappedObject->GetOverlapped()->Offset,
@@ -93,7 +93,7 @@ BOOL CIOCPFileAccessor::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedO
 		}
 		else
 		{
-			PrintNetLog(0xffffffff,_T("CIOCPFileAccessor::ÊÕµ½IOCP´íÎó£¡"));	
+			PrintNetLog(_T("NetLib"),_T("CIOCPFileAccessor::æ”¶åˆ°IOCPé”™è¯¯ï¼"));	
 			PushError(FET_SYSTEM_ERROR,pOverLappedObject->GetErrorCode(),
 				pOverLappedObject->GetOverlapped()->OffsetHigh,
 				pOverLappedObject->GetOverlapped()->Offset,
@@ -103,7 +103,7 @@ BOOL CIOCPFileAccessor::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedO
 	}
 	else
 	{
-		PrintNetLog(0xffffffff,_T("CIOCPFileAccessor::ÎÄ¼þÎ´´ò¿ªIOCP°ü±»ºöÂÔ£¡"));
+		PrintNetLog(_T("NetLib"),_T("CIOCPFileAccessor::æ–‡ä»¶æœªæ‰“å¼€IOCPåŒ…è¢«å¿½ç•¥ï¼"));
 	}
 	GetServer()->DeleteOverLappedObject(pOverLappedObject);
 
@@ -155,26 +155,26 @@ BOOL CIOCPFileAccessor::Open(LPCTSTR lpFileName,
 
 	if(!m_DataQueue.Create(DataQueueSize))
 	{
-		PrintNetLog(0,_T("CIOCPFileAccessor::´´½¨Êý¾Ý»º³åÊ§°Ü"));
+		PrintNetLog(0,_T("CIOCPFileAccessor::åˆ›å»ºæ•°æ®ç¼“å†²å¤±è´¥"));
 		return FALSE;
 	}
 	if(RequestQueuSize==0)
 	{		
 		m_UseAsyncQuery=true;
-		PrintNetLog(0,_T("CIOCPFileAccessor::¿ªÆôÒì²½ÇëÇóÄ£Ê½"));
+		PrintNetLog(0,_T("CIOCPFileAccessor::å¼€å¯å¼‚æ­¥è¯·æ±‚æ¨¡å¼"));
 	}
 	else
 	{
 		m_UseAsyncQuery=false;
 		if(!m_RequestQueue.Create(RequestQueuSize))
 		{
-			PrintNetLog(0,_T("CIOCPFileAccessor::´´½¨ÇëÇó»º³åÊ§°Ü"));
+			PrintNetLog(0,_T("CIOCPFileAccessor::åˆ›å»ºè¯·æ±‚ç¼“å†²å¤±è´¥"));
 			return FALSE;
 		}
 	}
 	if(!m_ErrorQueue.Create(ErrorQueuSize))
 	{
-		PrintNetLog(0,_T("CIOCPFileAccessor::´´½¨´íÎó»º³åÊ§°Ü"));
+		PrintNetLog(0,_T("CIOCPFileAccessor::åˆ›å»ºé”™è¯¯ç¼“å†²å¤±è´¥"));
 		return FALSE;
 	}
 
@@ -189,7 +189,7 @@ BOOL CIOCPFileAccessor::Open(LPCTSTR lpFileName,
 	if(m_FileHandle==INVALID_HANDLE_VALUE)
 	{
 		UINT ErrorCode=GetLastError();
-		PrintNetLog(0,_T("CIOCPFileAccessor::´ò¿ªÎÄ¼þÊ§°Ü%u"),ErrorCode);
+		PrintNetLog(0,_T("CIOCPFileAccessor::æ‰“å¼€æ–‡ä»¶å¤±è´¥%u"),ErrorCode);
 		PushError(FET_SYSTEM_ERROR,ErrorCode);
 		return FALSE;
 	}
@@ -229,27 +229,27 @@ BOOL CIOCPFileAccessor::OpenByHandle(HANDLE FileHandle,int DataQueueSize,int Req
 
 	if(!m_DataQueue.Create(DataQueueSize))
 	{
-		PrintNetLog(0,_T("CIOCPFileAccessor::´´½¨Êý¾Ý»º³åÊ§°Ü"));
+		PrintNetLog(0,_T("CIOCPFileAccessor::åˆ›å»ºæ•°æ®ç¼“å†²å¤±è´¥"));
 		return FALSE;
 	}
 
 	if(RequestQueuSize==0)
 	{		
 		m_UseAsyncQuery=true;
-		PrintNetLog(0,_T("CIOCPFileAccessor::¿ªÆôÒì²½ÇëÇóÄ£Ê½"));
+		PrintNetLog(0,_T("CIOCPFileAccessor::å¼€å¯å¼‚æ­¥è¯·æ±‚æ¨¡å¼"));
 	}
 	else
 	{
 		m_UseAsyncQuery=false;
 		if(!m_RequestQueue.Create(RequestQueuSize))
 		{
-			PrintNetLog(0,_T("CIOCPFileAccessor::´´½¨ÇëÇó»º³åÊ§°Ü"));
+			PrintNetLog(0,_T("CIOCPFileAccessor::åˆ›å»ºè¯·æ±‚ç¼“å†²å¤±è´¥"));
 			return FALSE;
 		}
 	}
 	if(!m_ErrorQueue.Create(ErrorQueuSize))
 	{
-		PrintNetLog(0,_T("CIOCPFileAccessor::´´½¨´íÎó»º³åÊ§°Ü"));
+		PrintNetLog(0,_T("CIOCPFileAccessor::åˆ›å»ºé”™è¯¯ç¼“å†²å¤±è´¥"));
 		return FALSE;
 	}
 
@@ -313,14 +313,14 @@ int CIOCPFileAccessor::Update(int ProcessPacketLimit)
 	{			
 		if(pOverLappedObject->GetType()==IO_FILE_READ)
 		{
-			ULONG64_CONVERTER ReadOffset;
+			UINT64_CONVERTER ReadOffset;
 			ReadOffset.HighPart=pOverLappedObject->GetOverlapped()->OffsetHigh;
 			ReadOffset.LowPart=pOverLappedObject->GetOverlapped()->Offset;
 			OnReadData(ReadOffset.QuadPart,*(pOverLappedObject->GetDataBuff()));
 		}
 		else
 		{
-			ULONG64_CONVERTER WriteOffset;
+			UINT64_CONVERTER WriteOffset;
 			WriteOffset.HighPart=pOverLappedObject->GetOverlapped()->OffsetHigh;
 			WriteOffset.LowPart=pOverLappedObject->GetOverlapped()->Offset;
 			OnWriteData(WriteOffset.QuadPart,*(pOverLappedObject->GetDataBuff()));
@@ -380,7 +380,7 @@ BOOL CIOCPFileAccessor::QueryRead(ULONG64 StartPos,ULONG64 ReadSize)
 	{
 		while(ReadSize)
 		{
-			ULONG64_CONVERTER Pos;
+			UINT64_CONVERTER Pos;
 			Pos.QuadPart=StartPos;
 
 			ULONG64 PacketSize=ReadSize;
@@ -391,7 +391,7 @@ BOOL CIOCPFileAccessor::QueryRead(ULONG64 StartPos,ULONG64 ReadSize)
 			COverLappedObject * pOverLappedObject=GetServer()->CreateOverLappedObject();
 			if(pOverLappedObject==NULL)
 			{
-				PrintNetLog(0xffffffff,_T("CIOCPFileAccessor::´´½¨WriteÓÃOverLappedObjectÊ§°Ü£¡"));
+				PrintNetLog(_T("NetLib"),_T("CIOCPFileAccessor::åˆ›å»ºWriteç”¨OverLappedObjectå¤±è´¥ï¼"));
 				PushError(FET_QUEUE_ERROR,FQEC_QUEUE_FULL);
 				return FALSE;
 			}
@@ -415,7 +415,7 @@ BOOL CIOCPFileAccessor::QueryRead(ULONG64 StartPos,ULONG64 ReadSize)
 			{
 				if(!m_RequestQueue.PushBack(pOverLappedObject))
 				{
-					PrintNetLog(0xffffffff,_T("CIOCPFileAccessor::ÇëÇó»º³å¶ÓÁÐÒÑÂú£¡"));	
+					PrintNetLog(_T("NetLib"),_T("CIOCPFileAccessor::è¯·æ±‚ç¼“å†²é˜Ÿåˆ—å·²æ»¡ï¼"));	
 					GetServer()->DeleteOverLappedObject(pOverLappedObject);
 					PushError(FET_QUEUE_ERROR,FQEC_QUEUE_FULL);
 					return FALSE;
@@ -447,7 +447,7 @@ BOOL CIOCPFileAccessor::QueryWrite(ULONG64 StartPos,LPVOID pData,ULONG64 WriteSi
 	{
 		while(WriteSize)
 		{
-			ULONG64_CONVERTER Pos;
+			UINT64_CONVERTER Pos;
 			Pos.QuadPart=StartPos;
 
 			ULONG64 PacketSize=WriteSize;
@@ -458,7 +458,7 @@ BOOL CIOCPFileAccessor::QueryWrite(ULONG64 StartPos,LPVOID pData,ULONG64 WriteSi
 			COverLappedObject * pOverLappedObject=GetServer()->CreateOverLappedObject();
 			if(pOverLappedObject==NULL)
 			{
-				PrintNetLog(0xffffffff,_T("CIOCPFileAccessor::´´½¨WriteÓÃOverLappedObjectÊ§°Ü£¡"));
+				PrintNetLog(_T("NetLib"),_T("CIOCPFileAccessor::åˆ›å»ºWriteç”¨OverLappedObjectå¤±è´¥ï¼"));
 				PushError(FET_QUEUE_ERROR,FQEC_QUEUE_FULL);
 				return FALSE;
 			}
@@ -474,7 +474,7 @@ BOOL CIOCPFileAccessor::QueryWrite(ULONG64 StartPos,LPVOID pData,ULONG64 WriteSi
 			if(!pOverLappedObject->GetDataBuff()->PushBack(pData,(int)PacketSize))
 			{
 				GetServer()->DeleteOverLappedObject(pOverLappedObject);
-				PrintNetLog(0xffffffff,_T("CIOCPFileAccessor::ÒªÐ´ÈëµÄÊý¾Ý°ü¹ý´ó£¡"));
+				PrintNetLog(_T("NetLib"),_T("CIOCPFileAccessor::è¦å†™å…¥çš„æ•°æ®åŒ…è¿‡å¤§ï¼"));
 				PushError(FET_UNKNOW,0);
 				return FALSE;
 			}			
@@ -490,7 +490,7 @@ BOOL CIOCPFileAccessor::QueryWrite(ULONG64 StartPos,LPVOID pData,ULONG64 WriteSi
 			{
 				if(!m_RequestQueue.PushBack(pOverLappedObject))
 				{
-					PrintNetLog(0xffffffff,_T("CIOCPFileAccessor::ÇëÇó»º³å¶ÓÁÐÒÑÂú£¡"));	
+					PrintNetLog(_T("NetLib"),_T("CIOCPFileAccessor::è¯·æ±‚ç¼“å†²é˜Ÿåˆ—å·²æ»¡ï¼"));	
 					GetServer()->DeleteOverLappedObject(pOverLappedObject);
 					PushError(FET_QUEUE_ERROR,FQEC_QUEUE_FULL);
 					return FALSE;
@@ -511,11 +511,11 @@ ULONG64 CIOCPFileAccessor::GetFileSize()
 {
 	if(m_FileHandle!=INVALID_HANDLE_VALUE)
 	{
-		ULONG64_CONVERTER Size;
+		UINT64_CONVERTER Size;
 
 		Size.QuadPart=0;
 
-		Size.LowPart=::GetFileSize(m_FileHandle,&(Size.HighPart));
+		Size.LowPart=::GetFileSize(m_FileHandle,(LPDWORD)&(Size.HighPart));
 		return Size.QuadPart;
 	}
 	else
@@ -585,7 +585,7 @@ BOOL CIOCPFileAccessor::DoOverlappedOperation(COverLappedObject * pOverLappedObj
 				int ErrorCode=GetLastError();
 				if(ErrorCode!=ERROR_IO_PENDING)
 				{
-					PrintNetLog(0xffffffff,_T("CIOCPFileAccessor::·¢³öReadÇëÇóÊ§°Ü%d£¡"),ErrorCode);
+					PrintNetLog(_T("NetLib"),_T("CIOCPFileAccessor::å‘å‡ºReadè¯·æ±‚å¤±è´¥%dï¼"),ErrorCode);
 					PushError(FET_SYSTEM_ERROR,ErrorCode,
 						pOverLappedObject->GetOverlapped()->OffsetHigh,
 						pOverLappedObject->GetOverlapped()->Offset,
@@ -605,7 +605,7 @@ BOOL CIOCPFileAccessor::DoOverlappedOperation(COverLappedObject * pOverLappedObj
 				int ErrorCode=GetLastError();
 				if(ErrorCode!=ERROR_IO_PENDING)
 				{
-					PrintNetLog(0xffffffff,_T("CIOCPFileAccessor::·¢³öWriteÇëÇóÊ§°Ü%d£¡"),ErrorCode);
+					PrintNetLog(_T("NetLib"),_T("CIOCPFileAccessor::å‘å‡ºWriteè¯·æ±‚å¤±è´¥%dï¼"),ErrorCode);
 					PushError(FET_SYSTEM_ERROR,ErrorCode,
 						pOverLappedObject->GetOverlapped()->OffsetHigh,
 						pOverLappedObject->GetOverlapped()->Offset,
@@ -616,7 +616,7 @@ BOOL CIOCPFileAccessor::DoOverlappedOperation(COverLappedObject * pOverLappedObj
 		}
 		else
 		{
-			PrintNetLog(0xffffffff,_T("CIOCPFileAccessor::Î´ÖªµÄOverlappedÇëÇó%d£¡"),pOverLappedObject->GetType());
+			PrintNetLog(_T("NetLib"),_T("CIOCPFileAccessor::æœªçŸ¥çš„Overlappedè¯·æ±‚%dï¼"),pOverLappedObject->GetType());
 			PushError(FET_UNKNOW,0);
 			return FALSE;
 		}
@@ -649,7 +649,7 @@ BOOL CIOCPFileAccessor::DoNextOverlappedOperation()
 void CIOCPFileAccessor::PushError(UINT ErrorType,UINT ErrorCode,int QueryType,UINT QueryPosHigh,UINT QueryPosLow,UINT QuerySize)
 {
 	FIOCP_ERROR_INFO ErrorInfo;
-	ULONG64_CONVERTER QueryPos;
+	UINT64_CONVERTER QueryPos;
 	QueryPos.HighPart=QueryPosHigh;
 	QueryPos.LowPart=QueryPosLow;
 	ErrorInfo.ErrorType=ErrorType;

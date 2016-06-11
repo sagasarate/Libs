@@ -1,32 +1,30 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    SystemNetLink.h                                          */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    SystemNetLink.h                                          */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
 
 class CSystemNetLink :
-	public CEasyNetLinkConnection
+	public CEasyNetLink
 {
 protected:
-	IBaseServer *		m_pServer;
+	CBaseServer *		m_pServer;
 	BOOL				m_IsLinkLog;
 public:
-	CSystemNetLink(IBaseServer * pServer);
+	CSystemNetLink(CBaseServer * pServer);
 	~CSystemNetLink(void);
 
 	void SendMsg(WORD Msg,LPCVOID pData=NULL,int DataLen=0);
 
 
-	virtual void OnLinkStart();
-	virtual void OnLinkEnd();
-	virtual void OnData(const CEasyBuffer& DataBuffer);
+	virtual void OnData(const BYTE * pData, UINT DataSize);
 
 	BOOL IsLinkLog()
 	{

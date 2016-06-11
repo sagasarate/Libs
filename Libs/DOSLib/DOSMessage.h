@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DOSMessage.h                                             */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ23ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSMessage.h                                             */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ23æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -66,11 +66,6 @@ struct OBJECT_ID:public OBJECT_ID_BASE
 	static int Compare(const void * Value1,const void * Value2);
 };
 
-struct PROXY_CLIENT_IP_INFO
-{
-	UINT	IP;
-	UINT	Port;
-};
 
 inline int OBJECT_ID::Compare(const void * Value1,const void * Value2)
 {
@@ -400,6 +395,12 @@ public:
 	}
 };
 
+struct PING_DATA
+{
+	UINT	Time;
+	WORD	RecentDelay;
+};
+
 #pragma pack(pop)
 
 enum DOS_SYSTEM_MESSAGE
@@ -415,14 +416,16 @@ enum DOS_SYSTEM_MESSAGE
 	DSM_PROXY_UNREGISTER_GLOBAL_MSG_MAP,
 	DSM_PROXY_UNREGISTER_GLOBAL_MSG_MAP_RESULT,
 	DSM_PROXY_DISCONNECT,
-	DSM_PROXY_KEEP_ALIVE,
+	DSM_PROXY_KEEP_ALIVE_PING,
+	DSM_PROXY_KEEP_ALIVE_PONG,
 	DSM_PROXY_GET_IP,
 	DSM_PROXY_IP_REPORT,
+	DSM_PROXY_SET_UNHANDLE_MSG_RECEIVER,
 	DSM_ROUTE_LINK_LOST=100,
 	DSM_OBJECT_ALIVE_TEST=200,	
 	DSM_OBJECT_FIND,
 	DSM_OBJECT_REPORT,
-	DSM_SYSTEM_SHUTDOWN,
+	DSM_SYSTEM_SHUTDOWN,	
 	DSM_MAX,
 };
 

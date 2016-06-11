@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    NetServerIOCP.h                                          */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    NetServerIOCP.h                                          */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -15,7 +15,7 @@
 class CNetService;
 
 class CNetServer :
-	public CBaseServer
+	public CBaseNetServer
 {
 protected:
 	HANDLE									m_hIOCP;
@@ -39,7 +39,7 @@ public:
 	CNetServer(void);
 	virtual ~CNetServer(void);
 
-	virtual BOOL StartUp(int EventObjectPoolSize=MAX_EVENT_OBJECT,
+	virtual BOOL StartUp(int EventObjectPoolSize=DEFAULT_EVENT_OBJECT_COUNT,
 		int ThreadNumberPerCPU=DEFAULT_THREAD_NUMBER_PER_CPU,
 		int EventRouterPoolSiz=DEFAULT_EVENT_ROUTER_COUNT,
 		int EventObjectPoolGrowSize=DEFAULT_EVENT_OBJECT_POOL_GROW_SIZE,

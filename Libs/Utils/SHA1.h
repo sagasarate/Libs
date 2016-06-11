@@ -1,4 +1,4 @@
-/*
+﻿/*
 	100% free public domain implementation of the SHA-1 algorithm
 	by Dominik Reichl <dominik.reichl@t-online.de>
 	Web: http://www.dominik-reichl.de/
@@ -112,7 +112,7 @@ public:
 	void Reset();
 
 	// Update the hash value
-	void Update(UINT_8 *data, UINT_32 len);
+	void Update(const UINT_8 *data, UINT_32 len);
 #ifdef SHA1_UTILITY_FUNCTIONS
 	bool HashFile(char *szFileName);
 #endif
@@ -128,7 +128,7 @@ public:
 
 private:
 	// Private SHA-1 transformation
-	void Transform(UINT_32 *state, UINT_8 *buffer);
+	void Transform(UINT_32 *state, const UINT_8 *buffer);
 
 	// Member variables
 	UINT_8 m_workspace[64];

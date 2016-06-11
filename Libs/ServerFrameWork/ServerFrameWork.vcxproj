@@ -166,10 +166,9 @@
     <ClInclude Include="BaseProtocol.h" />
     <ClInclude Include="ServerConsoleProtocol.h" />
     <ClInclude Include="ServerFrameWorkResource.h" />
-    <ClInclude Include="ControlPanel.h" />
     <ClInclude Include="DlgServerStatus.h" />
     <ClInclude Include="ServerConsoleDlg.h" />
-    <ClInclude Include="IBaseServer.h" />
+    <ClInclude Include="BaseServer.h" />
     <ClInclude Include="ServerThread.h" />
     <ClInclude Include="MainGuardThread.h" />
     <ClInclude Include="stdafx.h" />
@@ -189,7 +188,7 @@
     <Image Include="TrayIcon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ControlPanel.cpp" />
+    <ClCompile Include="BaseServer.cpp" />
     <ClCompile Include="DlgServerStatus.cpp" />
     <ClCompile Include="ServerConsoleDlg.cpp" />
     <ClCompile Include="ServerThread.cpp" />

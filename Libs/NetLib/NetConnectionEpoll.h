@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    NetConnectionEpoll.h                                     */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    NetConnectionEpoll.h                                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -16,11 +16,12 @@
 class CNetService;
 
 class CNetConnection :
-	public CBaseTCPConnection,public IEpollEventHandler
+	public CBaseNetConnection,public IEpollEventHandler
 {
 protected:
 	CNetServer*									m_pServer;
 	volatile BOOL								m_WantClose;
+	int											m_CurAddressFamily;
 	bool										m_UseSafeDisconnect;
 	CCycleBuffer								m_RecvQueue;
 	CCycleBuffer								m_SendQueue;
@@ -44,6 +45,7 @@ public:
 	virtual BOOL Create(SOCKET Socket, UINT RecvQueueSize = DEFAULT_SERVER_RECV_DATA_QUEUE,
 		UINT SendQueueSize = DEFAULT_SERVER_SEND_DATA_QUEUE);
 	virtual void Destory();
+	void Close();
 
 	void EnableSendQueueLock(bool Enable);
 
@@ -71,7 +73,7 @@ public:
 
 	void EnableSafeDisconnect(bool Enable);
 
-	virtual bool StealFrom(CNameObject * pObject,UINT Param=0);
+	//virtual bool StealFrom(CNameObject * pObject,UINT Param=0);
 
 	void SetSendDelay(UINT Delay);
 	void SetSendQueryLimit(UINT Limit);

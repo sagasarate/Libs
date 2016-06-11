@@ -1,4 +1,4 @@
-//pugxml.h
+﻿//pugxml.h
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Pug XML Parser - Version 1.0002
@@ -261,6 +261,29 @@ inline static bool strcatgrow(TCHAR** lhs,const TCHAR* rhs)
 	return true;
 }
 
+inline CEasyString XMLEncodeString(LPCTSTR Str)
+{
+	CEasyString OutStr(Str);
+	OutStr.Replace("&", "&amp;");
+	OutStr.Replace("<", "&lt;");
+	OutStr.Replace(">", "&gt;");
+	OutStr.Replace("\"", "&quot;");
+	OutStr.Replace("\r", "&rt;");
+	OutStr.Replace("\n", "&nl;");
+	OutStr.Replace("	", "&tab;");
+	return OutStr;
+}
+inline void XMLDecodeString(CEasyString& Str)
+{
+	CEasyString OutStr(Str);	
+	OutStr.Replace("&lt;", "<");
+	OutStr.Replace("&gt;", ">");
+	OutStr.Replace("&quot;", "\"");
+	OutStr.Replace("&rt;", "\r");
+	OutStr.Replace("&nl;", "\n");
+	OutStr.Replace("&tab;", "	");
+	OutStr.Replace("&amp;", "&");
+}
 
 inline static bool chartype_symbol(TCHAR c) //Character is alphanumeric, -or- '_', -or- ':', -or- '-', -or- '.'.
 { return (_istalnum(c)||c==_T('_')||c==_T(':')||c==_T('-')||c==_T('.')); }
@@ -1364,6 +1387,7 @@ public:
 			temp = _attr->value;
 #endif
 		}
+		XMLDecodeString(temp);
 		return temp;
 	}
 	//<summary>Cast attribute value as integral character string. If not found, return NULL.</summary>
@@ -1718,7 +1742,7 @@ public:
 	}
         
 #ifdef PUGOPT_NONSEG
-	const unsigned int name_size(){ return (!empty()) ? _attr->name_size : 0; } //Access the attribute name length (for PUGOPT_NONSEG).
+	unsigned int name_size(){ return (!empty()) ? _attr->name_size : 0; } //Access the attribute name length (for PUGOPT_NONSEG).
 #endif
 	bool name(TCHAR* new_name) //Set the attribute name.
 	{
@@ -1731,9 +1755,12 @@ public:
 		return false;
 	}
 	const TCHAR* value(){ return (!empty()) ? _attr->value : _T(""); } //Access the attribute value.
-	CEasyString getvalue() { return *this; } // Access the attribute value. uses operator CEasyString(). NF 2 Mar 2003
+	CEasyString getvalue() 
+	{ 
+		return *this; 
+	} // Access the attribute value. uses operator CEasyString(). NF 2 Mar 2003
 #ifdef PUGOPT_NONSEG
-	const unsigned int value_size(){ return (!empty()) ? _attr->value_size : 0; } //Access the attribute name length (for PUGOPT_NONSEG).
+	unsigned int value_size(){ return (!empty()) ? _attr->value_size : 0; } //Access the attribute name length (for PUGOPT_NONSEG).
 #endif
 	bool value(const TCHAR* new_value) //Set the attribute value.
 	{
@@ -1784,6 +1811,7 @@ protected:
 	xml_node_struct* _root; //Pointer to node root.
 	xml_node_struct _dummy; //Utility.
 
+	
 //Construction/Destruction
 public:
 
@@ -1835,8 +1863,9 @@ public:
 		return prev;
 	}
 
-	void SaveToString(CEasyString& String);
-	bool SaveToFile(int FileChannel,LPCTSTR FileName);
+	
+
+	
 
 //Iteration
 public:
@@ -2141,11 +2170,11 @@ public:
 	xml_attribute attribute(const TCHAR* name)
 	{
 		xml_attribute_struct* attr = mapto_attribute_ptr(name);
-		if(!attr) attr = append_attribute(name,_T(""));
+		if(!attr) attr = append_attribute_origin(name,_T(""));
 		return xml_attribute(attr);
 	}
 
-	const unsigned int siblings() const { return (!type_document()) ? _root->parent->children : 0; } //Access node's sibling count (parent's child count).
+	unsigned int siblings() const { return (!type_document()) ? _root->parent->children : 0; } //Access node's sibling count (parent's child count).
 	xml_node sibling(unsigned int i){ return (!type_document() && i < siblings()) ? xml_node(_root->parent->child[i]) : xml_node(); } //Access sibling node at subscript as xml_node or xml_node(NULL) if bad subscript.
 	xml_node parent() const { return (!type_document()) ? xml_node(_root->parent) : xml_node(); } //Access node's parent if any, else xml_node(NULL)
 
@@ -3141,9 +3170,11 @@ public:
 	//<param name="value">Value thereof.</param>
 	//<returns>Attribute structure wrapper.</returns>
 	//<remarks>Pointer space may be grown, memory for name/value members allocated.</remarks>
-	xml_attribute append_attribute(const TCHAR* name,const TCHAR* value)
+	xml_attribute append_attribute_origin(const TCHAR* name, const TCHAR* value)
 	{
-		if(!name || !value) return xml_attribute(); //We must have both to proceed.
+		if (!name || !value)
+			return xml_attribute(); //We must have both to proceed.
+
 		xml_attribute_struct* p = pug::append_attribute(_root,1); //Append/allocate a new attribute structure.
 		if(p) //If append/allocate succeeded.
 		{
@@ -3160,30 +3191,86 @@ public:
 		return xml_attribute(); //Failure; return an empty.
 	}
 
+	xml_attribute append_attribute(const TCHAR* name, const TCHAR* value)
+	{
+		CEasyString Str = XMLEncodeString(value);
+
+		return append_attribute_origin(name, Str);
+	}
+
 	//<summary>Append a new attribute of type int to the node list of attributes.</summary>
 	//<param name="name">Name.</param>
 	//<param name="value">Value thereof.</param>
 	//<returns>Attribute structure wrapper.</returns>
 	//<remarks>Pointer space may be grown, memory for name/value members allocated.</remarks>
+
+	xml_attribute append_attribute(const TCHAR* name, char value)
+	{
+		if (!name) return xml_attribute();
+		TCHAR temp[32] = { 0 };
+		_stprintf_s(temp, 32, _T("%d"), value);
+		return append_attribute_origin(name, temp);
+	}
+
+	xml_attribute append_attribute(const TCHAR* name, unsigned char value)
+	{
+		if (!name) return xml_attribute();
+		TCHAR temp[32] = { 0 };
+		_stprintf_s(temp, 32, _T("%u"), value);
+		return append_attribute_origin(name, temp);
+	}
+
+	xml_attribute append_attribute(const TCHAR* name, short value)
+	{
+		if (!name) return xml_attribute();
+		TCHAR temp[32] = { 0 };
+		_stprintf_s(temp, 32, _T("%d"), value);
+		return append_attribute_origin(name, temp);
+	}
+
+	xml_attribute append_attribute(const TCHAR* name, unsigned short value)
+	{
+		if (!name) return xml_attribute();
+		TCHAR temp[32] = { 0 };
+		_stprintf_s(temp, 32, _T("%u"), value);
+		return append_attribute_origin(name, temp);
+	}
+
 	xml_attribute append_attribute(const TCHAR* name,int value)
 	{
-		if(!name) return false;
+		if (!name) return xml_attribute();
 		TCHAR temp[32] = {0};
 		_stprintf_s(temp,32,_T("%ld"),value);
-		return append_attribute(name,temp);
+		return append_attribute_origin(name, temp);
 	}
 
 	xml_attribute append_attribute(const TCHAR* name,unsigned int value)
 	{
-		if(!name) return false;
+		if (!name) return xml_attribute();
 		TCHAR temp[32] = {0};
 		_stprintf_s(temp,32,_T("%lu"),value);
-		return append_attribute(name,temp);
+		return append_attribute_origin(name, temp);
+	}
+
+	xml_attribute append_attribute(const TCHAR* name, __int64 value)
+	{
+		if (!name) return xml_attribute();
+		TCHAR temp[32] = { 0 };
+		_stprintf_s(temp, 32, _T("%lld"), value);
+		return append_attribute_origin(name, temp);
+	}
+
+	xml_attribute append_attribute(const TCHAR* name, unsigned __int64 value)
+	{
+		if (!name) return xml_attribute();
+		TCHAR temp[32] = { 0 };
+		_stprintf_s(temp, 32, _T("%llu"), value);
+		return append_attribute_origin(name, temp);
 	}
 
 	//xml_attribute append_attribute(const TCHAR* name,int value)
 	//{
-	//	if(!name) return false;
+	//	if(!name) return xml_attribute();
 	//	TCHAR temp[32] = {0};
 	//	_stprintf_s(temp,32,_T("%d"),value);
 	//	return append_attribute(name,temp);
@@ -3191,7 +3278,7 @@ public:
 
 	//xml_attribute append_attribute(const TCHAR* name,unsigned int value)
 	//{
-	//	if(!name) return false;
+	//	if(!name) return xml_attribute();
 	//	TCHAR temp[32] = {0};
 	//	_stprintf_s(temp,32,_T("%d"),value);
 	//	return append_attribute(name,temp);
@@ -3202,12 +3289,21 @@ public:
 	//<param name="value">Value thereof.</param>
 	//<returns>Attribute structure wrapper.</returns>
 	//<remarks>Pointer space may be grown, memory for name/value members allocated.</remarks>
+
+	xml_attribute append_attribute(const TCHAR* name, float value)
+	{
+		if (!name) return xml_attribute();
+		TCHAR temp[32] = { 0 };
+		_stprintf_s(temp, 32, _T("%lf"), value);
+		return append_attribute_origin(name, temp);
+	}
+
 	xml_attribute append_attribute(const TCHAR* name,double value)
 	{
-		if(!name) return false;
+		if (!name) return xml_attribute();
 		TCHAR temp[32] = {0};
 		_stprintf_s(temp,32,_T("%lf"),value);
-		return append_attribute(name,temp);
+		return append_attribute_origin(name, temp);
 	}
 
 	//<summary>Append a new attribute of type bool to the node list of attributes.</summary>
@@ -3217,8 +3313,8 @@ public:
 	//<remarks>Pointer space may be grown, memory for name/value members allocated.</remarks>
 	xml_attribute append_attribute(const TCHAR* name,bool value)
 	{
-		if(!name) return false;
-		return append_attribute(name,((value)?_T("true"):_T("false")));
+		if (!name) return xml_attribute();
+		return append_attribute_origin(name, ((value) ? _T("true") : _T("false")));
 	}
 
 	//<summary>Set the current node entity type.</summary>
@@ -3550,11 +3646,11 @@ public:
         assert( type_doctype() );  // must be DTD - see cmt above.
 
 	    CEasyString sxml_value( sxml_pcdata );
-		CEasyString::SIZE_TYPE idx = 0;
+		int idx = 0;
         do  // parse sxml_value
         {       // find an entity reference "&...;"
             idx = sxml_value.Find( '&', idx );
-            CEasyString::SIZE_TYPE idxe = sxml_value.Find( ';', idx );
+            int idxe = sxml_value.Find( ';', idx );
 			if ( idx != CEasyString::ERROR_CHAR_POS
               && idxe != CEasyString::ERROR_CHAR_POS
                )
@@ -3586,8 +3682,8 @@ public:
                         // character we must use the entire entity-value as the replacement.
                         // eg. <!ENTITY  test "&#x0a;&lf;line1 with amp &amp;&#x0a;&quot;line2&quot;&lf;&lt;line3&gt;">
                         // Note that Entities like: <!ENTITY amp "&#38;#38;"> complicate things.
-						const CEasyString::SIZE_TYPE idxsc = token.Find( ';' );      // see if > 1 ";"
-                        if ( idxsc == CEasyString::ERROR_CHAR_POS || idxsc == token.GetLength()-1 )
+						int idxsc = token.Find( ';' );      // see if > 1 ";"
+                        if ( idxsc == CEasyString::ERROR_CHAR_POS || idxsc == (int)token.GetLength()-1 )
                         {
                             token = token.SubStr( 1,-1 );  // skip past "&"
                             goto cvt_to_char;
@@ -3626,6 +3722,8 @@ class xml_parser
 //Internal Data Members
 protected:
 
+	int					m_LocalCodePage;
+
 	xml_node_struct*	_xmldoc; //Pointer to current XML document tree root.
 	int				_growby; //Attribute & child pointer space growth increment.
 	bool				_autdel; //Delete the tree on destruct?
@@ -3647,7 +3745,7 @@ public:
 //Construction/Destruction
 public:
 
-	static int FILE_CHANNEL;
+	
 
 	//<summary>Constructor.</summary>
 	//<param name="optmsk">Options mask.</param>
@@ -3655,6 +3753,7 @@ public:
 	//<param name="growby">Parser pointer space growth increment.</param>
 	//<remarks>Root node structure is allocated.</remarks>
 	xml_parser(unsigned int optmsk = parse_default,bool autdel = true,int growby = parse_grow):
+		m_LocalCodePage(CP_ACP),
 		_xmldoc(0),
 			_growby(growby),
 			_autdel(autdel),
@@ -3681,7 +3780,8 @@ public:
 		//<param name="growby">Parser pointer space growth increment.</param>
 		//<remarks>Root node structure is allocated, string is parsed & tree may be grown.</remarks>
 		xml_parser(TCHAR* xmlstr,unsigned int optmsk = parse_default,bool autdel = true,int growby = parse_grow) :
-		_xmldoc(0),
+			m_LocalCodePage(CP_ACP),
+			_xmldoc(0),
 			_growby(growby),
 			_autdel(autdel),
 			_optmsk(optmsk),
@@ -3734,6 +3834,16 @@ public:
 		if(_xmldoc){ free_node(_xmldoc); _xmldoc = 0; }
 		_buffer.Clear();
 
+	}
+
+	void SetLocalCodePage(int CodePage)
+	{
+		m_LocalCodePage = CodePage;
+	}
+
+	int GetLocalCodepage()
+	{
+		return m_LocalCodePage;
 	}
 
 #ifdef PUGOPT_MEMFIL
@@ -3835,51 +3945,10 @@ public:
 	//<remarks>
 	//	The file contents is loaded and stored in the member '_buffer' until 
 	//	freed by calling 'Parse', 'parse_file', 'clear' or '~xml_parser'.
-	//</remarks>
-	bool parse_file(const TCHAR* path,unsigned int optmsk = parse_noset)
-	{
-		return parse_file(FILE_CHANNEL,path,optmsk);
-	}
-	bool parse_file(int FileChannel,const TCHAR* path,unsigned int optmsk = parse_noset)
-	{
-		bool Ret=false;
-		IFileAccessor * pFile=CFileSystemManager::GetInstance()->CreateFileAccessor(FileChannel);
-		if(pFile)
-		{
-			if(pFile->Open(path,IFileAccessor::modeOpen|IFileAccessor::modeRead|IFileAccessor::shareShareAll))
-			{
-				UINT FileSize=(UINT)pFile->GetSize();
-				BYTE * pBuffer=new BYTE[FileSize];
-				if(pFile->Read(pBuffer,FileSize)==FileSize)
-				{
-					bool IsUnicode=false;					
-					if(FileSize>=2)
-					{
-						if(pBuffer[0]==0xFF&&pBuffer[1]==0xFE)
-						{
-							IsUnicode=true;
-						}
-					}
-					if(IsUnicode)
-						_buffer.SetString((WCHAR *)(pBuffer+2),FileSize/2-1);
-					else
-						_buffer.SetString((char *)(pBuffer),FileSize);
-
-					_xmldoc = new_node(node_document); //Allocate a new root.
-					_xmldoc->parent = _xmldoc; //Point to self.
-					if(optmsk != parse_noset) _optmsk = optmsk;
-					_strpos=parse( _buffer, _xmldoc, _growby, _optmsk );
-					Ret=true;
-				}
-				delete[] pBuffer;
-			}
-			SAFE_RELEASE(pFile);
-		}
-		return Ret;
-
-
-	}
-
+	//</remarks>	
+	bool parse_file(const TCHAR* path, unsigned int optmsk = parse_noset, int FileChannel = FILE_CHANNEL_NORMAL1);
+	void SaveToString(const xml_node& RootNode, CEasyString& String);
+	bool SaveToFile(const xml_node& RootNode, LPCTSTR FileName, int FileCodePage = -1, int FileChannel = FILE_CHANNEL_NORMAL1);
 	///
 	void set_null() { _buffer.Clear(); }
 //	bool parse_file_in_mem(TCHAR *bits, size_t bytes, unsigned int optmsk = parse_noset)

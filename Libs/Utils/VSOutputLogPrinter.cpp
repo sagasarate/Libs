@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    VSOutputLogPrinter.cpp                                   */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    VSOutputLogPrinter.cpp                                   */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -21,24 +21,44 @@ CVSOutputLogPrinter::~CVSOutputLogPrinter(void)
 {
 }
 
-void CVSOutputLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
+void CVSOutputLogPrinter::PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg)
 {
 #ifdef WIN32	
+	if (Tag)
+	{
+		OutputDebugString(_T("["));
+		OutputDebugString(Tag);
+		OutputDebugString(_T("]"));
+	}
 	OutputDebugString(Msg);
 	OutputDebugString(_T("\r\n"));
 #else
+	if (Tag)
+	{
+		printf(_T("[%s]"), Tag);
+	}
 	printf(_T("%s\n"),Msg);
 #endif
 }
 
-void CVSOutputLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl)
+void CVSOutputLogPrinter::PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl)
 {
 #ifdef WIN32
+	if (Tag)
+	{
+		OutputDebugString(_T("["));
+		OutputDebugString(Tag);
+		OutputDebugString(_T("]"));
+	}
 	TCHAR MsgBuff[4096];
 	_vstprintf_s( MsgBuff, 4096, Format, vl );
 	OutputDebugString(MsgBuff);
 	OutputDebugString(_T("\r\n"));
 #else
+	if (Tag)
+	{
+		printf(_T("[%s]"), Tag);
+	}
 	vprintf(Format,vl);
 	printf(_T("\n"));
 #endif

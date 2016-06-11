@@ -22,6 +22,9 @@
     <Filter Include="逻辑对象插件">
       <UniqueIdentifier>{e5e92fb4-10a4-4ece-8664-902775aa47a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="客户端代理插件">
+      <UniqueIdentifier>{f0f861ab-455c-45fc-a3c9-7c400eeb6daf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DOSServerThread.cpp">
@@ -44,6 +47,12 @@
     </ClCompile>
     <ClCompile Include="DOSMainApp.cpp">
       <Filter>主程序</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSObjectProxyServiceCustom.cpp">
+      <Filter>客户端代理插件</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSObjectProxyConnectionCustom.cpp">
+      <Filter>客户端代理插件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +79,12 @@
     </ClInclude>
     <ClInclude Include="DOSMainApp.h">
       <Filter>主程序</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSObjectProxyServiceCustom.h">
+      <Filter>客户端代理插件</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSObjectProxyConnectionCustom.h">
+      <Filter>客户端代理插件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

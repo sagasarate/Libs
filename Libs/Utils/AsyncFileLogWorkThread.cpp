@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    AsyncFileLogWorkThread.cpp                                    */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    AsyncFileLogWorkThread.cpp                                    */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -29,7 +29,7 @@ BOOL CAsyncFileLogWorkThread::Init(LPCTSTR FileName,LPCTSTR FileExtName,int LogB
 	{
 		if(!m_LogDataBuffer.Create(LogBufferLen))
 		{
-			PrintImportantLog(0,_T("ÎÞ·¨´´½¨Log»º³å%s"),(LPCTSTR)FileName);
+			PrintImportantLog(0,_T("æ— æ³•åˆ›å»ºLogç¼“å†²%s"),(LPCTSTR)FileName);
 		}
 	}
 
@@ -72,13 +72,13 @@ BOOL CAsyncFileLogWorkThread::Init(LPCTSTR FileName,LPCTSTR FileExtName,int LogB
 	m_pLogFile=CFileSystemManager::GetInstance()->CreateFileAccessor(FILE_CHANNEL_NORMAL1);
 	if(m_pLogFile==NULL)
 	{
-		PrintImportantLog(0,_T("ÎÞ·¨´´½¨ÎÄ¼þ´æÈ¡Æ÷"));
+		PrintImportantLog(0,_T("æ— æ³•åˆ›å»ºæ–‡ä»¶å­˜å–å™¨"));
 		return FALSE;
 	}
 
 	if(!m_pLogFile->Open(LogFileName,FileOpenMode))
 	{
-		PrintImportantLog(0,_T("ÎÞ·¨´ò¿ªLogÎÄ¼þ%s"),(LPCTSTR)LogFileName);
+		PrintImportantLog(0,_T("æ— æ³•æ‰“å¼€Logæ–‡ä»¶%s"),(LPCTSTR)LogFileName);
 		return FALSE;
 	}
 	m_pLogFile->Seek(0,IFileAccessor::seekEnd);
@@ -87,6 +87,9 @@ BOOL CAsyncFileLogWorkThread::Init(LPCTSTR FileName,LPCTSTR FileExtName,int LogB
 #ifndef WIN32
 		UINT BomHeader = BMT_UTF_8;
 		m_pLogFile->Write(&BomHeader,3);
+#else if defined UNICODE
+		UINT BomHeader = BMT_UNICODE;
+		m_pLogFile->Write(&BomHeader, 2);
 #endif
 		if (m_LogFileHeaderString.GetLength())
 			m_pLogFile->Write(m_LogFileHeaderString.GetBuffer(),m_LogFileHeaderString.GetLength());
@@ -149,8 +152,8 @@ void CAsyncFileLogWorkThread::OnTerminate()
 BOOL CAsyncFileLogWorkThread::PushLog(LPCTSTR LogData)
 {
 
-	int DataLen=(int)_tcslen(LogData);
-	m_LogDataBuffer.PushBack((LPVOID)LogData,DataLen);
+	int DataLen = (int)_tcslen(LogData)*sizeof(TCHAR);
+	m_LogDataBuffer.PushBack((LPVOID)LogData, DataLen);
 
 	return TRUE;
 }
@@ -161,7 +164,7 @@ void CAsyncFileLogWorkThread::CreateDir(LPCTSTR FilePath)
 	CEasyString FileDir=GetPathDirectory(FilePath);
 	if(!CreateDirEx(FileDir))
 	{
-		PrintImportantLog(0,_T("´´½¨Ä¿Â¼%sÊ§°Ü"),(LPCTSTR)FileDir);
+		PrintImportantLog(0,_T("åˆ›å»ºç›®å½•%så¤±è´¥"),(LPCTSTR)FileDir);
 	}
 }
 

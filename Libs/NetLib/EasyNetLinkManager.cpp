@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    EasyNetLinkManager.cpp                                   */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    EasyNetLinkManager.cpp                                   */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -28,199 +28,78 @@ CEasyNetLinkManager::~CEasyNetLinkManager(void)
 }
 
 
-BOOL CEasyNetLinkManager::Init(CNetServer * pServer, LPCTSTR ConfigFileName, UINT InitServerID)
+BOOL CEasyNetLinkManager::Init(CNetServer * pServer, LPCTSTR ConfigFileName)
 {
-	xml_parser Parser;
+	ENL_CONFIG ConfigData;
+	if (!LoadConfig(ConfigFileName, ConfigData))
+		return false;
 
-	if(!Parser.parse_file(ConfigFileName,pug::parse_trim_attribute))
-	{
-		return FALSE;
-	}
-	xml_node Config=Parser.document();
-	if(!Config.moveto_child(_T("EasyLink")))
-		return FALSE;
-
-	return Init(pServer, Config, InitServerID);
+	return Init(pServer, ConfigData);
 }
 
-BOOL CEasyNetLinkManager::Init(CNetServer * pServer, xml_node& Config, UINT InitServerID)
+BOOL CEasyNetLinkManager::Init(CNetServer * pServer, xml_node& Config)
 {
-	m_pServer=pServer;
-	if(m_pServer==NULL)
+	ENL_CONFIG ConfigData;
+	if (!LoadConfig(Config, ConfigData))
+		return false;
+
+	return Init(pServer, ConfigData);
+}
+
+BOOL CEasyNetLinkManager::Init(CNetServer * pServer, const ENL_CONFIG& Config)
+{
+	m_pServer = pServer;
+	if (m_pServer == NULL)
 		return FALSE;
 
-	if(!Config.has_attribute(_T("ServerID")))
+	if (Config.ServerID == 0)
 	{
 		return FALSE;
 	}
-	CClassifiedID ServerID;
+	
 
-	if (InitServerID)
-		ServerID = InitServerID;
-	else
-		ServerID = (LPCTSTR)Config.attribute(_T("ServerID")).getvalue();
-
-	UINT ReallocIDRange=2048;
-	if(Config.has_attribute(_T("ReallocIDRange")))
+	if (!m_LinkIDPool.Create(Config.ReallocIDRange))
 	{
-		ReallocIDRange=Config.attribute(_T("ReallocIDRange"));
-	}
-
-	if(!m_ConnectionIDPool.Create(ReallocIDRange))
-	{
-		PrintNetLog(0xffffff,_T("CEasyNetLinkManager::Init ´´½¨[%u]´óĞ¡µÄConnectionIDPoolÊ§°Ü"),
-			ReallocIDRange);
+		PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::Init åˆ›å»º[%u]å¤§å°çš„LinkIDPoolå¤±è´¥"),
+			Config.ReallocIDRange);
 		return FALSE;
 	}
+	
 
-	for(UINT i=0;i<Config.children();i++)
+	for (UINT i = 0; i < Config.ServiceConfig.ServiceList.GetCount(); i++)
 	{
-		if(_tcsnicmp(Config.child(i).name(),_T("Services"),8)==0)
+		const ENL_SERVICE& ServiceConfig = Config.ServiceConfig.ServiceList[i];
+
+		CEasyNetLinkService * pService = AddService(ServiceConfig.ServiceID, ServiceConfig.ReportID, ServiceConfig.ListenAddress, 
+			ServiceConfig.NeedReallocConnectionID, ServiceConfig.MaxPacketSize, ServiceConfig.IsUseListenThread,
+			ServiceConfig.ParallelAcceptCount, ServiceConfig.AcceptQueueSize, ServiceConfig.RecvQueueSize, ServiceConfig.SendQueueSize, 
+			ServiceConfig.DataCompressType, ServiceConfig.MinCompressSize);
+		if (pService)
 		{
-			xml_node Services=Config.child(i);
-			BOOL NeedReallocConnectionID=FALSE;
-			if(Services.has_attribute(_T("ReallocConnectionID")))
-				NeedReallocConnectionID=(bool)Services.attribute(_T("ReallocConnectionID"));
-
-			CClassifiedID ReportID;
-			if (InitServerID)
-			{
-				ReportID = InitServerID;
-			}
-			else
-			{
-				if (Services.has_attribute(_T("ReportID")))
-				{
-					ReportID = Services.attribute(_T("ReportID")).getvalue();
-				}
-				else
-				{
-					ReportID = ServerID;
-				}
-			}
-
-			for(UINT j=0;j<Services.children();j++)
-			{
-				if(_tcsnicmp(Services.child(j).name(),_T("Service"),7)==0)
-				{
-					xml_node Service=Services.child(j);
-					if(Service.has_attribute(_T("ID"))&&
-						Service.has_attribute(_T("Port")))
-					{
-						CClassifiedID ID=(LPCTSTR)Service.attribute(_T("ID")).getvalue();
-						CIPAddress Address;
-						UINT MaxPacketSize=NET_DATA_BLOCK_SIZE;
-						bool IsUseListenThread=true;
-						int ParallelAcceptCount=DEFAULT_PARALLEL_ACCEPT;
-						UINT AcceptQueueSize=DEFAULT_SERVER_ACCEPT_QUEUE;
-						UINT RecvQueueSize=DEFAULT_SERVER_RECV_DATA_QUEUE;
-						UINT SendQueueSize=0;
-						if(Service.has_attribute(_T("IP")))
-						{
-							CEasyStringA IPStr=Service.attribute(_T("IP")).getvalue();
-							Address.SetIP(IPStr);
-						}
-						if(Service.has_attribute(_T("MaxPacketSize")))
-							MaxPacketSize=Service.attribute(_T("MaxPacketSize"));
-						if(Service.has_attribute(_T("IsUseListenThread")))
-							IsUseListenThread=(bool)Service.attribute(_T("IsUseListenThread"));
-						if(Service.has_attribute(_T("ParallelAcceptCount")))
-							ParallelAcceptCount=Service.attribute(_T("ParallelAcceptCount"));
-						if(Service.has_attribute(_T("AcceptQueueSize")))
-							AcceptQueueSize=Service.attribute(_T("AcceptQueueSize"));
-						if(Service.has_attribute(_T("RecvQueueSize")))
-							RecvQueueSize=Service.attribute(_T("RecvQueueSize"));
-						if(Service.has_attribute(_T("SendQueueSize")))
-							SendQueueSize=Service.attribute(_T("SendQueueSize"));
-						Address.SetPort(Service.attribute(_T("Port")));
-						CEasyNetLinkService * pService=AddService(ID,ReportID,Address,NeedReallocConnectionID,
-							MaxPacketSize,IsUseListenThread,
-							ParallelAcceptCount,AcceptQueueSize,RecvQueueSize,SendQueueSize);
-						if(!pService)
-						{
-							PrintNetLog(0xffffff,_T("CEasyNetLinkManager::Init ´´½¨Service[%s][%s:%u]Ê§°Ü"),
-								ID.ToStr(),Address.GetIPString(),Address.GetPort());
-							return FALSE;
-						}
-						for(UINT k=0;k<Service.children();k++)
-						{
-							if(_tcsnicmp(Service.child(k).name(),_T("IPList"),6)==0)
-							{
-								CEasyArray<CIPPattern> IPPatternList;
-								xml_node IPList=Service.child(k);
-
-								for(UINT l=0;l<IPList.children();l++)
-								{
-									if(_tcsnicmp(IPList.child(l).name(),_T("IP"),2)==0)
-									{
-										xml_node IP=IPList.child(l);
-										if(IP.has_attribute(_T("IP")))
-										{
-											CEasyStringA IPStr=Service.attribute(_T("IP")).getvalue();
-											IPPatternList.Add(CIPPattern(IPStr));
-										}
-									}
-								}
-								pService->SetIPList(IPPatternList);
-							}
-						}
-					}
-				}
-			}
+			pService->SetIPList(ServiceConfig.IPPatternList);
 		}
-		if(_tcsnicmp(Config.child(i).name(),_T("Connections"),11)==0)
+		else
 		{
-			xml_node Connections=Config.child(i);
-
-			CClassifiedID ReportID;
-			if (InitServerID)
-			{
-				ReportID = InitServerID;
-			}
-			else
-			{
-				if (Connections.has_attribute(_T("ReportID")))
-				{
-					ReportID = Connections.attribute(_T("ReportID")).getvalue();
-				}
-				else
-				{
-					ReportID = ServerID;
-				}
-			}
-
-			for(UINT j=0;j<Connections.children();j++)
-			{
-				if(_tcsnicmp(Connections.child(j).name(),_T("Connection"),10)==0)
-				{
-					xml_node Connection=Connections.child(j);
-					if(Connection.has_attribute(_T("IP"))&&
-						Connection.has_attribute(_T("Port")))
-					{
-						CIPAddress Address;
-						UINT MaxPacketSize=NET_DATA_BLOCK_SIZE;
-						UINT RecvQueueSize=DEFAULT_SERVER_RECV_DATA_QUEUE;
-						UINT SendQueueSize=0;
-						CEasyStringA IPStr=Connection.attribute(_T("IP")).getvalue();
-						Address.SetIP(IPStr);
-						Address.SetPort(Connection.attribute(_T("Port")));
-						if(Connection.has_attribute(_T("MaxPacketSize")))
-							MaxPacketSize=Connection.attribute(_T("MaxPacketSize"));
-						if(Connection.has_attribute(_T("RecvQueueSize")))
-							RecvQueueSize=Connection.attribute(_T("RecvQueueSize"));
-						if(Connection.has_attribute(_T("SendQueueSize")))
-							SendQueueSize=Connection.attribute(_T("SendQueueSize"));
-						if(!AddConnection(ReportID,Address,MaxPacketSize,RecvQueueSize,SendQueueSize))
-						{
-							PrintNetLog(0xffffff,_T("CEasyNetLinkManager::Init ´´½¨Connection[%s][%s:%u]Ê§°Ü"),
-								ReportID.ToStr(),Address.GetIPString(),Address.GetPort());
-							return FALSE;
-						}
-					}
-				}
-			}
+			PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::Init åˆ›å»ºService[%s][%s:%u]å¤±è´¥"),
+				CClassifiedID::IDToStr(ServiceConfig.ServiceID), ServiceConfig.ListenAddress.GetIPString(), ServiceConfig.ListenAddress.GetPort());
+			return FALSE;
 		}
 	}
+
+	for (UINT i = 0; i < Config.ConnectionConfig.ConnectionList.GetCount(); i++)
+	{
+		const ENL_CONNECTION& ConnectionConfig = Config.ConnectionConfig.ConnectionList[i];
+		if (!AddLink(ConnectionConfig.ReportID, ConnectionConfig.Address, ConnectionConfig.MaxPacketSize, ConnectionConfig.RecvQueueSize, 
+			ConnectionConfig.SendQueueSize, ConnectionConfig.DataCompressType, ConnectionConfig.MinCompressSize))
+		{
+			PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::Init åˆ›å»ºConnection[%s][%s:%u]å¤±è´¥"),
+				CClassifiedID::IDToStr(ConnectionConfig.ReportID), ConnectionConfig.Address.GetIPString(), ConnectionConfig.Address.GetPort());
+			return FALSE;
+		}
+	}
+		
+		
+	
 	return TRUE;
 }
 
@@ -231,49 +110,211 @@ BOOL CEasyNetLinkManager::Init(CNetServer * pServer)
 		return FALSE;
 	return TRUE;
 }
+BOOL CEasyNetLinkManager::LoadConfig(LPCTSTR ConfigFileName, ENL_CONFIG& Config)
+{
+	xml_parser Parser;
+
+	if (!Parser.parse_file(ConfigFileName, pug::parse_trim_attribute))
+	{
+		return FALSE;
+	}
+	xml_node Root = Parser.document();
+	if (!Root.moveto_child(_T("EasyLink")))
+		return FALSE;
+
+	return LoadConfig(Root, Config);
+}
+BOOL CEasyNetLinkManager::LoadConfig(xml_node& XmlRoot, ENL_CONFIG& Config)
+{
+	if (!XmlRoot.has_attribute(_T("ServerID")))
+	{
+		return FALSE;
+	}
+
+	
+	Config.ServerID = CClassifiedID::StrToID(XmlRoot.attribute(_T("ServerID")).getvalue());
+
+	if (XmlRoot.has_attribute(_T("ReallocIDRange")))
+	{
+		Config.ReallocIDRange = XmlRoot.attribute(_T("ReallocIDRange"));
+	}
+	
+
+	for (UINT i = 0; i < XmlRoot.children(); i++)
+	{
+		if (_tcsnicmp(XmlRoot.child(i).name(), _T("Services"), 8) == 0)
+		{
+			xml_node Services = XmlRoot.child(i);
+			
+
+			for (UINT j = 0; j < Services.children(); j++)
+			{
+				if (_tcsnicmp(Services.child(j).name(), _T("Service"), 7) == 0)
+				{
+					xml_node Service = Services.child(j);
+					if (Service.has_attribute(_T("ID")) &&
+						Service.has_attribute(_T("Port")))
+					{
+						ENL_SERVICE ServiceConfig;
+						ServiceConfig.ServiceID = CClassifiedID::StrToID(Service.attribute(_T("ID")).getvalue());
+
+						if (Services.has_attribute(_T("ReportID")))
+						{
+							ServiceConfig.ReportID = CClassifiedID::StrToID(Services.attribute(_T("ReportID")).getvalue());
+						}
+						else
+						{
+							ServiceConfig.ReportID = Config.ServerID;
+						}
+
+						if (Services.has_attribute(_T("ReallocConnectionID")))
+							ServiceConfig.NeedReallocConnectionID = Services.attribute(_T("ReallocConnectionID"));
+
+						
+						if (Service.has_attribute(_T("IP")))
+						{
+							CEasyString IPStr = Service.attribute(_T("IP")).getvalue();
+							ServiceConfig.ListenAddress.SetIP(IPStr);
+						}
+						ServiceConfig.ListenAddress.SetPort(Service.attribute(_T("Port")));
+
+						if (Service.has_attribute(_T("MaxPacketSize")))
+							ServiceConfig.MaxPacketSize = Service.attribute(_T("MaxPacketSize"));
+						if (Service.has_attribute(_T("IsUseListenThread")))
+							ServiceConfig.IsUseListenThread = (bool)Service.attribute(_T("IsUseListenThread"));
+						if (Service.has_attribute(_T("ParallelAcceptCount")))
+							ServiceConfig.ParallelAcceptCount = Service.attribute(_T("ParallelAcceptCount"));
+						if (Service.has_attribute(_T("AcceptQueueSize")))
+							ServiceConfig.AcceptQueueSize = Service.attribute(_T("AcceptQueueSize"));
+						if (Service.has_attribute(_T("RecvQueueSize")))
+							ServiceConfig.RecvQueueSize = Service.attribute(_T("RecvQueueSize"));
+						if (Service.has_attribute(_T("SendQueueSize")))
+							ServiceConfig.SendQueueSize = Service.attribute(_T("SendQueueSize"));
+						
+						if (Service.has_attribute(_T("DataCompressType")))
+						{
+							if (Service.attribute(_T("DataCompressType")).getvalue().CompareNoCase(_T("lzo")) == 0)
+								ServiceConfig.DataCompressType = DATA_COMPRESS_TYPE_LZO;
+						}
+						if (Service.has_attribute(_T("MinCompressSize")))
+						{
+							ServiceConfig.MinCompressSize = Service.attribute(_T("MinCompressSize"));
+						}
+						
+						for (UINT k = 0; k < Service.children(); k++)
+						{
+							if (_tcsnicmp(Service.child(k).name(), _T("IPList"), 6) == 0)
+							{
+								xml_node IPList = Service.child(k);
+
+								for (UINT l = 0; l < IPList.children(); l++)
+								{
+									if (_tcsnicmp(IPList.child(l).name(), _T("IP"), 2) == 0)
+									{
+										xml_node IP = IPList.child(l);
+										if (IP.has_attribute(_T("IP")))
+										{
+											CEasyString IPStr = Service.attribute(_T("IP")).getvalue();
+											ServiceConfig.IPPatternList.Add(CIPPattern(IPStr));
+										}
+									}
+								}
+							}
+						}
+
+						Config.ServiceConfig.ServiceList.Add(ServiceConfig);
+					}
+				}
+			}
+		}
+		if (_tcsnicmp(XmlRoot.child(i).name(), _T("Connections"), 11) == 0)
+		{
+			xml_node Connections = XmlRoot.child(i);
+
+			for (UINT j = 0; j < Connections.children(); j++)
+			{
+				if (_tcsnicmp(Connections.child(j).name(), _T("Connection"), 10) == 0)
+				{
+					xml_node Connection = Connections.child(j);
+					if (Connection.has_attribute(_T("IP")) &&
+						Connection.has_attribute(_T("Port")))
+					{
+						ENL_CONNECTION ConnectionConfig;
+
+						if (Connections.has_attribute(_T("ReportID")))
+						{
+							ConnectionConfig.ReportID = CClassifiedID::StrToID(Connections.attribute(_T("ReportID")).getvalue());
+						}
+						else
+						{
+							ConnectionConfig.ReportID = Config.ServerID;
+						}
+
+
+						
+						CEasyString IPStr = Connection.attribute(_T("IP")).getvalue();
+						ConnectionConfig.Address.SetIP(IPStr);
+						ConnectionConfig.Address.SetPort(Connection.attribute(_T("Port")));
+						if (Connection.has_attribute(_T("MaxPacketSize")))
+							ConnectionConfig.MaxPacketSize = Connection.attribute(_T("MaxPacketSize"));
+						if (Connection.has_attribute(_T("RecvQueueSize")))
+							ConnectionConfig.RecvQueueSize = Connection.attribute(_T("RecvQueueSize"));
+						if (Connection.has_attribute(_T("SendQueueSize")))
+							ConnectionConfig.SendQueueSize = Connection.attribute(_T("SendQueueSize"));
+						if (Connection.has_attribute(_T("DataCompressType")))
+						{
+							if (Connection.attribute(_T("DataCompressType")).getvalue().CompareNoCase(_T("lzo")) == 0)
+								ConnectionConfig.DataCompressType = DATA_COMPRESS_TYPE_LZO;
+						}
+						if (Connection.has_attribute(_T("MinCompressSize")))
+						{
+							ConnectionConfig.MinCompressSize = Connection.attribute(_T("MinCompressSize"));
+						}
+						Config.ConnectionConfig.ConnectionList.Add(ConnectionConfig);
+					}
+				}
+			}
+		}
+	}
+	return TRUE;
+}
 
 void CEasyNetLinkManager::Destory()
 {
-	for(int i=(int)m_ConnectionList.GetCount()-1;i>=0;i--)
+	for(int i=(int)m_LinkList.GetCount()-1;i>=0;i--)
 	{
-		SAFE_RELEASE(m_ConnectionList[i]);
+		SAFE_RELEASE(m_LinkList[i]);
 	}
 
 	for(int i=(int)m_ServiceList.GetCount()-1;i>=0;i--)
 	{
 		SAFE_RELEASE(m_ServiceList[i]);
 	}
-	m_ConnectionMap.Clear();
-	m_ConnectionList.Clear();
+	m_LinkMap.Clear();
+	m_LinkList.Clear();
 	m_ServiceMap.Clear();
 	m_ServiceList.Clear();
 }
 
 CEasyNetLinkService * CEasyNetLinkManager::AddService(UINT ID,UINT ReportID,const CIPAddress& ListenAddress,
-													  BOOL NeedReallocConnectionID,UINT MaxPacketSize,bool IsUseListenThread,
-													  int ParallelAcceptCount,UINT AcceptQueueSize,
-													  UINT RecvQueueSize,UINT SendQueueSize)
+	bool NeedReallocConnectionID, UINT MaxPacketSize, bool IsUseListenThread,
+	int ParallelAcceptCount, UINT AcceptQueueSize,
+	UINT RecvQueueSize, UINT SendQueueSize,
+	DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
 {
 	CEasyNetLinkService * pService=CreateLinkService(ID);
 	if(pService)
 	{
-		pService->SetMaxPacketSize(MaxPacketSize);
-		pService->SetReportID(ReportID);
-		pService->EnableReallocConnectionID(NeedReallocConnectionID);
-		if(pService->Create(IPPROTO_TCP,AcceptQueueSize,
-			RecvQueueSize,SendQueueSize,
-			ParallelAcceptCount,DEFAULT_PARALLEL_RECV,IsUseListenThread))
+		if (pService->Init(this, ReportID, ListenAddress, NeedReallocConnectionID, IsUseListenThread, ParallelAcceptCount, AcceptQueueSize,
+			RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize))
 		{
-			if(pService->StartListen(ListenAddress))
-			{
-				PrintNetLog(0xffffff,_T("CEasyNetLinkManager::AddService ´´½¨Service[%s][%s:%u],%s,²¢·¢Accept=%d,Accept¶ÓÁĞ³¤¶È=%u,½ÓÊÕ¶ÓÁĞ³¤¶È=%u,·¢ËÍ¶ÓÁĞ³¤¶È=%u"),
-					CClassifiedID(ID).ToStr(),
-					ListenAddress.GetIPString(),
-					ListenAddress.GetPort(),
-					IsUseListenThread?_T("Ê¹ÓÃÕìÌıÏß³Ì"):_T("Ê¹ÓÃIOCPÕìÌı"),
-					ParallelAcceptCount,AcceptQueueSize,RecvQueueSize,SendQueueSize);
-				return pService;
-			}
+			PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::AddService åˆ›å»ºService[%s][%s:%u],%s,å¹¶å‘Accept=%d,Accepté˜Ÿåˆ—é•¿åº¦=%u,æ¥æ”¶é˜Ÿåˆ—é•¿åº¦=%u,å‘é€é˜Ÿåˆ—é•¿åº¦=%u"),
+				CClassifiedID(ID).ToStr(),
+				ListenAddress.GetIPString(),
+				ListenAddress.GetPort(),
+				IsUseListenThread ? _T("ä½¿ç”¨ä¾¦å¬çº¿ç¨‹") : _T("ä½¿ç”¨IOCPä¾¦å¬"),
+				ParallelAcceptCount, AcceptQueueSize, RecvQueueSize, SendQueueSize);
+			return pService;
 		}
 		DeleteLinkService(pService);
 		SAFE_DELETE(pService);
@@ -281,22 +322,27 @@ CEasyNetLinkService * CEasyNetLinkManager::AddService(UINT ID,UINT ReportID,cons
 	return NULL;
 }
 
-BOOL CEasyNetLinkManager::AddConnection(UINT ReportID,const CIPAddress& ConnectionAddress,UINT MaxPacketSize,
-										UINT RecvQueueSize,UINT SendQueueSize)
+BOOL CEasyNetLinkManager::AddLink(UINT ReportID,const CIPAddress& ConnectionAddress,UINT MaxPacketSize,
+										UINT RecvQueueSize,UINT SendQueueSize,
+										DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
 {
-	CEasyNetLinkConnection * pConnection=CreateAcceptConnection(ReportID);
-	if(pConnection)
+	CEasyNetLink * pLink=CreateAcceptLink();
+	if (pLink)
 	{
-		pConnection->Create(RecvQueueSize,SendQueueSize);
-		pConnection->SetMaxPacketSize(MaxPacketSize);
-		pConnection->SetKeepConnect(TRUE);
-		pConnection->SetRemoteAddress(ConnectionAddress);
-		PrintNetLog(0xffffff,_T("CEasyNetLinkManager::AddConnection ´´½¨Connection[%s][%s:%u],½ÓÊÕ¶ÓÁĞ³¤¶È=%u,·¢ËÍ¶ÓÁĞ³¤¶È=%u"),
-			CClassifiedID(ReportID).ToStr(),
-			ConnectionAddress.GetIPString(),
-			ConnectionAddress.GetPort(),
-			RecvQueueSize,SendQueueSize);
-		return TRUE;
+		if (pLink->Init(this, ConnectionAddress, ReportID, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize))
+		{
+			PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::AddLink åˆ›å»ºConnection[%s][%s:%u],æ¥æ”¶é˜Ÿåˆ—é•¿åº¦=%u,å‘é€é˜Ÿåˆ—é•¿åº¦=%u"),
+				CClassifiedID(ReportID).ToStr(),
+				ConnectionAddress.GetIPString(),
+				ConnectionAddress.GetPort(),
+				RecvQueueSize, SendQueueSize);
+			return TRUE;
+		}
+		else
+		{
+			DeleteLink(pLink);
+			PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::AddLink åˆ›å»ºConnectionå¤±è´¥"));			
+		}
 	}
 	return FALSE;
 }
@@ -304,9 +350,9 @@ BOOL CEasyNetLinkManager::AddConnection(UINT ReportID,const CIPAddress& Connecti
 int CEasyNetLinkManager::Update(int ProcessPacketLimit)
 {
 	int Process=0;
-	for(int i=(int)m_ConnectionList.GetCount()-1;i>=0;i--)
+	for(int i=(int)m_LinkList.GetCount()-1;i>=0;i--)
 	{
-		Process+=m_ConnectionList[i]->Update(ProcessPacketLimit);
+		Process+=m_LinkList[i]->Update(ProcessPacketLimit);
 	}
 	for(size_t i=0;i<m_ServiceList.GetCount();i++)
 	{
@@ -315,33 +361,28 @@ int CEasyNetLinkManager::Update(int ProcessPacketLimit)
 	return Process;
 }
 
-CEasyNetLinkConnection * CEasyNetLinkManager::OnCreateConnection(UINT ID)
-{
-	return new CEasyNetLinkConnection();
-}
-
 CEasyNetLinkService * CEasyNetLinkManager::OnCreateService(UINT ID)
 {
 	return new CEasyNetLinkService();
 }
 
-CEasyNetLinkConnection * CEasyNetLinkManager::GetConnection(UINT ID)
+CEasyNetLink * CEasyNetLinkManager::GetLink(UINT ID)
 {
-	CEasyNetLinkConnection ** ppValue=m_ConnectionMap.Find(ID);
+	CEasyNetLink ** ppValue=m_LinkMap.Find(ID);
 	if(ppValue)
 	{
 		return *ppValue;
 	}
 	return NULL;
 }
-LPVOID CEasyNetLinkManager::GetFirstConnectionPos()
+LPVOID CEasyNetLinkManager::GetFirstLinkPos()
 {
-	return m_ConnectionMap.GetFirstObjectPos();
+	return m_LinkMap.GetFirstObjectPos();
 }
-CEasyNetLinkConnection *  CEasyNetLinkManager::GetNextConnection(LPVOID& Pos)
+CEasyNetLink *  CEasyNetLinkManager::GetNextLink(LPVOID& Pos)
 {
 	UINT Key;
-	CEasyNetLinkConnection ** ppValue=m_ConnectionMap.GetNextObject(Pos,Key);
+	CEasyNetLink ** ppValue=m_LinkMap.GetNextObject(Pos,Key);
 	if(ppValue)
 	{
 		return *ppValue;
@@ -359,119 +400,123 @@ CEasyNetLinkService * CEasyNetLinkManager::GetService(UINT ID)
 	return NULL;
 }
 
-UINT CEasyNetLinkManager::GetConnectionCount()
+UINT CEasyNetLinkManager::GetLinkCount()
 {
-	return (UINT)m_ConnectionList.GetCount();
+	return (UINT)m_LinkList.GetCount();
 }
 
-CEasyNetLinkConnection * CEasyNetLinkManager::GetConnectionByIndex(UINT Index)
+CEasyNetLink * CEasyNetLinkManager::GetLinkByIndex(UINT Index)
 {
-	if(Index<m_ConnectionList.GetCount())
+	if(Index<m_LinkList.GetCount())
 	{
-		return m_ConnectionList[Index];
+		return m_LinkList[Index];
 	}
 	return NULL;
 }
 
-CEasyNetLinkConnection * CEasyNetLinkManager::CreateAcceptConnection(UINT ReportID)
+CEasyNetLink * CEasyNetLinkManager::CreateAcceptLink()
 {
-	CEasyNetLinkConnection * pConnection=new CEasyNetLinkConnection();
-	if(pConnection)
+	CEasyNetTempLink * pLink = new CEasyNetTempLink();
+	if (pLink)
 	{
-		pConnection->SetManager(this);
-		pConnection->SetServer(m_pServer);
-		pConnection->SetReportID(ReportID);
-		pConnection->SetStatus(ENL_LINK_ACCEPTING);
-		m_ConnectionList.Add(pConnection);
+		pLink->SetStatus(ENL_LINK_ACCEPTING);
+		m_LinkList.Add(pLink);
 	}
-	return pConnection;
+	return pLink;
 }
 
-CEasyNetLinkConnection * CEasyNetLinkManager::CreateConnection(UINT ID)
+CEasyNetLink * CEasyNetLinkManager::CreateLink(UINT ID)
 {
-	CEasyNetLinkConnection * pConnection=OnCreateConnection(ID);
-	if(pConnection)
+	CEasyNetLink * pLink = OnCreateLink(ID);
+	if (pLink)
 	{
-		pConnection->SetManager(this);
-		pConnection->SetServer(m_pServer);
-		pConnection->SetID(ID);
-		pConnection->SetStatus(ENL_LINK_ACCEPTED);
-		m_ConnectionList.Add(pConnection);
-		m_ConnectionMap[ID]=pConnection;
+		pLink->SetID(ID);
+		pLink->SetStatus(ENL_LINK_ACCEPTED);
+		m_LinkList.Add(pLink);
+		m_LinkMap[ID] = pLink;
 	}
-	return pConnection;
+	return pLink;
 }
 
 
 
-BOOL CEasyNetLinkManager::AcceptConnection(CEasyNetLinkConnection * pConnection)
+BOOL CEasyNetLinkManager::AcceptLink(CEasyNetLink * pLink)
 {
 
-	if(pConnection->NeedReallocConnectionID())
+	if (pLink->NeedReallocConnectionID())
 	{
-		//ĞèÒªÖØĞÂ·ÖÅäID
+		//éœ€è¦é‡æ–°åˆ†é…ID
 		int * Stay;
-		UINT ID=m_ConnectionIDPool.NewObject(&Stay);
+		UINT ID=m_LinkIDPool.NewObject(&Stay);
 		if(ID==0)
 		{
-			PrintNetLog(0xffffffff,_T("CEasyNetLinkManager::AcceptConnection ÎŞ·¨¸øÁ¬½Ó[%s]ÖØĞÂ·ÖÅäÒ»¸öID¡£"),
-				CClassifiedID(pConnection->GetID()).ToStr());
+			PrintNetLog(_T("NetLib"),_T("CEasyNetLinkManager::AcceptLink æ— æ³•ç»™è¿æ¥[%s]é‡æ–°åˆ†é…ä¸€ä¸ªIDã€‚"),
+				CClassifiedID(pLink->GetID()).ToStr());
 			return FALSE;
 		}
-		CClassifiedID ConnectionID=pConnection->GetID();
+		CClassifiedID ConnectionID = pLink->GetID();
 		ConnectionID.BigIndex()=ID;
-		pConnection->SetID(ConnectionID);
+		pLink->SetID(ConnectionID);
 	}
 	else
 	{
-		CEasyNetLinkConnection * pExistConnection=GetConnection(pConnection->GetID());
+		CEasyNetLink * pExistConnection = GetLink(pLink->GetID());
 		if(pExistConnection)
 		{
-			if(pExistConnection==pConnection)
+			if (pExistConnection == pLink)
 			{
-				OnLinkStart(pConnection);
-				pConnection->OnLinkStart();
+				OnLinkStart(pLink);
+				pLink->OnLinkStart();
 				return TRUE;
 			}
-			PrintNetLog(0xffffffff,_T("CEasyNetLinkManager::AcceptConnection Á¬½Ó[%s]ÒÑ¾­´æÔÚ¡£"),
-				CClassifiedID(pConnection->GetID()).ToStr());
+			PrintNetLog(_T("NetLib"),_T("CEasyNetLinkManager::AcceptLink è¿æ¥[%s]å·²ç»å­˜åœ¨ã€‚"),
+				CClassifiedID(pLink->GetID()).ToStr());
 			return FALSE;
 		}
 	}
 
-	//ÖØĞÂ´´½¨¶ÔÏó
-	CEasyNetLinkConnection * pNewConnection=CreateConnection(pConnection->GetID());
-	if(pNewConnection==NULL)
+	//é‡æ–°åˆ›å»ºå¯¹è±¡
+	CEasyNetLink * pNewLink = CreateLink(pLink->GetID());
+	if (pNewLink)
 	{
-		PrintNetLog(0xffffffff,_T("CEasyNetLinkManager::AcceptConnection ÎŞ·¨¸øÁ¬½Ó[%s]´´½¨ºÏÊÊµÄ¶ÔÏó¡£"),
-			CClassifiedID(pConnection->GetID()).ToStr());
-
-		return FALSE;
+		if (pNewLink->Init(pLink))
+		{
+			DeleteLink(pLink);
+			return true;
+		}
+		else
+		{
+			PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::AcceptLink è¿æ¥åˆå§‹åŒ–å¤±è´¥ã€‚"));
+		}
+		DeleteLink(pNewLink);
 	}
-	pConnection->PrepareSteal(pNewConnection);
+	else
+	{
+		PrintNetLog(_T("NetLib"),_T("CEasyNetLinkManager::AcceptLink æ— æ³•ç»™è¿æ¥[%s]åˆ›å»ºåˆé€‚çš„å¯¹è±¡ã€‚"),
+			CClassifiedID(pLink->GetID()).ToStr());
+	}	
 
-	return TRUE;
+	return FALSE;
 
 }
 
-BOOL CEasyNetLinkManager::DeleteConnection(CEasyNetLinkConnection * pConnection)
+void CEasyNetLinkManager::DeleteLink(CEasyNetLink * pLink)
 {
-	if(pConnection->NeedReallocConnectionID())
+	if (pLink->NeedReallocConnectionID())
 	{
-		CClassifiedID ConnectionID=pConnection->GetID();
-		m_ConnectionIDPool.DeleteObject(ConnectionID.BigIndex());
+		CClassifiedID ConnectionID = pLink->GetID();
+		m_LinkIDPool.DeleteObject(ConnectionID.BigIndex());
 	}
 
-	m_ConnectionMap.Delete(pConnection->GetID());
-	for(size_t i=0;i<m_ConnectionList.GetCount();i++)
+	m_LinkMap.Delete(pLink->GetID());
+	for(size_t i=0;i<m_LinkList.GetCount();i++)
 	{
-		if(m_ConnectionList[i]==pConnection)
+		if (m_LinkList[i] == pLink)
 		{
-			m_ConnectionList.Delete(i);
-			return TRUE;
+			m_LinkList.Delete(i);
 		}
 	}
-	return FALSE;
+	SAFE_RELEASE(pLink);
 }
 
 
@@ -480,7 +525,7 @@ CEasyNetLinkService * CEasyNetLinkManager::CreateLinkService(UINT ID)
 {
 	if(GetService(ID))
 	{
-		PrintNetLog(0xffffffff,_T("CEasyNetLinkManager::CreateService ·şÎñ[%u]ÒÑ¾­´æÔÚ¡£"),ID);
+		PrintNetLog(_T("NetLib"),_T("CEasyNetLinkManager::CreateService æœåŠ¡[%u]å·²ç»å­˜åœ¨ã€‚"),ID);
 		return NULL;
 	}
 
@@ -488,8 +533,6 @@ CEasyNetLinkService * CEasyNetLinkManager::CreateLinkService(UINT ID)
 	if(pService)
 	{
 		pService->SetID(ID);
-		pService->SetManager(this);
-		pService->SetServer(m_pServer);
 		m_ServiceMap[ID]=pService;
 		m_ServiceList.Add(pService);
 	}
@@ -513,11 +556,11 @@ BOOL CEasyNetLinkManager::DeleteLinkService(CEasyNetLinkService * pService)
 	return FALSE;
 }
 
-void CEasyNetLinkManager::OnLinkStart(CEasyNetLinkConnection * pConnection)
+void CEasyNetLinkManager::OnLinkStart(CEasyNetLink * pLink)
 {
 }
 
-void CEasyNetLinkManager::OnLinkEnd(CEasyNetLinkConnection * pConnection)
+void CEasyNetLinkManager::OnLinkEnd(CEasyNetLink * pLink)
 {
 }
 
@@ -529,8 +572,8 @@ void CEasyNetLinkManager::PrintLinkInfo(UINT LogChannel)
 		m_ServiceList[i]->PrintInfo(LogChannel);
 	}
 	CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,_T("Link List:"));
-	for(int i=(int)m_ConnectionList.GetCount()-1;i>=0;i--)
+	for(int i=(int)m_LinkList.GetCount()-1;i>=0;i--)
 	{
-		m_ConnectionList[i]->PrintInfo(LogChannel);
+		m_LinkList[i]->PrintInfo(LogChannel);
 	}
 }

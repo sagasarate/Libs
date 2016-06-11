@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    SmartStruct.h                                            */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    SmartStruct.h                                            */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -74,7 +74,7 @@ public:
 		Attach(Value.GetData(),Value.GetDataLen(),false);
 	}
 
-	bool Create(int BufferLen)
+	bool Create(LENGTH_TYPE BufferLen)
 	{
 		Destory();
 		m_DataLen=sizeof(BYTE)+sizeof(LENGTH_TYPE)+BufferLen;
@@ -381,7 +381,7 @@ public:
 			return false;
 		if(Value.GetDataLen()<=0)
 		{
-			//Èç¹ûÊÇ¿ÕÊı¾İ£¬²åÈëÒ»¸ö0×Ö½ÚÕ¼¸öÎ»×Ó
+			//å¦‚æœæ˜¯ç©ºæ•°æ®ï¼Œæ’å…¥ä¸€ä¸ª0å­—èŠ‚å ä¸ªä½å­
 			return AddMember(ID,(BYTE)0);
 		}
 		LENGTH_TYPE NeedSize=sizeof(ID_TYPE)+Value.GetDataLen();

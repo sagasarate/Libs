@@ -1,13 +1,12 @@
-// DlgServerStatus.cpp : ÊµÏÖÎÄ¼ş
+ï»¿// DlgServerStatus.cpp : å®ç°æ–‡ä»¶
 //
 
 #include "stdafx.h"
-#include "DlgServerStatus.h"
 
 
 
 
-// CDlgServerStatus ¶Ô»°¿ò
+// CDlgServerStatus å¯¹è¯æ¡†
 
 IMPLEMENT_DYNAMIC(CDlgServerStatus, CDialog)
 
@@ -33,18 +32,18 @@ BEGIN_MESSAGE_MAP(CDlgServerStatus, CDialog)
 END_MESSAGE_MAP()
 
 
-// CDlgServerStatus ÏûÏ¢´¦Àí³ÌĞò
+// CDlgServerStatus æ¶ˆæ¯å¤„ç†ç¨‹åº
 
 BOOL CDlgServerStatus::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	// TODO:  ÔÚ´ËÌí¼Ó¶îÍâµÄ³õÊ¼»¯
+	// TODO:  åœ¨æ­¤æ·»åŠ é¢å¤–çš„åˆå§‹åŒ–
 
 	m_lvServerStatus.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES);
 
-	m_lvServerStatus.InsertColumn(0,"Ïî",LVCFMT_LEFT,200);
-	m_lvServerStatus.InsertColumn(1,"Öµ",LVCFMT_LEFT,150);
+	m_lvServerStatus.InsertColumn(0,"é¡¹",LVCFMT_LEFT,200);
+	m_lvServerStatus.InsertColumn(1,"å€¼",LVCFMT_LEFT,150);
 
 	CRect ClientRect;
 	GetClientRect(&ClientRect);
@@ -52,10 +51,10 @@ BOOL CDlgServerStatus::OnInitDialog()
 	m_lvServerStatus.MoveWindow(&ClientRect);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
-	// Òì³£: OCX ÊôĞÔÒ³Ó¦·µ»Ø FALSE
+	// å¼‚å¸¸: OCX å±æ€§é¡µåº”è¿”å› FALSE
 }
 
-void CDlgServerStatus::FlushStatus(CSmartStruct& ServerStatus)
+void CDlgServerStatus::FlushStatus(CSmartStruct& ServerStatus, CEasyArray<SERVER_STATUS_FORMAT_INFO>& FormatInfoList)
 {
 	m_lvServerStatus.DeleteAllItems();
 	LPVOID Pos=ServerStatus.GetFirstMemberPosition();
@@ -63,14 +62,18 @@ void CDlgServerStatus::FlushStatus(CSmartStruct& ServerStatus)
 	{
 		WORD MemberID;
 		CSmartValue Value=ServerStatus.GetNextMember(Pos,MemberID);
-		CEasyString MemberIDStr("Î´ÖªÊôĞÔ");
-		int FormatType=SSFT_DEFAULT;
-		SERVER_STATUS_FORMAT_INFO * pFormatInfo=CControlPanel::GetInstance()->GetServerStatusFormat(MemberID);
-		if(pFormatInfo)
+		CEasyString MemberIDStr("æœªçŸ¥å±æ€§");
+		int FormatType = SSFT_DEFAULT;
+		for (UINT i = 0; i < FormatInfoList.GetCount(); i++)
 		{
-			MemberIDStr=pFormatInfo->szName;
-			FormatType=pFormatInfo->FormatType;
+			if (FormatInfoList[i].StatusID == MemberID)
+			{
+				FormatType = FormatInfoList[i].FormatType;
+				MemberIDStr = FormatInfoList[i].szName;
+				break;
+			}
 		}
+		
 		CEasyString ValueStr;
 		switch(Value.GetType())
 		{
@@ -153,7 +156,7 @@ void CDlgServerStatus::FlushStatus(CSmartStruct& ServerStatus)
 			ValueStr=(LPCWSTR)Value;
 			break;
 		default:
-			ValueStr="Î´Öª¸ñÊ½Êı¾İ";
+			ValueStr="æœªçŸ¥æ ¼å¼æ•°æ®";
 		}
 		int Item=m_lvServerStatus.InsertItem(m_lvServerStatus.GetItemCount(),MemberIDStr);
 		m_lvServerStatus.SetItemText(Item,1,ValueStr);
@@ -163,7 +166,7 @@ void CDlgServerStatus::OnSize(UINT nType, int cx, int cy)
 {
 	CDialog::OnSize(nType, cx, cy);
 
-	// TODO: ÔÚ´Ë´¦Ìí¼ÓÏûÏ¢´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤å¤„æ·»åŠ æ¶ˆæ¯å¤„ç†ç¨‹åºä»£ç 
 	if(::IsWindow(m_lvServerStatus.GetSafeHwnd()))
 	{
 		CRect ClientRect;

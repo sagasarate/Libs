@@ -1,15 +1,15 @@
+ï»¿/****************************************************************************/
+/*                                                                          */
+/*      æ–‡ä»¶å:    ServerConsoleDlg.h                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
+/*                                                                          */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
+/*                                                                          */
 /****************************************************************************/
-/*                                                                          */
-/*      ÎÄ¼şÃû:    ServerConsoleDlg.h                                       */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
-/*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
-/*                                                                          */
-/****************************************************************************/
-// SuperStarServerDlg.h : Í·ÎÄ¼ş
+// SuperStarServerDlg.h : å¤´æ–‡ä»¶
 //
 
 #pragma once
@@ -19,32 +19,32 @@
 
 
 #define WM_TRAY_ICON_NOTIFY	WM_USER+1122
-// CServerConsoleDlg ¶Ô»°¿ò
+// CServerConsoleDlg å¯¹è¯æ¡†
 class CServerConsoleDlg : public CDialog
 {
-// ¹¹Ôì
+// æ„é€ 
 public:
-	CServerConsoleDlg(CWnd* pParent = NULL);	// ±ê×¼¹¹Ôìº¯Êı
+	CServerConsoleDlg(CWnd* pParent = NULL);	// æ ‡å‡†æ„é€ å‡½æ•°
 	~CServerConsoleDlg();
 
 	void RegisterTrayIcon(LPCTSTR szTip);
 	void UnregisterTrayIcon();
-	void SetServer(IBaseServer * pServer);
+	void SetServer(CBaseServer * pServer);
 
-// ¶Ô»°¿òÊı¾İ
+// å¯¹è¯æ¡†æ•°æ®
 	enum { IDD = IDD_SERVER_CONSOLE };
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV Ö§³Ö
+	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV æ”¯æŒ
 	
 	
-// ÊµÏÖ
+// å®ç°
 protected:
 	HICON m_hIcon;
-	IBaseServer *		m_pServer;
+	CBaseServer *		m_pServer;
 
 	
-	// Éú³ÉµÄÏûÏ¢Ó³Éäº¯Êı
+	// ç”Ÿæˆçš„æ¶ˆæ¯æ˜ å°„å‡½æ•°
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
@@ -56,13 +56,12 @@ protected:
 protected:
 	void OnOK();
 	void OnCancel();
-	//È¡µÃ°æ±¾
+	//å–å¾—ç‰ˆæœ¬
 	void ShowVersion();
 	int FetchConsoleMsg(int ProcessLimit);
 
 protected:
 	virtual void OnCommand(LPCTSTR szCommand);
-	virtual void OnConsoleMsg(PANEL_MSG * pMsg);
 	virtual void OnLogMsg(LPCTSTR szLogMsg);
 	void OnTimer(UINT_PTR nIDEvent);
 	void OnBnClickedExecCommand();
@@ -83,7 +82,7 @@ public:
 	afx_msg void OnBnClickedShowServerStatus();
 };
 
-inline void CServerConsoleDlg::SetServer(IBaseServer * pServer)
+inline void CServerConsoleDlg::SetServer(CBaseServer * pServer)
 {
 	m_pServer=pServer;
 }

@@ -118,6 +118,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\Bin\Debug\</OutDir>
     <IntDir>Debug\</IntDir>
+    <TargetName>$(ProjectName)D</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>..\Bin\x64\Debug\</OutDir>
@@ -134,6 +135,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">
     <OutDir>$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)D</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">
     <OutDir>$(Platform)\$(Configuration)\</OutDir>
@@ -160,9 +162,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <EnablePREfast>true</EnablePREfast>
     </ClCompile>
-    <Lib>
-      <OutputFile>$(OutDir)NetLibD.lib</OutputFile>
-    </Lib>
+    <Lib />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
@@ -201,9 +201,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <EnablePREfast>true</EnablePREfast>
     </ClCompile>
-    <Lib>
-      <OutputFile>$(OutDir)NetLib.lib</OutputFile>
-    </Lib>
+    <Lib />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
@@ -242,9 +240,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <EnablePREfast>true</EnablePREfast>
     </ClCompile>
-    <Lib>
-      <OutputFile>$(OutDir)NetLibD.lib</OutputFile>
-    </Lib>
+    <Lib />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">
     <Midl>
@@ -283,9 +279,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <EnablePREfast>true</EnablePREfast>
     </ClCompile>
-    <Lib>
-      <OutputFile>$(OutDir)NetLib.lib</OutputFile>
-    </Lib>
+    <Lib />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|x64'">
     <Midl>
@@ -312,6 +306,12 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BencodingValue.h" />
+    <ClInclude Include="DHTDefines.h" />
+    <ClInclude Include="DHTService.h" />
+    <ClInclude Include="EasyNetLink.h" />
+    <ClInclude Include="EasyNetTempLink.h" />
+    <ClInclude Include="ENLConnection.h" />
     <ClInclude Include="NetLib.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="NetSocket.h" />
@@ -321,19 +321,18 @@
     <ClInclude Include="NetServiceIOCP.h" />
     <ClInclude Include="NetPUDPServiceIOCP.h" />
     <ClInclude Include="NetConnectionIOCP.h" />
-    <ClInclude Include="NetPTCPConnectionIOCP.h" />
     <ClInclude Include="IIOCPEventHandler.h" />
     <ClInclude Include="IOCPEventRouter.h" />
     <ClInclude Include="IOCPListenThread.h" />
     <ClInclude Include="IOCPFileAccessor.h" />
-    <ClInclude Include="EasyNetLinkConnection.h" />
     <ClInclude Include="EasyNetLinkManager.h" />
     <ClInclude Include="EasyNetLinkService.h" />
     <ClInclude Include="EasyFileServerConnection.h" />
     <ClInclude Include="EasyFileService.h" />
-    <ClInclude Include="BaseTCPConnection.h" />
-    <ClInclude Include="BaseService.h" />
-    <ClInclude Include="BaseServer.h" />
+    <ClInclude Include="BaseNetConnection.h" />
+    <ClInclude Include="BaseNetService.h" />
+    <ClInclude Include="BaseNetServer.h" />
+    <ClInclude Include="TRConnection.h" />
     <CustomBuild Include="EpollEventObject.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">true</ExcludedFromBuild>
@@ -376,11 +375,15 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </CustomBuild>
-    <ClInclude Include="NetPTCPConnectionEpoll.h" />
     <ClInclude Include="IPAddress.h" />
     <ClInclude Include="IPPattern.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BencodingValue.cpp" />
+    <ClCompile Include="DHTService.cpp" />
+    <ClCompile Include="EasyNetLink.cpp" />
+    <ClCompile Include="EasyNetTempLink.cpp" />
+    <ClCompile Include="ENLConnection.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">Create</PrecompiledHeader>
@@ -398,19 +401,17 @@
     <ClCompile Include="NetServiceIOCP.cpp" />
     <ClCompile Include="NetPUDPServiceIOCP.cpp" />
     <ClCompile Include="NetConnectionIOCP.cpp" />
-    <ClCompile Include="NetPTCPConnectionIOCP.cpp" />
     <ClCompile Include="IIOCPEventHandler.cpp" />
     <ClCompile Include="IOCPEventRouter.cpp" />
     <ClCompile Include="IOCPListenThread.cpp" />
     <ClCompile Include="IOCPFileAccessor.cpp" />
-    <ClCompile Include="EasyNetLinkConnection.cpp" />
     <ClCompile Include="EasyNetLinkManager.cpp" />
     <ClCompile Include="EasyNetLinkService.cpp" />
     <ClCompile Include="EasyFileServerConnection.cpp" />
     <ClCompile Include="EasyFileService.cpp" />
-    <ClCompile Include="BaseTCPConnection.cpp" />
-    <ClCompile Include="BaseService.cpp" />
-    <ClCompile Include="BaseServer.cpp" />
+    <ClCompile Include="BaseNetConnection.cpp" />
+    <ClCompile Include="BaseNetService.cpp" />
+    <ClCompile Include="BaseNetServer.cpp" />
     <ClCompile Include="EpollEventObject.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">true</ExcludedFromBuild>
@@ -481,16 +482,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="NetPTCPConnectionEpoll.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="TRConnection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NetLib.cbp" />

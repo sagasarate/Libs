@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    AsyncFileLogPrinter.cpp                                     */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    AsyncFileLogPrinter.cpp                                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -44,7 +44,7 @@ void CAsyncFileLogPrinter::CloseLog()
 	m_FileLogWorkThread.SafeTerminate();
 }
 
-void CAsyncFileLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
+void CAsyncFileLogPrinter::PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg)
 {
 	try
 	{
@@ -70,6 +70,12 @@ void CAsyncFileLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
 				CurTime.Month(), CurTime.Day(),
 				CurTime.Hour(), CurTime.Minute(), CurTime.Second());
 		}
+		if (Tag)
+		{
+			_tcsncat_s(MsgBuff, 5000, _T("["), _TRUNCATE);
+			_tcsncat_s(MsgBuff, 5000, Tag, _TRUNCATE);
+			_tcsncat_s(MsgBuff, 5000, _T("]"), _TRUNCATE);
+		}
 		_tcsncat_s(MsgBuff, 5000, Msg, _TRUNCATE);
 		_tcsncat_s(MsgBuff, 5000, _T("\r\n"), _TRUNCATE);
 
@@ -77,11 +83,11 @@ void CAsyncFileLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
 	}
 	catch (...)
 	{
-		PrintImportantLog(0, _T("Log[%s]Êä³ö·¢ÉúÒì³£"), (LPCTSTR)m_LogFileName, Msg);
+		PrintImportantLog(0, _T("Log[%s]è¾“å‡ºå‘ç”Ÿå¼‚å¸¸"), (LPCTSTR)m_LogFileName, Msg);
 	}
 }
 
-void CAsyncFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl)
+void CAsyncFileLogPrinter::PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl)
 {
 	try
 	{
@@ -106,9 +112,14 @@ void CAsyncFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_li
 				CurTime.Month(),CurTime.Day(),
 				CurTime.Hour(),CurTime.Minute(),CurTime.Second());
 		}
-
-
-		_vstprintf_s(MsgBuff+20,4096-20,Format, vl );
+		if (Tag)
+		{
+			_tcsncat_s(MsgBuff, 5000, _T("["), _TRUNCATE);
+			_tcsncat_s(MsgBuff, 5000, Tag, _TRUNCATE);
+			_tcsncat_s(MsgBuff, 5000, _T("]"), _TRUNCATE);
+		}
+		size_t PrefixLen = _tcslen(MsgBuff);
+		_vstprintf_s(MsgBuff + PrefixLen, 4096 - PrefixLen, Format, vl);
 		MsgBuff[4095]=0;
 		_tcsncat_s(MsgBuff, 5000, _T("\r\n"), _TRUNCATE);
 
@@ -118,7 +129,7 @@ void CAsyncFileLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_li
 	}
 	catch(...)
 	{
-		PrintImportantLog(0,_T("Log[%s]Êä³ö·¢ÉúÒì³£[%s]"),(LPCTSTR)m_LogFileName,Format);
+		PrintImportantLog(0,_T("Log[%s]è¾“å‡ºå‘ç”Ÿå¼‚å¸¸[%s]"),(LPCTSTR)m_LogFileName,Format);
 	}
 }
 

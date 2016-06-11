@@ -11,6 +11,7 @@ IMPLEMENT_CLASS_INFO_STATIC(CDOSMainThread,CDOSServerThread);
 CDOSMainThread::CDOSMainThread(void)
 {
 	FUNCTION_BEGIN;
+	m_Status = STATUS_NONE;
 	m_hMCSOutRead = NULL;
 	m_hMCSOutWrite = NULL;
 	m_hMCSInRead = NULL;
@@ -40,14 +41,15 @@ BOOL CDOSMainThread::OnStart()
 
 
 
-	if(!m_PluginObjectManager.Init(GetObjectManager(),CDOSConfig::GetInstance()->GetMaxPluginObject()))
+	if(!m_PluginObjectManager.Init(GetObjectManager(),CDOSConfig::GetInstance()->GetPluginObjectPoolConfig()))
 	{
 		Log("初始化插件对象管理器失败");
 		return FALSE;
 	}
 
-	if(!LoadPlugins())
-		return FALSE;
+	CompileLibs();
+
+
 
 
 	m_ESFactionList.AddCFunction("ShowObjectCount",0,this,&CDOSMainThread::ShowObjectCount);
@@ -69,85 +71,175 @@ int CDOSMainThread::Update(int ProcessPacketLimit)
 
 	Process+=CDOSServerThread::Update(SERVER_UPDATE_LIMIT);
 
-	UINT PluginID;
-	while(m_PluginUnloadQueue.PopFront(PluginID))
-	{
-		FreePlugin(PluginID);
-	}
-
-
 	bool IsCompiling = false;
-	UINT RunningPluginCount = 0;
-	for (UINT i = 0; i < m_PluginList.GetCount(); i++)
+
+	switch (m_Status)
 	{
-		PLUGIN_INFO& PluginInfo = m_PluginList[i];
-		if (PluginInfo.PluginStatus == PLUGIN_STATUS_COMPILEING)
+	case STATUS_COMPILE_LIBS:
 		{
-			IsCompiling = true;
-			if (PluginInfo.hMCSProcess != NULL)
+			for (UINT i = 0; i < m_LibList.GetCount(); i++)
 			{
-#ifdef WIN32
-				DWORD ExitCode = 0;
-				if (GetExitCodeProcess(PluginInfo.hMCSProcess, &ExitCode))
+				LIB_INFO& LibInfo = m_LibList[i];
+				if (LibInfo.Status == LIB_COMPILE_STATE_COMPILING)
 				{
-					if (ExitCode != STILL_ACTIVE)
+					IsCompiling = true;
+					if (LibInfo.hMCSProcess != NULL)
 					{
-						LogMono("MCS已退出%d", ExitCode);
-						if (ExitCode == 0)
+#ifdef WIN32
+						DWORD ExitCode = 0;
+						if (GetExitCodeProcess(LibInfo.hMCSProcess, &ExitCode))
 						{
-							PluginInfo.PluginStatus = PLUGIN_STATUS_COMPILED;
-							LoadCSharpPlugin(PluginInfo);
+							if (ExitCode == STILL_ACTIVE)
+							{
+								break;
+							}
+							else
+							{
+								LogMono("MCS已退出%d", ExitCode);
+								LibInfo.Status = LIB_COMPILE_STATE_COMPILED;
+								CloseHandle(LibInfo.hMCSProcess);
+								LibInfo.hMCSProcess = NULL;
+							}
 						}
 						else
 						{
-							PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
+							LogMono("获取MCS进程退出码失败%d", GetLastError());
+							LibInfo.Status = LIB_COMPILE_STATE_ERROR;
+							CloseHandle(LibInfo.hMCSProcess);
+							LibInfo.hMCSProcess = NULL;
 						}
-						CloseHandle(PluginInfo.hMCSProcess);
-						PluginInfo.hMCSProcess = NULL;
-					}
-				}
-				else
-				{
-					LogMono("获取MCS进程退出码失败%d", GetLastError());
-					CloseHandle(PluginInfo.hMCSProcess);
-					PluginInfo.hMCSProcess = NULL;
-				}
 #else
-				int ExitCode = 0;
-				int Err = waitpid((pid_t)(ptrdiff_t)PluginInfo.hMCSProcess, &ExitCode, WNOHANG);
-				if (Err == -1)
-				{
-					LogMono("等待MCS出错%d", errno);
-				}
-				else if (Err != 0)
-				{
-					ExitCode = WEXITSTATUS(ExitCode);
-					LogMono("MCS已退出%d", ExitCode);
-					if (ExitCode == 0)
-					{
-						PluginInfo.PluginStatus = PLUGIN_STATUS_COMPILED;
-						LoadCSharpPlugin(PluginInfo);
+						int ExitCode = 0;
+						int Err = waitpid((pid_t)(ptrdiff_t)LibInfo.hMCSProcess, &ExitCode, WNOHANG);
+						if (Err == -1)
+						{
+							LogMono("等待MCS出错%d", errno);
+							LibInfo.Status = LIB_COMPILE_STATE_ERROR;
+							LibInfo.hMCSProcess = NULL;
+						}
+						else if (Err != 0)
+						{
+							ExitCode = WEXITSTATUS(ExitCode);
+							LogMono("MCS已退出%d", ExitCode);
+							LibInfo.Status = LIB_COMPILE_STATE_COMPILED;
+							LibInfo.hMCSProcess = NULL;
+						}
+#endif
 					}
 					else
 					{
+						LogMono("库[%s]编译状态异常", (LPCTSTR)LibInfo.LibName);
+						LibInfo.Status = LIB_COMPILE_STATE_ERROR;
+					}
+				}
+				else if (LibInfo.Status == LIB_COMPILE_STATE_NEED_COMPILE)
+				{
+					CompileCSharpLib(LibInfo);
+					IsCompiling = true;
+					break;
+				}
+			}
+			if (!IsCompiling)
+				m_Status = STATUS_PLUGIN_LOAD;
+		}
+		break;
+	case STATUS_PLUGIN_LOAD:
+		{
+			LoadProxyPlugins();
+			LoadPlugins();
+			m_Status = STATUS_WORKING;
+		}
+		break;
+	case STATUS_WORKING:
+		{
+			UINT PluginID;
+			while (m_PluginUnloadQueue.PopFront(PluginID))
+			{
+				FreePlugin(PluginID);
+			}
+
+
+			UINT RunningPluginCount = 0;
+
+			for (UINT i = 0; i < m_PluginList.GetCount(); i++)
+			{
+				PLUGIN_INFO& PluginInfo = m_PluginList[i];
+				if (PluginInfo.PluginStatus == PLUGIN_STATUS_COMPILEING)
+				{
+					IsCompiling = true;
+					if (PluginInfo.hMCSProcess != NULL)
+					{
+#ifdef WIN32
+						DWORD ExitCode = 0;
+						if (GetExitCodeProcess(PluginInfo.hMCSProcess, &ExitCode))
+						{
+							if (ExitCode != STILL_ACTIVE)
+							{
+								LogMono("MCS已退出%d", ExitCode);
+								if (ExitCode == 0)
+								{
+									PluginInfo.PluginStatus = PLUGIN_STATUS_COMPILED;
+									LoadCSharpPlugin(PluginInfo);
+								}
+								else
+								{
+									PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
+								}
+								CloseHandle(PluginInfo.hMCSProcess);
+								PluginInfo.hMCSProcess = NULL;
+							}
+						}
+						else
+						{
+							LogMono("获取MCS进程退出码失败%d", GetLastError());
+							PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
+							CloseHandle(PluginInfo.hMCSProcess);
+							PluginInfo.hMCSProcess = NULL;
+						}
+#else
+						int ExitCode = 0;
+						int Err = waitpid((pid_t)(ptrdiff_t)PluginInfo.hMCSProcess, &ExitCode, WNOHANG);
+						if (Err == -1)
+						{
+							LogMono("等待MCS出错%d", errno);
+						}
+						else if (Err != 0)
+						{
+							ExitCode = WEXITSTATUS(ExitCode);
+							LogMono("MCS已退出%d", ExitCode);
+							if (ExitCode == 0)
+							{
+								PluginInfo.PluginStatus = PLUGIN_STATUS_COMPILED;
+								LoadCSharpPlugin(PluginInfo);
+							}
+							else
+							{
+								PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
+							}
+							PluginInfo.hMCSProcess = NULL;
+						}
+#endif
+					}
+					else
+					{
+						LogMono("插件[%s]编译状态异常", (LPCTSTR)PluginInfo.PluginName);
 						PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
 					}
-					PluginInfo.hMCSProcess = NULL;
 				}
-#endif
+				if (PluginInfo.PluginStatus != PLUGIN_STATUS_NONE && PluginInfo.PluginStatus != PLUGIN_STATUS_ERROR)
+				{
+					RunningPluginCount++;
+				}
 			}
-			else
-			{
-				LogMono("插件[%s]编译状态异常", (LPCTSTR)PluginInfo.PluginName);
-				PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
-			}
-		}
-		if (PluginInfo.PluginStatus != PLUGIN_STATUS_NONE && PluginInfo.PluginStatus != PLUGIN_STATUS_ERROR)
-		{
-			RunningPluginCount++;
-		}
-	}
 
+			if (RunningPluginCount == 0)
+			{
+				Log("CMainThread::Update:已无活动插件存在，服务器关闭");
+				QueryShowDown();
+			}
+		}
+		break;
+	}
 
 	if (m_hMCSOutRead&&IsCompiling)
 	{
@@ -164,17 +256,18 @@ int CDOSMainThread::Update(int ProcessPacketLimit)
 					if (ReadSize)
 					{
 						Buff[ReadSize] = 0;
-						LogMono("MCS:%s", Buff);
+						PrintMCSMsg(Buff);
 					}
 				}
 			}
 		}
 #else
+		Buff[0] = 0;
 		size_t ReadSize = read((int)(ptrdiff_t)m_hMCSOutRead, Buff, 2048);
-		if (ReadSize)
+		if (ReadSize>0&&ReadSize<2048)
 		{
 			Buff[ReadSize] = 0;
-			LogMono("MCS:%s", Buff);
+			PrintMCSMsg(Buff);
 		}
 #endif
 	}
@@ -196,16 +289,8 @@ int CDOSMainThread::Update(int ProcessPacketLimit)
 		{
 			m_MonoBaseGCTimer.SetTimeOut(CDOSConfig::GetInstance()->GetMonoConfig().BaseGCInterval);
 			mono_gc_collect(0);
-		}		
+		}
 	}
-
-	if (RunningPluginCount == 0)
-	{
-		Log("CMainThread::Update:已无活动插件存在，服务器关闭");
-		QueryShowDown();
-	}
-
-
 
 	return Process;
 	FUNCTION_END;
@@ -229,12 +314,16 @@ void CDOSMainThread::OnTerminate()
 {
 	FUNCTION_BEGIN;
 
-	
+	//GetObjectManager()->SuspendAllGroup();
+	//GetObjectManager()->WaitForSuspend(60000);
+
+	CDOSServerThread::OnTerminate();
+
+	FreePlugins();
 
 	m_PluginUnloadQueue.Destory();
 	m_PluginObjectManager.Destory();
 
-	FreePlugins();
 
 	if (m_pMonoMainDomain)
 	{
@@ -282,7 +371,6 @@ void CDOSMainThread::OnTerminate()
 	}
 
 
-	CDOSServerThread::OnTerminate();
 
 	FUNCTION_END;
 }
@@ -310,20 +398,40 @@ bool CDOSMainThread::QueryFreePlugin(UINT PluginID)
 	return m_PluginUnloadQueue.PushBack(PluginID) != NULL;
 }
 
-//bool CDOSMainThread::DosGroupInitFn(UINT GroupIndex)
-//{
-//	MonoDomain * pMonoDomain = mono_domain_get();
-//	if (pMonoDomain)
-//	{
-//		mono_thread_attach(pMonoDomain);
-//	}
-//	else
-//	{
-//		LogMono("无法将对象组[%u]线程关联到mono", GroupIndex);
-//	}
-//	return true;
-//}
+bool CDOSMainThread::DosGroupInitFn(UINT GroupIndex)
+{
+	//if (CDOSMainThread::GetInstance()->m_pMonoMainDomain)
+	//{
+	//	MonoThread * pMonoThread = mono_thread_attach(CDOSMainThread::GetInstance()->m_pMonoMainDomain);
+	//	if (pMonoThread)
+	//		LogMono("已将对象组%u的线程关联到mono", GroupIndex);
+	//	else
+	//		LogMono("将对象组%u的线程关联到mono失败", GroupIndex);
+	//}
+	//else
+	//{
+	//	LogMono("mono还未初始化");
+	//}
+	return true;
+}
 
+bool CDOSMainThread::DosGroupDestoryFn(UINT GroupIndex)
+{
+
+	//MonoThread * pMonoThread = mono_thread_current();
+	//if (pMonoThread)
+	//{
+	//	mono_thread_detach(pMonoThread);
+	//	mono_thread_info_detach();
+	//	//mono_thread_cleanup();
+	//	LogMono("对象组线程%u执行mono_thread_detach", GroupIndex);
+	//}
+	//else
+	//{
+	//	LogMono("对象组线程%u没有关联到mono", GroupIndex);
+	//}
+	return true;
+}
 
 
 MONO_DOMAIN_INFO * CDOSMainThread::GetMonoDomainInfo(UINT PluginID)
@@ -361,23 +469,19 @@ MonoArray * CDOSMainThread::MonoCreateByteArray(MONO_DOMAIN_INFO& DomainInfo, co
 		MonoArray * pArray = mono_array_new(DomainInfo.pMonoDomain, mono_get_byte_class(), DataSize);
 		if (pArray)
 		{
-			if (pData)
+			if (pData && DataSize)
 			{
 				char * pBuff = mono_array_addr_with_size(pArray, sizeof(BYTE), 0);
 				if (pBuff)
 				{
 					memcpy(pBuff, pData, DataSize);
-					return pArray;
 				}
 				else
 				{
 					Log("CDOSMainThread::MonoCreateByteArray:获得字节数组内存地址失败");
 				}
 			}
-			else
-			{
-				return pArray;
-			}
+			return pArray;
 		}
 		else
 		{
@@ -475,7 +579,7 @@ MonoString * CDOSMainThread::MonoCreateString(MONO_DOMAIN_INFO& DomainInfo, LPCT
 	{
 		if (StrLen <= 0)
 			StrLen = _tcslen(szStr);
-		return mono_string_new_len(DomainInfo.pMonoDomain, szStr, StrLen);
+		return mono_string_new_len(DomainInfo.pMonoDomain, szStr, (UINT)StrLen);
 	}
 	return NULL;
 }
@@ -586,7 +690,7 @@ bool CDOSMainThread::LoadPlugins()
 		LoadPlugin(PluginInfo);
 	}
 
-	m_PluginUnloadQueue.Create(m_PluginList.GetCount());
+	m_PluginUnloadQueue.Create((UINT)m_PluginList.GetCount());
 
 	Log("插件装载完毕");
 
@@ -609,6 +713,56 @@ void CDOSMainThread::FreePlugins()
 	}
 
 	FUNCTION_END;
+}
+
+void CDOSMainThread::CompileLibs()
+{
+	FUNCTION_BEGIN;
+
+	m_Status = STATUS_COMPILE_LIBS;
+	m_LibList = CDOSConfig::GetInstance()->GetLibList();
+	for (UINT i = 0; i < m_LibList.GetCount(); i++)
+	{
+		CompileCSharpLib(m_LibList[i]);
+		break;
+	}
+
+	FUNCTION_END;
+}
+
+bool CDOSMainThread::LoadProxyPlugins()
+{
+	const CEasyArray<CLIENT_PROXY_PLUGIN_INFO>& PluginList = CDOSConfig::GetInstance()->GetProxyPluginList();
+
+	Log("一共有%u个代理", PluginList.GetCount());
+
+	for (UINT i = 0; i < PluginList.GetCount(); i++)
+	{
+		CLIENT_PROXY_PLUGIN_INFO PluginInfo = PluginList[i];
+
+		if (PluginInfo.ProxyMode == CLIENT_PROXY_MODE_CUSTOM)
+		{
+			PluginInfo.ID = i + 1;
+			PluginInfo.LogChannel = PROXY_PLUGIN_LOG_CHANNEL_START + i + 1;
+			PluginInfo.PluginStatus = PLUGIN_STATUS_NONE;
+			CDOSObjectProxyServiceCustom * pProxy = new CDOSObjectProxyServiceCustom();
+			if (GetProxyManager()->RegisterProxyService(pProxy))
+			{
+				if (!pProxy->Init(this, PluginInfo))
+				{
+					GetProxyManager()->UnregisterProxyService(pProxy->GetID());
+				}
+				SAFE_RELEASE(pProxy);
+			}
+			else
+			{
+				SAFE_RELEASE(pProxy);
+			}
+		}
+	}
+
+	Log("代理插件装载完毕");
+	return true;
 }
 
 bool CDOSMainThread::LoadPlugin(PLUGIN_INFO& PluginInfo)
@@ -681,7 +835,11 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 	FUNCTION_BEGIN;
 
 	if (PluginInfo.ModuleFileName.IsEmpty())
-		PluginInfo.ModuleFileName=PluginInfo.PluginName;
+#ifdef _DEBUG
+		PluginInfo.ModuleFileName = PluginInfo.PluginName + "D";
+#else
+		PluginInfo.ModuleFileName = PluginInfo.PluginName;
+#endif
 
 #ifndef WIN32
 	PluginInfo.ModuleFileName.Replace('\\', '/');
@@ -716,7 +874,7 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 		PluginInfo.pReleaseFN = (PLUGIN_RELEASE_FN)GetProcAddress(PluginInfo.hModule, PLUGIN_RELEASE_FN_NAME);
 		if (PluginInfo.pInitFN&&PluginInfo.pReleaseFN)
 #else
-		dlerror();
+		//dlerror();
 		PluginInfo.pInitFN = (PLUGIN_INIT_FN)dlsym(PluginInfo.hModule, PLUGIN_INIT_FN_NAME);
 		LPCTSTR InitFNError = dlerror();
 		PluginInfo.pQueryReleaseFN = (PLUGIN_QUERY_RELEASE_FN)dlsym(PluginInfo.hModule, PLUGIN_QUERY_RELEASE_FN_NAME);
@@ -772,23 +930,27 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 bool CDOSMainThread::FreeNativePlugin(PLUGIN_INFO& PluginInfo)
 {
 	FUNCTION_BEGIN;
+	if (PluginInfo.pReleaseFN)
+		(*(PluginInfo.pReleaseFN))();
 
-	(*(PluginInfo.pReleaseFN))();
+	if (PluginInfo.hModule)
+	{
 #ifdef WIN32
-	if (FreeLibrary(PluginInfo.hModule))
+		if (FreeLibrary(PluginInfo.hModule))
 #else
-	if (dlclose(PluginInfo.hModule) == 0)
+		if (dlclose(PluginInfo.hModule) == 0)
 #endif
-	{
-		Log("插件释放成功%s", (LPCTSTR)PluginInfo.ModuleFileName);
-	}
-	else
-	{
-		Log("插件释放失败%s", (LPCTSTR)PluginInfo.ModuleFileName);
+		{
+			Log("插件释放成功%s", (LPCTSTR)PluginInfo.ModuleFileName);
+		}
+		else
+		{
+			Log("插件释放失败%s", (LPCTSTR)PluginInfo.ModuleFileName);
 #ifndef WIN32
-		Log("错误信息:%s", dlerror());
+			Log("错误信息:%s", dlerror());
 #endif
-		return false;
+			return false;
+		}
 	}
 
 	PluginInfo.hModule = NULL;
@@ -801,6 +963,9 @@ bool CDOSMainThread::FreeNativePlugin(PLUGIN_INFO& PluginInfo)
 bool CDOSMainThread::LoadCSharpPlugin(PLUGIN_INFO& PluginInfo)
 {
 	FUNCTION_BEGIN;
+
+
+
 	if (m_pMonoMainDomain == NULL)
 	{
 		LogMono("MonoDomain未初始化");
@@ -808,7 +973,12 @@ bool CDOSMainThread::LoadCSharpPlugin(PLUGIN_INFO& PluginInfo)
 	}
 
 	if (PluginInfo.ModuleFileName.IsEmpty())
-		PluginInfo.ModuleFileName=PluginInfo.PluginName;
+#ifdef _DEBUG
+		PluginInfo.ModuleFileName = PluginInfo.PluginName + "D";
+#else
+		PluginInfo.ModuleFileName = PluginInfo.PluginName;
+#endif
+
 #ifndef WIN32
 	PluginInfo.ModuleFileName.Replace('\\', '/');
 #endif
@@ -830,6 +1000,7 @@ bool CDOSMainThread::LoadCSharpPlugin(PLUGIN_INFO& PluginInfo)
 	}
 	else
 	{
+		PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
 		if (InitPluginDomain(PluginInfo.MonoDomainInfo, PluginInfo.PluginName))
 		{
 			mono_domain_set(PluginInfo.MonoDomainInfo.pMonoDomain, FALSE);
@@ -902,6 +1073,7 @@ bool CDOSMainThread::LoadCSharpPlugin(PLUGIN_INFO& PluginInfo)
 												PluginInfo.hCSMainObj = mono_gchandle_new(pMainObj, false);
 												PluginInfo.PluginStatus = PLUGIN_STATUS_RUNNING;
 												Log("插件装载成功%s", (LPCTSTR)PluginInfo.ModuleFileName);
+												return true;
 											}
 										}
 										else
@@ -934,20 +1106,20 @@ bool CDOSMainThread::LoadCSharpPlugin(PLUGIN_INFO& PluginInfo)
 				{
 					LogMono("无法找到插件类[%s.%s]", (LPCTSTR)PluginInfo.MainClassNameSpace, (LPCTSTR)PluginInfo.MainClass);
 				}
-				return Ret;
 			}
 			else
 			{
-				LogMono("无法加载模块%s", PluginInfo.ModuleFileName);
+				LogMono("无法加载模块%s", (LPCTSTR)PluginInfo.ModuleFileName);
 			}
+			ReleasePluginDomain(PluginInfo.MonoDomainInfo);
 		}
 		else
 		{
-			LogMono("无法初始化模块domain%s", PluginInfo.ModuleFileName);
+			LogMono("无法初始化模块domain%s",  (LPCTSTR)PluginInfo.ModuleFileName);
 		}
 	}
 
-	PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
+
 
 	FUNCTION_END;
 	return false;
@@ -956,137 +1128,38 @@ bool CDOSMainThread::CompileCSharpPlugin(PLUGIN_INFO& PluginInfo)
 {
 	FUNCTION_BEGIN;
 
-	if (CDOSConfig::GetInstance()->GetMonoConfig().CreateProj)
-		CreateCSProj(PluginInfo);
 
-	CEasyString WorkDir = GetModulePath(NULL);
 
-	CEasyString Sources;
-	CEasyString Libs;
 
+	CEasyArray<CEasyString> SourceList;
+
+
+	for (UINT i = 0; i < PluginInfo.SourceDirs.GetCount(); i++)
 	{
-		CEasyArray<CEasyString> FileList;
-
-
-		for (UINT i = 0; i < PluginInfo.SourceDirs.GetCount(); i++)
-		{
-			CEasyString RootDir = MakeModuleFullPath(NULL, PluginInfo.SourceDirs[i]);
-			FileList.Add(RootDir);
-			FetchDirs(RootDir, FileList);
-		}
-
-		for (UINT i = 0; i < FileList.GetCount(); i++)
-		{
-			//Sources += GetRelativePath(WorkDir, FileList[i]);
-			Sources += FileList[i] + DIR_SLASH + "*.cs";
-			Sources += " ";
-		}
+		CEasyString RootDir = MakeModuleFullPath(NULL, PluginInfo.SourceDirs[i]);
+		SourceList.Add(RootDir);
+		FetchDirs(RootDir, SourceList);
 	}
 
+	for (UINT i = 0; i < SourceList.GetCount(); i++)
 	{
-		CEasyArray<CEasyString> FileList;
-
-		FetchFiles(MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir), _T(".dll"), FileList);
-
-		int LibCount = 0;
-		for (UINT i = 0; i < FileList.GetCount(); i++)
-		{
-			//Libs += GetRelativePath(WorkDir, FileList[i]);
-			if (GetPathFileName(FileList[i]).CompareNoCase("mscorlib") != 0)
-			{
-				if (LibCount)
-					Libs += "," + FileList[i];
-				else
-					Libs += FileList[i];
-				LibCount++;
-			}
-		}
+		SourceList[i] = SourceList[i] + DIR_SLASH + "*.cs";
 	}
 
-	if (!Libs.IsEmpty())
-		Libs = "-r:" + Libs;
+	CEasyArray<CEasyString> LibList;
 
-	CEasyString DebugSwitch;
-
-	if (CDOSConfig::GetInstance()->GetMonoConfig().EnableDebug)
-		DebugSwitch = "-debug";
+	FetchFiles(MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir), _T(".dll"), LibList);
 
 	CEasyString OutFileName = PluginInfo.ModuleFileName;
 
-#ifdef WIN32
+	if (CDOSConfig::GetInstance()->GetMonoConfig().CreateProj)
+		CreateCSProj(PluginInfo.PluginName, ".", PluginInfo.SourceDirs, OutFileName);
 
-	CEasyString Cmd;
-
-	Cmd.Format("%s %s %s %s -target:library -out:%s",
-		(LPCTSTR)MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().CompilerPath),
-		(LPCTSTR)Sources, (LPCTSTR)DebugSwitch, (LPCTSTR)Libs, LPCTSTR(OutFileName));
-
-	LogMono("开始生成:%s", (LPCTSTR)Cmd);
-
-
-	STARTUPINFO StartInfo;
-	ZeroMemory(&StartInfo, sizeof(STARTUPINFO));
-	StartInfo.cb = sizeof(STARTUPINFO);
-	StartInfo.dwFlags |= STARTF_USESHOWWINDOW;
-	StartInfo.dwFlags |= STARTF_USESTDHANDLES;
-	StartInfo.hStdOutput = m_hMCSOutWrite;
-	StartInfo.hStdError = m_hMcsErrWrite;
-	StartInfo.hStdInput = m_hMCSInRead;
-	StartInfo.wShowWindow = SW_HIDE;
-	PROCESS_INFORMATION ProcessInfo;
-
-
-	if (!CreateProcess(NULL,
-		Cmd,    // 子进程的命令行
-		NULL,                   // process security attributes
-		NULL,                   // primary thread security attributes
-		TRUE,                   // handles are inherited
-		0,                          // creation flags
-		NULL,                  // use parent's environment
-		WorkDir,                  // use parent's current directory
-		&StartInfo,      // STARTUPINFO pointer
-		&ProcessInfo)     // receives PROCESS_INFORMATION
-		)
-	{
-		LogMono("运行MCS失败%d", GetLastError());
-	}
-	else
+	if (CallMCS(SourceList, LibList, PluginInfo.ModuleFileName, CDOSConfig::GetInstance()->GetMonoConfig().EnableDebug, PluginInfo.hMCSProcess))
 	{
 		PluginInfo.PluginStatus = PLUGIN_STATUS_COMPILEING;
-		PluginInfo.hMCSProcess = ProcessInfo.hProcess;
-		CloseHandle(ProcessInfo.hThread);
 		return true;
 	}
-#else
-	CEasyString CompilerPath = "mcs";
-	OutFileName = " -out:" + OutFileName;
-	LPCTSTR szOtherParam = "-target:library";
-
-	LogMono("开始生成:%s %s %s %s %s %s",
-		(LPCTSTR)CompilerPath, (LPCTSTR)Sources, (LPCTSTR)DebugSwitch, (LPCTSTR)Libs, szOtherParam, (LPCTSTR)OutFileName);
-
-	pid_t pid = fork();
-	if (pid > 0)
-	{
-		dup2((int)(ptrdiff_t)m_hMCSOutWrite, STDOUT_FILENO);
-		dup2((int)(ptrdiff_t)m_hMCSOutWrite, STDERR_FILENO);
-		printf("cwfewvwvwevwe");
-		execl((LPCTSTR)CompilerPath, (LPCTSTR)Sources, (LPCTSTR)DebugSwitch, (LPCTSTR)Libs, szOtherParam, (LPCTSTR)OutFileName, NULL);
-		LogMono("运行MCS失败%d", errno);
-		exit(-1);
-	}
-	else if (pid == 0)
-	{
-		PluginInfo.PluginStatus = PLUGIN_STATUS_COMPILEING;
-		PluginInfo.hMCSProcess = (HANDLE)pid;
-		return true;
-	}
-	else
-	{
-		LogMono("新建进程失败%d", errno);
-	}
-
-#endif
 
 	PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
 
@@ -1102,7 +1175,7 @@ bool CDOSMainThread::FreeCSharpPlugin(PLUGIN_INFO& PluginInfo)
 
 		MonoClass * pClass = mono_class_from_name(mono_assembly_get_image(PluginInfo.pCSPluginAssembly),
 			PluginInfo.MainClassNameSpace, PluginInfo.MainClass);
-		if (pClass)
+		if (pClass && PluginInfo.hCSMainObj)
 		{
 			MonoObject * pMainObj = mono_gchandle_get_target(PluginInfo.hCSMainObj);
 			if (pMainObj)
@@ -1136,10 +1209,15 @@ bool CDOSMainThread::FreeCSharpPlugin(PLUGIN_INFO& PluginInfo)
 			LogMono("CDOSMainThread::FreeCSharpPlugin:无法找到插件[%s]类[%s.%s]",
 				(LPCTSTR)PluginInfo.ModuleFileName, (LPCTSTR)PluginInfo.MainClassNameSpace, (LPCTSTR)PluginInfo.MainClass);
 		}
+		if (PluginInfo.hCSMainObj)
+		{
+			mono_gchandle_free(PluginInfo.hCSMainObj);
+			PluginInfo.hCSMainObj = 0;
+		}
 
-		mono_assembly_close(PluginInfo.pCSPluginAssembly);
-		PluginInfo.pCSPluginAssembly = NULL;
-		PluginInfo.hCSMainObj = 0;
+		//mono_assembly_close(PluginInfo.pCSPluginAssembly);
+		//PluginInfo.pCSPluginAssembly = NULL;
+
 		ReleasePluginDomain(PluginInfo.MonoDomainInfo);
 		LogMono("CDOSMainThread::FreeCSharpPlugin:插件[%s]已释放", (LPCTSTR)PluginInfo.ModuleFileName);
 		return true;
@@ -1152,6 +1230,61 @@ bool CDOSMainThread::FreeCSharpPlugin(PLUGIN_INFO& PluginInfo)
 	FUNCTION_END;
 	return false;
 }
+
+bool CDOSMainThread::CompileCSharpLib(LIB_INFO& LibInfo)
+{
+	FUNCTION_BEGIN;
+
+	if (!LibInfo.NeedCompile)
+	{
+		LibInfo.Status = LIB_COMPILE_STATE_COMPILED;
+		return true;
+	}
+
+	Log("开始编译库[%s]", (LPCTSTR)LibInfo.LibName);
+
+
+
+	CEasyString OutFileName;
+	OutFileName.Format("%s/%s.dll", (LPCTSTR)LibInfo.OutDir, (LPCTSTR)LibInfo.LibName);
+	OutFileName = MakeModuleFullPath(NULL, OutFileName);
+
+
+
+	CEasyArray<CEasyString> SourceList;
+
+
+	for (UINT i = 0; i < LibInfo.SourceDirs.GetCount(); i++)
+	{
+		CEasyString RootDir = MakeModuleFullPath(NULL, LibInfo.SourceDirs[i]);
+		SourceList.Add(RootDir);
+		FetchDirs(RootDir, SourceList);
+	}
+
+	for (UINT i = 0; i < SourceList.GetCount(); i++)
+	{
+		SourceList[i] = SourceList[i] + DIR_SLASH + "*.cs";
+	}
+
+
+	CEasyArray<CEasyString> LibList;
+
+	FetchFiles(MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir), _T(".dll"), LibList);
+
+	if (CDOSConfig::GetInstance()->GetMonoConfig().CreateProj)
+		CreateCSProj(LibInfo.LibName, LibInfo.PrjDir, LibInfo.SourceDirs, OutFileName);
+
+	if (CallMCS(SourceList, LibList, OutFileName, CDOSConfig::GetInstance()->GetMonoConfig().EnableDebug, LibInfo.hMCSProcess))
+	{
+		LibInfo.Status = LIB_COMPILE_STATE_COMPILING;
+		return true;
+	}
+
+	FUNCTION_END;
+	return false;
+}
+
+
 
 int CDOSMainThread::ShowObjectCount(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)
 {
@@ -1245,8 +1378,9 @@ bool CDOSMainThread::MonoInit()
 	{
 		m_hMCSOutRead = (HANDLE)fds[0];
 		m_hMCSOutWrite = (HANDLE)fds[1];
-
-		fcntl((int)(ptrdiff_t)m_hMCSOutRead, F_SETFL, O_NONBLOCK);
+		int Flag=fcntl((int)(ptrdiff_t)m_hMCSOutRead, F_GETFL, 0);
+		Flag=Flag|O_NONBLOCK;
+		fcntl((int)(ptrdiff_t)m_hMCSOutRead, F_SETFL, Flag);
 	}
 	else
 	{
@@ -1310,18 +1444,20 @@ void CDOSMainThread::RegisterMonoFunctions()
 		(void *)CDistributedObjectOperator::InternalCallGetObjectID);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallGetGroupIndex(intptr)",
 		(void *)CDistributedObjectOperator::InternalCallGetGroupIndex);
-	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSendMessage(intptr,DOSSystem.OBJECT_ID,uint,ushort,byte[],int,int)",
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSendMessage(intptr,DOSSystem.OBJECT_ID,uint,uint16,byte[],int,int)",
 		(void *)CDistributedObjectOperator::InternalCallSendMessage);
-	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSendMessageMulti(intptr,DOSSystem.OBJECT_ID[],bool,uint,ushort,byte[],int,int)",
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSendMessageMulti(intptr,DOSSystem.OBJECT_ID[],bool,uint,uint16,byte[],int,int)",
 		(void *)CDistributedObjectOperator::InternalCallSendMessageMulti);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallRegisterMsgMap(intptr,DOSSystem.OBJECT_ID,uint[])",
 		(void *)CDistributedObjectOperator::InternalCallRegisterMsgMap);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallUnregisterMsgMap(intptr,DOSSystem.OBJECT_ID,uint[])",
 		(void *)CDistributedObjectOperator::InternalCallUnregisterMsgMap);
-	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallRegisterGlobalMsgMap(intptr,DOSSystem.OBJECT_ID,byte,uint[])",
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallRegisterGlobalMsgMap(intptr,uint16,byte,uint[])",
 		(void *)CDistributedObjectOperator::InternalCallRegisterGlobalMsgMap);
-	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallUnregisterGlobalMsgMap(intptr,DOSSystem.OBJECT_ID,byte,uint[])",
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallUnregisterGlobalMsgMap(intptr,uint16,byte,uint[])",
 		(void *)CDistributedObjectOperator::InternalCallUnregisterGlobalMsgMap);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSetUnhanleMsgReceiver(intptr,uint16,byte)",
+		(void *)CDistributedObjectOperator::InternalCallSetUnhanleMsgReceiver);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallAddConcernedObject(intptr,DOSSystem.OBJECT_ID,bool)",
 		(void *)CDistributedObjectOperator::InternalCallAddConcernedObject);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallDeleteConcernedObject(intptr,DOSSystem.OBJECT_ID,bool)",
@@ -1474,7 +1610,7 @@ bool CDOSMainThread::InitPluginDomain(MONO_DOMAIN_INFO& MonoDomainInfo, LPCTSTR 
 	if (m_pMonoMainDomain)
 	{
 		MonoDomainInfo.pMonoDomain = mono_domain_create_appdomain((char *)szName,
-			(CDOSConfig::GetInstance()->GetMonoConfig().ConfigFilePath.IsEmpty() ? NULL : (char *)CDOSConfig::GetInstance()->GetMonoConfig().ConfigFilePath));
+			(CDOSConfig::GetInstance()->GetMonoConfig().ConfigFilePath.IsEmpty() ? NULL : (char *)((LPCTSTR)CDOSConfig::GetInstance()->GetMonoConfig().ConfigFilePath)));
 
 		if (MonoDomainInfo.pMonoDomain)
 		{
@@ -1528,18 +1664,21 @@ bool CDOSMainThread::InitPluginDomain(MONO_DOMAIN_INFO& MonoDomainInfo, LPCTSTR 
 
 	return false;
 }
+
+
 bool CDOSMainThread::ReleasePluginDomain(MONO_DOMAIN_INFO& MonoDomainInfo)
 {
-	if (MonoDomainInfo.pMonoAssembly_DOSSystem)
-	{
-		mono_assembly_close(MonoDomainInfo.pMonoAssembly_DOSSystem);
-		MonoDomainInfo.pMonoAssembly_DOSSystem = NULL;
-	}
+	//if (MonoDomainInfo.pMonoAssembly_DOSSystem)
+	//{
+	//	mono_assembly_close(MonoDomainInfo.pMonoAssembly_DOSSystem);
+	//	MonoDomainInfo.pMonoAssembly_DOSSystem = NULL;
+	//}
 
 	if (MonoDomainInfo.pMonoDomain)
 	{
 		mono_domain_finalize(MonoDomainInfo.pMonoDomain,MONO_DOMAIN_FINALIZE_TIMEOUT);
-		mono_domain_free(MonoDomainInfo.pMonoDomain, true);
+		mono_domain_unload(MonoDomainInfo.pMonoDomain);
+		//mono_domain_free(MonoDomainInfo.pMonoDomain, true);
 		MonoDomainInfo.pMonoDomain = NULL;
 	}
 	return true;
@@ -1569,13 +1708,14 @@ CEasyString CDOSMainThread::GetProjectGUID(LPCTSTR PrjName)
 	return _T("");
 }
 
-bool CDOSMainThread::CreateCSProj(PLUGIN_INFO& PluginInfo)
+bool CDOSMainThread::CreateCSProj(LPCTSTR szPrjName, LPCTSTR szPrjDir, const CEasyArray<CEasyString>& SourceDirs, LPCTSTR szOutFileName)
 {
-	CEasyString PrjDir = GetModulePath(NULL);
-	CEasyString PrjName;
-	PrjName.Format(_T("%s/%s.csproj"), (LPCTSTR)PrjDir, PluginInfo.PluginName);
+	CEasyString PrjDir = MakeModuleFullPath(NULL, szPrjDir);
+	CEasyString PrjFilePath;
+	PrjFilePath.Format(_T("%s/%s.csproj"), (LPCTSTR)PrjDir, szPrjName);
+	PrjFilePath = MakeFullPath(PrjFilePath);
 
-	CEasyString PrjGUIDStr = GetProjectGUID(PrjName);
+	CEasyString PrjGUIDStr = GetProjectGUID(PrjFilePath);
 
 	if (PrjGUIDStr.IsEmpty())
 	{
@@ -1729,11 +1869,14 @@ bool CDOSMainThread::CreateCSProj(PLUGIN_INFO& PluginInfo)
 
 		for (UINT i = 0; i < FileList.GetCount(); i++)
 		{
-			xml_node Reference = ItemGroup.append_child(node_element, _T("Reference"));
-			Reference.append_attribute(_T("Include"), (LPCTSTR)GetPathFileName(FileList[i]));
-			xml_node HintPath = Reference.append_child(node_element, _T("HintPath"));
-			CEasyString FilePath = GetRelativePath(PrjDir, FileList[i]);
-			HintPath.set_child_value(node_pcdata, FilePath);
+			if (FileList[i].CompareNoCase(szOutFileName) != 0)
+			{
+				xml_node Reference = ItemGroup.append_child(node_element, _T("Reference"));
+				Reference.append_attribute(_T("Include"), (LPCTSTR)GetPathFileName(FileList[i]));
+				xml_node HintPath = Reference.append_child(node_element, _T("HintPath"));
+				CEasyString FilePath = GetRelativePath(PrjDir, FileList[i]);
+				HintPath.set_child_value(node_pcdata, FilePath);
+			}
 
 		}
 	}
@@ -1741,9 +1884,9 @@ bool CDOSMainThread::CreateCSProj(PLUGIN_INFO& PluginInfo)
 	{
 		CEasyArray<CEasyString> FileList;
 
-		for (UINT i = 0; i < PluginInfo.SourceDirs.GetCount(); i++)
+		for (UINT i = 0; i < SourceDirs.GetCount(); i++)
 		{
-			FetchFiles(MakeModuleFullPath(NULL, PluginInfo.SourceDirs[i]), _T(".cs"), FileList);
+			FetchFiles(MakeModuleFullPath(NULL, SourceDirs[i]), _T(".cs"), FileList);
 		}
 
 		xml_node ItemGroup = Project.append_child(node_element, _T("ItemGroup"));
@@ -1753,7 +1896,6 @@ bool CDOSMainThread::CreateCSProj(PLUGIN_INFO& PluginInfo)
 			xml_node Reference = ItemGroup.append_child(node_element, _T("Compile"));
 			CEasyString FilePath = GetRelativePath(PrjDir, FileList[i]);
 			Reference.append_attribute(_T("Include"), (LPCTSTR)FilePath);
-
 		}
 	}
 
@@ -1761,5 +1903,148 @@ bool CDOSMainThread::CreateCSProj(PLUGIN_INFO& PluginInfo)
 		xml_node Import = Project.append_child(node_element, _T("Import"));
 		Import.append_attribute(_T("Project"), _T("$(MSBuildToolsPath)\\Microsoft.CSharp.targets"));
 	}
-	return Doc.SaveToFile(FILE_CHANNEL_NORMAL1, PrjName);
+	return Doc.SaveToFile(FILE_CHANNEL_NORMAL1, PrjFilePath);
+}
+
+
+void CDOSMainThread::PrintMCSMsg(LPTSTR szMsg)
+{
+	LPTSTR szMonoMsg = szMsg;
+	while (*szMsg)
+	{
+		if ((*szMsg) == '\r' || *szMsg == '\n')
+		{
+			if (szMsg - szMonoMsg > 1)
+			{
+				*szMsg = 0;
+				LogMono("MCS:%s", szMonoMsg);
+			}
+			szMonoMsg = szMsg + 1;
+		}
+		szMsg++;
+	}
+	if (szMsg - szMonoMsg > 1)
+	{
+		LogMono("MCS:%s", szMonoMsg);
+	}
+}
+
+bool CDOSMainThread::CallMCS(CEasyArray<CEasyString>& SourceList, CEasyArray<CEasyString>& LibList, LPCTSTR szOutFileName, bool IsDebug, HANDLE& hMCSProcess)
+{
+	FUNCTION_BEGIN;
+
+
+	CEasyString Sources;
+	CEasyString Libs;
+
+	for (UINT i = 0; i < SourceList.GetCount(); i++)
+	{
+		Sources += SourceList[i];
+		Sources += " ";
+	}
+	Sources.Trim();
+
+
+
+	int LibCount = 0;
+	for (UINT i = 0; i < LibList.GetCount(); i++)
+	{
+		if (LibList[i].CompareNoCase(szOutFileName) != 0)
+		{
+			if (LibCount)
+				Libs += "," + LibList[i];
+			else
+				Libs += LibList[i];
+			LibCount++;
+		}
+	}
+
+	if (!Libs.IsEmpty())
+		Libs = "-r:" + Libs;
+
+	LPCTSTR szDebugSwitch = "";
+
+	if (IsDebug)
+		szDebugSwitch = "-debug";
+
+	CEasyString OutFileName = "-out:";
+	OutFileName += szOutFileName;
+
+#ifdef WIN32
+
+	CEasyString WorkDir = GetModulePath(NULL);
+
+	CEasyString Cmd;
+
+	Cmd.Format("%s %s %s %s -nostdlib -target:library %s",
+		(LPCTSTR)MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().CompilerPath),
+		(LPCTSTR)Sources, (LPCTSTR)szDebugSwitch, (LPCTSTR)Libs, (LPCTSTR)OutFileName);
+
+	LogMono("开始生成:%s", (LPCTSTR)Cmd);
+
+
+	STARTUPINFO StartInfo;
+	ZeroMemory(&StartInfo, sizeof(STARTUPINFO));
+	StartInfo.cb = sizeof(STARTUPINFO);
+	StartInfo.dwFlags |= STARTF_USESHOWWINDOW;
+	StartInfo.dwFlags |= STARTF_USESTDHANDLES;
+	StartInfo.hStdOutput = m_hMCSOutWrite;
+	StartInfo.hStdError = m_hMcsErrWrite;
+	StartInfo.hStdInput = m_hMCSInRead;
+	StartInfo.wShowWindow = SW_HIDE;
+	PROCESS_INFORMATION ProcessInfo;
+
+
+	if (!CreateProcess(NULL,
+		Cmd,    // 子进程的命令行
+		NULL,                   // process security attributes
+		NULL,                   // primary thread security attributes
+		TRUE,                   // handles are inherited
+		0,                          // creation flags
+		NULL,                  // use parent's environment
+		WorkDir,                  // use parent's current directory
+		&StartInfo,      // STARTUPINFO pointer
+		&ProcessInfo)     // receives PROCESS_INFORMATION
+		)
+	{
+		LogMono("运行MCS失败%d", GetLastError());
+	}
+	else
+	{
+		hMCSProcess = ProcessInfo.hProcess;
+		CloseHandle(ProcessInfo.hThread);
+		return true;
+	}
+#else
+	CEasyString CompilerPath = "mcs";
+
+
+
+	LogMono("开始生成:%s %s %s %s -nostdlib -target:library %s",
+		(LPCTSTR)CompilerPath, (LPCTSTR)Sources, (LPCTSTR)Libs, (LPCTSTR)szDebugSwitch, (LPCTSTR)OutFileName);
+
+	pid_t pid = fork();
+	if (pid > 0)
+	{
+		LogMono("MCS进程pid=%d", pid);
+		hMCSProcess = (HANDLE)pid;
+		return true;
+	}
+	else if (pid == 0)
+	{
+		dup2((int)(ptrdiff_t)m_hMCSOutWrite, STDOUT_FILENO);
+		dup2((int)(ptrdiff_t)m_hMCSOutWrite, STDERR_FILENO);
+		execlp((LPCTSTR)CompilerPath, (LPCTSTR)CompilerPath, (LPCTSTR)Sources, (LPCTSTR)Libs, (LPCTSTR)szDebugSwitch, "-nostdlib", "-target:library", (LPCTSTR)OutFileName, NULL);
+		printf("运行MCS失败%d", errno);
+		exit(2);
+	}
+	else
+	{
+		LogMono("新建进程失败%d", errno);
+	}
+
+#endif
+
+	FUNCTION_END;
+	return false;
 }

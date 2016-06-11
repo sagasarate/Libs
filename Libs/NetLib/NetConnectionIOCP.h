@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    NetConnectionIOCP.h                                      */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    NetConnectionIOCP.h                                      */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -16,12 +16,12 @@
 class CNetService;
 
 class CNetConnection :	
-	public CBaseTCPConnection,public IIOCPEventHandler
+	public CBaseNetConnection,public IIOCPEventHandler
 {
 protected:	
 	CNetServer*									m_pServer;	
 	volatile BOOL								m_WantClose;
-	int											m_CurProtocol;		
+	int											m_CurAddressFamily;
 	
 	CThreadSafeIDStorage<COverLappedObject *>	m_DataQueue;
 	CIOCPEventRouter *							m_pIOCPEventRouter;
@@ -46,10 +46,12 @@ public:
 	virtual BOOL OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject);
 
 	virtual BOOL Create(UINT RecvQueueSize=DEFAULT_SERVER_RECV_DATA_QUEUE,
-		UINT SendQueueSize=0);
+		UINT SendQueueSize = DEFAULT_SERVER_SEND_DATA_QUEUE);
 	virtual BOOL Create(SOCKET Socket,
 		UINT RecvQueueSize,UINT SendQueueSize);
 	virtual void Destory();
+
+	void Close();
 
 	BOOL Connect(const CIPAddress& Address,DWORD TimeOut=NO_CONNECTION_TIME_OUT);
 	void Disconnect();
@@ -75,7 +77,7 @@ public:
 
 		
 
-	virtual bool StealFrom(CNameObject * pObject,UINT Param=0);
+	//virtual bool StealFrom(CNameObject * pObject,UINT Param=0);
 
 	void SetDataQueueSize(UINT Size);
 	UINT GetDataQueueSize();

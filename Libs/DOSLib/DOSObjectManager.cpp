@@ -1,12 +1,12 @@
-/****************************************************************************/
+Ôªø/****************************************************************************/
 /*                                                                          */
-/*      Œƒº˛√˚:    DOSObjectManager.cpp                                     */
-/*      ¥¥Ω®»’∆⁄:  2009ƒÍ10‘¬23»’                                           */
-/*      ◊˜’ﬂ:      Sagasarate                                               */
+/*      Êñá‰ª∂Âêç:    DOSObjectManager.cpp                                     */
+/*      ÂàõÂª∫Êó•Êúü:  2009Âπ¥10Êúà23Êó•                                           */
+/*      ‰ΩúËÄÖ:      Sagasarate                                               */
 /*                                                                          */
-/*      ±æ»Ìº˛∞Ê»®πÈSagasarate(sagasarate@sina.com)À˘”–                     */
-/*      ƒ„ø…“‘Ω´±æ»Ìº˛”√”⁄»Œ∫Œ…Ã“µ∫Õ∑«…Ã“µ»Ìº˛ø™∑¢£¨µ´                      */
-/*      ±ÿ–Î±£¡Ù¥À∞Ê»®…˘√˜                                                  */
+/*      Êú¨ËΩØ‰ª∂ÁâàÊùÉÂΩíSagasarate(sagasarate@sina.com)ÊâÄÊúâ                     */
+/*      ‰Ω†ÂèØ‰ª•Â∞ÜÊú¨ËΩØ‰ª∂Áî®‰∫é‰ªª‰ΩïÂïÜ‰∏öÂíåÈùûÂïÜ‰∏öËΩØ‰ª∂ÂºÄÂèëÔºå‰ΩÜ                      */
+/*      ÂøÖÈ°ª‰øùÁïôÊ≠§ÁâàÊùÉÂ£∞Êòé                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -32,12 +32,12 @@ bool CDOSObjectManager::Initialize()
 	FUNCTION_BEGIN;
 	if(m_pServer==NULL)
 	{
-		PrintDOSLog(0xff0000,_T("√ª”–≥ı ºªØ∑˛ŒÒ∆˜£¨∂‘œÛπ‹¿Ì∆˜Œﬁ∑®≥ı ºªØ£°"));
+		PrintDOSLog(_T("DOSLib"),_T("Ê≤°ÊúâÂàùÂßãÂåñÊúçÂä°Âô®ÔºåÂØπË±°ÁÆ°ÁêÜÂô®Êó†Ê≥ïÂàùÂßãÂåñÔºÅ"));
 		return false;
 	}
 	if(m_pServer->GetConfig().ObjectGroupCount<=0)
 	{
-		PrintDOSLog(0xff0000,_T("∑˛ŒÒ∆˜√ª”–’˝»∑≈‰÷√∂‘œÛ◊È ˝¡ø£¨∂‘œÛπ‹¿Ì∆˜Œﬁ∑®≥ı ºªØ£°"));
+		PrintDOSLog(_T("DOSLib"),_T("ÊúçÂä°Âô®Ê≤°ÊúâÊ≠£Á°ÆÈÖçÁΩÆÂØπË±°ÁªÑÊï∞ÈáèÔºåÂØπË±°ÁÆ°ÁêÜÂô®Êó†Ê≥ïÂàùÂßãÂåñÔºÅ"));
 		return false;
 	}
 	m_ObjectGroups.Resize(m_pServer->GetConfig().ObjectGroupCount);
@@ -52,7 +52,7 @@ bool CDOSObjectManager::Initialize()
 		}
 	}
 
-	PrintDOSLog(0xffff,_T("∂‘œÛπ‹¿Ì∆˜¥¥Ω®¡À%d∏ˆ∂‘œÛ◊È£°"),m_pServer->GetConfig().ObjectGroupCount);
+	PrintDOSLog(_T("DOSLib"),_T("ÂØπË±°ÁÆ°ÁêÜÂô®ÂàõÂª∫‰∫Ü%d‰∏™ÂØπË±°ÁªÑÔºÅ"),m_pServer->GetConfig().ObjectGroupCount);
 	return true;
 	FUNCTION_END;
 	return false;
@@ -73,6 +73,40 @@ void CDOSObjectManager::Destory()
 	FUNCTION_END;
 }
 
+void CDOSObjectManager::SuspendAllGroup()
+{
+	for (UINT i = 0; i < m_ObjectGroups.GetCount(); i++)
+	{
+		m_ObjectGroups[i]->Suspend();
+	}
+}
+
+bool CDOSObjectManager::WaitForSuspend(UINT TimeOut)
+{
+	CEasyTimer Timer;
+	Timer.SetTimeOut(TimeOut);
+	while (true)
+	{
+		if (Timer.IsTimeOut())
+			return false;
+
+		DoSleep(1);
+
+		bool IsAllSuspended = true;
+		for (UINT i = 0; i < m_ObjectGroups.GetCount(); i++)
+		{
+			if (m_ObjectGroups[i]->IsWorking())
+			{
+				IsAllSuspended = false;
+				break;
+			}
+		}
+		if (IsAllSuspended)
+			break;
+	}
+	return true;
+}
+
 BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterInfo)
 {
 	FUNCTION_BEGIN;
@@ -81,19 +115,19 @@ BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterI
 
 	if(ObjectRegisterInfo.pObject==NULL)
 	{
-		PrintDOSLog(0xff0000,_T("ø’∂‘œÛŒﬁ∑®◊¢≤·£°"));
+		PrintDOSLog(_T("DOSLib"),_T("Á©∫ÂØπË±°Êó†Ê≥ïÊ≥®ÂÜåÔºÅ"));
 		return FALSE;
 	}
 
 	if(ObjectRegisterInfo.Weight<=0)
 	{
-		PrintDOSLog(0xff0000,_T("∂‘œÛ»®÷ÿ±ÿ–Î¥Û”⁄¡„£°"));
+		PrintDOSLog(_T("DOSLib"),_T("ÂØπË±°ÊùÉÈáçÂøÖÈ°ªÂ§ß‰∫éÈõ∂ÔºÅ"));
 		return FALSE;
 	}
 
 	if (ObjectRegisterInfo.ObjectID.ObjectTypeID < DOT_NORMAL_OBJECT)
 	{
-		PrintDOSLog(0xff0000, _T("∂‘œÛ¿‡–Õ≤ªƒ‹ π”√œµÕ≥±£¡Ù¿‡–Õ£°"));
+		PrintDOSLog(_T("DOSLib"), _T("ÂØπË±°Á±ªÂûã‰∏çËÉΩ‰ΩøÁî®Á≥ªÁªü‰øùÁïôÁ±ªÂûãÔºÅ"));
 		return FALSE;
 	}
 
@@ -106,7 +140,7 @@ BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterI
 
 	if(pGroup==NULL)
 	{
-		PrintDOSLog(0xff0000,_T("Œﬁ∑®∑÷≈‰∫œ  µƒ∂‘œÛ◊È£°"));
+		PrintDOSLog(_T("DOSLib"),_T("Êó†Ê≥ïÂàÜÈÖçÂêàÈÄÇÁöÑÂØπË±°ÁªÑÔºÅ"));
 		return FALSE;
 	}
 
@@ -117,7 +151,7 @@ BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterI
 
 	if(!pGroup->RegisterObject(ObjectRegisterInfo))
 	{
-		PrintDOSLog(0xff0000,_T("Œﬁ∑®Ω´∂‘œÛÃÌº”µΩ∂‘œÛ◊È£°"));
+		PrintDOSLog(_T("DOSLib"),_T("Êó†Ê≥ïÂ∞ÜÂØπË±°Ê∑ªÂä†Âà∞ÂØπË±°ÁªÑÔºÅ"));
 		return FALSE;
 	}
 
@@ -135,7 +169,7 @@ BOOL CDOSObjectManager::UnregisterObject(OBJECT_ID ObjectID)
 	UINT GroupIndex=ObjectID.GroupIndex;
 	if(GroupIndex>=m_ObjectGroups.GetCount())
 	{
-		PrintDOSLog(0xff0000,_T("∂‘œÛÀ˘‘⁄◊È%uŒﬁ–ß"),GroupIndex);
+		PrintDOSLog(_T("DOSLib"),_T("ÂØπË±°ÊâÄÂú®ÁªÑ%uÊó†Êïà"),GroupIndex);
 		return FALSE;
 	}
 
@@ -145,13 +179,13 @@ BOOL CDOSObjectManager::UnregisterObject(OBJECT_ID ObjectID)
 	{
 		if(!pGroup->UnregisterObject(ObjectID))
 		{
-			PrintDOSLog(0xff0000,_T("œÚ∂‘œÛ◊È«Î«Û◊¢œ˙∂‘œÛ ß∞‹"));
+			PrintDOSLog(_T("DOSLib"),_T("ÂêëÂØπË±°ÁªÑËØ∑Ê±ÇÊ≥®ÈîÄÂØπË±°Â§±Ë¥•"));
 			return FALSE;
 		}
 	}
 	else
 	{
-		PrintDOSLog(0xff0000,_T("Œﬁ∑®’“µΩ∂‘œÛÀ˘‘⁄µƒ∂‘œÛ◊È"));
+		PrintDOSLog(_T("DOSLib"),_T("Êó†Ê≥ïÊâæÂà∞ÂØπË±°ÊâÄÂú®ÁöÑÂØπË±°ÁªÑ"));
 		return FALSE;
 	}
 
@@ -177,7 +211,7 @@ BOOL CDOSObjectManager::PushMessage(OBJECT_ID ObjectID,CDOSMessagePacket * pPack
 	{
 		if(GroupIndex>=m_ObjectGroups.GetCount())
 		{
-			PrintDOSLog(0xff0000,_T("CDOSObjectManager::PushMessage:∂‘œÛÀ˘‘⁄◊È%uŒﬁ–ß"),GroupIndex);
+			PrintDOSLog(_T("DOSLib"),_T("CDOSObjectManager::PushMessage:ÂØπË±°ÊâÄÂú®ÁªÑ%uÊó†Êïà"),GroupIndex);
 			return FALSE;
 		}
 		return m_ObjectGroups[GroupIndex]->PushMessage(ObjectID,pPacket);
@@ -221,7 +255,7 @@ void CDOSObjectManager::PrintGroupInfo(UINT LogChannel)
 	{
 
 		CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,
-			_T("∂‘œÛ◊È[%u]:∂‘œÛ ˝[%u],»®÷ÿ[%u],CPU’º”√¬ [%0.2f%%],—≠ª∑ ±º‰[%gMS]"),
+			_T("ÂØπË±°ÁªÑ[%u]:ÂØπË±°Êï∞[%u],ÊùÉÈáç[%u],CPUÂç†Áî®Áéá[%0.2f%%],Âæ™ÁéØÊó∂Èó¥[%gMS]"),
 			i,m_ObjectGroups[i]->GetObjectCount(),m_ObjectGroups[i]->GetWeight(),
 			m_ObjectGroups[i]->GetCPUUsedRate()*100,
 			m_ObjectGroups[i]->GetCycleTime());

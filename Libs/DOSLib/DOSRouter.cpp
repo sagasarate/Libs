@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DOSRouter.cpp                                            */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ23ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSRouter.cpp                                            */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ23æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -43,27 +43,13 @@ BOOL CDOSRouter::OnStart()
 
 	if(m_MsgProcessLimit==0)
 	{
-		PrintDOSLog(0xff0000,_T("Â·ÓÉÏûÏ¢´¦ÀíÏŞÖÆ²»ÄÜÎª0£¡"));
+		PrintDOSLog(_T("DOSLib"),_T("è·¯ç”±æ¶ˆæ¯å¤„ç†é™åˆ¶ä¸èƒ½ä¸º0ï¼"));
 		return FALSE;
 	}
 
 	if(!m_MsgQueue.Create(Config.MaxRouterSendMsgQueue))
 	{
-		PrintDOSLog(0xff0000,_T("´´½¨%d´óĞ¡µÄÂ·ÓÉÏûÏ¢¶ÓÁĞÊ§°Ü£¡"),Config.MaxRouterSendMsgQueue);
-		return FALSE;
-	}
-
-	xml_parser Parser;
-
-	if(!Parser.parse_file(Config.RouterLinkConfigFileName,pug::parse_trim_attribute))
-	{
-		PrintDOSLog(0xff0000,_T("´ò¿ªÂ·ÓÉÁ¬½ÓÅäÖÃÎÄ¼ş[%s]Ê§°Ü£¡"),(LPCTSTR)Config.RouterLinkConfigFileName);
-		return FALSE;
-	}
-	xml_node LinkConfig=Parser.document();
-	if(!LinkConfig.moveto_child(_T("RouterLink")))
-	{
-		PrintDOSLog(0xff0000,_T("Â·ÓÉÁ¬½ÓÅäÖÃÎÄ¼ş[%s]¸ñÊ½´íÎó£¡"),(LPCTSTR)Config.RouterLinkConfigFileName);
+		PrintDOSLog(_T("DOSLib"),_T("åˆ›å»º%då¤§å°çš„è·¯ç”±æ¶ˆæ¯é˜Ÿåˆ—å¤±è´¥ï¼"),Config.MaxRouterSendMsgQueue);
 		return FALSE;
 	}
 
@@ -71,13 +57,24 @@ BOOL CDOSRouter::OnStart()
 
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(),THREAD_CPU_COUNT_TIME);
 
-	if (!CEasyNetLinkManager::Init(m_pServer, LinkConfig, GetRouterID()))
+	//å°†è¿æ¥IDéƒ½è®¾ç½®ä¸ºRouterID
+	Config.RouterLinkConfig.ServerID = GetRouterID();
+	for (UINT i = 0; i < Config.RouterLinkConfig.ServiceConfig.ServiceList.GetCount(); i++)
 	{
-		PrintDOSLog(0xff0000,_T("Á¬½Ó¹ÜÀíÆ÷³õÊ¼»¯Ê§°Ü£¡"));
+		Config.RouterLinkConfig.ServiceConfig.ServiceList[i].ReportID = GetRouterID();
+	}
+	for (UINT i = 0; i < Config.RouterLinkConfig.ConnectionConfig.ConnectionList.GetCount(); i++)
+	{
+		Config.RouterLinkConfig.ConnectionConfig.ConnectionList[i].ReportID = GetRouterID();
+	}
+
+	if (!CEasyNetLinkManager::Init(m_pServer, Config.RouterLinkConfig))
+	{
+		PrintDOSLog(_T("DOSLib"),_T("è¿æ¥ç®¡ç†å™¨åˆå§‹åŒ–å¤±è´¥ï¼"));
 		return FALSE;
 	}
 
-	PrintDOSLog(0xff0000,_T("Â·ÓÉÏß³Ì[%u]ÒÑÆô¶¯"),GetThreadID());
+	PrintDOSLog(_T("DOSLib"),_T("è·¯ç”±çº¿ç¨‹[%u]å·²å¯åŠ¨"),GetThreadID());
 	return TRUE;
 	FUNCTION_END;
 	return FALSE;
@@ -97,7 +94,7 @@ BOOL CDOSRouter::OnRun()
 	EXCEPTION_CATCH_START
 
 	int ProcessCount=CEasyNetLinkManager::Update();
-	//´¦ÀíÏûÏ¢·¢ËÍ
+	//å¤„ç†æ¶ˆæ¯å‘é€
 	ProcessCount+=DoMessageRoute(m_MsgProcessLimit);
 	if(ProcessCount==0)
 	{
@@ -112,7 +109,7 @@ BOOL CDOSRouter::OnRun()
 	return FALSE;
 }
 
-CEasyNetLinkConnection * CDOSRouter::OnCreateConnection(UINT ID)
+CEasyNetLink * CDOSRouter::OnCreateLink(UINT ID)
 {
 	FUNCTION_BEGIN;
 	return new CDOSRouterLink();
@@ -120,12 +117,12 @@ CEasyNetLinkConnection * CDOSRouter::OnCreateConnection(UINT ID)
 	return NULL;
 }
 
-void CDOSRouter::OnLinkStart(CEasyNetLinkConnection * pConnection)
+void CDOSRouter::OnLinkStart(CEasyNetLink * pConnection)
 {
 
 }
 
-void CDOSRouter::OnLinkEnd(CEasyNetLinkConnection * pConnection)
+void CDOSRouter::OnLinkEnd(CEasyNetLink * pConnection)
 {
 
 }
@@ -159,13 +156,13 @@ BOOL CDOSRouter::RouterMessage(CDOSMessagePacket * pPacket)
 	FUNCTION_BEGIN;
 	if(pPacket->GetTargetIDCount()<=0)
 	{
-		PrintDOSLog(0xff0000,_T("ÏûÏ¢[0x%X]Ã»ÓĞ·¢ËÍÄ¿±ê£¬²»·¢ËÍ£¡"),pPacket->GetMessage().GetMsgID());
+		PrintDOSLog(_T("DOSLib"),_T("æ¶ˆæ¯[0x%X]æ²¡æœ‰å‘é€ç›®æ ‡ï¼Œä¸å‘é€ï¼"),pPacket->GetMessage().GetMsgID());
 		return FALSE;
 	}
 	pPacket->MakePacketLength();
 	if(!pPacket->CheckPacket())
 	{
-		PrintDOSLog(0xff0000,_T("ÏûÏ¢[0x%X]ÓĞĞ§ĞÔ¼ì²éÊ§°Ü£¡"),pPacket->GetMessage().GetMsgID());
+		PrintDOSLog(_T("DOSLib"),_T("æ¶ˆæ¯[0x%X]æœ‰æ•ˆæ€§æ£€æŸ¥å¤±è´¥ï¼"),pPacket->GetMessage().GetMsgID());
 		return FALSE;
 	}
 	((CDOSServer *)GetServer())->AddRefMessagePacket(pPacket);
@@ -173,7 +170,7 @@ BOOL CDOSRouter::RouterMessage(CDOSMessagePacket * pPacket)
 	if(!m_MsgQueue.PushBack(pPacket))
 	{
 		((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket);
-		PrintDOSLog(0xff0000,_T("½«ÏûÏ¢Ñ¹ÈëÂ·ÓÉ·¢ËÍ¶ÓÁĞÊ§°Ü£¡"));
+		PrintDOSLog(_T("DOSLib"),_T("å°†æ¶ˆæ¯å‹å…¥è·¯ç”±å‘é€é˜Ÿåˆ—å¤±è´¥ï¼"));
 		return FALSE;
 	}
 
@@ -198,7 +195,7 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 	int ProcessCount=0;
 	while(m_MsgQueue.PopFront(pPacket))
 	{
-		//PrintDOSDebugLog(0,_T("Â·ÓÉÁËÏûÏ¢[%u]"),pPacket->GetMessage().GetCmdID());
+		//PrintDOSDebugLog(0,_T("è·¯ç”±äº†æ¶ˆæ¯[%u]"),pPacket->GetMessage().GetCmdID());
 
 		AtomicInc(&m_RouteInMsgCount);
 		AtomicAdd(&m_RouteInMsgFlow,pPacket->GetPacketLength());
@@ -207,21 +204,21 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 		OBJECT_ID * pReceiverIDs=pPacket->GetTargetIDs();
 		if(ReceiverIDCount==0)
 		{
-			PrintDOSLog(0xff0000,_T("´íÎóµÄÏûÏ¢¸ñÊ½£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("é”™è¯¯çš„æ¶ˆæ¯æ ¼å¼ï¼"));
 			continue;
 		}
 		if((ReceiverIDCount==1||IsSameRouter(pReceiverIDs,ReceiverIDCount))
 			&&pReceiverIDs[0].RouterID!=BROAD_CAST_ROUTER_ID)
 		{
-			//Ö»ÓĞÒ»¸ö½ÓÊÕ¶ÔÏó£¬»òÕß½ÓÊÜ¶ÔÏóÔÚÍ¬Ò»¸öÂ·ÓÉ,Â·ÓÉ¹ã²¥³ıÍâ
+			//åªæœ‰ä¸€ä¸ªæ¥æ”¶å¯¹è±¡ï¼Œæˆ–è€…æ¥å—å¯¹è±¡åœ¨åŒä¸€ä¸ªè·¯ç”±,è·¯ç”±å¹¿æ’­é™¤å¤–
 			if(pReceiverIDs->RouterID==0||pReceiverIDs->RouterID==GetRouterID())
 			{
-				//·¢¸ø×Ô¼ºÂ·ÓÉµÄÏûÏ¢£¬Â·ÓÉID=0µÈÍ¬×Ô¼º
+				//å‘ç»™è‡ªå·±è·¯ç”±çš„æ¶ˆæ¯ï¼Œè·¯ç”±ID=0ç­‰åŒè‡ªå·±
 				DispatchMessage(pPacket,pReceiverIDs,ReceiverIDCount);
 			}
 			else
 			{
-				CDOSRouterLink * pRouterLink=dynamic_cast<CDOSRouterLink *>(GetConnection(pReceiverIDs->RouterID));
+				CDOSRouterLink * pRouterLink=dynamic_cast<CDOSRouterLink *>(GetLink(pReceiverIDs->RouterID));
 				if(pRouterLink)
 				{
 					AtomicInc(&m_RouteOutMsgCount);
@@ -230,13 +227,13 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 				}
 				else
 				{
-					PrintDOSLog(0xff0000,_T("ÎŞ·¨ÕÒµ½Â·ÓÉ%u£¡"),pReceiverIDs->RouterID);
+					PrintDOSLog(_T("DOSLib"),_T("æ— æ³•æ‰¾åˆ°è·¯ç”±%uï¼"),pReceiverIDs->RouterID);
 				}
 			}
 		}
 		else
 		{
-			//½ÓÊÕ¶ÔÏó·Ö²¼ÓÚ¶à¸öÂ·ÓÉ
+			//æ¥æ”¶å¯¹è±¡åˆ†å¸ƒäºå¤šä¸ªè·¯ç”±
 
 
 			ID_LIST_COUNT_TYPE GroupCount=0;
@@ -247,24 +244,24 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 				GroupCount=GetGroupCount(pReceiverIDGroup,ReceiverIDCount);
 				if(pReceiverIDGroup->RouterID==0||pReceiverIDGroup->RouterID==GetRouterID())
 				{
-					//·¢¸ø×Ô¼ºÂ·ÓÉµÄÏûÏ¢£¬Â·ÓÉID=0µÈÍ¬×Ô¼º
+					//å‘ç»™è‡ªå·±è·¯ç”±çš„æ¶ˆæ¯ï¼Œè·¯ç”±ID=0ç­‰åŒè‡ªå·±
 					DispatchMessage(pPacket,pReceiverIDGroup,GroupCount);
 				}
 				else if(pReceiverIDGroup->RouterID==BROAD_CAST_ROUTER_ID)
 				{
-					//´¦Àí¹ã²¥
+					//å¤„ç†å¹¿æ’­
 					pPacket->SetTargetIDs(GroupCount,NULL);
 					if(pReceiverIDs!=pReceiverIDGroup)
 						memmove(pReceiverIDs,pReceiverIDGroup,GroupCount);
 					for(UINT i=0;i<GroupCount;i++)
 					{
-						//Â·ÓÉIDÉèÖÃÎª0±ÜÃâ±»ÔÙ´Î¹ã²¥
+						//è·¯ç”±IDè®¾ç½®ä¸º0é¿å…è¢«å†æ¬¡å¹¿æ’­
 						pReceiverIDs[i].RouterID=0;
 					}
 					pPacket->MakePacketLength();
-					for(UINT i=0;i<GetConnectionCount();i++)
+					for(UINT i=0;i<GetLinkCount();i++)
 					{
-						CDOSRouterLink * pRouterLink=dynamic_cast<CDOSRouterLink *>(GetConnectionByIndex(i));
+						CDOSRouterLink * pRouterLink=dynamic_cast<CDOSRouterLink *>(GetLinkByIndex(i));
 						if(pRouterLink)
 						{
 							AtomicInc(&m_RouteOutMsgCount);
@@ -272,12 +269,12 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 							pRouterLink->SendData(pPacket->GetPacketBuffer(),pPacket->GetPacketLength());
 						}
 					}
-					//ÔÚ±¾Â·ÓÉ¹ã²¥
+					//åœ¨æœ¬è·¯ç”±å¹¿æ’­
 					DispatchMessage(pPacket,pReceiverIDs,GroupCount);
 				}
 				else
 				{
-					CDOSRouterLink * pRouterLink=dynamic_cast<CDOSRouterLink *>(GetConnection(pReceiverIDGroup->RouterID));
+					CDOSRouterLink * pRouterLink=dynamic_cast<CDOSRouterLink *>(GetLink(pReceiverIDGroup->RouterID));
 					if(pRouterLink)
 					{
 
@@ -294,7 +291,7 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 					}
 					else
 					{
-						PrintDOSLog(0xff0000,_T("ÎŞ·¨ÕÒµ½Â·ÓÉ%u£¡"),pReceiverIDGroup->RouterID);
+						PrintDOSLog(_T("DOSLib"),_T("æ— æ³•æ‰¾åˆ°è·¯ç”±%uï¼"),pReceiverIDGroup->RouterID);
 					}
 				}
 				pReceiverIDGroup+=GroupCount;
@@ -305,7 +302,7 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 
 		if(!((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(0xff0000,_T("ÊÍ·ÅÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+			PrintDOSLog(_T("DOSLib"),_T("é‡Šæ”¾æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 		}
 		ProcessPacketLimit--;
 		ProcessCount++;
@@ -361,21 +358,21 @@ BOOL CDOSRouter::DispatchMessage(CDOSMessagePacket * pPacket,OBJECT_ID * pReceiv
 
 			if(pReceiverIDs[i].ObjectIndex==0)
 			{
-				//·¢ËÍµ½ServiceµÄÏûÏ¢
+				//å‘é€åˆ°Serviceçš„æ¶ˆæ¯
 				BYTE ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(pReceiverIDs[i].GroupIndex);
 				BYTE ProxyID = GET_PROXY_ID_FROM_PROXY_GROUP_INDEX(pReceiverIDs[i].GroupIndex);
 				if (ProxyType == BROAD_CAST_PROXY_TYPE)
 				{
-					for (UINT i = 0; i < pProxyManager->GetProxyServiceCount(); i++)
+					for (UINT j = 0; j < pProxyManager->GetProxyServiceCount(); j++)
 					{
 						AtomicInc(&m_RouteOutMsgCount);
 						AtomicAdd(&m_RouteOutMsgFlow, pPacket->GetMessage().GetMsgLength());
-						pProxyManager->GetProxyServiceByIndex(i)->PushMessage(pPacket);
+						pProxyManager->GetProxyServiceByIndex(j)->PushMessage(pPacket);
 					}
 				}
 				else
 				{
-					CDOSObjectProxyService * pProxyService = pProxyManager->GetProxyServiceByID(ProxyID);
+					IDOSObjectProxyServiceBase * pProxyService = pProxyManager->GetProxyServiceByID(ProxyID);
 					if (pProxyService == NULL)
 						pProxyService = ((CDOSServer *)GetServer())->GetProxyManager()->GetProxyServiceByType(ProxyType);
 					if (pProxyService)
@@ -386,7 +383,7 @@ BOOL CDOSRouter::DispatchMessage(CDOSMessagePacket * pPacket,OBJECT_ID * pReceiv
 					}
 					else
 					{
-						PrintDOSDebugLog(0, _T("CDOSRouter::DispatchMessage:½«[0x%llX]·¢³öµÄÏûÏ¢[%X]µİËÍµ½´úÀí·şÎñ[%llX]Ê±´úÀí·şÎñ²»´æÔÚ"),
+						PrintDOSDebugLog(0, _T("CDOSRouter::DispatchMessage:å°†[0x%llX]å‘å‡ºçš„æ¶ˆæ¯[%X]é€’é€åˆ°ä»£ç†æœåŠ¡[%llX]æ—¶ä»£ç†æœåŠ¡ä¸å­˜åœ¨"),
 							pPacket->GetMessage().GetSenderID(),
 							pPacket->GetMessage().GetMsgID(),
 							pReceiverIDs[i]);
@@ -395,21 +392,21 @@ BOOL CDOSRouter::DispatchMessage(CDOSMessagePacket * pPacket,OBJECT_ID * pReceiv
 			}
 			else if(pReceiverIDs[i].ObjectIndex==BROAD_CAST_OBJECT_INDEX)
 			{
-				//Èº·¢ÏûÏ¢
+				//ç¾¤å‘æ¶ˆæ¯
 				BYTE ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(pReceiverIDs[i].GroupIndex);
 				BYTE ProxyID = GET_PROXY_ID_FROM_PROXY_GROUP_INDEX(pReceiverIDs[i].GroupIndex);
 				if (ProxyType == BROAD_CAST_PROXY_TYPE)
 				{
-					for (UINT i = 0; i < pProxyManager->GetProxyServiceCount(); i++)
+					for (UINT j = 0; j < pProxyManager->GetProxyServiceCount(); i++)
 					{
 						AtomicInc(&m_RouteOutMsgCount);
 						AtomicAdd(&m_RouteOutMsgFlow, pPacket->GetMessage().GetMsgLength());
-						pProxyManager->GetProxyServiceByIndex(i)->PushBroadcastMessage(pPacket);
+						pProxyManager->GetProxyServiceByIndex(j)->PushBroadcastMessage(pPacket);
 					}
 				}
 				else
 				{
-					CDOSObjectProxyService * pProxyService = pProxyManager->GetProxyServiceByID(ProxyID);
+					IDOSObjectProxyServiceBase * pProxyService = pProxyManager->GetProxyServiceByID(ProxyID);
 					if (pProxyService == NULL)
 						pProxyService = ((CDOSServer *)GetServer())->GetProxyManager()->GetProxyServiceByType(ProxyType);
 					if (pProxyService)
@@ -420,7 +417,7 @@ BOOL CDOSRouter::DispatchMessage(CDOSMessagePacket * pPacket,OBJECT_ID * pReceiv
 					}
 					else
 					{
-						PrintDOSDebugLog(0, _T("CDOSRouter::DispatchMessage:½«[0x%llX]·¢³öµÄÏûÏ¢[%X]µİËÍµ½´úÀí·şÎñ[%llX]Ê±´úÀí·şÎñ²»´æÔÚ"),
+						PrintDOSDebugLog(0, _T("CDOSRouter::DispatchMessage:å°†[0x%llX]å‘å‡ºçš„æ¶ˆæ¯[%X]é€’é€åˆ°ä»£ç†æœåŠ¡[%llX]æ—¶ä»£ç†æœåŠ¡ä¸å­˜åœ¨"),
 							pPacket->GetMessage().GetSenderID(),
 							pPacket->GetMessage().GetMsgID(),
 							pReceiverIDs[i]);
@@ -429,17 +426,17 @@ BOOL CDOSRouter::DispatchMessage(CDOSMessagePacket * pPacket,OBJECT_ID * pReceiv
 			}
 			else
 			{
-				//µ¥¸öÏûÏ¢
-				CDOSProxyConnection * pProxy = pProxyManager->GetProxyConnect(pReceiverIDs[i]);
-				if(pProxy)
+				//å•ä¸ªæ¶ˆæ¯
+				IDOSObjectProxyConnectionBase * pProxyConnection = pProxyManager->GetProxyConnect(pReceiverIDs[i]);
+				if (pProxyConnection)
 				{
 					AtomicInc(&m_RouteOutMsgCount);
 					AtomicAdd(&m_RouteOutMsgFlow,pPacket->GetPacketLength());
-					pProxy->PushMessage(pPacket);
+					pProxyConnection->PushMessage(pPacket);
 				}
 				else
 				{
-					PrintDOSDebugLog(0,_T("CDOSRouter::DispatchMessage:½«[0x%llX]·¢³öµÄÏûÏ¢[%X]µİËÍµ½´úÀí¶ÔÏó[%llX]Ê±´úÀí¶ÔÏó²»´æÔÚ"),
+					PrintDOSDebugLog(0,_T("CDOSRouter::DispatchMessage:å°†[0x%llX]å‘å‡ºçš„æ¶ˆæ¯[%X]é€’é€åˆ°ä»£ç†å¯¹è±¡[%llX]æ—¶ä»£ç†å¯¹è±¡ä¸å­˜åœ¨"),
 						pPacket->GetMessage().GetSenderID(),
 						pPacket->GetMessage().GetMsgID(),
 						pReceiverIDs[i]);
@@ -456,7 +453,7 @@ BOOL CDOSRouter::DispatchMessage(CDOSMessagePacket * pPacket,OBJECT_ID * pReceiv
 			}
 			else
 			{
-				PrintDOSDebugLog(0,_T("CDOSRouter::DispatchMessage:½«[0x%llX]·¢³öµÄÏûÏ¢[%X]µİËÍµ½¶ÔÏó[%llX]Ê§°Ü"),
+				PrintDOSDebugLog(0,_T("CDOSRouter::DispatchMessage:å°†[0x%llX]å‘å‡ºçš„æ¶ˆæ¯[%X]é€’é€åˆ°å¯¹è±¡[%llX]å¤±è´¥"),
 					pPacket->GetMessage().GetSenderID(),
 					pPacket->GetMessage().GetMsgID(),
 					pReceiverIDs[i]);

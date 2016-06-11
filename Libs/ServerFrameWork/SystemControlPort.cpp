@@ -1,16 +1,15 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    SystemControlPort.cpp                                    */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    SystemControlPort.cpp                                    */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
-#include "SystemControlPort.h"
 
 CSystemControlPort::CSystemControlPort(void)
 {
@@ -21,7 +20,7 @@ CSystemControlPort::~CSystemControlPort(void)
 {
 }
 
-bool CSystemControlPort::Init(IBaseServer * pServer)
+bool CSystemControlPort::Init(CBaseServer * pServer)
 {
 	if(pServer)
 	{
@@ -34,18 +33,18 @@ bool CSystemControlPort::Init(IBaseServer * pServer)
 		Create(IPPROTO_UDP);
 		if(!StartListen(CSystemConfig::GetInstance()->GetUDPControlAddress()))
 		{
-			Log("SystemControlPortÕìÌıÊ§°Ü%s:%u",
+			Log("SystemControlPortä¾¦å¬å¤±è´¥%s:%u",
 				CSystemConfig::GetInstance()->GetUDPControlAddress().GetIPString(),
 				CSystemConfig::GetInstance()->GetUDPControlAddress().GetPort());
 			return false;
 		}
-		Log("SystemControlPort³É¹¦ÕìÌıÓÚ%s:%u",
+		Log("SystemControlPortæˆåŠŸä¾¦å¬äº%s:%u",
 			CSystemConfig::GetInstance()->GetUDPControlAddress().GetIPString(),
 			CSystemConfig::GetInstance()->GetUDPControlAddress().GetPort());
 	}
 	else
 	{
-		Log("UDP¿ØÖÆ¶Ë¿ÚÎ´ÆôÓÃ");
+		Log("UDPæ§åˆ¶ç«¯å£æœªå¯ç”¨");
 	}
 	return true;
 }

@@ -213,6 +213,14 @@ BOOL CDistributedObjectOperator::UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRoute
 	return FALSE;
 }
 
+BOOL CDistributedObjectOperator::SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType)
+{
+	FUNCTION_BEGIN;
+	return CDOSBaseObject::SetUnhanleMsgReceiver(ProxyRouterID, ProxyType);
+	FUNCTION_END;
+	return FALSE;
+}
+
 BOOL CDistributedObjectOperator::AddConcernedObject(OBJECT_ID ObjectID,bool NeedTest)
 {
 	FUNCTION_BEGIN;
@@ -313,7 +321,7 @@ BOOL CDistributedObjectOperator::OnPreTranslateMessage(CDOSMessage * pMessage)
 	case PLUGIN_TYPE_NATIVE:
 		return m_pDistributedObject->OnPreTranslateMessage(pMessage);
 	case PLUGIN_TYPE_CSHARP:
-		return CallCSOnPreTranslateMessage(pMessage);
+		return CallCSOnPreTranslateMessage(pMessage->GetMsgID(), pMessage->GetMsgFlag(), pMessage->GetSenderID(), (BYTE *)pMessage->GetDataBuffer(), pMessage->GetDataLength());
 	}	
 	OBJECT_EXCEPTION_CATCH_END;
 	return FALSE;
@@ -328,7 +336,7 @@ BOOL CDistributedObjectOperator::OnMessage(CDOSMessage * pMessage)
 		case PLUGIN_TYPE_NATIVE:
 			return m_pDistributedObject->OnMessage(pMessage);
 		case PLUGIN_TYPE_CSHARP:
-			return CallCSOnMessage(pMessage);
+			return CallCSOnMessage(pMessage->GetMsgID(), pMessage->GetMsgFlag(), pMessage->GetSenderID(), (BYTE *)pMessage->GetDataBuffer(), pMessage->GetDataLength());
 		}
 	}
 	return TRUE;
@@ -344,7 +352,7 @@ BOOL CDistributedObjectOperator::OnSystemMessage(CDOSMessage * pMessage)
 	case PLUGIN_TYPE_NATIVE:
 		Ret = m_pDistributedObject->OnSystemMessage(pMessage);
 	case PLUGIN_TYPE_CSHARP:
-		Ret = CallCSOnSystemMessage(pMessage);
+		Ret = CallCSOnSystemMessage(pMessage->GetMsgID(), pMessage->GetMsgFlag(), pMessage->GetSenderID(), (BYTE *)pMessage->GetDataBuffer(), pMessage->GetDataLength());
 	}
 	if (!Ret)
 	{
@@ -395,15 +403,15 @@ void CDistributedObjectOperator::OnObjectReport(OBJECT_ID ObjectID, const void *
 	}
 	OBJECT_EXCEPTION_CATCH_END;
 }
-void CDistributedObjectOperator::OnProxyObjectIPReport(OBJECT_ID ProxyObjectID,UINT IP,UINT Port,LPCSTR szIPString)
+void CDistributedObjectOperator::OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString)
 {
 	OBJECT_EXCEPTION_CATCH_START;
 	switch (m_PluginType)
 	{
 	case PLUGIN_TYPE_NATIVE:
-		m_pDistributedObject->OnProxyObjectIPReport(ProxyObjectID, IP, Port, szIPString);
+		m_pDistributedObject->OnProxyObjectIPReport(ProxyObjectID, Port, szIPString);
 	case PLUGIN_TYPE_CSHARP:
-		CallCSOnProxyObjectIPReport(ProxyObjectID, IP, Port, szIPString);
+		CallCSOnProxyObjectIPReport(ProxyObjectID, Port, szIPString);
 	}
 	OBJECT_EXCEPTION_CATCH_END;
 }
@@ -521,7 +529,7 @@ void CDistributedObjectOperator::CallCSDestory()
 	}
 	FUNCTION_END;
 }
-BOOL CDistributedObjectOperator::CallCSOnPreTranslateMessage(CDOSMessage * pMessage)
+BOOL CDistributedObjectOperator::CallCSOnPreTranslateMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, OBJECT_ID SenderID, BYTE * pData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
 	if (m_MonoClassInfo_DO.pOnPreTranslateMessageMethod)
@@ -531,11 +539,14 @@ BOOL CDistributedObjectOperator::CallCSOnPreTranslateMessage(CDOSMessage * pMess
 		if (pObject)
 		{
 			MonoObject * pException = NULL;
-			MonoArray * pData = CDOSMainThread::GetInstance()->MonoCreateByteArray(m_MonoDomainInfo, pMessage, pMessage->GetDataLength() + pMessage->GetMsgHeaderLength());
-			if (pData)
+			MonoArray * pByteArray = CDOSMainThread::GetInstance()->MonoCreateByteArray(m_MonoDomainInfo, pData, DataSize);
+			if (pByteArray)
 			{
-				LPVOID Params[1];
-				Params[0] = pData;
+				LPVOID Params[4];
+				Params[0] = &MsgID;
+				Params[1] = &MsgFlag;
+				Params[2] = &SenderID;
+				Params[3] = pByteArray;
 				MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnPreTranslateMessageMethod, pObject, Params, &pException);
 				if (pException)
 				{
@@ -582,7 +593,7 @@ BOOL CDistributedObjectOperator::CallCSOnPreTranslateMessage(CDOSMessage * pMess
 	FUNCTION_END;
 	return FALSE;
 }
-BOOL CDistributedObjectOperator::CallCSOnMessage(CDOSMessage * pMessage)
+BOOL CDistributedObjectOperator::CallCSOnMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, OBJECT_ID SenderID, BYTE * pData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
 	if (m_MonoClassInfo_DO.pOnMessageMethod)
@@ -592,11 +603,14 @@ BOOL CDistributedObjectOperator::CallCSOnMessage(CDOSMessage * pMessage)
 		if (pObject)
 		{
 			MonoObject * pException = NULL;
-			MonoArray * pData = CDOSMainThread::GetInstance()->MonoCreateByteArray(m_MonoDomainInfo, pMessage, pMessage->GetDataLength() + pMessage->GetMsgHeaderLength());
-			if (pData)
+			MonoArray * pByteArray = CDOSMainThread::GetInstance()->MonoCreateByteArray(m_MonoDomainInfo, pData, DataSize);
+			if (pByteArray)
 			{
-				LPVOID Params[1];
-				Params[0] = pData;
+				LPVOID Params[4];
+				Params[0] = &MsgID;
+				Params[1] = &MsgFlag;
+				Params[2] = &SenderID;
+				Params[3] = pByteArray;
 				MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnMessageMethod, pObject, Params, &pException);
 				if (pException)
 				{
@@ -643,7 +657,7 @@ BOOL CDistributedObjectOperator::CallCSOnMessage(CDOSMessage * pMessage)
 	FUNCTION_END;
 	return FALSE;
 }
-BOOL CDistributedObjectOperator::CallCSOnSystemMessage(CDOSMessage * pMessage)
+BOOL CDistributedObjectOperator::CallCSOnSystemMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, OBJECT_ID SenderID, BYTE * pData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
 	if (m_MonoClassInfo_DO.pOnSystemMessageMethod)
@@ -653,11 +667,14 @@ BOOL CDistributedObjectOperator::CallCSOnSystemMessage(CDOSMessage * pMessage)
 		if (pObject)
 		{
 			MonoObject * pException = NULL;
-			MonoArray * pData = CDOSMainThread::GetInstance()->MonoCreateByteArray(m_MonoDomainInfo, pMessage, pMessage->GetDataLength() + pMessage->GetMsgHeaderLength());
-			if (pData)
+			MonoArray * pByteArray = CDOSMainThread::GetInstance()->MonoCreateByteArray(m_MonoDomainInfo, pData, DataSize);
+			if (pByteArray)
 			{
-				LPVOID Params[1];
-				Params[0] = pData;
+				LPVOID Params[4];
+				Params[0] = &MsgID;
+				Params[1] = &MsgFlag;
+				Params[2] = &SenderID;
+				Params[3] = pByteArray;
 				MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnSystemMessageMethod, pObject, Params, &pException);
 				if (pException)
 				{
@@ -830,10 +847,10 @@ void CDistributedObjectOperator::CallCSOnObjectReport(OBJECT_ID ObjectID, const 
 	}
 	FUNCTION_END;
 }
-void CDistributedObjectOperator::CallCSOnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT IP, UINT Port, LPCSTR szIPString)
+void CDistributedObjectOperator::CallCSOnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString)
 {
 	FUNCTION_BEGIN;	
-	if (m_MonoClassInfo_DO.pOnObjectReportMethod)
+	if (m_MonoClassInfo_DO.pOnProxyObjectIPReportMethod)
 	{
 		mono_domain_set(m_MonoDomainInfo.pMonoDomain, FALSE);
 		MonoObject * pObject = mono_gchandle_get_target(m_hCSObject);
@@ -845,10 +862,9 @@ void CDistributedObjectOperator::CallCSOnProxyObjectIPReport(OBJECT_ID ProxyObje
 			{
 				LPVOID Params[4];
 				Params[0] = &ProxyObjectID;
-				Params[1] = &IP;
-				Params[2] = &Port;
-				Params[3] = pParam1;
-				MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnObjectReportMethod, pObject, Params, &pException);
+				Params[1] = &Port;
+				Params[2] = pParam1;
+				MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnProxyObjectIPReportMethod, pObject, Params, &pException);
 				if (pException)
 				{
 					MonoString * pMsg = mono_object_to_string(pException, NULL);
@@ -1010,7 +1026,7 @@ int CDistributedObjectOperator::InternalCallGetGroupIndex(CDistributedObjectOper
 		return pOperator->GetGroupIndex();
 	return false;
 }
-bool CDistributedObjectOperator::InternalCallSendMessage(CDistributedObjectOperator * pOperator, MonoObject * ReceiverID, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen)
+bool CDistributedObjectOperator::InternalCallSendMessage(CDistributedObjectOperator * pOperator, OBJECT_ID ReceiverID, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen)
 {
 	if (pOperator)
 	{
@@ -1019,8 +1035,8 @@ bool CDistributedObjectOperator::InternalCallSendMessage(CDistributedObjectOpera
 		if ((size_t)StartIndex < ArrayLen)
 		{
 			if ((size_t)StartIndex + (size_t)DataLen>ArrayLen)
-				DataLen = ArrayLen - (size_t)StartIndex;
-			return pOperator->SendMessage(CDOSMainThread::GetInstance()->MonoGetObjectID(pOperator->m_MonoDomainInfo, ReceiverID), MsgID, MsgFlag, pBuff, DataLen) != FALSE;
+				DataLen = (int)(ArrayLen - (size_t)StartIndex);
+			return pOperator->SendMessage(ReceiverID, MsgID, MsgFlag, pBuff + StartIndex, DataLen) != FALSE;
 		}
 	}
 	return false;
@@ -1037,14 +1053,14 @@ bool CDistributedObjectOperator::InternalCallSendMessageMulti(CDistributedObject
 			if ((size_t)StartIndex < ArrayLen)
 			{
 				if ((size_t)StartIndex + (size_t)DataLen>ArrayLen)
-					DataLen = ArrayLen - (size_t)StartIndex;
-				return pOperator->SendMessageMulti(ObjectIDList.GetBuffer(), ObjectIDList.GetCount(), IsSorted, MsgID, MsgFlag, pBuff, DataLen) != FALSE;
+					DataLen = (int)(ArrayLen - (size_t)StartIndex);
+				return pOperator->SendMessageMulti(ObjectIDList.GetBuffer(), (UINT)ObjectIDList.GetCount(), IsSorted, MsgID, MsgFlag, pBuff + StartIndex, DataLen) != FALSE;
 			}
 		}
 	}
 	return false;
 }
-bool CDistributedObjectOperator::InternalCallRegisterMsgMap(CDistributedObjectOperator * pOperator, MonoObject * ProxyObjectID, MonoArray * MsgIDList)
+bool CDistributedObjectOperator::InternalCallRegisterMsgMap(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, MonoArray * MsgIDList)
 {
 	if (pOperator)
 	{
@@ -1052,12 +1068,12 @@ bool CDistributedObjectOperator::InternalCallRegisterMsgMap(CDistributedObjectOp
 		MSG_ID_TYPE * pBuff = CDOSMainThread::GetInstance()->MonoGetMsgIDArray(MsgIDList, ArrayLen);
 		if (pBuff)
 		{
-			return pOperator->RegisterMsgMap(CDOSMainThread::GetInstance()->MonoGetObjectID(pOperator->m_MonoDomainInfo, ProxyObjectID), pBuff, (int)ArrayLen) != FALSE;
+			return pOperator->RegisterMsgMap(ProxyObjectID, pBuff, (int)ArrayLen) != FALSE;
 		}
 	}
 	return false;
 }
-bool CDistributedObjectOperator::InternalCallUnregisterMsgMap(CDistributedObjectOperator * pOperator, MonoObject * ProxyObjectID, MonoArray * MsgIDList)
+bool CDistributedObjectOperator::InternalCallUnregisterMsgMap(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, MonoArray * MsgIDList)
 {
 	if (pOperator)
 	{
@@ -1065,7 +1081,7 @@ bool CDistributedObjectOperator::InternalCallUnregisterMsgMap(CDistributedObject
 		MSG_ID_TYPE * pBuff = CDOSMainThread::GetInstance()->MonoGetMsgIDArray(MsgIDList, ArrayLen);
 		if (pBuff)
 		{
-			return pOperator->UnregisterMsgMap(CDOSMainThread::GetInstance()->MonoGetObjectID(pOperator->m_MonoDomainInfo, ProxyObjectID), pBuff, (int)ArrayLen) != FALSE;
+			return pOperator->UnregisterMsgMap(ProxyObjectID, pBuff, (int)ArrayLen) != FALSE;
 		}
 	}
 	return false;
@@ -1096,15 +1112,23 @@ bool CDistributedObjectOperator::InternalCallUnregisterGlobalMsgMap(CDistributed
 	}
 	return false;
 }
-bool CDistributedObjectOperator::InternalCallAddConcernedObject(CDistributedObjectOperator * pOperator, MonoObject * ObjectID, bool NeedTest)
-{
-	return pOperator->AddConcernedObject(CDOSMainThread::GetInstance()->MonoGetObjectID(pOperator->m_MonoDomainInfo, ObjectID), NeedTest) != FALSE;
-}
-bool CDistributedObjectOperator::InternalCallDeleteConcernedObject(CDistributedObjectOperator * pOperator, MonoObject * ObjectID)
+bool CDistributedObjectOperator::InternalCallSetUnhanleMsgReceiver(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType)
 {
 	if (pOperator)
 	{
-		return pOperator->DeleteConcernedObject(CDOSMainThread::GetInstance()->MonoGetObjectID(pOperator->m_MonoDomainInfo, ObjectID)) != FALSE;
+		return pOperator->SetUnhanleMsgReceiver(ProxyRouterID, ProxyType) != FALSE;
+	}
+	return false;
+}
+bool CDistributedObjectOperator::InternalCallAddConcernedObject(CDistributedObjectOperator * pOperator, OBJECT_ID ObjectID, bool NeedTest)
+{
+	return pOperator->AddConcernedObject(ObjectID, NeedTest) != FALSE;
+}
+bool CDistributedObjectOperator::InternalCallDeleteConcernedObject(CDistributedObjectOperator * pOperator, OBJECT_ID ObjectID)
+{
+	if (pOperator)
+	{
+		return pOperator->DeleteConcernedObject(ObjectID) != FALSE;
 	}
 	return false;
 }
@@ -1114,7 +1138,7 @@ bool CDistributedObjectOperator::InternalCallFindObject(CDistributedObjectOperat
 		return pOperator->FindObject(ObjectType) != FALSE;
 	return false;
 }
-bool CDistributedObjectOperator::InternalCallReportObject(CDistributedObjectOperator * pOperator, MonoObject * TargetID, MonoArray * Data, int StartIndex, int DataLen)
+bool CDistributedObjectOperator::InternalCallReportObject(CDistributedObjectOperator * pOperator, OBJECT_ID TargetID, MonoArray * Data, int StartIndex, int DataLen)
 {
 	if (pOperator)
 	{
@@ -1123,25 +1147,25 @@ bool CDistributedObjectOperator::InternalCallReportObject(CDistributedObjectOper
 		if ((size_t)StartIndex < ArrayLen)
 		{
 			if ((size_t)StartIndex + (size_t)DataLen>ArrayLen)
-				DataLen = ArrayLen - (size_t)StartIndex;
-			return pOperator->ReportObject(CDOSMainThread::GetInstance()->MonoGetObjectID(pOperator->m_MonoDomainInfo, TargetID), pBuff, DataLen) != FALSE;
+				DataLen = (int)(ArrayLen - (size_t)StartIndex);
+			return pOperator->ReportObject(TargetID, pBuff, DataLen) != FALSE;
 		}
 	}
 	return false;
 }
-bool CDistributedObjectOperator::InternalCallCloseProxyObject(CDistributedObjectOperator * pOperator, MonoObject * ProxyObjectID, UINT Delay)
+bool CDistributedObjectOperator::InternalCallCloseProxyObject(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, UINT Delay)
 {
 	if (pOperator)
 	{
-		return pOperator->CloseProxyObject(CDOSMainThread::GetInstance()->MonoGetObjectID(pOperator->m_MonoDomainInfo, ProxyObjectID), Delay) != FALSE;
+		return pOperator->CloseProxyObject(ProxyObjectID, Delay) != FALSE;
 	}
 	return false;
 }
-bool CDistributedObjectOperator::InternalCallRequestProxyObjectIP(CDistributedObjectOperator * pOperator, MonoObject * ProxyObjectID)
+bool CDistributedObjectOperator::InternalCallRequestProxyObjectIP(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID)
 {
 	if (pOperator)
 	{
-		return pOperator->RequestProxyObjectIP(CDOSMainThread::GetInstance()->MonoGetObjectID(pOperator->m_MonoDomainInfo, ProxyObjectID)) != FALSE;
+		return pOperator->RequestProxyObjectIP(ProxyObjectID) != FALSE;
 	}
 	return false;
 }
@@ -1175,11 +1199,11 @@ void CDistributedObjectOperator::InternalCallRelease(CDistributedObjectOperator 
 	if (pOperator)
 		pOperator->Release();
 }
-bool CDistributedObjectOperator::InternalCallQueryShutDown(CDistributedObjectOperator * pOperator, MonoObject * TargetID, int Level)
+bool CDistributedObjectOperator::InternalCallQueryShutDown(CDistributedObjectOperator * pOperator, OBJECT_ID TargetID, int Level)
 {
 	if (pOperator)
 	{
-		return pOperator->QueryShutDown(CDOSMainThread::GetInstance()->MonoGetObjectID(pOperator->m_MonoDomainInfo, TargetID), Level) != FALSE;
+		return pOperator->QueryShutDown(TargetID, Level) != FALSE;
 	}
 	return false;
 }

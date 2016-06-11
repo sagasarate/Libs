@@ -1,17 +1,17 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    ServerLogPrinter.cpp                                     */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    ServerLogPrinter.cpp                                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
 
-CServerLogPrinter::CServerLogPrinter(IBaseServer * pServer,UINT Mode,int Level,LPCTSTR FileName,int FileLogQueueLen)
+CServerLogPrinter::CServerLogPrinter(CBaseServer * pServer,UINT Mode,int Level,LPCTSTR FileName,int FileLogQueueLen)
 {
 	m_pServer=pServer;
 	SetLogMode(Mode,Level,FileName,FileLogQueueLen);
@@ -38,7 +38,7 @@ void CServerLogPrinter::SetLogMode(UINT Mode,int Level,LPCTSTR FileName,int File
 	}
 }
 
-void CServerLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
+void CServerLogPrinter::PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg)
 {
 	try
 	{
@@ -63,6 +63,12 @@ void CServerLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
 			_stprintf_s(MsgBuff, 5000, _T("[%02u-%02u][%02u:%02u:%02u][N]"),
 				CurTime.Month(), CurTime.Day(),
 				CurTime.Hour(), CurTime.Minute(), CurTime.Second());
+		}
+		if (Tag)
+		{
+			_tcsncat_s(MsgBuff, 5000, _T("["), _TRUNCATE);
+			_tcsncat_s(MsgBuff, 5000, Tag, _TRUNCATE);
+			_tcsncat_s(MsgBuff, 5000, _T("]"), _TRUNCATE);
 		}
 		_tcsncat_s(MsgBuff, 5000, Msg, _TRUNCATE);
 
@@ -90,12 +96,12 @@ void CServerLogPrinter::PrintLogDirect(int Level, DWORD Color, LPCTSTR Msg)
 	}
 	catch (...)
 	{
-		PrintImportantLog(0, _T("Log[%s]Êä³ö·¢ÉúÒì³£"), (LPCTSTR)m_LogFileName, Msg);
+		PrintImportantLog(0, _T("Log[%s]è¾“å‡ºå‘ç”Ÿå¼‚å¸¸"), (LPCTSTR)m_LogFileName, Msg);
 	}
 }
 
 
-void CServerLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list vl)
+void CServerLogPrinter::PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl)
 {
 	try
 	{
@@ -121,9 +127,14 @@ void CServerLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list 
 				CurTime.Month(),CurTime.Day(),
 				CurTime.Hour(),CurTime.Minute(),CurTime.Second());
 		}
-
-
-		vsprintf_s(MsgBuff+20,4096-20,Format, vl );
+		if (Tag)
+		{
+			_tcsncat_s(MsgBuff, 5000, _T("["), _TRUNCATE);
+			_tcsncat_s(MsgBuff, 5000, Tag, _TRUNCATE);
+			_tcsncat_s(MsgBuff, 5000, _T("]"), _TRUNCATE);
+		}
+		size_t PrefixLen = _tcslen(MsgBuff);
+		vsprintf_s(MsgBuff + PrefixLen, 4096 - PrefixLen, Format, vl);
 		MsgBuff[4095]=0;
 
 
@@ -152,7 +163,7 @@ void CServerLogPrinter::PrintLogVL(int Level,DWORD Color,LPCTSTR Format,va_list 
 	}
 	catch(...)
 	{
-		PrintImportantLog(0,"Log[%s]Êä³ö·¢ÉúÒì³£[%s]",(LPCTSTR)m_LogFileName,Format);
+		PrintImportantLog(0,"Log[%s]è¾“å‡ºå‘ç”Ÿå¼‚å¸¸[%s]",(LPCTSTR)m_LogFileName,Format);
 	}
 }
 

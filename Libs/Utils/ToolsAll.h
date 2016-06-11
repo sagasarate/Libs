@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    ToolsAll.h                                               */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    ToolsAll.h                                               */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -177,18 +177,41 @@ inline UINT GetBomHeader(LPVOID pData, UINT DataLen)
 }
 
 
-inline CEasyString BinToString(BYTE * pData,UINT Len)
+inline CEasyString BinToString(const BYTE * pData, size_t Len, bool IsLowCase = true)
 {
 	CEasyString BinString,temp;
-	UINT i;
 
-	for (i = 0; i < Len; i++)
+	for (size_t i = 0; i < Len; i++)
 	{
-		temp.Format(_T("%02x"), pData[i]);
+		if (IsLowCase)
+			temp.Format(_T("%02x"), pData[i]);
+		else
+			temp.Format(_T("%02X"), pData[i]);
 		BinString+=temp;
 	}
 	return BinString;
 }
+
+inline bool StringToBin(LPCTSTR szStr, size_t StrLen, BYTE * pData, size_t BuffLen)
+{
+	TCHAR ConterBuff[3];
+	ConterBuff[2] = 0;
+
+	if (StrLen == 0)
+		StrLen = _tcslen(szStr);
+	size_t OutPtr = 0;
+	while (StrLen >= 2 && OutPtr < BuffLen)
+	{
+		ConterBuff[0] = szStr[0];
+		ConterBuff[1] = szStr[1];
+		szStr += 2;
+		StrLen -= 2;
+		pData[OutPtr] = (BYTE)_tcstol(ConterBuff, NULL, 16);
+		OutPtr++;
+	}
+	return true;
+}
+
 inline bool IsHostBigEndian()
 {
 	short Temp = 1;
@@ -326,8 +349,12 @@ inline CEasyString GetRelativePath(LPCTSTR szSrcDir, LPCTSTR szSrcPath)
 
 	CEasyString SrcPath = MakeFullPath(szSrcPath);
 
+	SrcDir.Trim();
 	if (SrcDir.IsEmpty() || SrcPath.IsEmpty())
 		return CEasyString();
+
+	//if (!IsDirSlash(SrcDir[SrcDir.GetLength() - 1]))
+	//	SrcDir += DIR_SLASH;
 
 	UINT DirReturnCount = 0;
 	UINT SameDirLen = 0;
@@ -355,6 +382,16 @@ inline CEasyString GetRelativePath(LPCTSTR szSrcDir, LPCTSTR szSrcPath)
 				DirReturnCount++;
 				SrcLeftLen = 0;
 			}
+		}
+	}
+
+	if (IsInSameDir)
+	{
+		SameDirLen = (UINT)SrcDir.GetLength();
+		if (SameDirLen < SrcPath.GetLength())
+		{
+			if (IsDirSlash(SrcPath[SameDirLen]))
+				SameDirLen++;
 		}
 	}
 
@@ -386,11 +423,11 @@ inline CEasyString CombineString(CEasyArray<CEasyString>& StrList, TCHAR Separat
 	UINT Len = 0;
 	for (UINT i = 0; i < StrList.GetCount(); i++)
 	{
-		Len += StrList[i].GetLength();
+		Len += (UINT)StrList[i].GetLength();
 	}
 	if (Len)
 	{
-		Len += StrList.GetCount() - 1;
+		Len += (UINT)StrList.GetCount() - 1;
 		ResultStr.Resize(Len);
 		ResultStr.SetLength(Len);
 		UINT BuffPtr = 0;
@@ -398,7 +435,7 @@ inline CEasyString CombineString(CEasyArray<CEasyString>& StrList, TCHAR Separat
 		for (UINT i = 0; i < StrList.GetCount(); i++)
 		{
 			_tcscpy_s(pBuff + BuffPtr, Len - BuffPtr + 1, StrList[i]);
-			BuffPtr += StrList[i].GetLength();
+			BuffPtr += (UINT)StrList[i].GetLength();
 			if (i < StrList.GetCount() - 1)
 			{
 				pBuff[BuffPtr] = Separator;

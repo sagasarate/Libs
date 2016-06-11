@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DOSObjectGroup.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSObjectGroup.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -18,6 +18,7 @@ CDOSObjectGroup::CDOSObjectGroup(void)
 	FUNCTION_BEGIN;
 	m_pManager=NULL;
 	m_Index=0;
+	m_Status = STATUS_NONE;
 	m_Weight=0;
 	m_StatObjectCPUCost=false;
 	FUNCTION_END;
@@ -38,22 +39,22 @@ bool CDOSObjectGroup::Initialize(CDOSObjectManager * pManager,UINT Index)
 	UINT MaxObjectCount=m_pManager->GetServer()->GetConfig().MaxGroupObjectCount;
 	if(MaxObjectCount<=0)
 	{
-		PrintDOSLog(0,_T("CDOSObjectGroup::Initialize:×î´ó¶ÔÏóÊı´íÎó"));
+		PrintDOSLog(0,_T("CDOSObjectGroup::Initialize:æœ€å¤§å¯¹è±¡æ•°é”™è¯¯"));
 		return false;
 	}
 	if(!m_ObjectRegisterQueue.Create(MaxObjectCount))
 	{
-		PrintDOSLog(0,_T("CDOSObjectGroup::Initialize:´´½¨%u´óĞ¡µÄ×¢²á¶ÓÁĞÊ§°Ü"));
+		PrintDOSLog(0,_T("CDOSObjectGroup::Initialize:åˆ›å»º%uå¤§å°çš„æ³¨å†Œé˜Ÿåˆ—å¤±è´¥"));
 		return false;
 	}
 	if(!m_ObjectUnregisterQueue.Create(MaxObjectCount))
 	{
-		PrintDOSLog(0,_T("CDOSObjectGroup::Initialize:´´½¨%u´óĞ¡µÄ×¢Ïú¶ÓÁĞÊ§°Ü"));
+		PrintDOSLog(0,_T("CDOSObjectGroup::Initialize:åˆ›å»º%uå¤§å°çš„æ³¨é”€é˜Ÿåˆ—å¤±è´¥"));
 		return false;
 	}
 	if(!m_ObjectPool.Create(MaxObjectCount))
 	{
-		PrintDOSLog(0,_T("CDOSObjectGroup::Initialize:´´½¨%u´óĞ¡µÄ¶ÔÏó³ØÊ§°Ü"));
+		PrintDOSLog(0,_T("CDOSObjectGroup::Initialize:åˆ›å»º%uå¤§å°çš„å¯¹è±¡æ± å¤±è´¥"));
 		return false;
 	}
 
@@ -68,24 +69,7 @@ bool CDOSObjectGroup::Initialize(CDOSObjectManager * pManager,UINT Index)
 void CDOSObjectGroup::Destory()
 {
 	FUNCTION_BEGIN;
-	DOS_OBJECT_REGISTER_INFO ObjectRegisterInfo;
-	while(m_ObjectRegisterQueue.PopFront(ObjectRegisterInfo))
-	{
-		ObjectRegisterInfo.pObject->Destory();
-		SAFE_RELEASE(ObjectRegisterInfo.pObject);
-	}
-	m_ObjectUnregisterQueue.Clear();
-	void * Pos=m_ObjectPool.GetLastObjectPos();
-	while(Pos)
-	{
-		DOS_OBJECT_INFO *pObjectInfo=m_ObjectPool.GetPrev(Pos);
-		if(pObjectInfo)
-		{
-			pObjectInfo->pObject->Destory();
-			SAFE_RELEASE(pObjectInfo->pObject);
-		}
-	}
-	m_ObjectPool.Clear();
+	
 	FUNCTION_END;
 }
 
@@ -148,8 +132,9 @@ BOOL CDOSObjectGroup::OnStart()
 	{
 		pDOSGroupInitFN(m_Index);
 	}
+	m_Status = STATUS_WORKING;
 
-	PrintDOSLog(0xff0000,_T("¶ÔÏó×é[%d]Ïß³Ì[%u]ÒÑÆô¶¯"),m_Index,GetThreadID());
+	PrintDOSLog(_T("DOSLib"),_T("å¯¹è±¡ç»„[%d]çº¿ç¨‹[%u]å·²å¯åŠ¨"),m_Index,GetThreadID());
 	return TRUE;
 	FUNCTION_END;
 	return FALSE;
@@ -164,30 +149,42 @@ BOOL CDOSObjectGroup::OnRun()
 
 	int ProcessCount=0;
 
-
-	ProcessCount+=ProcessObjectRegister();
-
-	void * Pos=m_ObjectPool.GetFirstObjectPos();
-	while(Pos)
+	switch (m_Status)
 	{
-		DOS_OBJECT_INFO * pObjectInfo=m_ObjectPool.GetNext(Pos);
-		if(pObjectInfo)
+	case STATUS_WORKING:
 		{
-			UINT64 CPUCost=0;
-			if(m_StatObjectCPUCost)
-				CPUCost=CEasyTimerEx::GetTimeOrigin();
+			ProcessCount += ProcessObjectRegister();
 
-			ProcessCount+=pObjectInfo->pObject->DoCycle();
-
-			if(m_StatObjectCPUCost)
+			void * Pos = m_ObjectPool.GetFirstObjectPos();
+			while (Pos)
 			{
-				CPUCost=CEasyTimerEx::GetTimeOrigin()-CPUCost;
-				AddObjectCPUCost(pObjectInfo->ObjectID,CPUCost);
-			}
-		}
-	}
+				DOS_OBJECT_INFO * pObjectInfo = m_ObjectPool.GetNext(Pos);
+				if (pObjectInfo)
+				{
+					UINT64 CPUCost = 0;
+					if (m_StatObjectCPUCost)
+						CPUCost = CEasyTimerEx::GetTimeOrigin();
 
-	ProcessCount+=ProcessObjectUnregister();
+					ProcessCount += pObjectInfo->pObject->DoCycle();
+
+					if (m_StatObjectCPUCost)
+					{
+						CPUCost = CEasyTimerEx::GetTimeOrigin() - CPUCost;
+						AddObjectCPUCost(pObjectInfo->ObjectID, CPUCost);
+					}
+				}
+			}
+
+			ProcessCount += ProcessObjectUnregister();
+		}
+		break;
+	case STATUS_SUSPENDING:
+		{			
+			m_Status = STATUS_SUSPENDED;
+		}
+		break;
+	}
+	
 
 	m_ThreadPerformanceCounter.DoPerformanceCount();
 
@@ -205,7 +202,36 @@ BOOL CDOSObjectGroup::OnRun()
 void CDOSObjectGroup::OnTerminate()
 {
 	FUNCTION_BEGIN;
-	Destory();
+	CAutoLock Lock(m_EasyCriticalSection);
+
+	DOS_OBJECT_REGISTER_INFO ObjectRegisterInfo;
+	while (m_ObjectRegisterQueue.PopFront(ObjectRegisterInfo))
+	{
+		ObjectRegisterInfo.pObject->Destory();
+		SAFE_RELEASE(ObjectRegisterInfo.pObject);
+	}
+	m_ObjectUnregisterQueue.Clear();
+
+	void * Pos = m_ObjectPool.GetLastObjectPos();
+	while (Pos)
+	{
+		DOS_OBJECT_INFO *pObjectInfo = m_ObjectPool.GetPrev(Pos);
+		if (pObjectInfo)
+		{
+			pObjectInfo->pObject->Destory();
+			SAFE_RELEASE(pObjectInfo->pObject);
+		}
+	}
+	m_ObjectPool.Clear();
+	m_Weight = 0;
+
+	DOS_GROUP_DESTORY_FN pDOSGroupDestoryFN = GetManager()->GetServer()->GetConfig().pDOSGroupDestoryFN;
+	if (pDOSGroupDestoryFN)
+	{
+		pDOSGroupDestoryFN(m_Index);
+	}
+
+	m_Status = STATUS_NONE;
 	FUNCTION_END;
 }
 
@@ -258,13 +284,13 @@ void CDOSObjectGroup::PrintObjectStat(UINT LogChannel)
 		if(pInfo)
 		{
 			CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,
-				_T("×é%u:¶ÔÏó0x%llX=%u,CPUCost=%lld"),m_Index,ObjectID,pInfo->Count,pInfo->CPUCost);
+				_T("ç»„%u:å¯¹è±¡0x%llX=%u,CPUCost=%lld"),m_Index,ObjectID,pInfo->Count,pInfo->CPUCost);
 			TotalCost+=pInfo->CPUCost;
 			pInfo->CPUCost=0;
 		}
 	}
 	CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,
-		_T("×é%u:×Ü¼Æ¶ÔÏóCPUCost=%lld"),m_Index,TotalCost);
+		_T("ç»„%u:æ€»è®¡å¯¹è±¡CPUCost=%lld"),m_Index,TotalCost);
 	FUNCTION_END;
 }
 
@@ -298,7 +324,7 @@ int CDOSObjectGroup::ProcessObjectRegister(int ProcessLimit)
 		}
 		else
 		{
-			PrintDOSLog(0,_T("CDOSObjectGroup::ProcessObjectRegister:¶ÔÏó³ØÒÑºÄ¾¡%u/%u"),m_ObjectPool.GetObjectCount(),m_ObjectPool.GetBufferSize());
+			PrintDOSLog(0,_T("CDOSObjectGroup::ProcessObjectRegister:å¯¹è±¡æ± å·²è€—å°½%u/%u"),m_ObjectPool.GetObjectCount(),m_ObjectPool.GetBufferSize());
 			m_Weight-=ObjectRegisterInfo.Weight;
 			ObjectRegisterInfo.pObject->Destory();
 			SAFE_RELEASE(ObjectRegisterInfo.pObject);
@@ -332,7 +358,7 @@ int CDOSObjectGroup::ProcessObjectUnregister(int ProcessLimit)
 		}
 		else
 		{
-			PrintDOSLog(0,_T("×¢Ïú¶ÔÏóÊ±£¬¶ÔÏó[%llX]ÎŞ·¨ÕÒµ½"),UnregisterObjectID.ID);
+			PrintDOSLog(0,_T("æ³¨é”€å¯¹è±¡æ—¶ï¼Œå¯¹è±¡[%llX]æ— æ³•æ‰¾åˆ°"),UnregisterObjectID.ID);
 		}
 		ProcessLimit--;
 		ProcessCount++;
@@ -342,6 +368,7 @@ int CDOSObjectGroup::ProcessObjectUnregister(int ProcessLimit)
 	FUNCTION_END;
 	return 0;
 }
+
 
 void CDOSObjectGroup::OnObjectRegister(OBJECT_ID ObjectID)
 {
@@ -376,7 +403,7 @@ void CDOSObjectGroup::OnObjectUnregister(OBJECT_ID ObjectID)
 	}
 	else
 	{
-		PrintDOSLog(0,_T("CDOSObjectGroup::OnObjectUnregister:¶ÔÏó×¢ÏúÒì³£"));
+		PrintDOSLog(0,_T("CDOSObjectGroup::OnObjectUnregister:å¯¹è±¡æ³¨é”€å¼‚å¸¸"));
 	}
 	FUNCTION_END;
 }
@@ -392,7 +419,7 @@ void CDOSObjectGroup::AddObjectCPUCost(OBJECT_ID ObjectID,UINT64 CPUCost)
 	}
 	else
 	{
-		PrintDOSLog(0,_T("CDOSObjectGroup::AddObjectCPUCost:ÎŞ·¨ÕÒµ½¶ÔÏó[0x%llX]µÄĞÅÏ¢"),ObjectID);
+		PrintDOSLog(0,_T("CDOSObjectGroup::AddObjectCPUCost:æ— æ³•æ‰¾åˆ°å¯¹è±¡[0x%llX]çš„ä¿¡æ¯"),ObjectID);
 	}
 	FUNCTION_END;
 }

@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    StringFile.cpp                                           */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    StringFile.cpp                                           */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -233,22 +233,31 @@ BOOL CStringFile::LoadFromString(LPCTSTR pStr,int Len,bool bSplitLine)
 
 BOOL CStringFile::SaveToFile(LPCTSTR pszTextFile)
 {
+	return SaveToFile(m_pData, pszTextFile);
+}
+
+BOOL CStringFile::SaveToFile(TCHAR * pData, LPCTSTR pszTextFile)
+{
 	IFileAccessor * pFile;
 
-	pFile=CFileSystemManager::GetInstance()->CreateFileAccessor(m_FileChannel);
-	if(pFile==NULL)
+	pFile = CFileSystemManager::GetInstance()->CreateFileAccessor(m_FileChannel);
+	if (pFile == NULL)
 		return false;
-	if(!pFile->Open(pszTextFile,IFileAccessor::modeWrite|IFileAccessor::modeCreateAlways|IFileAccessor::shareShareAll))
+	if (!pFile->Open(pszTextFile, IFileAccessor::modeWrite | IFileAccessor::modeCreateAlways | IFileAccessor::shareShareAll))
 	{
 		pFile->Release();
 		return false;
 	}
-	BOOL Ret=SaveToFile(pFile);
+	BOOL Ret = SaveToFile(pData, pFile);
 	pFile->Release();
 	return Ret;
 }
 
 BOOL CStringFile::SaveToFile(IFileAccessor * pFile)
+{
+	return SaveToFile(m_pData, pFile);
+}
+BOOL CStringFile::SaveToFile(TCHAR * pData, IFileAccessor * pFile)
 {
 	BOOL Ret=TRUE;
 #ifdef UNICODE
@@ -256,20 +265,20 @@ BOOL CStringFile::SaveToFile(IFileAccessor * pFile)
 	{
 		UINT BomHeader=BMT_UTF_8;
 		pFile->Write(&BomHeader,3);
-		size_t StrLen=_tcslen(m_pData);
-		UINT64 WriteLen=UnicodeToUTF8(m_pData,StrLen,NULL,0);
+		size_t StrLen = _tcslen(pData);
+		UINT64 WriteLen = UnicodeToUTF8(pData, StrLen, NULL, 0);
 		char * pBuffer=new char[WriteLen+1];
-		WriteLen=UnicodeToUTF8(m_pData,StrLen,pBuffer,WriteLen);
+		WriteLen = UnicodeToUTF8(pData, StrLen, pBuffer, WriteLen);
 		if(pFile->Write(pBuffer,WriteLen)!=WriteLen)
 			Ret=FALSE;
 		delete[] pBuffer;
 	}
 	else if (m_SaveCodePage == CP_ACP)
 	{
-		size_t StrLen = _tcslen(m_pData);
-		UINT64 WriteLen = UnicodeToAnsi(m_pData, StrLen, NULL, 0);
+		size_t StrLen = _tcslen(pData);
+		UINT64 WriteLen = UnicodeToAnsi(pData, StrLen, NULL, 0);
 		char * pBuffer = new char[WriteLen + 1];
-		WriteLen = UnicodeToAnsi(m_pData, StrLen, pBuffer, WriteLen);
+		WriteLen = UnicodeToAnsi(pData, StrLen, pBuffer, WriteLen);
 		if (pFile->Write(pBuffer, WriteLen) != WriteLen)
 			Ret = FALSE;
 		delete[] pBuffer;
@@ -278,8 +287,8 @@ BOOL CStringFile::SaveToFile(IFileAccessor * pFile)
 	{
 		UINT BomHeader=BMT_UNICODE;
 		pFile->Write(&BomHeader,2);
-		UINT64 WriteLen=_tcslen(m_pData)*sizeof(TCHAR);
-		if(pFile->Write(m_pData,WriteLen)!=WriteLen)
+		UINT64 WriteLen = _tcslen(pData)*sizeof(TCHAR);
+		if (pFile->Write(pData, WriteLen) != WriteLen)
 			Ret=FALSE;
 	}
 #else
@@ -287,10 +296,10 @@ BOOL CStringFile::SaveToFile(IFileAccessor * pFile)
 	{
 		UINT BomHeader=BMT_UTF_8;
 		pFile->Write(&BomHeader,3);
-		size_t StrLen=_tcslen(m_pData);
-		size_t WriteLen = AnsiToUTF8(m_pData, StrLen, NULL, 0);
+		size_t StrLen=_tcslen(pData);
+		size_t WriteLen = AnsiToUTF8(pData, StrLen, NULL, 0);
 		char * pBuffer=new char[WriteLen+1];
-		WriteLen=AnsiToUTF8(m_pData,StrLen,pBuffer,WriteLen);
+		WriteLen=AnsiToUTF8(pData,StrLen,pBuffer,WriteLen);
 		if(pFile->Write(pBuffer,WriteLen)!=WriteLen)
 			Ret=FALSE;
 		delete[] pBuffer;
@@ -299,18 +308,18 @@ BOOL CStringFile::SaveToFile(IFileAccessor * pFile)
 	{
 		UINT BomHeader = BMT_UNICODE;
 		pFile->Write(&BomHeader, 2);
-		size_t StrLen = _tcslen(m_pData);
-		size_t WriteLen = AnsiToUnicode(m_pData, StrLen, NULL, 0);
+		size_t StrLen = _tcslen(pData);
+		size_t WriteLen = AnsiToUnicode(pData, StrLen, NULL, 0);
 		WCHAR * pBuffer = new WCHAR[WriteLen + 1];
-		WriteLen = AnsiToUnicode(m_pData, StrLen, pBuffer, WriteLen)*sizeof(WCHAR);
+		WriteLen = AnsiToUnicode(pData, StrLen, pBuffer, WriteLen)*sizeof(WCHAR);
 		if (pFile->Write(pBuffer, WriteLen) != WriteLen)
 			Ret = FALSE;
 		delete[] pBuffer;
 	}
 	else
 	{
-		UINT64 WriteLen=_tcslen(m_pData);
-		if(pFile->Write(m_pData,WriteLen)!=WriteLen)
+		UINT64 WriteLen=_tcslen(pData);
+		if(pFile->Write(pData,WriteLen)!=WriteLen)
 			Ret=FALSE;
 	}
 #endif

@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    ServerAppLinux.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    ServerAppLinux.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -85,11 +85,11 @@ void CServerApp::InitSignals()
 	SigAction.sa_sigaction = OnQuitSignal;
 	if (sigaction(SIGTERM, &SigAction, NULL) != 0)
 	{
-		PrintImportantLog(0, "×¢²áĞÅºÅSIGTERM´¦ÀíÊ§°Ü%d", errno);
+		PrintImportantLog(0, "æ³¨å†Œä¿¡å·SIGTERMå¤„ç†å¤±è´¥%d", errno);
 	}
 	else
 	{
-		PrintImportantLog(0, "×¢²áĞÅºÅSIGTERM´¦Àí");
+		PrintImportantLog(0, "æ³¨å†Œä¿¡å·SIGTERMå¤„ç†");
 	}
 
 	SigAction.sa_flags = SA_RESETHAND;
@@ -100,45 +100,45 @@ void CServerApp::InitSignals()
 	SigAction.sa_sigaction = OnExceptionSignal;
 	if (sigaction(SIGABRT, &SigAction, NULL) != 0)
 	{
-		PrintImportantLog(0, "×¢²áĞÅºÅSIGABRT´¦ÀíÊ§°Ü%d", errno);
+		PrintImportantLog(0, "æ³¨å†Œä¿¡å·SIGABRTå¤„ç†å¤±è´¥%d", errno);
 	}
 	else
 	{
-		PrintImportantLog(0, "×¢²áĞÅºÅSIGABRT´¦Àí");
+		PrintImportantLog(0, "æ³¨å†Œä¿¡å·SIGABRTå¤„ç†");
 	}
 
 	if (sigaction(SIGFPE, &SigAction, NULL) != 0)
 	{
-		PrintImportantLog(0, "×¢²áĞÅºÅSIGFPE´¦ÀíÊ§°Ü%d", errno);
+		PrintImportantLog(0, "æ³¨å†Œä¿¡å·SIGFPEå¤„ç†å¤±è´¥%d", errno);
 	}
 	else
 	{
-		PrintImportantLog(0, "×¢²áĞÅºÅSIGFPE´¦Àí");
+		PrintImportantLog(0, "æ³¨å†Œä¿¡å·SIGFPEå¤„ç†");
 	}
 
 	if (sigaction(SIGSEGV, &SigAction, NULL) != 0)
 	{
-		PrintImportantLog(0, "×¢²áĞÅºÅSIGSEGV´¦ÀíÊ§°Ü%d", errno);
+		PrintImportantLog(0, "æ³¨å†Œä¿¡å·SIGSEGVå¤„ç†å¤±è´¥%d", errno);
 	}
 	else
 	{
-		PrintImportantLog(0, "×¢²áĞÅºÅSIGSEGV´¦Àí");
+		PrintImportantLog(0, "æ³¨å†Œä¿¡å·SIGSEGVå¤„ç†");
 	}
 
 	if (sigaction(SIGILL, &SigAction, NULL) != 0)
 	{
-		PrintImportantLog(0, "×¢²áĞÅºÅSIGILL´¦ÀíÊ§°Ü%d", errno);
+		PrintImportantLog(0, "æ³¨å†Œä¿¡å·SIGILLå¤„ç†å¤±è´¥%d", errno);
 	}
 	else
 	{
-		PrintImportantLog(0, "×¢²áĞÅºÅSIGILL´¦Àí");
+		PrintImportantLog(0, "æ³¨å†Œä¿¡å·SIGILLå¤„ç†");
 	}
 }
 
 
 void CServerApp::OnQuitSignal(int SignalNum, siginfo_t * pSigInfo, void * pContext)
 {
-	PrintImportantLog(0, "ÊÕµ½ÍË³öĞÅºÅ%d£¬×¼±¸ÍË³ö", SignalNum);
+	PrintImportantLog(0, "æ”¶åˆ°é€€å‡ºä¿¡å·%dï¼Œå‡†å¤‡é€€å‡º", SignalNum);
 	if (m_gAppInstance)
 		m_gAppInstance->m_WantExist = TRUE;
 }
@@ -147,9 +147,9 @@ void CServerApp::OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * p
 {	
 	void *array[MAX_STACK_LAYERS];
 
-	PrintImportantLog(0, "¿ªÊ¼´¦ÀíĞÅºÅ%d", SignalNum);
+	PrintImportantLog(0, "å¼€å§‹å¤„ç†ä¿¡å·%d", SignalNum);
 	size_t size = backtrace(array, MAX_STACK_LAYERS);
-	PrintImportantLog(0, "Êä³öµ÷ÓÃÕ»´óĞ¡:%d", (int)size);
+	PrintImportantLog(0, "è¾“å‡ºè°ƒç”¨æ ˆå¤§å°:%d", (int)size);
 	CFileLogPrinter * pLog = dynamic_cast<CFileLogPrinter *>(CLogManager::GetInstance()->GetChannel(LOG_IMPORTANT_CHANNEL));
 	if (pLog)
 	{
@@ -167,5 +167,5 @@ void CServerApp::OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * p
 	//}
 	//free(strings);
 
-	PrintImportantLog(0, "Êä³öµ÷ÓÃÕ»Íê±Ï");
+	PrintImportantLog(0, "è¾“å‡ºè°ƒç”¨æ ˆå®Œæ¯•");
 }

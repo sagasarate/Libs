@@ -11,24 +11,32 @@ class CDOSMainThread :
 	public CDOSServerThread,public CStaticObject<CDOSMainThread>
 {
 protected:		
-
+	enum STATUS
+	{
+		STATUS_NONE,
+		STATUS_COMPILE_LIBS,
+		STATUS_PLUGIN_LOAD,
+		STATUS_WORKING,
+	};
 	
-	
-	CDistributedObjectManager			m_PluginObjectManager;
-	CEasyArray<PLUGIN_INFO>				m_PluginList;
-	CThreadSafeIDStorage<UINT>			m_PluginUnloadQueue;
+	STATUS										m_Status;
 
-	HANDLE								m_hMCSOutRead;
-	HANDLE								m_hMCSOutWrite;
-	HANDLE								m_hMCSInRead;
-	HANDLE								m_hMcsInWrite;
-	HANDLE								m_hMcsErrWrite;
+	CDistributedObjectManager					m_PluginObjectManager;
+	CEasyArray<PLUGIN_INFO>						m_PluginList;
+	CEasyArray<LIB_INFO>						m_LibList;
+	CThreadSafeIDStorage<UINT>					m_PluginUnloadQueue;
 
-	MonoDomain *						m_pMonoMainDomain;
+	HANDLE										m_hMCSOutRead;
+	HANDLE										m_hMCSOutWrite;
+	HANDLE										m_hMCSInRead;
+	HANDLE										m_hMcsInWrite;
+	HANDLE										m_hMcsErrWrite;
 
-	CEasyTimer							m_MonoBaseGCTimer;
-	CEasyTimer							m_MonoAdvanceGCTimer;
-	CEasyTimer							m_MonoFullGCTimer;
+	MonoDomain *								m_pMonoMainDomain;
+
+	CEasyTimer									m_MonoBaseGCTimer;
+	CEasyTimer									m_MonoAdvanceGCTimer;
+	CEasyTimer									m_MonoFullGCTimer;
 	
 
 	DECLARE_CLASS_INFO_STATIC(CDOSMainThread)
@@ -54,7 +62,8 @@ public:
 	CDistributedObjectManager * GetDistributedObjectManager();
 
 	bool QueryFreePlugin(UINT PluginID);
-	//static bool DosGroupInitFn(UINT GroupIndex);
+	static bool DosGroupInitFn(UINT GroupIndex);
+	static bool DosGroupDestoryFn(UINT GroupIndex);
 
 	MONO_DOMAIN_INFO * GetMonoDomainInfo(UINT PluginID);
 
@@ -76,6 +85,8 @@ public:
 protected:
 	bool LoadPlugins();
 	void FreePlugins();
+	void CompileLibs();
+	bool LoadProxyPlugins();
 
 	bool LoadPlugin(PLUGIN_INFO& PluginInfo);
 	bool FreePlugin(PLUGIN_INFO& PluginInfo);
@@ -87,6 +98,8 @@ protected:
 	bool LoadCSharpPlugin(PLUGIN_INFO& PluginInfo);
 	bool CompileCSharpPlugin(PLUGIN_INFO& PluginInfo);
 	bool FreeCSharpPlugin(PLUGIN_INFO& PluginInfo);
+	bool CompileCSharpLib(LIB_INFO& LibInfo);
+
 
 	int ShowObjectCount(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount);
 	int ShowGroupInfo(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount);
@@ -109,8 +122,11 @@ protected:
 	bool ReleasePluginDomain(MONO_DOMAIN_INFO& MonoDomainInfo);
 
 	CEasyString GetProjectGUID(LPCTSTR PrjName);
-	bool CreateCSProj(PLUGIN_INFO& PluginInfo);
+	bool CreateCSProj(LPCTSTR szPrjName, LPCTSTR szPrjDir, const CEasyArray<CEasyString>& SourceDirs, LPCTSTR szOutFileName);
 	
+	void PrintMCSMsg(LPTSTR szMsg);
+
+	bool CallMCS(CEasyArray<CEasyString>& SourceList, CEasyArray<CEasyString>& LibList, LPCTSTR szOutFileName, bool IsDebug, HANDLE& hMCSProcess);
 };
 
 

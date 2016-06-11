@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DOSServer.cpp                                            */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ23ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSServer.cpp                                            */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ23æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -40,14 +40,12 @@ void CDOSServer::SetConfig(const DOS_CONFIG& Config)
 
 		for (size_t i = 0; i < AddressList.GetCount(); i++)
 		{
-			if ((AddressList[i].GetIP() & 0xFFFF) != 0x80)
+			if (AddressList[i].IsIPv4() && !AddressList[i].IsLoopbackAddress())
 			{
-				m_ServerConfig.RouterID = AddressList[i].GetIP() >> 16;
-				break;
+				UINT IP = AddressList[i].GetIPv4();
+				m_ServerConfig.RouterID = IP & 0xFFFF;
 			}
-		}
-
-		PrintDOSLog(0xffff, _T("RouteIDÎªÁã£¬×Ô¶¯ÉèÖÃRouteID=%d"), m_ServerConfig.RouterID);
+		}		
 	}
 }
 
@@ -56,38 +54,38 @@ BOOL CDOSServer::OnStartUp()
 	FUNCTION_BEGIN;
 	if(!m_MemoryPool.Create(m_ServerConfig.MemoryPoolBlockSize,m_ServerConfig.MemoryPoolLeveSize,m_ServerConfig.MemoryPoolLevelCount,true))
 	{
-		PrintDOSLog(0xffff,_T("³õÊ¼»¯ÄÚ´æ³ØÊ§°Ü£¡"));
+		PrintDOSLog(_T("DOSLib"),_T("åˆå§‹åŒ–å†…å­˜æ± å¤±è´¥ï¼"));
 		return FALSE;
 	}
 	m_pProxyManager = new CDOSProxyManager();
 	if (!m_pProxyManager->Initialize(this))
 	{
-		PrintDOSLog(0xffff, _T("´úÀí¹ÜÀíÆ÷³õÊ¼»¯Ê§°Ü£¡"));
+		PrintDOSLog(_T("DOSLib"), _T("ä»£ç†ç®¡ç†å™¨åˆå§‹åŒ–å¤±è´¥ï¼"));
 		return FALSE;
 	}
 
 	m_pDOSRouterService=new CDOSRouter();
 	if(!m_pDOSRouterService->Init(this))
 	{
-		PrintDOSLog(0xffff,_T("Â·ÓÉ·şÎñÆô¶¯Ê§°Ü£¡"));
+		PrintDOSLog(_T("DOSLib"),_T("è·¯ç”±æœåŠ¡å¯åŠ¨å¤±è´¥ï¼"));
 		return FALSE;
 	}
 	//m_pDOSRouterService->WaitForWorking(DEFAULT_THREAD_STARTUP_TIME);
-	PrintDOSLog(0xffff,_T("Â·ÓÉ·şÎñÆô¶¯£¡"));
+	PrintDOSLog(_T("DOSLib"),_T("è·¯ç”±æœåŠ¡å¯åŠ¨ï¼"));
 
 	m_pObjectManager=new CDOSObjectManager();
 
 	m_pObjectManager->SetServer(this);
 	if(!m_pObjectManager->Initialize())
 	{
-		PrintDOSLog(0xffff, _T("¶ÔÏó¹ÜÀíÆ÷³õÊ¼»¯Ê§°Ü£¡"));
+		PrintDOSLog(_T("DOSLib"), _T("å¯¹è±¡ç®¡ç†å™¨åˆå§‹åŒ–å¤±è´¥ï¼"));
 		return FALSE;
 	}
 
 
-	PrintDOSLog(0xffff,_T("¶ÔÏó¹ÜÀíÆ÷Æô¶¯£¡"));
+	PrintDOSLog(_T("DOSLib"),_T("å¯¹è±¡ç®¡ç†å™¨å¯åŠ¨ï¼"));
 
-	PrintDOSLog(0xffff,_T("·şÎñÆ÷(%d)Æô¶¯£¡"),m_ServerConfig.RouterID);
+	PrintDOSLog(_T("DOSLib"),_T("æœåŠ¡å™¨(%d)å¯åŠ¨ï¼"),m_ServerConfig.RouterID);
 
 	return TRUE;
 	FUNCTION_END;

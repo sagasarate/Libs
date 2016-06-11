@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    SettingFile.h                                            */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    SettingFile.h                                            */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -102,7 +102,15 @@ public:
 			StringTrim(temp,' ');
 			StringTrim(temp,LineDelimiter);
 			StringTrim(temp,'\r');
-			StringTrim(temp,'\n');			
+			StringTrim(temp,'\n');
+			if (temp.GetLength() >= 2)
+			{
+				//å¯¹äºç”¨å¼•å·åŒ…èµ·çš„å­—ä¸²ï¼Œå»æ‰å¼•å·
+				if (temp[0] == '"' && temp[temp.GetLength() - 1] == '"')
+				{
+					temp = temp.SubStr(1, temp.GetLength() - 2);
+				}
+			}
 			if(!temp.IsEmpty())
 				m_SettingStrings.Add(temp);
 		}
@@ -169,9 +177,9 @@ protected:
 		for( int i = startindex;i < linecount;i ++ )
 		{
 			LPCTSTR p = m_SettingStrings[i];
-			//	Èç¹ûµ½´ïÏÂÒ»¸ösection£¬ ·µ»Ø´íÎó
+			//	å¦‚æœåˆ°è¾¾ä¸‹ä¸€ä¸ªsectionï¼Œ è¿”å›é”™è¯¯
 			if( *p == '[' )return NULL;
-			//	Èç¹ûÊÇItemName=ÕâÑùµÄ¾äÊ½£¬½øÈë½øÒ»²½ËÑË÷
+			//	å¦‚æœæ˜¯ItemName=è¿™æ ·çš„å¥å¼ï¼Œè¿›å…¥è¿›ä¸€æ­¥æœç´¢
 			if( *(p+itemnamelength) == '=' )
 			{
 				if( _tcsnicmp( p, pszItemName, itemnamelength ) == 0 )

@@ -1,17 +1,17 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DOSRouterLink.cpp                                        */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DOSRouterLink.cpp                                        */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
 
-IMPLEMENT_CLASS_INFO_STATIC(CDOSRouterLink, CEasyNetLinkConnection);
+IMPLEMENT_CLASS_INFO_STATIC(CDOSRouterLink, CEasyNetLink);
 
 CDOSRouterLink::CDOSRouterLink()
 {
@@ -25,13 +25,13 @@ CDOSRouterLink::~CDOSRouterLink(void)
 void CDOSRouterLink::OnLinkStart()
 {
 	FUNCTION_BEGIN;
-	PrintDOSLog(0xff0000,_T("ÊÕµ½Â·ÓÉ(%d)µÄÁ¬½Ó"),GetID());
+	PrintDOSLog(_T("DOSLib"),_T("æ”¶åˆ°è·¯ç”±(%d)çš„è¿æ¥"),GetID());
 	FUNCTION_END;
 }
 void CDOSRouterLink::OnLinkEnd()
 {
 	FUNCTION_BEGIN;
-	PrintDOSLog(0xff0000,_T("Â·ÓÉ(%d)µÄÁ¬½Ó¶Ï¿ª£¡"),GetID());
+	PrintDOSLog(_T("DOSLib"),_T("è·¯ç”±(%d)çš„è¿æ¥æ–­å¼€ï¼"),GetID());
 	OBJECT_ID SenderID;
 	SenderID.RouterID=GetID();
 	OBJECT_ID TargetID;
@@ -43,18 +43,17 @@ void CDOSRouterLink::OnLinkEnd()
 	FUNCTION_END;
 }
 
-void CDOSRouterLink::OnData(const CEasyBuffer& DataBuffer)
+void CDOSRouterLink::OnData(const BYTE * pData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
-	MSG_LEN_TYPE PacketLen=*((MSG_LEN_TYPE *)DataBuffer.GetBuffer());
-	CDOSMessagePacket * pNewPacket=GetRouter()->GetServer()->NewMessagePacket(PacketLen);
+	CDOSMessagePacket * pNewPacket = GetRouter()->GetServer()->NewMessagePacket(DataSize);
 	if(pNewPacket)
 	{
-		memcpy(pNewPacket->GetPacketBuffer(),DataBuffer.GetBuffer(),PacketLen);
+		memcpy(pNewPacket->GetPacketBuffer(), pData, DataSize);
 		GetRouter()->RouterMessage(pNewPacket);
 		GetRouter()->GetServer()->ReleaseMessagePacket(pNewPacket);
 	}
 	else
-		PrintDOSLog(0xff0000,_T("·ÖÅäÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+		PrintDOSLog(_T("DOSLib"),_T("åˆ†é…æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 	FUNCTION_END;
 }

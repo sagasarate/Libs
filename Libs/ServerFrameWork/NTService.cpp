@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    NTService.cpp                                            */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    NTService.cpp                                            */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -248,7 +248,7 @@ BOOL CNTService :: InstallService()
 {
 	BOOL bRet = FALSE;
 
-	PrintImportantLog(0,"°²×°·şÎñ");
+	PrintImportantLog(0,"å®‰è£…æœåŠ¡");
   
 	TCHAR szPath[1024];
 	static LPCTSTR gszWin95ServKey=TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunServices");	//!! TCW MOD
@@ -342,7 +342,7 @@ BOOL CNTService :: InstallService()
 BOOL CNTService :: RemoveService() {
 	BOOL bRet = FALSE;
 
-	PrintImportantLog(0,"Ğ¶ÔØ·şÎñ");
+	PrintImportantLog(0,"å¸è½½æœåŠ¡");
 
 	SetupConsole();	//!! TCW MOD - have to show the console here for the
 					// diagnostic or error reason: orignal class assumed
@@ -426,7 +426,7 @@ BOOL CNTService :: RemoveService() {
 BOOL CNTService :: EndService() {
 	BOOL bRet = FALSE;
 
-	PrintImportantLog(0,"Í£Ö¹·şÎñ");
+	PrintImportantLog(0,"åœæ­¢æœåŠ¡");
 
 	SC_HANDLE schSCManager = ::OpenSCManager(
 								0,						// machine (NULL == local)
@@ -479,7 +479,7 @@ BOOL CNTService :: EndService() {
 BOOL CNTService :: StartupService() {
 	BOOL bRet = FALSE;
 
-	PrintImportantLog(0,"·şÎñÆô¶¯");
+	PrintImportantLog(0,"æœåŠ¡å¯åŠ¨");
 	SC_HANDLE schSCManager = ::OpenSCManager(
 								0,						// machine (NULL == local)
 								0,						// database (NULL == default)
@@ -955,7 +955,7 @@ void CNTService :: RegisterApplicationLog( LPCTSTR lpszFileName, DWORD dwTypes )
 
  		if( lRet == ERROR_SUCCESS ) {
 			DWORD dwType;
-			DWORD dwNewSize = dwSize+_tcslen(m_lpServiceName)+1;
+			DWORD dwNewSize = dwSize+(DWORD)_tcslen(m_lpServiceName)+1;
 			LPBYTE Buffer = LPBYTE(::GlobalAlloc(GPTR, dwNewSize));
 
 			lRet =	::RegQueryValueEx(

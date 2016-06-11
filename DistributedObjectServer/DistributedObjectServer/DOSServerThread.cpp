@@ -151,22 +151,28 @@ BOOL CDOSServerThread::OnStart()
 	if(Parser.parse_file(MakeModuleFullPath(NULL,GetConfigFileName()),pug::parse_trim_attribute))
 	{
 		xml_node Config=Parser.document();
-		if(Config.moveto_child("SystemLink"))
+		if (Config.moveto_child("Main"))
 		{
-			if(m_pSysNetLinkManager->Init(this,Config))
+			if (Config.moveto_child("SystemLink"))
 			{
-				Log("初始化系统连接管理器成功");
+				if (m_pSysNetLinkManager->Init(this, Config))
+				{
+					Log("初始化系统连接管理器成功");
+				}
+				else
+				{
+					Log("初始化系统连接管理器失败");
+				}
 			}
 			else
 			{
-				Log("初始化系统连接管理器失败");
+				Log("不合法的系统连接配置文件%s", GetConfigFileName());
 			}
 		}
 		else
 		{
-			Log("不合法的系统连接配置文件%s",GetConfigFileName());
+			Log("不合法的系统连接配置文件%s", GetConfigFileName());
 		}
-
 	}
 	else
 	{
@@ -213,7 +219,7 @@ BOOL CDOSServerThread::OnStart()
 
 	for (UINT i = 0; i < GetProxyManager()->GetProxyServiceCount(); i++)
 	{
-		CDOSObjectProxyService * pProxyService = GetProxyManager()->GetProxyService(i);
+		IDOSObjectProxyServiceBase * pProxyService = GetProxyManager()->GetProxyService(i);
 		if (pProxyService)
 		{
 			Temp.Format("对象代理(%u)CPU占用率", pProxyService->GetID());
@@ -272,7 +278,7 @@ BOOL CDOSServerThread::OnRun()
 {
 	FUNCTION_BEGIN;
 
-	if(!CBaseServer::OnRun())
+	if(!CBaseNetServer::OnRun())
 		return FALSE;
 
 	if(Update(CSystemConfig::GetInstance()->GetMainThreadProcessLimit())==0)
@@ -289,12 +295,10 @@ BOOL CDOSServerThread::OnRun()
 	}
 
 	//执行控制台命令
-	PANEL_MSG * pCommand=CControlPanel::GetInstance()->GetCommand();
-	if(pCommand)
+	SERVER_COMMAND Command;
+	while (m_CommandPool.PopBack(Command))
 	{
-
-		ExecCommand(pCommand->Msg);
-		CControlPanel::GetInstance()->ReleaseCommand(pCommand->ID);
+		ExecCommand(Command.Command);
 	}
 
 	FUNCTION_END;
@@ -328,22 +332,17 @@ LPCTSTR CDOSServerThread::GetConfigFileName()
 	return SYSTEM_NET_LINK_CONFIG_FILE_NAME;
 }
 
-BOOL CDOSServerThread::PrintConsoleLog(int Level,LPCTSTR szLogMsg)
+bool CDOSServerThread::PrintConsoleLog(int Level, LPCTSTR szLogMsg)
 {
 	FUNCTION_BEGIN;
-	if(m_ConsoleLogLevel&Level)
+	CBaseServer::PrintConsoleLog(Level, szLogMsg);
+	if (m_pSysNetLinkManager && (m_ConsoleLogLevel&Level))
 	{
-#ifdef WIN32
-		CControlPanel::GetInstance()->PushMsg(szLogMsg);
-#else
-		printf("%s\n",szLogMsg);
-#endif
-		if(m_pSysNetLinkManager)
-			m_pSysNetLinkManager->SendLogMsg(szLogMsg);
+		m_pSysNetLinkManager->SendLogMsg(szLogMsg);
 	}
-	return TRUE;
+	return true;
 	FUNCTION_END;
-	return FALSE;
+	return false;
 }
 
 void CDOSServerThread::ExecCommand(LPCTSTR szCommand)
@@ -376,27 +375,6 @@ void CDOSServerThread::ExecCommand(LPCTSTR szCommand)
 	FUNCTION_END;
 }
 
-BOOL CDOSServerThread::SetServerStatus(WORD StatusID,const CSmartValue& Value)
-{
-	FUNCTION_BEGIN;
-	if(m_ServerStatus.IDToIndex(StatusID)==CSmartStruct::INVALID_MEMBER_ID)
-	{
-		m_ServerStatus.AddMember(StatusID,Value);
-	}
-	else
-	{
-		m_ServerStatus.GetMember(StatusID).SetValue(Value);
-	}
-	FUNCTION_END;
-	return FALSE;
-}
-
-void CDOSServerThread::SetServerStatusFormat(WORD StatusID,LPCTSTR szStatusName,int FormatType)
-{
-	FUNCTION_BEGIN;
-	CControlPanel::GetInstance()->SetServerStatusFormat(StatusID,szStatusName,FormatType);
-	FUNCTION_END;
-}
 
 void CDOSServerThread::QueryShowDown()
 {
@@ -611,8 +589,14 @@ void CDOSServerThread::DoServerStat()
 	float RouteOutMsgFlow=(float)GetRouter()->GetOutMsgFlow()*1000/SERVER_INFO_COUNT_TIME;
 	GetRouter()->ResetStatData();
 
-	UINT64 MonoGCUsedSize = mono_gc_get_used_size();
-	UINT64 MonoGCHeapSize = mono_gc_get_heap_size();
+	UINT64 MonoGCUsedSize = 0;
+	UINT64 MonoGCHeapSize = 0;
+
+	if (CDOSConfig::GetInstance()->GetMonoConfig().EnableMono)
+	{
+		MonoGCUsedSize = mono_gc_get_used_size();
+		MonoGCHeapSize = mono_gc_get_heap_size();
+	}
 	
 
 	SetServerStatus(SC_SST_SS_CYCLE_TIME,CSmartValue(CycleTime));
@@ -638,7 +622,7 @@ void CDOSServerThread::DoServerStat()
 	for (UINT i = 0; i < GetProxyManager()->GetProxyServiceCount(); i++)
 	{
 		CEasyString Temp;
-		CDOSObjectProxyService * pProxyService = GetProxyManager()->GetProxyService(i);
+		IDOSObjectProxyServiceBase * pProxyService = GetProxyManager()->GetProxyService(i);
 		if (pProxyService)
 		{
 			SetServerStatus(SST_SS_OBJECT_PROXY_CPU_USED_RATE + i, CSmartValue(pProxyService->GetCPUUsedRate()));
@@ -667,7 +651,6 @@ void CDOSServerThread::DoServerStat()
 		GroupStatData+=Temp;
 	}
 
-	CControlPanel::GetInstance()->SetServerStatus(m_ServerStatus.GetData(),m_ServerStatus.GetDataLen());
 
 	CLogManager::GetInstance()->PrintLog(SERVER_STATUS_LOG_CHANNEL,ILogPrinter::LOG_LEVEL_NORMAL,0,
 		"%g,%g,%s,%s,%g,%g,%u,%s,%s,%s,%s,%g,%u,%g,%s,%s%s%s",
@@ -696,9 +679,9 @@ void CDOSServerThread::DoServerStat()
 	{
 		PrintObjectStatus();
 	}
-	PrintDOSObjectStatLog(0,"================================================================");
-	PrintDOSObjectStatLog(0,"开始统计对象使用情况");
-	PrintDOSObjectStatLog(0,"================================================================");
+	PrintDOSObjectStatLog("================================================================");
+	PrintDOSObjectStatLog("开始统计对象使用情况");
+	PrintDOSObjectStatLog("================================================================");
 	GetObjectManager()->PrintGroupInfo(LOG_DOS_OBJECT_STATE_CHANNEL);
 
 	UINT AllocCount=((CDOSServer *)GetServer())->GetMemoryPool()->GetAllocCount();
@@ -706,9 +689,9 @@ void CDOSServerThread::DoServerStat()
 	UINT SystemAllocCount=((CDOSServer *)GetServer())->GetMemoryPool()->GetSystemAllocCount();
 	UINT SystemFreeCount=((CDOSServer *)GetServer())->GetMemoryPool()->GetSystemFreeCount();
 
-	PrintDOSObjectStatLog(0,"内存池分配数:%u",AllocCount);
-	PrintDOSObjectStatLog(0,"内存池释放数:%u,%u",FreeCount,AllocCount-FreeCount);
-	PrintDOSObjectStatLog(0,"系统内存分配数:%u",SystemAllocCount);
-	PrintDOSObjectStatLog(0,"系统内存释放数:%u,%u",SystemFreeCount,SystemAllocCount-SystemFreeCount);
+	PrintDOSObjectStatLog("内存池分配数:%u",AllocCount);
+	PrintDOSObjectStatLog("内存池释放数:%u,%u",FreeCount,AllocCount-FreeCount);
+	PrintDOSObjectStatLog("系统内存分配数:%u",SystemAllocCount);
+	PrintDOSObjectStatLog("系统内存释放数:%u,%u",SystemFreeCount,SystemAllocCount-SystemFreeCount);
 	FUNCTION_END;
 }

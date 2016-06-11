@@ -1,4 +1,4 @@
-/*
+﻿/*
 	100% free public domain implementation of the HMAC-SHA1 algorithm
 	by Chien-Chung, Chung (Jim Chung) <jimchung1221@gmail.com>
 */
