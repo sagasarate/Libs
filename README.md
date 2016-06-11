@@ -1,6 +1,7 @@
 2016-6-11：这次提交增加和修改的部分如下
   网络库增加了对IPv6的支持，CIPAddress类有较大变化，以适应IPv6的加入
   CNetConnection的OnRecvData函数参数有所变化
+  增加了一个DHT网络的实验性组件CDHTService，目前可以完成通过HashInfo下载种子的功能，不过性能还有问题，有待优化
   工具库Utils中ILogPrinter接口的Log输出相关函数参数发生变化，取消DWORD型Color参数，增加字符串型Tag参数
   PugXML中SaveToString和SaveToFile由xml_node搬到了xml_parser类，并修改了参数，增加了对带编码签名头的文件的支持
   全部库中尽量取消了对long类型的使用，例如CSmartValue不再支持long类型的转换，避免Linux和Windows交叉使用的兼容问题
