@@ -87,7 +87,7 @@ BOOL CAsyncFileLogWorkThread::Init(LPCTSTR FileName,LPCTSTR FileExtName,int LogB
 #ifndef WIN32
 		UINT BomHeader = BMT_UTF_8;
 		m_pLogFile->Write(&BomHeader,3);
-#else if defined UNICODE
+#elif defined UNICODE
 		UINT BomHeader = BMT_UNICODE;
 		m_pLogFile->Write(&BomHeader, 2);
 #endif

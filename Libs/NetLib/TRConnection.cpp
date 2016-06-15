@@ -31,7 +31,7 @@ bool CTRConnection::Init(CDHTService * pParent, UINT SearchID, const NODE_ID& Pe
 	m_MetaDataSize = 0;
 	m_CurMetaDataPiece = 0;
 	m_LogTag.Format(_T("DHT(%d)"), GetID());
-	PrintNetDebugLog(m_LogTag, _T("尝试连接%s"), Address.GetAddressString());
+	//PrintNetDebugLog(m_LogTag, _T("尝试连接%s"), Address.GetAddressString());
 	SetServer(pParent->GetServer());
 	if (Connect(Address,20000))
 		return true;
@@ -42,17 +42,17 @@ void CTRConnection::OnConnection(BOOL IsSucceed)
 {
 	if (IsSucceed)
 	{
-		PrintNetLog(m_LogTag, _T("连接%s成功，发送握手1"), GetRemoteAddress().GetAddressString());
+		//PrintNetLog(m_LogTag, _T("连接%s成功，发送握手1"), GetRemoteAddress().GetAddressString());
 		SendHandshake1();
 	}
 	else
 	{
-		PrintNetLog(m_LogTag, _T("连接%s失败"), GetRemoteAddress().GetAddressString());
+		//PrintNetLog(m_LogTag, _T("连接%s失败"), GetRemoteAddress().GetAddressString());
 	}
 }
 void CTRConnection::OnDisconnection()
 {
-	PrintNetLog(m_LogTag, _T("连接%s断开"), GetRemoteAddress().GetAddressString());
+	//PrintNetLog(m_LogTag, _T("连接%s断开"), GetRemoteAddress().GetAddressString());
 }
 
 void CTRConnection::OnRecvData(const BYTE * pData, UINT DataSize)
@@ -69,7 +69,7 @@ void CTRConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 				memcpy(m_RemotePeerID.NodeID, pPeerID, NODE_ID_BYTE_COUNT);
 				m_AssembleBuffer.PopFront(NULL, 68);				
 				CEasyString PeerStr((char *)pPeerID, NODE_ID_BYTE_COUNT);
-				PrintNetDebugLog(m_LogTag, _T("收到握手1回应:%s"), (LPCTSTR)PeerStr);
+				//PrintNetDebugLog(m_LogTag, _T("收到握手1回应:%s"), (LPCTSTR)PeerStr);
 				m_FinishHandshake = 1;
 				SendHandshake2();
 			}
@@ -86,16 +86,23 @@ void CTRConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 			MsgSize = ntohl(MsgSize);
 			if (m_AssembleBuffer.GetUsedSize() >= MsgSize + sizeof(UINT))
 			{
-				BYTE MsgID, ExtMsgID;
-				m_AssembleBuffer.Peek(PeekPtr, &MsgID, sizeof(MsgID));
-				m_AssembleBuffer.Peek(PeekPtr, &ExtMsgID, sizeof(ExtMsgID));
+				BYTE MsgID = 0, ExtMsgID = 0;
+				m_AssembleBuffer.Peek(PeekPtr, &MsgID, sizeof(MsgID));				
 				if (MsgID == 20)
 				{
-					OnMsg(((BYTE *)m_AssembleBuffer.GetBuffer()) + sizeof(UINT) + 2, MsgSize - 2);
-				}		
+					if (MsgSize >= 2)
+					{
+						m_AssembleBuffer.Peek(PeekPtr, &ExtMsgID, sizeof(ExtMsgID));
+						OnMsg(((BYTE *)m_AssembleBuffer.GetBuffer()) + sizeof(UINT) + 2, MsgSize - 2);
+					}
+					else
+					{
+						PrintNetLog(m_LogTag, _T("消息大小异常Size=%u"), MsgSize);
+					}
+				}
 				else
 				{
-					PrintNetDebugLog(m_LogTag, _T("丢弃未知消息MsgID=%u,ExtMsgID=%u,Size=%u"), MsgID, ExtMsgID, MsgSize);
+					PrintNetDebugLog(m_LogTag, _T("丢弃未知消息MsgID=%u,Size=%u"), MsgID, MsgSize);
 				}
 				m_AssembleBuffer.PopFront(NULL, MsgSize + sizeof(UINT));
 			}
@@ -176,6 +183,14 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 	UINT ExtDataSize = DataSize;
 	const BYTE * pExtData = MsgData.Parser(pData, ExtDataSize);
 
+	if (ExtDataSize >0x8000|| ExtDataSize > DataSize)
+	{
+		pData[DataSize - 1] = 0;
+		PrintNetLog(m_LogTag, _T("Bencoding解析异常:%s"), pData);
+		Disconnect();
+		return;
+	}
+
 	if (MsgData.GetType() != BENCODING_TYPE_DICTIONARY)
 	{
 		PrintNetLog(m_LogTag, _T("1收到不合法的消息格式连接%s断开"), GetRemoteAddress().GetAddressString());
@@ -195,7 +210,7 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 					if (Pair.Value->GetType() == BENCODING_TYPE_INTEGER)
 					{
 						CEasyString Temp = Pair.Key;
-						PrintNetDebugLog(m_LogTag, _T("扩展消息%s=%d"), (LPCTSTR)Temp, Pair.Value->GetIntValue());
+						//PrintNetDebugLog(m_LogTag, _T("扩展消息%s=%d"), (LPCTSTR)Temp, Pair.Value->GetIntValue());
 						if (Pair.Key == "ut_metadata")
 						{
 							m_MetaDataMsgID = (int)Pair.Value->GetIntValue();
@@ -220,7 +235,7 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 				}
 			}
 
-			PrintNetDebugLog(m_LogTag, _T("收到握手2，开始请求数据"));
+			//PrintNetDebugLog(m_LogTag, _T("收到握手2，开始请求数据"));
 			m_FinishHandshake = 2;
 			SendRequest(m_CurMetaDataPiece);
 		}

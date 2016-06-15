@@ -19,6 +19,7 @@ bool CDHTService::Init(CNetServer * pServer, const CIPAddress& ListenAddress, co
 	SetServer(pServer);
 	m_NodeID = NodeID;
 	m_NodePool.Create(1024, 1024, 1024);	
+	m_PeerPool.Create(256, 256, 256);
 	m_SearchPool.Create(16, 16, 16);
 	m_TRConnectionList.Create(64);
 	m_SaveTimer.SaveTime();
@@ -97,73 +98,94 @@ bool CDHTService::DeleteSearch(UINT SearchID)
 }
 
 bool CDHTService::LoadNodes(LPCTSTR FileName)
-{
-	xml_parser XMLParser;
-	if (XMLParser.parse_file(FileName, pug::parse_trim_attribute))
-	{
-		xml_node Root = XMLParser.document();
-		if (Root.moveto_child(_T("Nodes")))
-		{
-			for (UINT i = 0; i < Root.children(); i++)
-			{
-				xml_node Node = Root.child(i);
-				if (_tcsicmp(Node.name(), _T("Node")) == 0)
-				{
-					if (Node.has_attribute(_T("ID")) && Node.has_attribute(_T("IP")) && Node.has_attribute(_T("Port")))
-					{
-						NODE_ID NodeID;
-						CIPAddress Address;
+{	
+	m_NodesFileName = FileName;
+	CWinFileAccessor NodesFile;
 
-						CEasyString IDStr = Node.attribute(_T("ID")).getvalue();
-						StringToBin(IDStr, IDStr.GetLength(), NodeID.NodeID, NODE_ID_BYTE_COUNT);
-						Address.SetAddress(Node.attribute(_T("IP")).getvalue(), (WORD)Node.attribute(_T("Port")), false);
-						InsertNode(NodeID, Address, NODE_FROM_TYPE_NEW);
-					}
-				}
-			}
+	CEasyTimerEx CostTimer;
+
+	CostTimer.SaveTime();
+	if (NodesFile.Open(FileName, IFileAccessor::modeOpen | IFileAccessor::modeRead | IFileAccessor::shareShareAll))
+	{
+		UINT FileSize = (UINT)NodesFile.GetSize();
+		if (FileSize < sizeof(BYTE) + sizeof(UINT))
+		{
+			PrintNetLog(_T("DHT"), _T("节点文件不合法"));
+			return false;
 		}
-		m_NodesFileName = FileName;
+			
+		BYTE Version;
+		UINT NodeCount;
+
+		NodesFile.Read(&Version, sizeof(BYTE));
+		NodesFile.Read(&NodeCount, sizeof(UINT));
+
+		if (Version != CUR_NODES_FILE_VERSION)
+		{
+			PrintNetLog(_T("DHT"), _T("节点文件版本错误"));
+			return false;
+		}
+
+		UINT Size = sizeof(BYTE) + sizeof(UINT) + (sizeof(NODE_ID) + sizeof(CIPAddress))*NodeCount;
+		if (FileSize < Size)
+		{
+			PrintNetLog(_T("DHT"), _T("节点文件大小错误"));
+			return false;
+		}
+
+		for (UINT i = 0; i < NodeCount; i++)
+		{
+			NODE_ID NodeID;
+			CIPAddress Address;
+
+			NodesFile.Read(&NodeID, sizeof(NodeID));
+			NodesFile.Read(&Address, sizeof(Address));
+			InsertNode(NodeID, Address, NODE_FROM_TYPE_NEW);
+		}
+
+		NodesFile.Close();
+
+		PrintNetLog(_T("DHT"), _T("节点文件加载完毕，一共%u个节点%u个Peer,花费%g秒"),
+			m_NodePool.GetObjectCount(), m_PeerPool.GetObjectCount(), (float)CostTimer.GetPastTime() / (float)CEasyTimerEx::TIME_UNIT_PER_SECOND);
 		return true;
 	}
 	return false;
 }
 bool CDHTService::SaveNodes(LPCTSTR FileName)
 {
-	xml_parser XMLParser;
-	XMLParser.create();
+	m_NodesFileName = FileName;
+	CWinFileAccessor NodesFile;
 
-	xml_node Root = XMLParser.document();
-	xml_node pi = Root.append_child(node_pi);
-	pi.name(_T("xml"));
-	pi.attribute(_T("version")) = _T("1.0");
-	pi.attribute(_T("encoding")) = _T("utf8");
+	PrintNetLog(_T("DHT"), _T("准备保存节点，一共%u个节点%u个Peer"), m_NodePool.GetObjectCount(), m_PeerPool.GetObjectCount());
+	CEasyTimerEx CostTimer;
 
-	xml_node Nodes = Root.append_child(node_element, _T("Nodes"));
+	CostTimer.SaveTime();
 
-	UINT Count = 0;
-	void * Pos = m_NodePool.GetSortedFirstObjectPos();
-	while (Pos)	
+	if (NodesFile.Open(FileName, IFileAccessor::modeCreateAlways | IFileAccessor::modeWrite | IFileAccessor::shareShareAll))
 	{
-		DHT_NODE * pNode = m_NodePool.GetSortedNextObject(Pos);
+		BYTE Version = CUR_NODES_FILE_VERSION;
+		UINT NodeCount = m_NodePool.GetObjectCount();
 
-		xml_node Node = Nodes.append_child(node_element, _T("Node"));
-		Node.append_attribute(_T("ID"), (LPCTSTR)BinToString(pNode->NodeID.NodeID, NODE_ID_BYTE_COUNT, false));
-		Node.append_attribute(_T("IP"), pNode->PeerAddress.GetIPString());
-		Node.append_attribute(_T("Port"), pNode->PeerAddress.GetPort());
+		NodesFile.Write(&Version, sizeof(BYTE));
+		NodesFile.Write(&NodeCount, sizeof(UINT));
 
-		Count++;
-		if (Count > m_NodePool.GetObjectCount())
+		NodeCount = 0;
+		void * Pos = m_NodePool.GetSortedFirstObjectPos();
+		while (Pos)
 		{
-			PrintNetDebugLog(_T("DHT"), _T("异常，节点保存数量超过了已有数量"));
-		}
-		
-	}
+			DHT_NODE * pNode = m_NodePool.GetSortedNextObject(Pos);
 
-	if (XMLParser.SaveToFile(Root, FileName))
-	{
-		m_NodesFileName = FileName;
+			NodesFile.Write(&pNode->NodeID, sizeof(NODE_ID));
+			NodesFile.Write(&pNode->pPeer->PeerAddress, sizeof(CIPAddress));
+		}
+
+		PrintNetLog(_T("DHT"), _T("节点文件保存完毕，花费%g秒"),
+			(float)CostTimer.GetPastTime() / (float)CEasyTimerEx::TIME_UNIT_PER_SECOND);
+
+		NodesFile.Close();
 		return true;
 	}
+	
 	return false;
 }
 
@@ -187,7 +209,7 @@ void CDHTService::OnTorrent(UINT SearchID, const BYTE * pTorrentData, UINT DataS
 	}
 	else
 	{
-		PrintNetDebugLog(_T("DHT"), _T("种子下载完毕，但找不到对应搜索%u"), SearchID);
+		PrintNetLog(_T("DHT"), _T("种子下载完毕，但找不到对应搜索%u"), SearchID);
 	}
 }
 
@@ -273,17 +295,17 @@ void CDHTService::OnRecvData(const CIPAddress& IPAddress, const BYTE * pData, UI
 						ErrCode = (int)Data.GetListValue(0).GetIntValue();
 					if (Data.GetListValue(1).GetType() == BENCODING_TYPE_STRING)
 						ErrMsg = Data.GetListValue(1).GetStrValue();
-					PrintNetDebugLog(_T("DHT"), _T("收到错误消息(%d)%s"), ErrCode, ErrMsg);
+					PrintNetLog(_T("DHT"), _T("收到错误消息(%d)%s"), ErrCode, ErrMsg);
 				}
 				else
 				{
-					PrintNetDebugLog(_T("DHT"), _T("收到未知格式的错误消息"));
+					PrintNetLog(_T("DHT"), _T("收到未知格式的错误消息"));
 				}
 			}
 			else
 			{
 				CEasyString Msg = MsgType.GetStrValue();
-				PrintNetDebugLog(_T("DHT"), _T("收到未知消息类型=%s"), (LPCTSTR)Msg);
+				PrintNetLog(_T("DHT"), _T("收到未知消息类型=%s"), (LPCTSTR)Msg);
 			}
 		}
 	}
@@ -311,7 +333,7 @@ int CDHTService::UpdateSearch(int ProcessPacketLimit)
 					{
 						if (PeerInfo.RequestCount<MAX_GET_PEERS_TRY_COUNT)
 						{
-							PrintNetDebugLog(_T("DHT"), _T("向%s发送GetPeers请求%u"), PeerInfo.PeerAddress.GetAddressString(), PeerInfo.RequestCount);
+							//PrintNetDebugLog(_T("DHT"), _T("向%s发送GetPeers请求%u"), PeerInfo.PeerAddress.GetAddressString(), PeerInfo.RequestCount);
 							PeerInfo.RequestTime = CurTime;
 							PeerInfo.RequestCount++;
 							WORD TID = TID_GET_PEERS + pSearchInfo->SearchID;
@@ -332,7 +354,7 @@ int CDHTService::UpdateSearch(int ProcessPacketLimit)
 					{
 						if (PeerInfo.RequestCount < MAX_ANNOUNCE_PEER_TRY_COUNT)
 						{
-							PrintNetDebugLog(_T("DHT"), _T("向%s发送AnnouncePeer请求%u"), PeerInfo.PeerAddress.GetAddressString(), PeerInfo.RequestCount);
+							//PrintNetDebugLog(_T("DHT"), _T("向%s发送AnnouncePeer请求%u"), PeerInfo.PeerAddress.GetAddressString(), PeerInfo.RequestCount);
 							PeerInfo.RequestTime = CurTime;
 							PeerInfo.RequestCount++;
 							SendAnnouncePeer(PeerInfo.PeerAddress, TID_ANNOUNCE_PEER + pSearchInfo->SearchID, pSearchInfo->InfoHash,
@@ -378,9 +400,9 @@ int CDHTService::UpdateSearch(int ProcessPacketLimit)
 							if (pConnection->Init(this, pSearchInfo->SearchID, PeerID, pSearchInfo->InfoHash, 
 								Info.PeerAddress))
 							{
-								PrintNetDebugLog(_T("DHT"), _T("尝试从%s下载种子%u"),
-									Info.PeerAddress.GetAddressString(),
-									Info.RequestCount);
+								//PrintNetDebugLog(_T("DHT"), _T("尝试从%s下载种子%u"),
+								//	Info.PeerAddress.GetAddressString(),
+								//	Info.RequestCount);
 							}
 							else
 							{
@@ -388,6 +410,7 @@ int CDHTService::UpdateSearch(int ProcessPacketLimit)
 									Info.PeerAddress.GetAddressString(),
 									Info.RequestCount);
 							}
+							ProcessCount++;
 						}
 					}
 				}
@@ -398,7 +421,7 @@ int CDHTService::UpdateSearch(int ProcessPacketLimit)
 						Info.RequestCount);
 					pSearchInfo->DataPortAddressList.Delete(i);
 				}
-				ProcessCount++;
+				
 			}
 		}
 
@@ -422,23 +445,53 @@ DHT_NODE * CDHTService::InsertNode(const NODE_ID& NodeID, const CIPAddress& IPAd
 	{
 		if (pNode->AccessCount == 0)
 		{
-			PrintNetDebugLog(_T("DHT"), _T("增加新节点ID=%s,Address=%s"),
-				(LPCTSTR)BinToString(NodeID.NodeID, NODE_ID_BYTE_COUNT), IPAddress.GetAddressString());
+			//PrintNetDebugLog(_T("DHT"), _T("增加新节点ID=%s,Address=%s"),
+			//	(LPCTSTR)BinToString(NodeID.NodeID, NODE_ID_BYTE_COUNT), IPAddress.GetAddressString());
+
+			pNode->NodeID = NodeID;
+			pNode->pPeer = InsertNodePeer(pNode, IPAddress, FromType);
+			if (pNode->pPeer == NULL)
+			{
+				m_NodePool.Delete(NodeID);
+			}
+			ShrinkPeerNodes(pNode);
 		}
-		pNode->NodeID = NodeID;
-		pNode->PeerAddress = IPAddress;
+		pNode->AccessCount++;
+	}
+	else
+	{
+		PrintNetLog(_T("DHT"), _T("Node池已满%u/%u"), m_NodePool.GetObjectCount(), m_NodePool.GetBufferSize());
+	}
+	return pNode;
+}
+
+NODE_PEER * CDHTService::InsertNodePeer(DHT_NODE * pNode, const CIPAddress& IPAddress, NODE_FROM_TYPE FromType)
+{
+	NODE_PEER * pPeer = NULL;
+	m_PeerPool.New(IPAddress, &pPeer);
+	if (pPeer)
+	{		
+		//if (pPeer->AccessCount == 0)
+		//{
+		//	PrintNetDebugLog(_T("DHT"), _T("增加Peer,Address=%s"), IPAddress.GetAddressString());
+		//}		
+		pPeer->PeerAddress = IPAddress;
+		pPeer->NodeList.Insert(pNode->NodeID, pNode);
 		switch (FromType)
 		{
 		case NODE_FROM_TYPE_REPLAY:
-			pNode->LastReplyTime = time(NULL);
+			pPeer->LastReplyTime = time(NULL);
 		case NODE_FROM_TYPE_REQUEST:
-			pNode->LastRecvTime = time(NULL);
+			pPeer->LastRecvTime = time(NULL);
 			break;
 		}
-		
-		pNode->AccessCount++;
+		pPeer->AccessCount++;
 	}
-	return pNode;
+	else
+	{
+		PrintNetLog(_T("DHT"), _T("Peer池已满%u/%u"), m_PeerPool.GetObjectCount(), m_PeerPool.GetBufferSize());
+	}
+	return pPeer;
 }
 
 DHT_NODE * CDHTService::FindNode(const NODE_ID& NodeID, bool MustEqual)
@@ -447,6 +500,42 @@ DHT_NODE * CDHTService::FindNode(const NODE_ID& NodeID, bool MustEqual)
 		return m_NodePool.Find(NodeID);
 	else
 		return m_NodePool.FindNear(NodeID);
+}
+
+NODE_PEER * CDHTService::FindPeer(const CIPAddress& IPAddress)
+{
+	return m_PeerPool.Find(IPAddress);
+}
+
+void CDHTService::ShrinkPeerNodes(DHT_NODE * pNode)
+{
+	NODE_PEER * pPeer = pNode->pPeer;
+	if (pPeer->NodeList.GetObjectCount() >= MAX_PEER_NODE_COUNT)
+	{
+		//同一个Peer的Node达到上限后进行减半收缩
+		PrintNetDebugLog(_T("DHT"), _T("Peer(%s)的节点过多，开始收缩"), pPeer->PeerAddress.GetAddressString());
+		UINT Count = pPeer->NodeList.GetObjectCount() + 32;
+		void * Pos = pPeer->NodeList.GetSortedFirstObjectPos();
+		bool NeedDelete = false;
+		while (Pos)
+		{
+			void * ThisPos = Pos;
+			DHT_NODE ** ppNode = pPeer->NodeList.GetSortedNextObject(Pos);
+			if (NeedDelete && ((*ppNode) != pNode))
+			{
+				m_NodePool.Delete((*ppNode)->NodeID);
+				(*ppNode)->Clear();
+				pPeer->NodeList.DeleteByPos(ThisPos);
+			}
+			NeedDelete = !NeedDelete;
+			Count--;
+			if (Count <= 0)
+			{
+				PrintNetLog(_T("DHT"), _T("ShrinkPeerNodes遍历异常"));
+				break;
+			}
+		}
+	}
 }
 
 
@@ -461,14 +550,14 @@ SEARCH_PEER * CDHTService::FindSearchPeer(SEARCH_INFO * pSearchInfo, const CIPAd
 }
 SEARCH_PEER * CDHTService::AddSearchPeer(SEARCH_INFO * pSearchInfo, DHT_NODE * pNode)
 {
-	SEARCH_PEER * pSearchPeer = FindSearchPeer(pSearchInfo, pNode->PeerAddress);
+	SEARCH_PEER * pSearchPeer = FindSearchPeer(pSearchInfo, pNode->pPeer->PeerAddress);
 	if (pSearchPeer == NULL)
 	{
 		pSearchPeer = pSearchInfo->PeerList.AddEmpty();
-		pSearchPeer->PeerAddress = pNode->PeerAddress;
-		PrintNetDebugLog(_T("DHT"), _T("为%s增加搜索Peer,ID=%s,Address=%s"),
-			(LPCTSTR)BinToString(pSearchInfo->InfoHash.NodeID, NODE_ID_BYTE_COUNT),
-			(LPCTSTR)BinToString(pNode->NodeID.NodeID, NODE_ID_BYTE_COUNT), pSearchPeer->PeerAddress.GetAddressString());
+		pSearchPeer->PeerAddress = pNode->pPeer->PeerAddress;
+		//PrintNetDebugLog(_T("DHT"), _T("为%s增加搜索Peer,ID=%s,Address=%s"),
+		//	(LPCTSTR)BinToString(pSearchInfo->InfoHash.NodeID, NODE_ID_BYTE_COUNT),
+		//	(LPCTSTR)BinToString(pNode->NodeID.NodeID, NODE_ID_BYTE_COUNT), pSearchPeer->PeerAddress.GetAddressString());
 	}	
 	pSearchPeer->NodeIDList.Add(pNode->NodeID);	
 	
@@ -501,7 +590,7 @@ void CDHTService::AddSearchPeers(SEARCH_INFO * pSearchInfo)
 			SearchCount++;
 			if (SearchCount > m_NodePool.GetObjectCount())
 			{
-				PrintNetDebugLog(_T("DHT"), _T("添加搜索节点异常，可能死循环了"));
+				PrintNetLog(_T("DHT"), _T("添加搜索节点异常，可能死循环了"));
 			}
 		}
 	}
@@ -655,7 +744,7 @@ void CDHTService::OnGetPeersRespond(const CIPAddress& IPAddress, UINT SearchID, 
 							pAddress->SetIPv4(pData);
 							pAddress->SetPort(ntohs(*((WORD *)(pData + 4))));
 							
-							PrintNetDebugLog(_T("DHT"), _T("已找到种子下载地址%s"), pAddress->GetAddressString());
+							//PrintNetDebugLog(_T("DHT"), _T("已找到种子下载地址%s"), pAddress->GetAddressString());
 						}
 					}
 					else
@@ -668,7 +757,7 @@ void CDHTService::OnGetPeersRespond(const CIPAddress& IPAddress, UINT SearchID, 
 							pAddress->SetIPv6(pData);
 							pAddress->SetPort(ntohs(*((WORD *)(pData + 16))));
 							
-							PrintNetDebugLog(_T("DHT"), _T("已找到种子下载地址%s"), pAddress->GetAddressString());
+							//PrintNetDebugLog(_T("DHT"), _T("已找到种子下载地址%s"), pAddress->GetAddressString());
 						}
 					}
 				}
@@ -709,8 +798,8 @@ void CDHTService::OnAnnouncePeerRespond(const CIPAddress& IPAddress, const NODE_
 				{
 					TORRENT_DOWNLOAD_ADDRESS_INFO * pAddrInfo = pSearchInfo->DataPortAddressList.AddEmpty();
 					pAddrInfo->PeerAddress = DataPortAddress;					
-					PrintNetLog(_T("DHT"), _T("已添加种子下载地址(%s)一共%u个"), 
-						DataPortAddress.GetAddressString(), pSearchInfo->DataPortAddressList.GetCount());
+					//PrintNetLog(_T("DHT"), _T("已添加种子下载地址(%s)一共%u个"), 
+					//	DataPortAddress.GetAddressString(), pSearchInfo->DataPortAddressList.GetCount());
 				}
 			}			
 		}

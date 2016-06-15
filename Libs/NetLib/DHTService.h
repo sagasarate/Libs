@@ -5,6 +5,7 @@ class CDHTService :
 protected:
 	NODE_ID								m_NodeID;
 	CStaticMap<NODE_ID, DHT_NODE>		m_NodePool;	
+	CStaticMap<CIPAddress, NODE_PEER>	m_PeerPool;
 	CEasyBuffer							m_SendBuffer1;
 	CEasyBuffer							m_SendBuffer2;
 
@@ -42,13 +43,11 @@ protected:
 
 
 	DHT_NODE * InsertNode(const NODE_ID& NodeID, const CIPAddress& IPAddress, NODE_FROM_TYPE FromType);
-	DHT_NODE * InsertNodeToBucket(UINT BucketIndex, const NODE_ID& NodeID, const CIPAddress& IPAddress, NODE_FROM_TYPE FromType);
-	bool SplitBucket(UINT Index);
-	void UpdateBucketTime(DHT_NODE_BUCKET * pNodeBucket);
+	NODE_PEER * InsertNodePeer(DHT_NODE * pNode, const CIPAddress& IPAddress, NODE_FROM_TYPE FromType);
 
-	int FindClosestBucket(const NODE_ID& NodeID);
 	DHT_NODE * FindNode(const NODE_ID& NodeID, bool MustEqual = true);
-
+	NODE_PEER * FindPeer(const CIPAddress& IPAddress);
+	void ShrinkPeerNodes(DHT_NODE * pNode);
 	
 
 	SEARCH_PEER * FindSearchPeer(SEARCH_INFO * pSearchInfo, const CIPAddress& PeerAddress);

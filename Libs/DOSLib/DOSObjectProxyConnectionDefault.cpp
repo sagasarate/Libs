@@ -161,7 +161,7 @@ void CDOSObjectProxyConnectionDefault::OnRecvData(const BYTE * pData, UINT DataS
 					PrintDOSLog(_T("DOSLib"), _T("对象代理(%d)收到非法包，连接断开！"), GetID());
 				}
 				CDOSSimpleMessage * pMsg = (CDOSSimpleMessage *)m_AssembleBuffer.GetBuffer();
-				if (pMsg->GetMsgFlag() && DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
+				if (pMsg->GetMsgFlag() & DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
 					OnClientSystemMsg(pMsg);
 				else
 					OnClientMsg(pMsg);

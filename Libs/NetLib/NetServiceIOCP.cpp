@@ -111,7 +111,7 @@ BOOL CNetService::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject)
 					return TRUE;
 				}
 				else
-					PrintNetLog(_T("NetLib"),_T("Accept队列已满！"));		
+					PrintNetLog(_T("NetLib"),_T("UDP数据接收队列已满！"));		
 			}
 			else
 			{

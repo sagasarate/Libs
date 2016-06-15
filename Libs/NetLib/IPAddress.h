@@ -95,6 +95,70 @@ public:
 		return !((*this) == IPAddress);
 	}
 
+	bool operator>(const CIPAddress& IPAddress)
+	{
+		if (m_IPAddress.SocketAddress6.sin6_family == IPAddress.m_IPAddress.SocketAddress6.sin6_family)
+		{
+			if (m_IPAddress.SocketAddress6.sin6_family == AF_INET)
+			{
+				if (m_IPAddress.SocketAddress.sin_addr.s_addr == IPAddress.m_IPAddress.SocketAddress.sin_addr.s_addr)
+					return m_IPAddress.SocketAddress.sin_port > IPAddress.m_IPAddress.SocketAddress.sin_port;
+				else
+					return m_IPAddress.SocketAddress.sin_addr.s_addr > IPAddress.m_IPAddress.SocketAddress.sin_addr.s_addr;
+			}
+			else
+			{
+				int Result = memcmp(&m_IPAddress.SocketAddress6.sin6_addr, &IPAddress.m_IPAddress.SocketAddress6.sin6_addr, 16);
+				if (Result == 0)
+					return m_IPAddress.SocketAddress6.sin6_port > IPAddress.m_IPAddress.SocketAddress6.sin6_port;
+				else
+					return Result > 0;
+					
+			}
+		}
+		else
+		{
+			return m_IPAddress.SocketAddress6.sin6_family > IPAddress.m_IPAddress.SocketAddress6.sin6_family;
+		}
+	}
+
+	bool operator<(const CIPAddress& IPAddress)
+	{
+		if (m_IPAddress.SocketAddress6.sin6_family == IPAddress.m_IPAddress.SocketAddress6.sin6_family)
+		{
+			if (m_IPAddress.SocketAddress6.sin6_family == AF_INET)
+			{
+				if (m_IPAddress.SocketAddress.sin_addr.s_addr == IPAddress.m_IPAddress.SocketAddress.sin_addr.s_addr)
+					return m_IPAddress.SocketAddress.sin_port < IPAddress.m_IPAddress.SocketAddress.sin_port;
+				else
+					return m_IPAddress.SocketAddress.sin_addr.s_addr < IPAddress.m_IPAddress.SocketAddress.sin_addr.s_addr;
+			}
+			else
+			{
+				int Result = memcmp(&m_IPAddress.SocketAddress6.sin6_addr, &IPAddress.m_IPAddress.SocketAddress6.sin6_addr, 16);
+				if (Result == 0)
+					return m_IPAddress.SocketAddress6.sin6_port < IPAddress.m_IPAddress.SocketAddress6.sin6_port;
+				else
+					return Result < 0;
+
+			}
+		}
+		else
+		{
+			return m_IPAddress.SocketAddress6.sin6_family < IPAddress.m_IPAddress.SocketAddress6.sin6_family;
+		}
+	}
+
+	bool operator>=(const CIPAddress& IPAddress)
+	{
+		return !((*this) < IPAddress);
+	}
+
+	bool operator<=(const CIPAddress& IPAddress)
+	{
+		return !((*this) > IPAddress);
+	}
+
 	const sockaddr * GetSockAddrPtr() const
 	{
 		return (sockaddr *)&m_IPAddress;

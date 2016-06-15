@@ -190,8 +190,8 @@ BOOL CServerThread::OnStart()
 
 	
 
-	ULONG64_CONVERTER Version;
-	memcpy(Version.Words,g_ProgramVersion,sizeof(ULONG64_CONVERTER));
+	UINT64_CONVERTER Version;
+	memcpy(Version.Words, g_ProgramVersion, sizeof(UINT64_CONVERTER));
 
 	SetServerStatus(SC_SST_SS_PROGRAM_VERSION,CSmartValue(Version.QuadPart));
 	SetServerStatusFormat(SC_SST_SS_PROGRAM_VERSION,"服务器版本",SSFT_VERSION);

@@ -123,9 +123,24 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 #ifdef UNICODE
 	if(BomHeader==0)
 	{
-		m_iDataSize=AnsiToUnicode((char *)Buffer.GetBuffer(),FileSize,NULL,0);
-		m_pData=new TCHAR[m_iDataSize+1];
-		AnsiToUnicode((char *)Buffer.GetBuffer(),FileSize,m_pData,m_iDataSize);
+		if (m_SaveCodePage == CP_UTF8)
+		{
+			m_iDataSize = MultiByteToWideChar(CP_UTF8, 0, (char *)Buffer.GetBuffer(), FileSize, NULL, 0);
+			m_pData = new TCHAR[m_iDataSize + 1];
+			MultiByteToWideChar(CP_UTF8, 0, (char *)Buffer.GetBuffer(), FileSize, m_pData, m_iDataSize);
+		}
+		else if (m_SaveCodePage == CP_UNICODE)
+		{
+			m_iDataSize = FileSize / 2;
+			m_pData = new TCHAR[m_iDataSize + 1];
+			memcpy(m_pData, (char *)Buffer.GetBuffer(), m_iDataSize*sizeof(TCHAR));
+		}
+		else
+		{
+			m_iDataSize = AnsiToUnicode((char *)Buffer.GetBuffer(), FileSize, NULL, 0);
+			m_pData = new TCHAR[m_iDataSize + 1];
+			AnsiToUnicode((char *)Buffer.GetBuffer(), FileSize, m_pData, m_iDataSize);
+		}
 	}
 	else if(BomHeader==BMT_UNICODE)
 	{
@@ -147,19 +162,53 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 #else
 	if(BomHeader==0)
 	{
-		if(m_LocalCodePage==CP_UTF8)
+		if (m_SaveCodePage == CP_UTF8)
 		{
-			m_iDataSize=AnsiToUTF8((char *)Buffer.GetBuffer(),FileSize,NULL,0);
-			m_pData=new TCHAR[m_iDataSize+1];
-			AnsiToUTF8((char *)Buffer.GetBuffer(),FileSize,m_pData,m_iDataSize);
+			if (m_LocalCodePage == CP_UTF8)
+			{
+				m_iDataSize = FileSize;
+				m_pData = new TCHAR[m_iDataSize + 1];
+				memcpy(m_pData, Buffer.GetBuffer(), m_iDataSize*sizeof(TCHAR));
+				m_pData[m_iDataSize] = 0;
+			}
+			else
+			{
+				m_iDataSize = UTF8ToAnsi((char *)Buffer.GetBuffer(), FileSize, NULL, 0);
+				m_pData = new TCHAR[m_iDataSize + 1];
+				UTF8ToAnsi((char *)Buffer.GetBuffer(), FileSize, m_pData, m_iDataSize);
+			}
+		}
+		else if (m_SaveCodePage == CP_UNICODE)
+		{
+			if (m_LocalCodePage == CP_UTF8)
+			{
+				m_iDataSize = UnicodeToUTF8((WCHAR *)Buffer.GetBuffer(), FileSize / 2, NULL, 0);
+				m_pData = new TCHAR[m_iDataSize + 1];
+				UnicodeToUTF8((WCHAR *)Buffer.GetBuffer(), FileSize / 2, m_pData, m_iDataSize);
+			}
+			else
+			{
+				m_iDataSize = UnicodeToAnsi((WCHAR *)Buffer.GetBuffer() , FileSize / 2 , NULL, 0);
+				m_pData = new TCHAR[m_iDataSize + 1];
+				UnicodeToAnsi((WCHAR *)Buffer.GetBuffer(), FileSize / 2, m_pData, m_iDataSize);
+			}
 		}
 		else
 		{
-			m_iDataSize=FileSize;
-			m_pData=new TCHAR[m_iDataSize+1];
-			memcpy(m_pData,Buffer.GetBuffer(),m_iDataSize*sizeof(TCHAR));
-			m_pData[m_iDataSize]=0;
-		}
+			if (m_LocalCodePage == CP_UTF8)
+			{
+				m_iDataSize = AnsiToUTF8((char *)Buffer.GetBuffer(), FileSize, NULL, 0);
+				m_pData = new TCHAR[m_iDataSize + 1];
+				AnsiToUTF8((char *)Buffer.GetBuffer(), FileSize, m_pData, m_iDataSize);
+			}
+			else
+			{
+				m_iDataSize = FileSize;
+				m_pData = new TCHAR[m_iDataSize + 1];
+				memcpy(m_pData, Buffer.GetBuffer(), m_iDataSize*sizeof(TCHAR));
+				m_pData[m_iDataSize] = 0;
+			}
+		}		
 	}
 	else if(BomHeader==BMT_UNICODE)
 	{

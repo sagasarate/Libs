@@ -2,7 +2,7 @@
 
 
 #define NODE_ID_BYTE_COUNT		20
-#define MAX_BUCKET_NODE_COUNT	16
+#define MAX_PEER_NODE_COUNT		512
 #define SEARCH_TIME_OUT			20
 #define MAX_TOKEN_LEN			40
 #define NODES_SAVE_TIME			(20*1000)
@@ -11,6 +11,7 @@
 #define MAX_ANNOUNCE_PEER_TRY_COUNT		20
 #define START_SEARCH_PEER_COUNT			10
 #define MAX_TORRENT_SIZE				(10*1024*1024)
+#define CUR_NODES_FILE_VERSION			1
 
 enum NODE_FROM_TYPE
 {
@@ -68,15 +69,12 @@ struct NODE_ID
 		return CompareNodeID(this, &TargetNodeID) <= 0;
 	}
 };
+struct NODE_PEER;
 
 struct DHT_NODE 
 {
 	NODE_ID			NodeID;
-	CIPAddress		PeerAddress;
-	time_t			LastRecvTime;                /* time of last message received */
-	time_t			LastReplyTime;          /* time of last correct reply received */
-	time_t			LastPingTime;         /* time of last request */
-	UINT			PingCount;                 /* how many requests we sent since last reply */		
+	NODE_PEER *		pPeer;	
 	UINT			AccessCount;
 
 	DHT_NODE()
@@ -86,29 +84,35 @@ struct DHT_NODE
 	void Clear()
 	{
 		NodeID.Clear();
+		pPeer = NULL;
+		AccessCount = 0;
+	}
+};
+
+struct NODE_PEER
+{
+	CIPAddress							PeerAddress;
+	time_t								LastRecvTime;                /* time of last message received */
+	time_t								LastReplyTime;          /* time of last correct reply received */
+	time_t								LastPingTime;         /* time of last request */
+	UINT								PingCount;                 /* how many requests we sent since last reply */
+	UINT								AccessCount;
+	CStaticMap<NODE_ID, DHT_NODE *>		NodeList;
+
+	NODE_PEER()
+	{
+		NodeList.Create(MAX_PEER_NODE_COUNT, MAX_PEER_NODE_COUNT, 16);
+		Clear();
+	}
+	void Clear()
+	{		
 		PeerAddress.Clear();
 		LastRecvTime = 0;
 		LastReplyTime = 0;
 		LastPingTime = 0;
 		PingCount = 0;
 		AccessCount = 0;
-	}
-};
-
-struct DHT_NODE_BUCKET 
-{
-	NODE_ID					FirstNodeID;
-	time_t					LastRecvTime;
-	CEasyArray<DHT_NODE>	NodeList;
-	DHT_NODE_BUCKET()
-	{
-		Clear();
-	}
-	void Clear()
-	{
-		FirstNodeID.Clear();
-		LastRecvTime = 0;
-		NodeList.Create(16, 16);
+		NodeList.Clear();
 	}
 };
 

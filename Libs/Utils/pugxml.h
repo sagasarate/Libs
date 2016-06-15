@@ -264,25 +264,26 @@ inline static bool strcatgrow(TCHAR** lhs,const TCHAR* rhs)
 inline CEasyString XMLEncodeString(LPCTSTR Str)
 {
 	CEasyString OutStr(Str);
-	OutStr.Replace("&", "&amp;");
-	OutStr.Replace("<", "&lt;");
-	OutStr.Replace(">", "&gt;");
-	OutStr.Replace("\"", "&quot;");
-	OutStr.Replace("\r", "&rt;");
-	OutStr.Replace("\n", "&nl;");
-	OutStr.Replace("	", "&tab;");
+	OutStr.Replace(_T("&"), _T("&amp;"));
+	OutStr.Replace(_T("<"), _T("&lt;"));
+	OutStr.Replace(_T(">"), _T("&gt;"));
+	OutStr.Replace(_T("\""), _T("&quot;"));
+	OutStr.Replace(_T("\r"), _T("&#13;"));
+	OutStr.Replace(_T("\n"), _T("&#10;"));
+	OutStr.Replace(_T("	"), _T("&tab;"));
 	return OutStr;
 }
 inline void XMLDecodeString(CEasyString& Str)
 {
-	CEasyString OutStr(Str);	
-	OutStr.Replace("&lt;", "<");
-	OutStr.Replace("&gt;", ">");
-	OutStr.Replace("&quot;", "\"");
-	OutStr.Replace("&rt;", "\r");
-	OutStr.Replace("&nl;", "\n");
-	OutStr.Replace("&tab;", "	");
-	OutStr.Replace("&amp;", "&");
+	Str.Replace(_T("&lt;"), _T("<"));
+	Str.Replace(_T("&gt;"), _T(">"));
+	Str.Replace(_T("&quot;"), _T("\""));
+	Str.Replace(_T("&rt;"), _T("\r"));
+	Str.Replace(_T("&nl;"), _T("\n"));
+	Str.Replace(_T("&#13;"), _T("\r"));
+	Str.Replace(_T("&#10;"), _T("\n"));
+	Str.Replace(_T("&tab;"), _T("	"));
+	Str.Replace(_T("&amp;"), _T("&"));
 }
 
 inline static bool chartype_symbol(TCHAR c) //Character is alphanumeric, -or- '_', -or- ':', -or- '-', -or- '.'.
@@ -2258,6 +2259,7 @@ public:
                 }
             }
         }
+		XMLDecodeString(temp);
         return temp;
     }
 
@@ -3394,9 +3396,13 @@ public:
         if ( children() == 0 )
             append_child( type );
         xml_node node_value = child( 0 );
-        if ( !node_value.empty() )
-            if ( !node_value.value(new_value == NULL ? _T("") : new_value) )
-                return xml_node();    // empty() node.
+		if (!node_value.empty())
+		{
+			CEasyString Value = XMLEncodeString(new_value);
+			
+			if (!node_value.value(Value))
+				return xml_node();    // empty() node.
+		}
         return node_value;     // rem: will be empty() if an error occured.
     }
 

@@ -1903,7 +1903,7 @@ bool CDOSMainThread::CreateCSProj(LPCTSTR szPrjName, LPCTSTR szPrjDir, const CEa
 		xml_node Import = Project.append_child(node_element, _T("Import"));
 		Import.append_attribute(_T("Project"), _T("$(MSBuildToolsPath)\\Microsoft.CSharp.targets"));
 	}
-	return Doc.SaveToFile(FILE_CHANNEL_NORMAL1, PrjFilePath);
+	return Xml.SaveToFile(Doc, PrjFilePath);
 }
 
 

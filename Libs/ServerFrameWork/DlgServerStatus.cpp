@@ -112,7 +112,7 @@ void CDlgServerStatus::FlushStatus(CSmartStruct& ServerStatus, CEasyArray<SERVER
 				ValueStr=FormatNumberWords((INT64)Value,true);
 			else if(FormatType==SSFT_VERSION)
 			{
-				ULONG64_CONVERTER Version;
+				UINT64_CONVERTER Version;
 				Version.QuadPart=Value;
 				ValueStr.Format("%d.%d.%d.%d",
 					Version.Words[3],Version.Words[2],Version.Words[1],Version.Words[0]);
@@ -125,7 +125,7 @@ void CDlgServerStatus::FlushStatus(CSmartStruct& ServerStatus, CEasyArray<SERVER
 				ValueStr=FormatNumberWords((UINT64)Value,true);
 			else if(FormatType==SSFT_VERSION)
 			{
-				ULONG64_CONVERTER Version;
+				UINT64_CONVERTER Version;
 				Version.QuadPart=Value;
 				ValueStr.Format("%d.%d.%d.%d",
 					Version.Words[3],Version.Words[2],Version.Words[1],Version.Words[0]);

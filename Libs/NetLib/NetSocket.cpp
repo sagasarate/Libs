@@ -227,7 +227,7 @@ BOOL CNetSocket::Connected()
 	BOOL bFail = FALSE;
 	if( GetState() != SS_CONNECTING )
 		return FALSE;
-	if( Select( NULL, &bSuccess, &bFail, 1 ) )
+	if( Select( NULL, &bSuccess, &bFail, 0 ) )
 	{
 		if( bSuccess )
 		{

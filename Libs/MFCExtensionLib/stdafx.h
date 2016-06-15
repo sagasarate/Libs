@@ -39,4 +39,4 @@
 
 #include "MFCExtensionLib.h"
 
-
+#define USE_CRT_DETAIL_NEW

@@ -188,8 +188,8 @@ BOOL CDOSServerThread::OnStart()
 
 	m_ServerStatus.Create(SERVER_STATUS_BLOCK_SIZE);
 
-	ULONG64_CONVERTER Version;
-	memcpy(Version.Words,g_ProgramVersion,sizeof(ULONG64_CONVERTER));
+	UINT64_CONVERTER Version;
+	memcpy(Version.Words, g_ProgramVersion, sizeof(UINT64_CONVERTER));
 
 	CEasyString Temp;
 

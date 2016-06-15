@@ -180,19 +180,17 @@ void CBencodingValue::SetStrValue(LPCSTR Value, UINT Len)
 }
 void CBencodingValue::AddListValue(const CBencodingValue& Value)
 {
-	CBencodingValue * pValue = new CBencodingValue();
+	CSmartPtr<CBencodingValue> pValue = new CBencodingValue();
 	*pValue = Value;
 	m_ListValue.Add(pValue);
-	SAFE_RELEASE(pValue);
 }
 void CBencodingValue::AddDictValue(LPCSTR Key, const CBencodingValue& Value)
 {
-	CBencodingValue * pValue = new CBencodingValue();
+	CSmartPtr<CBencodingValue> pValue = new CBencodingValue();
 	*pValue = Value;
 	BENCODING_VALUE_PAIR * pPair = m_DictValue.AddEmpty();
 	pPair->Key = Key;
 	pPair->Value = pValue;
-	SAFE_RELEASE(pValue);
 }
 
 
@@ -270,16 +268,14 @@ const BYTE * CBencodingValue::ParseList(const BYTE * pData, UINT& DataLen)
 		DataLen--;
 		while (DataLen&&pData[0] != 'e')
 		{
-			CBencodingValue * pValue = new CBencodingValue();
+			CSmartPtr<CBencodingValue> pValue = new CBencodingValue();
 			pData = pValue->Parser(pData, DataLen);			
 			if (pData)
 			{
-				m_ListValue.Add(pValue);
-				SAFE_RELEASE(pValue);
+				m_ListValue.Add(pValue);				
 			}
 			else
-			{
-				SAFE_RELEASE(pValue);
+			{				
 				return NULL;
 			}			
 		}
@@ -307,18 +303,16 @@ const BYTE * CBencodingValue::ParseDict(const BYTE * pData, UINT& DataLen)
 				pData = KeyValue.ParseStr(pData, DataLen);
 				if (pData)
 				{
-					CBencodingValue * pValue = new CBencodingValue();
+					CSmartPtr<CBencodingValue> pValue = new CBencodingValue();
 					pData = pValue->Parser(pData, DataLen);					
 					if (pData)
 					{
 						BENCODING_VALUE_PAIR * pPair = m_DictValue.AddEmpty();
 						pPair->Key = KeyValue.GetStrValue();
-						pPair->Value = pValue;
-						SAFE_RELEASE(pValue);
+						pPair->Value = pValue;						
 					}
 					else
-					{
-						SAFE_RELEASE(pValue);
+					{						
 						return NULL;
 					}
 				}

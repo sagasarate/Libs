@@ -49,6 +49,7 @@
 #define _tcstoi64		strtoll
 #define _tcstoui64		strtoull
 #define _tstof			atof
+#define _tcstof			strtof
 #define _tcstok_s		strtok_s
 #define _itot_s			_itoa_s
 #define _ltot_s			_ltoa_s
