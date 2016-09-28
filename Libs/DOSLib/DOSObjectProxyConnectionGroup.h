@@ -26,7 +26,7 @@ public:
 	}
 	float GetCPUUsedRate()
 	{
-		return m_ThreadPerformanceCounter.GetCycleCPUUsedTime();
+		return m_ThreadPerformanceCounter.GetCPUUsedRate();
 	}
 	float GetCycleTime()
 	{

@@ -101,13 +101,13 @@ float CDOSObjectProxyServiceDefault::GetCycleTime()
 }
 UINT CDOSObjectProxyServiceDefault::GetGroupCount()
 { 
-	return m_ConnectionGroups.GetCount();
+	return (UINT)m_ConnectionGroups.GetCount();
 }
 float CDOSObjectProxyServiceDefault::GetGroupCPUUsedRate(UINT Index)
 { 
 	if (Index < m_ConnectionGroups.GetCount())
 	{
-		m_ConnectionGroups[Index].GetCPUUsedRate();
+		return m_ConnectionGroups[Index].GetCPUUsedRate();
 	}
 	else
 	{
@@ -119,7 +119,7 @@ float CDOSObjectProxyServiceDefault::GetGroupCycleTime(UINT Index)
 { 
 	if (Index < m_ConnectionGroups.GetCount())
 	{
-		m_ConnectionGroups[Index].GetCycleTime();
+		return m_ConnectionGroups[Index].GetCycleTime();
 	}
 	else
 	{
