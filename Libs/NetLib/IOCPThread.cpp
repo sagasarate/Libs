@@ -26,7 +26,7 @@ CIOCPThread::~CIOCPThread(void)
 
 BOOL CIOCPThread::OnStart()
 {
-	PrintNetLog(_T("NetLib"), _T("IOCP工作线程启动"));
+	PrintNetLog( _T("IOCP工作线程启动"));
 	return TRUE;
 }
 
@@ -52,7 +52,7 @@ BOOL CIOCPThread::OnRun()
 		{			
 			UINT ErrorCode=GetLastError();
 			if(ErrorCode!=64&&ErrorCode!=1236)
-				PrintNetLog(_T("NetLib"), _T("IOCP返回错误%d(%d)"),
+				PrintNetLog( _T("IOCP返回错误%d(%d)"),
 				ErrorCode,
 				pOverlapped->pOverLappedObject->GetType());
 			pOverlapped->pOverLappedObject->SetErrorCode(ErrorCode);
@@ -68,5 +68,5 @@ BOOL CIOCPThread::OnRun()
 
 void CIOCPThread::OnTerminate()
 {
-	PrintNetLog(_T("NetLib"), _T("IOCP工作线程退出"));
+	PrintNetLog( _T("IOCP工作线程退出"));
 }

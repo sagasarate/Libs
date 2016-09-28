@@ -51,7 +51,3 @@ void CEpollEventObject::Destory()
 	m_EventID=0;
 }
 
-void CEpollEventObject::Release()
-{
-	m_pCreator->DeleteEventObject(this);
-}

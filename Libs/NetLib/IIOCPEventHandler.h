@@ -21,5 +21,5 @@ class COverLappedObject;
 class IIOCPEventHandler
 {
 public:	
-	virtual BOOL OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject)=0;
+	virtual bool OnIOCPEvent(int EventID, COverLappedObject * pOverLappedObject) = 0;
 };

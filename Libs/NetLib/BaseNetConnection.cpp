@@ -19,8 +19,3 @@ CBaseNetConnection::CBaseNetConnection(void)
 CBaseNetConnection::~CBaseNetConnection(void)
 {
 }
-
-UINT CBaseNetConnection::GetCurSendQueryCount()
-{
-	return 0;
-}

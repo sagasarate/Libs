@@ -73,7 +73,7 @@ CBaseNetConnection * CEasyNetLinkService::CreateConnection(CIPAddress& RemoteAdd
 		}
 		if(!IsMatch)
 		{
-			PrintNetLog(_T("NetLib"), _T("连接[%s]不在IP列表中，被拒绝"), RemoteAddress.GetIPString());
+			PrintNetLog( _T("连接[%s]不在IP列表中，被拒绝"), RemoteAddress.GetIPString());
 			return NULL;
 		}
 	}
@@ -89,7 +89,7 @@ CBaseNetConnection * CEasyNetLinkService::CreateConnection(CIPAddress& RemoteAdd
 			}
 			else
 			{
-				PrintNetLog(_T("NetLib"), _T("CEasyNetLinkService::CreateConnection:初始化连接失败"));
+				PrintNetLog( _T("CEasyNetLinkService::CreateConnection:初始化连接失败"));
 				m_pManager->DeleteLink(pLink);
 			}			
 		}
@@ -97,13 +97,13 @@ CBaseNetConnection * CEasyNetLinkService::CreateConnection(CIPAddress& RemoteAdd
 	return NULL;
 }
 
-BOOL CEasyNetLinkService::DeleteConnection(CBaseNetConnection * pConnection)
+bool CEasyNetLinkService::DeleteConnection(CBaseNetConnection * pConnection)
 {
 	if(m_pManager)
 	{
 		m_pManager->DeleteLink(((CENLConnection *)pConnection)->GetParent());
 	}
-	return TRUE;
+	return true;
 }
 
 void CEasyNetLinkService::PrintInfo(UINT LogChannel)

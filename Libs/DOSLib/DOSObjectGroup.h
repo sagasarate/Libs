@@ -33,14 +33,20 @@ protected:
 	};
 	struct OBJECT_STAT_INFO
 	{
+		CEasyStringA		ObjectTypeName;
 		int					Count;
+		int					Weight;
+		UINT				ExecCount;
 		volatile UINT64		CPUCost;
 	};
 	CDOSObjectManager *								m_pManager;
 	UINT											m_Index;
-	STATUS											m_Status;
+	volatile STATUS									m_Status;
 	volatile int									m_Weight;
 	bool											m_StatObjectCPUCost;
+	bool											m_UseRealGroupLoadWeight;
+	UINT64											m_TotalGroupCost;
+	CEasyTimer										m_GroupWeightUpdateTimer;
 
 	CThreadPerformanceCounter						m_ThreadPerformanceCounter;
 
@@ -71,6 +77,8 @@ public:
 	int GetWeight();
 	float GetCPUUsedRate();
 	float GetCycleTime();
+	UINT64 GetCPUUsedTime();
+	UINT GetCycleCount();
 	UINT GetMaxObjectMsgQueueLen();
 	UINT GetIndex();
 
@@ -90,9 +98,10 @@ protected:
 	int ProcessObjectRegister(int ProcessLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 	int ProcessObjectUnregister(int ProcessLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 
-	void OnObjectRegister(OBJECT_ID ObjectID);
-	void OnObjectUnregister(OBJECT_ID ObjectID);
+	void OnObjectRegister(OBJECT_ID ObjectID, LPCSTR szObjectTypeName, int Weight);
+	void OnObjectUnregister(OBJECT_ID ObjectID, int Weight);
 	void AddObjectCPUCost(OBJECT_ID ObjectID,UINT64 CPUCost);
+	void AdjustObjectWeights();
 };
 
 inline CDOSObjectManager * CDOSObjectGroup::GetManager()
@@ -119,6 +128,14 @@ inline float CDOSObjectGroup::GetCycleTime()
 	return m_ThreadPerformanceCounter.GetCycleTime();
 }
 
+inline UINT64 CDOSObjectGroup::GetCPUUsedTime()
+{
+	return m_ThreadPerformanceCounter.GetCycleCPUUsedTime();
+}
+inline UINT CDOSObjectGroup::GetCycleCount()
+{
+	return m_ThreadPerformanceCounter.GetCycleCount();
+}
 inline UINT CDOSObjectGroup::GetIndex()
 {
 	return m_Index;

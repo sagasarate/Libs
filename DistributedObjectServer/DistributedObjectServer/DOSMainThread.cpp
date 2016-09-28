@@ -116,6 +116,7 @@ int CDOSMainThread::Update(int ProcessPacketLimit)
 							LogMono("等待MCS出错%d", errno);
 							LibInfo.Status = LIB_COMPILE_STATE_ERROR;
 							LibInfo.hMCSProcess = NULL;
+							signal(SIGCHLD, SIG_IGN);
 						}
 						else if (Err != 0)
 						{
@@ -123,6 +124,7 @@ int CDOSMainThread::Update(int ProcessPacketLimit)
 							LogMono("MCS已退出%d", ExitCode);
 							LibInfo.Status = LIB_COMPILE_STATE_COMPILED;
 							LibInfo.hMCSProcess = NULL;
+							signal(SIGCHLD, SIG_IGN);
 						}
 #endif
 					}
@@ -232,7 +234,7 @@ int CDOSMainThread::Update(int ProcessPacketLimit)
 				}
 			}
 
-			if (RunningPluginCount == 0)
+			if (RunningPluginCount == 0 && CDOSConfig::GetInstance()->ExistWhenNoPlugin())
 			{
 				Log("CMainThread::Update:已无活动插件存在，服务器关闭");
 				QueryShowDown();
@@ -370,7 +372,7 @@ void CDOSMainThread::OnTerminate()
 		m_hMcsErrWrite = NULL;
 	}
 
-
+	
 
 	FUNCTION_END;
 }
@@ -597,13 +599,7 @@ MonoObject * CDOSMainThread::MonoCreateDistributedObjectOperator(MONO_DOMAIN_INF
 			mono_runtime_invoke(DomainInfo.pMonoClassMethod_DistributedObjectOperator_Ctor, pObject, Params, &pException);
 			if (pException)
 			{
-				MonoString * pMsg = mono_object_to_string(pException, NULL);
-				if (pMsg)
-				{
-					char * pBuff = mono_string_to_utf8(pMsg);
-					LogMono("%s", pBuff);
-					mono_free(pBuff);
-				}
+				ProcessMonoException(pException);
 			}
 			else
 			{
@@ -769,6 +765,40 @@ bool CDOSMainThread::LoadPlugin(PLUGIN_INFO& PluginInfo)
 {
 	FUNCTION_BEGIN;
 
+	//检查配置目录和日志目录
+	if (PluginInfo.ConfigDir.IsEmpty())
+	{
+		PluginInfo.ConfigDir = CFileTools::GetModulePath(NULL);
+	}
+	else
+	{
+		if (CFileTools::IsAbsolutePath(PluginInfo.ConfigDir))
+			PluginInfo.ConfigDir = CFileTools::MakeFullPath(PluginInfo.ConfigDir);
+		else
+			PluginInfo.ConfigDir = CFileTools::MakeModuleFullPath(NULL, PluginInfo.ConfigDir);
+	}
+
+	if (PluginInfo.LogDir.IsEmpty())
+	{
+		PluginInfo.LogDir = CFileTools::MakeModuleFullPath(NULL, "Log");
+	}
+	else
+	{
+		if (CFileTools::IsAbsolutePath(PluginInfo.LogDir))
+			PluginInfo.LogDir = CFileTools::MakeFullPath(PluginInfo.LogDir);
+		else
+			PluginInfo.LogDir = CFileTools::MakeModuleFullPath(NULL, PluginInfo.LogDir);
+	}
+
+	if (!CFileTools::IsDirExist(PluginInfo.LogDir))
+	{
+		if (!CFileTools::CreateDirEx(PluginInfo.LogDir))
+		{
+			Log("无法创建日志目录:%s", (LPCTSTR)PluginInfo.LogDir);
+			return false;
+		}
+	}
+
 	switch (PluginInfo.PluginType)
 	{
 	case PLUGIN_TYPE_NATIVE:
@@ -844,9 +874,9 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 #ifndef WIN32
 	PluginInfo.ModuleFileName.Replace('\\', '/');
 #endif
-	PluginInfo.ModuleFileName = MakeModuleFullPath(NULL, PluginInfo.ModuleFileName);
+	PluginInfo.ModuleFileName = CFileTools::MakeModuleFullPath(NULL, PluginInfo.ModuleFileName);
 	//扩展名补足
-	CEasyString FileExt = GetPathFileExtName(PluginInfo.ModuleFileName);
+	CEasyString FileExt = CFileTools::GetPathFileExtName(PluginInfo.ModuleFileName);
 	if (FileExt.GetLength() <= 1)
 	{
 #ifdef WIN32
@@ -856,7 +886,13 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 #endif
 	}
 
-	Log("开始装载插件%s", (LPCTSTR)PluginInfo.ModuleFileName);
+	if (PluginInfo.PluginName.IsEmpty())
+		PluginInfo.PluginName = CFileTools::GetPathFileName(PluginInfo.ModuleFileName);
+
+	Log("开始装载插件%s,配置目录:%s,日志目录:%s", 
+		(LPCTSTR)PluginInfo.ModuleFileName,
+		(LPCTSTR)PluginInfo.ConfigDir,
+		(LPCTSTR)PluginInfo.LogDir);
 #ifdef WIN32
 	PluginInfo.hModule = LoadLibrary(PluginInfo.ModuleFileName);
 #else
@@ -885,17 +921,16 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 #endif
 		{
 			CEasyString LogFileName;
-			CEasyString ModulePath = GetModulePath(NULL);
 
 			CServerLogPrinter * pLog;
 
-			LogFileName.Format("%s/Log/Plugin.%s", (LPCTSTR)ModulePath, (LPCTSTR)GetPathFileName(PluginInfo.ModuleFileName));
+			LogFileName.Format("%s/Plugin.%s", (LPCTSTR)PluginInfo.LogDir, (LPCTSTR)CFileTools::GetPathFileName(PluginInfo.PluginName));
 			pLog = new CServerLogPrinter(this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
 				CSystemConfig::GetInstance()->GetLogLevel(), LogFileName);
 			CLogManager::GetInstance()->AddChannel(PluginInfo.LogChannel, pLog);
 			SAFE_RELEASE(pLog);
 
-			if ((*(PluginInfo.pInitFN))(&m_PluginObjectManager, PluginInfo.ID, PluginInfo.LogChannel))
+			if ((*(PluginInfo.pInitFN))(&m_PluginObjectManager, PluginInfo.ID, PluginInfo.LogChannel, PluginInfo.ConfigDir, PluginInfo.LogDir))
 			{
 				PluginInfo.PluginStatus = PLUGIN_STATUS_RUNNING;
 				Log("插件装载成功%s", (LPCTSTR)PluginInfo.ModuleFileName);
@@ -933,25 +968,25 @@ bool CDOSMainThread::FreeNativePlugin(PLUGIN_INFO& PluginInfo)
 	if (PluginInfo.pReleaseFN)
 		(*(PluginInfo.pReleaseFN))();
 
-	if (PluginInfo.hModule)
-	{
-#ifdef WIN32
-		if (FreeLibrary(PluginInfo.hModule))
-#else
-		if (dlclose(PluginInfo.hModule) == 0)
-#endif
-		{
-			Log("插件释放成功%s", (LPCTSTR)PluginInfo.ModuleFileName);
-		}
-		else
-		{
-			Log("插件释放失败%s", (LPCTSTR)PluginInfo.ModuleFileName);
-#ifndef WIN32
-			Log("错误信息:%s", dlerror());
-#endif
-			return false;
-		}
-	}
+//	if (PluginInfo.hModule)
+//	{
+//#ifdef WIN32
+//		if (FreeLibrary(PluginInfo.hModule))
+//#else
+//		if (dlclose(PluginInfo.hModule) == 0)
+//#endif
+//		{
+//			Log("插件释放成功%s", (LPCTSTR)PluginInfo.ModuleFileName);
+//		}
+//		else
+//		{
+//			Log("插件释放失败%s", (LPCTSTR)PluginInfo.ModuleFileName);
+//#ifndef WIN32
+//			Log("错误信息:%s", dlerror());
+//#endif
+//			return false;
+//		}
+//	}
 
 	PluginInfo.hModule = NULL;
 
@@ -983,14 +1018,17 @@ bool CDOSMainThread::LoadCSharpPlugin(PLUGIN_INFO& PluginInfo)
 	PluginInfo.ModuleFileName.Replace('\\', '/');
 #endif
 
-	PluginInfo.ModuleFileName = MakeModuleFullPath(NULL, PluginInfo.PluginName);
-
 	//扩展名补足
-	CEasyString FileExt = GetPathFileExtName(PluginInfo.ModuleFileName);
+	CEasyString FileExt = CFileTools::GetPathFileExtName(PluginInfo.ModuleFileName);
 	if (FileExt.GetLength() <= 1)
 	{
 		PluginInfo.ModuleFileName = PluginInfo.ModuleFileName + ".dll";
 	}
+
+	PluginInfo.ModuleFileName = CFileTools::MakeModuleFullPath(NULL, PluginInfo.ModuleFileName);
+
+	if (PluginInfo.PluginName.IsEmpty())
+		PluginInfo.PluginName = CFileTools::GetPathFileName(PluginInfo.ModuleFileName);
 
 	if (PluginInfo.LoadType == PLUGIN_LOAD_TYPE_SOURCE_CODE&&PluginInfo.PluginStatus != PLUGIN_STATUS_COMPILED)
 	{
@@ -1022,45 +1060,37 @@ bool CDOSMainThread::LoadCSharpPlugin(PLUGIN_INFO& PluginInfo)
 							mono_runtime_invoke(pCtorMethod, pMainObj, NULL, &pException);
 							if (pException)
 							{
-								MonoString * pMsg = mono_object_to_string(pException, NULL);
-								if (pMsg)
-								{
-									char * pBuff = mono_string_to_utf8(pMsg);
-									LogMono("%s", pBuff);
-									mono_free(pBuff);
-								}
+								ProcessMonoException(pException);
 							}
 							else
 							{
 								MonoMethod * pInitMethod;
-								pInitMethod = mono_class_get_method_from_name(pClass, PLUGIN_INIT_FN_NAME, 2);
+								pInitMethod = mono_class_get_method_from_name(pClass, PLUGIN_INIT_FN_NAME, 4);
 								if (pInitMethod)
 								{
 									CEasyString LogFileName;
-									CEasyString ModulePath = GetModulePath(NULL);
+
 
 									CServerLogPrinter * pLog;
 
-									LogFileName.Format("%s/Log/Plugin.%s", (LPCTSTR)ModulePath, (LPCTSTR)GetPathFileName(PluginInfo.ModuleFileName));
+									LogFileName.Format("%s/Plugin.%s", (LPCTSTR)PluginInfo.LogDir, (LPCTSTR)CFileTools::GetPathFileName(PluginInfo.PluginName));
 									pLog = new CServerLogPrinter(this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
 										CSystemConfig::GetInstance()->GetLogLevel(), LogFileName);
 									CLogManager::GetInstance()->AddChannel(PluginInfo.LogChannel, pLog);
 									SAFE_RELEASE(pLog);
 
 									pException = NULL;
-									LPVOID Params[2];
+									LPVOID Params[4];
 									Params[0] = &PluginInfo.ID;
 									Params[1] = &PluginInfo.LogChannel;
+									Params[2] = CDOSMainThread::GetInstance()->MonoCreateString(PluginInfo.MonoDomainInfo,
+										PluginInfo.ConfigDir, PluginInfo.ConfigDir.GetLength());
+									Params[3] = CDOSMainThread::GetInstance()->MonoCreateString(PluginInfo.MonoDomainInfo,
+										PluginInfo.LogDir, PluginInfo.LogDir.GetLength());
 									MonoObject * pReturnValue = mono_runtime_invoke(pInitMethod, pMainObj, Params, &pException);
 									if (pException)
 									{
-										MonoString * pMsg = mono_object_to_string(pException, NULL);
-										if (pMsg)
-										{
-											char * pBuff = mono_string_to_utf8(pMsg);
-											LogMono("%s", pBuff);
-											mono_free(pBuff);
-										}
+										ProcessMonoException(pException);
 									}
 									else if (pReturnValue)
 									{
@@ -1111,7 +1141,7 @@ bool CDOSMainThread::LoadCSharpPlugin(PLUGIN_INFO& PluginInfo)
 			{
 				LogMono("无法加载模块%s", (LPCTSTR)PluginInfo.ModuleFileName);
 			}
-			ReleasePluginDomain(PluginInfo.MonoDomainInfo);
+			ReleasePluginDomain(PluginInfo);
 		}
 		else
 		{
@@ -1136,7 +1166,7 @@ bool CDOSMainThread::CompileCSharpPlugin(PLUGIN_INFO& PluginInfo)
 
 	for (UINT i = 0; i < PluginInfo.SourceDirs.GetCount(); i++)
 	{
-		CEasyString RootDir = MakeModuleFullPath(NULL, PluginInfo.SourceDirs[i]);
+		CEasyString RootDir = CFileTools::MakeModuleFullPath(NULL, PluginInfo.SourceDirs[i]);
 		SourceList.Add(RootDir);
 		FetchDirs(RootDir, SourceList);
 	}
@@ -1148,7 +1178,7 @@ bool CDOSMainThread::CompileCSharpPlugin(PLUGIN_INFO& PluginInfo)
 
 	CEasyArray<CEasyString> LibList;
 
-	FetchFiles(MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir), _T(".dll"), LibList);
+	FetchFiles(CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir), _T(".dll"), LibList);
 
 	CEasyString OutFileName = PluginInfo.ModuleFileName;
 
@@ -1188,13 +1218,7 @@ bool CDOSMainThread::FreeCSharpPlugin(PLUGIN_INFO& PluginInfo)
 					mono_runtime_invoke(pReleaseMethod, pMainObj, NULL, &pException);
 					if (pException)
 					{
-						MonoString * pMsg = mono_object_to_string(pException, NULL);
-						if (pMsg)
-						{
-							char * pBuff = mono_string_to_utf8(pMsg);
-							LogMono("%s", pBuff);
-							mono_free(pBuff);
-						}
+						ProcessMonoException(pException);
 					}
 				}
 				else
@@ -1218,7 +1242,7 @@ bool CDOSMainThread::FreeCSharpPlugin(PLUGIN_INFO& PluginInfo)
 		//mono_assembly_close(PluginInfo.pCSPluginAssembly);
 		//PluginInfo.pCSPluginAssembly = NULL;
 
-		ReleasePluginDomain(PluginInfo.MonoDomainInfo);
+		ReleasePluginDomain(PluginInfo);
 		LogMono("CDOSMainThread::FreeCSharpPlugin:插件[%s]已释放", (LPCTSTR)PluginInfo.ModuleFileName);
 		return true;
 	}
@@ -1247,7 +1271,7 @@ bool CDOSMainThread::CompileCSharpLib(LIB_INFO& LibInfo)
 
 	CEasyString OutFileName;
 	OutFileName.Format("%s/%s.dll", (LPCTSTR)LibInfo.OutDir, (LPCTSTR)LibInfo.LibName);
-	OutFileName = MakeModuleFullPath(NULL, OutFileName);
+	OutFileName = CFileTools::MakeModuleFullPath(NULL, OutFileName);
 
 
 
@@ -1256,7 +1280,7 @@ bool CDOSMainThread::CompileCSharpLib(LIB_INFO& LibInfo)
 
 	for (UINT i = 0; i < LibInfo.SourceDirs.GetCount(); i++)
 	{
-		CEasyString RootDir = MakeModuleFullPath(NULL, LibInfo.SourceDirs[i]);
+		CEasyString RootDir = CFileTools::MakeModuleFullPath(NULL, LibInfo.SourceDirs[i]);
 		SourceList.Add(RootDir);
 		FetchDirs(RootDir, SourceList);
 	}
@@ -1269,7 +1293,7 @@ bool CDOSMainThread::CompileCSharpLib(LIB_INFO& LibInfo)
 
 	CEasyArray<CEasyString> LibList;
 
-	FetchFiles(MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir), _T(".dll"), LibList);
+	FetchFiles(CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir), _T(".dll"), LibList);
 
 	if (CDOSConfig::GetInstance()->GetMonoConfig().CreateProj)
 		CreateCSProj(LibInfo.LibName, LibInfo.PrjDir, LibInfo.SourceDirs, OutFileName);
@@ -1322,17 +1346,17 @@ int CDOSMainThread::ReleasePlugin(CESThread * pESThread,ES_BOLAN* pResult,ES_BOL
 
 void CDOSMainThread::MonoLog(const char *log_domain, const char *log_level, const char *message, mono_bool fatal, void *user_data)
 {
-	PrintImportantLog(0, "[MonoLog][%s]%s", log_level, message);
+	PrintImportantLog("[MonoLog][%s]%s", log_level, message);
 }
 
 void CDOSMainThread::MonoPrint(const char *string, mono_bool is_stdout)
 {
-	PrintImportantLog(0, "[MonoPrint]%s", string);
+	PrintImportantLog("[MonoPrint]%s", string);
 }
 
 void CDOSMainThread::MonoPrintErr(const char *string, mono_bool is_stdout)
 {
-	PrintImportantLog(0, "[MonoPrintErr]%s", string);
+	PrintImportantLog("[MonoPrintErr]%s", string);
 }
 
 
@@ -1392,11 +1416,11 @@ bool CDOSMainThread::MonoInit()
 	mono_trace_set_printerr_handler(MonoPrintErr);
 
 	if (!CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir.IsEmpty())
-		mono_set_assemblies_path(MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir));
+		mono_set_assemblies_path(CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir));
 	if (!CDOSConfig::GetInstance()->GetMonoConfig().RunDir.IsEmpty())
-		mono_set_config_dir(MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().RunDir));
+		mono_set_config_dir(CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().RunDir));
 	if (!CDOSConfig::GetInstance()->GetMonoConfig().ConfigFilePath.IsEmpty())
-		mono_config_parse(MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().ConfigFilePath));
+		mono_config_parse(CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().ConfigFilePath));
 
 	if (CDOSConfig::GetInstance()->GetMonoConfig().EnableDebug)
 	{
@@ -1570,10 +1594,23 @@ MonoMethod * CDOSMainThread::MonoGetClassMethod(MonoClass * pMonoClass, LPCTSTR 
 	pMonoMethod = mono_class_get_method_from_name(pMonoClass, szMethodName, ParamCount);
 	if (pMonoMethod == NULL)
 	{
-		LogMono("无法在类[%s]从找到成员函数[%s,%d]", mono_class_get_name(pMonoClass), szMethodName, ParamCount);
+		LogMono("无法在类[%s]中找到成员函数[%s,%d]", mono_class_get_name(pMonoClass), szMethodName, ParamCount);
 	}
 	FUNCTION_END;
 	return pMonoMethod;
+}
+
+void CDOSMainThread::ProcessMonoException(MonoObject * pException)
+{
+	CAutoLock Lock(m_MonoExcpetionLock);
+
+	MonoString * pMsg = mono_object_to_string(pException, NULL);
+	if (pMsg)
+	{
+		char * pBuff = mono_string_to_utf8(pMsg);
+		LogMono("%s", pBuff);
+		mono_free(pBuff);
+	}
 }
 
 void CDOSMainThread::MonoInternalCallLog(UINT LogChannel, MonoString * pMsg)
@@ -1614,7 +1651,7 @@ bool CDOSMainThread::InitPluginDomain(MONO_DOMAIN_INFO& MonoDomainInfo, LPCTSTR 
 
 		if (MonoDomainInfo.pMonoDomain)
 		{
-			CEasyString SystemDllFileName = MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir + DIR_SLASH + MONO_ASSEMBLY_DOSSYSTEM);
+			CEasyString SystemDllFileName = CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir + DIR_SLASH + MONO_ASSEMBLY_DOSSYSTEM);
 			MonoDomainInfo.pMonoAssembly_DOSSystem = mono_domain_assembly_open(MonoDomainInfo.pMonoDomain, SystemDllFileName);
 			if (MonoDomainInfo.pMonoAssembly_DOSSystem)
 			{
@@ -1666,21 +1703,18 @@ bool CDOSMainThread::InitPluginDomain(MONO_DOMAIN_INFO& MonoDomainInfo, LPCTSTR 
 }
 
 
-bool CDOSMainThread::ReleasePluginDomain(MONO_DOMAIN_INFO& MonoDomainInfo)
+bool CDOSMainThread::ReleasePluginDomain(PLUGIN_INFO& PluginInfo)
 {
-	//if (MonoDomainInfo.pMonoAssembly_DOSSystem)
-	//{
-	//	mono_assembly_close(MonoDomainInfo.pMonoAssembly_DOSSystem);
-	//	MonoDomainInfo.pMonoAssembly_DOSSystem = NULL;
-	//}
-
-	if (MonoDomainInfo.pMonoDomain)
+	if (PluginInfo.MonoDomainInfo.pMonoDomain)
 	{
-		mono_domain_finalize(MonoDomainInfo.pMonoDomain,MONO_DOMAIN_FINALIZE_TIMEOUT);
-		mono_domain_unload(MonoDomainInfo.pMonoDomain);
-		//mono_domain_free(MonoDomainInfo.pMonoDomain, true);
-		MonoDomainInfo.pMonoDomain = NULL;
+		//目前调用mono_domain_unload会导致assert,所以只能不调用，似乎最终虚拟机释放时也会被释放
+		//mono_domain_set(PluginInfo.MonoDomainInfo.pMonoDomain, FALSE);
+		mono_domain_finalize(PluginInfo.MonoDomainInfo.pMonoDomain, MONO_DOMAIN_FINALIZE_TIMEOUT);
+		//mono_domain_unload(PluginInfo.MonoDomainInfo.pMonoDomain);
+		PluginInfo.MonoDomainInfo.pMonoAssembly_DOSSystem = NULL;
+		PluginInfo.MonoDomainInfo.pMonoDomain = NULL;
 	}
+	PluginInfo.pCSPluginAssembly = NULL;
 	return true;
 }
 
@@ -1710,10 +1744,10 @@ CEasyString CDOSMainThread::GetProjectGUID(LPCTSTR PrjName)
 
 bool CDOSMainThread::CreateCSProj(LPCTSTR szPrjName, LPCTSTR szPrjDir, const CEasyArray<CEasyString>& SourceDirs, LPCTSTR szOutFileName)
 {
-	CEasyString PrjDir = MakeModuleFullPath(NULL, szPrjDir);
+	CEasyString PrjDir = CFileTools::MakeModuleFullPath(NULL, szPrjDir);
 	CEasyString PrjFilePath;
 	PrjFilePath.Format(_T("%s/%s.csproj"), (LPCTSTR)PrjDir, szPrjName);
-	PrjFilePath = MakeFullPath(PrjFilePath);
+	PrjFilePath = CFileTools::MakeFullPath(PrjFilePath);
 
 	CEasyString PrjGUIDStr = GetProjectGUID(PrjFilePath);
 
@@ -1838,7 +1872,7 @@ bool CDOSMainThread::CreateCSProj(LPCTSTR szPrjName, LPCTSTR szPrjDir, const CEa
 	{
 		CEasyArray<CEasyString> FileList;
 
-		FetchFiles(MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir), _T(".dll"), FileList);
+		FetchFiles(CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir), _T(".dll"), FileList);
 
 		xml_node ItemGroup = Project.append_child(node_element, _T("ItemGroup"));
 
@@ -1872,9 +1906,9 @@ bool CDOSMainThread::CreateCSProj(LPCTSTR szPrjName, LPCTSTR szPrjDir, const CEa
 			if (FileList[i].CompareNoCase(szOutFileName) != 0)
 			{
 				xml_node Reference = ItemGroup.append_child(node_element, _T("Reference"));
-				Reference.append_attribute(_T("Include"), (LPCTSTR)GetPathFileName(FileList[i]));
+				Reference.append_attribute(_T("Include"), (LPCTSTR)CFileTools::GetPathFileName(FileList[i]));
 				xml_node HintPath = Reference.append_child(node_element, _T("HintPath"));
-				CEasyString FilePath = GetRelativePath(PrjDir, FileList[i]);
+				CEasyString FilePath = CFileTools::GetRelativePath(PrjDir, FileList[i]);
 				HintPath.set_child_value(node_pcdata, FilePath);
 			}
 
@@ -1886,7 +1920,7 @@ bool CDOSMainThread::CreateCSProj(LPCTSTR szPrjName, LPCTSTR szPrjDir, const CEa
 
 		for (UINT i = 0; i < SourceDirs.GetCount(); i++)
 		{
-			FetchFiles(MakeModuleFullPath(NULL, SourceDirs[i]), _T(".cs"), FileList);
+			FetchFiles(CFileTools::MakeModuleFullPath(NULL, SourceDirs[i]), _T(".cs"), FileList);
 		}
 
 		xml_node ItemGroup = Project.append_child(node_element, _T("ItemGroup"));
@@ -1894,7 +1928,7 @@ bool CDOSMainThread::CreateCSProj(LPCTSTR szPrjName, LPCTSTR szPrjDir, const CEa
 		for (UINT i = 0; i < FileList.GetCount(); i++)
 		{
 			xml_node Reference = ItemGroup.append_child(node_element, _T("Compile"));
-			CEasyString FilePath = GetRelativePath(PrjDir, FileList[i]);
+			CEasyString FilePath = CFileTools::GetRelativePath(PrjDir, FileList[i]);
 			Reference.append_attribute(_T("Include"), (LPCTSTR)FilePath);
 		}
 	}
@@ -1972,12 +2006,12 @@ bool CDOSMainThread::CallMCS(CEasyArray<CEasyString>& SourceList, CEasyArray<CEa
 
 #ifdef WIN32
 
-	CEasyString WorkDir = GetModulePath(NULL);
+	CEasyString WorkDir = CFileTools::GetModulePath(NULL);
 
 	CEasyString Cmd;
 
 	Cmd.Format("%s %s %s %s -nostdlib -target:library %s",
-		(LPCTSTR)MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().CompilerPath),
+		(LPCTSTR)CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().CompilerPath),
 		(LPCTSTR)Sources, (LPCTSTR)szDebugSwitch, (LPCTSTR)Libs, (LPCTSTR)OutFileName);
 
 	LogMono("开始生成:%s", (LPCTSTR)Cmd);
@@ -2016,7 +2050,11 @@ bool CDOSMainThread::CallMCS(CEasyArray<CEasyString>& SourceList, CEasyArray<CEa
 		return true;
 	}
 #else
-	CEasyString CompilerPath = "mcs";
+
+	//恢复对SIGCHLD的屏蔽
+	signal(SIGCHLD, SIG_DFL);
+
+	CEasyString CompilerPath = CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().CompilerPath);
 
 
 

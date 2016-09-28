@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="gb2312" ?>
 <Main ServiceName="ServerList" ServiceDesc="ServerList">
-  <Net NetWorkThreadPerCPU="2">
+  <Net NetWorkThreadCount="2">
     <EventObjectPool StartSize="10240" GrowSize="1024" GrowLimit="32" />
     <EventRouterPool StartSize="2048" GrowSize="512" GrowLimit="32" />
   </Net>
@@ -13,7 +13,8 @@
   </RouterLink>
 
   <ClientProxys>
-    <ClientProxy ProxyType="1" ProxyMode="0" ListenIP="::" ListenPort="9800" MaxConnection="2048" ConnectionMsgQueueSize="256" 
+    <ClientProxy ProxyType="1" ProxyMode="0" ListenIP="::" ListenPort="9800" ConnectionGroupCount="4" 
+                 ConnectionPoolStartSize="256" ConnectionPoolGrowSize="256" ConnectionPoolGrowLimit="32"
                  SendBufferSize="1024" SendDelay="50" SendQueryLimit="5"  
                  UnacceptConnectionKeepTime="30000" UseServerInitiativeKeepAlive="false" KeepAliveTime="10000" KeepAliveCount="20"
                  MsgCompressType="lzo" MinMsgCompressSize="1024"  UseWebSocketProtocol="true"
@@ -22,24 +23,24 @@
   </ClientProxys>
 
   <MemoryPool BlockSize="64" LevelSize="1048576" LevelCount="7" />
-  <Object GroupCount="2" MaxGroupObjectCount="512" MsgQueueSize="4096" StatObjectCPUCost="true" />
+  <Object GroupCount="2" ObjectPoolStartSize="512" ObjectPoolGrowSize="512" ObjectPoolGrowLimit="512" MsgQueueSize="4096" StatObjectCPUCost="true" />
   
-  <Mono Enable="true" LibraryDir="lib" RunDir="./" CompilerPath="build/mcs.exe" CreateProj="false" ConfigFilePath="" EnableDebug="false"
-        DebugAgentListenIP="0" DebugAgentListenPort="56600" IsDebugSuspend="true" 
+  <Mono Enable="true" LibraryDir="lib" RunDir="./" CompilerPath="build/mcs.exe" CreateProj="false" ConfigFilePath="" EnableDebug="true"
+        DebugAgentListenIP="0" DebugAgentListenPort="56600" IsDebugSuspend="false" 
         BaseGCInterval="200" AdvanceGCMul="5" FullGCInterval="60000"/>
   
   <Libs>
     <Lib Name="DOSSystem" NeedCompile="false" OutDir="lib" PrjDir="../DOSSystem">
       <SourceDir Name="../DOSSystem"/>
     </Lib>
-    <Lib Name="Protocol" NeedCompile="true" OutDir="lib">
+    <Lib Name="Protocol" NeedCompile="false" OutDir="lib">
       <SourceDir Name="protocol"/>
     </Lib>
   </Libs>
   
   <Plugins>
     <PluginObjectPool StartSize="4096" GrowSize="1024" GrowLimit="32" />
-    <Plugin  Type="CSharp" Name="CSTest" LoadType="SourceCode" MainClassNameSpace="CSTest" MainClass="CSTestMain" >
+    <Plugin  Type="CSharp" Name="CSTest" LoadType="Assembly" MainClassNameSpace="CSTest" MainClass="CSTestMain" >
       <SourceDir Name="CSTest"/>
     </Plugin>
   </Plugins>

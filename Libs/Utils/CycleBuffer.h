@@ -33,8 +33,6 @@ public:
 	void Destory();
 	void Clear();
 
-	void SetLockMode(bool IsLockFront, bool IsLockBack);
-
 	UINT GetBufferSize();
 	UINT GetUsedSize();
 	UINT GetFreeSize();

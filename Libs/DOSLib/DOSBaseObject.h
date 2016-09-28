@@ -42,7 +42,7 @@ protected:
 	UINT												m_ConcernedObjectCheckTime;
 	CEasyTimer											m_ConcernedObjectCheckTimer;
 
-	CThreadSafeIDStorage<CDOSMessagePacket *>	m_MsgQueue;
+	CCycleQueue<CDOSMessagePacket *>					m_MsgQueue;
 
 	DECLARE_CLASS_INFO_STATIC(CDOSBaseObject);
 public:
@@ -154,5 +154,5 @@ inline OBJECT_ID CDOSBaseObject::GetObjectID()
 
 inline UINT CDOSBaseObject::GetMsgQueueLen()
 {
-	return m_MsgQueue.GetObjectCount();
+	return m_MsgQueue.GetUsedSize();
 }

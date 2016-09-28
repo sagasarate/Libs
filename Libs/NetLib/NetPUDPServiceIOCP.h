@@ -18,10 +18,13 @@ class CNetPUDPService :
 	public CBaseNetService,public IIOCPEventHandler
 {
 protected:
-	volatile BOOL							m_WantClose;
+	volatile bool							m_WantClose;
 	CNetServer *							m_pServer;
-	int										m_ParallelRecvCount;	
+	UINT									m_ParallelRecvCount;
 	CIOCPEventRouter *						m_pIOCPEventRouter;
+
+	CCycleQueue<COverLappedObject *>		m_OverLappedObjectPool;
+	CEasyCriticalSection					m_OverLappedObjectPoolLock;
 	
 
 	DECLARE_CLASS_INFO_STATIC(CNetPUDPService);
@@ -34,24 +37,25 @@ public:
 
 	CNetServer * GetServer();
 
-	virtual BOOL OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject);
+	virtual bool OnIOCPEvent(int EventID, COverLappedObject * pOverLappedObject);
 	
 
-	virtual BOOL Create(int ParallelRecvCount=DEFAULT_PARALLEL_RECV);
+	virtual bool Create(UINT ParallelRecvCount = DEFAULT_PARALLEL_RECV);
 	virtual void Destory();
 	
-	BOOL StartListen(const CIPAddress& Address);
+	bool StartListen(const CIPAddress& Address);
 	void Close();	
 
 	virtual void OnStartUp();
 	virtual void OnClose();
 
-	BOOL QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int Size);
+	bool QueryUDPSend(const CIPAddress& IPAddress, LPCVOID pData, int Size);
 
 	
 protected:	
-	BOOL QueryUDPRecv();
-	
+	bool QueryUDPRecv();
+	COverLappedObject * AllocOverLappedObject();
+	bool ReleaseOverLappedObject(COverLappedObject * pObject);
 };
 
 

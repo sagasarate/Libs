@@ -331,90 +331,6 @@ inline double __ntohd(UINT64 Value)
 	}
 }
 
-inline bool IsDirSlash(TCHAR Char)
-{
-	return Char == '/' || Char == '\\';
-}
-
-
-inline CEasyString GetRelativePath(LPCTSTR szSrcDir, LPCTSTR szSrcPath)
-{
-
-	if (szSrcDir == NULL || szSrcPath == NULL)
-		return CEasyString();
-
-	
-
-	CEasyString SrcDir = MakeFullPath(szSrcDir);
-
-	CEasyString SrcPath = MakeFullPath(szSrcPath);
-
-	SrcDir.Trim();
-	if (SrcDir.IsEmpty() || SrcPath.IsEmpty())
-		return CEasyString();
-
-	//if (!IsDirSlash(SrcDir[SrcDir.GetLength() - 1]))
-	//	SrcDir += DIR_SLASH;
-
-	UINT DirReturnCount = 0;
-	UINT SameDirLen = 0;
-	bool IsInSameDir = true;
-	UINT SrcLeftLen = 0;
-	for (UINT i = 0; i < SrcDir.GetLength(); i++)
-	{
-		if (IsInSameDir)
-		{
-			if (i >= SrcPath.GetLength() || _totlower(SrcDir[i]) != _totlower(SrcPath[i]))
-			{
-				IsInSameDir = false;
-			}				
-			else if (IsDirSlash(SrcPath[i]))
-			{
-				SameDirLen = i + 1;
-			}
-		}
-		
-		if (!IsInSameDir)
-		{
-			SrcLeftLen++;
-			if (IsDirSlash(SrcDir[i]))
-			{
-				DirReturnCount++;
-				SrcLeftLen = 0;
-			}
-		}
-	}
-
-	if (IsInSameDir)
-	{
-		SameDirLen = (UINT)SrcDir.GetLength();
-		if (SameDirLen < SrcPath.GetLength())
-		{
-			if (IsDirSlash(SrcPath[SameDirLen]))
-				SameDirLen++;
-		}
-	}
-
-	if (SrcLeftLen)
-	{
-		DirReturnCount++;
-	}
-
-	CEasyString RelativePath;
-
-	RelativePath.Resize(DirReturnCount * 3 + SrcPath.GetLength() - SameDirLen);
-
-	for (UINT i = 0; i < DirReturnCount; i++)
-	{
-		RelativePath[i * 3] = '.';
-		RelativePath[i * 3 + 1] = '.';
-		RelativePath[i * 3 + 2] = DIR_SLASH;
-	}
-
-	memcpy((LPTSTR)RelativePath.GetBuffer() + DirReturnCount * 3, SrcPath.GetBuffer() + SameDirLen, (SrcPath.GetLength() - SameDirLen)*sizeof(TCHAR));	
-	RelativePath.TrimBuffer(DirReturnCount * 3 + SrcPath.GetLength() - SameDirLen);
-	return RelativePath;
-}
 
 
 inline CEasyString CombineString(CEasyArray<CEasyString>& StrList, TCHAR Separator)
@@ -444,4 +360,40 @@ inline CEasyString CombineString(CEasyArray<CEasyString>& StrList, TCHAR Separat
 		}
 	}
 	return ResultStr;
+}
+
+inline CEasyString UTF8ToLocal(LPCSTR szStr, size_t StrLen = 0)
+{
+	if (StrLen == 0)
+		StrLen = strlen(szStr);
+	CEasyString OutStr;
+#ifdef UNICODE
+	size_t OutLen = UTF8ToUnicode(szStr, StrLen, NULL, 0);
+	OutStr.Resize(OutLen);
+	UTF8ToUnicode(szStr, StrLen, (TCHAR *)OutStr.GetBuffer(), OutLen);
+#else
+	size_t OutLen = UTF8ToAnsi(szStr, StrLen, NULL, 0);
+	OutStr.Resize(OutLen);
+	UTF8ToAnsi(szStr, StrLen, (TCHAR *)OutStr.GetBuffer(), OutLen);
+#endif
+	OutStr.TrimBuffer();
+	return OutStr;
+}
+
+inline CEasyStringA LocalToUTF8(LPCTSTR szStr, size_t StrLen = 0)
+{
+	if (StrLen == 0)
+		StrLen = _tcslen(szStr);
+	CEasyStringA OutStr;
+#ifdef UNICODE
+	size_t OutLen = UnicodeToUTF8(szStr, StrLen, NULL, 0);
+	OutStr.Resize(OutLen);
+	UnicodeToUTF8(szStr, StrLen, (char *)OutStr.GetBuffer(), OutLen);
+#else
+	size_t OutLen = AnsiToUTF8(szStr, StrLen, NULL, 0);
+	OutStr.Resize(OutLen);
+	AnsiToUTF8(szStr, StrLen, (char *)OutStr.GetBuffer(), OutLen);
+#endif
+	OutStr.TrimBuffer();
+	return OutStr;
 }

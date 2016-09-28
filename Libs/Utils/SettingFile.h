@@ -121,25 +121,29 @@ public:
 	const TCHAR * GetString( const TCHAR * pszSection, const TCHAR * pszItemName, const TCHAR * pszDefValue = NULL )
 	{
 		LPCTSTR p = GetSettingString( pszSection, pszItemName );
-		if( p == NULL )return pszDefValue;
+		if (p == NULL)
+			return pszDefValue;
 		return p;
 	}
 	int	GetInteger( const TCHAR * pszSection, const TCHAR * pszItemName, int DefValue = 0 )
 	{
 		LPCTSTR p = GetSettingString( pszSection, pszItemName );
-		if( p == NULL )return DefValue;
+		if (p == NULL)
+			return DefValue;
 		return _tstoi(p);
 	}
 	__int64	GetInteger64( const TCHAR * pszSection, const TCHAR * pszItemName, int DefValue = 0 )
 	{
 		LPCTSTR p = GetSettingString( pszSection, pszItemName );
-		if( p == NULL )return DefValue;
+		if (p == NULL)
+			return DefValue;
 		return _tstoi64(p);
 	}
 	double GetDouble(const TCHAR * pszSection, const TCHAR * pszItemName, double DefValue = 0 )
 	{
 		LPCTSTR p = GetSettingString( pszSection, pszItemName );
-		if( p == NULL ) return DefValue;
+		if (p == NULL)
+			return DefValue;
 		return _tstof(p);
 	}
 protected:
@@ -170,17 +174,23 @@ protected:
 			if( startindex == -1 )return NULL;
 		}
 
-		int itemnamelength = (int)_tcslen( pszItemName );
-		if( itemnamelength == 0 )return NULL;
+		size_t itemnamelength = _tcslen( pszItemName );
+		if (itemnamelength == 0)
+			return NULL;
 
 		int linecount = (int)m_SettingStrings.GetCount();
 		for( int i = startindex;i < linecount;i ++ )
 		{
+			if (m_SettingStrings[i].GetLength() < itemnamelength + 1)
+				continue;
+
 			LPCTSTR p = m_SettingStrings[i];
+			
 			//	如果到达下一个section， 返回错误
-			if( *p == '[' )return NULL;
+			if (*p == '[')
+				return NULL;
 			//	如果是ItemName=这样的句式，进入进一步搜索
-			if( *(p+itemnamelength) == '=' )
+			if (*(p + itemnamelength) == '=')
 			{
 				if( _tcsnicmp( p, pszItemName, itemnamelength ) == 0 )
 				{

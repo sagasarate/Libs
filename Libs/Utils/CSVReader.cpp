@@ -41,7 +41,7 @@ bool CCSVReader::Open(LPCTSTR szFileName,bool HaveHeader)
 	}
 	else
 	{
-		PrintSystemLog(0,_T("CCSVReader::Open:CreateFileAccessor Failed"));
+		PrintSystemLog(_T("CCSVReader::Open:CreateFileAccessor Failed"));
 	}
 	return Ret;
 }

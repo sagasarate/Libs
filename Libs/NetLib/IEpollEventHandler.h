@@ -21,5 +21,5 @@ class CEpollEventObject;
 class IEpollEventHandler
 {
 public:	
-	virtual BOOL OnEpollEvent(UINT EventID)=0;
+	virtual bool OnEpollEvent(UINT EventID)=0;
 };

@@ -23,6 +23,7 @@ CENLConnection::CENLConnection()
 {
 	m_pManager = NULL;
 	m_pParent = NULL;
+	m_Status = STATUS_ACCEPTING;
 	m_KeepAliveCount = 0;
 	m_ActiveType = ENL_ACTIVE_TYPE_PASSIVE;
 }
@@ -30,15 +31,17 @@ CENLConnection::CENLConnection()
 
 CENLConnection::~CENLConnection()
 {
+	Destory();
 }
 
 bool CENLConnection::Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent, const CIPAddress& ConnectionAddress, UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize)
 {
 	m_pManager = pManager;
 	m_pParent = pParent;
+	m_Status = STATUS_ACCEPTING;
 	m_ActiveType = ENL_ACTIVE_TYPE_PROACTIVE;
 	SetServer(m_pManager->GetServer());
-	SetRemoteAddress(ConnectionAddress);
+	m_ConnectionAddress = ConnectionAddress;
 	if (MaxPacketSize + NET_DATA_BLOCK_SIZE > m_AssembleBuffer.GetBufferSize())
 	{
 		m_AssembleBuffer.Create(MaxPacketSize + NET_DATA_BLOCK_SIZE);
@@ -54,6 +57,7 @@ bool CENLConnection::Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent
 {
 	m_pManager = pManager;
 	m_pParent = pParent;
+	m_Status = STATUS_ACCEPTING;
 	m_ActiveType = ENL_ACTIVE_TYPE_PASSIVE;
 	SetServer(m_pManager->GetServer());
 	if(MaxPacketSize + NET_DATA_BLOCK_SIZE > m_AssembleBuffer.GetBufferSize())
@@ -68,8 +72,8 @@ int CENLConnection::Update(int ProcessPacketLimit)
 	int Process = CNetConnection::Update(ProcessPacketLimit);
 	if (m_KeepAliveCount > MAX_KEEP_ALIVE_COUNT)
 	{
-		PrintNetLog(_T("NetLib"), _T("CENLConnection::Update 连接[%s]超时被断开"),
-			CClassifiedID(GetID()).ToStr());
+		PrintNetLog( _T("CENLConnection::Update 连接[%s]超时被断开"),
+			CClassifiedID(m_pParent->GetID()).ToStr());
 		Disconnect();
 	}
 	if (IsDisconnected())
@@ -79,11 +83,11 @@ int CENLConnection::Update(int ProcessPacketLimit)
 			if (m_ReconnectTimer.IsTimeOut(EASY_LINK_RECONNECT_TIME))
 			{
 				m_ReconnectTimer.SaveTime();
-				Connect(GetRemoteAddress(), LINK_CONNECT_TIME);
-				PrintNetLog(_T("NetLib"), _T("[%s]开始连接[%s:%u]"),
+				Connect(m_ConnectionAddress, LINK_CONNECT_TIME);
+				PrintNetLog( _T("[%s]开始连接[%s:%u]"),
 					CClassifiedID(m_pParent->GetReportID()).ToStr(),
-					GetRemoteAddress().GetIPString(),
-					GetRemoteAddress().GetPort());
+					m_ConnectionAddress.GetIPString(),
+					m_ConnectionAddress.GetPort());
 			}
 		}
 		else
@@ -114,7 +118,7 @@ void CENLConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 
 	if (!m_AssembleBuffer.PushBack(pData, DataSize))
 	{
-		PrintNetLog(_T("NetLib"), _T("CENLConnection::OnRecvData 拼包缓冲区溢出,连接断开"));
+		PrintNetLog( _T("CENLConnection::OnRecvData 拼包缓冲区溢出,连接断开"));
 		Disconnect();
 		return;
 	}
@@ -125,7 +129,7 @@ void CENLConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 		UINT MsgSize = pMsg->Header.Size;
 		if (MsgSize < sizeof(EASY_NET_LINK_MSG_HEAD))
 		{
-			PrintNetLog(_T("NetLib"), _T("CENLConnection::OnRecvData 收到大小非法的消息,连接断开"));
+			PrintNetLog( _T("CENLConnection::OnRecvData 收到大小非法的消息,连接断开"));
 			Disconnect();
 			return;
 		}
@@ -135,29 +139,29 @@ void CENLConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 			if (MsgSize >= sizeof(EASY_NET_LINK_MSG_HEAD) + sizeof(EASY_NET_LINK_INFO))
 			{
 				EASY_NET_LINK_INFO * pInfo = (EASY_NET_LINK_INFO *)pMsg->Data;
-				SetID(pInfo->ID);
 				if (m_pManager)
 				{
-					if (!m_pManager->AcceptLink(m_pParent))
+					if (!m_pManager->AcceptLink(pInfo->ID, m_pParent))
 					{
-						PrintNetLog(_T("NetLib"), _T("CENLConnection::OnRecvData 非法连接[%s][%s:%u]被拒绝"),
-							CClassifiedID(GetID()).ToStr(),
+						PrintNetLog( _T("CENLConnection::OnRecvData 非法连接[%s][%s:%u]被拒绝"),
+							CClassifiedID(pInfo->ID).ToStr(),
 							GetRemoteAddress().GetIPString(),
 							GetRemoteAddress().GetPort());
 						Disconnect();
 					}
 					else
 					{
-						PrintNetLog(_T("NetLib"), _T("CENLConnection::OnRecvData 连接[%s][%s:%u]建立"),
-							CClassifiedID(GetID()).ToStr(),
+						m_Status = STATUS_ACCEPTED;
+						PrintNetLog( _T("CENLConnection::OnRecvData 连接[%s][%s:%u]建立"),
+							CClassifiedID(pInfo->ID).ToStr(),
 							GetRemoteAddress().GetIPString(),
 							GetRemoteAddress().GetPort());
 					}
 				}
 				else
 				{
-					PrintNetLog(_T("NetLib"), _T("CENLConnection::OnRecvData 连接[%s][%s:%u]建立时没有设置管理器，被关闭"),
-						CClassifiedID(GetID()).ToStr(),
+					PrintNetLog( _T("CENLConnection::OnRecvData 连接[%s][%s:%u]建立时没有设置管理器，被关闭"),
+						CClassifiedID(pInfo->ID).ToStr(),
 						GetRemoteAddress().GetIPString(),
 						GetRemoteAddress().GetPort());
 					Disconnect();
@@ -188,23 +192,25 @@ void CENLConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 			}
 			break;
 		default:
-			PrintNetLog(_T("NetLib"), _T("CENLConnection::OnRecvData 收到不明消息ID=%u,size=%u"),
+			PrintNetLog( _T("CENLConnection::OnRecvData 收到不明消息ID=%u,size=%u"),
 				pMsg->Header.MsgID, MsgSize);
 		}
 		m_AssembleBuffer.PopFront(NULL, MsgSize);
 	}
 }
 
-void CENLConnection::OnConnection(BOOL IsSucceed)
+void CENLConnection::OnConnection(bool IsSucceed)
 {
 	m_ReconnectTimer.SaveTime();
 	m_KeepAliveCount = 0;
 	m_KeepAliveTimer.SaveTime();
 	m_AssembleBuffer.SetUsedSize(0);
 
+	m_Status = STATUS_ACCEPTING;
+
 	if (IsSucceed)
 	{
-		PrintNetLog(_T("NetLib"), _T("[%s]连接[%s:%u]成功"),
+		PrintNetLog( _T("[%s]连接[%s:%u]成功"),
 			CClassifiedID(m_pParent->GetReportID()).ToStr(),
 			GetRemoteAddress().GetIPString(),
 			GetRemoteAddress().GetPort());
@@ -218,7 +224,7 @@ void CENLConnection::OnConnection(BOOL IsSucceed)
 	}
 	else
 	{
-		PrintNetLog(_T("NetLib"), _T("[%s]连接[%s:%u]失败"),
+		PrintNetLog( _T("[%s]连接[%s:%u]失败"),
 			CClassifiedID(m_pParent->GetReportID()).ToStr(),
 			GetRemoteAddress().GetIPString(),
 			GetRemoteAddress().GetPort());
@@ -227,7 +233,7 @@ void CENLConnection::OnConnection(BOOL IsSucceed)
 
 void CENLConnection::OnDisconnection()
 {
-	PrintNetLog(_T("NetLib"), _T("[%s]连接[%s:%u]断开"),
+	PrintNetLog( _T("[%s]连接[%s:%u]断开"),
 		CClassifiedID(m_pParent->GetReportID()).ToStr(),
 		GetRemoteAddress().GetIPString(),
 		GetRemoteAddress().GetPort());
@@ -237,12 +243,16 @@ void CENLConnection::OnDisconnection()
 	m_KeepAliveTimer.SaveTime();
 	m_AssembleBuffer.SetUsedSize(0);
 
-	if (GetID())
+	
+
+	if (m_Status == STATUS_ACCEPTED)
 	{
 		if (m_pManager)
 			m_pManager->OnLinkEnd(m_pParent);
 		m_pParent->OnLinkEnd();
 	}
+
+	m_Status = STATUS_ACCEPTING;
 }
 
 void CENLConnection::SendLinkMsg(DWORD MsgID, LPCVOID pData, UINT DataSize)

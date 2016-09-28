@@ -26,7 +26,7 @@
 // NF 26 Jun 2003  Added xml_node_struct* disconnect_child( const unsigned int i ).
 // NF 26 Jun 2003  Changed remove_child() to use new disconnect_child().
 // NF 26 Jun 2003  Updated insert_child() & append_node() to allow the child node
-//                 to be specified instead of creating a new node. 
+//                 to be specified instead of creating a new node.
 // NF 26 Jun 2003  Updated insert_child() to only call append_node() and to set
 //                 'p->name_insitu = p->value_insitu = false' which it previously
 //                 only did when the new node was appended as the last child.
@@ -80,10 +80,10 @@
 
 
 //<summary>
-//	Library variant ID. The ID 0x58475550 is owned by Kristen Wegner. You *MUST* 
-//	provide your own unique ID if you modify or fork the code in this library to 
-//	your own purposes. If you change this then *you* are now the maintainer, not me. 
-//	Change also in the package section of pugxml.xml, and append yourself to the 
+//	Library variant ID. The ID 0x58475550 is owned by Kristen Wegner. You *MUST*
+//	provide your own unique ID if you modify or fork the code in this library to
+//	your own purposes. If you change this then *you* are now the maintainer, not me.
+//	Change also in the package section of pugxml.xml, and append yourself to the
 //	authors section.
 //</summary>
 #define PUGAPI_INTERNAL_VARIANT 0x584766ef  // NF. 28 Mar 2003 0x584766ef is owned by Neville Franks readonly@getsoft.com
@@ -404,7 +404,7 @@ inline static bool strwtrim(TCHAR** s)
 
 
 //<summary>
-//	In situ trim leading and trailing whitespace, then convert all consecutive 
+//	In situ trim leading and trailing whitespace, then convert all consecutive
 //	whitespace to a single space TCHAR.
 //</summary>
 //<param name="s">Pointer to pointer to string.</param>
@@ -455,10 +455,10 @@ inline static bool strwnorm(TCHAR** s)
 //<param name="insitu">Pointer to boolean in-situ string flag.</param>
 //<returns>True if member was set to the new value.</returns>
 //<remarks>
-//	If 'src' is larger than 'dest' then 'dest' is resized, in which case 
-//	it is probably no longer in-situ,and 'in_situ' is set to false. If 
-//	'dest' is already no longer in-situ, and 'src' is too small then the 
-//	existing memory pointed to is freed. If 'dest' is larger than or equal 
+//	If 'src' is larger than 'dest' then 'dest' is resized, in which case
+//	it is probably no longer in-situ,and 'in_situ' is set to false. If
+//	'dest' is already no longer in-situ, and 'src' is too small then the
+//	existing memory pointed to is freed. If 'dest' is larger than or equal
 //	to 'dest' then it is merely copied with no resize.
 //</remarks>
 inline static bool strcpyinsitu
@@ -562,7 +562,7 @@ inline int strcmpwild_astr(const TCHAR** src,const TCHAR** dst)
 			do
 			{
 				++(*dst);
-				while(**src != **dst && **src != _T('[') && **dst != 0) 
+				while(**src != **dst && **src != _T('[') && **dst != 0)
 					++(*dst);
 			}
 			while((**dst != 0) ? strcmpwild_impl(*src,*dst) == 0 : 0 != (find=0));
@@ -598,16 +598,16 @@ inline int strcmpwild_impl(const TCHAR* src,const TCHAR* dst)
 //<param name="lhs">String or expression for left-hand side of comparison.</param>
 //<param name="rhs">String for right-hand side of comparison.</param>
 //<returns>
-//	Returns 1 if src does not match dst, or -1 if either src or dst are null, 
+//	Returns 1 if src does not match dst, or -1 if either src or dst are null,
 //	or 0 if src matches dst.
 //</returns>
 //<remarks>
 //	Simple regular expressions are permitted in 'src': The character '*' matches
-//	zero or more characters up to the next pattern, or the end of the string. The 
-//	'?' character matches any single character. Character sets and negation are 
+//	zero or more characters up to the next pattern, or the end of the string. The
+//	'?' character matches any single character. Character sets and negation are
 //	also permitted, for example, '[abcd]', '[a-zA-Z]', etc.
 //</remarks>
-inline int strcmpwild(const TCHAR* src,const TCHAR* dst) 
+inline int strcmpwild(const TCHAR* src,const TCHAR* dst)
 {
 	if(!src || !dst) return -1;
 	return (strcmpwild_impl(src,dst)==1)?0:1;
@@ -737,8 +737,8 @@ inline static xml_attribute_struct* append_attribute(xml_node_struct* node,int g
 
 //<summary>Non-recursively free a tree.</summary>
 //<param name="root">
-//	Pointer to the root of the tree. Note: 'root' must have been dynamically 
-//	allocated using 'malloc' or 'realloc', as 'free_node' tries to also free 
+//	Pointer to the root of the tree. Note: 'root' must have been dynamically
+//	allocated using 'malloc' or 'realloc', as 'free_node' tries to also free
 //	the structure pointed to by 'root'.
 //</param>
 //<remarks>'root' no longer points to a valid structure.</remarks>
@@ -845,8 +845,8 @@ inline static void free_node_recursive(xml_node_struct* root)
 #else
 #	define ENDSEG()			{ ch = *s; ++s; if(*s==0) return s; }
 #	define SETLEN()			( cursor->value_size = s - cursor->value )
-#	define ENDSEGDAT()		{ ch = *s; SETLEN(); ++s; if(*s==0) return s; } 
-#	define ENDSEGNAM(S)		{ ch = *s; S->name_size = s - S->name; ++s; if(*s==0) return s; } 
+#	define ENDSEGDAT()		{ ch = *s; SETLEN(); ++s; if(*s==0) return s; }
+#	define ENDSEGNAM(S)		{ ch = *s; S->name_size = s - S->name; ++s; if(*s==0) return s; }
 #	define ENDSEGATT(S)		{ ch = *s; S->value_size = s - S->value; ++s; if(*s==0) return s; }
 #endif
 
@@ -1003,8 +1003,8 @@ public:
 
 
 //<summary>
-//	Stream output. Recursively writes the given xml_node_struct structure to 
-//	the given stream. NOTE: Use this recursive implementation for debug purposes 
+//	Stream output. Recursively writes the given xml_node_struct structure to
+//	the given stream. NOTE: Use this recursive implementation for debug purposes
 //	only, since a large tree may cause a stack overflow.
 //</summary>
 //<param name="os">Reference to output stream.</param>
@@ -1350,7 +1350,7 @@ public:
 
 //<summary>Provides a light-weight wrapper for manipulating xml_attribute_struct structures.</summary>
 //<remarks>
-//	Note: xml_attribute does not create any memory for the attribute it wraps; 
+//	Note: xml_attribute does not create any memory for the attribute it wraps;
 //	it only wraps a pointer to an existing xml_attribute_struct.
 //</remarks>
 class xml_attribute
@@ -1741,7 +1741,7 @@ public:
 		}
 		return temp;
 	}
-        
+
 #ifdef PUGOPT_NONSEG
 	unsigned int name_size(){ return (!empty()) ? _attr->name_size : 0; } //Access the attribute name length (for PUGOPT_NONSEG).
 #endif
@@ -1756,9 +1756,9 @@ public:
 		return false;
 	}
 	const TCHAR* value(){ return (!empty()) ? _attr->value : _T(""); } //Access the attribute value.
-	CEasyString getvalue() 
-	{ 
-		return *this; 
+	CEasyString getvalue()
+	{
+		return *this;
 	} // Access the attribute value. uses operator CEasyString(). NF 2 Mar 2003
 #ifdef PUGOPT_NONSEG
 	unsigned int value_size(){ return (!empty()) ? _attr->value_size : 0; } //Access the attribute name length (for PUGOPT_NONSEG).
@@ -1785,7 +1785,7 @@ class xml_node; //Forward declaration.
 //	operator->(), and operator*() mapping to xml_node and xml_attribute
 //	types.
 //</remarks>
-template <typename TYPE> class forward_class 
+template <typename TYPE> class forward_class
 {
 protected:
 	TYPE* _obj; //The class, internal.
@@ -1812,13 +1812,13 @@ protected:
 	xml_node_struct* _root; //Pointer to node root.
 	xml_node_struct _dummy; //Utility.
 
-	
+
 //Construction/Destruction
 public:
 
 	//<summary>Default constructor.</summary>
 	//<remarks>
-	//	Node root points to a dummy 'xml_node_struct' structure. Test for this 
+	//	Node root points to a dummy 'xml_node_struct' structure. Test for this
 	//	with 'empty'.
 	//</remarks>
 	xml_node(): _root(0)
@@ -1837,7 +1837,7 @@ public:
 	//<summary>Copy constructor.</summary>
 	//<param name="r">Reference to node.</param>
 	//<remarks>
-	//	Only the root pointer is assigned, so both classes now in fact point 
+	//	Only the root pointer is assigned, so both classes now in fact point
 	//	to the same structure.
 	//</remarks>
 	xml_node(const xml_node& r): _root(r._root)
@@ -1853,7 +1853,7 @@ public:
 
 	//<summary>Destructor.</summary>
 	virtual ~xml_node(){}
-	
+
 	//<summary>Attach to the given structure.</summary>
 	//<param name="p">Pointer to node structure to wrap.</param>
 	//<returns>Pointer to previous node structure.</returns>
@@ -1864,9 +1864,9 @@ public:
 		return prev;
 	}
 
-	
 
-	
+
+
 
 //Iteration
 public:
@@ -1906,7 +1906,7 @@ public:
 		}
 		//<summary>Pointer dereference for current xml_node.<summary>
 		//<returns>
-		//	Reference to the internal xml_node object, which wraps the 
+		//	Reference to the internal xml_node object, which wraps the
 		//	xml_node_struct corresponding to the node at the
 		//	current subscript.
 		//</returns>
@@ -1959,11 +1959,11 @@ public:
 		}
 		//<summary>Pointer dereference for current xml_attribute.</summary>
 		//<returns>
-		//	Reference to the internal xml_attribute object, which wraps the 
+		//	Reference to the internal xml_attribute object, which wraps the
 		//	xml_attribute_struct corresponding to the attribute at the
 		//	current subscript.
 		//</returns>
-		virtual xml_attribute& operator*() 
+		virtual xml_attribute& operator*()
 		{
 			if(!oob()) _wrap->attach(_vref->attribute[_sscr]);
 			else _wrap->attach(NULL);
@@ -2000,7 +2000,7 @@ public:
 	//<returns>The begin iterator for this node's collection of child nodes.</returns>
 	//<remarks>Same as 'children_erase'.</remarks>
 	iterator erase(iterator where){ remove_child((unsigned int)where.subscript()); return iterator(_root,0); }
-	
+
 	//<summary>Access the begin iterator for this node's collection of child nodes.</summary>
 	//<returns>The begin iterator for this node's collection of child nodes.</returns>
 	//<remarks>Same as 'begin'.</remarks>
@@ -2013,7 +2013,7 @@ public:
 	//<returns>The begin iterator for this node's collection of child nodes.</returns>
 	//<remarks>Same as 'erase'.</remarks>
 	child_iterator children_erase(child_iterator where){ remove_child((unsigned int)where.subscript()); return child_iterator(_root,0); }
-	
+
 	//<summary>Access the begin iterator for this node's collection of attributes.</summary>
 	//<returns>The begin iterator for this node's collection of attributes.</returns>
 	attribute_iterator attributes_begin() const { return attribute_iterator(_root,0); }
@@ -2235,8 +2235,8 @@ public:
 	//<summary>Return the first child that has data's data. If none, return empty string.</summary>
 	//<returns>string containing the data. It will be empty if it doesn't exist.</returns>
 	//<remarks>
-	//	Used to get the PCDATA for the current element. This handles elements 
-	//	like: &lt;LINE&gt;&lt;STAGEDIR&gt;Aside&lt;/STAGEDIR&gt;Thy father, 
+	//	Used to get the PCDATA for the current element. This handles elements
+	//	like: &lt;LINE&gt;&lt;STAGEDIR&gt;Aside&lt;/STAGEDIR&gt;Thy father,
 	//	Pompey, would ne'er have&lt;/LINE&gt;, where 'this' points to &lt;LINE&gt;.
 	//</remarks>
     //<since>3 Mar 2003 NF</since>
@@ -2268,8 +2268,8 @@ public:
 	//<param name="valuelen">Specifies the maximum number of characters to copy into value.</param>
 	//<returns>Pointer to value if exists, else NULL.</returns>
 	//<remarks>
-	//	Used to get the PCDATA for the current element. This handles elements 
-	//	like: &lt;LINE&gt;&lt;STAGEDIR&gt;Aside&lt;/STAGEDIR&gt;Thy father, 
+	//	Used to get the PCDATA for the current element. This handles elements
+	//	like: &lt;LINE&gt;&lt;STAGEDIR&gt;Aside&lt;/STAGEDIR&gt;Thy father,
 	//	Pompey, would ne'er have&lt;/LINE&gt;, where 'this' points to &lt;LINE&gt;.
 	//</remarks>
 	TCHAR* child_value(TCHAR* value,const unsigned int valuelen)const
@@ -2458,7 +2458,7 @@ public:
 	}
 
 	//<summary>
-	//	Recursively-implemented depth-first find the first matching element. 
+	//	Recursively-implemented depth-first find the first matching element.
 	//	Use for shallow drill-downs.
 	//</summary>
 	//<param name="name">Const reference to name of element to find.</param>
@@ -2468,7 +2468,7 @@ public:
 	//Need Recovery xml_node first_element_by_name(const CEasyString& name,const xml_node_type type=node_null) const { return first_element_by_name(name.GetBuffer(),type); }
 
 	//<summary>
-	//	Recursively-implemented depth-first find the first matching element. 
+	//	Recursively-implemented depth-first find the first matching element.
 	//	Use for shallow drill-downs.
 	//</summary>
 	//<param name="name">Pointer to name of element to find.</param>
@@ -2512,7 +2512,7 @@ public:
 	}
 
 	//<summary>
-	//	Recursively-implemented depth-first find the first matching element 
+	//	Recursively-implemented depth-first find the first matching element
 	//	also having matching PCDATA.
 	//</summary>
 	//<param name="name">Reference to name of element to find.</param>
@@ -2522,7 +2522,7 @@ public:
 	//Need Recovery xml_node first_element_by_value(const CEasyString& name,const CEasyString& value) const { return first_element_by_value(name.GetBuffer(),value.GetBuffer()); }
 
 	//<summary>
-	//	Recursively-implemented depth-first find the first matching element 
+	//	Recursively-implemented depth-first find the first matching element
 	//	also having matching PCDATA.
 	//</summary>
 	//<param name="name">Pointer to name of element to find.</param>
@@ -2583,7 +2583,7 @@ public:
 	}
 
 	//<summary>
-	//	Recursively-implemented depth-first find the first matching element 
+	//	Recursively-implemented depth-first find the first matching element
 	//	also having matching attribute.
 	//</summary>
 	//<param name="name">Reference to name of element to find.</param>
@@ -2596,7 +2596,7 @@ public:
 	//Need Recovery xml_node first_element_by_attribute(const CEasyString& name,const CEasyString& attr_name,const CEasyString& attr_value,const bool bDescend=true)const { return first_element_by_attribute(name.GetBuffer(),attr_name.GetBuffer(),attr_value.GetBuffer(),bDescend); }
 
 	//<summary>
-	//	Recursively-implemented depth-first find the first matching element 
+	//	Recursively-implemented depth-first find the first matching element
 	//	also having matching attribute.
 	//</summary>
 	//<param name="name">Pointer to name of element to find.</param>
@@ -2667,7 +2667,7 @@ public:
 	}
 
 	//<summary>
-	//	Recursively-implemented depth-first find the first matching entity. 
+	//	Recursively-implemented depth-first find the first matching entity.
 	//	Use for shallow drill-downs.
 	//</summary>
 	//<param name="name">Pointer to name of element to find.</param>
@@ -2720,7 +2720,7 @@ public:
 	}
 
 	//<summary>
-	//	Move to the current node's sibling at subscript. Equivalent to 
+	//	Move to the current node's sibling at subscript. Equivalent to
 	//	'moveto_child' following 'moveto_parent'.
 	//</summary>
 	//<param name="i">Subscript of sibling to move cursor to.</param>
@@ -2964,7 +2964,7 @@ public:
 
 	//<summary>Search for a node by path.</summary>
 	//<param name="path">
-	//	Path string; e.g. './foo/bar' (relative to node), '/foo/bar' (relative 
+	//	Path string; e.g. './foo/bar' (relative to node), '/foo/bar' (relative
 	//	to root), '../foo/bar' (pop relative position).
 	//</param>
 	//<param name="delimiter">Delimiter string to use in tokenizing path.</param>
@@ -2973,7 +2973,7 @@ public:
 
 	//<summary>Search for a node by path.</summary>
 	//<param name="path">
-	//	Path string; e.g. './foo/bar' (relative to node), '/foo/bar' (relative 
+	//	Path string; e.g. './foo/bar' (relative to node), '/foo/bar' (relative
 	//	to root), '../foo/bar' (pop relative to position).
 	//</param>
 	//<param name="delimiter">Delimiter string to use in tokenizing path.</param>
@@ -3242,7 +3242,7 @@ public:
 	{
 		if (!name) return xml_attribute();
 		TCHAR temp[32] = {0};
-		_stprintf_s(temp,32,_T("%ld"),value);
+		_stprintf_s(temp,32,_T("%d"),value);
 		return append_attribute_origin(name, temp);
 	}
 
@@ -3250,7 +3250,7 @@ public:
 	{
 		if (!name) return xml_attribute();
 		TCHAR temp[32] = {0};
-		_stprintf_s(temp,32,_T("%lu"),value);
+		_stprintf_s(temp,32,_T("%u"),value);
 		return append_attribute_origin(name, temp);
 	}
 
@@ -3368,8 +3368,8 @@ public:
         }
         return -1;
     }
-    
-    
+
+
 	//<summary>
 	//	Sets the value for the first child of this node, appending a child node
     //  of the given type if required. Typically used to set the PCDATA for a node.
@@ -3399,7 +3399,7 @@ public:
 		if (!node_value.empty())
 		{
 			CEasyString Value = XMLEncodeString(new_value);
-			
+
 			if (!node_value.value(Value))
 				return xml_node();    // empty() node.
 		}
@@ -3438,9 +3438,9 @@ public:
             }
         return xml_new_node;
     }
-        
+
 	//<summary>
-	//	Allocate & append a child node of the given type at the end of the 
+	//	Allocate & append a child node of the given type at the end of the
 	//	current node array of children.
 	//</summary>
 	//<param name="type">New child node type.</param>
@@ -3467,7 +3467,7 @@ public:
     //<since="xns_child">26 Jun 2003</since>
 	//<returns>xml_node wrapping the new child.</returns>
 	//<remarks>
-	//	Pointer space may be grown. An xml_node_struct structure is allocated, 
+	//	Pointer space may be grown. An xml_node_struct structure is allocated,
 	//	and existing children are shifted in their array position.
 	//</remarks>
 	xml_node insert_child( const unsigned int i, const xml_node_type type, xml_node_struct* xns_child = NULL )
@@ -3586,12 +3586,12 @@ public:
 		return p;
 	}
 
-        
+
 	//Stream/Output Helpers
 public:
 
 	//<summary>
-	//	Stream output. Recursively writes the internal xml_node_struct structure 
+	//	Stream output. Recursively writes the internal xml_node_struct structure
 	//	to the given stream.
 	//</summary>
 	//<param name="os">Reference to output stream.</param>
@@ -3612,7 +3612,7 @@ public:
 	}
 
 	//<summary>
-	//	Stream output operator. Wraps 'outer_xml'. Recursively writes 
+	//	Stream output operator. Wraps 'outer_xml'. Recursively writes
 	//	the given node to the given stream.
 	//</summary>
 	//<param name="os">Reference to output stream.</param>
@@ -3751,7 +3751,7 @@ public:
 //Construction/Destruction
 public:
 
-	
+
 
 	//<summary>Constructor.</summary>
 	//<param name="optmsk">Options mask.</param>
@@ -3778,7 +3778,7 @@ public:
 
 		//<summary>Direct parse constructor.</summary>
 		//<param name="xmlstr">
-		//	XML-formatted string to parse. Note: String must persist for the 
+		//	XML-formatted string to parse. Note: String must persist for the
 		//	life of the tree. String is zero-segmented, but not freed.
 		//</param>
 		//<param name="optmsk">Parser options.</param>
@@ -3810,7 +3810,7 @@ public:
 		{
 			if(_autdel && _xmldoc) free_node(_xmldoc);
 			_buffer.Clear();
-			
+
 
 		}
 
@@ -3858,7 +3858,7 @@ public:
 protected:
 
 
-	
+
 
 public:
 
@@ -3916,7 +3916,7 @@ public:
 	//<summary>Get parse file buffer last string position.</summary>
 	//<returns>Last string position.</returns>
 	//<remarks>
-	//	Use after parse_file, with parse_dtd_only set in order to recommence 
+	//	Use after parse_file, with parse_dtd_only set in order to recommence
 	//	parse of document body.
 	//</remarks>
 	TCHAR* strpos()
@@ -3949,9 +3949,9 @@ public:
         //<param name="tempsize">Temporary read buffer size.</param>
 	//<returns>Success if the file was loaded.</returns>
 	//<remarks>
-	//	The file contents is loaded and stored in the member '_buffer' until 
+	//	The file contents is loaded and stored in the member '_buffer' until
 	//	freed by calling 'Parse', 'parse_file', 'clear' or '~xml_parser'.
-	//</remarks>	
+	//</remarks>
 	bool parse_file(const TCHAR* path, unsigned int optmsk = parse_noset, int FileChannel = FILE_CHANNEL_NORMAL1);
 	void SaveToString(const xml_node& RootNode, CEasyString& String);
 	bool SaveToFile(const xml_node& RootNode, LPCTSTR FileName, int FileCodePage = -1, int FileChannel = FILE_CHANNEL_NORMAL1);
@@ -3982,11 +3982,11 @@ public:
 	//<param name="path">File path.</param>
 	//<param name="optmsk">Parser options.</param>
 	//<returns>
-	//	True (1) if the file was parsed successfully, false (0) if open failed, 
+	//	True (1) if the file was parsed successfully, false (0) if open failed,
 	//	and -1 if an exception occured.
 	//</returns>
 	//<remarks>
-	//	The file contents are available until closed by calling 'parse', 
+	//	The file contents are available until closed by calling 'parse',
 	//	'parse_file', 'clear' or '~xml_parser'.
 	//</remarks>
 	//int parse_mmfile(const TCHAR* path,unsigned int optmsk = parse_noset)
@@ -4103,7 +4103,7 @@ protected:
 //<param name="optmsk">Parse options mask.</param>
 //<returns>Last string position or null.</returns>
 //<remarks>
-//	Input string is zero-segmented if 'PUGOPT_NONSEG' is not defined. Memory 
+//	Input string is zero-segmented if 'PUGOPT_NONSEG' is not defined. Memory
 //	may have been allocated to 'root' (free with 'free_node').
 //</remarks>
 // TCHAR* parse( register TCHAR* s, xml_node_struct* xmldoc, int growby, unsigned int optmsk = parse_default )

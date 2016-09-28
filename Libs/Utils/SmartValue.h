@@ -22,7 +22,8 @@ protected:
 	bool			m_AllowChange;
 
 	
-public:
+public:	
+	static bool AUTO_CONVERT_WSTR_TO_UTF8;
 	enum SMART_VALUE_TYPE
 	{
 		VT_UNKNOWN,
@@ -1019,10 +1020,36 @@ public:
 		switch (GetType())
 		{
 		case VT_STRING:
-			String.SetString((const char *)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength());
+#ifdef _UNICODE
+			if (AUTO_CONVERT_WSTR_TO_UTF8)
+			{
+				char * pStr = (char *)(m_pData + sizeof(BYTE) + sizeof(UINT));
+				size_t OutLen = UTF8ToUnicode(pStr, GetLength(), NULL, 0);
+				String.Resize(OutLen);
+				UTF8ToUnicode(pStr, GetLength(), (TCHAR *)String.GetBuffer(), OutLen);
+				String.TrimBuffer();
+			}
+			else
+#endif
+			{
+				String.SetString((const char *)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength());
+			}			
 			return true;
 		case VT_STRING_TINY:
-			String.SetString((const char *)(m_pData + sizeof(BYTE) + sizeof(WORD)), GetLength());
+#ifdef _UNICODE
+			if (AUTO_CONVERT_WSTR_TO_UTF8)
+			{
+				char * pStr = (char *)(m_pData + sizeof(BYTE) + sizeof(WORD));
+				size_t OutLen = UTF8ToUnicode(pStr, GetLength(), NULL, 0);
+				String.Resize(OutLen);
+				UTF8ToUnicode(pStr, GetLength(), (TCHAR *)String.GetBuffer(), OutLen);
+				String.TrimBuffer();
+			}
+			else
+#endif
+			{
+				String.SetString((const char *)(m_pData + sizeof(BYTE) + sizeof(WORD)), GetLength());
+			}			
 			return true;
 		case VT_USTRING:
 			String.SetString((WCHAR *)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength());
@@ -1686,26 +1713,26 @@ public:
 			memcpy(m_pData+sizeof(BYTE)+sizeof(WORD),pStr,Len*sizeof(WCHAR));
 			*((WCHAR *)(m_pData+sizeof(BYTE)+sizeof(WORD)+Len*sizeof(WCHAR)))=0;
 		}
-		//else if(GetType()==VT_STRING)			
-		//{
-		//	UINT UTF8Len=(UINT)UnicodeToUTF8(pStr,Len,NULL,0);
-		//	UINT MaxLen=m_DataLen-sizeof(BYTE)-sizeof(UINT)-sizeof(char);
-		//	if(UTF8Len>MaxLen)
-		//		UTF8Len=MaxLen;
-		//	*((UINT *)(m_pData+sizeof(BYTE)))=UTF8Len*sizeof(char);
-		//	UnicodeToUTF8(pStr,Len,(char *)m_pData+sizeof(BYTE)+sizeof(UINT),UTF8Len);			
-		//	*((char *)(m_pData+sizeof(BYTE)+sizeof(UINT)+UTF8Len*sizeof(char)))=0;
-		//}
-		//else if(GetType()==VT_STRING_TINY)
-		//{
-		//	UINT UTF8Len=(UINT)UnicodeToUTF8(pStr,Len,NULL,0);
-		//	WORD MaxLen=(WORD)(m_DataLen-sizeof(BYTE)-sizeof(WORD)-sizeof(char));
-		//	if(UTF8Len>MaxLen)
-		//		UTF8Len=MaxLen;
-		//	*((WORD *)(m_pData+sizeof(BYTE)))=(WORD)(UTF8Len*sizeof(char));
-		//	UnicodeToUTF8(pStr,Len,(char *)m_pData+sizeof(BYTE)+sizeof(WORD),UTF8Len);
-		//	*((char *)(m_pData+sizeof(BYTE)+sizeof(WORD)+UTF8Len*sizeof(char)))=0;
-		//}
+		else if (GetType() == VT_STRING)
+		{
+			UINT UTF8Len = (UINT)UnicodeToUTF8(pStr, Len, NULL, 0);
+			UINT MaxLen = m_DataLen - sizeof(BYTE) - sizeof(UINT) - sizeof(char);
+			if (UTF8Len > MaxLen)
+				UTF8Len = MaxLen;
+			*((UINT *)(m_pData + sizeof(BYTE))) = UTF8Len*sizeof(char);
+			UnicodeToUTF8(pStr, Len, (char *)m_pData + sizeof(BYTE) + sizeof(UINT), UTF8Len);
+			*((char *)(m_pData + sizeof(BYTE) + sizeof(UINT) + UTF8Len*sizeof(char))) = 0;
+		}
+		else if (GetType() == VT_STRING_TINY)
+		{
+			UINT UTF8Len = (UINT)UnicodeToUTF8(pStr, Len, NULL, 0);
+			WORD MaxLen = (WORD)(m_DataLen - sizeof(BYTE) - sizeof(WORD) - sizeof(char));
+			if (UTF8Len > MaxLen)
+				UTF8Len = MaxLen;
+			*((WORD *)(m_pData + sizeof(BYTE))) = (WORD)(UTF8Len*sizeof(char));
+			UnicodeToUTF8(pStr, Len, (char *)m_pData + sizeof(BYTE) + sizeof(WORD), UTF8Len);
+			*((char *)(m_pData + sizeof(BYTE) + sizeof(WORD) + UTF8Len*sizeof(char))) = 0;
+		}
 	}
 
 	static int GetTypeFromData(LPCVOID pData,UINT DataSize);

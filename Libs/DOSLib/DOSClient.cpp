@@ -34,13 +34,13 @@ void CDOSClient::Destory()
 	CNetConnection::Destory();
 }
 
-BOOL CDOSClient::Start(UINT SendBufferSize,UINT AssembleBufferSize,const CIPAddress& Address,DWORD TimeOut)
+BOOL CDOSClient::Start(UINT SendQueueLen, UINT RecvQueueLen, const CIPAddress& Address, DWORD TimeOut)
 {
-	if(!m_SendBuffer.Create(SendBufferSize))
+	if (!m_SendBuffer.Create(SendQueueLen*NET_DATA_BLOCK_SIZE))
 		return FALSE;
-	if(!m_AssembleBuffer.Create(AssembleBufferSize))
+	if (!m_AssembleBuffer.Create(RecvQueueLen*NET_DATA_BLOCK_SIZE * 2))
 		return FALSE;
-	if(!CNetConnection::Create())
+	if (!CNetConnection::Create(RecvQueueLen, SendQueueLen))
 		return FALSE;
 
 	m_KeepAliveTimer.SaveTime();
@@ -195,7 +195,7 @@ void CDOSClient::OnRecvData(const BYTE * pData, UINT DataSize)
 	if (DataSize>m_AssembleBuffer.GetFreeSize())
 	{
 		Close();
-		PrintDOSLog(_T("DOSLib"),_T("(%d)拼包缓冲溢出，连接断开！"),GetID());
+		PrintDOSLog(_T("(%d)拼包缓冲溢出，连接断开！"),GetID());
 		return;
 	}
 	m_AssembleBuffer.PushBack(pData, DataSize);
@@ -205,7 +205,7 @@ void CDOSClient::OnRecvData(const BYTE * pData, UINT DataSize)
 		if(PacketSize<sizeof(CDOSSimpleMessage::GetMsgHeaderLength()))
 		{
 			Close();
-			PrintDOSLog(_T("DOSLib"),_T("(%d)收到非法包，连接断开！"),GetID());
+			PrintDOSLog(_T("(%d)收到非法包，连接断开！"),GetID());
 		}
 		CDOSSimpleMessage * pMsg=(CDOSSimpleMessage *)m_AssembleBuffer.GetBuffer();
 		
@@ -230,7 +230,7 @@ void CDOSClient::OnRecvData(const BYTE * pData, UINT DataSize)
 				//	else
 				//	{
 				//		Close();
-				//		PrintDOSLog(_T("DOSLib"),_T("(%d消息zip解压缩失败，连接断开！"),GetID());
+				//		PrintDOSLog(_T("(%d消息zip解压缩失败，连接断开！"),GetID());
 				//	}
 				//}
 				break;
@@ -250,7 +250,7 @@ void CDOSClient::OnRecvData(const BYTE * pData, UINT DataSize)
 				else
 				{
 					Close();
-					PrintDOSLog(_T("DOSLib"), _T("(%d消息lzo解压缩失败，连接断开！"), GetID());
+					PrintDOSLog( _T("(%d消息lzo解压缩失败，连接断开！"), GetID());
 				}
 			}
 			break;
@@ -305,7 +305,7 @@ int CDOSClient::Update(int ProcessPacketLimit)
 		m_KeepAliveCount++;
 		if(m_KeepAliveCount>=m_MaxKeepAliveCount)
 		{
-			PrintDOSLog(_T("DOSLib"),_T("CDOSClient::Update:KeepAlive超时！"));
+			PrintDOSLog(_T("KeepAlive超时！"));
 			m_KeepAliveCount=0;
 			Disconnect();
 		}

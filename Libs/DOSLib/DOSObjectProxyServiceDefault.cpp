@@ -12,8 +12,6 @@
 #include "stdafx.h"
 
 
-CEasyBuffer	CDOSObjectProxyServiceDefault::m_CompressBuffer;
-
 CDOSObjectProxyServiceDefault::CDOSObjectProxyServiceDefault(void)
 {
 
@@ -56,12 +54,13 @@ void CDOSObjectProxyServiceDefault::StopService()
 	SafeTerminate();
 }
 bool CDOSObjectProxyServiceDefault::PushMessage(CDOSMessagePacket * pPacket)
-{
-	CAutoLock Lock(m_EasyCriticalSection);
+{	
 
 	((CDOSServer *)GetServer())->AddRefMessagePacket(pPacket);
+#ifdef _DEBUG
 	pPacket->SetAllocTime(4);
-	if (m_MsgQueue.PushBack(pPacket))
+#endif
+	if (m_MsgQueue.PushBack(&pPacket))
 	{
 		return true;
 	}
@@ -76,7 +75,7 @@ bool CDOSObjectProxyServiceDefault::PushBroadcastMessage(CDOSMessagePacket * pPa
 	LPVOID Pos = m_ConnectionPool.GetFirstObjectPos();
 	while (Pos)
 	{
-		CDOSObjectProxyConnectionDefault * pConnection = m_ConnectionPool.GetNext(Pos);
+		CDOSObjectProxyConnectionDefault * pConnection = m_ConnectionPool.GetNextObject(Pos);
 		if (pConnection)
 		{
 			pConnection->PushMessage(pPacket);
@@ -88,7 +87,10 @@ IDOSObjectProxyConnectionBase * CDOSObjectProxyServiceDefault::GetConnection(UIN
 {
 	return m_ConnectionPool.GetObject(ID);
 }
-
+UINT CDOSObjectProxyServiceDefault::GetConnectionCount()
+{
+	return m_ConnectionPool.GetObjectCount();
+}
 float CDOSObjectProxyServiceDefault::GetCPUUsedRate()
 {
 	return m_ThreadPerformanceCounter.GetCPUUsedRate();
@@ -97,32 +99,59 @@ float CDOSObjectProxyServiceDefault::GetCycleTime()
 {
 	return m_ThreadPerformanceCounter.GetCycleTime();
 }
-
+UINT CDOSObjectProxyServiceDefault::GetGroupCount()
+{ 
+	return m_ConnectionGroups.GetCount();
+}
+float CDOSObjectProxyServiceDefault::GetGroupCPUUsedRate(UINT Index)
+{ 
+	if (Index < m_ConnectionGroups.GetCount())
+	{
+		m_ConnectionGroups[Index].GetCPUUsedRate();
+	}
+	else
+	{
+		return 0;
+	}
+	
+}
+float CDOSObjectProxyServiceDefault::GetGroupCycleTime(UINT Index)
+{ 
+	if (Index < m_ConnectionGroups.GetCount())
+	{
+		m_ConnectionGroups[Index].GetCycleTime();
+	}
+	else
+	{
+		return 0;
+	}
+}
 
 bool CDOSObjectProxyServiceDefault::Init(CDOSServer * pServer, CLIENT_PROXY_CONFIG& Config)
 {
 	SetServer(pServer);
-	m_Config = Config;
+	m_Config = Config;	
 	return true;
 }
 
 
 
 BOOL CDOSObjectProxyServiceDefault::OnStart()
-{
+{	
+
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(), THREAD_CPU_COUNT_TIME);
 
 	if (!m_MsgQueue.Create(m_Config.ConnectionMsgQueueSize))
 	{
-		PrintDOSLog(_T("DOSLib"), _T("代理服务[%u]创建%u大小的消息队列失败！"),
+		PrintDOSLog( _T("代理服务[%u]创建%u大小的消息队列失败！"),
 			GetID(),
 			m_Config.ConnectionMsgQueueSize);
 		return FALSE;
 	}
 
-	if (!m_MessageMap.Create(m_Config.GlobalMsgMapSize))
+	if (!m_MessageMap.Create(m_Config.GlobalMsgMapSize, m_Config.GlobalMsgMapSize, 32))
 	{
-		PrintDOSLog(_T("DOSLib"), _T("代理服务[%u]创建%u大小的消息映射表失败！"),
+		PrintDOSLog( _T("代理服务[%u]创建%u大小的消息映射表失败！"),
 			GetID(),
 			m_Config.GlobalMsgMapSize);
 		return FALSE;
@@ -136,15 +165,15 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 		{
 			if (lzo_init() != LZO_E_OK)
 			{
-				PrintDOSLog(_T("DOSLib"), _T("代理服务开启消息压缩失败"));
+				PrintDOSLog( _T("代理服务开启消息压缩失败"));
 				m_Config.MsgCompressType = MSG_COMPRESS_NONE;
 				m_Config.MinMsgCompressSize = 0;
 			}
-			PrintDOSLog(_T("DOSLib"), _T("代理服务开启消息压缩"));
+			PrintDOSLog( _T("代理服务开启消息压缩"));
 		}
 		break;
 		default:
-			PrintDOSLog(_T("DOSLib"), _T("代理服务[%u]不支持消息压缩模式%u！"),
+			PrintDOSLog( _T("代理服务[%u]不支持消息压缩模式%u！"),
 				GetID(), m_Config.MsgCompressType);
 			m_Config.MsgCompressType = MSG_COMPRESS_NONE;
 			m_Config.MinMsgCompressSize = 0;
@@ -164,24 +193,24 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 		DEFAULT_PARALLEL_RECV,
 		false))
 	{
-		PrintDOSLog(_T("DOSLib"), _T("代理服务[%u]创建失败！"), GetID());
+		PrintDOSLog( _T("代理服务[%u]创建失败！"), GetID());
 		return FALSE;
 	}
 
 	if (!StartListen(m_Config.ListenAddress))
 	{
-		PrintDOSLog(_T("DOSLib"), _T("代理服务[%u]侦听于(%s:%u)失败！"),
+		PrintDOSLog( _T("代理服务[%u]侦听于(%s:%u)失败！"),
 			GetID(),
 			m_Config.ListenAddress.GetIPString(),
 			m_Config.ListenAddress.GetPort());
 		return FALSE;
 	}
-	PrintDOSLog(_T("DOSLib"), _T("代理服务[%u]侦听于(%s:%u)！"),
+	PrintDOSLog( _T("代理服务[%u]侦听于(%s:%u)！"),
 		GetID(),
 		m_Config.ListenAddress.GetIPString(),
 		m_Config.ListenAddress.GetPort());
 
-	PrintDOSLog(_T("DOSLib"), _T("对象代理[%u]线程[%u]已启动"), GetID(), GetThreadID());
+	PrintDOSLog( _T("对象代理[%u]线程[%u]已启动"), GetID(), GetThreadID());
 
 	if (m_Config.MsgCompressType == MSG_COMPRESS_LZO)
 	{
@@ -189,20 +218,57 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 		{
 			if (!m_CompressBuffer.Create(m_Config.MaxMsgSize))
 			{
-				PrintDOSLog(_T("DOSLib"), _T("创建%u大小的压缩缓冲失败！"),
+				PrintDOSLog( _T("创建%u大小的压缩缓冲失败！"),
 					m_Config.MaxMsgSize);
 				return FALSE;
 			}
 		}
 	}
 
-	if (!m_ConnectionPool.Create(m_Config.MaxConnection))
+	if (m_ConnectionPool.Create(m_Config.ConnectionPoolSetting))
 	{
-		PrintDOSLog(_T("DOSLib"), _T("代理服务[%u]创建%u大小的连接池失败！"),
+		PrintDOSDebugLog(_T("代理服务[%u]创建(%u,%u,%u)大小的连接池成功！"),
 			GetID(),
-			m_Config.MaxConnection);
+			m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
+	}
+	else
+	{
+		PrintDOSLog(_T("代理服务[%u]创建(%u,%u,%u)大小的连接池失败！"),
+			GetID(),
+			m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
 		return FALSE;
 	}
+
+	
+
+	if (m_Config.ConnectionGroupCount)
+	{
+		if (m_DestoryConnectionList.Create(m_Config.ConnectionPoolSetting))
+		{
+			PrintDOSDebugLog(_T("代理服务[%u]创建(%u,%u,%u)大小的连接销毁队列成功！"),
+				GetID(),
+				m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
+		}
+		else
+		{
+			PrintDOSLog(_T("代理服务[%u]创建(%u,%u,%u)大小的连接销毁队列失败！"),
+				GetID(),
+				m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
+			return FALSE;
+		}
+
+
+		m_ConnectionGroups.Resize(m_Config.ConnectionGroupCount);
+		PrintDOSDebugLog(_T("代理服务[%u]创建了%u个连接组线程"), GetID(), (UINT)m_ConnectionGroups.GetCount());
+		for (UINT i = 0; i < m_ConnectionGroups.GetCount(); i++)
+		{
+			if (!m_ConnectionGroups[i].Init(this, m_Config, i))
+				return FALSE;
+			m_ConnectionGroups[i].Start();
+			PrintDOSDebugLog(_T("连接组线程[%u]已启动"), m_ConnectionGroups[i].GetThreadID());
+		}
+	}
+	
 	return TRUE;
 }
 
@@ -212,7 +278,7 @@ BOOL CDOSObjectProxyServiceDefault::OnRun()
 	int ProcessCount = Update();
 	if (ProcessCount == 0)
 	{
-		DoSleep(1);
+		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
 	return TRUE;
 }
@@ -220,26 +286,34 @@ BOOL CDOSObjectProxyServiceDefault::OnRun()
 void CDOSObjectProxyServiceDefault::OnTerminate()
 {
 	CNetService::Close();
-	PrintDOSLog(_T("DOSLib"), _T("代理服务[%u]关闭"), GetID());
+	PrintDOSLog( _T("代理服务[%u]关闭"), GetID());
 }
 
 void CDOSObjectProxyServiceDefault::OnClose()
 {
-	CAutoLock Lock(m_EasyCriticalSection);
+	CAutoLockEx Lock;
+	if (m_Config.ConnectionGroupCount)
+	{
+		//多线连接组模式需要加锁
+		Lock.Lock(m_EasyCriticalSection);
+	}
 
 	CDOSMessagePacket * pPacket;
-	while (m_MsgQueue.PopFront(pPacket))
+	while (m_MsgQueue.PopFront(&pPacket))
 	{
 		if (!((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(_T("DOSLib"), _T("CDOSObjectProxyServiceBase::OnClose:释放消息内存块失败！"));
+			PrintDOSLog( _T("释放消息内存块失败！"));
 		}
 	}	
-
+	for (UINT i = 0; i < m_ConnectionGroups.GetCount(); i++)
+	{
+		m_ConnectionGroups[i].SafeTerminate();
+	}
 	LPVOID Pos=m_ConnectionPool.GetFirstObjectPos();
 	while(Pos)
 	{
-		CDOSObjectProxyConnectionDefault * pConnection=m_ConnectionPool.GetNext(Pos);
+		CDOSObjectProxyConnectionDefault * pConnection = m_ConnectionPool.GetNextObject(Pos);
 
 		pConnection->Destory();
 		 
@@ -253,9 +327,9 @@ int CDOSObjectProxyServiceDefault::Update(int ProcessPacketLimit)
 	int ProcessCount = CNetService::Update(ProcessPacketLimit);
 
 	CDOSMessagePacket * pPacket;
-	while (m_MsgQueue.PopFront(pPacket))
+	while (m_MsgQueue.PopFront(&pPacket))
 	{
-		//PrintDOSDebugLog(0,_T("发送了消息[%u]"),pPacket->GetMessage().GetMsgID());
+		//PrintDOSDebugLog(_T("发送了消息[%u]"),pPacket->GetMessage().GetMsgID());
 		if (pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
 			OnSystemMsg(&(pPacket->GetMessage()));
 		else
@@ -263,7 +337,7 @@ int CDOSObjectProxyServiceDefault::Update(int ProcessPacketLimit)
 
 		if (!((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(_T("DOSLib"), _T("释放消息内存块失败！"));
+			PrintDOSLog( _T("释放消息内存块失败！"));
 		}
 
 		ProcessCount++;
@@ -271,15 +345,32 @@ int CDOSObjectProxyServiceDefault::Update(int ProcessPacketLimit)
 			break;
 	}
 
-
-	LPVOID Pos = m_ConnectionPool.GetFirstObjectPos();
-	while (Pos)
+	if (m_Config.ConnectionGroupCount == 0)
 	{
-		CDOSObjectProxyConnectionDefault * pConnection = m_ConnectionPool.GetNext(Pos);
-		if (pConnection->IsConnected())
-			ProcessCount += pConnection->Update();
-		else
+		//单线程模式，需要更新连接池的连接
+		LPVOID Pos = m_ConnectionPool.GetFirstObjectPos();
+		while (Pos)
+		{
+			CDOSObjectProxyConnectionDefault * pConnection = m_ConnectionPool.GetNextObject(Pos);
+			if (pConnection->IsConnected())
+				ProcessCount += pConnection->Update();
+			else
+				DeleteConnection(pConnection);
+		}
+	}
+	else
+	{
+		//多线程模式，需要处理连接的销毁
+		CDOSObjectProxyConnectionDefault * pConnection = NULL;
+		int Count = 0;
+		while (m_DestoryConnectionList.PopFront(pConnection))
+		{
 			DeleteConnection(pConnection);
+			Count++;
+			ProcessCount++;
+			if (Count >= ProcessPacketLimit)
+				break;
+		}
 	}
 	return ProcessCount;
 }
@@ -287,50 +378,105 @@ int CDOSObjectProxyServiceDefault::Update(int ProcessPacketLimit)
 
 CBaseNetConnection * CDOSObjectProxyServiceDefault::CreateConnection(CIPAddress& RemoteAddress)
 {
-	CDOSObjectProxyConnectionDefault * pConnection=NULL;
-	UINT ID=m_ConnectionPool.NewObject(&pConnection);
-	if(pConnection)
+	CDOSObjectProxyConnectionDefault * pConnection = NULL;
+	
+	UINT ID = m_ConnectionPool.NewObject(&pConnection);
+	if (pConnection)
 	{
-		if(!pConnection->Init(this,ID))
+		if (!pConnection->Init(this, m_Config, ID))
 		{
 			m_ConnectionPool.DeleteObject(ID);
+			pConnection = NULL;
 		}
-		return pConnection;
 	}
-	return NULL;
+	return pConnection;
 }
 
-BOOL CDOSObjectProxyServiceDefault::DeleteConnection(CBaseNetConnection * pConnection)
+bool CDOSObjectProxyServiceDefault::DeleteConnection(CBaseNetConnection * pConnection)
 {
 	pConnection->Destory();
-	if(m_ConnectionPool.DeleteObject(pConnection->GetID()))
+	
+	if (m_ConnectionPool.DeleteObject(pConnection->GetID()))
 	{
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
+}
+
+void CDOSObjectProxyServiceDefault::AcceptConnection(CDOSObjectProxyConnectionDefault * pConnection)
+{
+	if (m_Config.ConnectionGroupCount)
+	{
+		CDOSObjectProxyConnectionGroup * pGroup = NULL;
+		for (UINT i = 0; i < m_ConnectionGroups.GetCount(); i++)
+		{
+			if (pGroup == NULL)
+			{
+				pGroup = m_ConnectionGroups.GetObject(i);
+			}
+			else if (pGroup->GetConnectionCount() > m_ConnectionGroups[i].GetConnectionCount())
+			{
+				pGroup = m_ConnectionGroups.GetObject(i);
+			}
+		}
+		if (pGroup)
+		{
+			pGroup->AddConnection(pConnection);
+		}
+		else
+		{
+			PrintDOSLog(_T("未能找到合适的连接组"));
+		}
+	}
+	else
+	{
+		pConnection->SetCompressBuffer(&m_CompressBuffer);
+	}
+}
+void CDOSObjectProxyServiceDefault::QueryDestoryConnection(CDOSObjectProxyConnectionDefault * pConnection)
+{
+	if (m_Config.ConnectionGroupCount > 0)
+	{
+		if (!m_DestoryConnectionList.PushBack(pConnection))
+		{
+			PrintDOSLog(_T("连接销毁队列已满%u/%u"), m_DestoryConnectionList.GetObjectCount(), m_DestoryConnectionList.GetBufferSize());
+		}
+	}
 }
 
 OBJECT_ID CDOSObjectProxyServiceDefault::GetGlobalMsgMapObjectID(MSG_ID_TYPE MsgID)
 {
-	FUNCTION_BEGIN;
+	CAutoLockEx Lock;
+	if (m_Config.ConnectionGroupCount)
+	{
+		//多线连接组模式需要加锁
+		Lock.Lock(m_EasyCriticalSection);
+	}
+
 	OBJECT_ID * pObjectID = m_MessageMap.Find(MsgID);
 	if (pObjectID)
 	{
 		return *pObjectID;
-	}
-	FUNCTION_END;
+	}	
 	return 0;
 }
 
 OBJECT_ID CDOSObjectProxyServiceDefault::GetUnhandleMsgReceiverID()
 {
+	CAutoLockEx Lock;
+	if (m_Config.ConnectionGroupCount)
+	{
+		//多线连接组模式需要加锁
+		Lock.Lock(m_EasyCriticalSection);
+	}
+
 	return m_UnhandleMsgReceiverID;
 }
 
 
 void CDOSObjectProxyServiceDefault::OnMsg(CDOSMessage * pMessage)
 {
-	PrintDOSLog(_T("DOSLib"), _T("ProxyService收到非系统消息0x%llX"), pMessage->GetMsgID());
+	PrintDOSLog( _T("收到非系统消息0x%llX"), pMessage->GetMsgID());
 }
 
 void CDOSObjectProxyServiceDefault::OnSystemMsg(CDOSMessage * pMessage)
@@ -360,29 +506,58 @@ void CDOSObjectProxyServiceDefault::OnSystemMsg(CDOSMessage * pMessage)
 		}
 		break;
 	case DSM_PROXY_SET_UNHANDLE_MSG_RECEIVER:
-		m_UnhandleMsgReceiverID = pMessage->GetSenderID();
+		{
+			CAutoLockEx Lock;
+			if (m_Config.ConnectionGroupCount)
+			{
+				//多线连接组模式需要加锁
+				Lock.Lock(m_EasyCriticalSection);
+			}
+			m_UnhandleMsgReceiverID = pMessage->GetSenderID();
+		}		
 		break;
 	case DSM_ROUTE_LINK_LOST:
 		ClearMsgMapByRouterID(pMessage->GetSenderID().RouterID);
 		break;
 	default:
-		PrintDOSLog(_T("DOSLib"), _T("ProxyService收到未知系统消息0x%llX"), pMessage->GetMsgID());
+		PrintDOSLog( _T("收到未知系统消息0x%llX"), pMessage->GetMsgID());
 	}
 }
 
 bool CDOSObjectProxyServiceDefault::DoRegisterGlobalMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID)
 {
-	PrintDOSLog(_T("DOSLib"), _T("0x%llX注册了全局代理消息映射[0x%X]！"), ObjectID.ID, MsgID);
+	CAutoLockEx Lock;
+	if (m_Config.ConnectionGroupCount)
+	{
+		//多线连接组模式需要加锁
+		Lock.Lock(m_EasyCriticalSection);
+	}
+
+	PrintDOSLog( _T("0x%llX注册了全局代理消息映射[0x%X]！"), ObjectID.ID, MsgID);
 	return m_MessageMap.Insert(MsgID, ObjectID) != 0;
 }
 bool CDOSObjectProxyServiceDefault::DoUnregisterGlobalMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID)
 {
-	PrintDOSLog(_T("DOSLib"), _T("0x%llX注销了全局代理消息映射[0x%X]！"), ObjectID.ID, MsgID);
+	CAutoLockEx Lock;
+	if (m_Config.ConnectionGroupCount)
+	{
+		//多线连接组模式需要加锁
+		Lock.Lock(m_EasyCriticalSection);
+	}
+
+	PrintDOSLog( _T("0x%llX注销了全局代理消息映射[0x%X]！"), ObjectID.ID, MsgID);
 	return m_MessageMap.Delete(MsgID) != FALSE;
 }
 
 void CDOSObjectProxyServiceDefault::ClearMsgMapByRouterID(UINT RouterID)
 {
+	CAutoLockEx Lock;
+	if (m_Config.ConnectionGroupCount)
+	{
+		//多线连接组模式需要加锁
+		Lock.Lock(m_EasyCriticalSection);
+	}
+
 	void * Pos = m_MessageMap.GetFirstObjectPos();
 	while (Pos)
 	{

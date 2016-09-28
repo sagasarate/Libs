@@ -18,7 +18,7 @@ struct OVERLAPPED_EX:public OVERLAPPED
 	COverLappedObject *	pOverLappedObject;
 };
 
-enum OVERLAPPEDOBJECT_TYPE
+enum OVERLAPPED_OBJECT_TYPE
 {
 	IO_NOTSET,
 	IO_RECV,
@@ -29,6 +29,13 @@ enum OVERLAPPEDOBJECT_TYPE
 	IO_FILE_WRITE,
 };
 
+enum OVERLAPPED_OBJECT_STATUS
+{
+	OVERLAPPED_OBJECT_STATUS_FREE,
+	OVERLAPPED_OBJECT_STATUS_IDLE,
+	OVERLAPPED_OBJECT_STATUS_USING,
+};
+
 class CNetServer;
 
 class COverLappedObject 
@@ -36,6 +43,7 @@ class COverLappedObject
 protected:
 	OVERLAPPED_EX 				m_OverLapped;
 	UINT						m_ID;	
+	OVERLAPPED_OBJECT_STATUS	m_Status;
 	SOCKET						m_AcceptSocket;	
 	CIPAddress					m_Address;
 	socklen_t					m_AddressLen;
@@ -58,8 +66,13 @@ public:
 	void SetID(UINT ID);
 	UINT GetID();
 
+	void SetStatus(OVERLAPPED_OBJECT_STATUS Status);
+	OVERLAPPED_OBJECT_STATUS GetStatus();
+
 	BOOL Create(CNetServer * pCreator);
-	void Destory();
+
+
+	void Clear();
 
 	OVERLAPPED_EX * GetOverlapped();	
 	CEasyBuffer * GetDataBuff();	
@@ -101,6 +114,15 @@ inline UINT COverLappedObject::GetID()
 	return m_ID;
 }
 
+inline void COverLappedObject::SetStatus(OVERLAPPED_OBJECT_STATUS Status)
+{
+	m_Status = Status;
+}
+inline OVERLAPPED_OBJECT_STATUS COverLappedObject::GetStatus()
+{
+	return m_Status;
+}
+
 inline OVERLAPPED_EX * COverLappedObject::GetOverlapped()
 {
 	return &m_OverLapped;
@@ -129,7 +151,7 @@ inline void COverLappedObject::Process(int EventID)
 	}
 	else
 	{
-		PrintNetLog(_T("NetLib"), _T("IOCP包(%u)没有EventRouter，被忽略"), GetParentID());
+		PrintNetLog( _T("IOCP包(%u)没有EventRouter，被忽略"), GetParentID());
 		Release();
 	}
 }

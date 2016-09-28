@@ -15,12 +15,13 @@
 class CDOSServer;
 
 class CDOSRouter :
-	public CEasyNetLinkManager,public CEasyThread
+	public CEasyThread
 {
 protected:
 	
 	CDOSServer										*m_pServer;
-	CThreadSafeIDStorage<CDOSMessagePacket *>		m_MsgQueue;
+	CCycleQueue<CDOSMessagePacket *>				m_MsgQueue;
+	CEasyCriticalSection							m_EasyCriticalSection;
 	UINT											m_MsgProcessLimit;
 
 	volatile UINT									m_RouteInMsgCount;
@@ -38,12 +39,8 @@ public:
 	BOOL Init(CDOSServer * pServer);
 
 	virtual BOOL OnStart();
-	virtual void OnClose();
 	virtual BOOL OnRun();
-
-	virtual CEasyNetLink * OnCreateLink(UINT ID);
-	virtual void OnLinkStart(CEasyNetLink * pConnection);
-	virtual void OnLinkEnd(CEasyNetLink * pConnection);
+	virtual void OnTerminate();
 	
 
 	BOOL RouterMessage(OBJECT_ID SenderID,OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag,LPCVOID pData,UINT DataSize);
@@ -92,7 +89,7 @@ inline UINT CDOSRouter::GetOutMsgFlow()
 }
 inline UINT CDOSRouter::GetMsgQueueLen()
 {
-	return m_MsgQueue.GetObjectCount();
+	return m_MsgQueue.GetUsedSize();
 }
 inline float CDOSRouter::GetCycleTime()
 {

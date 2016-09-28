@@ -312,6 +312,7 @@
     <ClInclude Include="EasyNetLink.h" />
     <ClInclude Include="EasyNetTempLink.h" />
     <ClInclude Include="ENLConnection.h" />
+    <ClInclude Include="NetAdapterInfos.h" />
     <ClInclude Include="NetLib.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="NetSocket.h" />
@@ -324,11 +325,8 @@
     <ClInclude Include="IIOCPEventHandler.h" />
     <ClInclude Include="IOCPEventRouter.h" />
     <ClInclude Include="IOCPListenThread.h" />
-    <ClInclude Include="IOCPFileAccessor.h" />
     <ClInclude Include="EasyNetLinkManager.h" />
     <ClInclude Include="EasyNetLinkService.h" />
-    <ClInclude Include="EasyFileServerConnection.h" />
-    <ClInclude Include="EasyFileService.h" />
     <ClInclude Include="BaseNetConnection.h" />
     <ClInclude Include="BaseNetService.h" />
     <ClInclude Include="BaseNetServer.h" />
@@ -384,6 +382,7 @@
     <ClCompile Include="EasyNetLink.cpp" />
     <ClCompile Include="EasyNetTempLink.cpp" />
     <ClCompile Include="ENLConnection.cpp" />
+    <ClCompile Include="NetAdapterInfos.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">Create</PrecompiledHeader>
@@ -404,11 +403,8 @@
     <ClCompile Include="IIOCPEventHandler.cpp" />
     <ClCompile Include="IOCPEventRouter.cpp" />
     <ClCompile Include="IOCPListenThread.cpp" />
-    <ClCompile Include="IOCPFileAccessor.cpp" />
     <ClCompile Include="EasyNetLinkManager.cpp" />
     <ClCompile Include="EasyNetLinkService.cpp" />
-    <ClCompile Include="EasyFileServerConnection.cpp" />
-    <ClCompile Include="EasyFileService.cpp" />
     <ClCompile Include="BaseNetConnection.cpp" />
     <ClCompile Include="BaseNetService.cpp" />
     <ClCompile Include="BaseNetServer.cpp" />

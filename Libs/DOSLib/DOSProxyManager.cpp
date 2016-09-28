@@ -17,6 +17,7 @@ IMPLEMENT_CLASS_INFO_STATIC(CDOSProxyManager, CNameObject);
 CDOSProxyManager::CDOSProxyManager()
 {
 	m_pServer = NULL;
+	ZeroMemory(m_ProxyServiceMap, sizeof(m_ProxyServiceMap));
 }
 
 
@@ -35,9 +36,9 @@ bool CDOSProxyManager::Initialize(CDOSServer * pServer)
 	{
 		if (ProxyConfigs[i].ProxyMode == CLIENT_PROXY_MODE_DEFAULT)
 		{
-			if (ProxyConfigs[i].ProxyType == BROAD_CAST_PROXY_TYPE)
+			if (ProxyConfigs[i].ProxyType >= BROAD_CAST_PROXY_TYPE)
 			{
-				PrintDOSLog(0, _T("代理类型码不能为%d,侦听地址为(%s:%d)的代理将被忽略"), BROAD_CAST_PROXY_TYPE,
+				PrintDOSLog( _T("代理类型码不能为%d,侦听地址为(%s:%d)的代理将被忽略"), BROAD_CAST_PROXY_TYPE,
 					ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
 				ProxyConfigs.Delete(i);
 			}
@@ -49,13 +50,13 @@ bool CDOSProxyManager::Initialize(CDOSServer * pServer)
 				{
 					if (ProxyConfigs[i].ProxyType == ProxyConfigs[j].ProxyType)
 					{
-						PrintDOSLog(0, _T("代理类型码重复,侦听地址为(%s:%d)的代理将被忽略"), ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
+						PrintDOSLog( _T("代理类型码重复,侦听地址为(%s:%d)的代理将被忽略"), ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
 						ProxyConfigs.Delete(i);
 						break;
 					}
 					else if (ProxyConfigs[i].ListenAddress == ProxyConfigs[j].ListenAddress)
 					{
-						PrintDOSLog(0, _T("侦听地址重复,侦听地址为(%s:%d)的代理将被忽略"), ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
+						PrintDOSLog( _T("侦听地址重复,侦听地址为(%s:%d)的代理将被忽略"), ProxyConfigs[i].ListenAddress.GetIPString(), ProxyConfigs[i].ListenAddress.GetPort());
 						ProxyConfigs.Delete(i);
 						break;
 					}
@@ -64,7 +65,7 @@ bool CDOSProxyManager::Initialize(CDOSServer * pServer)
 		}
 		else
 		{
-			PrintDOSLog(0, _T("模式为%d的代理将被忽略"), ProxyConfigs[i].ProxyMode);
+			PrintDOSLog( _T("模式为%d的代理将被忽略"), ProxyConfigs[i].ProxyMode);
 			ProxyConfigs.Delete(i);
 		}
 	}
@@ -79,10 +80,11 @@ bool CDOSProxyManager::Initialize(CDOSServer * pServer)
 				if (pProxyServiceList->StartService())
 				{
 					m_ProxyServiceList.Add(pProxyServiceList);
+					m_ProxyServiceMap[pProxyServiceList->GetProxyType()] = pProxyServiceList;
 				}
 				else
 				{
-					PrintDOSLog(0, _T("代理%d无法启动"), pProxyServiceList->GetProxyType());
+					PrintDOSLog( _T("代理%d无法启动"), pProxyServiceList->GetProxyType());
 					SAFE_RELEASE(pProxyServiceList);
 				}
 				
@@ -106,6 +108,17 @@ void CDOSProxyManager::Destory()
 	m_ProxyServiceList.Clear();
 }
 
+UINT CDOSProxyManager::GetConnectionCount()
+{
+	UINT Count = 0;
+	for (UINT i = 0; i < m_ProxyServiceList.GetCount(); i++)
+	{
+		if (m_ProxyServiceList[i])
+			Count+=m_ProxyServiceList[i]->GetConnectionCount();
+	}
+	return Count;
+}
+
 bool CDOSProxyManager::RegisterProxyService(IDOSObjectProxyServiceBase * pService)
 {
 	pService->SetID((UINT)m_ProxyServiceList.GetCount() + 1);
@@ -113,12 +126,12 @@ bool CDOSProxyManager::RegisterProxyService(IDOSObjectProxyServiceBase * pServic
 	{
 		pService->AddUseRef();
 		m_ProxyServiceList.Add(pService);
-		PrintDOSLog(0, _T("类型为%d的代理已被注册"), pService->GetProxyType());
+		PrintDOSLog( _T("类型为%d的代理已被注册"), pService->GetProxyType());
 		return true;
 	}
 	else
 	{
-		PrintDOSLog(0, _T("类型为%d的代理无法启动"), pService->GetProxyType());
+		PrintDOSLog( _T("类型为%d的代理无法启动"), pService->GetProxyType());
 		return false;
 	}	
 }
@@ -133,4 +146,83 @@ bool CDOSProxyManager::UnregisterProxyService(BYTE ProxyID)
 		return true;
 	}
 	return false;
+}
+
+bool CDOSProxyManager::PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket)
+{
+	if (ObjectID.ObjectIndex == 0)
+	{
+		//发送到Service的消息
+		BYTE ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(ObjectID.GroupIndex);
+		if (ProxyType == BROAD_CAST_PROXY_TYPE)
+		{
+			for (UINT j = 0; j < m_ProxyServiceList.GetCount(); j++)
+			{
+				m_ProxyServiceList[j]->PushMessage(pPacket);
+			}
+			return true;
+		}
+		else
+		{
+			IDOSObjectProxyServiceBase * pProxyService = m_ProxyServiceMap[ProxyType];
+			if (pProxyService)
+			{
+				return pProxyService->PushMessage(pPacket);
+			}
+			else
+			{
+				PrintDOSDebugLog(_T("将[0x%llX]发出的消息[%X]递送到代理服务[%llX]时代理服务不存在"),
+					pPacket->GetMessage().GetSenderID(),
+					pPacket->GetMessage().GetMsgID(),
+					ObjectID);
+				return false;
+			}
+		}
+	}
+	else if (ObjectID.ObjectIndex == BROAD_CAST_OBJECT_INDEX)
+	{
+		//群发消息
+		BYTE ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(ObjectID.GroupIndex);
+		if (ProxyType == BROAD_CAST_PROXY_TYPE)
+		{
+			for (UINT j = 0; j < m_ProxyServiceList.GetCount(); j++)
+			{
+				m_ProxyServiceList[j]->PushBroadcastMessage(pPacket);
+			}
+			return true;
+		}
+		else
+		{
+			IDOSObjectProxyServiceBase * pProxyService = m_ProxyServiceMap[ProxyType];
+			if (pProxyService)
+			{
+				return pProxyService->PushBroadcastMessage(pPacket);
+			}
+			else
+			{
+				PrintDOSDebugLog(_T("将[0x%llX]发出的消息[%X]群发到代理服务[%llX]时代理服务不存在"),
+					pPacket->GetMessage().GetSenderID(),
+					pPacket->GetMessage().GetMsgID(),
+					ObjectID);
+				return false;
+			}
+		}
+	}
+	else
+	{
+		//单个消息
+		IDOSObjectProxyConnectionBase * pProxyConnection = GetProxyConnect(ObjectID);
+		if (pProxyConnection)
+		{
+			return pProxyConnection->PushMessage(pPacket);
+		}
+		else
+		{
+			PrintDOSDebugLog(_T("将[0x%llX]发出的消息[%X]递送到代理对象[%llX]时代理对象不存在"),
+				pPacket->GetMessage().GetSenderID(),
+				pPacket->GetMessage().GetMsgID(),
+				ObjectID);
+			return false;
+		}
+	}
 }

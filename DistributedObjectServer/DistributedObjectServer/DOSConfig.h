@@ -6,29 +6,16 @@ class CDOSConfig :
 	public CStaticObject<CDOSConfig>
 {
 public:
-
 	
-	struct POOL_CONFIG
-	{
-		UINT	StartSize;
-		UINT	GrowSize;
-		UINT	GrowLimit;
-		POOL_CONFIG()
-		{
-			StartSize=16;
-			GrowSize=16;
-			GrowLimit=16;
-		}
-	};
 
 	struct NET_CONFIG
 	{
-		UINT			NetWorkThreadPerCPU;
-		POOL_CONFIG		EventObjectPool;
-		POOL_CONFIG		EventRouterPool;
+		UINT					NetWorkThreadCount;
+		STORAGE_POOL_SETTING	EventObjectPool;
+		STORAGE_POOL_SETTING	EventRouterPool;
 		NET_CONFIG()
 		{
-			NetWorkThreadPerCPU=2;
+			NetWorkThreadCount = 2;
 		}
 	};
 
@@ -67,10 +54,11 @@ protected:
 	NET_CONFIG								m_NetConfig;
 	DOS_CONFIG								m_DOSConfig;
 	MONO_CONFIG								m_MonoConfig;
-	POOL_CONFIG								m_PluginObjectPoolConfig;
+	STORAGE_POOL_SETTING					m_PluginObjectPoolConfig;
 	CEasyArray<PLUGIN_INFO>					m_PluginList;
 	CEasyArray<LIB_INFO>					m_LibList;
 	CEasyArray<CLIENT_PROXY_PLUGIN_INFO>	m_ProxyPluginList;
+	bool									m_ExistWhenNoPlugin;
 public:
 	CDOSConfig(void);
 	~CDOSConfig(void);
@@ -103,7 +91,7 @@ public:
 	{
 		return m_MonoConfig;
 	}
-	const POOL_CONFIG& GetPluginObjectPoolConfig()
+	const STORAGE_POOL_SETTING& GetPluginObjectPoolConfig()
 	{
 		return m_PluginObjectPoolConfig;
 	}
@@ -119,9 +107,12 @@ public:
 	{
 		return m_ProxyPluginList;
 	}
-	
+	bool ExistWhenNoPlugin()
+	{
+		return m_ExistWhenNoPlugin;
+	}
 protected:
-	bool ReadPoolConfig(xml_node& XMLContent,POOL_CONFIG& Config);
+	bool ReadPoolConfig(xml_node& XMLContent, STORAGE_POOL_SETTING& Config);
 	bool ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO& Config);
 	bool LoadLibInfo(xml_node& XMLContent);
 	bool LoadPluginInfo(xml_node& XMLContent);

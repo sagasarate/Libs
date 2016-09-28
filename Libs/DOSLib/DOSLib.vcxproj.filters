@@ -81,6 +81,12 @@
     <ClCompile Include="DOSObjectProxyConnectionDefault.cpp">
       <Filter>对象代理服务\缺省实现</Filter>
     </ClCompile>
+    <ClCompile Include="DOSObjectProxyConnectionGroup.cpp">
+      <Filter>对象代理服务\缺省实现</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSRouterLinkManager.cpp">
+      <Filter>路由服务</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -130,6 +136,12 @@
     </ClInclude>
     <ClInclude Include="DOSObjectProxyConnectionDefault.h">
       <Filter>对象代理服务\缺省实现</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSObjectProxyConnectionGroup.h">
+      <Filter>对象代理服务\缺省实现</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSRouterLinkManager.h">
+      <Filter>路由服务</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

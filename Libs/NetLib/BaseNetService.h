@@ -31,7 +31,7 @@ public:
 	void SetAddressPair(const CIPAddressPair& AddressPair);
 	CIPAddressPair& GetAddressPair();
 
-	BOOL IsWorking();
+	bool IsWorking();
 
 	virtual void OnStartUp()=0;
 	virtual void OnClose()=0;
@@ -39,7 +39,7 @@ public:
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT)=0;
 
 	virtual CBaseNetConnection * CreateConnection(CIPAddress& RemoteAddress)=0;
-	virtual BOOL DeleteConnection(CBaseNetConnection * pConnection)=0;
+	virtual bool DeleteConnection(CBaseNetConnection * pConnection) = 0;
 
 	virtual void OnRecvData(const CIPAddress& IPAddress, const BYTE * pData, UINT DataSize) = 0;
 };
@@ -75,7 +75,7 @@ inline CIPAddressPair& CBaseNetService::GetAddressPair()
 }
 
 
-inline BOOL CBaseNetService::IsWorking()
+inline bool CBaseNetService::IsWorking()
 {
 	if(m_Socket.GetState()==CNetSocket::SS_LISTENING||
 		m_Socket.GetState()==CNetSocket::SS_CONNECTED)

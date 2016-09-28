@@ -85,6 +85,7 @@ protected:
 	void CallCSOnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString);
 	void CallCSOnShutDown(int Level);
 	int CallCSUpdate(int ProcessPacketLimit);
+	void CallCSOnException(MonoObject * pException);
 
 	static bool DoRegisterLogger(UINT LogChannel, LPCTSTR FileName);
 	static bool DoRegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader);

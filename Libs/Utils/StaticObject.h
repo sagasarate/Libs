@@ -54,6 +54,7 @@ public:
 					_stprintf_s(InstanceAddrStr,32,_T("%llu"),(UINT64)m_pInstance);
 					InstanceAddrStr[31]=0;
 					SetEnvVar(ThisEnvVarName,InstanceAddrStr);
+					_tcprintf(_T("已设置环境变量%s=%s"), ThisEnvVarName, InstanceAddrStr);
 					//atexit(ReleaseInstance);
 				}		
 			}

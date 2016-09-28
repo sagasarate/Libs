@@ -32,6 +32,11 @@ public:
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CStaticMap<KEY,T,StorageMode>::Create(Size,GrowSize,GrowLimit);
 	}
+	bool Create(const STORAGE_POOL_SETTING& PoolSetting)
+	{
+		CAutoLock Lock(m_EasyCriticalSection);
+		return CStaticMap<KEY, T, StorageMode>::Create(PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
+	}
 	void Destory()
 	{
 		CAutoLock Lock(m_EasyCriticalSection);

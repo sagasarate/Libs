@@ -22,7 +22,8 @@ protected:
 		UINT ID;
 		_StorageNode * pPrev;
 		_StorageNode * pNext;
-		bool IsFree;	
+		bool IsFree;
+		bool IsUsed;
 		void InitObject()
 		{
 		}
@@ -56,7 +57,8 @@ protected:
 		UINT ID;
 		_StorageNode * pPrev;
 		_StorageNode * pNext;
-		bool IsFree;				
+		bool IsFree;
+		bool IsUsed;
 		void InitObject()
 		{
 			pObject=NULL;
@@ -93,7 +95,8 @@ protected:
 		UINT ID;
 		_StorageNode * pPrev;
 		_StorageNode * pNext;
-		bool IsFree;				
+		bool IsFree;
+		bool IsUsed;
 		void InitObject()
 		{
 			pObject=NULL;
@@ -137,6 +140,7 @@ protected:
 	StorageNode *						m_pObjectListHead;
 	StorageNode *						m_pObjectListTail;
 	UINT								m_ObjectCount;
+	UINT								m_UsedObjectCount;
 	UINT								m_GrowSize;
 	UINT								m_GrowLimit;
 public:
@@ -147,8 +151,21 @@ public:
 		m_pObjectListHead=NULL;
 		m_pObjectListTail=NULL;
 		m_ObjectCount=0;
+		m_UsedObjectCount = 0;
 		m_GrowSize=0;
 		m_GrowLimit=0;
+	}
+	CIDStorage(UINT Size, UINT GrowSize = 0, UINT GrowLimit = 0)
+	{
+		m_pFreeListHead = NULL;
+		m_pFreeListTail = NULL;
+		m_pObjectListHead = NULL;
+		m_pObjectListTail = NULL;
+		m_ObjectCount = 0;
+		m_UsedObjectCount = 0;
+		m_GrowSize = 0;
+		m_GrowLimit = 0;
+		Create(Size, GrowSize, GrowLimit);
 	}
 	~CIDStorage()
 	{
@@ -164,6 +181,10 @@ public:
 			return CreateBufferPage(Size);
 		}
 		return true;
+	}
+	bool Create(const STORAGE_POOL_SETTING& PoolSetting)
+	{
+		return Create(PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
 	}
 	UINT GetBufferSize()
 	{
@@ -246,7 +267,7 @@ public:
 			CreateBufferPage(m_GrowSize);
 			return true;
 		}
-		return NULL;
+		return false;
 	}
 	UINT NewObject(T** ppObject)
 	{
@@ -318,7 +339,7 @@ public:
 	}
 	LPVOID InsertBefore(const T& Object,LPVOID Pos=NULL)
 	{
-		StorageNode * pNode=(StorageNode *)InsertNodeBefore(Pos);
+		StorageNode * pNode=(StorageNode *)InsertBefore(Pos);
 		if(pNode)
 		{		
 			pNode->GetObjectRef()=Object;
@@ -349,22 +370,35 @@ public:
 		}
 		return NULL;
 	}
-	LPVOID GetObjectPos(UINT ID)
+	LPVOID GetObjectPosByID(UINT ID)
 	{
 		if(ID==0)
 			return NULL;
-
-		ID--;
-		for(UINT i=0;i<m_ObjectBuffPages.GetCount();i++)
+		if (m_ObjectBuffPages.GetCount())
 		{
-			if(ID<m_ObjectBuffPages[i].BufferSize)
+			ID--;
+			OBJECT_BUFF_PAGE_INFO& FirstPage = m_ObjectBuffPages[0];
+			if (ID < FirstPage.BufferSize)
 			{
-				if(!m_ObjectBuffPages[i].pObjectBuffer[ID].IsFree)
-					return &(m_ObjectBuffPages[i].pObjectBuffer[ID]);
-				return NULL;
+				if (!FirstPage.pObjectBuffer[ID].IsFree)
+					return &(FirstPage.pObjectBuffer[ID]);
 			}
-			ID-=m_ObjectBuffPages[i].BufferSize;
-		}		
+			else
+			{
+				ID -= FirstPage.BufferSize;
+				UINT PageIndex = 1 + ID / m_GrowSize;
+				UINT Index = ID % m_GrowSize;
+				if (PageIndex < m_ObjectBuffPages.GetCount())
+				{
+					OBJECT_BUFF_PAGE_INFO& Page = m_ObjectBuffPages[PageIndex];
+					if (Index < Page.BufferSize)
+					{
+						if (!Page.pObjectBuffer[Index].IsFree)
+							return &(Page.pObjectBuffer[Index]);
+					}
+				}
+			}
+		}
 		return NULL;
 	}
 	T* GetObject(LPVOID Pos)
@@ -380,7 +414,7 @@ public:
 	}	
 	T* GetObject(UINT ID)
 	{		
-		return GetObject(GetObjectPos(ID));
+		return GetObject(GetObjectPosByID(ID));
 	}
 	UINT GetObjectID(LPVOID Pos)
 	{
@@ -393,7 +427,7 @@ public:
 	
 	BOOL DeleteObject(UINT ID)
 	{
-		return DeleteObjectByPos(GetObjectPos(ID));
+		return DeleteObjectByPos(GetObjectPosByID(ID));
 	}	
 	BOOL DeleteObjectByPos(LPVOID Pos)
 	{
@@ -413,6 +447,10 @@ public:
 	{
 		return m_ObjectCount;
 	}
+	UINT GetUsedObjectCount()
+	{
+		return m_UsedObjectCount;
+	}
 
 	LPVOID GetFirstObjectPos()
 	{
@@ -424,7 +462,7 @@ public:
 		return m_pObjectListTail;
 	}
 
-	T* GetNext(LPVOID& Pos)
+	T* GetNextObject(LPVOID& Pos)
 	{
 		if(Pos)
 		{
@@ -435,7 +473,7 @@ public:
 		return NULL;
 	}
 
-	T* GetPrev(LPVOID& Pos)
+	T* GetPrevObject(LPVOID& Pos)
 	{
 		if(Pos)
 		{
@@ -569,7 +607,26 @@ public:
 		}
 		return NULL;
 	}
+	void Verfy(UINT& UsedCount, UINT& FreeCount)
+	{
+		UsedCount = 0;
+		FreeCount = 0;
+		UINT ObjectBuffSize = GetBufferSize();
 
+		StorageNode * pNode = m_pObjectListHead;
+		while (pNode&&UsedCount < ObjectBuffSize)
+		{
+			pNode = pNode->pNext;
+			UsedCount++;
+		}
+
+		pNode = m_pFreeListHead;
+		while (pNode&&FreeCount < ObjectBuffSize)
+		{
+			pNode = pNode->pNext;
+			FreeCount++;
+		}
+	}
 protected:
 	bool CreateBufferPage(UINT Size)
 	{
@@ -581,6 +638,13 @@ protected:
 		OBJECT_BUFF_PAGE_INFO PageInfo;
 		PageInfo.BufferSize=Size;		
 		PageInfo.pObjectBuffer=new StorageNode[Size];
+		for (UINT i = 0; i < Size; i++)
+		{
+			PageInfo.pObjectBuffer[i].IsUsed = false;
+		}
+#ifdef LOG_POOL_CREATE		
+		PrintImportantLog("Create %u Total %u", Size, GetBufferSize() + Size);
+#endif
 		UINT IDStart=GetBufferSize()+1;
 		ClearBuffer(PageInfo,IDStart,true);
 		m_ObjectBuffPages.Add(PageInfo);
@@ -660,7 +724,12 @@ protected:
 
 			pNode->pPrev=NULL;
 			pNode->pNext=NULL;			
-			pNode->IsFree=false;				
+			pNode->IsFree = false;
+			if (!pNode->IsUsed)
+			{
+				pNode->IsUsed = true;
+				m_UsedObjectCount++;
+			}			
 			pNode->NewObject();
 			m_ObjectCount++;
 			return pNode;
@@ -744,25 +813,6 @@ protected:
 		m_ObjectCount--;
 	}
 
-	void Verfy(UINT& UsedCount,UINT& FreeCount)
-	{
-		UsedCount=0;
-		FreeCount=0;
-		UINT ObjectBuffSize=GetBufferSize();
-
-		StorageNode * pNode=m_pObjectListHead;
-		while(pNode&&UsedCount<ObjectBuffSize)
-		{
-			pNode=pNode->pNext;
-			UsedCount++;
-		}
-
-		pNode=m_pFreeListHead;
-		while(pNode&&FreeCount<ObjectBuffSize)
-		{
-			pNode=pNode->pNext;
-			FreeCount++;
-		}
-	}
+	
 
 };

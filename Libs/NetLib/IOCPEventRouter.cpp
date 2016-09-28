@@ -13,7 +13,7 @@
 
 IMPLEMENT_CLASS_INFO_STATIC(CIOCPEventRouter,CNameObject);
 
-BOOL CIOCPEventRouter::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject)
+bool CIOCPEventRouter::OnIOCPEvent(int EventID, COverLappedObject * pOverLappedObject)
 {
 	CAutoReadLock Lock(m_EasyReadWriteLock);
 
@@ -27,15 +27,15 @@ BOOL CIOCPEventRouter::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedOb
 		}
 		else
 		{
-			PrintNetLog(_T("NetLib"),_T("EventRouter没有EventHandler,Overlapped(%u)被忽略"),
+			PrintNetLog(_T("EventRouter没有EventHandler,Overlapped(%u)被忽略"),
 				pOverLappedObject->GetParentID());
 		}
 	}
 	else
 	{
-		PrintNetLog(_T("NetLib"),_T("EventRouter收到不是本Session的Overlapped(%u)，忽略"),
+		PrintNetLog(_T("EventRouter收到不是本Session的Overlapped(%u)，忽略"),
 			pOverLappedObject->GetParentID());
-	}
+	}	
 	pOverLappedObject->Release();
-	return FALSE;
+	return false;
 }

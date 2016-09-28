@@ -43,7 +43,7 @@ public:
 
 inline CDOSRouter * CDOSRouterLink::GetRouter()
 {
-	return (CDOSRouter *)GetManager();
+	return ((CDOSRouterLinkManager *)GetManager())->GetRouter();
 }
 
 

@@ -51,5 +51,5 @@ public:
 	{
 		return m_SessionID;
 	}
-	BOOL OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject);
+	bool OnIOCPEvent(int EventID, COverLappedObject * pOverLappedObject);
 };

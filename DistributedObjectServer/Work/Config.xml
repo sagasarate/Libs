@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="gb2312" ?>
 <Main>
-  <Router RouterID="1" MsgQueueSize="10240" MsgProcessLimit="32" />
+  <Net NetWorkThreadCount="2">
+    <EventObjectPool StartSize="10240" GrowSize="1024" GrowLimit="32" />
+    <EventRouterPool StartSize="2048" GrowSize="512" GrowLimit="32" />
+  </Net>
+  <Router RouterID="0" MsgQueueSize="10240" MsgProcessLimit="32" />
   <RouterLink ServerID="0-0-0-1">
     <Services ReallocConnectionID="true">
       <Service ID="0-0-0-1" IP="0" Port="8500" />
@@ -14,6 +18,7 @@
   <MemoryPool BlockSize="64" LevelSize="1048576" LevelCount="7" />
   <Object GroupCount="10" MaxGroupObjectCount="512" MsgQueueSize="4096" />
   <Plugins MaxPluginObject="4096">
+    <PluginObjectPool StartSize="4096" GrowSize="1024" GrowLimit="32" />
     <Plugin  FileName="LittleWorldDOSPlugin.dll" />
     <Plugin  FileName="LittleWorldDBPlugin.dll" />
   </Plugins>

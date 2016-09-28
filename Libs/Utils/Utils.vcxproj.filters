@@ -112,9 +112,6 @@
     <Filter Include="SmartStruct">
       <UniqueIdentifier>{3ab0e488-666a-43de-9e06-92ba7953c004}</UniqueIdentifier>
     </Filter>
-    <Filter Include="进程管理">
-      <UniqueIdentifier>{221b5808-14c1-4a60-958c-b2aa75b79bea}</UniqueIdentifier>
-    </Filter>
     <Filter Include="性能计数器">
       <UniqueIdentifier>{e7d03761-9cbf-43d8-ba4a-fb0f3e5b19c3}</UniqueIdentifier>
     </Filter>
@@ -180,6 +177,12 @@
     </Filter>
     <Filter Include="数据存储">
       <UniqueIdentifier>{cfeaf771-9801-49d4-8ab1-1fe168176d63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="文件系统\工具">
+      <UniqueIdentifier>{81c6ee8e-17d1-4aec-b376-436f00487212}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="进程">
+      <UniqueIdentifier>{deb7e476-2656-4fb0-87fb-4982c4aa5a4f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -315,9 +318,6 @@
     <ClInclude Include="AsyncFileLogPrinter.h">
       <Filter>Log\缺省实现</Filter>
     </ClInclude>
-    <ClInclude Include="AsyncFileLogWorkThread.h">
-      <Filter>Log\缺省实现</Filter>
-    </ClInclude>
     <ClInclude Include="CSVFileLogPrinter.h">
       <Filter>Log\缺省实现</Filter>
     </ClInclude>
@@ -407,9 +407,6 @@
     </ClInclude>
     <ClInclude Include="SmartValue.h">
       <Filter>SmartStruct</Filter>
-    </ClInclude>
-    <ClInclude Include="SystemProcessList.h">
-      <Filter>进程管理</Filter>
     </ClInclude>
     <ClInclude Include="AutoPerformanceCounter.h">
       <Filter>性能计数器</Filter>
@@ -705,6 +702,24 @@
     <ClInclude Include="Base32.h">
       <Filter>加解密\Base32</Filter>
     </ClInclude>
+    <ClInclude Include="FileTools.h">
+      <Filter>文件系统\工具</Filter>
+    </ClInclude>
+    <ClInclude Include="FileInfo.h">
+      <Filter>文件系统\工具</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessSnapshot.h">
+      <Filter>进程</Filter>
+    </ClInclude>
+    <ClInclude Include="CycleQueue.h">
+      <Filter>对象存储模版</Filter>
+    </ClInclude>
+    <ClInclude Include="AsyncLogWorkThread.h">
+      <Filter>Log\管理器</Filter>
+    </ClInclude>
+    <ClInclude Include="HashMap.h">
+      <Filter>对象存储模版</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EasyTimerEx.cpp">
@@ -794,9 +809,6 @@
     <ClCompile Include="AsyncFileLogPrinter.cpp">
       <Filter>Log\缺省实现</Filter>
     </ClCompile>
-    <ClCompile Include="AsyncFileLogWorkThread.cpp">
-      <Filter>Log\缺省实现</Filter>
-    </ClCompile>
     <ClCompile Include="CSVFileLogPrinter.cpp">
       <Filter>Log\缺省实现</Filter>
     </ClCompile>
@@ -853,9 +865,6 @@
     </ClCompile>
     <ClCompile Include="SmartValue.cpp">
       <Filter>SmartStruct</Filter>
-    </ClCompile>
-    <ClCompile Include="SystemProcessList.cpp">
-      <Filter>进程管理</Filter>
     </ClCompile>
     <ClCompile Include="PerformanceStatistician.cpp">
       <Filter>性能计数器</Filter>
@@ -943,6 +952,15 @@
     </ClCompile>
     <ClCompile Include="Base32.cpp">
       <Filter>加解密\Base32</Filter>
+    </ClCompile>
+    <ClCompile Include="FileTools.cpp">
+      <Filter>文件系统\工具</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessSnapshot.cpp">
+      <Filter>进程</Filter>
+    </ClCompile>
+    <ClCompile Include="AsyncLogWorkThread.cpp">
+      <Filter>Log\管理器</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -69,6 +69,8 @@ BOOL CDistributedObjectOperator::Init(CDistributedObjectManager * pManager, UINT
 			MONO_CLASS_METHOD_NAME_DO_ONSHUTDOWN, MONO_CLASS_METHOD_PARAM_DO_ONSHUTDOWN);
 		m_MonoClassInfo_DO.pUpdateMethod = CDOSMainThread::GetInstance()->MonoGetClassMethod(m_MonoClassInfo_DO.pClass,
 			MONO_CLASS_METHOD_NAME_DO_UPDATE, MONO_CLASS_METHOD_PARAM_DO_UPDATE);
+		m_MonoClassInfo_DO.pOnExceptionMethod = CDOSMainThread::GetInstance()->MonoGetClassMethod(m_MonoClassInfo_DO.pClass,
+			MONO_CLASS_METHOD_NAME_DO_ONEXCEPTION, MONO_CLASS_METHOD_PARAM_DO_ONEXCEPTION);
 		return TRUE;
 	}
 	
@@ -100,8 +102,10 @@ void CDistributedObjectOperator::Destory()
 	{
 	case PLUGIN_TYPE_NATIVE:
 		m_pDistributedObject->Destory();
+		break;
 	case PLUGIN_TYPE_CSHARP:
 		CallCSDestory();
+		break;
 	}
 	if (m_hCSObject)
 	{
@@ -351,8 +355,10 @@ BOOL CDistributedObjectOperator::OnSystemMessage(CDOSMessage * pMessage)
 	{
 	case PLUGIN_TYPE_NATIVE:
 		Ret = m_pDistributedObject->OnSystemMessage(pMessage);
+		break;
 	case PLUGIN_TYPE_CSHARP:
 		Ret = CallCSOnSystemMessage(pMessage->GetMsgID(), pMessage->GetMsgFlag(), pMessage->GetSenderID(), (BYTE *)pMessage->GetDataBuffer(), pMessage->GetDataLength());
+		break;
 	}
 	if (!Ret)
 	{
@@ -369,8 +375,10 @@ void CDistributedObjectOperator::OnConcernedObjectLost(OBJECT_ID ObjectID)
 	{
 	case PLUGIN_TYPE_NATIVE:
 		m_pDistributedObject->OnConcernedObjectLost(ObjectID);
+		break;
 	case PLUGIN_TYPE_CSHARP:
 		CallCSOnConcernedObjectLost(ObjectID);
+		break;
 	}
 	OBJECT_EXCEPTION_CATCH_END;
 }
@@ -382,8 +390,10 @@ void CDistributedObjectOperator::OnFindObject(OBJECT_ID CallerID)
 	{
 	case PLUGIN_TYPE_NATIVE:
 		Ret = m_pDistributedObject->OnFindObject(CallerID);
+		break;
 	case PLUGIN_TYPE_CSHARP:
 		Ret = CallCSOnFindObject(CallerID);
+		break;
 	}
 	if (!Ret)
 	{
@@ -398,8 +408,10 @@ void CDistributedObjectOperator::OnObjectReport(OBJECT_ID ObjectID, const void *
 	{
 	case PLUGIN_TYPE_NATIVE:
 		m_pDistributedObject->OnObjectReport(ObjectID, pObjectInfoData, DataSize);
+		break;
 	case PLUGIN_TYPE_CSHARP:
 		CallCSOnObjectReport(ObjectID, pObjectInfoData, DataSize);
+		break;
 	}
 	OBJECT_EXCEPTION_CATCH_END;
 }
@@ -410,8 +422,10 @@ void CDistributedObjectOperator::OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, 
 	{
 	case PLUGIN_TYPE_NATIVE:
 		m_pDistributedObject->OnProxyObjectIPReport(ProxyObjectID, Port, szIPString);
+		break;
 	case PLUGIN_TYPE_CSHARP:
 		CallCSOnProxyObjectIPReport(ProxyObjectID, Port, szIPString);
+		break;
 	}
 	OBJECT_EXCEPTION_CATCH_END;
 }
@@ -422,8 +436,10 @@ void CDistributedObjectOperator::OnShutDown(int Level)
 	{
 	case PLUGIN_TYPE_NATIVE:
 		m_pDistributedObject->OnShutDown(Level);
+		break;
 	case PLUGIN_TYPE_CSHARP:
 		CallCSOnShutDown(Level);
+		break;
 	}
 	OBJECT_EXCEPTION_CATCH_END;
 }
@@ -434,8 +450,10 @@ int CDistributedObjectOperator::Update(int ProcessPacketLimit)
 	{
 	case PLUGIN_TYPE_NATIVE:
 		return m_pDistributedObject->Update(ProcessPacketLimit);
+		break;
 	case PLUGIN_TYPE_CSHARP:
 		return CallCSUpdate(ProcessPacketLimit);
+		break;
 	}
 	OBJECT_EXCEPTION_CATCH_END;
 	return 0;
@@ -460,13 +478,8 @@ bool CDistributedObjectOperator::CallCSInitialize()
 				MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pInitializeMethod, pObject, Params, &pException);
 				if (pException)
 				{
-					MonoString * pMsg = mono_object_to_string(pException, NULL);
-					if (pMsg)
-					{
-						char * pBuff = mono_string_to_utf8(pMsg);
-						LogMono("%s", pBuff);
-						mono_free(pBuff);
-					}
+					CDOSMainThread::GetInstance()->ProcessMonoException(pException);
+					CallCSOnException(pException);
 				}
 				else if (pReturnValue)
 				{
@@ -477,12 +490,12 @@ bool CDistributedObjectOperator::CallCSInitialize()
 					}
 					else
 					{
-						Log("CDistributedObjectOperator::CallCSInitialize:无法获取返回值");
+						Log("无法获取返回值");
 					}
 				}
 				else
 				{
-					Log("CDistributedObjectOperator::CallCSInitialize:没有返回值");
+					Log("没有返回值");
 				}
 			}
 			else
@@ -512,13 +525,8 @@ void CDistributedObjectOperator::CallCSDestory()
 			mono_runtime_invoke(m_MonoClassInfo_DO.pDestoryMethod, pObject, NULL, &pException);
 			if (pException)
 			{
-				MonoString * pMsg = mono_object_to_string(pException, NULL);
-				if (pMsg)
-				{
-					char * pBuff = mono_string_to_utf8(pMsg);
-					LogMono("%s", pBuff);
-					mono_free(pBuff);
-				}
+				CDOSMainThread::GetInstance()->ProcessMonoException(pException);
+				CallCSOnException(pException);
 			}
 		}
 		else
@@ -550,13 +558,8 @@ BOOL CDistributedObjectOperator::CallCSOnPreTranslateMessage(MSG_ID_TYPE MsgID, 
 				MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnPreTranslateMessageMethod, pObject, Params, &pException);
 				if (pException)
 				{
-					MonoString * pMsg = mono_object_to_string(pException, NULL);
-					if (pMsg)
-					{
-						char * pBuff = mono_string_to_utf8(pMsg);
-						LogMono("%s", pBuff);
-						mono_free(pBuff);
-					}
+					CDOSMainThread::GetInstance()->ProcessMonoException(pException);
+					CallCSOnException(pException);
 				}
 				else if (pReturnValue)
 				{
@@ -570,17 +573,17 @@ BOOL CDistributedObjectOperator::CallCSOnPreTranslateMessage(MSG_ID_TYPE MsgID, 
 					}
 					else
 					{
-						Log("CDistributedObjectOperator::CallCSOnPreTranslateMessage:无法获取返回值");
+						Log("无法获取返回值");
 					}
 				}
 				else
 				{
-					Log("CDistributedObjectOperator::CallCSOnPreTranslateMessage:没有返回值");
+					Log("没有返回值");
 				}
 			}
 			else
 			{
-				Log("CDistributedObjectOperator::CallCSOnPreTranslateMessage:无法创建对象");
+				Log("无法创建对象");
 			}
 		}
 		else
@@ -614,13 +617,8 @@ BOOL CDistributedObjectOperator::CallCSOnMessage(MSG_ID_TYPE MsgID, WORD MsgFlag
 				MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnMessageMethod, pObject, Params, &pException);
 				if (pException)
 				{
-					MonoString * pMsg = mono_object_to_string(pException, NULL);
-					if (pMsg)
-					{
-						char * pBuff = mono_string_to_utf8(pMsg);
-						LogMono("%s", pBuff);
-						mono_free(pBuff);
-					}
+					CDOSMainThread::GetInstance()->ProcessMonoException(pException);
+					CallCSOnException(pException);
 				}
 				else if (pReturnValue)
 				{
@@ -634,17 +632,17 @@ BOOL CDistributedObjectOperator::CallCSOnMessage(MSG_ID_TYPE MsgID, WORD MsgFlag
 					}
 					else
 					{
-						Log("CDistributedObjectOperator::CallCSOnMessage:无法获取返回值");
+						Log("无法获取返回值");
 					}
 				}
 				else
 				{
-					Log("CDistributedObjectOperator::CallCSOnMessage:没有返回值");
+					Log("没有返回值");
 				}
 			}
 			else
 			{
-				Log("CDistributedObjectOperator::CallCSOnMessage:无法创建对象");
+				Log("无法创建对象");
 			}
 		}
 		else
@@ -678,13 +676,8 @@ BOOL CDistributedObjectOperator::CallCSOnSystemMessage(MSG_ID_TYPE MsgID, WORD M
 				MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnSystemMessageMethod, pObject, Params, &pException);
 				if (pException)
 				{
-					MonoString * pMsg = mono_object_to_string(pException, NULL);
-					if (pMsg)
-					{
-						char * pBuff = mono_string_to_utf8(pMsg);
-						LogMono("%s", pBuff);
-						mono_free(pBuff);
-					}
+					CDOSMainThread::GetInstance()->ProcessMonoException(pException);
+					CallCSOnException(pException);
 				}
 				else if (pReturnValue)
 				{
@@ -698,17 +691,17 @@ BOOL CDistributedObjectOperator::CallCSOnSystemMessage(MSG_ID_TYPE MsgID, WORD M
 					}
 					else
 					{
-						Log("CDistributedObjectOperator::CallCSOnSystemMessage:无法获取返回值");
+						Log("无法获取返回值");
 					}
 				}
 				else
 				{
-					Log("CDistributedObjectOperator::CallCSOnSystemMessage:没有返回值");
+					Log("没有返回值");
 				}
 			}
 			else
 			{
-				Log("CDistributedObjectOperator::CallCSOnSystemMessage:无法创建对象");
+				Log("无法创建对象");
 			}
 		}
 		else
@@ -736,13 +729,8 @@ void CDistributedObjectOperator::CallCSOnConcernedObjectLost(OBJECT_ID ObjectID)
 			MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnConcernedObjectLostMethod, pObject, Params, &pException);
 			if (pException)
 			{
-				MonoString * pMsg = mono_object_to_string(pException, NULL);
-				if (pMsg)
-				{
-					char * pBuff = mono_string_to_utf8(pMsg);
-					LogMono("%s", pBuff);
-					mono_free(pBuff);
-				}
+				CDOSMainThread::GetInstance()->ProcessMonoException(pException);
+				CallCSOnException(pException);
 			}
 		}
 		else
@@ -768,13 +756,8 @@ BOOL CDistributedObjectOperator::CallCSOnFindObject(OBJECT_ID CallerID)
 			MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnFindObjectMethod, pObject, Params, &pException);
 			if (pException)
 			{
-				MonoString * pMsg = mono_object_to_string(pException, NULL);
-				if (pMsg)
-				{
-					char * pBuff = mono_string_to_utf8(pMsg);
-					LogMono("%s", pBuff);
-					mono_free(pBuff);
-				}
+				CDOSMainThread::GetInstance()->ProcessMonoException(pException);
+				CallCSOnException(pException);
 			}
 			else if (pReturnValue)
 			{
@@ -788,12 +771,12 @@ BOOL CDistributedObjectOperator::CallCSOnFindObject(OBJECT_ID CallerID)
 				}
 				else
 				{
-					Log("CDistributedObjectOperator::CallCSOnSystemMessage:无法获取返回值");
+					Log("无法获取返回值");
 				}
 			}
 			else
 			{
-				Log("CDistributedObjectOperator::CallCSOnSystemMessage:没有返回值");
+				Log("没有返回值");
 			}
 			
 		}
@@ -825,18 +808,13 @@ void CDistributedObjectOperator::CallCSOnObjectReport(OBJECT_ID ObjectID, const 
 				MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnObjectReportMethod, pObject, Params, &pException);
 				if (pException)
 				{
-					MonoString * pMsg = mono_object_to_string(pException, NULL);
-					if (pMsg)
-					{
-						char * pBuff = mono_string_to_utf8(pMsg);
-						LogMono("%s", pBuff);
-						mono_free(pBuff);
-					}
+					CDOSMainThread::GetInstance()->ProcessMonoException(pException);
+					CallCSOnException(pException);
 				}
 			}
 			else
 			{
-				Log("CDistributedObjectOperator::CallCSOnObjectReport:无法创建对象");
+				Log("无法创建对象");
 			}
 		}
 		else
@@ -867,18 +845,13 @@ void CDistributedObjectOperator::CallCSOnProxyObjectIPReport(OBJECT_ID ProxyObje
 				MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnProxyObjectIPReportMethod, pObject, Params, &pException);
 				if (pException)
 				{
-					MonoString * pMsg = mono_object_to_string(pException, NULL);
-					if (pMsg)
-					{
-						char * pBuff = mono_string_to_utf8(pMsg);
-						LogMono("%s", pBuff);
-						mono_free(pBuff);
-					}
+					CDOSMainThread::GetInstance()->ProcessMonoException(pException);
+					CallCSOnException(pException);
 				}
 			}
 			else
 			{
-				Log("CDistributedObjectOperator::CallCSOnProxyObjectIPReport:无法创建对象");
+				Log("无法创建对象");
 			}
 		}
 		else
@@ -904,13 +877,8 @@ void CDistributedObjectOperator::CallCSOnShutDown(int Level)
 			MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnShutDownMethod, pObject, Params, &pException);
 			if (pException)
 			{
-				MonoString * pMsg = mono_object_to_string(pException, NULL);
-				if (pMsg)
-				{
-					char * pBuff = mono_string_to_utf8(pMsg);
-					LogMono("%s", pBuff);
-					mono_free(pBuff);
-				}
+				CDOSMainThread::GetInstance()->ProcessMonoException(pException);
+				CallCSOnException(pException);
 			}
 		}
 		else
@@ -936,13 +904,8 @@ int CDistributedObjectOperator::CallCSUpdate(int ProcessPacketLimit)
 			MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pUpdateMethod, pObject, Params, &pException);
 			if (pException)
 			{
-				MonoString * pMsg = mono_object_to_string(pException, NULL);
-				if (pMsg)
-				{
-					char * pBuff = mono_string_to_utf8(pMsg);
-					LogMono("%s", pBuff);
-					mono_free(pBuff);
-				}
+				CDOSMainThread::GetInstance()->ProcessMonoException(pException);
+				CallCSOnException(pException);
 			}
 			else if (pReturnValue)
 			{
@@ -955,18 +918,18 @@ int CDistributedObjectOperator::CallCSUpdate(int ProcessPacketLimit)
 					}
 					else
 					{
-						Log("CDistributedObjectOperator::CallCSUpdate:无法获取返回值");
+						Log("无法获取返回值");
 					}
 				}
 				else
 				{
-					Log("CDistributedObjectOperator::CallCSUpdate:返回值类型错误");
+					Log("返回值类型错误");
 					return 1;
 				}
 			}
 			else
 			{
-				Log("CDistributedObjectOperator::CallCSUpdate:没有返回值");
+				Log("没有返回值");
 			}
 		}
 		else
@@ -980,10 +943,38 @@ int CDistributedObjectOperator::CallCSUpdate(int ProcessPacketLimit)
 	return 0;
 }
 
+void CDistributedObjectOperator::CallCSOnException(MonoObject * pException)
+{
+	FUNCTION_BEGIN;
+	if (m_MonoClassInfo_DO.pOnExceptionMethod)
+	{
+		mono_domain_set(m_MonoDomainInfo.pMonoDomain, FALSE);
+		MonoObject * pObject = mono_gchandle_get_target(m_hCSObject);
+		if (pObject)
+		{
+			MonoObject * pException = NULL;
+			LPVOID Params[1];
+			Params[0] = pException;
+			MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnExceptionMethod, pObject, Params, &pException);
+			if (pException)
+			{
+				CDOSMainThread::GetInstance()->ProcessMonoException(pException);
+			}			
+		}
+		else
+		{
+			LogMono("无法获得DistributedObject对象");
+		}
+
+
+	}
+	FUNCTION_END;
+}
+
 bool CDistributedObjectOperator::DoRegisterLogger(UINT LogChannel, LPCTSTR FileName)
 {
 	CEasyString LogFileName;
-	CEasyString ModulePath = GetModulePath(NULL);
+	CEasyString ModulePath = CFileTools::GetModulePath(NULL);
 
 	CServerLogPrinter * pLog;
 
@@ -997,13 +988,12 @@ bool CDistributedObjectOperator::DoRegisterLogger(UINT LogChannel, LPCTSTR FileN
 bool CDistributedObjectOperator::DoRegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader)
 {
 	CEasyString LogFileName;
-	CEasyString ModulePath = GetModulePath(NULL);
+	CEasyString ModulePath = CFileTools::GetModulePath(NULL);
 
 	CCSVFileLogPrinter * pLog;
 
 	LogFileName.Format("%s/Log/%s", (LPCTSTR)ModulePath, FileName);
-	pLog = new CCSVFileLogPrinter();
-	pLog->Init(CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSVLogHeader);
+	pLog = new CCSVFileLogPrinter(CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSVLogHeader);
 	CLogManager::GetInstance()->AddChannel(LogChannel, pLog);
 	SAFE_RELEASE(pLog);
 	return true;

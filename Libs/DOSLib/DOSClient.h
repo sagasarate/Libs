@@ -26,7 +26,7 @@ protected:
 	UINT										m_RecentPingDelay;
 
 	CDOSSimpleMessage *							m_pCurHandleMsg;
-	CEasyMap<MSG_ID_TYPE,DOS_MSG_HANDLE_INFO>	m_MsgFnMap;
+	CHashMap<MSG_ID_TYPE,DOS_MSG_HANDLE_INFO>	m_MsgFnMap;
 
 	int											m_MsgCompressType;
 
@@ -37,7 +37,7 @@ public:
 	virtual void Destory();
 	
 
-	BOOL Start(UINT SendBufferSize,UINT AssembleBufferSize,const CIPAddress& Address,DWORD TimeOut=NO_CONNECTION_TIME_OUT);
+	BOOL Start(UINT SendQueueLen, UINT RecvQueueLen, const CIPAddress& Address, DWORD TimeOut = NO_CONNECTION_TIME_OUT);
 	void Close();
 
 	void SetMsgCompressType(int Type);

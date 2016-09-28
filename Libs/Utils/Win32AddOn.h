@@ -86,10 +86,14 @@
 #include <conio.h>
 #include <Dbghelp.h>
 #include <Psapi.h>
+#include <shlwapi.h>
+#include <shellapi.h>
 
 #pragma comment(lib,"Psapi.lib")
 #pragma comment(lib,"Dbghelp.lib")
 #pragma comment(lib,"Version.lib")
+#pragma comment(lib,"shlwapi.lib")
+#pragma comment(lib,"shell32.lib")
 
 #pragma warning (push)
 #pragma warning (disable : 4311)
@@ -105,6 +109,8 @@
 #pragma intrinsic(_InterlockedOr)
 
 
+#define DEFAULT_IDLE_SLEEP_TIME		10
+
 typedef unsigned int UINT32;
 typedef double DOUBLE;
 
@@ -114,7 +120,12 @@ typedef unsigned __int64 UINTG64;
 typedef __int64 LONG64;
 typedef __int64 INTG64;
 
-const TCHAR DIR_SLASH = '\\';
+
+
+inline UINT GetCurProcessID()
+{
+	return GetCurrentProcessId();
+}
 
 inline unsigned int AtomicInc(volatile unsigned int * pVal)
 {

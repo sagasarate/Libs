@@ -79,11 +79,11 @@ BOOL CServerThread::OnStart()
 	m_CountTimer.SaveTime();
 
 	//装载系统配置
-	CSystemConfig::GetInstance()->LoadConfig(MakeModuleFullPath(NULL,GetConfigFileName()));
+	CSystemConfig::GetInstance()->LoadConfig(CFileTools::MakeModuleFullPath(NULL,GetConfigFileName()));
 
 
 	CEasyString LogFileName;
-	CEasyString ModulePath=GetModulePath(NULL);
+	CEasyString ModulePath = CFileTools::GetModulePath(NULL);
 
 	CServerLogPrinter * pLog;
 
@@ -98,8 +98,7 @@ BOOL CServerThread::OnStart()
 	SetConsoleLogLevel(CSystemConfig::GetInstance()->GetConsoleLogLevel());
 
 	LogFileName.Format("%s/Log/%s.Status",(LPCTSTR)ModulePath,g_ProgramName);
-	CCSVFileLogPrinter * pCSVLog=new CCSVFileLogPrinter();
-	pCSVLog->Init(CSystemConfig::GetInstance()->GetLogLevel(),LogFileName,
+	CCSVFileLogPrinter * pCSVLog = new CCSVFileLogPrinter(CSystemConfig::GetInstance()->GetLogLevel(), LogFileName,
 		"CycleTime,CPUUsed,TCPRecvFlow,TCPSendFlow,UDPRecvFlow,UDPSendFlow,"
 		"TCPRecvCount,TCPSendCount,UDPRecvCount=,UDPSendCount,ClientCount");
 	CLogManager::GetInstance()->AddChannel(SERVER_STATUS_LOG_CHANNEL,pCSVLog);
@@ -135,9 +134,6 @@ BOOL CServerThread::OnStart()
 	m_ESThread.SetScript(&m_Script);
 
 
-	m_ESFactionList.AddCFunction("StartLog",3,this,&CServerThread::StartLog);
-	m_ESFactionList.AddCFunction("StopLog",2,this,&CServerThread::StopLog);
-	m_ESFactionList.AddCFunction("TestLog",1,this,&CServerThread::TestLog);
 	m_ESFactionList.AddCFunction("RebuildUDPControlPort",0,this,&CServerThread::RebuildUDPControlPort);
 	m_ESFactionList.AddCFunction("SetConsoleLogLevel",1,this,&CServerThread::SFSetConsoleLogLevel);
 
@@ -150,7 +146,7 @@ BOOL CServerThread::OnStart()
 
 	xml_parser Parser;
 
-	if(Parser.parse_file(MakeModuleFullPath(NULL,GetConfigFileName()),pug::parse_trim_attribute))
+	if (Parser.parse_file(CFileTools::MakeModuleFullPath(NULL, GetConfigFileName()), pug::parse_trim_attribute))
 	{
 		xml_node Config=Parser.document();
 		if (Config.moveto_child("Main"))
@@ -242,7 +238,7 @@ BOOL CServerThread::OnRun()
 
 	if(Update(CSystemConfig::GetInstance()->GetMainThreadProcessLimit())==0)
 	{
-		DoSleep(1);
+		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
 
 	m_ThreadPerformanceCounter.DoPerformanceCount();
@@ -350,146 +346,6 @@ bool CServerThread::IsServerTerminated()
 	return IsTerminated()!=FALSE;
 	FUNCTION_END;
 	return true;
-}
-
-int CServerThread::StartLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)
-{
-	FUNCTION_BEGIN;
-	CServerLogPrinter * pLog=NULL;
-	if(_stricmp(pParams[0].StrValue,"Normal")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(SERVER_LOG_CHANNEL);
-	}
-	else if(_stricmp(pParams[0].StrValue,"Status")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(SERVER_STATUS_LOG_CHANNEL);
-	}
-	else if(_stricmp(pParams[0].StrValue,"DB")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(LOG_DB_ERROR_CHANNEL);
-	}
-	else if(_stricmp(pParams[0].StrValue,"Net")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(LOG_NET_CHANNEL);
-	}
-	if(pLog)
-	{
-		int WitchMode=0;
-		if(_stricmp(pParams[1].StrValue,"VS")==0)
-		{
-			WitchMode=CServerLogPrinter::LOM_VS;
-		}
-		else if(_stricmp(pParams[1].StrValue,"Console")==0)
-		{
-			WitchMode=CServerLogPrinter::LOM_CONSOLE;
-		}
-		else if(_stricmp(pParams[1].StrValue,"File")==0)
-		{
-			WitchMode=CServerLogPrinter::LOM_FILE;
-		}
-		if(WitchMode)
-		{
-			UINT Mode=pLog->GetLogMode();
-			Mode|=WitchMode;
-
-			int Level=pLog->GetLogLevel();
-
-			CEasyString LogFileName;
-			if(pParams[2].StrValue.IsEmpty())
-			{
-				LogFileName=pLog->GetLogFileName();
-			}
-			else
-			{
-				CEasyString ModulePath=GetModulePath(NULL);
-				LogFileName.Format("%s/Log/%s",(LPCTSTR)ModulePath,(LPCTSTR)pParams[2].StrValue);
-			}
-
-
-			pLog->SetLogMode(Mode,Level,LogFileName);
-			Log("Log模块[%s],模式[%s]的输出已被开启",
-				(LPCTSTR)(pParams[0].StrValue),
-				(LPCTSTR)(pParams[1].StrValue));
-		}
-	}
-	FUNCTION_END;
-	return 0;
-}
-
-int CServerThread::StopLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)
-{
-	FUNCTION_BEGIN;
-	CServerLogPrinter * pLog=NULL;
-	if(_stricmp(pParams[0].StrValue,"Normal")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(SERVER_LOG_CHANNEL);
-	}
-	else if(_stricmp(pParams[0].StrValue,"Status")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(SERVER_STATUS_LOG_CHANNEL);
-	}
-	else if(_stricmp(pParams[0].StrValue,"DB")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(LOG_DB_ERROR_CHANNEL);
-	}
-	else if(_stricmp(pParams[0].StrValue,"Net")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(LOG_NET_CHANNEL);
-	}
-	if(pLog)
-	{
-		int WitchMode=0;
-		if(_stricmp(pParams[1].StrValue,"VS")==0)
-		{
-			WitchMode=CServerLogPrinter::LOM_VS;
-		}
-		else if(_stricmp(pParams[1].StrValue,"Console")==0)
-		{
-			WitchMode=CServerLogPrinter::LOM_CONSOLE;
-		}
-		else if(_stricmp(pParams[1].StrValue,"File")==0)
-		{
-			WitchMode=CServerLogPrinter::LOM_FILE;
-		}
-		if(WitchMode)
-		{
-			UINT Mode=pLog->GetLogMode();
-			Mode&=~WitchMode;
-			int Level=pLog->GetLogLevel();
-			pLog->SetLogMode(Mode,Level,NULL);
-			Log("Log模块[%s],模式[%s]的输出已被关闭",
-				(LPCTSTR)(pParams[0].StrValue),
-				(LPCTSTR)(pParams[1].StrValue));
-		}
-	}
-	FUNCTION_END;
-	return 0;
-}
-
-int CServerThread::TestLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)
-{
-	FUNCTION_BEGIN;
-	CServerLogPrinter * pLog=NULL;
-	if(_stricmp(pParams[0].StrValue,"Normal")==0)
-	{
-		Log("Normal");
-	}
-	else if(_stricmp(pParams[0].StrValue,"Debug")==0)
-	{
-		LogDebug("Debug");
-	}
-	
-
-	FUNCTION_END;
-	return 0;
 }
 
 int CServerThread::RebuildUDPControlPort(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)

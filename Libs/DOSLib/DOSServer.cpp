@@ -17,8 +17,9 @@ CDOSServer::CDOSServer(void):CNetServer()
 {
 	FUNCTION_BEGIN;
 	m_pProxyManager = NULL;
-	m_pDOSRouterService=NULL;
+	m_pDOSRouter=NULL;
 	m_pObjectManager=NULL;
+	m_pRouterLinkManager = NULL;
 	FUNCTION_END;
 }
 
@@ -47,45 +48,66 @@ void CDOSServer::SetConfig(const DOS_CONFIG& Config)
 			}
 		}		
 	}
+	if (m_ServerConfig.ObjectPoolSetting.MaxSize() >= 0xFFFF)
+	{
+		PrintDOSLog(_T("DOS对象池的最大大小必须小于65535！"));
+		m_ServerConfig.ObjectPoolSetting.LimitSize(0xFFFF - 1);
+	}
+	for (UINT i = 0; i < m_ServerConfig.ClientProxyConfigs.GetCount(); i++)
+	{
+		CLIENT_PROXY_CONFIG& ClientProxyConfig = m_ServerConfig.ClientProxyConfigs[i];
+		if (ClientProxyConfig.ConnectionPoolSetting.MaxSize() >= 0xFFFF)
+		{
+			PrintDOSLog(_T("Proxy(%d)连接池池的最大大小必须小于65535！"), ClientProxyConfig.ProxyType);
+			ClientProxyConfig.ConnectionPoolSetting.LimitSize(0xFFFF - 1);
+		}
+	}
 }
 
-BOOL CDOSServer::OnStartUp()
+bool CDOSServer::OnStartUp()
 {
 	FUNCTION_BEGIN;
 	if(!m_MemoryPool.Create(m_ServerConfig.MemoryPoolBlockSize,m_ServerConfig.MemoryPoolLeveSize,m_ServerConfig.MemoryPoolLevelCount,true))
 	{
-		PrintDOSLog(_T("DOSLib"),_T("初始化内存池失败！"));
+		PrintDOSLog(_T("初始化内存池失败！"));
 		return FALSE;
-	}
-	m_pProxyManager = new CDOSProxyManager();
-	if (!m_pProxyManager->Initialize(this))
-	{
-		PrintDOSLog(_T("DOSLib"), _T("代理管理器初始化失败！"));
-		return FALSE;
-	}
+	}	
 
-	m_pDOSRouterService=new CDOSRouter();
-	if(!m_pDOSRouterService->Init(this))
+	m_pDOSRouter=new CDOSRouter();
+	if(!m_pDOSRouter->Init(this))
 	{
-		PrintDOSLog(_T("DOSLib"),_T("路由服务启动失败！"));
+		PrintDOSLog(_T("路由服务启动失败！"));
 		return FALSE;
 	}
 	//m_pDOSRouterService->WaitForWorking(DEFAULT_THREAD_STARTUP_TIME);
-	PrintDOSLog(_T("DOSLib"),_T("路由服务启动！"));
+	PrintDOSLog(_T("路由服务启动！"));
 
 	m_pObjectManager=new CDOSObjectManager();
 
 	m_pObjectManager->SetServer(this);
 	if(!m_pObjectManager->Initialize())
 	{
-		PrintDOSLog(_T("DOSLib"), _T("对象管理器初始化失败！"));
+		PrintDOSLog( _T("对象管理器初始化失败！"));
 		return FALSE;
 	}
 
+	m_pProxyManager = new CDOSProxyManager();
+	if (!m_pProxyManager->Initialize(this))
+	{
+		PrintDOSLog(_T("代理管理器初始化失败！"));
+		return FALSE;
+	}
 
-	PrintDOSLog(_T("DOSLib"),_T("对象管理器启动！"));
+	m_pRouterLinkManager = new CDOSRouterLinkManager();
+	if (!m_pRouterLinkManager->Init(this))
+	{
+		PrintDOSLog(_T("路由连接管理器初始化失败！"));
+		return FALSE;
+	}
 
-	PrintDOSLog(_T("DOSLib"),_T("服务器(%d)启动！"),m_ServerConfig.RouterID);
+	PrintDOSLog(_T("对象管理器启动！"));
+
+	PrintDOSLog(_T("服务器(%d)启动！"),m_ServerConfig.RouterID);
 
 	return TRUE;
 	FUNCTION_END;
@@ -97,14 +119,17 @@ void CDOSServer::OnShutDown()
 	FUNCTION_BEGIN;
 	m_MemoryPool.Verfy(0);
 
-	if(m_pDOSRouterService)
+	SAFE_DELETE(m_pDOSRouter);
+
+	if(m_pDOSRouter)
 	{
-		m_pDOSRouterService->SafeTerminate();
+		m_pDOSRouter->SafeTerminate();
 	}
 
+	SAFE_DELETE(m_pRouterLinkManager);
 	SAFE_DELETE(m_pProxyManager);
 	SAFE_RELEASE(m_pObjectManager);
-	SAFE_DELETE(m_pDOSRouterService);
+	
 
 	m_MemoryPool.Destory();
 

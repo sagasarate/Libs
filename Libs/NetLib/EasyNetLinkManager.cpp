@@ -28,7 +28,7 @@ CEasyNetLinkManager::~CEasyNetLinkManager(void)
 }
 
 
-BOOL CEasyNetLinkManager::Init(CNetServer * pServer, LPCTSTR ConfigFileName)
+bool CEasyNetLinkManager::Init(CNetServer * pServer, LPCTSTR ConfigFileName)
 {
 	ENL_CONFIG ConfigData;
 	if (!LoadConfig(ConfigFileName, ConfigData))
@@ -37,7 +37,7 @@ BOOL CEasyNetLinkManager::Init(CNetServer * pServer, LPCTSTR ConfigFileName)
 	return Init(pServer, ConfigData);
 }
 
-BOOL CEasyNetLinkManager::Init(CNetServer * pServer, xml_node& Config)
+bool CEasyNetLinkManager::Init(CNetServer * pServer, xml_node& Config)
 {
 	ENL_CONFIG ConfigData;
 	if (!LoadConfig(Config, ConfigData))
@@ -46,23 +46,23 @@ BOOL CEasyNetLinkManager::Init(CNetServer * pServer, xml_node& Config)
 	return Init(pServer, ConfigData);
 }
 
-BOOL CEasyNetLinkManager::Init(CNetServer * pServer, const ENL_CONFIG& Config)
+bool CEasyNetLinkManager::Init(CNetServer * pServer, const ENL_CONFIG& Config)
 {
 	m_pServer = pServer;
 	if (m_pServer == NULL)
-		return FALSE;
+		return false;
 
 	if (Config.ServerID == 0)
 	{
-		return FALSE;
+		return false;
 	}
 	
 
 	if (!m_LinkIDPool.Create(Config.ReallocIDRange))
 	{
-		PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::Init 创建[%u]大小的LinkIDPool失败"),
+		PrintNetLog( _T("CEasyNetLinkManager::Init 创建[%u]大小的LinkIDPool失败"),
 			Config.ReallocIDRange);
-		return FALSE;
+		return false;
 	}
 	
 
@@ -80,9 +80,9 @@ BOOL CEasyNetLinkManager::Init(CNetServer * pServer, const ENL_CONFIG& Config)
 		}
 		else
 		{
-			PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::Init 创建Service[%s][%s:%u]失败"),
+			PrintNetLog( _T("CEasyNetLinkManager::Init 创建Service[%s][%s:%u]失败"),
 				CClassifiedID::IDToStr(ServiceConfig.ServiceID), ServiceConfig.ListenAddress.GetIPString(), ServiceConfig.ListenAddress.GetPort());
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -92,43 +92,43 @@ BOOL CEasyNetLinkManager::Init(CNetServer * pServer, const ENL_CONFIG& Config)
 		if (!AddLink(ConnectionConfig.ReportID, ConnectionConfig.Address, ConnectionConfig.MaxPacketSize, ConnectionConfig.RecvQueueSize, 
 			ConnectionConfig.SendQueueSize, ConnectionConfig.DataCompressType, ConnectionConfig.MinCompressSize))
 		{
-			PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::Init 创建Connection[%s][%s:%u]失败"),
+			PrintNetLog( _T("CEasyNetLinkManager::Init 创建Connection[%s][%s:%u]失败"),
 				CClassifiedID::IDToStr(ConnectionConfig.ReportID), ConnectionConfig.Address.GetIPString(), ConnectionConfig.Address.GetPort());
-			return FALSE;
+			return false;
 		}
 	}
 		
 		
 	
-	return TRUE;
+	return true;
 }
 
-BOOL CEasyNetLinkManager::Init(CNetServer * pServer)
+bool CEasyNetLinkManager::Init(CNetServer * pServer)
 {
 	m_pServer=pServer;
 	if(m_pServer==NULL)
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
-BOOL CEasyNetLinkManager::LoadConfig(LPCTSTR ConfigFileName, ENL_CONFIG& Config)
+bool CEasyNetLinkManager::LoadConfig(LPCTSTR ConfigFileName, ENL_CONFIG& Config)
 {
 	xml_parser Parser;
 
 	if (!Parser.parse_file(ConfigFileName, pug::parse_trim_attribute))
 	{
-		return FALSE;
+		return false;
 	}
 	xml_node Root = Parser.document();
 	if (!Root.moveto_child(_T("EasyLink")))
-		return FALSE;
+		return false;
 
 	return LoadConfig(Root, Config);
 }
-BOOL CEasyNetLinkManager::LoadConfig(xml_node& XmlRoot, ENL_CONFIG& Config)
+bool CEasyNetLinkManager::LoadConfig(xml_node& XmlRoot, ENL_CONFIG& Config)
 {
 	if (!XmlRoot.has_attribute(_T("ServerID")))
 	{
-		return FALSE;
+		return false;
 	}
 
 	
@@ -276,7 +276,7 @@ BOOL CEasyNetLinkManager::LoadConfig(xml_node& XmlRoot, ENL_CONFIG& Config)
 			}
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 void CEasyNetLinkManager::Destory()
@@ -308,12 +308,12 @@ CEasyNetLinkService * CEasyNetLinkManager::AddService(UINT ID,UINT ReportID,cons
 		if (pService->Init(this, ReportID, ListenAddress, NeedReallocConnectionID, IsUseListenThread, ParallelAcceptCount, AcceptQueueSize,
 			RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize))
 		{
-			PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::AddService 创建Service[%s][%s:%u],%s,并发Accept=%d,Accept队列长度=%u,接收队列长度=%u,发送队列长度=%u"),
+			PrintNetLog( _T("CEasyNetLinkManager::AddService 创建Service[%s][%s:%u],%s,并发Accept=%d,Accept队列长度=%u,接收队列长度=%u,发送队列长度=%u,最大数据包大小=%u,压缩类型=%d,最小压缩大小=%u"),
 				CClassifiedID(ID).ToStr(),
 				ListenAddress.GetIPString(),
 				ListenAddress.GetPort(),
 				IsUseListenThread ? _T("使用侦听线程") : _T("使用IOCP侦听"),
-				ParallelAcceptCount, AcceptQueueSize, RecvQueueSize, SendQueueSize);
+				ParallelAcceptCount, AcceptQueueSize, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize);
 			return pService;
 		}
 		DeleteLinkService(pService);
@@ -322,7 +322,7 @@ CEasyNetLinkService * CEasyNetLinkManager::AddService(UINT ID,UINT ReportID,cons
 	return NULL;
 }
 
-BOOL CEasyNetLinkManager::AddLink(UINT ReportID,const CIPAddress& ConnectionAddress,UINT MaxPacketSize,
+bool CEasyNetLinkManager::AddLink(UINT ReportID, const CIPAddress& ConnectionAddress, UINT MaxPacketSize,
 										UINT RecvQueueSize,UINT SendQueueSize,
 										DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
 {
@@ -331,20 +331,20 @@ BOOL CEasyNetLinkManager::AddLink(UINT ReportID,const CIPAddress& ConnectionAddr
 	{
 		if (pLink->Init(this, ConnectionAddress, ReportID, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize))
 		{
-			PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::AddLink 创建Connection[%s][%s:%u],接收队列长度=%u,发送队列长度=%u"),
+			PrintNetLog( _T("CEasyNetLinkManager::AddLink 创建Connection[%s][%s:%u],接收队列长度=%u,发送队列长度=%u,最大数据包大小=%u,压缩类型=%d,最小压缩大小=%u"),
 				CClassifiedID(ReportID).ToStr(),
 				ConnectionAddress.GetIPString(),
 				ConnectionAddress.GetPort(),
-				RecvQueueSize, SendQueueSize);
-			return TRUE;
+				RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize);
+			return true;
 		}
 		else
 		{
 			DeleteLink(pLink);
-			PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::AddLink 创建Connection失败"));			
+			PrintNetLog( _T("CEasyNetLinkManager::AddLink 创建Connection失败"));			
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 int CEasyNetLinkManager::Update(int ProcessPacketLimit)
@@ -440,7 +440,7 @@ CEasyNetLink * CEasyNetLinkManager::CreateLink(UINT ID)
 
 
 
-BOOL CEasyNetLinkManager::AcceptLink(CEasyNetLink * pLink)
+bool CEasyNetLinkManager::AcceptLink(UINT LinkID, CEasyNetLink * pLink)
 {
 
 	if (pLink->NeedReallocConnectionID())
@@ -450,53 +450,53 @@ BOOL CEasyNetLinkManager::AcceptLink(CEasyNetLink * pLink)
 		UINT ID=m_LinkIDPool.NewObject(&Stay);
 		if(ID==0)
 		{
-			PrintNetLog(_T("NetLib"),_T("CEasyNetLinkManager::AcceptLink 无法给连接[%s]重新分配一个ID。"),
-				CClassifiedID(pLink->GetID()).ToStr());
-			return FALSE;
+			PrintNetLog(_T("CEasyNetLinkManager::AcceptLink 无法给连接[%s]重新分配一个ID。"),
+				CClassifiedID(LinkID).ToStr());
+			return false;
 		}
-		CClassifiedID ConnectionID = pLink->GetID();
-		ConnectionID.BigIndex()=ID;
-		pLink->SetID(ConnectionID);
+		CClassifiedID ConnectionID = LinkID;
+		ConnectionID.BigIndex() = ID;
+		LinkID = ConnectionID;
 	}
-	else
+	
+	CEasyNetLink * pExistConnection = GetLink(LinkID);
+	if (pExistConnection)
 	{
-		CEasyNetLink * pExistConnection = GetLink(pLink->GetID());
-		if(pExistConnection)
+		if (pExistConnection == pLink)
 		{
-			if (pExistConnection == pLink)
-			{
-				OnLinkStart(pLink);
-				pLink->OnLinkStart();
-				return TRUE;
-			}
-			PrintNetLog(_T("NetLib"),_T("CEasyNetLinkManager::AcceptLink 连接[%s]已经存在。"),
-				CClassifiedID(pLink->GetID()).ToStr());
-			return FALSE;
+			OnLinkStart(pLink);
+			pLink->OnLinkStart();
+			return true;
 		}
-	}
+		PrintNetLog(_T("CEasyNetLinkManager::AcceptLink 连接[%s]已经存在。"),
+			CClassifiedID(LinkID).ToStr());
+		return false;
+	}	
 
 	//重新创建对象
-	CEasyNetLink * pNewLink = CreateLink(pLink->GetID());
+	CEasyNetLink * pNewLink = CreateLink(LinkID);
 	if (pNewLink)
 	{
 		if (pNewLink->Init(pLink))
 		{
 			DeleteLink(pLink);
+			OnLinkStart(pNewLink);
+			pNewLink->OnLinkStart();
 			return true;
 		}
 		else
 		{
-			PrintNetLog(_T("NetLib"), _T("CEasyNetLinkManager::AcceptLink 连接初始化失败。"));
+			PrintNetLog( _T("CEasyNetLinkManager::AcceptLink 连接初始化失败。"));
 		}
 		DeleteLink(pNewLink);
 	}
 	else
 	{
-		PrintNetLog(_T("NetLib"),_T("CEasyNetLinkManager::AcceptLink 无法给连接[%s]创建合适的对象。"),
-			CClassifiedID(pLink->GetID()).ToStr());
+		PrintNetLog(_T("CEasyNetLinkManager::AcceptLink 无法给连接[%s]创建合适的对象。"),
+			CClassifiedID(LinkID).ToStr());
 	}	
 
-	return FALSE;
+	return false;
 
 }
 
@@ -525,7 +525,7 @@ CEasyNetLinkService * CEasyNetLinkManager::CreateLinkService(UINT ID)
 {
 	if(GetService(ID))
 	{
-		PrintNetLog(_T("NetLib"),_T("CEasyNetLinkManager::CreateService 服务[%u]已经存在。"),ID);
+		PrintNetLog(_T("CEasyNetLinkManager::CreateService 服务[%u]已经存在。"),ID);
 		return NULL;
 	}
 
@@ -539,7 +539,7 @@ CEasyNetLinkService * CEasyNetLinkManager::CreateLinkService(UINT ID)
 	return pService;
 }
 
-BOOL CEasyNetLinkManager::DeleteLinkService(CEasyNetLinkService * pService)
+bool CEasyNetLinkManager::DeleteLinkService(CEasyNetLinkService * pService)
 {
 	if(m_ServiceMap.Delete(pService->GetID()))
 	{
@@ -551,9 +551,9 @@ BOOL CEasyNetLinkManager::DeleteLinkService(CEasyNetLinkService * pService)
 				break;
 			}
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 void CEasyNetLinkManager::OnLinkStart(CEasyNetLink * pLink)

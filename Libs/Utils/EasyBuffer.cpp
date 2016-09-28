@@ -87,5 +87,9 @@ void CEasyBuffer::Destory()
 {
 	if(m_IsSelfBuffer)
 		SAFE_DELETE_ARRAY(m_pBuffer);
+	m_pBuffer = NULL;
+	m_BufferSize = 0;
+	m_UsedSize = 0;
+	m_IsSelfBuffer = true;
 }
 

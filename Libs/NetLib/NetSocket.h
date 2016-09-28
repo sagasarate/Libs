@@ -30,7 +30,7 @@ public:
 protected:		
 	volatile SOCKET				m_Socket;
 	volatile SOCKET_STATE		m_State;
-	BOOL						m_IsBlocking;
+	bool						m_IsBlocking;
 	CEasyTimer					m_ConnectTimer;
 	CIPAddressPair				m_IPAddressPair;
 
@@ -41,16 +41,16 @@ public:
 	CNetSocket(SOCKET Socket);
 	virtual ~CNetSocket(void);
 
-	BOOL	MakeSocket( int af = AF_INET, int type = SOCK_STREAM, int protocol = IPPROTO_TCP );
+	bool	MakeSocket(int af = AF_INET, int type = SOCK_STREAM, int protocol = IPPROTO_TCP, bool CloseOnExec = true);
 #ifdef WIN32
 	int		GetProtocol();
 #endif
 
-	BOOL	SetSocket( SOCKET Socket );
-	BOOL	SetSocket( CNetSocket & Socket );
-	BOOL	StealSocket( CNetSocket & Socket );
+	bool	SetSocket( SOCKET Socket );
+	bool	SetSocket( CNetSocket & Socket );
+	bool	StealSocket( CNetSocket & Socket );
 
-	int		SetOption(int Level,int Option,char * pValue,socklen_t ValueLen);
+	int		SetOption(int Level,int Option,const char * pValue,socklen_t ValueLen);
 	int		GetOption(int Level,int Option,char * pValue,socklen_t& ValueLen);
 
 	bool	SetRecvBufferSize(int Size);
@@ -58,25 +58,25 @@ public:
 	int		GetRecvBufferSize();
 	int		GetSendBufferSize();
 
-	BOOL	Connect(const CIPAddress& Address);
-	BOOL	ConnectNoBlocking(const  CIPAddress& Address ,DWORD dwTimeOut);
-	BOOL	Connected();
-	BOOL	IsConnected();
-	BOOL	IsDisconnected();
+	bool	Connect(const CIPAddress& Address);
+	bool	ConnectNoBlocking(const  CIPAddress& Address ,DWORD dwTimeOut);
+	bool	Connected();
+	bool	IsConnected();
+	bool	IsDisconnected();
 
-	BOOL	Bind(const CIPAddress& Address);
+	bool	Bind(const CIPAddress& Address);
 
-	BOOL	Listen(const CIPAddress& Address);
+	bool	Listen(const CIPAddress& Address);
 	
 
-	BOOL	EnableBlocking(BOOL Enable);	
-	BOOL	IsBlocking();
+	bool	EnableBlocking(bool Enable);	
+	bool	IsBlocking();
 
-	BOOL	Select( BOOL * pbRead, BOOL * pbWrite, BOOL * pbExcept, DWORD dwTimeOut );
+	bool	Select( bool * pbRead, bool * pbWrite, bool * pbExcept, DWORD dwTimeOut );
 
 #ifdef WIN32
-	BOOL	WMsgSelect(HWND hWnd,unsigned int wMsg,long lEvent);
-	BOOL	EventSelect(WSAEVENT hEventObject,long lEvent);
+	bool	WMsgSelect(HWND hWnd,unsigned int wMsg,long lEvent);
+	bool	EventSelect(WSAEVENT hEventObject,long lEvent);
 #endif
 
 	SOCKET	GetSocket();
@@ -91,19 +91,19 @@ public:
 	
 	int	Send(LPVOID lpBuffer, int iSize);
 	int	Recv(LPVOID lpBuffer, int iSize);
-	BOOL Accept(CNetSocket & Socket );
+	bool Accept(CNetSocket & Socket );
 
 	int SendTo(const CIPAddress& Address,LPVOID lpBuffer, int iSize);	
 	int RecvFrom(CIPAddress& Address,LPVOID lpBuffer, int iSize);
 	
 
 #ifdef WIN32
-	BOOL SendOverlapped( LPVOID lpData, int nDatasize, DWORD &dwBytesSent, DWORD dwFlag, LPOVERLAPPED lpOverlapped);
-	BOOL RecvOverlapped( LPVOID lpDataBuf, int nBufsize, DWORD &dwBytesReceived, DWORD &dwFlag, LPOVERLAPPED lpOverlapped );
-	BOOL AcceptOverlapped( SOCKET AcceptSocket, LPVOID lpDataBuf, DWORD dwRecvBufferLength, DWORD &dwBytesReceived, LPOVERLAPPED lpOverlapped);
+	bool SendOverlapped( LPVOID lpData, int nDatasize, DWORD &dwBytesSent, DWORD dwFlag, LPOVERLAPPED lpOverlapped);
+	bool RecvOverlapped( LPVOID lpDataBuf, int nBufsize, DWORD &dwBytesReceived, DWORD &dwFlag, LPOVERLAPPED lpOverlapped );
+	bool AcceptOverlapped( SOCKET AcceptSocket, LPVOID lpDataBuf, DWORD dwRecvBufferLength, DWORD &dwBytesReceived, LPOVERLAPPED lpOverlapped);
 
-	BOOL SendToOverlapped(const CIPAddress& Address,LPVOID lpData, int nDatasize, DWORD &dwBytesSent, DWORD dwFlag, LPOVERLAPPED lpOverlapped);
-	BOOL RecvFromOverlapped(CIPAddress& Address,int& AddresLen,LPVOID lpDataBuf, int nBufsize, DWORD &dwBytesReceived, DWORD &dwFlag, LPOVERLAPPED lpOverlapped );
+	bool SendToOverlapped(const CIPAddress& Address,LPVOID lpData, int nDatasize, DWORD &dwBytesSent, DWORD dwFlag, LPOVERLAPPED lpOverlapped);
+	bool RecvFromOverlapped(CIPAddress& Address,int& AddresLen,LPVOID lpDataBuf, int nBufsize, DWORD &dwBytesReceived, DWORD &dwFlag, LPOVERLAPPED lpOverlapped );
 #endif
 
 	void SetRemoteAddress(const CIPAddress& IPAddress);
@@ -121,37 +121,37 @@ public:
 	virtual bool StealFrom(CNameObject * pObject,UINT Param=0);
 };
 
-inline BOOL CNetSocket::SetSocket( CNetSocket & Socket )
+inline bool CNetSocket::SetSocket( CNetSocket & Socket )
 {
 	if( !SetSocket( Socket.GetSocket() ))
-		return FALSE; 
+		return false; 
 	SetState( Socket.GetState()); 
 	SetAddressPair( Socket.GetAddressPair());
 	m_IsBlocking=Socket.m_IsBlocking;
 	m_ConnectTimer=Socket.m_ConnectTimer;
-	return TRUE;
+	return true;
 }
 
-inline BOOL CNetSocket::StealSocket( CNetSocket & Socket )
+inline bool CNetSocket::StealSocket( CNetSocket & Socket )
 { 
 	if( !SetSocket( Socket ) ) 
-		return FALSE;
+		return false;
 	Socket.m_Socket=INVALID_SOCKET;
 	Socket.Clear();
-	return TRUE;
+	return true;
 }
 
-inline BOOL CNetSocket::IsConnected()
+inline bool CNetSocket::IsConnected()
 {
 	return GetState()==SS_CONNECTED;
 }
 
-inline BOOL CNetSocket::IsDisconnected()
+inline bool CNetSocket::IsDisconnected()
 {
 	return (GetState()!=SS_CONNECTED)&&(GetState()!=SS_CONNECTING);
 }
 
-inline BOOL CNetSocket::IsBlocking()
+inline bool CNetSocket::IsBlocking()
 {
 	return m_IsBlocking;
 }

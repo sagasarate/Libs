@@ -99,31 +99,31 @@ bool CSystemConfig::LoadConfig(LPCTSTR ConfigFileName)
 				}
 
 
-				PrintImportantLog(0, "系统配置已载入");
-				PrintImportantLog(0, "主线程处理限制:%u", m_MainThreadProcessLimit);
-				PrintImportantLog(0, "UDP控制接口:%s:%u", m_UDPControlAddress.GetIPString(), m_UDPControlAddress.GetPort());
-				PrintImportantLog(0, "是否记录OverLapped对象使用状态:%s", m_LogServerObjectUse ? "是" : "否");
-				PrintImportantLog(0, "Log输出级别:%u", m_LogLevel);
-				PrintImportantLog(0, "控制台Log输出级别:%u", m_ConsoleLogLevel);
-				PrintImportantLog(0, "主线程死锁判定时间:%u", m_GuardThreadKeepAliveTime);
-				PrintImportantLog(0, "主线程死锁判定次数:%u", m_GuardThreadKeepAliveCount);
+				PrintImportantLog("系统配置已载入");
+				PrintImportantLog("主线程处理限制:%u", m_MainThreadProcessLimit);
+				PrintImportantLog("UDP控制接口:%s:%u", m_UDPControlAddress.GetIPString(), m_UDPControlAddress.GetPort());
+				PrintImportantLog("是否记录OverLapped对象使用状态:%s", m_LogServerObjectUse ? "是" : "否");
+				PrintImportantLog("Log输出级别:%u", m_LogLevel);
+				PrintImportantLog("控制台Log输出级别:%u", m_ConsoleLogLevel);
+				PrintImportantLog("主线程死锁判定时间:%u", m_GuardThreadKeepAliveTime);
+				PrintImportantLog("主线程死锁判定次数:%u", m_GuardThreadKeepAliveCount);
 
 			}
 			else
 			{
-				PrintImportantLog(0, "配置文件[%s]不合法", ConfigFileName);
+				PrintImportantLog("配置文件[%s]不合法", ConfigFileName);
 				return false;
 			}
 		}
 		else
 		{
-			PrintImportantLog(0, "配置文件[%s]不合法", ConfigFileName);
+			PrintImportantLog("配置文件[%s]不合法", ConfigFileName);
 			return false;
 		}
 	}
 	else
 	{
-		PrintImportantLog(0,"无法打开配置文件[%s]",ConfigFileName);
+		PrintImportantLog("无法打开配置文件[%s]",ConfigFileName);
 		return false;
 	}
 	return true;

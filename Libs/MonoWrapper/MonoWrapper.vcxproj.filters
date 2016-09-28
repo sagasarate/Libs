@@ -1,23 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="lib">
-      <UniqueIdentifier>{eda5a030-68fd-42e0-92dc-63706861c044}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include_win">
-      <UniqueIdentifier>{bd8fd40d-e66e-44ff-af58-f222ddf18a0c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\x86">
-      <UniqueIdentifier>{62ea719d-80f9-466a-899f-73bfdaada17e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\x64">
-      <UniqueIdentifier>{03caddfe-93c9-4e80-8c64-54d050ab894a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="预编译">
       <UniqueIdentifier>{7bf89270-cae9-4633-8d9c-1c42412cc977}</UniqueIdentifier>
     </Filter>
     <Filter Include="MonoWrapper">
       <UniqueIdentifier>{8688f217-b02d-4b42-8ddc-86ec2283d03e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{3b4c19cf-32cc-446d-a08a-95a7c027ab9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{476cbc17-63df-427a-ba15-635494adb6d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\x64">
+      <UniqueIdentifier>{96f91cd3-cf78-4134-9ad4-338d8d1d5d69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\x86">
+      <UniqueIdentifier>{ac8355f6-57b6-4563-b0b9-478b1262120b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,98 +27,75 @@
     <ClInclude Include="MonoWrapper.h">
       <Filter>MonoWrapper</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\appdomain.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\appdomain.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\assembly.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\assembly.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\blob.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\class.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\class.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\debugger-agent.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\debug-helpers.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\environment.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\environment.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\exception.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\image.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\image.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\jit.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\jit.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\loader.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\loader.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\metadata.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\metadata.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\mono-counters.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\mono-config.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\mono-dl-fallback.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\mono-config-dirs.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\mono-error.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\mono-counters.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\mono-logger.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\mono-debug.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\mono-publib.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\mono-dl-fallback.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\object.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\mono-error.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\reflection.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\mono-gc.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\row-indexes.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\mono-logger.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\mono-config.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\mono-publib.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\mono-config-dirs.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\object.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\class-internals.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\reflection.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\exception.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\row-indexes.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\debugger-agent.h">
-      <Filter>include_win</Filter>
+    <ClInclude Include="include\threads.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include_win\mono-debug.h">
-      <Filter>include_win</Filter>
-    </ClInclude>
-    <ClInclude Include="include_win\threads.h">
-      <Filter>include_win</Filter>
-    </ClInclude>
-    <ClInclude Include="include_win\mono-gc.h">
-      <Filter>include_win</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="lib\x86\libmono.lib">
-      <Filter>lib\x86</Filter>
-    </Library>
-    <Library Include="lib\x86\libmonoD.lib">
-      <Filter>lib\x86</Filter>
-    </Library>
-    <Library Include="lib\x64\libmonoD.lib">
-      <Filter>lib\x64</Filter>
-    </Library>
-    <Library Include="lib\x64\libmono.lib">
-      <Filter>lib\x64</Filter>
-    </Library>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -126,8 +103,29 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="lib\x64\libmono.a">
+    <Library Include="lib\x64\mono-2.0D.lib">
       <Filter>lib\x64</Filter>
-    </None>
+    </Library>
+    <Library Include="lib\x64\mono-2.0.lib">
+      <Filter>lib\x64</Filter>
+    </Library>
+    <Library Include="lib\x64\monosgen-2.0.lib">
+      <Filter>lib\x64</Filter>
+    </Library>
+    <Library Include="lib\x64\monosgen-2.0D.lib">
+      <Filter>lib\x64</Filter>
+    </Library>
+    <Library Include="lib\x86\mono-2.0.lib">
+      <Filter>lib\x86</Filter>
+    </Library>
+    <Library Include="lib\x86\mono-2.0D.lib">
+      <Filter>lib\x86</Filter>
+    </Library>
+    <Library Include="lib\x86\monosgen-2.0.lib">
+      <Filter>lib\x86</Filter>
+    </Library>
+    <Library Include="lib\x86\monosgen-2.0D.lib">
+      <Filter>lib\x86</Filter>
+    </Library>
   </ItemGroup>
 </Project>

@@ -46,11 +46,11 @@ BOOL CGuardThread::OnRun()
 		{
 			m_RecentKeepAliveTime=CurTime;
 			m_LostAliveCount++;
-			PrintImportantLog(0,_T("检测到线程[%u]失去响应,第%d次"),m_TargetThreadID,m_LostAliveCount);
+			PrintImportantLog(_T("检测到线程[%u]失去响应,第%d次"),m_TargetThreadID,m_LostAliveCount);
 			if(m_LostAliveCount>m_MaxLostAliveCount)
 			{
-				PrintImportantLog(0,_T("检测到线程[%u]死锁，做Dump并关闭"),m_TargetThreadID);
-				PrintImportantLog(0,_T("最近函数位置[%s,%d]"),m_RecentSourceFileName,m_RecentSourceLine);
+				PrintImportantLog(_T("检测到线程[%u]死锁，做Dump并关闭"),m_TargetThreadID);
+				PrintImportantLog(_T("最近函数位置[%s,%d]"),m_RecentSourceFileName,m_RecentSourceLine);
 #ifdef WIN32
 				CExceptionParser::GetInstance()->WriteDump(NULL);
 #endif

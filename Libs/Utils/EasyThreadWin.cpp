@@ -106,6 +106,7 @@ void CEasyThread::ForceTerminate()
 {
 	if (!IsTerminated())
 	{
+		PrintImportantLog(_T("线程%u被强行终止"), m_ThreadID);
 		TerminateThread(m_hThread, 0);
 		OnTerminate();
 	}

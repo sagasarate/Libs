@@ -17,6 +17,10 @@ static char s_LZOCompressWorkMemory[LZO1X_1_MEM_COMPRESS];
 CDOSObjectProxyConnectionDefault::CDOSObjectProxyConnectionDefault(void)
 {
 	m_RecentPingDelay = 0;
+	m_pService = NULL;
+	m_pGroup = NULL;
+	m_Status = STATUS_NONE;
+	m_pCompressBuffer = NULL;
 }
 
 CDOSObjectProxyConnectionDefault::~CDOSObjectProxyConnectionDefault(void)
@@ -25,16 +29,20 @@ CDOSObjectProxyConnectionDefault::~CDOSObjectProxyConnectionDefault(void)
 
 void CDOSObjectProxyConnectionDefault::Destory()
 {
+	m_pCompressBuffer = NULL;
 	CNetConnection::Destory();
 	CDOSMessagePacket * pPacket;
-	while (m_MsgQueue.PopFront(pPacket))
+	while (m_MsgQueue.PopFront(&pPacket))
 	{
 		if (!GetServer()->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(_T("DOSLib"), _T("CDOSProxyConnectionBase::Destory:释放消息内存块失败！"));
+			PrintDOSLog(_T("释放消息内存块失败！"));
 		}
 	}
-	m_MessageMap.Clear();
+	m_MsgQueue.Destory();
+	m_AssembleBuffer.Destory();
+	m_MessageMap.Destory();
+	m_Status = STATUS_DESTORYED;
 }
 UINT CDOSObjectProxyConnectionDefault::AddUseRef()
 {
@@ -47,21 +55,25 @@ void CDOSObjectProxyConnectionDefault::Release()
 
 bool CDOSObjectProxyConnectionDefault::PushMessage(CDOSMessagePacket * pPacket)
 {
-	if (!IsConnected())
+	if (m_Status != STATUS_CONNECTED)
 		return false;
 
 	((CDOSServer *)GetServer())->AddRefMessagePacket(pPacket);
+#ifdef _DEBUG
 	pPacket->SetAllocTime(3);
-	if (m_MsgQueue.PushBack(pPacket))
+#endif
+	if (m_MsgQueue.PushBack(&pPacket))
 	{
+#ifdef _DEBUG
 		pPacket->SetAllocTime(31);
+#endif
 		return true;
 	}
 	else
 	{
 		if (!GetServer()->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(_T("DOSLib"), _T("CDOSProxyConnectionBase::PushMessage:释放消息内存块失败！"));
+			PrintDOSLog(_T("释放消息内存块失败！"));
 		}
 		return false;
 	}	
@@ -69,47 +81,48 @@ bool CDOSObjectProxyConnectionDefault::PushMessage(CDOSMessagePacket * pPacket)
 
 
 
-bool CDOSObjectProxyConnectionDefault::Init(CDOSObjectProxyServiceDefault * pService, UINT ID)
+bool CDOSObjectProxyConnectionDefault::Init(CDOSObjectProxyServiceDefault * pService, const CLIENT_PROXY_CONFIG& Config, UINT ID)
 {
 	SetID(ID);
 	m_pService = pService;
 	SetServer(pService->GetServer());
+	m_Config = Config;
 
 	m_ObjectID.ObjectIndex = GetID();
-	m_ObjectID.GroupIndex = MAKE_PROXY_GROUP_INDEX(m_pService->GetConfig().ProxyType, pService->GetID());
+	m_ObjectID.GroupIndex = MAKE_PROXY_GROUP_INDEX(m_Config.ProxyType);
 	m_ObjectID.ObjectTypeID = DOT_PROXY_OBJECT;
 	m_ObjectID.RouterID = GetServer()->GetRouter()->GetRouterID();
 
-	m_MaxKeepAliveCount = m_pService->GetConfig().KeepAliveCount;
-	m_KeepAliveTime = m_pService->GetConfig().KeepAliveTime;
-	m_UseServerInitiativeKeepAlive = m_pService->GetConfig().UseServerInitiativeKeepAlive;
+	m_MaxKeepAliveCount = m_Config.KeepAliveCount;
+	m_KeepAliveTime = m_Config.KeepAliveTime;
+	m_UseServerInitiativeKeepAlive = m_Config.UseServerInitiativeKeepAlive;
 
-
+	//消息队列可能会有消息残留，释放掉
 	CDOSMessagePacket * pPacket;
-	while (m_MsgQueue.PopFront(pPacket))
+	while (m_MsgQueue.PopFront(&pPacket))
 	{
 		if (!GetServer()->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(_T("DOSLib"), _T("CDOSProxyConnectionBase::OnDisconnection:释放消息内存块失败！"));
+			PrintDOSLog(_T("释放消息内存块失败！"));
 		}
 	}
 
-	if (m_MsgQueue.GetBufferSize() < m_pService->GetConfig().ConnectionMsgQueueSize)
+	if (m_MsgQueue.GetBufferSize() < m_Config.ConnectionMsgQueueSize)
 	{
-		if (!m_MsgQueue.Create(m_pService->GetConfig().ConnectionMsgQueueSize))
+		if (!m_MsgQueue.Create(m_Config.ConnectionMsgQueueSize))
 		{
-			PrintDOSLog(_T("DOSLib"), _T("创建%u大小的消息队列失败！"),
-				m_pService->GetConfig().ConnectionMsgQueueSize);
+			PrintDOSLog( _T("创建%u大小的消息队列失败！"),
+				m_Config.ConnectionMsgQueueSize);
 			return false;
 		}
 	}
 
-	if (m_MessageMap.GetBufferSize() < m_pService->GetConfig().MsgMapSize)
+	if (m_MessageMap.GetBufferSize() < m_Config.MsgMapSize)
 	{
-		if (!m_MessageMap.Create(m_pService->GetConfig().MsgMapSize))
+		if (!m_MessageMap.Create(m_Config.MsgMapSize, m_Config.MsgMapSize, 32))
 		{
-			PrintDOSLog(_T("DOSLib"), _T("创建%u大小的消息映射表失败！"),
-				m_pService->GetConfig().MsgMapSize);
+			PrintDOSLog( _T("创建%u大小的消息映射表失败！"),
+				m_Config.MsgMapSize);
 			return false;
 		}
 	}
@@ -121,20 +134,20 @@ bool CDOSObjectProxyConnectionDefault::Init(CDOSObjectProxyServiceDefault * pSer
 	m_KeepAliveTimer.SaveTime();
 	m_KeepAliveCount = 0;
 	m_RecentPingDelay = 0;
-	m_MaxKeepAliveCount = m_pService->GetConfig().KeepAliveCount;
+	m_MaxKeepAliveCount = m_Config.KeepAliveCount;
 	m_UnacceptConnectionKeepTimer.SaveTime();
 	m_NeedDelayClose = false;
 
-	if(m_AssembleBuffer.GetBufferSize()<m_pService->GetConfig().MaxMsgSize*2)
+	if (m_AssembleBuffer.GetBufferSize() < m_Config.MaxMsgSize * 2)
 	{
-		if(!m_AssembleBuffer.Create(m_pService->GetConfig().MaxMsgSize*2))
+		if (!m_AssembleBuffer.Create(m_Config.MaxMsgSize * 2))
 		{
-			PrintDOSLog(_T("DOSLib"),_T("创建%u大小的拼包缓冲失败！"),
-				m_pService->GetConfig().MaxMsgSize*2);
+			PrintDOSLog(_T("创建%u大小的拼包缓冲失败！"),
+				m_Config.MaxMsgSize * 2);
 			return false;
 		}
 	}
-
+	m_Status = STATUS_INITED;
 	return true;
 }
 
@@ -146,8 +159,8 @@ void CDOSObjectProxyConnectionDefault::OnRecvData(const BYTE * pData, UINT DataS
 	UINT PeekPos = 0;
 	if (!m_AssembleBuffer.PushBack(pData, DataSize))
 	{
-		Disconnect();
-		PrintDOSLog(_T("DOSLib"), _T("对象代理(%d)拼包缓冲溢出，连接断开！"), GetID());
+		PrintDOSLog(_T("对象代理(%d)拼包缓冲溢出(%u/%u)，连接断开！"), GetID(), m_AssembleBuffer.GetUsedSize(), m_AssembleBuffer.GetBufferSize());
+		Disconnect();		
 	}
 	else
 	{
@@ -158,7 +171,7 @@ void CDOSObjectProxyConnectionDefault::OnRecvData(const BYTE * pData, UINT DataS
 				if (PacketSize < CDOSSimpleMessage::GetMsgHeaderLength())
 				{
 					Disconnect();
-					PrintDOSLog(_T("DOSLib"), _T("对象代理(%d)收到非法包，连接断开！"), GetID());
+					PrintDOSLog( _T("对象代理(%d)收到非法包，连接断开！"), GetID());
 				}
 				CDOSSimpleMessage * pMsg = (CDOSSimpleMessage *)m_AssembleBuffer.GetBuffer();
 				if (pMsg->GetMsgFlag() & DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
@@ -176,34 +189,42 @@ void CDOSObjectProxyConnectionDefault::OnRecvData(const BYTE * pData, UINT DataS
 	}
 }
 
-void CDOSObjectProxyConnectionDefault::OnConnection(BOOL IsSucceed)
+void CDOSObjectProxyConnectionDefault::OnConnection(bool IsSucceed)
 {
-	PrintDOSLog(_T("DOSLib"), _T("收到代理对象的连接！IP=%s"), GetRemoteAddress().GetIPString());
-	SetSendDelay(m_pService->GetConfig().SendDelay);
-	SetSendQueryLimit(m_pService->GetConfig().SendQueryLimit);
-	PrintDOSLog(_T("DOSLib"), _T("发送延时设置为%u,并发发送限制为%u"),
-		m_pService->GetConfig().SendDelay,
-		m_pService->GetConfig().SendQueryLimit);
 	m_NeedDelayClose = false;
 	m_KeepAliveTimer.SaveTime();
 	m_KeepAliveCount = 0;
 	m_RecentPingDelay = 0;
+
+	if (IsSucceed)
+	{
+		PrintDOSLog(_T("收到代理对象的连接！IP=%s"), GetRemoteAddress().GetIPString());		
+		m_Status = STATUS_CONNECTED;
+		m_pService->AcceptConnection(this);
+	}
+	else
+	{
+		PrintDOSLog(_T("连接初始化失败！IP=%s"), GetRemoteAddress().GetIPString());
+		m_Status = STATUS_DISCONNECTED;
+		m_pService->QueryDestoryConnection(this);
+	}
 }
 void CDOSObjectProxyConnectionDefault::OnDisconnection()
 {
-	PrintDOSLog(_T("DOSLib"), _T("对象代理(%d)的连接断开！IP=%s"), GetID(), GetRemoteAddress().GetIPString());
+	PrintDOSLog( _T("对象代理(%d)的连接断开！IP=%s"), GetID(), GetRemoteAddress().GetIPString());
 	SendDisconnectNotify();
 
 	CDOSMessagePacket * pPacket;
-	while (m_MsgQueue.PopFront(pPacket))
+	while (m_MsgQueue.PopFront(&pPacket))
 	{
 		if (!GetServer()->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(_T("DOSLib"), _T("CDOSProxyConnectionBase::OnDisconnection:释放消息内存块失败！"));
+			PrintDOSLog( _T("释放消息内存块失败！"));
 		}
 	}
 	m_MessageMap.Clear();
 	m_UnacceptConnectionKeepTimer.SaveTime();
+	m_Status = STATUS_DISCONNECTED;
 }
 
 int CDOSObjectProxyConnectionDefault::Update(int ProcessPacketLimit)
@@ -212,16 +233,18 @@ int CDOSObjectProxyConnectionDefault::Update(int ProcessPacketLimit)
 	int PacketCount = 0;
 
 	CDOSMessagePacket * pPacket;
-	while (m_MsgQueue.PopFront(pPacket))
+	while (m_MsgQueue.PopFront(&pPacket))
 	{
+#ifdef _DEBUG
 		pPacket->SetAllocTime(32);
+#endif
 		if (pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
 			OnSystemMessage(pPacket);
 		else
 			OnMessage(pPacket);
 		if (!GetServer()->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(_T("DOSLib"), _T("CDOSProxyConnectionBase::Update:释放消息内存块失败！"));
+			PrintDOSLog( _T("释放消息内存块失败！"));
 		}
 		PacketCount++;
 		if (PacketCount >= PacketLimit && (!m_WantClose))
@@ -240,7 +263,7 @@ int CDOSObjectProxyConnectionDefault::Update(int ProcessPacketLimit)
 		}
 		if (m_KeepAliveCount >= m_MaxKeepAliveCount)
 		{
-			PrintDOSLog(_T("DOSLib"), _T("CDOSProxyConnectionBase::Update:KeepAlive超时！"));
+			PrintDOSLog( _T("KeepAlive超时！"));
 			m_KeepAliveCount = 0;
 			Disconnect();
 		}
@@ -248,9 +271,9 @@ int CDOSObjectProxyConnectionDefault::Update(int ProcessPacketLimit)
 
 	if (m_MessageMap.GetObjectCount() == 0)
 	{
-		if (m_UnacceptConnectionKeepTimer.IsTimeOut(m_pService->GetConfig().UnacceptConnectionKeepTime))
+		if (m_UnacceptConnectionKeepTimer.IsTimeOut(m_Config.UnacceptConnectionKeepTime))
 		{
-			PrintDOSLog(_T("DOSLib"), _T("CDOSProxyConnectionBase::Update:未确认连接存在时间过长！"));
+			PrintDOSLog( _T("未确认连接存在时间过长！"));
 			Disconnect();
 		}
 	}
@@ -259,7 +282,7 @@ int CDOSObjectProxyConnectionDefault::Update(int ProcessPacketLimit)
 	{
 		if (m_DelayCloseTimer.IsTimeOut())
 		{
-			PrintDOSLog(_T("DOSLib"), _T("CDOSProxyConnectionBase::Update:连接延时关闭！"));
+			PrintDOSLog( _T("连接延时关闭！"));
 			Disconnect();
 		}
 	}
@@ -300,7 +323,7 @@ void CDOSObjectProxyConnectionDefault::OnClientMsg(CDOSSimpleMessage * pMessage)
 		}
 		else
 		{
-			PrintDOSLog(_T("DOSLib"), _T("无法找到消息0x%X的接收者！"), pMessage->GetMsgID());
+			PrintDOSLog( _T("无法找到消息0x%X的接收者！"), pMessage->GetMsgID());
 		}
 	}
 }
@@ -332,48 +355,41 @@ void CDOSObjectProxyConnectionDefault::OnClientSystemMsg(CDOSSimpleMessage * pMe
 		}		
 		break;
 	default:
-		PrintDOSLog(_T("DOSLib"), _T("对象代理连接(%d)收到未知系统消息0x%X"), GetID(), pMessage->GetMsgID());
+		PrintDOSLog( _T("对象代理连接(%d)收到未知系统消息0x%X"), GetID(), pMessage->GetMsgID());
 	}
 }
 
-inline bool CDOSObjectProxyConnectionDefault::OnMessage(CDOSMessagePacket * pPacket)
+inline bool CDOSObjectProxyConnectionDefault::OnMessage(const CDOSMessagePacket * pPacket)
 {
 	bool NeedSaveHead = pPacket->GetRefCount() > 1;
 
-	CDOSMessage::DOS_MESSAGE_HEAD SaveHeader;
+	CDOSSimpleMessage::DOS_SIMPLE_MESSAGE_HEAD MsgHeader;
 
-	if (NeedSaveHead)
-	{
-		SaveHeader = pPacket->GetMessage().GetMsgHeader();
-	}
-	CDOSSimpleMessage * pSimpleMessage = pPacket->GetMessage().MakeSimpleMessage();
-
-	pSimpleMessage = CompressMsg(pSimpleMessage);
-	if (pSimpleMessage == NULL)
-	{
-		if (NeedSaveHead)
-		{
-			pPacket->GetMessage().GetMsgHeader() = SaveHeader;
-		}
-		Disconnect();
-		return false;
-	}
-
-	bool Ret = false;
-
-	
-	Ret = Send(pSimpleMessage, pSimpleMessage->GetMsgLength()) != FALSE;
+	pPacket->GetMessage().MakeSimpleMessageHeader(MsgHeader);
+	LPCVOID pMsgData = pPacket->GetMessage().GetDataBuffer();
+	MSG_LEN_TYPE MsgDataLen = pPacket->GetMessage().GetDataLength();
 	
 
-	if (NeedSaveHead)
+	LPCVOID pNewData = CompressMsg(pMsgData, MsgDataLen);
+	if (pNewData != pMsgData)
 	{
-		pPacket->GetMessage().GetMsgHeader() = SaveHeader;
+		MsgHeader.MsgFlag |= DOS_MESSAGE_FLAG_COMPRESSED;
+		MsgHeader.MsgLen = sizeof(MsgHeader) + MsgDataLen;
+		pMsgData = pNewData;
 	}
 
-	return Ret;
+	LPCVOID DataBuffers[2];
+	UINT DataSizes[2];
+
+	DataBuffers[0] = &MsgHeader;
+	DataSizes[0] = sizeof(MsgHeader);
+	DataBuffers[1] = pMsgData;
+	DataSizes[1] = MsgDataLen;
+
+	return SendMulti(DataBuffers, DataSizes, 2);
 }
 
-bool CDOSObjectProxyConnectionDefault::OnSystemMessage(CDOSMessagePacket * pPacket)
+bool CDOSObjectProxyConnectionDefault::OnSystemMessage(const CDOSMessagePacket * pPacket)
 {
 	switch (pPacket->GetMessage().GetMsgID())
 	{
@@ -404,7 +420,7 @@ bool CDOSObjectProxyConnectionDefault::OnSystemMessage(CDOSMessagePacket * pPack
 		{
 			UINT Delay = *((UINT *)(pPacket->GetMessage().GetDataBuffer()));
 			QueryDisconnect(Delay);
-			PrintDOSLog(_T("DOSLib"), _T("0x%llX请求在%uMS后断开连接！"), pPacket->GetMessage().GetSenderID().ID, Delay);
+			PrintDOSLog( _T("0x%llX请求在%uMS后断开连接！"), pPacket->GetMessage().GetSenderID().ID, Delay);
 		}
 		return true;
 	case DSM_PROXY_GET_IP:
@@ -412,7 +428,7 @@ bool CDOSObjectProxyConnectionDefault::OnSystemMessage(CDOSMessagePacket * pPack
 			char Buff[256];
 			char * pIPStr = Buff + sizeof(WORD);
 			pIPStr[0] = 0;
-			GetRemoteAddress().GetIPString(pIPStr, 250);
+			GetRemoteAddress().GetIPStringA(pIPStr, 250);
 			*((WORD *)Buff) = GetRemoteAddress().GetPort();
 			UINT Len = (UINT)strlen(pIPStr) + sizeof(WORD) + 1;
 			
@@ -432,7 +448,7 @@ bool CDOSObjectProxyConnectionDefault::OnSystemMessage(CDOSMessagePacket * pPack
 		}
 		return true;
 	default:
-		PrintDOSLog(_T("DOSLib"), _T("ProxyConnection收到未知系统消息0x%llX"), pPacket->GetMessage().GetMsgID());
+		PrintDOSLog( _T("收到未知系统消息0x%llX"), pPacket->GetMessage().GetMsgID());
 	}
 	return false;
 }
@@ -447,7 +463,7 @@ bool CDOSObjectProxyConnectionDefault::SendDisconnectNotify()
 		CDOSMessagePacket * pNewPacket = GetServer()->NewMessagePacket(PacketSize);
 		if (pNewPacket == NULL)
 		{
-			PrintDOSLog(_T("DOSLib"), _T("分配消息内存块失败！"));
+			PrintDOSLog( _T("分配消息内存块失败！"));
 			return false;
 		}
 
@@ -468,7 +484,7 @@ bool CDOSObjectProxyConnectionDefault::SendDisconnectNotify()
 		UINT RealTargetIDCount = DistinctObjectID(pTargetObjectIDs, MsgMapCount);
 		for (UINT i = 0; i < RealTargetIDCount; i++)
 		{
-			PrintDOSLog(_T("DOSLib"), _T("向[0x%llX]发送代理对象断线通知"), pTargetObjectIDs[i]);
+			PrintDOSLog( _T("向[0x%llX]发送代理对象断线通知"), pTargetObjectIDs[i]);
 		}
 		pNewPacket->SetTargetIDs(RealTargetIDCount, NULL);
 		pNewPacket->MakePacketLength();
@@ -507,6 +523,11 @@ OBJECT_ID CDOSObjectProxyConnectionDefault::GetMsgMapObjectID(MSG_ID_TYPE CmdID)
 	}
 	else
 	{
+		if (m_pService == NULL)
+		{
+			PrintDOSLog(_T("异常,未初始化的代理连接"));
+			return 0;
+		}
 		OBJECT_ID ObjectID = m_pService->GetGlobalMsgMapObjectID(CmdID);
 		if (ObjectID.ID == 0)
 		{
@@ -522,11 +543,11 @@ bool CDOSObjectProxyConnectionDefault::DoRegisterMsgMap(MSG_ID_TYPE MsgID, OBJEC
 	OBJECT_ID * pObjectID = m_MessageMap.Find(MsgID);
 	//if(pObjectID)
 	//{
-	//	PrintDOSLog(_T("DOSLib"),_T("0x%llX注册的代理[0x%X]消息映射[0x%X]被[0x%llX]取代！"),*pObjectID,GetID(),MsgID,ObjectID);
+	//	PrintDOSLog(_T("0x%llX注册的代理[0x%X]消息映射[0x%X]被[0x%llX]取代！"),*pObjectID,GetID(),MsgID,ObjectID);
 	//}
 	//else
 	//{
-	//	PrintDOSLog(_T("DOSLib"),_T("0x%llX注册了代理[0x%X]消息映射[0x%X]！"),ObjectID.ID,GetID(),MsgID);
+	//	PrintDOSLog(_T("0x%llX注册了代理[0x%X]消息映射[0x%X]！"),ObjectID.ID,GetID(),MsgID);
 	//}
 
 	m_UnacceptConnectionKeepTimer.SaveTime();
@@ -539,19 +560,19 @@ bool CDOSObjectProxyConnectionDefault::DoUnregisterMsgMap(MSG_ID_TYPE MsgID, OBJ
 	{
 		if (*pObjectID == ObjectID)
 		{
-			//PrintDOSLog(_T("DOSLib"),_T("0x%llX注销了代理[0x%X]消息映射[0x%X]！"),ObjectID.ID,GetID(),MsgID);
+			//PrintDOSLog(_T("0x%llX注销了代理[0x%X]消息映射[0x%X]！"),ObjectID.ID,GetID(),MsgID);
 			m_UnacceptConnectionKeepTimer.SaveTime();
 			return m_MessageMap.Delete(MsgID) != FALSE;
 		}
 		else
 		{
-			//PrintDOSLog(_T("DOSLib"),_T("0x%llX注销代理[0x%X]消息映射[0x%X],现注册对象是[0x%llX],无法注销！"),ObjectID.ID,GetID(),MsgID,*pObjectID);
+			//PrintDOSLog(_T("0x%llX注销代理[0x%X]消息映射[0x%X],现注册对象是[0x%llX],无法注销！"),ObjectID.ID,GetID(),MsgID,*pObjectID);
 			return false;
 		}
 	}
 	else
 	{
-		PrintDOSLog(_T("DOSLib"), _T("0x%llX注销代理[0x%X]消息映射[0x%X],未找到映射记录！"), ObjectID.ID, GetID(), MsgID);
+		PrintDOSLog( _T("0x%llX注销代理[0x%X]消息映射[0x%X],未找到映射记录！"), ObjectID.ID, GetID(), MsgID);
 		return false;
 	}
 }
@@ -573,52 +594,49 @@ void CDOSObjectProxyConnectionDefault::ClearMsgMapByRouterID(UINT RouterID)
 	}
 	if (m_MessageMap.GetObjectCount() <= 0)
 	{
-		PrintDOSLog(_T("DOSLib"), _T("代理[0x%X]已经没有任何消息映射，连接断开！"), GetID());
+		PrintDOSLog( _T("代理[0x%X]已经没有任何消息映射，连接断开！"), GetID());
 		Disconnect();
 	}
 }
 
 
 
-CDOSSimpleMessage * CDOSObjectProxyConnectionDefault::CompressMsg(CDOSSimpleMessage * pMsg)
+const void * CDOSObjectProxyConnectionDefault::CompressMsg(const void * pData, MSG_LEN_TYPE& DataLen)
 {
-	if (m_pService->GetConfig().MsgCompressType != MSG_COMPRESS_NONE&&
-		m_pService->GetConfig().MinMsgCompressSize&&
-		pMsg->GetDataLength() >= m_pService->GetConfig().MinMsgCompressSize)
+	if (m_Config.MsgCompressType != MSG_COMPRESS_NONE&&
+		m_Config.MinMsgCompressSize&&
+		m_pCompressBuffer&&
+		DataLen >= m_Config.MinMsgCompressSize)
 	{
 
-		switch(m_pService->GetConfig().MsgCompressType)
+		switch(m_Config.MsgCompressType)
 		{
 		case MSG_COMPRESS_LZO:
 			{
-				CEasyBuffer& CompressBuffer = ((CDOSObjectProxyServiceDefault *)m_pService)->GetCompressBuffer();
-				if (CompressBuffer.GetBufferSize()<pMsg->GetMsgLength())
+				if (m_pCompressBuffer->GetBufferSize() < DataLen)
 				{
-					if (!CompressBuffer.Create(pMsg->GetMsgLength()))
+					if (!m_pCompressBuffer->Create(DataLen))
 					{
-						PrintDOSLog(_T("DOSLib"),_T("创建%u大小的压缩缓冲失败，关闭连接！"),
-							pMsg->GetMsgLength());
+						PrintDOSLog(_T("创建%u大小的压缩缓冲失败，关闭连接！"),
+							DataLen);
 
-						return NULL;
+						return pData;
 					}
 				}
-				CDOSSimpleMessage * pNewMsg = (CDOSSimpleMessage *)CompressBuffer.GetBuffer();
-				pNewMsg->GetMsgHeader()=pMsg->GetMsgHeader();
-				pNewMsg->GetMsgHeader().MsgFlag|=DOS_MESSAGE_FLAG_COMPRESSED;
 
-				lzo_uint OutLen = CompressBuffer.GetBufferSize() - sizeof(CDOSSimpleMessage::DOS_SIMPLE_MESSAGE_HEAD);
-				int Result=lzo1x_1_compress((BYTE *)pMsg->GetDataBuffer(),pMsg->GetDataLength(),
-					(BYTE *)pNewMsg->GetDataBuffer(),&OutLen,
+				lzo_uint OutLen = m_pCompressBuffer->GetBufferSize();
+				int Result = lzo1x_1_compress((const BYTE *)pData, DataLen,
+					(BYTE *)m_pCompressBuffer->GetBuffer(), &OutLen,
 					s_LZOCompressWorkMemory);
 
 				if(Result==LZO_E_OK)
 				{
-					pNewMsg->SetDataLength((MSG_LEN_TYPE)OutLen);
-					pMsg=pNewMsg;
+					DataLen = (MSG_LEN_TYPE)OutLen;
+					pData = m_pCompressBuffer->GetBuffer();
 				}
 				else
 				{
-					PrintDOSLog(_T("DOSLib"),_T("lzo压缩消息失败(%d)，将直接发送"),
+					PrintDOSLog(_T("lzo压缩消息失败(%d)，将直接发送"),
 						Result);
 				}
 			}
@@ -632,7 +650,7 @@ CDOSSimpleMessage * CDOSObjectProxyConnectionDefault::CompressMsg(CDOSSimpleMess
 			//	{
 			//		if(!m_CompressBuffer.Create(CompressBuffSize))
 			//		{
-			//			PrintDOSLog(_T("DOSLib"),_T("创建%u大小的压缩缓冲失败，关闭连接！"),
+			//			PrintDOSLog(_T("创建%u大小的压缩缓冲失败，关闭连接！"),
 			//				pMsg->GetMsgLength());
 
 			//			return NULL;
@@ -643,7 +661,7 @@ CDOSSimpleMessage * CDOSObjectProxyConnectionDefault::CompressMsg(CDOSSimpleMess
 			//	pNewMsg->GetMsgHeader().MsgFlag|=DOS_MESSAGE_FLAG_COMPRESSED;
 
 			//	int ZipLevel=Z_DEFAULT_COMPRESSION;
-			//	switch((m_pService->GetConfig().ProxyMsgCompressType)
+			//	switch((m_Config.ProxyMsgCompressType)
 			//	{
 			//	case MSG_COMPRESS_ZIP_FAST:
 			//		ZipLevel=Z_BEST_SPEED;
@@ -667,7 +685,7 @@ CDOSSimpleMessage * CDOSObjectProxyConnectionDefault::CompressMsg(CDOSSimpleMess
 			//	}
 			//	else
 			//	{
-			//		PrintDOSLog(_T("DOSLib"),_T("zip压缩消息失败(%d)，将直接发送"),
+			//		PrintDOSLog(_T("zip压缩消息失败(%d)，将直接发送"),
 			//			Result);
 			//	}
 			//}
@@ -675,6 +693,6 @@ CDOSSimpleMessage * CDOSObjectProxyConnectionDefault::CompressMsg(CDOSSimpleMess
 		}
 	}
 
-	return pMsg;
+	return pData;
 }
 

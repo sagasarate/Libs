@@ -5,6 +5,7 @@
 CDOSObjectProxyConnectionCustom::CDOSObjectProxyConnectionCustom()
 {
 	m_pProxyConnection = NULL;
+	m_Inited = false;
 }
 
 
@@ -16,6 +17,7 @@ CDOSObjectProxyConnectionCustom::~CDOSObjectProxyConnectionCustom()
 //IDOSObjectProxyConnectionBase
 void CDOSObjectProxyConnectionCustom::Destory()
 {
+	m_Inited = false;
 	if (m_pProxyConnection)
 		m_pProxyConnection->Destory();
 	SAFE_RELEASE(m_pProxyConnection);
@@ -30,18 +32,25 @@ void CDOSObjectProxyConnectionCustom::Release()
 }
 bool CDOSObjectProxyConnectionCustom::PushMessage(CDOSMessagePacket * pPacket)
 {
+	if (!m_Inited)
+		return false;
+
 	m_pService->GetDOSServer()->AddRefMessagePacket(pPacket);
-	pPacket->SetAllocTime(3);
-	if (m_MsgQueue.PushBack(pPacket))
+#ifdef _DEBUG
+	pPacket->SetAllocTime(5);
+#endif
+	if (m_MsgQueue.PushBack(&pPacket))
 	{
-		pPacket->SetAllocTime(31);
+#ifdef _DEBUG
+		pPacket->SetAllocTime(51);
+#endif
 		return true;
 	}
 	else
 	{
 		if (!m_pService->GetDOSServer()->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(_T("DOSLib"), _T("CDOSProxyConnectionBase::PushMessage:释放消息内存块失败！"));
+			PrintDOSLog(_T("DOSLib"), _T("释放消息内存块失败！"));
 		}
 		return false;
 	}
@@ -92,7 +101,7 @@ BOOL CDOSObjectProxyConnectionCustom::Init(CDOSObjectProxyServiceCustom * pServi
 	m_pService = pService;
 
 	m_ObjectID.ObjectIndex = GetID();
-	m_ObjectID.GroupIndex = MAKE_PROXY_GROUP_INDEX(m_pService->GetConfig().ProxyType, pService->GetID());
+	m_ObjectID.GroupIndex = MAKE_PROXY_GROUP_INDEX(m_pService->GetConfig().ProxyType);
 	m_ObjectID.ObjectTypeID = DOT_PROXY_OBJECT;
 	m_ObjectID.RouterID = m_pService->GetRouterID();
 
@@ -100,6 +109,7 @@ BOOL CDOSObjectProxyConnectionCustom::Init(CDOSObjectProxyServiceCustom * pServi
 	{
 		m_pProxyConnection = pProxyConnection;
 		m_pProxyConnection->AddUseRef();
+		m_Inited = true;
 		return TRUE;
 	}	
 	return FALSE;
@@ -114,16 +124,18 @@ int CDOSObjectProxyConnectionCustom::Update(int ProcessPacketLimit)
 	int ProcessCount = 0;
 
 	CDOSMessagePacket * pPacket;
-	while (m_MsgQueue.PopFront(pPacket))
+	while (m_MsgQueue.PopFront(&pPacket))
 	{
-		pPacket->SetAllocTime(32);
+#ifdef _DEBUG
+		pPacket->SetAllocTime(52);
+#endif
 		if (pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
 			OnSystemMessage(pPacket);
 		else
 			OnMessage(pPacket);
 		if (!m_pService->GetDOSServer()->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(_T("DOSLib"), _T("CDOSProxyConnectionBase::Update:释放消息内存块失败！"));
+			PrintDOSLog(_T("DOSLib"), _T("释放消息内存块失败！"));
 		}
 		ProcessCount++;
 		if (ProcessCount >= ProcessPacketLimit)
@@ -204,7 +216,7 @@ void CDOSObjectProxyConnectionCustom::OnSystemMessage(CDOSMessagePacket * pPacke
 			}
 			break;
 		default:
-			PrintDOSLog(_T("DOSLib"), _T("ProxyConnection收到未知系统消息0x%llX"), pPacket->GetMessage().GetMsgID());
+			PrintDOSLog(_T("DOSLib"), _T("收到未知系统消息0x%llX"), pPacket->GetMessage().GetMsgID());
 		}
 	}
 }

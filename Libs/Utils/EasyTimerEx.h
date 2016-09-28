@@ -52,7 +52,7 @@ public:
 		UINT64 Time;
 #ifdef WIN32
 		QueryPerformanceCounter((LARGE_INTEGER*)&Time);
-		Time = (UINT64)(((double)Time / (double)m_PerformanceFrequency)*TIME_UNIT_PER_SECOND);
+		Time = Time * TIME_UNIT_PER_SECOND / m_PerformanceFrequency;
 #else
 		timespec OrginTime;		
 		clock_gettime(CLOCK_MONOTONIC,&OrginTime);

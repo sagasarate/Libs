@@ -94,12 +94,12 @@ CEasyString CFileSearcher::GetFileDirect()
 
 CEasyString CFileSearcher::GetFileTitle()
 {
-	return GetPathFileName(m_FindedFileInfo.cFileName);	
+	return CFileTools::GetPathFileName(m_FindedFileInfo.cFileName);
 }
 
 CEasyString CFileSearcher::GetFileExt()
 {
-	return GetPathFileExtName(m_FindedFileInfo.cFileName);
+	return CFileTools::GetPathFileExtName(m_FindedFileInfo.cFileName);
 }
 
 CEasyString CFileSearcher::GetFileURL()
@@ -119,26 +119,17 @@ ULONG64 CFileSearcher::GetFileSize()
 
 CEasyTime CFileSearcher::GetLastWriteTime()
 {
-	FILETIME LocalTime;
-
-	FileTimeToLocalFileTime(&m_FindedFileInfo.ftLastWriteTime,&LocalTime);
-	return LocalTime;
+	return m_FindedFileInfo.ftLastWriteTime;
 }
 
 CEasyTime CFileSearcher::GetLastAccessTime()
 {
-	FILETIME LocalTime;
-
-	FileTimeToLocalFileTime(&m_FindedFileInfo.ftLastAccessTime,&LocalTime);
-	return LocalTime;
+	return m_FindedFileInfo.ftLastAccessTime;
 }
 
 CEasyTime CFileSearcher::GetCreationTime()
 {
-	FILETIME LocalTime;
-
-	FileTimeToLocalFileTime(&m_FindedFileInfo.ftCreationTime,&LocalTime);
-	return LocalTime;
+	return m_FindedFileInfo.ftCreationTime;
 }
 
 BOOL CFileSearcher::MatchesMask(DWORD dwMask)

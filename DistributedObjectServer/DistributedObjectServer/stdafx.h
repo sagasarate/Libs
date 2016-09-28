@@ -91,6 +91,7 @@
 #define MONO_CLASS_METHOD_NAME_DO_ONPROXYOBJECTIPREPORT		"OnProxyObjectIPReport"
 #define MONO_CLASS_METHOD_NAME_DO_ONSHUTDOWN				"OnShutDown"
 #define MONO_CLASS_METHOD_NAME_DO_UPDATE					"Update"
+#define MONO_CLASS_METHOD_NAME_DO_ONEXCEPTION				"OnException"
 
 #define MONO_CLASS_METHOD_PARAM_DO_INITIALIZE				1
 #define MONO_CLASS_METHOD_PARAM_DO_DESTORY					0
@@ -103,6 +104,7 @@
 #define MONO_CLASS_METHOD_PARAM_DO_ONPROXYOBJECTIPREPORT	3
 #define MONO_CLASS_METHOD_PARAM_DO_ONSHUTDOWN				1
 #define MONO_CLASS_METHOD_PARAM_DO_UPDATE					1
+#define MONO_CLASS_METHOD_PARAM_DO_ONEXCEPTION				1
 
 
 #define MONO_CLASS_METHOD_NAME_OBJECT_ID_CTOR			".ctor"
@@ -139,7 +141,7 @@
 	{
 
 #define OBJECT_EXCEPTION_CATCH_END \
-	}__except(CExceptionParser::ExceptionPrinter(GetExceptionInformation(),m_ObjectID.ID,__FUNCTION__))\
+		}__except(CExceptionParser::ExceptionPrinter(GetExceptionInformation(),m_ObjectID.ID,__PRETTY_FUNCTION__))\
 	{\
 		throw;\
 	}
@@ -148,11 +150,11 @@
 #define OBJECT_EXCEPTION_CATCH_END
 #endif
 
-extern "C" typedef BOOL(*PLUGIN_INIT_FN)(IDistributedObjectManager* pObjectManager, UINT PluginID, UINT LogChannel);
+extern "C" typedef BOOL(*PLUGIN_INIT_FN)(IDistributedObjectManager* pObjectManager, UINT PluginID, UINT LogChannel, LPCTSTR ConfigDir, LPCTSTR LogDir);
 extern "C" typedef void(*PLUGIN_QUERY_RELEASE_FN)();
 extern "C" typedef void(*PLUGIN_RELEASE_FN)();
 
-extern "C" typedef bool (*CLIENT_PROXY_INIT_FN)(UINT PluginID, UINT LogChannel);
+extern "C" typedef bool(*CLIENT_PROXY_INIT_FN)(UINT PluginID, UINT LogChannel, LPCTSTR ConfigDir, LPCTSTR LogDir);
 extern "C" typedef IDOSObjectProxyService * (*CLIENT_PROXY_GET_SERVICE_FN)();
 extern "C" typedef IDOSObjectProxyConnection * (*CLIENT_PROXY_CONNECTION_CREATE_FN)();
 
@@ -245,6 +247,8 @@ struct PLUGIN_INFO
 	UINT						ID;
 	PLUGIN_STATUS				PluginStatus;
 	CEasyString					ModuleFileName;
+	CEasyString					ConfigDir;
+	CEasyString					LogDir;
 	HMODULE						hModule;
 	PLUGIN_INIT_FN				pInitFN;
 	PLUGIN_QUERY_RELEASE_FN		pQueryReleaseFN;
@@ -317,6 +321,7 @@ struct MONO_CLASS_INFO_DO
 	MonoMethod *		pOnProxyObjectIPReportMethod;
 	MonoMethod *		pOnShutDownMethod;
 	MonoMethod *		pUpdateMethod;
+	MonoMethod *		pOnExceptionMethod;
 	MONO_CLASS_INFO_DO()
 	{
 		pClass = NULL;
@@ -331,16 +336,17 @@ struct MONO_CLASS_INFO_DO
 		pOnProxyObjectIPReportMethod = NULL;
 		pOnShutDownMethod = NULL;
 		pUpdateMethod = NULL;
+		pOnExceptionMethod = NULL;
 	}
-	bool IsValid()
-	{
-		return pClass != NULL&&pInitializeMethod != NULL&&pDestoryMethod != NULL&&
-			pOnPreTranslateMessageMethod != NULL&&pOnMessageMethod != NULL&&
-			pOnSystemMessageMethod != NULL&&pOnConcernedObjectLostMethod != NULL&&
-			pOnFindObjectMethod != NULL&&pOnObjectReportMethod != NULL&&
-			pOnProxyObjectIPReportMethod != NULL&&pOnShutDownMethod != NULL&&
-			pUpdateMethod != NULL;
-	}
+//	bool IsValid()
+//	{
+//		return pClass != NULL&&pInitializeMethod != NULL&&pDestoryMethod != NULL&&
+//			pOnPreTranslateMessageMethod != NULL&&pOnMessageMethod != NULL&&
+//			pOnSystemMessageMethod != NULL&&pOnConcernedObjectLostMethod != NULL&&
+//			pOnFindObjectMethod != NULL&&pOnObjectReportMethod != NULL&&
+//			pOnProxyObjectIPReportMethod != NULL&&pOnShutDownMethod != NULL&&
+//			pUpdateMethod != NULL;
+//	}
 };
 
 
@@ -350,6 +356,8 @@ struct CLIENT_PROXY_PLUGIN_INFO :CLIENT_PROXY_CONFIG
 	CEasyString								PluginName;
 	PLUGIN_STATUS							PluginStatus;
 	CEasyString								ModuleFileName;
+	CEasyString								ConfigDir;
+	CEasyString								LogDir;
 	HMODULE									hModule;
 	CLIENT_PROXY_INIT_FN					pInitFN;
 	CLIENT_PROXY_GET_SERVICE_FN				pGetServiceFN;
@@ -386,7 +394,7 @@ struct CLIENT_PROXY_PLUGIN_INFO :CLIENT_PROXY_CONFIG
 
 #ifdef PERFORMANCE_STAT
 
-#define FUNCTION_BEGIN				{static int s_FunctionIndex=0;if(!s_FunctionIndex) s_FunctionIndex=CPerformanceStatistician::GetInstance()->GetFunctionIndex(s_FunctionIndex,__FUNCTION__); CAutoPerformanceCounter tmpPerformanceCounter(s_FunctionIndex);
+#define FUNCTION_BEGIN				{static int s_FunctionIndex=0;if(!s_FunctionIndex) s_FunctionIndex=CPerformanceStatistician::GetInstance()->GetFunctionIndex(s_FunctionIndex,__PRETTY_FUNCTION__); CAutoPerformanceCounter tmpPerformanceCounter(s_FunctionIndex);
 #define FUNCTION_END				}
 
 #else

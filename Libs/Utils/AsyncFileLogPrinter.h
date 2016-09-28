@@ -16,14 +16,18 @@ class CAsyncFileLogPrinter :
 	public ILogPrinter
 {
 protected:
-	CAsyncFileLogWorkThread		m_FileLogWorkThread;
-	CEasyCriticalSection		m_EasyCriticalSection;
-	CEasyString					m_LogFileName;
 	int							m_LogLevel;
+
+	CEasyString					m_LogName;
+	CEasyString					m_FileExt;
+	CEasyString					m_HeaderString;
+	IFileAccessor *				m_pLogFile;
+	CThreadSafeCycleBuffer		m_LogDataBuffer;
+	CEasyTime					m_RecentLogTime;
 public:
 	
 	CAsyncFileLogPrinter();
-	CAsyncFileLogPrinter(int Level,LPCTSTR FileName,int FileLogBufferLen=DEFAULT_ASYNC_FILE_LOG_BUFFER_LEN);
+	CAsyncFileLogPrinter(int Level, LPCTSTR LogName, int FileLogBufferLen = DEFAULT_ASYNC_FILE_LOG_BUFFER_LEN, LPCTSTR FileExt = NULL, LPCTSTR HeaderStr = NULL);
 	virtual ~CAsyncFileLogPrinter(void);
 
 	
@@ -35,17 +39,20 @@ public:
 	{
 		m_LogLevel=Level;
 	}
-	LPCTSTR GetLogFileName()
+	LPCTSTR GetLogName()
 	{
-		return m_LogFileName;
+		return m_LogName;
 	}
 
-	void ResetLog(int Level,LPCTSTR FileName,int FileLogQueueLen=DEFAULT_ASYNC_FILE_LOG_BUFFER_LEN);
-	void CloseLog();
+	virtual void PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg) override;
+	virtual void PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl) override;
 
-	virtual void PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg);
-	virtual void PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl);
-
-	
-
+	virtual int Update() override;
+	virtual bool NeedAsyncUpdate() override
+	{
+		return true;
+	}
+protected:
+	bool ResetLog();
+	bool PushLog(LPCTSTR LogData);
 };

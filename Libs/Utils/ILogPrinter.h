@@ -23,5 +23,12 @@ public:
 	virtual ~ILogPrinter(void){};
 	virtual void PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg) = 0;
 	virtual void PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl) = 0;
-
+	virtual bool NeedAsyncUpdate()
+	{
+		return false;
+	}
+	virtual int Update()
+	{
+		return 0;
+	}
 };

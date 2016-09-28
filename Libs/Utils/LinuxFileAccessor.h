@@ -17,6 +17,7 @@ class CLinuxFileAccessor :
 protected:
 	int			m_FileDescriptor;
 	bool		m_IsWriteFlush;
+	CFileInfo	m_FileInfo;
 
 	DECLARE_CLASS_INFO_STATIC(CLinuxFileAccessor)
 public:

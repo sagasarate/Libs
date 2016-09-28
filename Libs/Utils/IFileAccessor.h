@@ -49,6 +49,7 @@ public:
 		osWriteThrough =	(int) 0x20000,
 		osRandomAccess =	(int) 0x40000,
 		osSequentialScan =	(int) 0x80000,
+		KeepOnExec =		(int) 0xf0000,
 	};
 	enum SEEK_MODE
 	{

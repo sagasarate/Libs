@@ -24,10 +24,11 @@ class CDBTransationWorkThread :
 {
 protected:
 	CDBTransationManager *					m_pManager;
+	IDatabase *								m_pDatabase;
 	IDBConnection *							m_pConnection;
-	CEasyString								m_ConnectString;
-	CThreadSafeIDStorage<CDBTransaction *>	m_TransQueue;
-	CThreadSafeIDStorage<CDBTransaction *>	m_FinishTransQueue;
+	CEasyStringA							m_ConnectString;
+	CCycleQueue<CDBTransaction *>			m_TransQueue;
+	CCycleQueue<CDBTransaction *>			m_FinishTransQueue;
 	CEasyTimer								m_ConnectionTestTimer;
 
 	DECLARE_CLASS_INFO_STATIC(CDBTransationWorkThread)
@@ -37,17 +38,17 @@ public:
 
 	void Destory();
 
-	bool Init(IDBConnection * pConnection,LPCSTR ConnectStr,int QueueSize=DEFAULT_TRANS_QUEUE);
+	bool Init(IDatabase * pDatabase, LPCSTR ConnectStr, int QueueSize = DEFAULT_TRANS_QUEUE);
 	bool AddTransaction(CDBTransaction * pDBTansaction);
 	CDBTransaction *PopFinishTransaction();
 
 	UINT GetQueueLen()
 	{
-		return m_TransQueue.GetObjectCount();
+		return m_TransQueue.GetUsedSize();
 	}
 	UINT GetFinishQueueLen()
 	{
-		return m_FinishTransQueue.GetObjectCount();
+		return m_FinishTransQueue.GetUsedSize();
 	}
 
 protected:

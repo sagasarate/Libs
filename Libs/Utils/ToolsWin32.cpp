@@ -89,7 +89,7 @@ CEasyString GetFontNameEN(LOGFONT * pFont)
 								}
 								FontNameEN.SetString(pUStr,pRecords[i].NameStringLen/2);
 							}
-							PrintSystemLog(0,_T("%s"),(LPCTSTR)FontNameEN);
+							PrintSystemLog(_T("%s"),(LPCTSTR)FontNameEN);
 						}
 						break;
 					}

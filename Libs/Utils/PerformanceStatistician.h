@@ -16,7 +16,7 @@
 extern TCHAR PERFORMANCE_STATISTICIAN_INSTANCE[];
 
 class CPerformanceStatistician 
-	:public CStaticObject2< CPerformanceStatistician,PERFORMANCE_STATISTICIAN_INSTANCE >
+	:public CStaticObject2< CPerformanceStatistician, PERFORMANCE_STATISTICIAN_INSTANCE >
 {
 protected:
 	volatile UINT			m_PerformanceCounts[MAX_PERFORMANCE_FUNCTION_NUM];

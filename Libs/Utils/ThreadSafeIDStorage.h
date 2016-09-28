@@ -31,6 +31,11 @@ public:
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CIDStorage<T,StorageMode>::Create(Size,GrowSize,GrowLimit);
 	}
+	bool Create(const STORAGE_POOL_SETTING& PoolSetting)
+	{
+		CAutoLock Lock(m_EasyCriticalSection);
+		return CIDStorage<T, StorageMode>::Create(PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
+	}
 	void Destory()
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
@@ -107,16 +112,16 @@ public:
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CIDStorage<T,StorageMode>::DeleteObject(ID);
 	}	
-	T* GetNext(LPVOID& Pos)
+	T* GetNextObject(LPVOID& Pos)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
-		return CIDStorage<T,StorageMode>::GetNext(Pos);
+		return CIDStorage<T,StorageMode>::GetNextObject(Pos);
 	}
 
-	T* GetPrev(LPVOID& Pos)
+	T* GetPrevObject(LPVOID& Pos)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
-		return CIDStorage<T,StorageMode>::GetPrev(Pos);
+		return CIDStorage<T, StorageMode>::GetPrevObject(Pos);
 	}
 	BOOL MoveBeforeTo(LPVOID Pos,LPVOID Target)
 	{

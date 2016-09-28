@@ -24,29 +24,26 @@ enum SERVICE_WORK_MODE
 };
 
 
-
-inline void Log(const char* Format, ...)
-{
-	
-	
-	va_list vl;
-
-	va_start(vl, Format);
-	CLogManager::GetInstance()->PrintLogVL(SERVER_LOG_CHANNEL,ILogPrinter::LOG_LEVEL_NORMAL,0,Format,vl);
-	va_end(vl);
-	
-	
-	
-}
-
-inline void LogDebug(const char* Format, ...)
+inline void LogWithTag(const char * szTag, const char* Format, ...)
 {
 	va_list vl;
 
 	va_start(vl, Format);
-	CLogManager::GetInstance()->PrintLogVL(SERVER_LOG_CHANNEL,ILogPrinter::LOG_LEVEL_DEBUG,0,Format,vl);
+	CLogManager::GetInstance()->PrintLogVL(SERVER_LOG_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, szTag, Format, vl);
 	va_end(vl);
 }
+
+inline void LogDebugWithTag(const char * szTag, const char* Format, ...)
+{
+	va_list vl;
+
+	va_start(vl, Format);
+	CLogManager::GetInstance()->PrintLogVL(SERVER_LOG_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, szTag, Format, vl);
+	va_end(vl);
+}
+
+#define Log(_Format, ...)	LogWithTag(__PRETTY_FUNCTION__, _Format, ##__VA_ARGS__)
+#define LogDebug(_Format, ...)	LogDebugWithTag(__PRETTY_FUNCTION__, _Format, ##__VA_ARGS__)
 
 
 

@@ -42,6 +42,7 @@ void CLuaThread::Release()
 	}
 	else if (m_pLuaScript)
 	{
+		ClearYeild();
 		if (m_pLuaThread)
 		{
 			lua_reset_state(m_pLuaThread);

@@ -57,6 +57,10 @@ public:
 	BOOL IsNormal();
 	BOOL IsArchived();
 
+	BOOL CanRead();
+	BOOL CanWrite();
+	BOOL CanExec();
+
 	int FetchLogicalDrive();
 	int GetLogicalDriveCount();
 	CEasyString GetLogicDriveName(UINT Index);
@@ -84,3 +88,16 @@ inline BOOL CFileSearcher::IsNormal()
 { return MatchesMask(FILE_ATTRIBUTE_NORMAL); }
 inline BOOL CFileSearcher::IsArchived()
 { return MatchesMask(FILE_ATTRIBUTE_ARCHIVE); }
+inline BOOL CFileSearcher::CanRead()
+{
+	return TRUE;
+}
+inline BOOL CFileSearcher::CanWrite()
+{
+	return !IsReadOnly();
+}
+inline BOOL CFileSearcher::CanExec()
+{
+	CEasyString FileExt = GetFileExt();
+	return FileExt.CompareNoCase(_T(".exe")) == 0;
+}

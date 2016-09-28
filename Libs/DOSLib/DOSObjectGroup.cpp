@@ -21,6 +21,8 @@ CDOSObjectGroup::CDOSObjectGroup(void)
 	m_Status = STATUS_NONE;
 	m_Weight=0;
 	m_StatObjectCPUCost=false;
+	m_TotalGroupCost = 0;
+	m_UseRealGroupLoadWeight = false;
 	FUNCTION_END;
 }
 
@@ -36,31 +38,53 @@ bool CDOSObjectGroup::Initialize(CDOSObjectManager * pManager,UINT Index)
 	FUNCTION_BEGIN;
 	m_pManager=pManager;
 	m_Index=Index;
-	UINT MaxObjectCount=m_pManager->GetServer()->GetConfig().MaxGroupObjectCount;
-	if(MaxObjectCount<=0)
+	const STORAGE_POOL_SETTING& PoolSetting = m_pManager->GetServer()->GetConfig().ObjectPoolSetting;
+	if (PoolSetting.StartSize <= 0)
 	{
-		PrintDOSLog(0,_T("CDOSObjectGroup::Initialize:最大对象数错误"));
+		PrintDOSLog(_T("对象池设置错误"));
 		return false;
 	}
-	if(!m_ObjectRegisterQueue.Create(MaxObjectCount))
+	if (m_ObjectRegisterQueue.Create(PoolSetting))
 	{
-		PrintDOSLog(0,_T("CDOSObjectGroup::Initialize:创建%u大小的注册队列失败"));
+		PrintDOSDebugLog( _T("创建[%u,%u,%u]大小的注册队列成功"),
+			PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
+	}
+	else
+	{
+		PrintDOSLog( _T("创建[%u,%u,%u]大小的注册队列失败"), 
+			PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
 		return false;
 	}
-	if(!m_ObjectUnregisterQueue.Create(MaxObjectCount))
+	if (m_ObjectUnregisterQueue.Create(PoolSetting))
 	{
-		PrintDOSLog(0,_T("CDOSObjectGroup::Initialize:创建%u大小的注销队列失败"));
+		PrintDOSDebugLog(_T("创建[%u,%u,%u]大小的注销队列成功"),
+			PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
+	}
+	else
+	{
+		PrintDOSLog( _T("创建[%u,%u,%u]大小的注销队列失败"), 
+			PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
 		return false;
 	}
-	if(!m_ObjectPool.Create(MaxObjectCount))
+	if (m_ObjectPool.Create(PoolSetting))
 	{
-		PrintDOSLog(0,_T("CDOSObjectGroup::Initialize:创建%u大小的对象池失败"));
+		PrintDOSDebugLog(_T("创建[%u,%u,%u]大小的对象池成功"),
+			PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
+	}
+	else
+	{
+		PrintDOSLog( _T("创建[%u,%u,%u]大小的对象池失败"), 
+			PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
 		return false;
 	}
 
 	m_StatObjectCPUCost=m_pManager->GetServer()->GetConfig().StatObjectCPUCost;
+	m_UseRealGroupLoadWeight = m_pManager->GetServer()->GetConfig().UseRealGroupLoadWeight;
 
 	m_ObjectCountStatMap.Create(128,32,32);
+
+	m_GroupWeightUpdateTimer.SaveTime();
+
 	return true;
 	FUNCTION_END;
 	return false;
@@ -108,7 +132,7 @@ UINT CDOSObjectGroup::GetMaxObjectMsgQueueLen()
 	void * Pos=m_ObjectPool.GetFirstObjectPos();
 	while(Pos)
 	{
-		DOS_OBJECT_INFO * pObjectInfo=m_ObjectPool.GetNext(Pos);
+		DOS_OBJECT_INFO * pObjectInfo=m_ObjectPool.GetNextObject(Pos);
 		if(pObjectInfo)
 		{
 			UINT Len=pObjectInfo->pObject->GetMsgQueueLen();
@@ -134,7 +158,7 @@ BOOL CDOSObjectGroup::OnStart()
 	}
 	m_Status = STATUS_WORKING;
 
-	PrintDOSLog(_T("DOSLib"),_T("对象组[%d]线程[%u]已启动"),m_Index,GetThreadID());
+	PrintDOSLog(_T("对象组[%d]线程[%u]已启动"),m_Index,GetThreadID());
 	return TRUE;
 	FUNCTION_END;
 	return FALSE;
@@ -144,10 +168,10 @@ BOOL CDOSObjectGroup::OnRun()
 {
 	FUNCTION_BEGIN;
 
-	if(!CEasyThread::OnRun())
-		return FALSE;
+	//if(!CEasyThread::OnRun())
+	//	return FALSE;
 
-	int ProcessCount=0;
+	int ProcessCount=0;	
 
 	switch (m_Status)
 	{
@@ -158,18 +182,18 @@ BOOL CDOSObjectGroup::OnRun()
 			void * Pos = m_ObjectPool.GetFirstObjectPos();
 			while (Pos)
 			{
-				DOS_OBJECT_INFO * pObjectInfo = m_ObjectPool.GetNext(Pos);
+				DOS_OBJECT_INFO * pObjectInfo = m_ObjectPool.GetNextObject(Pos);
 				if (pObjectInfo)
 				{
 					UINT64 CPUCost = 0;
 					if (m_StatObjectCPUCost)
-						CPUCost = CEasyTimerEx::GetTimeOrigin();
+						CPUCost = CEasyTimerEx::GetTime();
 
 					ProcessCount += pObjectInfo->pObject->DoCycle();
 
 					if (m_StatObjectCPUCost)
 					{
-						CPUCost = CEasyTimerEx::GetTimeOrigin() - CPUCost;
+						CPUCost = CEasyTimerEx::GetTime() - CPUCost;
 						AddObjectCPUCost(pObjectInfo->ObjectID, CPUCost);
 					}
 				}
@@ -184,14 +208,22 @@ BOOL CDOSObjectGroup::OnRun()
 		}
 		break;
 	}
-	
+	if (m_UseRealGroupLoadWeight)
+	{
+		if (m_GroupWeightUpdateTimer.IsTimeOut(GROUP_WEIGHT_UPDATE_TIME))
+		{
+			m_GroupWeightUpdateTimer.SaveTime();
+			AdjustObjectWeights();
+		}
+		
+	}
 
 	m_ThreadPerformanceCounter.DoPerformanceCount();
 
 
 	if(ProcessCount==0)
 	{
-		DoSleep(1);
+		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
 
 	return TRUE;
@@ -215,7 +247,7 @@ void CDOSObjectGroup::OnTerminate()
 	void * Pos = m_ObjectPool.GetLastObjectPos();
 	while (Pos)
 	{
-		DOS_OBJECT_INFO *pObjectInfo = m_ObjectPool.GetPrev(Pos);
+		DOS_OBJECT_INFO *pObjectInfo = m_ObjectPool.GetPrevObject(Pos);
 		if (pObjectInfo)
 		{
 			pObjectInfo->pObject->Destory();
@@ -245,7 +277,7 @@ BOOL CDOSObjectGroup::PushMessage(OBJECT_ID ObjectID,CDOSMessagePacket * pPacket
 		void * Pos=m_ObjectPool.GetFirstObjectPos();
 		while(Pos)
 		{
-			DOS_OBJECT_INFO * pObjectInfo=m_ObjectPool.GetNext(Pos);
+			DOS_OBJECT_INFO * pObjectInfo = m_ObjectPool.GetNextObject(Pos);
 			if(pObjectInfo)
 			{
 				if(ObjectID.ObjectTypeID==BROAD_CAST_OBJECT_TYPE_ID||
@@ -283,10 +315,13 @@ void CDOSObjectGroup::PrintObjectStat(UINT LogChannel)
 		OBJECT_STAT_INFO * pInfo=m_ObjectCountStatMap.GetSortedNextObject(Pos,ObjectID);
 		if(pInfo)
 		{
-			CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,
-				_T("组%u:对象0x%llX=%u,CPUCost=%lld"),m_Index,ObjectID,pInfo->Count,pInfo->CPUCost);
-			TotalCost+=pInfo->CPUCost;
+			CLogManager::GetInstance()->PrintLog(LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, 0,
+				_T("组%u:对象0x%llX(%s)=%u,CPUCost=%lldns,ExecCount=%u,UnitCost=%0.2fns"),
+				m_Index, ObjectID, (LPCSTR)pInfo->ObjectTypeName, pInfo->Count, pInfo->CPUCost, pInfo->ExecCount,
+				pInfo->ExecCount ? (float)pInfo->CPUCost / (float)pInfo->ExecCount : 0.0f);
+			TotalCost+=pInfo->CPUCost;			
 			pInfo->CPUCost=0;
+			pInfo->ExecCount = 0;
 		}
 	}
 	CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,
@@ -310,21 +345,27 @@ int CDOSObjectGroup::ProcessObjectRegister(int ProcessLimit)
 		{
 			pObjectInfo->ObjectID=ObjectRegisterInfo.ObjectID;
 			pObjectInfo->ObjectID.GroupIndex=m_Index;
-			pObjectInfo->ObjectID.ObjectIndex=ID;
-			OnObjectRegister(pObjectInfo->ObjectID);
+			pObjectInfo->ObjectID.ObjectIndex=ID;			
 			pObjectInfo->Weight=ObjectRegisterInfo.Weight;
 			//pObjectInfo->Param=ObjectRegisterInfo.Param;
 			pObjectInfo->pObject=ObjectRegisterInfo.pObject;
 			pObjectInfo->pObject->SetObjectID(pObjectInfo->ObjectID);
 			pObjectInfo->pObject->SetGroup(this);
-			if(!pObjectInfo->pObject->Init(ObjectRegisterInfo))
+			if (pObjectInfo->pObject->Init(ObjectRegisterInfo))
 			{
-				UnregisterObject(pObjectInfo->ObjectID);
+				OnObjectRegister(pObjectInfo->ObjectID, ObjectRegisterInfo.szObjectTypeName, ObjectRegisterInfo.Weight);
+			}
+			else
+			{
+				m_Weight -= pObjectInfo->Weight;
+				pObjectInfo->pObject->Destory();
+				SAFE_RELEASE(pObjectInfo->pObject);
+				m_ObjectPool.DeleteObject(ID);
 			}
 		}
 		else
 		{
-			PrintDOSLog(0,_T("CDOSObjectGroup::ProcessObjectRegister:对象池已耗尽%u/%u"),m_ObjectPool.GetObjectCount(),m_ObjectPool.GetBufferSize());
+			PrintDOSLog(_T("对象池已耗尽%u/%u"),m_ObjectPool.GetObjectCount(),m_ObjectPool.GetBufferSize());
 			m_Weight-=ObjectRegisterInfo.Weight;
 			ObjectRegisterInfo.pObject->Destory();
 			SAFE_RELEASE(ObjectRegisterInfo.pObject);
@@ -350,7 +391,7 @@ int CDOSObjectGroup::ProcessObjectUnregister(int ProcessLimit)
 		DOS_OBJECT_INFO * pObjectInfo=m_ObjectPool.GetObject(UnregisterObjectID.ObjectIndex);
 		if(pObjectInfo)
 		{
-			OnObjectUnregister(UnregisterObjectID);
+			OnObjectUnregister(UnregisterObjectID, pObjectInfo->Weight);
 			m_Weight-=pObjectInfo->Weight;
 			pObjectInfo->pObject->Destory();
 			SAFE_RELEASE(pObjectInfo->pObject);
@@ -358,7 +399,7 @@ int CDOSObjectGroup::ProcessObjectUnregister(int ProcessLimit)
 		}
 		else
 		{
-			PrintDOSLog(0,_T("注销对象时，对象[%llX]无法找到"),UnregisterObjectID.ID);
+			PrintDOSLog(_T("注销对象时，对象[%llX]无法找到"),UnregisterObjectID.ID);
 		}
 		ProcessLimit--;
 		ProcessCount++;
@@ -370,7 +411,7 @@ int CDOSObjectGroup::ProcessObjectUnregister(int ProcessLimit)
 }
 
 
-void CDOSObjectGroup::OnObjectRegister(OBJECT_ID ObjectID)
+void CDOSObjectGroup::OnObjectRegister(OBJECT_ID ObjectID, LPCSTR szObjectTypeName, int Weight)
 {
 	FUNCTION_BEGIN;
 	ObjectID.ObjectIndex=0;
@@ -378,19 +419,23 @@ void CDOSObjectGroup::OnObjectRegister(OBJECT_ID ObjectID)
 	if(pInfo)
 	{
 		pInfo->Count++;
+		pInfo->Weight += Weight;
 	}
 	else
 	{
 		m_ObjectCountStatMap.New(ObjectID,&pInfo);
 		if(pInfo)
 		{
+			pInfo->ObjectTypeName = szObjectTypeName;
 			pInfo->Count=1;
 			pInfo->CPUCost=0;
+			pInfo->ExecCount = 0;
+			pInfo->Weight = Weight;
 		}
 	}
 	FUNCTION_END;
 }
-void CDOSObjectGroup::OnObjectUnregister(OBJECT_ID ObjectID)
+void CDOSObjectGroup::OnObjectUnregister(OBJECT_ID ObjectID, int Weight)
 {
 	FUNCTION_BEGIN;
 	ObjectID.ObjectIndex=0;
@@ -398,12 +443,15 @@ void CDOSObjectGroup::OnObjectUnregister(OBJECT_ID ObjectID)
 	if(pInfo)
 	{
 		pInfo->Count--;
-		if(pInfo->Count<0)
-			pInfo->Count=0;
+		if (pInfo->Count < 0)
+			pInfo->Count = 0;
+		pInfo->Weight -= Weight;
+		if (pInfo->Weight < 0)
+			pInfo->Weight = 0;
 	}
 	else
 	{
-		PrintDOSLog(0,_T("CDOSObjectGroup::OnObjectUnregister:对象注销异常"));
+		PrintDOSLog(_T("对象注销异常"));
 	}
 	FUNCTION_END;
 }
@@ -415,11 +463,28 @@ void CDOSObjectGroup::AddObjectCPUCost(OBJECT_ID ObjectID,UINT64 CPUCost)
 	OBJECT_STAT_INFO * pInfo=m_ObjectCountStatMap.Find(ObjectID);
 	if(pInfo)
 	{
+		pInfo->ExecCount++;
 		pInfo->CPUCost+=CPUCost;
 	}
 	else
 	{
-		PrintDOSLog(0,_T("CDOSObjectGroup::AddObjectCPUCost:无法找到对象[0x%llX]的信息"),ObjectID);
+		PrintDOSLog(_T("无法找到对象[0x%llX]的信息"),ObjectID);
 	}
 	FUNCTION_END;
+}
+
+void CDOSObjectGroup::AdjustObjectWeights()
+{
+	m_Weight = 0;
+	void * Pos = m_ObjectCountStatMap.GetSortedFirstObjectPos();
+	while (Pos)
+	{
+		OBJECT_ID ObjectID;
+		OBJECT_STAT_INFO * pInfo = m_ObjectCountStatMap.GetSortedNextObject(Pos, ObjectID);
+		if (pInfo)
+		{
+			pInfo->Weight = (int)(pInfo->CPUCost / 100);
+			m_Weight += pInfo->Weight;
+		}
+	}
 }

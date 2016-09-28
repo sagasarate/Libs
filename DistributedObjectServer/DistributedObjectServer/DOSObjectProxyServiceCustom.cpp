@@ -27,7 +27,7 @@ void CDOSObjectProxyServiceCustom::Destory()
 	LPVOID Pos = m_ConnectionPool.GetFirstObjectPos();
 	while (Pos)
 	{
-		CDOSObjectProxyConnectionCustom * pConnection = m_ConnectionPool.GetNext(Pos);
+		CDOSObjectProxyConnectionCustom * pConnection = m_ConnectionPool.GetNextObject(Pos);
 
 		pConnection->Destory();
 
@@ -78,8 +78,10 @@ void CDOSObjectProxyServiceCustom::StopService()
 bool CDOSObjectProxyServiceCustom::PushMessage(CDOSMessagePacket * pPacket)
 {
 	m_pServer->AddRefMessagePacket(pPacket);
-	pPacket->SetAllocTime(4);
-	if (m_MsgQueue.PushBack(pPacket))
+#ifdef _DEBUG
+	pPacket->SetAllocTime(6);
+#endif
+	if (m_MsgQueue.PushBack(&pPacket))
 	{
 		return true;
 	}
@@ -94,7 +96,7 @@ bool CDOSObjectProxyServiceCustom::PushBroadcastMessage(CDOSMessagePacket * pPac
 	LPVOID Pos = m_ConnectionPool.GetFirstObjectPos();
 	while (Pos)
 	{
-		CDOSObjectProxyConnectionCustom * pConnection = m_ConnectionPool.GetNext(Pos);
+		CDOSObjectProxyConnectionCustom * pConnection = m_ConnectionPool.GetNextObject(Pos);
 		if (pConnection)
 		{
 			pConnection->PushMessage(pPacket);
@@ -188,9 +190,9 @@ BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGI
 #ifndef WIN32
 	m_PluginInfo.ModuleFileName.Replace('\\', '/');
 #endif
-	m_PluginInfo.ModuleFileName = MakeModuleFullPath(NULL, m_PluginInfo.ModuleFileName);
+	m_PluginInfo.ModuleFileName = CFileTools::MakeModuleFullPath(NULL, m_PluginInfo.ModuleFileName);
 	//扩展名补足
-	CEasyString FileExt = GetPathFileExtName(m_PluginInfo.ModuleFileName);
+	CEasyString FileExt = CFileTools::GetPathFileExtName(m_PluginInfo.ModuleFileName);
 	if (FileExt.GetLength() <= 1)
 	{
 #ifdef WIN32
@@ -198,6 +200,43 @@ BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGI
 #else
 		m_PluginInfo.ModuleFileName = m_PluginInfo.ModuleFileName + ".so";
 #endif
+	}
+
+	if (PluginInfo.PluginName.IsEmpty())
+		PluginInfo.PluginName = CFileTools::GetPathFileName(PluginInfo.ModuleFileName);
+
+	//检查配置目录和日志目录
+	if (m_PluginInfo.ConfigDir.IsEmpty())
+	{
+		m_PluginInfo.ConfigDir = CFileTools::GetModulePath(NULL);
+	}
+	else
+	{
+		if (CFileTools::IsAbsolutePath(m_PluginInfo.ConfigDir))
+			m_PluginInfo.ConfigDir = CFileTools::MakeFullPath(m_PluginInfo.ConfigDir);
+		else
+			m_PluginInfo.ConfigDir = CFileTools::MakeModuleFullPath(NULL, m_PluginInfo.ConfigDir);
+	}
+
+	if (m_PluginInfo.LogDir.IsEmpty())
+	{
+		m_PluginInfo.LogDir = CFileTools::MakeModuleFullPath(NULL, "Log");
+	}
+	else
+	{
+		if (CFileTools::IsAbsolutePath(m_PluginInfo.LogDir))
+			m_PluginInfo.LogDir = CFileTools::MakeFullPath(m_PluginInfo.LogDir);
+		else
+			m_PluginInfo.LogDir = CFileTools::MakeModuleFullPath(NULL, m_PluginInfo.LogDir);
+	}
+
+	if (!CFileTools::IsDirExist(m_PluginInfo.LogDir))
+	{
+		if (!CFileTools::CreateDirEx(m_PluginInfo.LogDir))
+		{
+			Log("无法创建日志目录:%s", (LPCTSTR)m_PluginInfo.LogDir);
+			return false;
+		}
 	}
 
 	Log("开始装载代理插件%s", (LPCTSTR)m_PluginInfo.ModuleFileName);
@@ -227,16 +266,15 @@ BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGI
 		if (InitFNError == NULL && GetServiceFNError == NULL && CreateFNError == NULL && m_PluginInfo.pInitFN && m_PluginInfo.pGetServiceFN && m_PluginInfo.pConnectionCreateFN)
 #endif
 		{
-			if (m_PluginInfo.pInitFN(m_PluginInfo.ID, m_PluginInfo.LogChannel))
+			if (m_PluginInfo.pInitFN(m_PluginInfo.ID, m_PluginInfo.LogChannel, m_PluginInfo.ConfigDir, m_PluginInfo.LogDir))
 			{
 				m_pProxyService = m_PluginInfo.pGetServiceFN();
 				if (m_pProxyService)
 				{
 					CEasyString LogFileName;
-					CEasyString ModulePath = GetModulePath(NULL);
 
 					CServerLogPrinter * pLog;
-					LogFileName.Format("%s/Log/Plugin.%s", (LPCTSTR)ModulePath, (LPCTSTR)GetPathFileName(m_PluginInfo.ModuleFileName));
+					LogFileName.Format("%s/Log/Plugin.%s", (LPCTSTR)m_PluginInfo.LogDir, (LPCTSTR)CFileTools::GetPathFileName(m_PluginInfo.PluginName));
 					pLog = new CServerLogPrinter(CDOSMainThread::GetInstance(), CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
 						CSystemConfig::GetInstance()->GetLogLevel(), LogFileName);
 					CLogManager::GetInstance()->AddChannel(m_PluginInfo.LogChannel, pLog);
@@ -288,16 +326,16 @@ BOOL CDOSObjectProxyServiceCustom::OnStart()
 {
 
 	m_ObjectID.ObjectIndex = 0;
-	m_ObjectID.GroupIndex = MAKE_PROXY_GROUP_INDEX(m_Config.ProxyType, GetID());
+	m_ObjectID.GroupIndex = MAKE_PROXY_GROUP_INDEX(m_Config.ProxyType);
 	m_ObjectID.ObjectTypeID = DOT_PROXY_OBJECT;
 	m_ObjectID.RouterID = GetRouterID();
 
 
-	if (!m_ConnectionPool.Create(m_Config.MaxConnection))
+	if (!m_ConnectionPool.Create(m_Config.ConnectionPoolSetting))
 	{
-		PrintDOSLog(_T("DOSLib"), _T("代理服务[%u]创建%u大小的连接池失败！"),
+		PrintDOSLog(_T("DOSLib"), _T("代理服务[%u]创建(%u,%u,%u)大小的连接池失败！"),
 			GetID(),
-			m_Config.MaxConnection);
+			m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
 		return FALSE;
 	}
 
@@ -325,7 +363,7 @@ BOOL CDOSObjectProxyServiceCustom::OnRun()
 	int ProcessCount = Update();
 	if (ProcessCount == 0)
 	{
-		DoSleep(1);
+		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
 	return TRUE;
 }
@@ -336,7 +374,7 @@ void CDOSObjectProxyServiceCustom::OnTerminate()
 	LPVOID Pos = m_ConnectionPool.GetFirstObjectPos();
 	while (Pos)
 	{
-		CDOSObjectProxyConnectionCustom * pConnection = m_ConnectionPool.GetNext(Pos);
+		CDOSObjectProxyConnectionCustom * pConnection = m_ConnectionPool.GetNextObject(Pos);
 
 		pConnection->Destory();
 
@@ -351,7 +389,7 @@ int CDOSObjectProxyServiceCustom::Update(int ProcessPacketLimit)
 	LPVOID Pos = m_ConnectionPool.GetFirstObjectPos();
 	while (Pos)
 	{
-		CDOSObjectProxyConnectionCustom * pConnection = m_ConnectionPool.GetNext(Pos);
+		CDOSObjectProxyConnectionCustom * pConnection = m_ConnectionPool.GetNextObject(Pos);
 		if (pConnection->IsConnected())
 			ProcessCount += pConnection->Update();
 		else
@@ -362,7 +400,7 @@ int CDOSObjectProxyServiceCustom::Update(int ProcessPacketLimit)
 		ProcessCount += m_pProxyService->Update(ProcessPacketLimit);
 
 	CDOSMessagePacket * pPacket;
-	while (m_MsgQueue.PopFront(pPacket))
+	while (m_MsgQueue.PopFront(&pPacket))
 	{		
 		if (pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
 			OnSystemMsg(&(pPacket->GetMessage()));
@@ -421,7 +459,7 @@ void CDOSObjectProxyServiceCustom::OnSystemMsg(CDOSMessage * pMessage)
 			m_pProxyService->OnClearMsgMapByRouterID(pMessage->GetSenderID().RouterID);
 			break;
 		default:
-			PrintDOSLog(_T("DOSLib"), _T("ProxyService收到未知系统消息0x%llX"), pMessage->GetMsgID());
+			PrintDOSLog(_T("DOSLib"), _T("收到未知系统消息0x%llX"), pMessage->GetMsgID());
 		}
 	}
 	

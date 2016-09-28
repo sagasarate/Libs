@@ -8,7 +8,7 @@ class CDOSObjectProxyServiceCustom :
 protected:
 	CLIENT_PROXY_CONFIG										m_Config;
 	OBJECT_ID												m_ObjectID;
-	CThreadSafeIDStorage<CDOSMessagePacket *>				m_MsgQueue;
+	CCycleQueue<CDOSMessagePacket *>						m_MsgQueue;
 
 	CThreadPerformanceCounter								m_ThreadPerformanceCounter;
 

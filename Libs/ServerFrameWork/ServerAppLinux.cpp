@@ -12,6 +12,8 @@
 #include "stdafx.h"
 
 #include <execinfo.h>
+#include <malloc.h>
+#include <sys/wait.h>
 
 #define MAX_STACK_LAYERS    20
 
@@ -28,9 +30,12 @@ int main(int argc, char *argv[])
 		if (strcmp(argv[1], "-d") == 0)
 		{
 			daemon(1, 1);
+			PrintImportantLog("已启用Daemon");
 			g_IsService = true;
 		}
 	}
+
+	//mallopt(M_ARENA_MAX, 1);
 
 
 	m_gAppInstance->Run();
@@ -38,7 +43,8 @@ int main(int argc, char *argv[])
 }
 
 
-
+CLinuxFileAccessor CServerApp::m_ExceptionLogFile;
+int	CServerApp::m_Pipe[2] = { 0, 0 };
 
 CServerApp::CServerApp(void)
 {
@@ -70,7 +76,7 @@ int CServerApp::Run()
 	{
 		while ((!m_WantExist) && m_pServer && (!m_pServer->IsServerTerminated()))
 		{
-			DoSleep(1);
+			DoSleep(100);
 		}
 		OnShutDown();
 	}
@@ -81,15 +87,25 @@ void CServerApp::InitSignals()
 {
 	struct sigaction SigAction;
 
+	signal(SIGCHLD, SIG_IGN);
+	PrintImportantLog("已忽略SIGCHLD处理");
+
+	signal(SIGPIPE, SIG_IGN);
+	PrintImportantLog("已忽略SIGPIPE处理");
+
+	signal(SIGPWR, SIG_IGN);
+	PrintImportantLog("已忽略SIGPWR处理");
+
+	ZeroMemory(&SigAction, sizeof(SigAction));
 	SigAction.sa_flags = 0;
 	SigAction.sa_sigaction = OnQuitSignal;
 	if (sigaction(SIGTERM, &SigAction, NULL) != 0)
 	{
-		PrintImportantLog(0, "注册信号SIGTERM处理失败%d", errno);
+		PrintImportantLog("注册信号SIGTERM处理失败%d", errno);
 	}
 	else
 	{
-		PrintImportantLog(0, "注册信号SIGTERM处理");
+		PrintImportantLog( "注册信号SIGTERM处理");
 	}
 
 	SigAction.sa_flags = SA_RESETHAND;
@@ -100,72 +116,196 @@ void CServerApp::InitSignals()
 	SigAction.sa_sigaction = OnExceptionSignal;
 	if (sigaction(SIGABRT, &SigAction, NULL) != 0)
 	{
-		PrintImportantLog(0, "注册信号SIGABRT处理失败%d", errno);
+		PrintImportantLog("注册信号SIGABRT处理失败%d", errno);
 	}
 	else
 	{
-		PrintImportantLog(0, "注册信号SIGABRT处理");
+		PrintImportantLog("注册信号SIGABRT处理");
 	}
 
 	if (sigaction(SIGFPE, &SigAction, NULL) != 0)
 	{
-		PrintImportantLog(0, "注册信号SIGFPE处理失败%d", errno);
+		PrintImportantLog("注册信号SIGFPE处理失败%d", errno);
 	}
 	else
 	{
-		PrintImportantLog(0, "注册信号SIGFPE处理");
+		PrintImportantLog("注册信号SIGFPE处理");
 	}
 
 	if (sigaction(SIGSEGV, &SigAction, NULL) != 0)
 	{
-		PrintImportantLog(0, "注册信号SIGSEGV处理失败%d", errno);
+		PrintImportantLog("注册信号SIGSEGV处理失败%d", errno);
 	}
 	else
 	{
-		PrintImportantLog(0, "注册信号SIGSEGV处理");
+		PrintImportantLog("注册信号SIGSEGV处理");
 	}
 
 	if (sigaction(SIGILL, &SigAction, NULL) != 0)
 	{
-		PrintImportantLog(0, "注册信号SIGILL处理失败%d", errno);
+		PrintImportantLog("注册信号SIGILL处理失败%d", errno);
 	}
 	else
 	{
-		PrintImportantLog(0, "注册信号SIGILL处理");
+		PrintImportantLog("注册信号SIGILL处理");
 	}
 }
 
 
 void CServerApp::OnQuitSignal(int SignalNum, siginfo_t * pSigInfo, void * pContext)
 {
-	PrintImportantLog(0, "收到退出信号%d，准备退出", SignalNum);
+	PrintImportantLog("收到退出信号%d，准备退出", SignalNum);
 	if (m_gAppInstance)
 		m_gAppInstance->m_WantExist = TRUE;
 }
 
 void CServerApp::OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * pContext)
-{	
-	void *array[MAX_STACK_LAYERS];
+{
+	void * CallStacks[MAX_STACK_LAYERS];
 
-	PrintImportantLog(0, "开始处理信号%d", SignalNum);
-	size_t size = backtrace(array, MAX_STACK_LAYERS);
-	PrintImportantLog(0, "输出调用栈大小:%d", (int)size);
-	CFileLogPrinter * pLog = dynamic_cast<CFileLogPrinter *>(CLogManager::GetInstance()->GetChannel(LOG_IMPORTANT_CHANNEL));
-	if (pLog)
+	PrintImportantLog("开始处理信号%d", SignalNum);
+	size_t CallStackSize = backtrace(CallStacks, MAX_STACK_LAYERS);
+	PrintImportantLog("输出调用栈大小:%d", (int)CallStackSize);
+	char ExceptionFileName[MAX_PATH];
+	char ExeFilePath[MAX_PATH];
+
+	//恢复对SIGCHLD的屏蔽
+	signal(SIGCHLD, SIG_DFL);
+
+	sprintf_s(ExceptionFileName, MAX_PATH, "/proc/%d/exe", getpid());
+	int Len = readlink(ExceptionFileName, ExeFilePath, MAX_PATH);
+	if (Len > 0)
 	{
-		CLinuxFileAccessor * pFile = dynamic_cast<CLinuxFileAccessor *>(pLog->GetFile());
-		if (pFile)
+		CEasyTime CurTime;
+		CurTime.FetchLocalTime();
+
+		sprintf_s(ExceptionFileName, MAX_PATH, "%s.Exception.%d-%02d-%02d_%02d-%02d-%02d.log",
+			ExeFilePath, CurTime.Year(), CurTime.Month(), CurTime.Day(), CurTime.Hour(), CurTime.Minute(), CurTime.Second());
+
+		if (m_ExceptionLogFile.Open(ExceptionFileName, IFileAccessor::modeCreateAlways | IFileAccessor::modeWrite | IFileAccessor::osWriteThrough))
 		{
-			backtrace_symbols_fd(array, MAX_STACK_LAYERS, pFile->GetFileDescriptor());
+			PrintExceptionLog("SignalCode:%d", SignalNum);
+			//输出原始地址
+			for (size_t i = 0; i < CallStackSize; i++)
+			{
+				PrintExceptionLog("%d:RawAddress:%p", i, CallStacks[i]);
+
+				Dl_info DLInfo;
+				if (dladdr(CallStacks[i], &DLInfo))
+				{
+					PrintExceptionLog("BaseAddress:%p at %s", DLInfo.dli_fbase, DLInfo.dli_fname);					
+				}
+				PrintExceptionLog("-------------------------------------------------------\r\n");
+			}
+
+			InitSymbolParser();
+			for (size_t i = 0; i < CallStackSize; i++)
+			{
+				PrintExceptionLog("%d:RawAddress:%p", i, CallStacks[i]);
+
+				Dl_info DLInfo;
+				if (dladdr(CallStacks[i], &DLInfo))
+				{
+					PrintExceptionLog("BaseAddress:%p at %s", DLInfo.dli_fbase, DLInfo.dli_fname);
+					if ((UINT64)DLInfo.dli_fbase == 0x400000)
+						OutputExceptionAddress(DLInfo.dli_fname, CallStacks[i]);
+					else
+						OutputExceptionAddress(DLInfo.dli_fname, (void *)((char *)CallStacks[i] - (char *)DLInfo.dli_fbase));
+				}
+
+				PrintExceptionLog("-------------------------------------------------------\r\n");
+			}
+
+			m_ExceptionLogFile.Close();
+		}
+		else
+		{
+			PrintImportantLog("无法创建文件%s", ExceptionFileName);
 		}
 	}
-	
-	//char ** strings = backtrace_symbols(array, size);
-	//for (size_t i = 0; i < size; i++)
-	//{
-	//	PrintImportantLog(0, "StackTrace:%s", strings[i]);
-	//}
-	//free(strings);
+	else
+	{
+		PrintImportantLog("无法获取进程映像文件名");
+	}
 
-	PrintImportantLog(0, "输出调用栈完毕");
+	PrintImportantLog("输出调用栈完毕");
+}
+
+bool CServerApp::OutputExceptionAddress(const char * ModulaName, void * Address)
+{
+	char * argv[5];
+	char Buff[1024];
+
+	argv[0] = (char *)"addr2line";
+	argv[1] = (char *)"-e";
+	argv[2] = (char *)ModulaName;
+	sprintf_s(Buff, 128, "%p", Address);
+	argv[3] = Buff;
+	argv[4] = NULL;
+
+	PrintImportantLog("调用addr2line解析%s的地址%s", ModulaName, Buff);
+
+	pid_t pid = fork();
+	if (pid > 0)
+	{
+		int Status = -1;
+		if (waitpid(-1, &Status, 0) != -1)
+		{
+			int ExitCode = WEXITSTATUS(Status);
+			PrintImportantLog("调用addressline结果%d", ExitCode);
+			size_t ReadSize = read(m_Pipe[0], Buff, 1000);
+			if (ReadSize != -1)
+			{
+				Buff[ReadSize] = 0;
+				PrintExceptionLog("%s:%s", ModulaName, Buff);
+			}
+			else
+			{
+				PrintImportantLog("读取管道%d失败%d", m_Pipe[0], errno);
+			}
+			return ExitCode == 0;
+		}
+		else
+		{
+			PrintImportantLog("等待子进程%d结束失败%d", pid, errno);
+		}
+	}
+	else if (pid == 0)
+	{
+		PrintImportantLog("调用addr2line");
+		dup2(m_Pipe[1], STDOUT_FILENO);
+		dup2(m_Pipe[1], STDERR_FILENO);
+		execvp(argv[0], argv);		
+		PrintImportantLog("调用addr2line失败%d", errno);
+		exit(2);
+	}
+	else
+	{
+		PrintImportantLog("新建进程失败%d", errno);
+	}
+	return false;
+}
+
+void CServerApp::PrintExceptionLog(const char * Format, ...)
+{
+	va_list	vl;
+	va_start(vl, Format);
+	char Buff[4096];
+	int Len = vsprintf_s(Buff, 4096, Format, vl);
+	strcat_s(Buff, 4096, _T("\r\n"));
+	Len += 2;
+	m_ExceptionLogFile.Write(Buff, Len);
+	va_end(vl);
+}
+bool CServerApp::InitSymbolParser()
+{
+	if (pipe(m_Pipe) == 0)
+	{
+		return true;
+	}
+	else
+	{
+		PrintImportantLog("创建输出管道失败%d", errno);
+		return false;
+	}
 }

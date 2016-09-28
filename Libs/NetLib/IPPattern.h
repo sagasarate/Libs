@@ -98,12 +98,12 @@ public:
 							{
 								m_Pattern[p + j] = 0;
 							}							
-							p += 8 - Split.GetCount();
+							p += 8 - (int)Split.GetCount();
 						}							
 						else if (_tcschr(Split[i], '*') != NULL)
 							m_Pattern[p] = -1;
 						else
-							m_Pattern[p] = htons(_tcstol(Split[i], NULL, 16));
+							m_Pattern[p] = htons((WORD)_tcstol(Split[i], NULL, 16));
 						p++;
 					}
 				}

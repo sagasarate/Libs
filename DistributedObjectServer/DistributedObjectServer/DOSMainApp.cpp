@@ -75,14 +75,14 @@ BOOL CDOSMainApp::OnStartUp()
 {
 	CServerApp::OnStartUp();
 
-	PrintImportantLog(0,"DistributedObjectServer Start");
+	PrintImportantLog("DistributedObjectServer Start");
 	CPerformanceStatistician::GetInstance()->ResetPerformanceStat();
 
 
 	if(!m_IsConfigLoaded)
 	{
-		CSystemConfig::GetInstance()->LoadConfig(MakeModuleFullPath(NULL,CDOSMainThread::GetInstance()->GetConfigFileName()));
-		m_IsConfigLoaded=CDOSConfig::GetInstance()->LoadConfig(MakeModuleFullPath(NULL,CONFIG_FILE_NAME));
+		CSystemConfig::GetInstance()->LoadConfig(CFileTools::MakeModuleFullPath(NULL,CDOSMainThread::GetInstance()->GetConfigFileName()));
+		m_IsConfigLoaded=CDOSConfig::GetInstance()->LoadConfig(CFileTools::MakeModuleFullPath(NULL,CONFIG_FILE_NAME));
 	}
 #ifdef WIN32
 	UINT Flag=EXCEPTION_SET_DEFAULT_HANDLER|EXCEPTION_USE_API_HOOK|EXCEPTION_MAKE_DUMP;
@@ -99,15 +99,31 @@ BOOL CDOSMainApp::OnStartUp()
 	if(!m_IsConfigLoaded)
 		return FALSE;
 
-	if(!CDOSMainThread::GetInstance()->StartUp(
+	if (CDOSMainThread::GetInstance()->StartUp(
 		CDOSConfig::GetInstance()->GetNetConfig().EventObjectPool.StartSize,
-		CDOSConfig::GetInstance()->GetNetConfig().NetWorkThreadPerCPU,
+		CDOSConfig::GetInstance()->GetNetConfig().NetWorkThreadCount,
 		CDOSConfig::GetInstance()->GetNetConfig().EventRouterPool.StartSize,
 		CDOSConfig::GetInstance()->GetNetConfig().EventObjectPool.GrowSize,
 		CDOSConfig::GetInstance()->GetNetConfig().EventObjectPool.GrowLimit,
 		CDOSConfig::GetInstance()->GetNetConfig().EventRouterPool.GrowSize,
 		CDOSConfig::GetInstance()->GetNetConfig().EventRouterPool.GrowLimit))
+	{
+		PrintImportantLog("网络服务已启动:NetWorkThreadCount=%u,EventObjectPool=(%u,%u,%u),EventRouterPool=(%u,%u,%u)",
+			CDOSConfig::GetInstance()->GetNetConfig().NetWorkThreadCount, 
+			CDOSConfig::GetInstance()->GetNetConfig().EventObjectPool.StartSize,
+			CDOSConfig::GetInstance()->GetNetConfig().EventObjectPool.GrowSize,
+			CDOSConfig::GetInstance()->GetNetConfig().EventObjectPool.GrowLimit,
+			CDOSConfig::GetInstance()->GetNetConfig().EventRouterPool.StartSize,
+			CDOSConfig::GetInstance()->GetNetConfig().EventRouterPool.GrowSize,
+			CDOSConfig::GetInstance()->GetNetConfig().EventRouterPool.GrowLimit
+			);
+	}
+	else
+	{
+		PrintImportantLog("网络服务启动失败");
 		return FALSE;
+	}
+		
 	m_pServer=CDOSMainThread::GetInstance();
 	return TRUE;
 }
@@ -121,18 +137,18 @@ void CDOSMainApp::OnShutDown()
 
 void CDOSMainApp::OnSetServiceName()
 {
-	PrintImportantLog(0,"OnSetServiceName");
+	PrintImportantLog("OnSetServiceName");
 	if(!m_IsConfigLoaded)
 	{
-		CSystemConfig::GetInstance()->LoadConfig(MakeModuleFullPath(NULL,CDOSMainThread::GetInstance()->GetConfigFileName()));
-		m_IsConfigLoaded=CDOSConfig::GetInstance()->LoadConfig(MakeModuleFullPath(NULL,CONFIG_FILE_NAME));
+		CSystemConfig::GetInstance()->LoadConfig(CFileTools::MakeModuleFullPath(NULL,CDOSMainThread::GetInstance()->GetConfigFileName()));
+		m_IsConfigLoaded=CDOSConfig::GetInstance()->LoadConfig(CFileTools::MakeModuleFullPath(NULL,CONFIG_FILE_NAME));
 	}
 	if(m_IsConfigLoaded&&CDOSConfig::GetInstance()->HaveServiceName())
 	{
 #ifdef WIN32
 		m_lpServiceName=CDOSConfig::GetInstance()->GetServiceName();
 		m_lpDisplayName=CDOSConfig::GetInstance()->GetServiceDesc();
-		PrintImportantLog(0,"服务名设置为:%s/%s",m_lpServiceName,m_lpDisplayName);
+		PrintImportantLog("服务名设置为:%s/%s",m_lpServiceName,m_lpDisplayName);
 #endif
 	}
 }

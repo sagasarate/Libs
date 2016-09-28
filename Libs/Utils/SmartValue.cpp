@@ -11,7 +11,7 @@
 /****************************************************************************/
 #include "stdafx.h"
 
-
+bool CSmartValue::AUTO_CONVERT_WSTR_TO_UTF8 = false;
 
 int CSmartValue::GetTypeFromData(LPCVOID pData, UINT DataSize)
 {

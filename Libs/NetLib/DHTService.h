@@ -16,6 +16,8 @@ protected:
 
 	CEasyString							m_NodesFileName;
 	CEasyTimer							m_SaveTimer;
+
+	UINT								m_PeerCheckPtr;
 public:
 	CDHTService();
 	~CDHTService();
@@ -49,6 +51,7 @@ protected:
 	NODE_PEER * FindPeer(const CIPAddress& IPAddress);
 	void ShrinkPeerNodes(DHT_NODE * pNode);
 	
+	void DeleteNodePeer(NODE_PEER * pPeer);
 
 	SEARCH_PEER * FindSearchPeer(SEARCH_INFO * pSearchInfo, const CIPAddress& PeerAddress);
 	SEARCH_PEER * AddSearchPeer(SEARCH_INFO * pSearchInfo, DHT_NODE * pNode);

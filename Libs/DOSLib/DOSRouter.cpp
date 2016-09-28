@@ -43,13 +43,13 @@ BOOL CDOSRouter::OnStart()
 
 	if(m_MsgProcessLimit==0)
 	{
-		PrintDOSLog(_T("DOSLib"),_T("路由消息处理限制不能为0！"));
+		PrintDOSLog(_T("路由消息处理限制不能为0！"));
 		return FALSE;
 	}
 
 	if(!m_MsgQueue.Create(Config.MaxRouterSendMsgQueue))
 	{
-		PrintDOSLog(_T("DOSLib"),_T("创建%d大小的路由消息队列失败！"),Config.MaxRouterSendMsgQueue);
+		PrintDOSLog(_T("创建%d大小的路由消息队列失败！"),Config.MaxRouterSendMsgQueue);
 		return FALSE;
 	}
 
@@ -57,35 +57,11 @@ BOOL CDOSRouter::OnStart()
 
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(),THREAD_CPU_COUNT_TIME);
 
-	//将连接ID都设置为RouterID
-	Config.RouterLinkConfig.ServerID = GetRouterID();
-	for (UINT i = 0; i < Config.RouterLinkConfig.ServiceConfig.ServiceList.GetCount(); i++)
-	{
-		Config.RouterLinkConfig.ServiceConfig.ServiceList[i].ReportID = GetRouterID();
-	}
-	for (UINT i = 0; i < Config.RouterLinkConfig.ConnectionConfig.ConnectionList.GetCount(); i++)
-	{
-		Config.RouterLinkConfig.ConnectionConfig.ConnectionList[i].ReportID = GetRouterID();
-	}
 
-	if (!CEasyNetLinkManager::Init(m_pServer, Config.RouterLinkConfig))
-	{
-		PrintDOSLog(_T("DOSLib"),_T("连接管理器初始化失败！"));
-		return FALSE;
-	}
-
-	PrintDOSLog(_T("DOSLib"),_T("路由线程[%u]已启动"),GetThreadID());
+	PrintDOSLog(_T("路由线程[%u]已启动"),GetThreadID());
 	return TRUE;
 	FUNCTION_END;
 	return FALSE;
-}
-
-void CDOSRouter::OnClose()
-{
-	FUNCTION_BEGIN;
-	CEasyNetLinkManager::Destory();
-	m_MsgQueue.Destory();
-	FUNCTION_END;
 }
 
 BOOL CDOSRouter::OnRun()
@@ -93,12 +69,12 @@ BOOL CDOSRouter::OnRun()
 	FUNCTION_BEGIN;
 	EXCEPTION_CATCH_START
 
-	int ProcessCount=CEasyNetLinkManager::Update();
+	int ProcessCount = 0;
 	//处理消息发送
 	ProcessCount+=DoMessageRoute(m_MsgProcessLimit);
 	if(ProcessCount==0)
 	{
-		DoSleep(1);
+		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
 
 	m_ThreadPerformanceCounter.DoPerformanceCount();
@@ -109,23 +85,19 @@ BOOL CDOSRouter::OnRun()
 	return FALSE;
 }
 
-CEasyNetLink * CDOSRouter::OnCreateLink(UINT ID)
+void CDOSRouter::OnTerminate()
 {
-	FUNCTION_BEGIN;
-	return new CDOSRouterLink();
-	FUNCTION_END;
-	return NULL;
+	if (GetServer())
+	{
+		CDOSMessagePacket * pPacket;
+		while (m_MsgQueue.PopFront(&pPacket))
+		{
+			((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket);
+		}
+	}
 }
 
-void CDOSRouter::OnLinkStart(CEasyNetLink * pConnection)
-{
 
-}
-
-void CDOSRouter::OnLinkEnd(CEasyNetLink * pConnection)
-{
-
-}
 
 
 BOOL CDOSRouter::RouterMessage(OBJECT_ID SenderID,OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag,LPCVOID pData,UINT DataSize)
@@ -156,21 +128,24 @@ BOOL CDOSRouter::RouterMessage(CDOSMessagePacket * pPacket)
 	FUNCTION_BEGIN;
 	if(pPacket->GetTargetIDCount()<=0)
 	{
-		PrintDOSLog(_T("DOSLib"),_T("消息[0x%X]没有发送目标，不发送！"),pPacket->GetMessage().GetMsgID());
+		PrintDOSLog(_T("消息[0x%X]没有发送目标，不发送！"),pPacket->GetMessage().GetMsgID());
 		return FALSE;
 	}
 	pPacket->MakePacketLength();
 	if(!pPacket->CheckPacket())
 	{
-		PrintDOSLog(_T("DOSLib"),_T("消息[0x%X]有效性检查失败！"),pPacket->GetMessage().GetMsgID());
+		PrintDOSLog(_T("消息[0x%X]有效性检查失败！"),pPacket->GetMessage().GetMsgID());
 		return FALSE;
 	}
 	((CDOSServer *)GetServer())->AddRefMessagePacket(pPacket);
+#ifdef _DEBUG
 	pPacket->SetAllocTime(1);
-	if(!m_MsgQueue.PushBack(pPacket))
+#endif
+	CAutoLock Lock(m_EasyCriticalSection);
+	if(!m_MsgQueue.PushBack(&pPacket))
 	{
 		((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket);
-		PrintDOSLog(_T("DOSLib"),_T("将消息压入路由发送队列失败！"));
+		PrintDOSLog(_T("将消息压入路由发送队列失败！"));
 		return FALSE;
 	}
 
@@ -193,9 +168,9 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 	CDOSMessagePacket * pPacket;
 
 	int ProcessCount=0;
-	while(m_MsgQueue.PopFront(pPacket))
+	while(m_MsgQueue.PopFront(&pPacket))
 	{
-		//PrintDOSDebugLog(0,_T("路由了消息[%u]"),pPacket->GetMessage().GetCmdID());
+		//PrintDOSDebugLog(_T("路由了消息[%u]"),pPacket->GetMessage().GetCmdID());
 
 		AtomicInc(&m_RouteInMsgCount);
 		AtomicAdd(&m_RouteInMsgFlow,pPacket->GetPacketLength());
@@ -204,7 +179,7 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 		OBJECT_ID * pReceiverIDs=pPacket->GetTargetIDs();
 		if(ReceiverIDCount==0)
 		{
-			PrintDOSLog(_T("DOSLib"),_T("错误的消息格式！"));
+			PrintDOSLog(_T("错误的消息格式！"));
 			continue;
 		}
 		if((ReceiverIDCount==1||IsSameRouter(pReceiverIDs,ReceiverIDCount))
@@ -218,17 +193,7 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 			}
 			else
 			{
-				CDOSRouterLink * pRouterLink=dynamic_cast<CDOSRouterLink *>(GetLink(pReceiverIDs->RouterID));
-				if(pRouterLink)
-				{
-					AtomicInc(&m_RouteOutMsgCount);
-					AtomicAdd(&m_RouteOutMsgFlow,pPacket->GetPacketLength());
-					pRouterLink->SendData(pPacket->GetPacketBuffer(),pPacket->GetPacketLength());
-				}
-				else
-				{
-					PrintDOSLog(_T("DOSLib"),_T("无法找到路由%u！"),pReceiverIDs->RouterID);
-				}
+				m_pServer->GetRouterLinkManager()->SendMessage(pReceiverIDs->RouterID, pPacket);				
 			}
 		}
 		else
@@ -259,40 +224,23 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 						pReceiverIDs[i].RouterID=0;
 					}
 					pPacket->MakePacketLength();
-					for(UINT i=0;i<GetLinkCount();i++)
-					{
-						CDOSRouterLink * pRouterLink=dynamic_cast<CDOSRouterLink *>(GetLinkByIndex(i));
-						if(pRouterLink)
-						{
-							AtomicInc(&m_RouteOutMsgCount);
-							AtomicAdd(&m_RouteOutMsgFlow,pPacket->GetPacketLength());
-							pRouterLink->SendData(pPacket->GetPacketBuffer(),pPacket->GetPacketLength());
-						}
-					}
+					UINT SendCount = m_pServer->GetRouterLinkManager()->BroadcastMessage(pPacket);
+					AtomicAdd(&m_RouteOutMsgCount, SendCount);
+					AtomicAdd(&m_RouteOutMsgFlow, pPacket->GetPacketLength()*SendCount);
 					//在本路由广播
 					DispatchMessage(pPacket,pReceiverIDs,GroupCount);
 				}
 				else
 				{
-					CDOSRouterLink * pRouterLink=dynamic_cast<CDOSRouterLink *>(GetLink(pReceiverIDGroup->RouterID));
-					if(pRouterLink)
-					{
+					pPacket->SetTargetIDs(GroupCount, NULL);
+					if (pReceiverIDs != pReceiverIDGroup)
+						memmove(pReceiverIDs, pReceiverIDGroup, GroupCount);
+					pPacket->MakePacketLength();
 
+					AtomicInc(&m_RouteOutMsgCount);
+					AtomicAdd(&m_RouteOutMsgFlow, pPacket->GetPacketLength());
 
-						pPacket->SetTargetIDs(GroupCount,NULL);
-						if(pReceiverIDs!=pReceiverIDGroup)
-							memmove(pReceiverIDs,pReceiverIDGroup,GroupCount);
-						pPacket->MakePacketLength();
-
-						AtomicInc(&m_RouteOutMsgCount);
-						AtomicAdd(&m_RouteOutMsgFlow,pPacket->GetPacketLength());
-
-						pRouterLink->SendData(pPacket->GetPacketBuffer(),pPacket->GetPacketLength());
-					}
-					else
-					{
-						PrintDOSLog(_T("DOSLib"),_T("无法找到路由%u！"),pReceiverIDGroup->RouterID);
-					}
+					m_pServer->GetRouterLinkManager()->SendMessage(pReceiverIDs->RouterID, pPacket);
 				}
 				pReceiverIDGroup+=GroupCount;
 				ReceiverIDCount-=GroupCount;
@@ -302,7 +250,7 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 
 		if(!((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(_T("DOSLib"),_T("释放消息内存块失败！"));
+			PrintDOSLog(_T("释放消息内存块失败！"));
 		}
 		ProcessPacketLimit--;
 		ProcessCount++;
@@ -351,101 +299,26 @@ BOOL CDOSRouter::DispatchMessage(CDOSMessagePacket * pPacket,OBJECT_ID * pReceiv
 	UINT RouterID=GetRouterID();
 	for(int i=0;i<Count;i++)
 	{
+		pReceiverIDs[i].RouterID = RouterID;
+
 		if(pReceiverIDs[i].ObjectTypeID==DOT_PROXY_OBJECT)
 		{
-			CDOSProxyManager * pProxyManager = ((CDOSServer *)GetServer())->GetProxyManager();
-
-
-			if(pReceiverIDs[i].ObjectIndex==0)
+			if (((CDOSServer *)GetServer())->GetProxyManager()->PushMessage(pReceiverIDs[i], pPacket))
 			{
-				//发送到Service的消息
-				BYTE ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(pReceiverIDs[i].GroupIndex);
-				BYTE ProxyID = GET_PROXY_ID_FROM_PROXY_GROUP_INDEX(pReceiverIDs[i].GroupIndex);
-				if (ProxyType == BROAD_CAST_PROXY_TYPE)
-				{
-					for (UINT j = 0; j < pProxyManager->GetProxyServiceCount(); j++)
-					{
-						AtomicInc(&m_RouteOutMsgCount);
-						AtomicAdd(&m_RouteOutMsgFlow, pPacket->GetMessage().GetMsgLength());
-						pProxyManager->GetProxyServiceByIndex(j)->PushMessage(pPacket);
-					}
-				}
-				else
-				{
-					IDOSObjectProxyServiceBase * pProxyService = pProxyManager->GetProxyServiceByID(ProxyID);
-					if (pProxyService == NULL)
-						pProxyService = ((CDOSServer *)GetServer())->GetProxyManager()->GetProxyServiceByType(ProxyType);
-					if (pProxyService)
-					{
-						AtomicInc(&m_RouteOutMsgCount);
-						AtomicAdd(&m_RouteOutMsgFlow, pPacket->GetMessage().GetMsgLength());
-						pProxyService->PushMessage(pPacket);
-					}
-					else
-					{
-						PrintDOSDebugLog(0, _T("CDOSRouter::DispatchMessage:将[0x%llX]发出的消息[%X]递送到代理服务[%llX]时代理服务不存在"),
-							pPacket->GetMessage().GetSenderID(),
-							pPacket->GetMessage().GetMsgID(),
-							pReceiverIDs[i]);
-					}
-				}
+				AtomicInc(&m_RouteOutMsgCount);
+				AtomicAdd(&m_RouteOutMsgFlow, pPacket->GetMessage().GetMsgLength());
 			}
-			else if(pReceiverIDs[i].ObjectIndex==BROAD_CAST_OBJECT_INDEX)
-			{
-				//群发消息
-				BYTE ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(pReceiverIDs[i].GroupIndex);
-				BYTE ProxyID = GET_PROXY_ID_FROM_PROXY_GROUP_INDEX(pReceiverIDs[i].GroupIndex);
-				if (ProxyType == BROAD_CAST_PROXY_TYPE)
-				{
-					for (UINT j = 0; j < pProxyManager->GetProxyServiceCount(); i++)
-					{
-						AtomicInc(&m_RouteOutMsgCount);
-						AtomicAdd(&m_RouteOutMsgFlow, pPacket->GetMessage().GetMsgLength());
-						pProxyManager->GetProxyServiceByIndex(j)->PushBroadcastMessage(pPacket);
-					}
-				}
-				else
-				{
-					IDOSObjectProxyServiceBase * pProxyService = pProxyManager->GetProxyServiceByID(ProxyID);
-					if (pProxyService == NULL)
-						pProxyService = ((CDOSServer *)GetServer())->GetProxyManager()->GetProxyServiceByType(ProxyType);
-					if (pProxyService)
-					{
-						AtomicInc(&m_RouteOutMsgCount);
-						AtomicAdd(&m_RouteOutMsgFlow, pPacket->GetMessage().GetMsgLength());
-						pProxyService->PushBroadcastMessage(pPacket);
-					}
-					else
-					{
-						PrintDOSDebugLog(0, _T("CDOSRouter::DispatchMessage:将[0x%llX]发出的消息[%X]递送到代理服务[%llX]时代理服务不存在"),
-							pPacket->GetMessage().GetSenderID(),
-							pPacket->GetMessage().GetMsgID(),
-							pReceiverIDs[i]);
-					}
-				}
-			}
-			else
-			{
-				//单个消息
-				IDOSObjectProxyConnectionBase * pProxyConnection = pProxyManager->GetProxyConnect(pReceiverIDs[i]);
-				if (pProxyConnection)
-				{
-					AtomicInc(&m_RouteOutMsgCount);
-					AtomicAdd(&m_RouteOutMsgFlow,pPacket->GetPacketLength());
-					pProxyConnection->PushMessage(pPacket);
-				}
-				else
-				{
-					PrintDOSDebugLog(0,_T("CDOSRouter::DispatchMessage:将[0x%llX]发出的消息[%X]递送到代理对象[%llX]时代理对象不存在"),
-						pPacket->GetMessage().GetSenderID(),
-						pPacket->GetMessage().GetMsgID(),
-						pReceiverIDs[i]);
-				}
-			}
+			//else
+			//{
+			//	PrintDOSDebugLog(_T("将[0x%llX]发出的消息[%X]递送到代理对象[%llX]失败"),
+			//		pPacket->GetMessage().GetSenderID(),
+			//		pPacket->GetMessage().GetMsgID(),
+			//		pReceiverIDs[i]);
+			//}
 		}
 		else
 		{
-			pReceiverIDs[i].RouterID=RouterID;
+			
 			if(((CDOSServer *)GetServer())->GetObjectManager()->PushMessage(pReceiverIDs[i],pPacket))
 			{
 				AtomicInc(&m_RouteOutMsgCount);
@@ -453,7 +326,7 @@ BOOL CDOSRouter::DispatchMessage(CDOSMessagePacket * pPacket,OBJECT_ID * pReceiv
 			}
 			else
 			{
-				PrintDOSDebugLog(0,_T("CDOSRouter::DispatchMessage:将[0x%llX]发出的消息[%X]递送到对象[%llX]失败"),
+				PrintDOSDebugLog(_T("将[0x%llX]发出的消息[%X]递送到对象[%llX]失败"),
 					pPacket->GetMessage().GetSenderID(),
 					pPacket->GetMessage().GetMsgID(),
 					pReceiverIDs[i]);

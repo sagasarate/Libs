@@ -1,28 +1,21 @@
 ﻿#include "stdafx.h"
 
+const CEasyString DEFULT_HEADER_STRING="Time,Tag,";
 
 CCSVFileLogPrinter::CCSVFileLogPrinter(void)
 {
+}
+CCSVFileLogPrinter::CCSVFileLogPrinter(int Level, LPCTSTR LogName, LPCTSTR HeaderStr, int FileLogBufferLen)
+	:CAsyncFileLogPrinter(Level, LogName, FileLogBufferLen, _T("csv"), DEFULT_HEADER_STRING + HeaderStr)
+{
+	
 }
 
 CCSVFileLogPrinter::~CCSVFileLogPrinter(void)
 {
 }
 
-bool CCSVFileLogPrinter::Init(int Level,LPCTSTR FileName,LPCTSTR LogHeader,int FileLogBufferLen)
-{
-	m_LogLevel=Level;
-	m_LogFileName=FileName;
 
-	CAutoLock Lock(m_EasyCriticalSection);
-
-	m_FileLogWorkThread.SetLogFileHeaderString(LogHeader);
-	m_FileLogWorkThread.Init(FileName,_T("csv"),FileLogBufferLen);
-	if(!m_FileLogWorkThread.IsWorking())
-		m_FileLogWorkThread.Start();
-
-	return true;
-}
 void CCSVFileLogPrinter::PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg)
 {
 	try
@@ -50,13 +43,13 @@ void CCSVFileLogPrinter::PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg)
 		_tcsncat_s(MsgBuff, 5000, Msg, _TRUNCATE);
 		_tcsncat_s(MsgBuff, 5000, _T("\r\n"), _TRUNCATE);
 
-		m_FileLogWorkThread.PushLog(MsgBuff);
+		PushLog(MsgBuff);
 
 
 	}
 	catch (...)
 	{
-		PrintImportantLog(0, _T("Log[%s]输出发生异常[%s]"), (LPCTSTR)m_LogFileName, Msg);
+		PrintImportantLog(_T("Log[%s]输出发生异常[%s]"), (LPCTSTR)m_LogName, Msg);
 	}
 }
 void CCSVFileLogPrinter::PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl)
@@ -89,12 +82,12 @@ void CCSVFileLogPrinter::PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_l
 		MsgBuff[4095]=0;
 		_tcsncat_s(MsgBuff, 5000, _T("\r\n"), _TRUNCATE);
 
-		m_FileLogWorkThread.PushLog(MsgBuff);
+		PushLog(MsgBuff);
 
 
 	}
 	catch(...)
 	{
-		PrintImportantLog(0,_T("Log[%s]输出发生异常[%s]"),(LPCTSTR)m_LogFileName,Format);
+		PrintImportantLog(_T("Log[%s]输出发生异常[%s]"),(LPCTSTR)m_LogName,Format);
 	}
 }

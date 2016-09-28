@@ -19,16 +19,20 @@ class CDOSObjectProxyServiceDefault :
 {
 protected:
 	CLIENT_PROXY_CONFIG											m_Config;
-	CThreadSafeIDStorage<CDOSMessagePacket *>					m_MsgQueue;
-	CStaticMap<MSG_ID_TYPE, OBJECT_ID>							m_MessageMap;
+	CCycleQueue<CDOSMessagePacket *>							m_MsgQueue;
 
-	CEasyCriticalSection										m_EasyCriticalSection;
-	CThreadPerformanceCounter									m_ThreadPerformanceCounter;
+	CStaticMap<MSG_ID_TYPE, OBJECT_ID>							m_MessageMap;
 	OBJECT_ID													m_UnhandleMsgReceiverID;
+	CEasyCriticalSection										m_EasyCriticalSection;
+
+	CThreadPerformanceCounter									m_ThreadPerformanceCounter;
+	
 
 
 	CIDStorage<CDOSObjectProxyConnectionDefault>				m_ConnectionPool;
-	static CEasyBuffer											m_CompressBuffer;
+	CThreadSafeIDStorage<CDOSObjectProxyConnectionDefault *>	m_DestoryConnectionList;
+	CEasyArray<CDOSObjectProxyConnectionGroup>					m_ConnectionGroups;
+	CEasyBuffer													m_CompressBuffer;
 
 public:
 	CDOSObjectProxyServiceDefault(void);
@@ -46,9 +50,12 @@ public:
 	virtual bool PushMessage(CDOSMessagePacket * pPacket);
 	virtual bool PushBroadcastMessage(CDOSMessagePacket * pPacket);
 	virtual IDOSObjectProxyConnectionBase * GetConnection(UINT ID);
+	virtual UINT GetConnectionCount();
 	virtual float GetCPUUsedRate();
 	virtual float GetCycleTime();
-
+	virtual UINT GetGroupCount();
+	virtual float GetGroupCPUUsedRate(UINT Index);
+	virtual float GetGroupCycleTime(UINT Index);
 
 
 
@@ -63,7 +70,10 @@ public:
 	virtual void OnClose();
 	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 	virtual CBaseNetConnection * CreateConnection(CIPAddress& RemoteAddress);
-	virtual BOOL DeleteConnection(CBaseNetConnection * pConnection);	
+	virtual bool DeleteConnection(CBaseNetConnection * pConnection);	
+
+	void AcceptConnection(CDOSObjectProxyConnectionDefault * pConnection);
+	void QueryDestoryConnection(CDOSObjectProxyConnectionDefault * pConnection);
 
 
 	OBJECT_ID GetGlobalMsgMapObjectID(MSG_ID_TYPE MsgID);
@@ -73,9 +83,6 @@ public:
 	{
 		return m_Config;
 	}
-	
-
-	
 
 	CEasyBuffer& GetCompressBuffer()
 	{

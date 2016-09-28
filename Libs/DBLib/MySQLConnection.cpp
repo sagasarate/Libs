@@ -115,7 +115,7 @@ int CMySQLConnection::Disconnect()
 	}
 	if(m_MySQLHandle)
 	{
-		mysql_close(m_MySQLHandle);
+		mysql_close(m_MySQLHandle);		
 		m_MySQLHandle=NULL;
 	}
 	return DBERR_SUCCEED;
@@ -250,6 +250,11 @@ LPCSTR CMySQLConnection::GetLastDatabaseErrorString()
 	return mysql_error(m_MySQLHandle);
 }
 
+LPCSTR CMySQLConnection::GetLastSQL()
+{
+	return m_LastSQL;
+}
+
 int CMySQLConnection::TranslateString(LPCSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen)
 {
 	return (int)mysql_real_escape_string(m_MySQLHandle,szTarget,szSource,SrcLen);
@@ -259,11 +264,11 @@ void CMySQLConnection::ProcessErrorMsg(MYSQL_STMT_HANDLE hStmt,LPCSTR Msg)
 {
 	if(hStmt)
 	{
-		PrintDBLog(_T("DBLib"),"%s %s\r\n",Msg,mysql_stmt_error(hStmt));
+		PrintDBLog("%s %s at %s", Msg, mysql_stmt_error(hStmt), (LPCTSTR)m_LastSQL);
 	}
 	else
 	{
-		PrintDBLog(_T("DBLib"),"%s %s\r\n",Msg,mysql_error(m_MySQLHandle));
+		PrintDBLog("%s %s at %s", Msg, mysql_error(m_MySQLHandle), (LPCTSTR)m_LastSQL);
 	}
 
 }
@@ -980,6 +985,7 @@ int CMySQLConnection::ExecuteSQLDirect(LPCSTR SQLStr,int StrLen)
 
 	if(StrLen==0)
 		StrLen=(int)strlen(SQLStr);
+	m_LastSQL.SetString(SQLStr, StrLen);
 	if(mysql_real_query(m_MySQLHandle,SQLStr,StrLen))
 	{
 		ProcessErrorMsg(NULL,"执行SQL失败\r\n");
@@ -998,6 +1004,10 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 		return DBERR_INVALID_PARAM;
 	}
 
+	if (StrLen == 0)
+		StrLen = (int)strlen(SQLStr);
+	m_LastSQL.SetString(SQLStr, StrLen);
+
 	if(m_MySQLStmt)
 	{
 		mysql_stmt_close(m_MySQLStmt);
@@ -1010,10 +1020,7 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 		ProcessErrorMsg(NULL,"分配环境句柄失败\r\n");
 		return DBERR_SQLALLOCHANDLEFAIL;
 	}
-
-
-	if(StrLen==0)
-		StrLen=(int)strlen(SQLStr);
+	
 	if(mysql_stmt_prepare(m_MySQLStmt,SQLStr,StrLen))
 	{
 		ProcessErrorMsg(m_MySQLStmt,"准备SQL失败\r\n");

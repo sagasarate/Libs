@@ -15,16 +15,13 @@ IMPLEMENT_CLASS_INFO_STATIC(CNetServer,CBaseNetServer);
 
 CNetServer::CNetServer(void):CBaseNetServer()
 {
-	m_hEpoll=INVALID_HANDLE_VALUE;
-	m_pEpollThreads=NULL;
-	m_EpollThreadCount=0;
 	m_EventObjectPoolSize=DEFAULT_EVENT_OBJECT_COUNT;
 	m_EventObjectPoolGrowSize=DEFAULT_EVENT_OBJECT_POOL_GROW_SIZE;
 	m_EventObjectPoolGrowLimit=DEFAULT_EVENT_OBJECT_POOL_GROW_LIMIT;
 	m_EventRouterPoolSize=DEFAULT_EVENT_ROUTER_COUNT;
 	m_EventRouterPoolGrowSize=DEFAULT_EVENT_ROUTER_POOL_GROW_SIZE;
 	m_EventRouterPoolGrowLimit=DEFAULT_EVENT_ROUTER_POOL_GROW_LIMIT;
-	m_EpollThreadNumPerCPU=DEFAULT_THREAD_NUMBER_PER_CPU;
+	m_EpollWordThreadCount = DEFAULT_WORK_THREAD_COUNT;
 }
 
 CNetServer::~CNetServer(void)
@@ -32,22 +29,22 @@ CNetServer::~CNetServer(void)
 	ShutDown();
 }
 
-BOOL CNetServer::StartUp(int EventObjectPoolSize,
-						 int ThreadNumberPerCPU,
-						 int EventRouterPoolSiz,
-						 int EventObjectPoolGrowSize,
-						 int EventObjectPoolGrowLimit,
-						 int EventRouterPoolGrowSize,
-						 int EventRouterPoolGrowlimit)
+bool CNetServer::StartUp(int EventObjectPoolSize,
+						int WorkThreadCount,
+						int EventRouterPoolSiz,
+						int EventObjectPoolGrowSize,
+						int EventObjectPoolGrowLimit,
+						int EventRouterPoolGrowSize,
+						int EventRouterPoolGrowlimit)
 {
 	m_EventObjectPoolSize=EventObjectPoolSize;
 	m_EventRouterPoolSize=EventRouterPoolSiz;
-	m_EpollThreadNumPerCPU=ThreadNumberPerCPU;
+	m_EpollWordThreadCount = WorkThreadCount;
 	m_EventObjectPoolGrowSize=EventObjectPoolGrowSize;
 	m_EventObjectPoolGrowLimit=EventObjectPoolGrowLimit;
 	m_EventRouterPoolGrowSize=EventRouterPoolGrowSize;
 	m_EventRouterPoolGrowLimit=EventRouterPoolGrowlimit;
-	return Start();
+	return Start() != FALSE;
 }
 
 void CNetServer::ShutDown(DWORD Milliseconds)
@@ -58,36 +55,28 @@ void CNetServer::ShutDown(DWORD Milliseconds)
 BOOL CNetServer::OnStart()
 {
 	if(!CBaseNetServer::OnStart())
-		return FALSE;
+		return false;
 
-	if(m_hEpoll!=INVALID_HANDLE_VALUE)
-		return FALSE;
 
-	m_EpollEventObjectPool.Create(m_EventObjectPoolSize,m_EventObjectPoolGrowSize,m_EventObjectPoolGrowLimit);
+
+	//m_EpollEventObjectPool.Create(m_EventObjectPoolSize,m_EventObjectPoolGrowSize,m_EventObjectPoolGrowLimit);
 	m_EventRouterPool.Create(m_EventRouterPoolSize,m_EventRouterPoolGrowSize,m_EventRouterPoolGrowLimit);
 
-	m_hEpoll = epoll_create( m_EventRouterPoolSize );
-	if( m_hEpoll == INVALID_HANDLE_VALUE )
+
+
+	m_EpollThreadList.Resize(m_EpollWordThreadCount);
+
+	for (UINT i = 0; i < m_EpollThreadList.GetCount(); i++)
 	{
-		PrintNetLog(_T("NetLib"),"(%d)创建Epoll失败(%d)！",GetID(),GetLastError());
-		return FALSE;
+		m_EpollThreadList[i].Init(this);
+		m_EpollThreadList[i].Start();
 	}
-
-	m_EpollThreadCount = GetSystemCPUCount() * m_EpollThreadNumPerCPU;
-
-	m_pEpollThreads = new CEpollThread[m_EpollThreadCount];
-
-	for( int i = 0;i < m_EpollThreadCount;i ++ )
-	{
-		m_pEpollThreads[i].SetServer(this);
-		m_pEpollThreads[i].SetEpollHandle(m_hEpoll);
-		m_pEpollThreads[i].Start();
-	}
+	PrintNetLog("已创建%u个epoll工作线程", (UINT)m_EpollThreadList.GetCount());
 	if(!OnStartUp())
 	{
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 BOOL CNetServer::OnRun()
@@ -97,76 +86,68 @@ BOOL CNetServer::OnRun()
 
 	if(Update()==0)
 	{
-		DoSleep(1);
+		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
 	return TRUE;
 }
 
 void CNetServer::OnTerminate()
 {
-	if( m_pEpollThreads )
+	for (UINT i = 0; i < m_EpollThreadList.GetCount(); i++)
 	{
-		for( int i = 0;i < m_EpollThreadCount;i ++ )
-		{
-			m_pEpollThreads[i].SafeTerminate();
-		}
-		delete[] m_pEpollThreads;
-		m_pEpollThreads = NULL;
+		m_EpollThreadList[i].SafeTerminate();
 	}
+	m_EpollThreadList.Clear();
 
 	OnShutDown();
 
-	if(m_hEpoll != INVALID_HANDLE_VALUE)
-	{
-		close( m_hEpoll );
-		m_hEpoll = INVALID_HANDLE_VALUE;
-	}
 
-	if(m_EpollEventObjectPool.GetObjectCount())
-	{
-		PrintNetLog(_T("NetLib"),"(%d)关闭，开始统计Object使用状况！",GetID());
-		PrintObjectStatus();
-	}
 
-	m_EpollEventObjectPool.Destory();
+	//if(m_EpollEventObjectPool.GetObjectCount())
+	//{
+	//	PrintNetLog("(%d)关闭，开始统计Object使用状况！",GetID());
+	//	PrintObjectStatus();
+	//}
+
+	//m_EpollEventObjectPool.Destory();
 	m_EventRouterPool.Destory();
 }
 
-CEpollEventObject * CNetServer::CreateEventObject()
-{
-
-
-	CEpollEventObject * pEpollEventObject=NULL;
-
-	pEpollEventObject=m_EpollEventObjectPool.NewObject();
-	if(pEpollEventObject)
-	{
-		if(pEpollEventObject->GetParentID())
-		{
-			PrintImportantLog(0,"分配了未释放的EpollEventObject");
-		}
-		pEpollEventObject->Create(this);
-
-		return pEpollEventObject;
-	}
-	PrintNetLog(_T("NetLib"),"(%d)Server无法创建EpollEventObject！",GetID());
-
-
-
-	return NULL;
-}
-
-BOOL CNetServer::DeleteEventObject(CEpollEventObject * pEpollEventObject)
-{
-	pEpollEventObject->Destory();
-	if(!m_EpollEventObjectPool.DeleteObject(pEpollEventObject->GetID()))
-	{
-		PrintNetLog(_T("NetLib"),"(%d)Server无法删除EpollEventObject(%d)！",GetID(),pEpollEventObject->GetID());
-		return FALSE;
-	}
-
-	return TRUE;
-}
+//CEpollEventObject * CNetServer::CreateEventObject()
+//{
+//
+//
+//	CEpollEventObject * pEpollEventObject=NULL;
+//
+//	pEpollEventObject=m_EpollEventObjectPool.NewObject();
+//	if(pEpollEventObject)
+//	{
+//		if(pEpollEventObject->GetParentID())
+//		{
+//			PrintImportantLog("分配了未释放的EpollEventObject");
+//		}
+//		pEpollEventObject->Create(this);
+//
+//		return pEpollEventObject;
+//	}
+//	PrintNetLog("(%d)Server无法创建EpollEventObject！",GetID());
+//
+//
+//
+//	return NULL;
+//}
+//
+//bool CNetServer::DeleteEventObject(CEpollEventObject * pEpollEventObject)
+//{
+//	pEpollEventObject->Destory();
+//	if(!m_EpollEventObjectPool.DeleteObject(pEpollEventObject->GetID()))
+//	{
+//		PrintNetLog("(%d)Server无法删除EpollEventObject(%d)！",GetID(),pEpollEventObject->GetID());
+//		return false;
+//	}
+//
+//	return true;
+//}
 
 CEpollEventRouter * CNetServer::CreateEventRouter()
 {
@@ -181,7 +162,7 @@ CEpollEventRouter * CNetServer::CreateEventRouter()
 		pEventRouter->SetID(ID);
 		return pEventRouter;
 	}
-	PrintNetLog(_T("NetLib"),"(%d)Server无法创建EpollEventRouter！",GetID());
+	PrintNetLog("(%d)Server无法创建EpollEventRouter！",GetID());
 	return NULL;
 }
 
@@ -190,80 +171,94 @@ CEpollEventRouter * CNetServer::GetEventRouter(UINT ID)
 	return m_EventRouterPool.GetObject(ID);
 }
 
-BOOL CNetServer::DeleteEventRouter(CEpollEventRouter * pEventRouter)
+bool CNetServer::DeleteEventRouter(CEpollEventRouter * pEventRouter)
 {
 
 	pEventRouter->Destory();
 	if(!m_EventRouterPool.DeleteObject(pEventRouter->GetID()))
 	{
-		PrintNetLog(_T("NetLib"),"(%d)Server无法删除EpollEventRouter(%d)！",GetID(),pEventRouter->GetID());
-		return FALSE;
+		PrintNetLog("(%d)Server无法删除EpollEventRouter(%d)！",GetID(),pEventRouter->GetID());
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 
-BOOL CNetServer::BindSocket(SOCKET Socket,CEpollEventRouter * pEpollEventRouter)
+bool CNetServer::BindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter)
 {
-	if(m_hEpoll == INVALID_HANDLE_VALUE)
+	CEpollThread * pEpollThread = NULL;
+	int BindCout = 0;
+	for (UINT i = 0; i < m_EpollThreadList.GetCount(); i++)
 	{
-		PrintNetLog(_T("NetLib"),"(%d)Epoll没有初始化,无法绑定Socket！",GetID());
-		return FALSE;
+		if (pEpollThread)
+		{
+			int TestCount = (int)pEpollThread->GetBindCount();
+			if (TestCount < 0)
+			{
+				PrintNetLog( "(%d)异常线程绑定的端口数是负数！", GetID());
+			}
+			if (TestCount < BindCout)
+			{
+				pEpollThread = m_EpollThreadList.GetObject(i);
+				BindCout = TestCount;
+			}
+		}
+		else
+		{
+			pEpollThread = m_EpollThreadList.GetObject(i);
+			BindCout = (int)pEpollThread->GetBindCount();
+		}
 	}
-	if(Socket == INVALID_SOCKET)
+
+	if (pEpollThread)
 	{
-		PrintNetLog(_T("NetLib"),"(%d)Socket没有初始化,无法绑定Socket！",GetID());
-		return FALSE;
+		if (pEpollThread->BindSocket(Socket, pEpollEventRouter))
+		{
+			pEpollEventRouter->SetEpollThread(pEpollThread);
+			return true;
+		}
 	}
-
-	epoll_event EpollEvent;
-	ZeroMemory(&EpollEvent,sizeof(EpollEvent));
-	ULONG64_CONVERTER Param64;
-	Param64.LowPart=(DWORD)pEpollEventRouter->GetID();
-	Param64.HighPart=(DWORD)(pEpollEventRouter->GetSessionID());
-	EpollEvent.data.u64=Param64.QuadPart;
-	EpollEvent.events = EPOLLIN | EPOLLERR | EPOLLHUP ;
-	if(epoll_ctl(m_hEpoll,EPOLL_CTL_ADD,Socket,&EpollEvent)==0)
-		return TRUE;
-	else
-		return FALSE;
+	return false;
 }
 
-BOOL CNetServer::ModifySendEvent(SOCKET Socket, CEpollEventRouter * pEpollEventRouter, bool IsSet)
-{
-	epoll_event EpollEvent;
-	ULONG64_CONVERTER Param64;
-	Param64.LowPart = (DWORD)pEpollEventRouter->GetID();
-	Param64.HighPart = (DWORD)(pEpollEventRouter->GetSessionID());
-	EpollEvent.data.u64 = Param64.QuadPart;
-	if (IsSet)
-		EpollEvent.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP ;
-	else
-		EpollEvent.events = EPOLLIN | EPOLLERR | EPOLLHUP ;
-	if (epoll_ctl(m_hEpoll, EPOLL_CTL_MOD, Socket, &EpollEvent) == 0)
-		return TRUE;
-	else
-		return FALSE;
-}
+//bool CNetServer::ModifySendEvent(SOCKET Socket, CEpollEventRouter * pEpollEventRouter, bool IsSet)
+//{
+//	if (pEpollEventRouter->GetEpollThread())
+//	{
+//		return pEpollEventRouter->GetEpollThread()->ModifySendEvent(Socket, pEpollEventRouter, IsSet);
+//	}
+//	else
+//	{
+//		PrintNetLog( "(%d)EpollEventRouter没有设置EpollThread,无法编辑Epoll事件！", GetID());
+//		return false;
+//	}
+//}
 
-BOOL CNetServer::UnbindSocket(SOCKET Socket)
+bool CNetServer::UnbindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter)
 {
-	if (Socket == INVALID_SOCKET)
+	if (pEpollEventRouter->GetEpollThread())
 	{
-		PrintNetLog(_T("NetLib"), "(%d)Socket没有初始化,无法解绑Socket！", GetID());
-		return FALSE;
+		if (pEpollEventRouter->GetEpollThread()->UnbindSocket(Socket))
+		{
+			pEpollEventRouter->SetEpollThread(NULL);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
-
-	if (epoll_ctl(m_hEpoll, EPOLL_CTL_DEL, Socket, NULL) == 0)
-		return TRUE;
 	else
-		return FALSE;
+	{
+		PrintNetLog( "(%d)EpollEventRouter没有设置EpollThread,无法解绑Epoll事件！", GetID());
+		return false;
+	}
 }
 
-BOOL CNetServer::OnStartUp()
+bool CNetServer::OnStartUp()
 {
-	return TRUE;
+	return true;
 }
 void CNetServer::OnShutDown()
 {
@@ -280,41 +275,41 @@ int CNetServer::Update(int ProcessPacketLimit)
 void CNetServer::PrintObjectStatus()
 {
 
-	int AcceptCount=0;
-	int RecvCount=0;
-	int SendCount=0;
-	int OtherCount=0;
+	//int AcceptCount = 0;
+	//int RecvCount = 0;
+	//int SendCount = 0;
+	//int OtherCount = 0;
 
-	LPVOID Pos=m_EpollEventObjectPool.GetFirstObjectPos();
-	while(Pos)
-	{
-		CEpollEventObject * pObject=m_EpollEventObjectPool.GetNext(Pos);
-		switch(pObject->GetType())
-		{
-		case IO_RECV:
-			RecvCount++;
-			break;
-		case IO_SEND:
-			SendCount++;
-			break;
-		case IO_ACCEPT:
-			AcceptCount++;
-			break;
-		default:
-			OtherCount++;
-		}
-	}
+	//LPVOID Pos = m_EpollEventObjectPool.GetFirstObjectPos();
+	//while (Pos)
+	//{
+	//	CEpollEventObject * pObject = m_EpollEventObjectPool.GetNextObject(Pos);
+	//	switch (pObject->GetType())
+	//	{
+	//	case IO_RECV:
+	//		RecvCount++;
+	//		break;
+	//	case IO_SEND:
+	//		SendCount++;
+	//		break;
+	//	case IO_ACCEPT:
+	//		AcceptCount++;
+	//		break;
+	//	default:
+	//		OtherCount++;
+	//	}
+	//}
 
-	UINT UsedCount=0,FreeCount=0;
+	//UINT UsedCount = 0, FreeCount = 0;
 
-	m_EpollEventObjectPool.Verfy(UsedCount,FreeCount);
+	//m_EpollEventObjectPool.Verfy(UsedCount, FreeCount);
 
-	PrintNetLog(0,"有%d(%u,%u,%u)个EpollEventObject对象使用中,其中Accept=%d,Recv=%d,Send=%d,Other=%d",
-		m_EpollEventObjectPool.GetObjectCount(),
-		UsedCount,FreeCount,UsedCount+FreeCount,
-		AcceptCount,
-		RecvCount,
-		SendCount,
-		OtherCount);
-	PrintNetLog(0,"有%d个EventRouter使用中",m_EventRouterPool.GetObjectCount());
+	//PrintNetLog("有%d(%u,%u,%u)个EpollEventObject对象使用中,其中Accept=%d,Recv=%d,Send=%d,Other=%d",
+	//	m_EpollEventObjectPool.GetObjectCount(),
+	//	UsedCount, FreeCount, UsedCount + FreeCount,
+	//	AcceptCount,
+	//	RecvCount,
+	//	SendCount,
+	//	OtherCount);
+	//PrintNetLog("有%d个EventRouter使用中", m_EventRouterPool.GetObjectCount());
 }

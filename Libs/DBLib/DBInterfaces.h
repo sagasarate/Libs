@@ -61,6 +61,7 @@ public:
 	virtual int RollBack()=0;	
 	virtual UINT GetLastDatabaseErrorCode()=0;
 	virtual LPCSTR GetLastDatabaseErrorString()=0;
+	virtual LPCSTR GetLastSQL() = 0;
 	virtual int TranslateString(LPCSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen)=0;
 
 };

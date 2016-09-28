@@ -29,7 +29,7 @@ protected:
 	int				m_ClassID;
 	const char *	m_ClassName;
 
-	static CStaticMap<UINT, FN_SET_META_CLASS>	m_SetMetaClassFNMap;
+	static CEasyMap<UINT, FN_SET_META_CLASS>	m_SetMetaClassFNMap;
 	friend class CSetMetaClassFNRegister;
 
 	DECLARE_STATIC_META_CLASS(CLuaBaseStaticMetaClass)

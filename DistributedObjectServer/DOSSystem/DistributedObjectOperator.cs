@@ -8,6 +8,7 @@ namespace DOSSystem
     public class DOS_OBJECT_REGISTER_INFO_EX
     {
         public OBJECT_ID ObjectID;
+        public string ObjectTypeName;
         public int Weight = 1;
         public int ObjectGroupIndex = -1;
         public uint MsgQueueSize = 1024;
@@ -185,5 +186,74 @@ namespace DOSSystem
         extern static bool InternalCallRegisterLogger(uint LogChannel, string FileName);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static bool InternalCallRegisterCSVLogger(uint LogChannel, string FileName, string CSVLogHeader);
+    };
+
+    class DistributedObjectSample
+    {
+        public bool Initialize(DistributedObjectOperator Operator)
+        {
+            return false;
+        }
+        public void Destory()
+        {
+
+        }
+        public bool OnPreTranslateMessage(uint MsgID, ushort MsgFlag, OBJECT_ID SenderID, byte[] Data)
+        {
+            return false;
+        }
+        public bool OnMessage(uint MsgID, ushort MsgFlag, OBJECT_ID SenderID, byte[] Data)
+        {
+            return false;
+        }
+        public bool OnSystemMessage(uint MsgID, ushort MsgFlag, OBJECT_ID SenderID, byte[] Data)
+        {
+            return false;
+        }
+        public void OnConcernedObjectLost(OBJECT_ID ObjectID)
+        {
+
+        }
+        public bool OnFindObject(OBJECT_ID CallerID)
+        {
+            return false;
+        }
+        public void OnObjectReport(OBJECT_ID ObjectID, byte[] Data)
+        {
+            
+        }
+        public void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, uint Port, string IPStr)
+        {
+
+        }
+        public void OnShutDown(int Level)
+        {
+
+        }
+        public int Update(int ProcessPacketLimit)
+        {
+            return 0;
+        }
+
+        public void OnException(System.Exception Exp)
+        {
+
+        }
+    };
+
+    class DistributedObjectPluginSample
+    {
+        public bool InitPlugin(uint PluginID, uint LogChannel, string ConfigDir, string LogDir)
+        {
+            return true;
+        }
+        public void QueryReleasePlugin()
+        {
+
+        }
+        public void ReleasePlugin()
+        {
+
+        }
     };
 }

@@ -31,22 +31,25 @@ public:
 	void SetAddressPair(const CIPAddressPair& AddressPair);
 	CIPAddressPair& GetAddressPair();
 
-	BOOL IsConnected();
-	BOOL IsDisconnected();
+	bool IsConnected();
+	bool IsDisconnected();
 
-	virtual BOOL Create(UINT RecvQueueSize,UINT SendQueueSize)=0;
-	virtual BOOL Create(SOCKET Socket,UINT RecvQueueSize,UINT SendQueueSize)=0;
+	virtual bool Create(UINT RecvQueueSize, UINT SendQueueSize) = 0;
+	virtual bool Create(SOCKET Socket, UINT RecvQueueSize, UINT SendQueueSize) = 0;
 
-	virtual BOOL StartWork()=0;
+	virtual bool StartWork() = 0;
 
-	virtual void OnConnection(BOOL IsSucceed)=0;
+	virtual void OnConnection(bool IsSucceed) = 0;
 	virtual void OnDisconnection()=0;
 
 	virtual void OnRecvData(const BYTE * pData, UINT DataSize) = 0;
 
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT)=0;
 
-	virtual UINT GetCurSendQueryCount();
+
+	bool PrintConnectionLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...);
+
+	bool PrintConnectionDebugLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...);
 };
 
 inline CNetSocket * CBaseNetConnection::GetSocket()
@@ -79,12 +82,36 @@ inline CIPAddressPair& CBaseNetConnection::GetAddressPair()
 	return m_Socket.GetAddressPair();
 }
 
-inline BOOL CBaseNetConnection::IsConnected()
+inline bool CBaseNetConnection::IsConnected()
 {
 	return m_Socket.IsConnected();
 }
 
-inline BOOL CBaseNetConnection::IsDisconnected()
+inline bool CBaseNetConnection::IsDisconnected()
 {
 	return m_Socket.IsDisconnected();
+}
+
+inline bool CBaseNetConnection::PrintConnectionLogWithTag(LPCTSTR szFunction, LPCTSTR Format, ...)
+{
+	TCHAR Tag[256];
+	_stprintf_s(Tag, 256, _T("%s(%u)"), szFunction, GetID());
+
+	va_list vl;
+	va_start(vl, Format);
+	bool ret = CLogManager::GetInstance()->PrintLogVL(LOG_NET_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
+	va_end(vl);
+	return ret;
+}
+
+inline bool CBaseNetConnection::PrintConnectionDebugLogWithTag(LPCTSTR szFunction, LPCTSTR Format, ...)
+{
+	TCHAR Tag[256];
+	_stprintf_s(Tag, 256, _T("%s(%u)"), szFunction, GetID());
+
+	va_list vl;
+	va_start(vl, Format);
+	bool ret = CLogManager::GetInstance()->PrintLogVL(LOG_NET_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, Tag, Format, vl);
+	va_end(vl);
+	return ret;
 }

@@ -57,17 +57,22 @@ namespace DOSSystem
                 return false;
             
 	        Destory();
-
-            if (DataLen < GetStructMemberSize(0))
-                return true;
            
 	        m_pData=pData;
             m_StartIndex = StartIndex;
             m_DataLen = DataLen;
             if(IsEmpty)
 	        {
-                m_pData[m_StartIndex] = (byte)CSmartValue.SMART_VALUE_TYPE.VT_STRUCT;
-                SetLength(0);		
+                if (DataLen >= sizeof(byte) + sizeof(uint))
+                {
+                    m_pData[m_StartIndex] = (byte)CSmartValue.SMART_VALUE_TYPE.VT_STRUCT;
+                    SetLength(0);
+                }
+                else
+                {
+                    Destory();
+                    return false;
+                }
 	        }
 	        else
 	        {
@@ -601,6 +606,15 @@ namespace DOSSystem
         public static uint GetStringMemberSize(uint StrLen)
         {
             return sizeof(ushort) + sizeof(byte) + sizeof(uint) + sizeof(char) * (StrLen + 1);
-        }       
+        }
+        public static uint GetStringMemberSizeUTF8(string Str)
+        {
+            uint StrLen = 0;
+            if (!string.IsNullOrEmpty(Str))
+            {
+                StrLen = (uint)Encoding.UTF8.GetByteCount(Str);
+            }            
+            return sizeof(ushort) + sizeof(byte) + sizeof(uint) + StrLen + 1;
+        }
     }
 }

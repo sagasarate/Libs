@@ -11,6 +11,19 @@
 /****************************************************************************/
 #pragma once
 
+#ifdef UNICODE
+
+#define _tcsistr	wcsistr
+#define _tcsichr	wcsichr
+#define _tcsrichr	wcsrichr
+
+#else
+
+#define _tcsistr	stristr
+#define _tcsichr	strichr
+#define _tcsrichr	strrichr
+
+#endif
 
 inline int strncpy_0(char *strDest,size_t DestSize, const char *strSource, size_t count)
 {
@@ -34,23 +47,23 @@ inline int strncpy_0( WCHAR *strDest,size_t DestSize, const WCHAR *strSource, si
 	return 0;
 }
 
-inline TCHAR *  strstri (
-					   const TCHAR * str1,
-					   const TCHAR * str2
+inline char *  stristr (
+	const char * str1,
+	const char * str2
 					   )
 {
-	TCHAR *cp = (TCHAR *) str1;
-	TCHAR *s1, *s2;
+	char *cp = (char *)str1;
+	char *s1, *s2;
 
 	if ( !*str2 )
-		return((TCHAR *)str1);
+		return((char *)str1);
 
 	while (*cp)
 	{
 		s1 = cp;
-		s2 = (TCHAR *) str2;
+		s2 = (char *)str2;
 
-		while ( *s1 && *s2 && !(_totlower(*s1)-_totlower(*s2)) )
+		while (*s1 && *s2 && !(tolower(*s1) - tolower(*s2)))
 			s1++, s2++;
 
 		if (!*s2)
@@ -61,6 +74,81 @@ inline TCHAR *  strstri (
 	return(NULL);
 
 }
+
+inline WCHAR *  wcsistr(
+	const WCHAR * str1,
+	const WCHAR * str2
+	)
+{
+	WCHAR *cp = (WCHAR *)str1;
+	WCHAR *s1, *s2;
+
+	if (!*str2)
+		return((WCHAR *)str1);
+
+	while (*cp)
+	{
+		s1 = cp;
+		s2 = (WCHAR *)str2;
+
+		while (*s1 && *s2 && !(towlower(*s1) - towlower(*s2)))
+			s1++, s2++;
+
+		if (!*s2)
+			return(cp);
+
+		cp++;
+	}
+	return(NULL);
+
+}
+
+inline char *  strichr(const char * str, char chr)
+{
+	while (*str && tolower(*str) != tolower(chr))
+		str++;
+
+	if (*str != 0)
+		return((char *)str);
+
+	return(NULL);
+}
+
+inline WCHAR *  wcsichr(const WCHAR * str, WCHAR chr)
+{
+	while (*str && towlower(*str) != towlower(chr))
+		str++;
+
+	if (*str != 0)
+		return((WCHAR *)str);
+
+	return(NULL);
+}
+
+inline char * strrichr(const char * str, int chr)
+{
+	char *start = (char *)str;
+	while (*str++);                       /* find end of string */
+	/* search towards front */
+	while (--str != start && tolower(*str) != tolower(chr));
+
+	if (str != start)               /* char found ? */
+		return((char *)str);
+	return(NULL);
+}
+
+inline WCHAR * wcsrichr(const WCHAR * str, int chr)
+{
+	WCHAR *start = (WCHAR *)str;
+	while (*str++);                       /* find end of string */
+	/* search towards front */
+	while (--str != start && towlower(*str) != towlower(chr));
+
+	if (str != start)               /* char found ? */
+		return((WCHAR *)str);
+	return(NULL);
+}
+
 
 inline int CompareString(const char * pStr1,const char * pStr2)
 {
@@ -176,6 +264,7 @@ protected:
 	T*			m_pBuffer;
 	SIZE_TYPE	m_BufferSize;
 	SIZE_TYPE	m_StringLength;
+	UINT		m_HashCode;
 
 	static int	m_DefaultCodePage;
 public:
@@ -196,6 +285,7 @@ public:
 		m_pBuffer[0]=0;
 		m_BufferSize=1;
 		m_StringLength=0;
+		m_HashCode = 0;
 	}
 	CEasyStringT(const char * pStr)
 	{
@@ -203,6 +293,7 @@ public:
 		m_pBuffer[0] = 0;
 		m_BufferSize=1;
 		m_StringLength=0;
+		m_HashCode = 0;
 		SetString(pStr,GetStrLen(pStr));
 	}
 	CEasyStringT(const WCHAR * pStr)
@@ -211,6 +302,7 @@ public:
 		m_pBuffer[0] = 0;
 		m_BufferSize=1;
 		m_StringLength=0;
+		m_HashCode = 0;
 		SetString(pStr,GetStrLen(pStr));
 	}
 	CEasyStringT(const char * pStr,SIZE_TYPE Size)
@@ -219,6 +311,7 @@ public:
 		m_pBuffer[0] = 0;
 		m_BufferSize=1;
 		m_StringLength=0;
+		m_HashCode = 0;
 		SetString(pStr,Size);
 	}
 	CEasyStringT(const WCHAR * pStr,SIZE_TYPE Size)
@@ -227,6 +320,7 @@ public:
 		m_pBuffer[0] = 0;
 		m_BufferSize=1;
 		m_StringLength=0;
+		m_HashCode = 0;
 		SetString(pStr,Size);
 	}
 	CEasyStringT(const char Char)
@@ -235,6 +329,7 @@ public:
 		m_pBuffer[0] = 0;
 		m_BufferSize=1;
 		m_StringLength=0;
+		m_HashCode = 0;
 		SetString(&Char,1);
 	}
 	CEasyStringT(const WCHAR Char)
@@ -243,6 +338,7 @@ public:
 		m_pBuffer[0] = 0;
 		m_BufferSize=1;
 		m_StringLength=0;
+		m_HashCode = 0;
 		SetString(&Char,1);
 	}
 	CEasyStringT(const CEasyStringT<char>& Str)
@@ -293,6 +389,7 @@ public:
 		m_StringLength=NewStringLen;
 		SAFE_DELETE_ARRAY(m_pBuffer);
 		m_pBuffer=pNewBuffer;
+		m_HashCode = 0;
 	}
 	void TrimBuffer(SIZE_TYPE Size=0)
 	{
@@ -310,6 +407,19 @@ public:
 		}
 		m_StringLength=Size;
 		Resize(m_StringLength);
+	}
+	UINT GetHashCode() const
+	{
+		if (m_HashCode == 0)
+		{
+			UINT * pHashCode = (UINT *)(&m_HashCode);
+			*pHashCode = 1;
+			for (SIZE_TYPE i = 0; i < m_StringLength; i++)
+			{
+				*pHashCode = (*pHashCode) * 31 + m_pBuffer[i];
+			}
+		}
+		return m_HashCode;
 	}
 	void SetString(const char * pStr,SIZE_TYPE Size);
 	void SetString(const WCHAR * pStr,SIZE_TYPE Size);
@@ -358,6 +468,7 @@ public:
 	void SetChar(SIZE_TYPE Index, T Char)
 	{
 		m_pBuffer[Index]=Char;
+		m_HashCode = 0;
 	}
 	CEasyStringT<T>& operator=(const char* pStr)
 	{
@@ -630,12 +741,12 @@ public:
 	void Format(const WCHAR * pFormat,...);
 	void MakeUpper();
 	void MakeLower();
-	int Find(const char * pDestStr,SIZE_TYPE StartPos=0);
-	int Find(const WCHAR * pDestStr,SIZE_TYPE StartPos=0);
-	int Find(char DestChar,SIZE_TYPE StartPos=0);
-	int Find(WCHAR DestChar,SIZE_TYPE StartPos=0);
-	int ReverseFind(char DestChar);
-	int ReverseFind(WCHAR DestChar);
+	int Find(const char * pDestStr, SIZE_TYPE StartPos = 0, bool IgnoreCase = false) const;
+	int Find(const WCHAR * pDestStr, SIZE_TYPE StartPos = 0, bool IgnoreCase = false) const;
+	int Find(char DestChar, SIZE_TYPE StartPos = 0, bool IgnoreCase = false) const;
+	int Find(WCHAR DestChar, SIZE_TYPE StartPos = 0, bool IgnoreCase = false) const;
+	int ReverseFind(char DestChar, bool IgnoreCase = false) const;
+	int ReverseFind(WCHAR DestChar, bool IgnoreCase = false) const;
 	void Replace(T OldChar,T NewChar)
 	{
 		if(OldChar!=NewChar)
@@ -645,6 +756,7 @@ public:
 				if(m_pBuffer[i]==OldChar)
 					m_pBuffer[i]=NewChar;
 			}
+			m_HashCode = 0;
 		}
 	}
 	void Replace(const T * pOldStr,const T * pNewStr)
@@ -711,6 +823,7 @@ public:
 			m_StringLength=NewStrLen;
 			m_pBuffer[m_StringLength]=0;
 			SAFE_DELETE_ARRAY(pReplacePos);
+			m_HashCode = 0;
 		}
 	}
 	void Replace(SIZE_TYPE Start,SIZE_TYPE Len,const T * pNewStr)
@@ -727,6 +840,7 @@ public:
 
 			m_StringLength=NewStrLen;
 			m_pBuffer[m_StringLength]=0;
+			m_HashCode = 0;
 		}
 	}
 	void Replace(SIZE_TYPE Start,SIZE_TYPE Len,SIZE_TYPE NewLen,T NewChar)
@@ -745,6 +859,7 @@ public:
 
 			m_StringLength=NewStrLen;
 			m_pBuffer[m_StringLength]=0;
+			m_HashCode = 0;
 		}
 	}
 	void Delete(SIZE_TYPE StartPos,SIZE_TYPE Len)
@@ -756,6 +871,7 @@ public:
 			memmove(m_pBuffer+StartPos,m_pBuffer+StartPos+Len,(m_StringLength-StartPos-Len)*sizeof(T));
 			m_StringLength-=Len;
 			m_pBuffer[m_StringLength]=0;
+			m_HashCode = 0;
 		}
 	}
 	void Remove(T Char)
@@ -796,6 +912,7 @@ public:
 			memmove(m_pBuffer+Pos,pStr,StrLen*sizeof(T));
 			m_StringLength+=StrLen;
 			m_pBuffer[m_StringLength]=0;
+			m_HashCode = 0;
 		}
 	}
 protected:
@@ -829,6 +946,7 @@ inline void CEasyStringT<char>::SetString(const char * pStr,SIZE_TYPE Size)
 			memmove(m_pBuffer,pStr,Size);
 		m_pBuffer[Size]=0;
 		m_StringLength=Size;
+		m_HashCode = 0;
 	}
 	else
 	{
@@ -847,6 +965,7 @@ inline void CEasyStringT<WCHAR>::SetString(const WCHAR * pStr,SIZE_TYPE Size)
 			memmove(m_pBuffer,pStr,sizeof(WCHAR)*Size);
 		m_pBuffer[Size]=0;
 		m_StringLength=Size;
+		m_HashCode = 0;
 	}
 	else
 	{
@@ -877,6 +996,7 @@ inline void CEasyStringT<char>::SetString(const WCHAR * pStr,SIZE_TYPE Size)
 			
 		m_pBuffer[AnsiSize]=0;
 		m_StringLength=AnsiSize;
+		m_HashCode = 0;
 	}
 	else
 	{
@@ -905,6 +1025,7 @@ inline void CEasyStringT<WCHAR>::SetString(const char * pStr,SIZE_TYPE Size)
 		}
 		m_pBuffer[UnicodeSize]=0;
 		m_StringLength=UnicodeSize;
+		m_HashCode = 0;
 	}
 	else
 	{
@@ -923,6 +1044,7 @@ inline void CEasyStringT<char>::AppendString(const char * pStr,SIZE_TYPE Size)
 			memmove(m_pBuffer+m_StringLength,pStr,Size);
 		m_pBuffer[m_StringLength+Size]=0;
 		m_StringLength+=Size;
+		m_HashCode = 0;
 	}
 }
 
@@ -937,6 +1059,7 @@ inline void CEasyStringT<WCHAR>::AppendString(const WCHAR * pStr,SIZE_TYPE Size)
 			memmove(m_pBuffer+m_StringLength,pStr,sizeof(WCHAR)*Size);
 		m_pBuffer[m_StringLength+Size]=0;
 		m_StringLength+=Size;
+		m_HashCode = 0;
 	}
 }
 
@@ -963,6 +1086,7 @@ inline void CEasyStringT<char>::AppendString(const WCHAR * pStr,SIZE_TYPE Size)
 			
 		m_pBuffer[m_StringLength+AnsiSize]=0;
 		m_StringLength+=AnsiSize;
+		m_HashCode = 0;
 	}
 }
 
@@ -989,6 +1113,7 @@ inline void CEasyStringT<WCHAR>::AppendString(const char * pStr,SIZE_TYPE Size)
 		}
 		m_pBuffer[m_StringLength+UnicodeSize]=0;
 		m_StringLength+=UnicodeSize;
+		m_HashCode = 0;
 	}
 }
 
@@ -999,9 +1124,13 @@ inline void CEasyStringT<char>::FormatVL(const char * pFormat,va_list vl)
 	va_copy(vl2, vl);
 	SIZE_TYPE Len=_vscprintf(pFormat,vl2);
 	va_end(vl2);
-	Resize(Len,false);
-	vsprintf_s(m_pBuffer,m_BufferSize,pFormat,vl);
+	m_BufferSize = Len + 1;
+	char * pNewBuffer = new char[m_BufferSize];		
+	vsprintf_s(pNewBuffer, m_BufferSize, pFormat, vl);
 	m_StringLength=Len;
+	SAFE_DELETE_ARRAY(m_pBuffer);
+	m_pBuffer = pNewBuffer;
+	m_HashCode = 0;
 }
 
 template<>
@@ -1011,9 +1140,13 @@ inline void CEasyStringT<WCHAR>::FormatVL(const WCHAR * pFormat,va_list vl)
 	va_copy(vl2, vl);
 	SIZE_TYPE Len=_vscwprintf(pFormat,vl);
 	va_end(vl2);
-	Resize(Len,false);
-	vswprintf_s(m_pBuffer,m_BufferSize,pFormat,vl);
+	m_BufferSize = Len + 1;
+	WCHAR * pNewBuffer = new WCHAR[m_BufferSize];
+	vswprintf_s(pNewBuffer, m_BufferSize, pFormat, vl);
 	m_StringLength=Len;
+	SAFE_DELETE_ARRAY(m_pBuffer);
+	m_pBuffer = pNewBuffer;
+	m_HashCode = 0;
 }
 
 template<>
@@ -1040,32 +1173,40 @@ template<>
 inline void CEasyStringT<char>::MakeUpper()
 {
 	_strupr_s(m_pBuffer,m_BufferSize);
+	m_HashCode = 0;
 }
 
 template<>
 inline void CEasyStringT<WCHAR>::MakeUpper()
 {
 	_wcsupr_s(m_pBuffer,m_BufferSize);
+	m_HashCode = 0;
 }
 
 template<>
 inline void CEasyStringT<char>::MakeLower()
 {
 	_strlwr_s(m_pBuffer,m_BufferSize);
+	m_HashCode = 0;
 }
 
 template<>
 inline void CEasyStringT<WCHAR>::MakeLower()
 {
 	_wcslwr_s(m_pBuffer,m_BufferSize);
+	m_HashCode = 0;
 }
 
 template<>
-inline int CEasyStringT<char>::Find(const char * pDestStr,SIZE_TYPE StartPos)
+inline int CEasyStringT<char>::Find(const char * pDestStr, SIZE_TYPE StartPos, bool IgnoreCase) const
 {
 	if(StartPos>m_StringLength)
 		StartPos=m_StringLength;
-	const char * pResult=strstr(m_pBuffer+StartPos,pDestStr);
+	const char * pResult;
+	if (IgnoreCase)
+		pResult = stristr(m_pBuffer + StartPos, pDestStr);
+	else
+		pResult = strstr(m_pBuffer + StartPos, pDestStr);
 	if(pResult==NULL)
 		return ERROR_CHAR_POS;
 	else
@@ -1073,11 +1214,15 @@ inline int CEasyStringT<char>::Find(const char * pDestStr,SIZE_TYPE StartPos)
 }
 
 template<>
-inline int CEasyStringT<WCHAR>::Find(const WCHAR * pDestStr,SIZE_TYPE StartPos)
+inline int CEasyStringT<WCHAR>::Find(const WCHAR * pDestStr, SIZE_TYPE StartPos, bool IgnoreCase) const
 {
 	if(StartPos>m_StringLength)
 		StartPos=m_StringLength;
-	const WCHAR * pResult=wcsstr(m_pBuffer+StartPos,pDestStr);
+	const WCHAR * pResult;
+	if (IgnoreCase)
+		pResult = wcsistr(m_pBuffer + StartPos, pDestStr);
+	else
+		pResult = wcsstr(m_pBuffer + StartPos, pDestStr);
 	if(pResult==NULL)
 		return ERROR_CHAR_POS;
 	else
@@ -1085,11 +1230,15 @@ inline int CEasyStringT<WCHAR>::Find(const WCHAR * pDestStr,SIZE_TYPE StartPos)
 }
 
 template<>
-inline int CEasyStringT<char>::Find(char DestChar,SIZE_TYPE StartPos)
+inline int CEasyStringT<char>::Find(char DestChar, SIZE_TYPE StartPos, bool IgnoreCase) const
 {
 	if(StartPos>m_StringLength)
 		StartPos=m_StringLength;
-	const char * pResult=strchr(m_pBuffer+StartPos,DestChar);
+	const char * pResult;
+	if (IgnoreCase)
+		pResult = strichr(m_pBuffer + StartPos, DestChar);
+	else
+		pResult = strchr(m_pBuffer + StartPos, DestChar);
 	if(pResult==NULL)
 		return ERROR_CHAR_POS;
 	else
@@ -1097,11 +1246,15 @@ inline int CEasyStringT<char>::Find(char DestChar,SIZE_TYPE StartPos)
 }
 
 template<>
-inline int CEasyStringT<WCHAR>::Find(WCHAR DestChar,SIZE_TYPE StartPos)
+inline int CEasyStringT<WCHAR>::Find(WCHAR DestChar, SIZE_TYPE StartPos, bool IgnoreCase) const
 {
 	if(StartPos>m_StringLength)
 		StartPos=m_StringLength;
-	const WCHAR * pResult=wcschr(m_pBuffer+StartPos,DestChar);
+	const WCHAR * pResult;
+	if (IgnoreCase)
+		pResult = wcsichr(m_pBuffer + StartPos, DestChar);
+	else
+		pResult = wcschr(m_pBuffer + StartPos, DestChar);
 	if(pResult==NULL)
 		return ERROR_CHAR_POS;
 	else
@@ -1109,15 +1262,19 @@ inline int CEasyStringT<WCHAR>::Find(WCHAR DestChar,SIZE_TYPE StartPos)
 }
 
 template<>
-inline int CEasyStringT<WCHAR>::Find(char DestChar,SIZE_TYPE StartPos)
+inline int CEasyStringT<WCHAR>::Find(char DestChar, SIZE_TYPE StartPos, bool IgnoreCase) const
 {
-	return Find((WCHAR)DestChar,StartPos);
+	return Find((WCHAR)DestChar, StartPos, IgnoreCase);
 }
 
 template<>
-inline int CEasyStringT<char>::ReverseFind(char DestChar)
+inline int CEasyStringT<char>::ReverseFind(char DestChar, bool IgnoreCase) const
 {
-	const char * pResult=strrchr(m_pBuffer,DestChar);
+	const char * pResult;
+	if (IgnoreCase)
+		pResult = strrichr(m_pBuffer, DestChar);
+	else
+		pResult = strrchr(m_pBuffer, DestChar);
 	if(pResult==NULL)
 		return ERROR_CHAR_POS;
 	else
@@ -1125,16 +1282,20 @@ inline int CEasyStringT<char>::ReverseFind(char DestChar)
 }
 
 template<>
-inline int CEasyStringT<WCHAR>::ReverseFind(WCHAR DestChar)
+inline int CEasyStringT<WCHAR>::ReverseFind(WCHAR DestChar, bool IgnoreCase) const
 {
-	const WCHAR * pResult=wcsrchr(m_pBuffer,DestChar);
+	const WCHAR * pResult;
+	if (IgnoreCase)
+		pResult = wcsrichr(m_pBuffer, DestChar);
+	else
+		pResult = wcsrchr(m_pBuffer, DestChar);
 	if(pResult==NULL)
 		return ERROR_CHAR_POS;
 	else
 		return (int)(pResult-m_pBuffer);
 }
 template<>
-inline int CEasyStringT<WCHAR>::ReverseFind(char DestChar)
+inline int CEasyStringT<WCHAR>::ReverseFind(char DestChar, bool IgnoreCase) const
 {
 	return ReverseFind((WCHAR)DestChar);
 }

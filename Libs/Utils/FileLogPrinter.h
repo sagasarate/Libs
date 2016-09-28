@@ -47,4 +47,6 @@ public:
 
 	virtual void PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg);
 	virtual void PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl);
+protected:
+	bool OpenLogFile();
 };

@@ -34,7 +34,7 @@ CEasyNetLink::~CEasyNetLink(void)
 {
 	if (m_pConnection)
 	{
-		PrintNetLog(_T("NetLib"), _T("[%s]连接[%s:%u]释放"),
+		PrintNetLog( _T("[%s]连接[%s:%u]释放"),
 			CClassifiedID(GetReportID()).ToStr(),
 			m_pConnection->GetRemoteAddress().GetIPString(),
 			m_pConnection->GetRemoteAddress().GetPort());
@@ -102,6 +102,7 @@ bool CEasyNetLink::Init(CEasyNetLink * pLink)
 	SAFE_RELEASE(m_pConnection);
 	m_pManager = pLink->m_pManager;
 	m_ReportID = pLink->m_ReportID;	
+	m_NeedReallocConnectionID = pLink->m_NeedReallocConnectionID;
 	m_MaxPacketSize = pLink->m_MaxPacketSize;
 	m_DataCompressType = pLink->m_DataCompressType;
 	m_MinCompressSize = pLink->m_MinCompressSize;	
@@ -128,7 +129,7 @@ void CEasyNetLink::OnData(const BYTE * pData, UINT DataSize, bool IsCompressed)
 		}
 		else
 		{
-			PrintNetLog(_T("NetLib"), _T("lzo解压数据失败(%d)"),
+			PrintNetLog( _T("lzo解压数据失败(%d)"),
 				Result);
 			Disconnect();
 		}
@@ -166,7 +167,7 @@ void CEasyNetLink::SendData(LPCVOID pData, UINT DataSize)
 				}
 				else
 				{
-					PrintNetLog(_T("NetLib"), _T("lzo压缩数据失败(%d)，将直接发送"),
+					PrintNetLog( _T("lzo压缩数据失败(%d)，将直接发送"),
 						Result);
 					m_pConnection->SendLinkMsg(EASY_NET_LINK_MSG_USER_DATA, pData, DataSize);
 				}
@@ -178,13 +179,13 @@ void CEasyNetLink::SendData(LPCVOID pData, UINT DataSize)
 		}
 		else
 		{
-			PrintNetLog(_T("NetLib"), _T("CEasyNetLinkConnection::SendData 连接未初始化"));
+			PrintNetLog( _T("CEasyNetLinkConnection::SendData 连接未初始化"));
 		}
 			
 	}
 	else
 	{
-		PrintNetLog(_T("NetLib"),_T("CEasyNetLinkConnection::SendData 发送的数据大小不合法"));
+		PrintNetLog(_T("CEasyNetLinkConnection::SendData 发送的数据大小不合法"));
 	}
 }
 

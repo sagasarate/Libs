@@ -29,7 +29,7 @@ public:
 		LOM_FILE=(1<<2),
 	};
 
-	CServerLogPrinter(CBaseServer * pServer,UINT Mode,int Level,LPCTSTR FileName,int FileLogBufferLen=DEFAULT_ASYNC_FILE_LOG_BUFFER_LEN);
+	CServerLogPrinter(CBaseServer * pServer, UINT Mode, int Level, LPCTSTR LogName, int FileLogBufferLen = DEFAULT_ASYNC_FILE_LOG_BUFFER_LEN);
 	virtual ~CServerLogPrinter(void);
 
 	UINT GetLogMode()
@@ -38,7 +38,10 @@ public:
 	}
 	
 
-	void SetLogMode(UINT Mode,int Level,LPCTSTR FileName,int FileLogQueueLen=DEFAULT_ASYNC_FILE_LOG_BUFFER_LEN);
+	void SetLogMode(UINT Mode)
+	{
+		m_LogOutputMode = Mode;
+	}
 
 	virtual void PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg);
 	virtual void PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl);

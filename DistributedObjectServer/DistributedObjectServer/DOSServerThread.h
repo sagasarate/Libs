@@ -10,6 +10,7 @@ protected:
 	enum SST_SERVER_STATUS
 	{
 		SST_SS_OBJECT_COUNT=50,
+		SST_SS_CONNECTION_COUNT,
 		SST_SS_ROUTE_IN_MSG_COUNT,
 		SST_SS_ROUTE_IN_MSG_FLOW,
 		SST_SS_ROUTE_OUT_MSG_COUNT,
@@ -17,9 +18,14 @@ protected:
 		SST_SS_ROUTE_CYCLE_TIME,
 		SST_SS_ROUTE_MSG_QUEUE_LEN,
 		SST_SS_ROUTE_CPU_USED_RATE,
+		SST_SS_ROUTE_LINK_CYCLE_TIME,
+		SST_SS_ROUTE_LINK_CPU_USED_RATE,
 		SST_SS_MONO_GC_USED_SIZE,
 		SST_SS_MONO_GC_HEAP_SIZE,
-		SST_SS_OBJECT_PROXY_CPU_USED_RATE=1000,
+		SST_SS_OBJECT_PROXY_CYCLE_TIME = 1000,
+		SST_SS_OBJECT_PROXY_CPU_USED_RATE = 1100,
+		SST_SS_PROXY_GROUP_CYCLE_TIME = 1200,
+		SST_SS_PROXY_GROUP_CPU_USED_RATE = 1300,
 		SST_SS_GROUP_CYCLE_TIME=2000,
 		SST_SS_GROUP_MAX_OBJECT_MSG_QUEUE_LEN=3000,
 		SST_SS_GROUP_CPU_USED_RATE=4000,
@@ -87,9 +93,6 @@ protected:
 		return m_pSysNetLinkManager;
 	}
 
-	int StartLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount);
-	int StopLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount);
-	int TestLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount);	
 	int RebuildUDPControlPort(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount);
 	int SFSetConsoleLogLevel(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount);
 	int SFVerfyMemPool(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount);

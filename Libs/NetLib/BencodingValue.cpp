@@ -106,7 +106,7 @@ const CEasyStringA& CBencodingValue::GetStrValue() const
 }
 UINT CBencodingValue::GetListCount()  const
 {
-	return m_ListValue.GetCount();
+	return (UINT)m_ListValue.GetCount();
 }
 CBencodingValue& CBencodingValue::GetListValue(UINT Index)
 {
@@ -124,7 +124,7 @@ const CBencodingValue& CBencodingValue::GetListValue(UINT Index) const
 }
 UINT CBencodingValue::GetDictCount() const
 {
-	return m_DictValue.GetCount();
+	return (UINT)m_DictValue.GetCount();
 }
 bool CBencodingValue::HaveDictValue(LPCSTR Key) const
 {

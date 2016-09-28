@@ -40,17 +40,11 @@
     <Filter Include="服务器组件\IOCP\侦听线程">
       <UniqueIdentifier>{fad3c97d-ff23-44fa-9592-9c15c2805827}</UniqueIdentifier>
     </Filter>
-    <Filter Include="服务器组件\IOCP\IOCP文件访问">
-      <UniqueIdentifier>{78bbc04c-c16b-4fec-be49-c57a139584aa}</UniqueIdentifier>
-    </Filter>
     <Filter Include="服务器组件\工具组件">
       <UniqueIdentifier>{a16bd7b3-4de6-41ed-804d-57c4d2260bce}</UniqueIdentifier>
     </Filter>
     <Filter Include="服务器组件\工具组件\EasyNetLink">
       <UniqueIdentifier>{d4ede129-522c-4697-8881-dd78723c3e15}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="服务器组件\工具组件\EasyFileService">
-      <UniqueIdentifier>{e802261d-846d-4fe8-a250-497c8d4bfa57}</UniqueIdentifier>
     </Filter>
     <Filter Include="服务器组件\基本对象">
       <UniqueIdentifier>{a7b64984-997c-4c59-87b0-8789e163a802}</UniqueIdentifier>
@@ -91,6 +85,9 @@
     <Filter Include="服务器组件\工具组件\DHT">
       <UniqueIdentifier>{02d42f26-c955-4d6c-9b91-32f40556fb57}</UniqueIdentifier>
     </Filter>
+    <Filter Include="工具\网卡信息">
+      <UniqueIdentifier>{64a45b4e-08d2-4549-92ae-4cf628097d92}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NetLib.h">
@@ -129,20 +126,11 @@
     <ClInclude Include="IOCPListenThread.h">
       <Filter>服务器组件\IOCP\侦听线程</Filter>
     </ClInclude>
-    <ClInclude Include="IOCPFileAccessor.h">
-      <Filter>服务器组件\IOCP\IOCP文件访问</Filter>
-    </ClInclude>
     <ClInclude Include="EasyNetLinkManager.h">
       <Filter>服务器组件\工具组件\EasyNetLink</Filter>
     </ClInclude>
     <ClInclude Include="EasyNetLinkService.h">
       <Filter>服务器组件\工具组件\EasyNetLink</Filter>
-    </ClInclude>
-    <ClInclude Include="EasyFileServerConnection.h">
-      <Filter>服务器组件\工具组件\EasyFileService</Filter>
-    </ClInclude>
-    <ClInclude Include="EasyFileService.h">
-      <Filter>服务器组件\工具组件\EasyFileService</Filter>
     </ClInclude>
     <ClInclude Include="IPAddress.h">
       <Filter>工具</Filter>
@@ -180,6 +168,9 @@
     <ClInclude Include="TRConnection.h">
       <Filter>服务器组件\工具组件\DHT</Filter>
     </ClInclude>
+    <ClInclude Include="NetAdapterInfos.h">
+      <Filter>工具\网卡信息</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -215,20 +206,11 @@
     <ClCompile Include="IOCPListenThread.cpp">
       <Filter>服务器组件\IOCP\侦听线程</Filter>
     </ClCompile>
-    <ClCompile Include="IOCPFileAccessor.cpp">
-      <Filter>服务器组件\IOCP\IOCP文件访问</Filter>
-    </ClCompile>
     <ClCompile Include="EasyNetLinkManager.cpp">
       <Filter>服务器组件\工具组件\EasyNetLink</Filter>
     </ClCompile>
     <ClCompile Include="EasyNetLinkService.cpp">
       <Filter>服务器组件\工具组件\EasyNetLink</Filter>
-    </ClCompile>
-    <ClCompile Include="EasyFileServerConnection.cpp">
-      <Filter>服务器组件\工具组件\EasyFileService</Filter>
-    </ClCompile>
-    <ClCompile Include="EasyFileService.cpp">
-      <Filter>服务器组件\工具组件\EasyFileService</Filter>
     </ClCompile>
     <ClCompile Include="EpollEventObject.cpp">
       <Filter>服务器组件\Epoll\事件对象</Filter>
@@ -277,6 +259,9 @@
     </ClCompile>
     <ClCompile Include="TRConnection.cpp">
       <Filter>服务器组件\工具组件\DHT</Filter>
+    </ClCompile>
+    <ClCompile Include="NetAdapterInfos.cpp">
+      <Filter>工具\网卡信息</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

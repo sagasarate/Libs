@@ -22,6 +22,7 @@
 #define LOG_MONO_CHANNEL				1401
 
 #define IMPORTANT_LOG_FILE_NAME	_T("ImportantError")
+#define DEFAULT_ASYNC_LOG_WORK_THREAD_COUNT	2
 
 extern TCHAR LOG_MANAGER_INSTANCE[];
 
@@ -30,38 +31,43 @@ class CLogManager :
 	public CStaticObject2<CLogManager,LOG_MANAGER_INSTANCE>
 {
 protected:
-	CEasyMap<UINT,ILogPrinter *>	m_LogChannels;
+	CEasyMap<UINT,ILogPrinter *>		m_LogChannels;
+	CEasyArray<CAsyncLogWorkThread>		m_WorkThreadList;
 
 	DECLARE_CLASS_INFO_STATIC(CLogManager);
 public:
 	CLogManager(void);
 	virtual ~CLogManager(void);
 
+	UINT AddWorkThreadCount(UINT Count);
+
 	UINT GetChannelCount();
 	void AddChannel(UINT ChannelID,ILogPrinter * pLogPrinter);
 	ILogPrinter * GetChannel(UINT ChannelID);
-	BOOL DelChannel(UINT ChannelID);
+	bool DelChannel(UINT ChannelID);
 
-	BOOL PrintLogDirect(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Msg);
-	BOOL PrintLog(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Format, ...);
-	BOOL PrintLogVL(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl);
+	bool PrintLogDirect(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Msg);
+	bool PrintLog(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Format, ...);
+	bool PrintLogVL(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl);
 };
 
 
-inline BOOL PrintSystemLog(LPCTSTR Tag, LPCTSTR Format, ...)
+inline bool PrintSystemLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl, Format);
-	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_SYSTEM_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
+	bool ret = CLogManager::GetInstance()->PrintLogVL(LOG_SYSTEM_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }
+#define PrintSystemLog(_Format, ...)	PrintSystemLogWithTag(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)
 
-inline BOOL PrintImportantLog(LPCTSTR Tag, LPCTSTR Format, ...)
+inline bool PrintImportantLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl, Format);
-	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_IMPORTANT_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
+	bool ret = CLogManager::GetInstance()->PrintLogVL(LOG_IMPORTANT_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }
+#define PrintImportantLog(_Format, ...)		PrintImportantLogWithTag(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)

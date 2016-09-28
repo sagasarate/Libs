@@ -315,10 +315,15 @@
     <Lib />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AsyncLogWorkThread.h" />
     <ClInclude Include="Base32.h" />
+    <ClInclude Include="CycleQueue.h" />
     <ClInclude Include="EasyTime.h" />
     <ClInclude Include="EasyTimer.h" />
     <ClInclude Include="EasyTimerEx.h" />
+    <ClInclude Include="FileInfo.h" />
+    <ClInclude Include="FileTools.h" />
+    <ClInclude Include="HashMap.h" />
     <ClInclude Include="iconv\cp936ext.h" />
     <ClInclude Include="iconv\gb2312.h" />
     <ClInclude Include="iconv\gbk.h" />
@@ -328,6 +333,7 @@
     <ClInclude Include="iconv\miniconv.h" />
     <ClInclude Include="iconv\ucs2internal.h" />
     <ClInclude Include="iconv\utf8.h" />
+    <ClInclude Include="ProcessSnapshot.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="IFileAccessor.h" />
     <ClInclude Include="IFileObjectCreator.h" />
@@ -370,7 +376,6 @@
     <ClInclude Include="ILogPrinter.h" />
     <ClInclude Include="LogManager.h" />
     <ClInclude Include="AsyncFileLogPrinter.h" />
-    <ClInclude Include="AsyncFileLogWorkThread.h" />
     <ClInclude Include="CSVFileLogPrinter.h" />
     <ClInclude Include="FileLogPrinter.h" />
     <ClInclude Include="VSOutputLogPrinter.h" />
@@ -401,7 +406,6 @@
     <ClInclude Include="Gif.h" />
     <ClInclude Include="SmartStruct.h" />
     <ClInclude Include="SmartValue.h" />
-    <ClInclude Include="SystemProcessList.h" />
     <ClInclude Include="AutoPerformanceCounter.h" />
     <ClInclude Include="PerformanceStatistician.h" />
     <ClInclude Include="ThreadPerformanceCounter.h" />
@@ -491,8 +495,10 @@
     <ClInclude Include="Crypto\des.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AsyncLogWorkThread.cpp" />
     <ClCompile Include="Base32.cpp" />
     <ClCompile Include="EasyTimerEx.cpp" />
+    <ClCompile Include="FileTools.cpp" />
     <ClCompile Include="iconv\miniconv.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">
       </PrecompiledHeader>
@@ -512,6 +518,7 @@
       </PrecompiledHeader>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">Default</CompileAs>
     </ClCompile>
+    <ClCompile Include="ProcessSnapshot.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">Create</PrecompiledHeader>
@@ -586,7 +593,6 @@
     <ClCompile Include="GuardThread.cpp" />
     <ClCompile Include="LogManager.cpp" />
     <ClCompile Include="AsyncFileLogPrinter.cpp" />
-    <ClCompile Include="AsyncFileLogWorkThread.cpp" />
     <ClCompile Include="CSVFileLogPrinter.cpp" />
     <ClCompile Include="FileLogPrinter.cpp" />
     <ClCompile Include="VSOutputLogPrinter.cpp" />
@@ -619,7 +625,6 @@
     <ClCompile Include="Gif.cpp" />
     <ClCompile Include="SmartStruct.cpp" />
     <ClCompile Include="SmartValue.cpp" />
-    <ClCompile Include="SystemProcessList.cpp" />
     <ClCompile Include="PerformanceStatistician.cpp" />
     <ClCompile Include="ThreadPerformanceCounter.cpp" />
     <ClCompile Include="ToolsWin32.cpp" />
@@ -878,6 +883,7 @@
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Crypto\des.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">
@@ -892,6 +898,7 @@
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

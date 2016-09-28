@@ -81,6 +81,11 @@ BOOL CLinuxFileAccessor::Open(LPCTSTR FileName,int OpenMode)
 	}
 	else
 	{
+		if ((OpenMode&KeepOnExec) == 0)
+		{
+			fcntl(m_FileDescriptor, F_SETFD, FD_CLOEXEC);
+		}
+		m_FileInfo.FetchFileInfo(FileName);
 		return true;
 	}
 
@@ -133,12 +138,14 @@ ULONG64 CLinuxFileAccessor::Write(LPCVOID pBuff,ULONG64 Size)
 	if(m_FileDescriptor!=INVALID_HANDLE_VALUE)
 	{
 		LONG64 WriteSize=write(m_FileDescriptor,pBuff,(size_t)Size);
-		if(m_IsWriteFlush&&(WriteSize!=-1))
+		if (WriteSize != -1)
 		{
-			fsync(m_FileDescriptor);
+			if (m_IsWriteFlush)
+			{
+				fsync(m_FileDescriptor);
+			}
 			return (ULONG64)WriteSize;
 		}
-		return 0;
 	}
 	else
 	{
@@ -199,23 +206,46 @@ BOOL CLinuxFileAccessor::SetCreateTime(const CEasyTime& Time)
 }
 BOOL CLinuxFileAccessor::GetCreateTime(CEasyTime& Time)
 {
+	if (m_FileInfo.IsOK())
+	{
+		Time = m_FileInfo.GetCreateTime();
+		return TRUE;
+	}
 	return FALSE;
 }
 
 BOOL CLinuxFileAccessor::SetLastAccessTime(const CEasyTime& Time)
 {
+	if (m_FileInfo.SetLastAccessTime(Time))
+	{
+		return true;
+	}
 	return FALSE;
 }
 BOOL CLinuxFileAccessor::GetLastAccessTime(CEasyTime& Time)
 {
+	if (m_FileInfo.IsOK())
+	{
+		Time = m_FileInfo.GetLastAccessTime();
+		return TRUE;
+	}
 	return FALSE;
 }
 
 BOOL CLinuxFileAccessor::SetLastWriteTime(const CEasyTime& Time)
 {
+	if (m_FileInfo.SetLastWriteTime(Time))
+	{
+		return true;
+	}
 	return FALSE;
 }
 BOOL CLinuxFileAccessor::GetLastWriteTime(CEasyTime& Time)
 {
+	if (m_FileInfo.IsOK())
+	{
+		Time = m_FileInfo.GetLastWriteTime();
+		return TRUE;
+	}
 	return FALSE;
 }

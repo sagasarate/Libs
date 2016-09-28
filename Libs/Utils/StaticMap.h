@@ -34,6 +34,7 @@ protected:
 		_StorageNode		* pPrev;
 		_StorageNode		* pNext;
 		enNodeColor			Color;
+		bool				IsUsed;
 		bool				IsFree;
 		KEY_TYPE			Key;
 		void InitObject()
@@ -74,6 +75,7 @@ protected:
 		_StorageNode		* pPrev;
 		_StorageNode		* pNext;
 		enNodeColor			Color;
+		bool				IsUsed;
 		bool				IsFree;
 		KEY_TYPE			Key;
 		void InitObject()
@@ -116,6 +118,7 @@ protected:
 		_StorageNode		* pPrev;
 		_StorageNode		* pNext;
 		enNodeColor			Color;
+		bool				IsUsed;
 		bool				IsFree;
 		KEY_TYPE			Key;
 		void InitObject()
@@ -164,6 +167,7 @@ protected:
 	StorageNode	* 						m_pFront;
 	StorageNode	* 						m_pBack;
 	UINT								m_ObjectCount;
+	UINT								m_UsedObjectCount;
 	UINT								m_GrowSize;
 	UINT								m_GrowLimit;
 
@@ -179,6 +183,7 @@ public:
 		m_pFront=NULL;
 		m_pBack=NULL;
 		m_ObjectCount=0;
+		m_UsedObjectCount = 0;
 		m_GrowSize=0;
 		m_GrowLimit=0;
 	}
@@ -192,6 +197,7 @@ public:
 		m_pFront = NULL;
 		m_pBack = NULL;
 		m_ObjectCount = 0;
+		m_UsedObjectCount = 0;
 		m_GrowSize = 0;
 		m_GrowLimit = 0;
 		Create(Size, GrowSize, GrowLimit);
@@ -210,6 +216,10 @@ public:
 			return CreateBufferPage(Size);
 		}
 		return true;
+	}
+	bool Create(const STORAGE_POOL_SETTING& PoolSetting)
+	{
+		return Create(PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
 	}
 	void Destory()
 	{		
@@ -441,6 +451,10 @@ public:
 	{
 		return m_ObjectCount;
 	}
+	UINT GetUsedObjectCount()
+	{
+		return m_UsedObjectCount;
+	}
 
 	LPVOID GetFirstObjectPos()
 	{
@@ -453,20 +467,33 @@ public:
 	}
 	LPVOID GetObjectPosByID(UINT ID)
 	{
-		if(ID==0)
+		if (ID == 0)
 			return NULL;
-
-		ID--;
-		for(UINT i=0;i<m_ObjectBuffPages.GetCount();i++)
+		if (m_ObjectBuffPages.GetCount())
 		{
-			if(ID<m_ObjectBuffPages[i].BufferSize)
-			{				
-				if(!m_ObjectBuffPages[i].pObjectBuffer[ID].IsFree)
-					return &(m_ObjectBuffPages[i].pObjectBuffer[ID]);
-				return NULL;
+			ID--;
+			OBJECT_BUFF_PAGE_INFO& FirstPage = m_ObjectBuffPages[0];
+			if (ID < FirstPage.BufferSize)
+			{
+				if (!FirstPage.pObjectBuffer[ID].IsFree)
+					return &(FirstPage.pObjectBuffer[ID]);
 			}
-			ID-=m_ObjectBuffPages[i].BufferSize;
-		}		
+			else
+			{
+				ID -= FirstPage.BufferSize;
+				UINT PageIndex = 1 + ID / m_GrowSize;
+				UINT Index = ID % m_GrowSize;
+				if (PageIndex < m_ObjectBuffPages.GetCount())
+				{
+					OBJECT_BUFF_PAGE_INFO& Page = m_ObjectBuffPages[PageIndex];
+					if (Index < Page.BufferSize)
+					{
+						if (!Page.pObjectBuffer[Index].IsFree)
+							return &(Page.pObjectBuffer[Index]);
+					}
+				}
+			}
+		}
 		return NULL;
 	}
 
@@ -1123,6 +1150,13 @@ protected:
 		OBJECT_BUFF_PAGE_INFO PageInfo;
 		PageInfo.BufferSize=Size;		
 		PageInfo.pObjectBuffer=new StorageNode[Size];
+		for (UINT i = 0; i < Size; i++)
+		{
+			PageInfo.pObjectBuffer[i].IsUsed = false;
+		}
+#ifdef LOG_POOL_CREATE		
+		PrintImportantLog("Create %u Total %u", Size, GetBufferSize() + Size);
+#endif
 		UINT IDStart=GetBufferSize()+1;
 		ClearBuffer(PageInfo,IDStart,true);
 		m_ObjectBuffPages.Add(PageInfo);
@@ -1220,6 +1254,11 @@ protected:
 				pNode->pNext=NULL;
 			}
 			pNode->IsFree=false;
+			if (!pNode->IsUsed)
+			{
+				pNode->IsUsed = true;
+				m_UsedObjectCount++;
+			}
 			pNode->NewObject();
 			pNode->Key=Key;
 			

@@ -260,10 +260,6 @@
       <Project>{f4126b50-6b57-4b34-a58a-987d6b4219c8}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\LittleWorldProtocol\LittleWorldProtocol.vcxproj">
-      <Project>{c59e0bca-88c7-4b2d-a620-20311501b6f3}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

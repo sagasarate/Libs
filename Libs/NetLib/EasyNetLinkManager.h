@@ -77,11 +77,11 @@ public:
 		ENL_CONNECTION()
 		{
 			ReportID = 0;
-			UINT MaxPacketSize = NET_DATA_BLOCK_SIZE;
-			UINT RecvQueueSize = DEFAULT_SERVER_RECV_DATA_QUEUE;
-			UINT SendQueueSize = DEFAULT_SERVER_SEND_DATA_QUEUE;
-			DATA_COMPRESS_TYPE DataCompressType = DATA_COMPRESS_TYPE_NONE;
-			UINT MinCompressSize = DEFAULT_MIN_COMPRESS_SIZE;
+			MaxPacketSize = NET_DATA_BLOCK_SIZE;
+			RecvQueueSize = DEFAULT_SERVER_RECV_DATA_QUEUE;
+			SendQueueSize = DEFAULT_SERVER_SEND_DATA_QUEUE;
+			DataCompressType = DATA_COMPRESS_TYPE_NONE;
+			MinCompressSize = DEFAULT_MIN_COMPRESS_SIZE;
 		}
 	};
 
@@ -122,12 +122,12 @@ public:
 	CEasyNetLinkManager(void);
 	virtual ~CEasyNetLinkManager(void);
 
-	BOOL Init(CNetServer * pServer, LPCTSTR ConfigFileName);
-	BOOL Init(CNetServer * pServer, xml_node& Config);
-	BOOL Init(CNetServer * pServer, const ENL_CONFIG& Config);
-	BOOL Init(CNetServer * pServer);
-	static BOOL LoadConfig(LPCTSTR ConfigFileName, ENL_CONFIG& Config);
-	static BOOL LoadConfig(xml_node& XmlRoot, ENL_CONFIG& Config);
+	bool Init(CNetServer * pServer, LPCTSTR ConfigFileName);
+	bool Init(CNetServer * pServer, xml_node& Config);
+	bool Init(CNetServer * pServer, const ENL_CONFIG& Config);
+	bool Init(CNetServer * pServer);
+	static bool LoadConfig(LPCTSTR ConfigFileName, ENL_CONFIG& Config);
+	static bool LoadConfig(xml_node& XmlRoot, ENL_CONFIG& Config);
 	virtual void Destory();
 
 	CEasyNetLinkService * AddService(UINT ID, UINT ReportID, const CIPAddress& ListenAddress,
@@ -135,7 +135,7 @@ public:
 		int ParallelAcceptCount = DEFAULT_PARALLEL_ACCEPT, UINT AcceptQueueSize = DEFAULT_SERVER_ACCEPT_QUEUE,
 		UINT RecvQueueSize = DEFAULT_SERVER_RECV_DATA_QUEUE, UINT SendQueueSize = DEFAULT_SERVER_SEND_DATA_QUEUE,
 		DATA_COMPRESS_TYPE DataCompressType = DATA_COMPRESS_TYPE_NONE, UINT MinCompressSize = DEFAULT_MIN_COMPRESS_SIZE);
-	BOOL AddLink(UINT ReportID,const CIPAddress& ConnectionAddress,UINT MaxPacketSize=0,
+	bool AddLink(UINT ReportID, const CIPAddress& ConnectionAddress, UINT MaxPacketSize = 0,
 		UINT RecvQueueSize=DEFAULT_SERVER_RECV_DATA_QUEUE,UINT SendQueueSize=DEFAULT_SERVER_SEND_DATA_QUEUE,
 		DATA_COMPRESS_TYPE DataCompressType = DATA_COMPRESS_TYPE_NONE, UINT MinCompressSize = DEFAULT_MIN_COMPRESS_SIZE);
 
@@ -156,11 +156,11 @@ public:
 
 	virtual CEasyNetLink * CreateAcceptLink();
 	virtual CEasyNetLink * CreateLink(UINT ID);
-	virtual BOOL AcceptLink(CEasyNetLink * pLink);
+	virtual bool AcceptLink(UINT LinkID, CEasyNetLink * pLink);
 	virtual void DeleteLink(CEasyNetLink * pLink);
 
 	virtual CEasyNetLinkService * CreateLinkService(UINT ID);
-	virtual BOOL DeleteLinkService(CEasyNetLinkService * pService);
+	virtual bool DeleteLinkService(CEasyNetLinkService * pService);
 
 	virtual void OnLinkStart(CEasyNetLink * pLink);
 	virtual void OnLinkEnd(CEasyNetLink * pLink);

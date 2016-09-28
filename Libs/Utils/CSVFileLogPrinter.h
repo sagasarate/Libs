@@ -5,9 +5,10 @@ class CCSVFileLogPrinter :
 {
 public:
 	CCSVFileLogPrinter(void);	
+	CCSVFileLogPrinter(int Level, LPCTSTR LogName, LPCTSTR HeaderStr, int FileLogBufferLen = DEFAULT_ASYNC_FILE_LOG_BUFFER_LEN);
 	~CCSVFileLogPrinter(void);
 
-	bool Init(int Level,LPCTSTR FileName,LPCTSTR LogHeader,int FileLogBufferLen=DEFAULT_ASYNC_FILE_LOG_BUFFER_LEN);
+	
 
 	virtual void PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg);
 	virtual void PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl);

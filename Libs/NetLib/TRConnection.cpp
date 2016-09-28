@@ -31,28 +31,28 @@ bool CTRConnection::Init(CDHTService * pParent, UINT SearchID, const NODE_ID& Pe
 	m_MetaDataSize = 0;
 	m_CurMetaDataPiece = 0;
 	m_LogTag.Format(_T("DHT(%d)"), GetID());
-	//PrintNetDebugLog(m_LogTag, _T("尝试连接%s"), Address.GetAddressString());
+	//PrintNetDebugLogWithTag(m_LogTag, _T("尝试连接%s"), Address.GetAddressString());
 	SetServer(pParent->GetServer());
 	if (Connect(Address,20000))
 		return true;
 	return false;
 }
 
-void CTRConnection::OnConnection(BOOL IsSucceed)
+void CTRConnection::OnConnection(bool IsSucceed)
 {
 	if (IsSucceed)
 	{
-		//PrintNetLog(m_LogTag, _T("连接%s成功，发送握手1"), GetRemoteAddress().GetAddressString());
+		//PrintNetLogWithTag( _T("连接%s成功，发送握手1"), GetRemoteAddress().GetAddressString());
 		SendHandshake1();
 	}
 	else
 	{
-		//PrintNetLog(m_LogTag, _T("连接%s失败"), GetRemoteAddress().GetAddressString());
+		//PrintNetLogWithTag( _T("连接%s失败"), GetRemoteAddress().GetAddressString());
 	}
 }
 void CTRConnection::OnDisconnection()
 {
-	//PrintNetLog(m_LogTag, _T("连接%s断开"), GetRemoteAddress().GetAddressString());
+	//PrintNetLogWithTag( _T("连接%s断开"), GetRemoteAddress().GetAddressString());
 }
 
 void CTRConnection::OnRecvData(const BYTE * pData, UINT DataSize)
@@ -69,7 +69,7 @@ void CTRConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 				memcpy(m_RemotePeerID.NodeID, pPeerID, NODE_ID_BYTE_COUNT);
 				m_AssembleBuffer.PopFront(NULL, 68);				
 				CEasyString PeerStr((char *)pPeerID, NODE_ID_BYTE_COUNT);
-				//PrintNetDebugLog(m_LogTag, _T("收到握手1回应:%s"), (LPCTSTR)PeerStr);
+				//PrintNetDebugLogWithTag(m_LogTag, _T("收到握手1回应:%s"), (LPCTSTR)PeerStr);
 				m_FinishHandshake = 1;
 				SendHandshake2();
 			}
@@ -97,12 +97,12 @@ void CTRConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 					}
 					else
 					{
-						PrintNetLog(m_LogTag, _T("消息大小异常Size=%u"), MsgSize);
+						PrintNetLogWithTag(m_LogTag, _T("消息大小异常Size=%u"), MsgSize);
 					}
 				}
 				else
 				{
-					PrintNetDebugLog(m_LogTag, _T("丢弃未知消息MsgID=%u,Size=%u"), MsgID, MsgSize);
+					PrintNetDebugLogWithTag(m_LogTag, _T("丢弃未知消息MsgID=%u,Size=%u"), MsgID, MsgSize);
 				}
 				m_AssembleBuffer.PopFront(NULL, MsgSize + sizeof(UINT));
 			}
@@ -186,14 +186,14 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 	if (ExtDataSize >0x8000|| ExtDataSize > DataSize)
 	{
 		pData[DataSize - 1] = 0;
-		PrintNetLog(m_LogTag, _T("Bencoding解析异常:%s"), pData);
+		PrintNetLogWithTag(m_LogTag, _T("Bencoding解析异常:%s"), pData);
 		Disconnect();
 		return;
 	}
 
 	if (MsgData.GetType() != BENCODING_TYPE_DICTIONARY)
 	{
-		PrintNetLog(m_LogTag, _T("1收到不合法的消息格式连接%s断开"), GetRemoteAddress().GetAddressString());
+		PrintNetLogWithTag(m_LogTag, _T("1收到不合法的消息格式连接%s断开"), GetRemoteAddress().GetAddressString());
 		Disconnect();
 	}
 
@@ -210,7 +210,7 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 					if (Pair.Value->GetType() == BENCODING_TYPE_INTEGER)
 					{
 						CEasyString Temp = Pair.Key;
-						//PrintNetDebugLog(m_LogTag, _T("扩展消息%s=%d"), (LPCTSTR)Temp, Pair.Value->GetIntValue());
+						//PrintNetDebugLogWithTag(m_LogTag, _T("扩展消息%s=%d"), (LPCTSTR)Temp, Pair.Value->GetIntValue());
 						if (Pair.Key == "ut_metadata")
 						{
 							m_MetaDataMsgID = (int)Pair.Value->GetIntValue();
@@ -225,23 +225,23 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 				m_MetaDataSize = (UINT)MetaDataSize.GetIntValue();
 				if (m_MetaDataSize < MAX_TORRENT_SIZE)
 				{					
-					PrintNetDebugLog(m_LogTag, _T("MetaDataSize=%u"), m_MetaDataSize);
+					PrintNetDebugLogWithTag(m_LogTag, _T("MetaDataSize=%u"), m_MetaDataSize);
 					m_MetaDataBuffer.Create(m_MetaDataSize);
 				}
 				else
 				{
-					PrintNetDebugLog(m_LogTag, _T("metadata_size=%u大小异常"), m_MetaDataSize);
+					PrintNetDebugLogWithTag(m_LogTag, _T("metadata_size=%u大小异常"), m_MetaDataSize);
 					m_MetaDataSize = 0;
 				}
 			}
 
-			//PrintNetDebugLog(m_LogTag, _T("收到握手2，开始请求数据"));
+			//PrintNetDebugLogWithTag(m_LogTag, _T("收到握手2，开始请求数据"));
 			m_FinishHandshake = 2;
 			SendRequest(m_CurMetaDataPiece);
 		}
 		else
 		{
-			PrintNetLog(m_LogTag, _T("2收到不合法的消息格式连接%s断开"), GetRemoteAddress().GetAddressString());
+			PrintNetLogWithTag( _T("2收到不合法的消息格式连接%s断开"), GetRemoteAddress().GetAddressString());
 			Disconnect();
 		}
 	}
@@ -261,13 +261,13 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 					}
 					else
 					{
-						PrintNetDebugLog(m_LogTag, _T("total_size=%u大小异常"), m_MetaDataSize);
+						PrintNetDebugLogWithTag(m_LogTag, _T("total_size=%u大小异常"), m_MetaDataSize);
 						m_MetaDataSize = 0;
 					}
 				}
 				if (m_MetaDataSize)
 				{
-					PrintNetLog(m_LogTag, _T("收到MetaData Size=%d"), ExtDataSize);
+					PrintNetLogWithTag(m_LogTag, _T("收到MetaData Size=%d"), ExtDataSize);
 					m_MetaDataBuffer.PushBack(pExtData, ExtDataSize);
 					m_CurMetaDataPiece++;
 					if (m_MetaDataBuffer.GetUsedSize() < m_MetaDataSize)
@@ -276,30 +276,30 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 					}
 					else
 					{
-						PrintNetLog(m_LogTag, _T("MetaData接受完毕，连接%s断开"), GetRemoteAddress().GetAddressString());
+						PrintNetLogWithTag( _T("MetaData接受完毕，连接%s断开"), GetRemoteAddress().GetAddressString());
 						Disconnect();
 						m_pParent->OnTorrent(m_SearchID, (BYTE *)m_MetaDataBuffer.GetBuffer(), m_MetaDataBuffer.GetUsedSize());
 					}
 				}
 				else
 				{
-					PrintNetLog(m_LogTag, _T("协议异常，连接%s断开"), GetRemoteAddress().GetAddressString());
+					PrintNetLogWithTag( _T("协议异常，连接%s断开"), GetRemoteAddress().GetAddressString());
 					Disconnect();
 				}
 			}
 			else if (MsgType == 2)
 			{
-				PrintNetLog(m_LogTag, _T("请求被拒绝，连接%s断开"), GetRemoteAddress().GetAddressString());
+				PrintNetLogWithTag( _T("请求被拒绝，连接%s断开"), GetRemoteAddress().GetAddressString());
 				Disconnect();
 			}
 			else
 			{
-				PrintNetLog(m_LogTag, _T("异常MsgType=%d"), MsgType);
+				PrintNetLogWithTag(m_LogTag, _T("异常MsgType=%d"), MsgType);
 			}
 		}
 		else
 		{
-			PrintNetLog(m_LogTag, _T("3收到不合法的消息格式连接%s断开"), GetRemoteAddress().GetAddressString());
+			PrintNetLogWithTag( _T("3收到不合法的消息格式连接%s断开"), GetRemoteAddress().GetAddressString());
 			Disconnect();
 		}
 	}

@@ -18,17 +18,21 @@ class CNetService :
 	public CBaseNetService,public IIOCPEventHandler
 {
 protected:
-	volatile BOOL								m_WantClose;
+	friend class CIOCPListenThread;
+
+	volatile bool								m_WantClose;
 	CNetServer *								m_pServer;	
 	int											m_CurProtocol;
 	int											m_CurAddressFamily;
 	bool										m_IPv6Only;
-	CThreadSafeIDStorage<COverLappedObject *>	m_AcceptQueue;
-	int											m_AcceptQueueSize;
-	int											m_RecvQueueSize;
-	int											m_SendQueueSize;
-	int											m_ParallelAcceptCount;
-	int											m_ParallelRecvCount;
+	CCycleQueue<COverLappedObject *>			m_OverLappedObjectPool;
+	CEasyCriticalSection						m_OverLappedObjectPoolLock;
+	CCycleQueue<COverLappedObject *>			m_AcceptQueue;
+	UINT										m_AcceptQueueSize;
+	UINT										m_RecvQueueSize;
+	UINT										m_SendQueueSize;
+	UINT										m_ParallelAcceptCount;
+	UINT										m_ParallelRecvCount;
 	bool										m_IsUseListenThread;
 	CIOCPEventRouter *							m_pIOCPEventRouter;
 	CIOCPListenThread *							m_pListenThread;
@@ -46,20 +50,20 @@ public:
 
 	CNetServer * GetServer();
 
-	virtual BOOL OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject);
+	virtual bool OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject);
 	
 
-	virtual BOOL Create(int Protocol = IPPROTO_TCP,
-		int AcceptQueueSize = DEFAULT_SERVER_ACCEPT_QUEUE,
-		int RecvQueueSize = DEFAULT_SERVER_RECV_DATA_QUEUE,
-		int SendQueueSize = DEFAULT_SERVER_SEND_DATA_QUEUE,
-		int ParallelAcceptCount = DEFAULT_PARALLEL_ACCEPT,
-		int ParallelRecvCount = DEFAULT_PARALLEL_RECV,
+	virtual bool Create(int Protocol = IPPROTO_TCP,
+		UINT AcceptQueueSize = DEFAULT_SERVER_ACCEPT_QUEUE,
+		UINT RecvQueueSize = DEFAULT_SERVER_RECV_DATA_QUEUE,
+		UINT SendQueueSize = DEFAULT_SERVER_SEND_DATA_QUEUE,
+		UINT ParallelAcceptCount = DEFAULT_PARALLEL_ACCEPT,
+		UINT ParallelRecvCount = DEFAULT_PARALLEL_RECV,
 		bool IsUseListenThread = false,
 		bool IPv6Only = false);
 	virtual void Destory();
 	
-	BOOL StartListen(const CIPAddress& Address);
+	bool StartListen(const CIPAddress& Address);
 	void Close();
 	void QueryClose();
 
@@ -69,10 +73,10 @@ public:
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 
 	virtual CBaseNetConnection * CreateConnection(CIPAddress& RemoteAddress);
-	virtual BOOL DeleteConnection(CBaseNetConnection * pConnection);
+	virtual bool DeleteConnection(CBaseNetConnection * pConnection);
 	
 
-	BOOL QueryUDPSend(const CIPAddress& IPAddress,LPCVOID pData,int Size);
+	bool QueryUDPSend(const CIPAddress& IPAddress, LPCVOID pData, int Size);
 
 	virtual void OnRecvData(const CIPAddress& IPAddress, const BYTE * pData, UINT DataSize);
 
@@ -81,10 +85,12 @@ public:
 	
 	
 protected:
-	BOOL QueryAccept();
-	BOOL QueryUDPRecv();
-	BOOL AcceptSocket(SOCKET Socket);
-	BOOL AcceptSocketEx(SOCKET Socket,CEasyBuffer * pAcceptData);
+	bool QueryAccept();
+	bool QueryUDPRecv();
+	bool AcceptSocket(SOCKET Socket);
+	bool AcceptSocketEx(SOCKET Socket, CEasyBuffer * pAcceptData);
+	COverLappedObject * AllocOverLappedObject();
+	bool ReleaseOverLappedObject(COverLappedObject * pObject);
 };
 
 

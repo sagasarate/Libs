@@ -11,32 +11,18 @@
 /****************************************************************************/
 #include "stdafx.h"
 
-CServerLogPrinter::CServerLogPrinter(CBaseServer * pServer,UINT Mode,int Level,LPCTSTR FileName,int FileLogQueueLen)
+CServerLogPrinter::CServerLogPrinter(CBaseServer * pServer, UINT Mode, int Level, LPCTSTR LogName, int FileLogBufferLen)
+	:CAsyncFileLogPrinter(Level, LogName, FileLogBufferLen, NULL, NULL)
 {
 	m_pServer=pServer;
-	SetLogMode(Mode,Level,FileName,FileLogQueueLen);
+	SetLogMode(Mode);
 }
 
 CServerLogPrinter::~CServerLogPrinter(void)
 {
 }
 
-void CServerLogPrinter::SetLogMode(UINT Mode,int Level,LPCTSTR FileName,int FileLogBufferLen)
-{
-	m_LogOutputMode=Mode;
 
-	if(m_LogOutputMode==0)
-		return;
-
-	if(m_LogOutputMode&LOM_FILE)
-	{
-		ResetLog(Level,FileName,FileLogBufferLen);
-	}
-	else
-	{
-		CloseLog();
-	}
-}
 
 void CServerLogPrinter::PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg)
 {
@@ -91,12 +77,12 @@ void CServerLogPrinter::PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg)
 
 		if (m_LogOutputMode&LOM_FILE)
 		{
-			m_FileLogWorkThread.PushLog(MsgBuff);
+			PushLog(MsgBuff);
 		}
 	}
 	catch (...)
 	{
-		PrintImportantLog(0, _T("Log[%s]输出发生异常"), (LPCTSTR)m_LogFileName, Msg);
+		PrintImportantLog( _T("Log[%s]输出发生异常"), (LPCTSTR)m_LogName, Msg);
 	}
 }
 
@@ -157,13 +143,13 @@ void CServerLogPrinter::PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_li
 
 		if(m_LogOutputMode&LOM_FILE)
 		{
-			m_FileLogWorkThread.PushLog(MsgBuff);
+			PushLog(MsgBuff);
 		}
 
 	}
 	catch(...)
 	{
-		PrintImportantLog(0,"Log[%s]输出发生异常[%s]",(LPCTSTR)m_LogFileName,Format);
+		PrintImportantLog("Log[%s]输出发生异常[%s]",(LPCTSTR)m_LogName,Format);
 	}
 }
 

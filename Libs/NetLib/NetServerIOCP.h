@@ -20,13 +20,13 @@ class CNetServer :
 protected:
 	HANDLE									m_hIOCP;
 
-	CThreadSafeIDStorage<COverLappedObject>	m_OverLappedObjectPool;
+	CIDStorage<COverLappedObject>			m_OverLappedObjectPool;
+	CEasyCriticalSection					m_OverLappedObjectPoolLock;
 
 	CThreadSafeIDStorage<CIOCPEventRouter>	m_EventRouterPool;
 	
 	CIOCPThread *							m_pIOCPThreads;
-	int										m_IOCPThreadCount;
-	int										m_IOCPThreadNumPerCPU;
+	int										m_IOCPWorkThreadCount;
 	int										m_IOCPObjectPoolSize;
 	int										m_IOCPObjectPoolGrowSize;
 	int										m_IOCPObjectPoolGrowLimit;
@@ -39,8 +39,8 @@ public:
 	CNetServer(void);
 	virtual ~CNetServer(void);
 
-	virtual BOOL StartUp(int EventObjectPoolSize=DEFAULT_EVENT_OBJECT_COUNT,
-		int ThreadNumberPerCPU=DEFAULT_THREAD_NUMBER_PER_CPU,
+	virtual bool StartUp(int EventObjectPoolSize = DEFAULT_EVENT_OBJECT_COUNT,
+		int WorkThreadCount = DEFAULT_WORK_THREAD_COUNT,
 		int EventRouterPoolSiz=DEFAULT_EVENT_ROUTER_COUNT,
 		int EventObjectPoolGrowSize=DEFAULT_EVENT_OBJECT_POOL_GROW_SIZE,
 		int EventObjectPoolGrowLimit=DEFAULT_EVENT_OBJECT_POOL_GROW_LIMIT,
@@ -49,15 +49,16 @@ public:
 	virtual void ShutDown(DWORD Milliseconds=DEFAULT_THREAD_TERMINATE_TIME);
 
 
-	COverLappedObject * CreateOverLappedObject();
-	BOOL DeleteOverLappedObject(COverLappedObject * pOverLappedObject);
+	UINT AllocOverLappedObject(CCycleQueue<COverLappedObject *>& Queue, UINT AllocCount, UINT ParantID);
+	bool ReleaseOverLappedObject(CCycleQueue<COverLappedObject *>& Queue);
+	bool ReleaseOverLappedObject(UINT ID);
 
 	CIOCPEventRouter * CreateEventRouter();
-	BOOL DeleteEventRouter(CIOCPEventRouter * pEventRouter);	
+	bool DeleteEventRouter(CIOCPEventRouter * pEventRouter);
 
 
-	BOOL BindSocket(SOCKET Socket);	
-	BOOL BindFile(HANDLE FileHandle);
+	bool BindSocket(SOCKET Socket);
+	bool BindFile(HANDLE FileHandle);
 
 
 	void PrintObjectStatus();
@@ -66,7 +67,7 @@ protected:
 	virtual BOOL OnRun();
 	virtual void OnTerminate();
 
-	virtual BOOL OnStartUp();
+	virtual bool OnStartUp();
 	virtual void OnShutDown();
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 };

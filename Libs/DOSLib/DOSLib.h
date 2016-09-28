@@ -25,11 +25,13 @@
 //#include "DOSObjectProxyConnectionBase.h"
 //#include "DOSObjectProxyServiceBase.h"
 #include "DOSObjectProxyConnectionDefault.h"
+#include "DOSObjectProxyConnectionGroup.h"
 #include "DOSObjectProxyServiceDefault.h"
 //#include "DOSProxyConnection.h"
 //#include "DOSObjectProxyService.h"
 #include "DOSProxyManager.h"
 
+#include "DOSRouterLinkManager.h"
 #include "DOSRouterLink.h"
 #include "DOSRouter.h"
 

@@ -17,9 +17,11 @@
 #include <WinSock2.h>
 #include <MSWSock.h>
 #include <Ws2tcpip.h>
+#include <Iphlpapi.h>
 
 #pragma comment(lib,"Ws2_32.lib")
 #pragma comment(lib,"Mswsock.lib")
+#pragma comment(lib,"Iphlpapi.lib")
 
 
 typedef int	socklen_t;
@@ -43,6 +45,8 @@ typedef int	socklen_t;
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <ifaddrs.h>
+#include <sys/ioctl.h>
+#include <linux/if.h> 
 
 
 #define INVALID_SOCKET						(-1)
@@ -66,14 +70,10 @@ typedef int SOCKET;
 
 #define MAX_LISTEN_BACKLOG						64
 
-#define DEFAULT_THREAD_NUMBER_PER_CPU			2
-#define DEFAULT_SERVER_ACCEPT_QUEUE				1024
-#define DEFAULT_SERVER_RECV_DATA_QUEUE			4096
-#define DEFAULT_SERVER_SEND_DATA_QUEUE			4096
-#define DEFAULT_FILE_ACCESSOR_DATA_QUEUE		1024
-#define DEFAULT_FILE_ACCESSOR_REQUEST_QUEUE		1024
-#define DEFAULT_FILE_ACCESSOR_ERROR_QUEUE		1024
-#define MAX_ONCE_SEND_COUNT						64
+#define DEFAULT_WORK_THREAD_COUNT			4
+#define DEFAULT_SERVER_ACCEPT_QUEUE				128
+#define DEFAULT_SERVER_RECV_DATA_QUEUE			256
+#define DEFAULT_SERVER_SEND_DATA_QUEUE			256
 #define DEFAULT_PARALLEL_ACCEPT					64
 #define DEFAULT_PARALLEL_RECV					64
 #define DEFAULT_EVENT_OBJECT_COUNT				4096
@@ -83,7 +83,7 @@ typedef int SOCKET;
 #define DEFAULT_EVENT_ROUTER_POOL_GROW_SIZE		1024
 #define DEFAULT_EVENT_ROUTER_POOL_GROW_LIMIT	32
 #define NET_DATA_BLOCK_SIZE						4096
-#define EPOLL_DATA_BLOCK_SIZE					16
+//#define EPOLL_DATA_BLOCK_SIZE					16
 #define DEFAULT_SERVER_PROCESS_PACKET_LIMIT		32
 
 
@@ -119,7 +119,7 @@ struct EASY_NET_LINK_INFO
 };
 
 
-inline BOOL PrintNetLog(LPCTSTR Tag, LPCTSTR Format, ...)
+inline BOOL PrintNetLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl,Format);
@@ -128,7 +128,7 @@ inline BOOL PrintNetLog(LPCTSTR Tag, LPCTSTR Format, ...)
 	return ret;
 }
 
-inline BOOL PrintNetDebugLog(LPCTSTR Tag, LPCTSTR Format, ...)
+inline BOOL PrintNetDebugLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl,Format);
@@ -137,10 +137,13 @@ inline BOOL PrintNetDebugLog(LPCTSTR Tag, LPCTSTR Format, ...)
 	return ret;
 }
 
-
+#define PrintNetLog(_Format, ...)	PrintNetLogWithTag(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)
+#define PrintNetDebugLog(_Format, ...)	PrintNetDebugLogWithTag(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)
 
 #include "IPAddress.h"
 #include "IPPattern.h"
+#include "NetAdapterInfos.h"
+
 #include "NetSocket.h"
 
 #include "BaseNetConnection.h"
@@ -159,10 +162,6 @@ inline BOOL PrintNetDebugLog(LPCTSTR Tag, LPCTSTR Format, ...)
 #include "NetConnectionIOCP.h"
 #include "NetServiceIOCP.h"
 #include "NetPUDPServiceIOCP.h"
-#include "IOCPFileAccessor.h"
-
-#include "EasyFileServerConnection.h"
-#include "EasyFileService.h"
 
 #else
 

@@ -19,21 +19,111 @@ CEpollThread::CEpollThread() :CEasyThread()
 {
 	m_pServer = NULL;
 	m_hEpoll = INVALID_HANDLE_VALUE;
+	m_BindSocketCount = 0;
 }
 
 CEpollThread::CEpollThread(CNetServer * pServer):CEasyThread()
 {
 	m_pServer=pServer;
 	m_hEpoll = INVALID_HANDLE_VALUE;
+	m_BindSocketCount = 0;
 }
 
 CEpollThread::~CEpollThread(void)
 {
 }
 
+bool CEpollThread::Init(CNetServer * pServer)
+{
+	m_pServer = pServer;
+	m_BindSocketCount = 0;
+	return true;
+}
+
+bool CEpollThread::BindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter)
+{
+	if (m_hEpoll == INVALID_HANDLE_VALUE)
+	{
+		PrintNetLog( "(%d)Epoll没有初始化,无法绑定Socket！", GetID());
+		return false;
+	}
+	if (Socket == INVALID_SOCKET)
+	{
+		PrintNetLog( "(%d)Socket没有初始化,无法绑定Socket！", GetID());
+		return false;
+	}
+
+	epoll_event EpollEvent;
+	ZeroMemory(&EpollEvent, sizeof(EpollEvent));
+	UINT64_CONVERTER Param64;
+	Param64.LowPart = (DWORD)pEpollEventRouter->GetID();
+	Param64.HighPart = (DWORD)(pEpollEventRouter->GetSessionID());
+	EpollEvent.data.u64 = Param64.QuadPart;
+	EpollEvent.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP | EPOLLET;
+	if (epoll_ctl(m_hEpoll, EPOLL_CTL_ADD, Socket, &EpollEvent) == 0)
+	{
+		AtomicInc(&m_BindSocketCount);
+		return true;
+	}		
+	else
+	{
+		return false;
+	}
+		
+}
+
+//bool CEpollThread::ModifySendEvent(SOCKET Socket, CEpollEventRouter * pEpollEventRouter, bool IsSet)
+//{
+//	epoll_event EpollEvent;
+//	UINT64_CONVERTER Param64;
+//	Param64.LowPart = (DWORD)pEpollEventRouter->GetID();
+//	Param64.HighPart = (DWORD)(pEpollEventRouter->GetSessionID());
+//	EpollEvent.data.u64 = Param64.QuadPart;
+//	if (IsSet)
+//		EpollEvent.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;
+//	else
+//		EpollEvent.events = EPOLLIN | EPOLLERR | EPOLLHUP;
+//	if (epoll_ctl(m_hEpoll, EPOLL_CTL_MOD, Socket, &EpollEvent) == 0)
+//		return true;
+//	else
+//		return false;
+//}
+
+bool CEpollThread::UnbindSocket(SOCKET Socket)
+{
+	if (Socket == INVALID_SOCKET)
+	{
+		PrintNetLog( "(%d)Socket没有初始化,无法解绑Socket！", GetID());
+		return false;
+	}
+	if (epoll_ctl(m_hEpoll, EPOLL_CTL_DEL, Socket, NULL) == 0)
+	{
+		AtomicDec(&m_BindSocketCount);
+		return true;
+	}		
+	else
+	{
+		return false;
+	}
+		
+}
+
 BOOL CEpollThread::OnStart()
 {
-	PrintNetLog(_T("NetLib"),_T("Epoll工作线程启动"));
+	PrintNetLog(_T("Epoll工作线程启动"));
+
+	if (m_hEpoll != INVALID_HANDLE_VALUE)
+	{
+		close(m_hEpoll);
+		m_hEpoll = INVALID_HANDLE_VALUE;
+	}
+
+	m_hEpoll = epoll_create(DEFAULT_EVENT_ROUTER_COUNT);
+	if (m_hEpoll == INVALID_HANDLE_VALUE)
+	{
+		PrintNetLog( "(%d)创建Epoll失败(%d)！", GetID(), GetLastError());
+		return FALSE;
+	}
 	return TRUE;
 }
 
@@ -48,7 +138,7 @@ BOOL CEpollThread::OnRun()
 	{
 		for(int i=0;i<EventCount;i++)
 		{
-			ULONG64_CONVERTER Param64;
+			UINT64_CONVERTER Param64;
 
 			Param64.QuadPart=Events[i].data.u64;
 
@@ -59,13 +149,13 @@ BOOL CEpollThread::OnRun()
 			}
 			else
 			{
-				PrintNetLog(0,"Epoll事件无法找到接收者");
+				PrintNetLog("Epoll事件无法找到接收者");
 			}
 		}
 	}
 	else if(EventCount<0)
 	{
-		PrintNetLog(0,"epoll_wait发生错误%d",errno);
+		PrintNetLog("epoll_wait发生错误%d",errno);
 	}
 
 
@@ -74,5 +164,10 @@ BOOL CEpollThread::OnRun()
 
 void CEpollThread::OnTerminate()
 {
-	PrintNetLog(_T("NetLib"),"Epoll工作线程退出");
+	if (m_hEpoll != INVALID_HANDLE_VALUE)
+	{
+		close(m_hEpoll);
+		m_hEpoll = INVALID_HANDLE_VALUE;
+	}
+	PrintNetLog("Epoll工作线程退出");
 }

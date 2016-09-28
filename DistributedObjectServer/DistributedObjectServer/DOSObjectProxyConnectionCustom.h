@@ -10,7 +10,8 @@ class CDOSObjectProxyConnectionCustom :
 protected:
 	OBJECT_ID									m_ObjectID;
 	CDOSObjectProxyServiceCustom *				m_pService;
-	CThreadSafeIDStorage<CDOSMessagePacket *>	m_MsgQueue;	
+	volatile bool								m_Inited;
+	CCycleQueue<CDOSMessagePacket *>			m_MsgQueue;
 	IDOSObjectProxyConnection *					m_pProxyConnection;
 public:
 	CDOSObjectProxyConnectionCustom();

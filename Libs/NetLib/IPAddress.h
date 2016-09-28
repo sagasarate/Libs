@@ -206,7 +206,7 @@ public:
 		}
 		else if (m_IPAddress.SocketAddress6.sin6_family == AF_INET6)
 		{
-			return IN6_IS_ADDR_UNSPECIFIED(&m_IPAddress.SocketAddress6.sin6_addr);
+			return IN6_IS_ADDR_UNSPECIFIED(&m_IPAddress.SocketAddress6.sin6_addr) != FALSE;
 		}
 		else
 		{
@@ -222,7 +222,7 @@ public:
 		}
 		else if (m_IPAddress.SocketAddress6.sin6_family == AF_INET6)
 		{
-			return IN6_IS_ADDR_LOOPBACK(&m_IPAddress.SocketAddress6.sin6_addr);
+			return IN6_IS_ADDR_LOOPBACK(&m_IPAddress.SocketAddress6.sin6_addr) != FALSE;
 		}
 		else
 		{
@@ -284,7 +284,23 @@ public:
 		else
 			InetNtop(AF_INET6, (LPVOID)&m_IPAddress.SocketAddress6.sin6_addr, IPString, BuffLen);
 	}
-
+#ifdef WIN32
+	void GetIPStringA(LPSTR IPString, size_t BuffLen) const
+	{
+		if (m_IPAddress.SocketAddress.sin_family == AF_INET)
+			InetNtopA(AF_INET, (LPVOID)&m_IPAddress.SocketAddress.sin_addr, IPString, BuffLen);
+		else
+			InetNtopA(AF_INET6, (LPVOID)&m_IPAddress.SocketAddress6.sin6_addr, IPString, BuffLen);
+	}
+#else
+	void GetIPStringA(LPSTR IPString, size_t BuffLen) const
+	{
+		if (m_IPAddress.SocketAddress.sin_family == AF_INET)
+			InetNtop(AF_INET, (LPVOID)&m_IPAddress.SocketAddress.sin_addr, IPString, BuffLen);
+		else
+			InetNtop(AF_INET6, (LPVOID)&m_IPAddress.SocketAddress6.sin6_addr, IPString, BuffLen);
+	}
+#endif
 	void GetAddressString(LPTSTR AddrString, size_t BuffLen) const
 	{
 		AddrString[0] = 0;
@@ -449,21 +465,24 @@ public:
 				if (_strnicmp(pCurInfo->ifa_name, "eth", 3) == 0)
 				{
 					//if name is eth...
-					if (pCurInfo->ifa_addr->sa_family == AF_INET)
+					if(pCurInfo->ifa_addr)
 					{
-						CIPAddress * pAddress = AddressList.AddEmpty();
-						pAddress->SetAddress(*((struct sockaddr_in *)pCurInfo->ifa_addr));
-					}
-					else if (pCurInfo->ifa_addr->sa_family == AF_INET6)
-					{
-						struct sockaddr_in6 * pAddr = (struct sockaddr_in6 *)pCurInfo->ifa_addr;
-						if (!IN6_IS_ADDR_MULTICAST(&pAddr->sin6_addr) && !IN6_IS_ADDR_LOOPBACK(&pAddr->sin6_addr) 
-							&& !IN6_IS_ADDR_UNSPECIFIED(&pAddr->sin6_addr))
+						if (pCurInfo->ifa_addr->sa_family == AF_INET)
 						{
 							CIPAddress * pAddress = AddressList.AddEmpty();
-							pAddress->SetAddress(*pAddr);
+							pAddress->SetAddress(*((struct sockaddr_in *)pCurInfo->ifa_addr));
 						}
+						else if (pCurInfo->ifa_addr->sa_family == AF_INET6)
+						{
+							struct sockaddr_in6 * pAddr = (struct sockaddr_in6 *)pCurInfo->ifa_addr;
+							if (!IN6_IS_ADDR_MULTICAST(&pAddr->sin6_addr) && !IN6_IS_ADDR_LOOPBACK(&pAddr->sin6_addr) 
+								&& !IN6_IS_ADDR_UNSPECIFIED(&pAddr->sin6_addr))
+							{
+								CIPAddress * pAddress = AddressList.AddEmpty();
+								pAddress->SetAddress(*pAddr);
+							}
 
+						}
 					}
 				}
 			}
@@ -472,7 +491,7 @@ public:
 		}
 		else
 		{
-			PrintNetLog(_T("NetLib"),"getifaddrs 发生错误 %d！",errno);
+			PrintNetLog("getifaddrs 发生错误 %d！",errno);
 			return false;
 		}
 	}

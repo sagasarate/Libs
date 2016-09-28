@@ -142,9 +142,9 @@ bool CUSOResourceManager::Export(IFileAccessor * pFile)
 
 bool CUSOResourceManager::ExportToDir(LPCTSTR Dir)
 {
-	CEasyString ExportDir=MakeFullPath(Dir);
+	CEasyString ExportDir=CFileTools::MakeFullPath(Dir);
 
-	if(!CreateDirEx(ExportDir+_T("\\Resource")))
+	if (!CFileTools::CreateDirEx(ExportDir + _T("\\Resource")))
 		return false;
 
 	IFileAccessor * pFile;
@@ -185,8 +185,8 @@ bool CUSOResourceManager::ExportToDir(LPCTSTR Dir)
 
 		ObjectName=ExportDir+_T("\\")+ObjectName;
 
-		CEasyString PathDir=GetPathDirectory(ObjectName);
-		CreateDirEx(PathDir);
+		CEasyString PathDir = CFileTools::GetPathDirectory(ObjectName);
+		CFileTools::CreateDirEx(PathDir);
 
 		if(!pFile->Open(ObjectName,IFileAccessor::modeCreateAlways|IFileAccessor::modeReadWrite))
 		{
@@ -215,8 +215,8 @@ bool CUSOResourceManager::ExportToDir(LPCTSTR Dir)
 		CEasyString ObjectName=m_Objects[i]->GetName();
 		ObjectName.Replace(':','_');
 		ObjectName=ExportDir+_T("\\")+ObjectName+_T(".USO");
-		CEasyString PathDir=GetPathDirectory(ObjectName);
-		CreateDirEx(PathDir);
+		CEasyString PathDir = CFileTools::GetPathDirectory(ObjectName);
+		CFileTools::CreateDirEx(PathDir);
 
 
 		if(!pFile->Open(ObjectName,IFileAccessor::modeCreateAlways|IFileAccessor::modeReadWrite))
@@ -290,7 +290,7 @@ bool CUSOResourceManager::AddResource(CNameObject * pResource)
 	{
 		if((*ppOldResource)!=pResource)
 		{
-			PrintSystemLog(0,_T("资源[%s]已经存在且对象不同，旧对象将被替代"),(*ppOldResource)->GetName());
+			PrintSystemLog(_T("资源[%s]已经存在且对象不同，旧对象将被替代"),(*ppOldResource)->GetName());
 		}
 		SAFE_RELEASE(*ppOldResource);
 	}
@@ -476,7 +476,7 @@ bool CUSOResourceManager::ReadResourceBlock(IFileAccessor * pFile,USO_BLOCK_HEAD
 		}
 		ReadSize+=ObjectPacket.GetDataLen();
 	}
-	PrintSystemLog(0,_T("读取%u个资源对象,花费%u毫秒,其中读取FX花费%u毫秒,读取纹理花费%u毫秒"),
+	PrintSystemLog(_T("读取%u个资源对象,花费%u毫秒,其中读取FX花费%u毫秒,读取纹理花费%u毫秒"),
 		m_Resources.GetObjectCount(),Timer.GetPastTime(),FXLoadTime,TextureLoadTime);
 	if(ReadSize>=BlockHead.Size)
 		return true;
@@ -525,7 +525,7 @@ bool CUSOResourceManager::ReadObjectBlock(IFileAccessor * pFile,USO_BLOCK_HEAD& 
 			}
 			else
 			{
-				PrintSystemLog(0,_T("CUSOFile::ReadObjectBlock:装载对象%s:%s失败"),szType,szName);
+				PrintSystemLog(_T("CUSOFile::ReadObjectBlock:装载对象%s:%s失败"),szType,szName);
 
 			}
 
@@ -534,7 +534,7 @@ bool CUSOResourceManager::ReadObjectBlock(IFileAccessor * pFile,USO_BLOCK_HEAD& 
 
 		ReadSize+=ObjectPacket.GetDataLen();
 	}
-	PrintSystemLog(0,_T("读取%u个对象,花费%u毫秒"),
+	PrintSystemLog(_T("读取%u个对象,花费%u毫秒"),
 		m_Objects.GetCount(),Timer.GetPastTime());
 	if(ReadSize>=BlockHead.Size)
 		return true;

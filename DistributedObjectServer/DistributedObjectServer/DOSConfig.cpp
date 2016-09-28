@@ -3,7 +3,7 @@
 CDOSConfig::CDOSConfig(void)
 {
 	FUNCTION_BEGIN;
-
+	m_ExistWhenNoPlugin = false;
 	FUNCTION_END;
 }
 
@@ -29,8 +29,8 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 			xml_node Net=Config;
 			if(Net.moveto_child("Net"))
 			{
-				if(Net.has_attribute("NetWorkThreadPerCPU"))
-					m_NetConfig.NetWorkThreadPerCPU=Net.attribute("NetWorkThreadPerCPU");
+				if(Net.has_attribute("NetWorkThreadCount"))
+					m_NetConfig.NetWorkThreadCount = Net.attribute("NetWorkThreadCount");
 				xml_node EventObjectPool=Net;
 				if(EventObjectPool.moveto_child("EventObjectPool"))
 				{
@@ -96,8 +96,12 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 			{
 				if(Object.has_attribute("GroupCount"))
 					m_DOSConfig.ObjectGroupCount=(UINT)Object.attribute("GroupCount");
-				if(Object.has_attribute("MaxGroupObjectCount"))
-					m_DOSConfig.MaxGroupObjectCount=(UINT)Object.attribute("MaxGroupObjectCount");
+				if(Object.has_attribute("ObjectPoolStartSize"))
+					m_DOSConfig.ObjectPoolSetting.StartSize=(UINT)Object.attribute("ObjectPoolStartSize");
+				if (Object.has_attribute("ObjectPoolGrowSize"))
+					m_DOSConfig.ObjectPoolSetting.GrowSize = (UINT)Object.attribute("ObjectPoolGrowSize");
+				if (Object.has_attribute("ObjectPoolGrowLimit"))
+					m_DOSConfig.ObjectPoolSetting.GrowLimit = (UINT)Object.attribute("ObjectPoolGrowLimit");
 				if(Object.has_attribute("MsgQueueSize"))
 					m_DOSConfig.MaxObjectMsgQueue=(UINT)Object.attribute("MsgQueueSize");
 				if(Object.has_attribute("AliveTestTime"))
@@ -108,6 +112,8 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 					m_DOSConfig.ObjectKeepAliveCount=(UINT)Object.attribute("KeepAliveCount");
 				if(Object.has_attribute("StatObjectCPUCost"))
 					m_DOSConfig.StatObjectCPUCost=Object.attribute("StatObjectCPUCost");
+				if (Object.has_attribute("UseRealGroupLoadWeight"))
+					m_DOSConfig.UseRealGroupLoadWeight = Object.attribute("UseRealGroupLoadWeight");
 
 				m_DOSConfig.pDOSGroupInitFN = CDOSMainThread::DosGroupInitFn;
 				m_DOSConfig.pDOSGroupDestoryFN = CDOSMainThread::DosGroupDestoryFn;
@@ -119,10 +125,10 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 				if (Mono.has_attribute("Enable"))
 				{
 					m_MonoConfig.EnableMono = Mono.attribute("Enable");
-#ifdef _WIN64
-					Log("win64不支持mono");
-					m_MonoConfig.EnableMono = false;
-#endif
+//#ifdef _WIN64
+//					Log("win64不支持mono");
+//					m_MonoConfig.EnableMono = false;
+//#endif
 				}
 				if (Mono.has_attribute("LibraryDir"))
 				{
@@ -193,14 +199,14 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 		}
 		else
 		{
-			PrintImportantLog(0,"配置文件[%s]不合法",FileName);
+			PrintImportantLog("配置文件[%s]不合法",FileName);
 			return false;
 		}
 
 	}
 	else
 	{
-		PrintImportantLog(0,"无法打开配置文件[%s]",FileName);
+		PrintImportantLog("无法打开配置文件[%s]",FileName);
 		return false;
 	}
 	return true;
@@ -209,7 +215,7 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 }
 
 
-bool CDOSConfig::ReadPoolConfig(xml_node& XMLContent,POOL_CONFIG& Config)
+bool CDOSConfig::ReadPoolConfig(xml_node& XMLContent, STORAGE_POOL_SETTING& Config)
 {
 	FUNCTION_BEGIN;
 	if(XMLContent.has_attribute("StartSize"))
@@ -240,8 +246,17 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 	if (XMLContent.has_attribute("ListenPort"))
 		Config.ListenAddress.SetPort((WORD)XMLContent.attribute("ListenPort"));
 
-	if (XMLContent.has_attribute("MaxConnection"))
-		Config.MaxConnection = (UINT)XMLContent.attribute("MaxConnection");
+	if (XMLContent.has_attribute("ConnectionGroupCount"))
+		Config.ConnectionGroupCount = (UINT)XMLContent.attribute("ConnectionGroupCount");
+
+	if (XMLContent.has_attribute("ConnectionPoolStartSize"))
+		Config.ConnectionPoolSetting.StartSize = (UINT)XMLContent.attribute("ConnectionPoolStartSize");
+
+	if (XMLContent.has_attribute("ConnectionPoolGrowSize"))
+		Config.ConnectionPoolSetting.GrowSize = (UINT)XMLContent.attribute("ConnectionPoolGrowSize");
+
+	if (XMLContent.has_attribute("ConnectionPoolGrowLimit"))
+		Config.ConnectionPoolSetting.GrowLimit = (UINT)XMLContent.attribute("ConnectionPoolGrowLimit");
 
 	if (XMLContent.has_attribute("ConnectionMsgQueueSize"))
 		Config.ConnectionMsgQueueSize = (UINT)XMLContent.attribute("ConnectionMsgQueueSize");
@@ -257,12 +272,6 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 
 	if (XMLContent.has_attribute("SendBufferSize"))
 		Config.SendBufferSize = (UINT)XMLContent.attribute("SendBufferSize");
-
-	if (XMLContent.has_attribute("SendDelay"))
-		Config.SendDelay = (UINT)XMLContent.attribute("SendDelay");
-
-	if (XMLContent.has_attribute("SendQueryLimit"))
-		Config.SendQueryLimit = (UINT)XMLContent.attribute("SendQueryLimit");
 
 	if (XMLContent.has_attribute("UnacceptConnectionKeepTime"))
 		Config.UnacceptConnectionKeepTime = XMLContent.attribute("UnacceptConnectionKeepTime");
@@ -314,6 +323,14 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 	{
 		Config.ModuleFileName = XMLContent.attribute("PluginModuleFileName").getvalue();
 	}
+	if (XMLContent.has_attribute("ConfigDir"))
+	{
+		Config.ConfigDir = XMLContent.attribute("ConfigDir").getvalue();
+	}
+	if (XMLContent.has_attribute("LogDir"))
+	{
+		Config.LogDir = XMLContent.attribute("LogDir").getvalue();
+	}
 
 	return true;
 	FUNCTION_END;
@@ -361,6 +378,9 @@ bool CDOSConfig::LoadLibInfo(xml_node& XMLContent)
 }
 bool CDOSConfig::LoadPluginInfo(xml_node& XMLContent)
 {
+	if (XMLContent.has_attribute("ExistWhenNoPlugin"))
+		m_ExistWhenNoPlugin = XMLContent.attribute("ExistWhenNoPlugin");
+
 	for (UINT i = 0; i < XMLContent.children(); i++)
 	{
 		xml_node Plugin = XMLContent.child(i);
@@ -384,6 +404,14 @@ bool CDOSConfig::LoadPluginInfo(xml_node& XMLContent)
 			if (Plugin.has_attribute("ModuleFileName"))
 			{
 				PluginInfo.ModuleFileName = Plugin.attribute("ModuleFileName").getvalue();
+			}
+			if (Plugin.has_attribute("ConfigDir"))
+			{
+				PluginInfo.ConfigDir = Plugin.attribute("ConfigDir").getvalue();
+			}
+			if (Plugin.has_attribute("LogDir"))
+			{
+				PluginInfo.LogDir = Plugin.attribute("LogDir").getvalue();
 			}
 
 			if (Plugin.has_attribute("LoadType"))

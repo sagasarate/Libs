@@ -16,7 +16,11 @@
 
 #define UTILS_VERSION	"2.0.0.0"
 
+//#define LOG_POOL_CREATE
 
+#ifdef WIN32
+#define __PRETTY_FUNCTION__	__FUNCTION__
+#endif
 
 #if defined _WIN32 || defined __CYGWIN__
 	#define UTILS_DLL_IMPORT __declspec(dllimport)
@@ -95,6 +99,35 @@ enum EASY_DATA_STORAGE_MODE
 	EDSM_NEW_EVERY_TIME,
 };
 
+struct STORAGE_POOL_SETTING
+{
+	UINT	StartSize;
+	UINT	GrowSize;
+	UINT	GrowLimit;
+	STORAGE_POOL_SETTING()
+	{
+		StartSize = 128;
+		GrowSize = 0;
+		GrowLimit = 0;
+	}
+	UINT MaxSize()
+	{
+		return StartSize + GrowSize*GrowLimit;
+	}
+	void LimitSize(UINT Size)
+	{
+		if (StartSize > Size)
+		{
+			StartSize = Size;
+			GrowSize = 0;
+			GrowLimit = 0;
+		}
+		else if (GrowSize)
+		{
+			GrowLimit = (Size - StartSize) / GrowSize;
+		}
+	}
+};
 
 
 #include "MemoryLeakDetective.h"
@@ -103,7 +136,9 @@ enum EASY_DATA_STORAGE_MODE
 
 #include "EasyString.h"
 
-
+#include "EasyTime.h"
+#include "EasyTimer.h"
+#include "EasyTimerEx.h"
 
 //#include "IndexSet.h"
 #include "EasyArray.h"
@@ -126,10 +161,19 @@ enum EASY_DATA_STORAGE_MODE
 
 #include "ClassifiedID.h"
 
+#ifdef WIN32
+#include "EasyThreadWin.h"
+#else
+#include "EasyThreadLinux.h"
+#endif
+#include "GuardThread.h"
+
 #include "ILogPrinter.h"
+#include "AsyncLogWorkThread.h"
 #include "LogManager.h"
 
-
+#include "FileInfo.h"
+#include "FileTools.h"
 
 #ifdef WIN32
 #include "ToolsWin32.h"
@@ -143,9 +187,7 @@ enum EASY_DATA_STORAGE_MODE
 #include "LZO/minilzo.h"
 
 
-#include "EasyTime.h"
-#include "EasyTimer.h"
-#include "EasyTimerEx.h"
+
 
 
 
@@ -223,6 +265,8 @@ using namespace pug;
 #include "EasyList.h"
 #include "IDStorage.h"
 #include "StaticMap.h"
+#include "HashMap.h"
+#include "CycleQueue.h"
 #include "TreeObject.h"
 
 
@@ -232,12 +276,7 @@ using namespace pug;
 #include "WinTypeWrap.h"
 #endif
 
-#ifdef WIN32
-#include "EasyThreadWin.h"
-#else
-#include "EasyThreadLinux.h"
-#endif
-#include "GuardThread.h"
+
 
 #include "EasyBuffer.h"
 #include "GrowBuffer.h"
@@ -263,7 +302,6 @@ using namespace pug;
 #include "Gif.h"
 #endif
 
-#include "AsyncFileLogWorkThread.h"
 #include "AsyncFileLogPrinter.h"
 #include "CSVFileLogPrinter.h"
 
@@ -277,8 +315,9 @@ using namespace pug;
 #include "Crypto/aes.h"
 #include "Crypto/des.h"
 
+
+#include "ProcessSnapshot.h"
 #ifdef WIN32
-#include "SystemProcessList.h"
 #include "WinServiceController.h"
 #endif
 

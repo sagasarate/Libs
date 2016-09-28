@@ -122,7 +122,7 @@ public:
 
 	// Report functions: as pre-formatted and raw data
 #ifdef SHA1_UTILITY_FUNCTIONS
-	void ReportHash(char *szReport, unsigned char uReportType = REPORT_HEX);
+	void ReportHash(char *szReport, size_t BuffLen, unsigned char uReportType = REPORT_HEX);
 #endif
 	void GetHash(UINT_8 *puDest);
 

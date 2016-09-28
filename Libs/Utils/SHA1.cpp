@@ -161,11 +161,11 @@ bool CSHA1::HashFile(char *szFileName)
 	unsigned long ulFileSize, ulRest, ulBlocks;
 	unsigned long i;
 	UINT_8 uData[SHA1_MAX_FILE_BUFFER];
-	FILE *fIn;
+	FILE *fIn = NULL;
 
 	if(szFileName == NULL) return false;
 
-	fIn = fopen(szFileName, "rb");
+	fopen_s(&fIn, szFileName, "rb");
 	if(fIn == NULL) return false;
 
 	fseek(fIn, 0, SEEK_END);
@@ -234,7 +234,7 @@ void CSHA1::Final()
 
 #ifdef SHA1_UTILITY_FUNCTIONS
 // Get the final hash as a pre-formatted string
-void CSHA1::ReportHash(char *szReport, unsigned char uReportType)
+void CSHA1::ReportHash(char *szReport, size_t BuffLen, unsigned char uReportType)
 {
 	unsigned char i;
 	char szTemp[16];
@@ -243,27 +243,27 @@ void CSHA1::ReportHash(char *szReport, unsigned char uReportType)
 
 	if(uReportType == REPORT_HEX)
 	{
-		sprintf(szTemp, "%02X", m_digest[0]);
-		strcat(szReport, szTemp);
+		sprintf_s(szTemp, 16, "%02X", m_digest[0]);
+		strcat_s(szReport, BuffLen, szTemp);
 
 		for(i = 1; i < 20; i++)
 		{
-			sprintf(szTemp, " %02X", m_digest[i]);
-			strcat(szReport, szTemp);
+			sprintf_s(szTemp, 16, " %02X", m_digest[i]);
+			strcat_s(szReport, BuffLen, szTemp);
 		}
 	}
 	else if(uReportType == REPORT_DIGIT)
 	{
-		sprintf(szTemp, "%u", m_digest[0]);
-		strcat(szReport, szTemp);
+		sprintf_s(szTemp, 16, "%u", m_digest[0]);
+		strcat_s(szReport, BuffLen, szTemp);
 
 		for(i = 1; i < 20; i++)
 		{
-			sprintf(szTemp, " %u", m_digest[i]);
-			strcat(szReport, szTemp);
+			sprintf_s(szTemp, 16, " %u", m_digest[i]);
+			strcat_s(szReport, BuffLen, szTemp);
 		}
 	}
-	else strcpy(szReport, "Error: Unknown report type!");
+	else strcpy_s(szReport, BuffLen, "Error: Unknown report type!");
 }
 #endif
 

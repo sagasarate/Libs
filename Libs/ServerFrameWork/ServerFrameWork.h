@@ -31,6 +31,8 @@
 
 #define SERVER_INFO_COUNT_TIME				5000
 
+#define DEFAULT_SERVER_TERMINATE_TIME		(30*60*1000)
+
 
 
 #include "BaseServer.h"

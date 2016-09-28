@@ -50,14 +50,9 @@ bool CDBTransationManager::Init(IDatabase * pDatabase,LPCSTR szConnectStr,int Th
 	m_Flag=Flag;
 
 	for(int i=0;i<ThreadCount;i++)
-	{
-		IDBConnection * pConnection=m_pDatabase->CreateConnection();
-		if(pConnection->Connect(szConnectStr)!=DBERR_SUCCEED)
-		{
-			PrintDBLog(_T("DBLib"),"[%u]数据库无法连接，但初始化继续",GetID());
-		}
+	{		
 		CDBTransationWorkThread * pThread=new CDBTransationWorkThread(this);
-		if(!pThread->Init(pConnection,szConnectStr,QueueSize))
+		if (!pThread->Init(pDatabase, szConnectStr, QueueSize))
 		{
 			SAFE_RELEASE(pThread);
 			return false;
@@ -69,7 +64,7 @@ bool CDBTransationManager::Init(IDatabase * pDatabase,LPCSTR szConnectStr,int Th
 
 	m_PerformanceCountTimer.SaveTime();
 
-	PrintDBLog(_T("DBLib"),"[%u]一共建立了%d个工作线程",GetID(),ThreadCount);
+	PrintDBLog("[%u]一共建立了%d个工作线程",GetID(),ThreadCount);
 
 	return true;
 }
@@ -98,7 +93,7 @@ bool CDBTransationManager::AddTransaction(CDBTransaction * pDBTansaction)
 	}
 	else
 	{
-		PrintDBLog(_T("DBLib"),"无工作线程可分配");
+		PrintDBLog("无工作线程可分配");
 		return false;
 	}
 }
@@ -138,7 +133,7 @@ int CDBTransationManager::Update(int ProcessLimit)
 		m_ExecTimes=0;
 		if(m_Flag&DBTM_FLAG_LOG_PERFORMANCE)
 		{
-			PrintDBLog(_T("DBLib"),"[%u]平均执行时间=%g毫秒,每秒执行次数%g",GetID(),m_AvgExecTime,m_ExecTimesPerSec);
+			PrintDBLog("[%u]平均执行时间=%g毫秒,每秒执行次数%g",GetID(),m_AvgExecTime,m_ExecTimesPerSec);
 		}
 	}
 

@@ -15,6 +15,12 @@
 
 class CEasyTime
 {
+public:
+	enum TIME_MODE
+	{
+		TIME_MODE_LOCAL,
+		TIME_MODE_UTC,
+	};
 protected:
 	WORD m_wYear;
 	WORD m_wDayOfYear;
@@ -25,6 +31,7 @@ protected:
 	WORD m_wMinute;
 	WORD m_wSecond;
 	WORD m_wMilliseconds;
+	WORD m_TimeMode;
 public:
 	CEasyTime()
 	{
@@ -32,15 +39,7 @@ public:
 	}
 	CEasyTime(const CEasyTime& Time)
 	{
-		m_wYear=Time.m_wYear;
-		m_wDayOfYear=Time.m_wDayOfYear;
-		m_wMonth=Time.m_wMonth;
-		m_wDayOfWeek=Time.m_wDayOfWeek;
-		m_wDay=Time.m_wDay;
-		m_wHour=Time.m_wHour;
-		m_wMinute=Time.m_wMinute;
-		m_wSecond=Time.m_wSecond;
-		m_wMilliseconds=Time.m_wMilliseconds;
+		SetTime(Time);
 	}
 	CEasyTime(LPCTSTR szTime)
 	{
@@ -50,127 +49,167 @@ public:
 #ifdef WIN32
 	CEasyTime(const SYSTEMTIME& Time)
 	{
-		m_wYear=Time.wYear;
-		m_wDayOfYear=0;
-		m_wMonth=Time.wMonth;
-		m_wDayOfWeek=Time.wDayOfWeek;
-		m_wDay=Time.wDay;
-		m_wHour=Time.wHour;
-		m_wMinute=Time.wMinute;
-		m_wSecond=Time.wSecond;
-		m_wMilliseconds=Time.wMilliseconds;
+		SetTime(Time);
 	}
 	CEasyTime(const FILETIME& Time)
 	{
-		SYSTEMTIME SysTime;
-		if(FileTimeToSystemTime(&Time,&SysTime))
-		{
-			m_wYear = SysTime.wYear;
-			m_wDayOfYear = 0;
-			m_wMonth = SysTime.wMonth;
-			m_wDayOfWeek = SysTime.wDayOfWeek;
-			m_wDay = SysTime.wDay;
-			m_wHour = SysTime.wHour;
-			m_wMinute = SysTime.wMinute;
-			m_wSecond = SysTime.wSecond;
-			m_wMilliseconds = SysTime.wMilliseconds;
-		}
+		SetTime(Time);
 	}
 #endif
 	CEasyTime(const tm& Time)
 	{
-		m_wYear=1900+Time.tm_year;
-		m_wDayOfYear=Time.tm_yday;
-		m_wMonth=Time.tm_mon+1;
-		m_wDayOfWeek=Time.tm_wday;
-		m_wDay=Time.tm_mday;
-		m_wHour=Time.tm_hour;
-		m_wMinute=Time.tm_min;
-		m_wSecond=Time.tm_sec;
-		m_wMilliseconds=0;
+		SetTime(Time);
 	}
 	CEasyTime(const time_t Time)
 	{
-		tm Tm;
-		localtime_s(&Tm,&Time);
-		m_wYear=1900+Tm.tm_year;
-		m_wDayOfYear=Tm.tm_yday;
-		m_wMonth=Tm.tm_mon+1;
-		m_wDayOfWeek=Tm.tm_wday;
-		m_wDay=Tm.tm_mday;
-		m_wHour=Tm.tm_hour;
-		m_wMinute=Tm.tm_min;
-		m_wSecond=Tm.tm_sec;
-		m_wMilliseconds=0;
+		SetTime(Time);
 	}
 	~CEasyTime()
 	{
 
-	}
-	bool IsValidate() const
-	{
-		return m_wYear!=0||m_wDayOfYear!=0||m_wMonth!=0||m_wDayOfWeek!=0||
-			m_wDay!=0||m_wHour!=0||m_wMinute!=0||m_wSecond!=0;
-	}
+	}	
 	void Clear()
 	{
-		m_wYear=0;
-		m_wDayOfYear=0;
-		m_wMonth=0;
-		m_wDayOfWeek=0;
-		m_wDay=0;
-		m_wHour=0;
-		m_wMinute=0;
-		m_wSecond=0;
-		m_wMilliseconds=0;
+		m_wYear = 0;
+		m_wDayOfYear = 0;
+		m_wMonth = 0;
+		m_wDayOfWeek = 0;
+		m_wDay = 0;
+		m_wHour = 0;
+		m_wMinute = 0;
+		m_wSecond = 0;
+		m_wMilliseconds = 0;
+		m_TimeMode = (WORD)TIME_MODE_LOCAL;
+	}
+	TIME_MODE GetTimeMode()
+	{
+		return (TIME_MODE)m_TimeMode;
 	}
 #ifdef WIN32
+	void SetTime(const SYSTEMTIME& Time, TIME_MODE TargetMode = TIME_MODE_LOCAL)
+	{
+		m_wYear = Time.wYear;
+		m_wDayOfYear = 0;
+		m_wMonth = Time.wMonth;
+		m_wDayOfWeek = Time.wDayOfWeek;
+		m_wDay = Time.wDay;
+		m_wHour = Time.wHour;
+		m_wMinute = Time.wMinute;
+		m_wSecond = Time.wSecond;
+		m_wMilliseconds = Time.wMilliseconds;
+		m_TimeMode = (WORD)TargetMode;
+	}
 	CEasyTime& operator=(const SYSTEMTIME& Time)
 	{
-		m_wYear=Time.wYear;
-		m_wDayOfYear=0;
-		m_wMonth=Time.wMonth;
-		m_wDayOfWeek=Time.wDayOfWeek;
-		m_wDay=Time.wDay;
-		m_wHour=Time.wHour;
-		m_wMinute=Time.wMinute;
-		m_wSecond=Time.wSecond;
-		m_wMilliseconds=Time.wMilliseconds;
-
+		SetTime(Time);
 		return *this;
 	}
+	bool GetTime(SYSTEMTIME& Time, TIME_MODE TargetMode = TIME_MODE_LOCAL) const
+	{
+		if (m_TimeMode == TIME_MODE_UTC && TargetMode == TIME_MODE_LOCAL)
+		{
+			SYSTEMTIME SysTime;
+			FILETIME UTCTime, LocalTime;
+			SysTime.wYear = m_wYear;
+			SysTime.wMonth = m_wMonth;
+			SysTime.wDayOfWeek = m_wDayOfWeek;
+			SysTime.wDay = m_wDay;
+			SysTime.wHour = m_wHour;
+			SysTime.wMinute = m_wMinute;
+			SysTime.wSecond = m_wSecond;
+			SysTime.wMilliseconds = m_wMilliseconds;
+			if (!SystemTimeToFileTime(&SysTime, &UTCTime))
+				return false;
+			if (!FileTimeToLocalFileTime(&UTCTime, &LocalTime))
+				return false;
+
+			return FileTimeToSystemTime(&LocalTime, &Time) != FALSE;
+		}
+		else if (m_TimeMode == TIME_MODE_LOCAL && TargetMode == TIME_MODE_UTC)
+		{
+			SYSTEMTIME SysTime;
+			FILETIME UTCTime, LocalTime;
+			SysTime.wYear = m_wYear;
+			SysTime.wMonth = m_wMonth;
+			SysTime.wDayOfWeek = m_wDayOfWeek;
+			SysTime.wDay = m_wDay;
+			SysTime.wHour = m_wHour;
+			SysTime.wMinute = m_wMinute;
+			SysTime.wSecond = m_wSecond;
+			SysTime.wMilliseconds = m_wMilliseconds;
+			if (!SystemTimeToFileTime(&SysTime, &LocalTime))
+				return false;
+			if (!LocalFileTimeToFileTime(&LocalTime, &UTCTime))
+				return false;
+
+			return FileTimeToSystemTime(&UTCTime, &Time) != FALSE;
+		}
+		else
+		{
+			Time.wYear = m_wYear;
+			Time.wMonth = m_wMonth;
+			Time.wDayOfWeek = m_wDayOfWeek;
+			Time.wDay = m_wDay;
+			Time.wHour = m_wHour;
+			Time.wMinute = m_wMinute;
+			Time.wSecond = m_wSecond;
+			Time.wMilliseconds = m_wMilliseconds;
+			return true;
+		}
+	}
+	operator SYSTEMTIME() const
+	{
+		SYSTEMTIME Time;
+		GetTime(Time);
+		return Time;
+	}
+
+	bool SetTime(const FILETIME& Time, TIME_MODE SourceMode = TIME_MODE_UTC, TIME_MODE TargetMode = TIME_MODE_LOCAL)
+	{
+		SYSTEMTIME SysTime;
+		if (SourceMode == TIME_MODE_UTC && TargetMode == TIME_MODE_LOCAL)
+		{
+			FILETIME InputTime;
+			if (!FileTimeToLocalFileTime(&Time, &InputTime))
+				return false;
+			if (!FileTimeToSystemTime(&InputTime, &SysTime))
+				return false;
+		}
+		else if (SourceMode == TIME_MODE_LOCAL && TargetMode == TIME_MODE_UTC)
+		{
+			FILETIME InputTime;
+			if (!LocalFileTimeToFileTime(&Time, &InputTime))
+				return false;
+			if (!FileTimeToSystemTime(&InputTime, &SysTime))
+				return false;
+		}
+		else
+		{
+			if (!FileTimeToSystemTime(&Time, &SysTime))
+				return false;
+		}
+		
+		m_wYear = SysTime.wYear;
+		m_wDayOfYear = 0;
+		m_wMonth = SysTime.wMonth;
+		m_wDayOfWeek = SysTime.wDayOfWeek;
+		m_wDay = SysTime.wDay;
+		m_wHour = SysTime.wHour;
+		m_wMinute = SysTime.wMinute;
+		m_wSecond = SysTime.wSecond;
+		m_wMilliseconds = SysTime.wMilliseconds;
+		m_TimeMode = (WORD)TargetMode;
+		return true;
+	}	
 	CEasyTime& operator=(const FILETIME& Time)
 	{
-		SYSTEMTIME SysTime;
-		if(FileTimeToSystemTime(&Time,&SysTime))
-		{
-			m_wYear = SysTime.wYear;
-			m_wDayOfYear = 0;
-			m_wMonth = SysTime.wMonth;
-			m_wDayOfWeek = SysTime.wDayOfWeek;
-			m_wDay = SysTime.wDay;
-			m_wHour = SysTime.wHour;
-			m_wMinute = SysTime.wMinute;
-			m_wSecond = SysTime.wSecond;
-			m_wMilliseconds = SysTime.wMilliseconds;
-		}
-
+		SetTime(Time);
 		return *this;
-	}
-	void GetTime(SYSTEMTIME& Time) const
-	{
-		Time.wYear=m_wYear;
-		Time.wMonth=m_wMonth;
-		Time.wDayOfWeek=m_wDayOfWeek;
-		Time.wDay=m_wDay;
-		Time.wHour=m_wHour;
-		Time.wMinute=m_wMinute;
-		Time.wSecond=m_wSecond;
-		Time.wMilliseconds=m_wMilliseconds;
-	}
-	void GetTime(FILETIME& Time) const
+	}	
+	bool GetTime(FILETIME& Time, TIME_MODE TargetMode = TIME_MODE_UTC) const
 	{
 		SYSTEMTIME SysTime;
+		FILETIME FileTime;
 		SysTime.wYear=m_wYear;
 		SysTime.wMonth=m_wMonth;
 		SysTime.wDayOfWeek=m_wDayOfWeek;
@@ -179,14 +218,20 @@ public:
 		SysTime.wMinute=m_wMinute;
 		SysTime.wSecond=m_wSecond;
 		SysTime.wMilliseconds=m_wMilliseconds;
-		SystemTimeToFileTime(&SysTime,&Time);
-	}
-	operator SYSTEMTIME() const
-	{
-		SYSTEMTIME Time;
-		GetTime(Time);
-		return Time;
-	}
+		if (SystemTimeToFileTime(&SysTime, &FileTime))
+		{
+			if (m_TimeMode == TIME_MODE_UTC && TargetMode == TIME_MODE_LOCAL)
+				return FileTimeToLocalFileTime(&FileTime, &Time) != FALSE;
+			else if (m_TimeMode == TIME_MODE_LOCAL && TargetMode == TIME_MODE_UTC)
+				return LocalFileTimeToFileTime(&FileTime, &Time) != FALSE;
+			else
+			{
+				Time = FileTime;
+				return true;
+			}
+		}
+		return false;
+	}	
 	operator FILETIME() const
 	{
 		FILETIME Time;
@@ -194,87 +239,49 @@ public:
 		return Time;
 	}
 #endif
+	void SetTime(const tm& Time, TIME_MODE TargetMode = TIME_MODE_LOCAL)
+	{
+		m_wYear = 1900 + Time.tm_year;
+		m_wDayOfYear = Time.tm_yday;
+		m_wMonth = Time.tm_mon + 1;
+		m_wDayOfWeek = Time.tm_wday;
+		m_wDay = Time.tm_mday;
+		m_wHour = Time.tm_hour;
+		m_wMinute = Time.tm_min;
+		m_wSecond = Time.tm_sec;
+		m_wMilliseconds = 0;
+		m_TimeMode = TargetMode;
+	}
 	CEasyTime& operator=(const tm& Time)
 	{
-		m_wYear=1900+Time.tm_year;
-		m_wDayOfYear=Time.tm_yday;
-		m_wMonth=Time.tm_mon+1;
-		m_wDayOfWeek=Time.tm_wday;
-		m_wDay=Time.tm_mday;
-		m_wHour=Time.tm_hour;
-		m_wMinute=Time.tm_min;
-		m_wSecond=Time.tm_sec;
-		m_wMilliseconds=0;
-
+		SetTime(Time);
 		return *this;
 	}
-	CEasyTime& operator=(const time_t Time)
+	bool GetTime(tm& Time, TIME_MODE TargetMode = TIME_MODE_LOCAL) const
 	{
-		if(Time)
+		if (m_TimeMode == TargetMode)
 		{
-			tm Tm;
-			localtime_s(&Tm,&Time);
-			m_wYear=1900+Tm.tm_year;
-			m_wDayOfYear=Tm.tm_yday;
-			m_wMonth=Tm.tm_mon+1;
-			m_wDayOfWeek=Tm.tm_wday;
-			m_wDay=Tm.tm_mday;
-			m_wHour=Tm.tm_hour;
-			m_wMinute=Tm.tm_min;
-			m_wSecond=Tm.tm_sec;
-			m_wMilliseconds=0;
+			Time.tm_year = m_wYear - 1900;
+			Time.tm_yday = m_wDayOfYear;
+			Time.tm_mon = m_wMonth - 1;
+			Time.tm_wday = m_wDayOfWeek;
+			Time.tm_mday = m_wDay;
+			Time.tm_hour = m_wHour;
+			Time.tm_min = m_wMinute;
+			Time.tm_sec = m_wSecond;
+			return true;
 		}
+		else if (TargetMode == TIME_MODE_LOCAL)
+		{
+			time_t UTCTime;
+			GetTime(UTCTime);
+			return localtime_s(&Time, &UTCTime) == 0;
+		}		
 		else
 		{
-			Clear();
-		}
-
-		return *this;
-	}
-	CEasyTime& operator=(const CEasyTime& Time)
-	{
-		m_wYear=Time.m_wYear;
-		m_wDayOfYear=Time.m_wDayOfYear;
-		m_wMonth=Time.m_wMonth;
-		m_wDayOfWeek=Time.m_wDayOfWeek;
-		m_wDay=Time.m_wDay;
-		m_wHour=Time.m_wHour;
-		m_wMinute=Time.m_wMinute;
-		m_wSecond=Time.m_wSecond;
-		m_wMilliseconds=Time.m_wMilliseconds;
-
-		return *this;
-	}
-	void GetTime(tm& Time) const
-	{
-		Time.tm_year=m_wYear-1900;
-		Time.tm_yday=m_wDayOfYear;
-		Time.tm_mon=m_wMonth-1;
-		Time.tm_wday=m_wDayOfWeek;
-		Time.tm_mday=m_wDay;
-		Time.tm_hour=m_wHour;
-		Time.tm_min=m_wMinute;
-		Time.tm_sec=m_wSecond;
-	}
-	void GetTime(time_t& Time) const
-	{
-		if(IsValidate())
-		{
-			tm Tm;
-			Tm.tm_year=m_wYear-1900;
-			Tm.tm_yday=m_wDayOfYear;
-			Tm.tm_mon=m_wMonth-1;
-			Tm.tm_wday=m_wDayOfWeek;
-			Tm.tm_mday=m_wDay;
-			Tm.tm_hour=m_wHour;
-			Tm.tm_min=m_wMinute;
-			Tm.tm_sec=m_wSecond;
-
-			Time=mktime(&Tm);
-		}
-		else
-		{
-			Time=0;
+			time_t UTCTime;
+			GetTime(UTCTime);
+			return gmtime_s(&Time, &UTCTime) == 0;
 		}
 	}
 	operator tm() const
@@ -283,76 +290,134 @@ public:
 		GetTime(Time);
 		return Time;
 	}
+
+
+	void SetTime(const time_t Time, TIME_MODE TargetMode = TIME_MODE_LOCAL)
+	{
+		if (Time)
+		{
+			tm Tm;
+			if (TargetMode == TIME_MODE_UTC)
+				gmtime_s(&Tm, &Time);
+			else
+				localtime_s(&Tm, &Time);
+			m_wYear = 1900 + Tm.tm_year;
+			m_wDayOfYear = Tm.tm_yday;
+			m_wMonth = Tm.tm_mon + 1;
+			m_wDayOfWeek = Tm.tm_wday;
+			m_wDay = Tm.tm_mday;
+			m_wHour = Tm.tm_hour;
+			m_wMinute = Tm.tm_min;
+			m_wSecond = Tm.tm_sec;
+			m_wMilliseconds = 0;
+			m_TimeMode = TargetMode;
+		}
+		else
+		{
+			Clear();
+		}
+	}
+	CEasyTime& operator=(const time_t Time)
+	{
+		SetTime(Time);
+		return *this;
+	}
+	void GetTime(time_t& Time) const
+	{
+		if (IsValidate())
+		{
+			tm Tm;
+			
+			Tm.tm_year = m_wYear - 1900;
+			Tm.tm_yday = m_wDayOfYear;
+			Tm.tm_mon = m_wMonth - 1;
+			Tm.tm_wday = m_wDayOfWeek;
+			Tm.tm_mday = m_wDay;
+			Tm.tm_hour = m_wHour;
+			Tm.tm_min = m_wMinute;
+			Tm.tm_sec = m_wSecond;
+			Tm.tm_isdst = 0;
+
+			if (m_TimeMode == TIME_MODE_LOCAL)
+				Time = mktime(&Tm);
+			else
+				Time = _mkgmtime(&Tm);
+		}
+		else
+		{
+			Time = 0;
+		}
+	}
 	operator time_t() const
 	{
 		time_t Time;
 		GetTime(Time);
 		return Time;
 	}
+
+
+	void SetTime(const CEasyTime& Time)
+	{
+		m_wYear = Time.m_wYear;
+		m_wDayOfYear = Time.m_wDayOfYear;
+		m_wMonth = Time.m_wMonth;
+		m_wDayOfWeek = Time.m_wDayOfWeek;
+		m_wDay = Time.m_wDay;
+		m_wHour = Time.m_wHour;
+		m_wMinute = Time.m_wMinute;
+		m_wSecond = Time.m_wSecond;
+		m_wMilliseconds = Time.m_wMilliseconds;
+		m_TimeMode = Time.m_TimeMode;
+	}
+	CEasyTime& operator=(const CEasyTime& Time)
+	{
+		SetTime(Time);
+		return *this;
+	}
+	
 #ifdef WIN32
 	void FetchLocalTime()
 	{
 		SYSTEMTIME SysTime;
 		::GetLocalTime(&SysTime);
-		*this=SysTime;
+		SetTime(SysTime, TIME_MODE_LOCAL);
 	}
-	void FetchSystemTime()
+	void FetchUTCTime()
 	{
 		SYSTEMTIME SysTime;
 		::GetSystemTime(&SysTime);
-		*this=SysTime;
+		SetTime(SysTime, TIME_MODE_UTC);
 	}
-	void ToSystemTime()
+	void ToUTCTime()
 	{
-		FILETIME LocalTime=*this;
-		FILETIME SystemTime;
-		LocalFileTimeToFileTime(&LocalTime,&SystemTime);
-		*this=SystemTime;
+		if (m_TimeMode == TIME_MODE_LOCAL)
+		{
+			SetTime(*this, TIME_MODE_LOCAL, TIME_MODE_UTC);
+		}
 	}
 	void ToLocalTime()
 	{
-		FILETIME LocalTime;
-		FILETIME SystemTime=*this;
-		FileTimeToLocalFileTime(&SystemTime,&LocalTime);
-		*this=SystemTime;
+		if (m_TimeMode == TIME_MODE_UTC)
+		{
+			SetTime(*this, TIME_MODE_UTC, TIME_MODE_LOCAL);
+		}
 	}
 #else
 	void FetchLocalTime()
+	{		
+		SetTime(time(NULL), TIME_MODE_LOCAL);
+	}
+	void FetchUTCTime()
 	{
-		tm Tm;
-		time_t Time=time(NULL);
-		localtime_s(&Tm,&Time);
-		m_wYear=1900+Tm.tm_year;
-		m_wDayOfYear=Tm.tm_yday;
-		m_wMonth=Tm.tm_mon+1;
-		m_wDayOfWeek=Tm.tm_wday;
-		m_wDay=Tm.tm_mday;
-		m_wHour=Tm.tm_hour;
-		m_wMinute=Tm.tm_min;
-		m_wSecond=Tm.tm_sec;
-		m_wMilliseconds=0;
+		SetTime(time(NULL), TIME_MODE_UTC);
+	}
+	void ToUTCTime()
+	{
 
-	}
-	void FetchSystemTime()
-	{
-		tm Tm;
-		time_t Time=time(NULL);
-		gmtime_s(&Tm,&Time);
-		m_wYear=1900+Tm.tm_year;
-		m_wDayOfYear=Tm.tm_yday;
-		m_wMonth=Tm.tm_mon+1;
-		m_wDayOfWeek=Tm.tm_wday;
-		m_wDay=Tm.tm_mday;
-		m_wHour=Tm.tm_hour;
-		m_wMinute=Tm.tm_min;
-		m_wSecond=Tm.tm_sec;
-		m_wMilliseconds=0;
-	}
-	void ToSystemTime()
-	{
 	}
 	void ToLocalTime()
 	{
+
 	}
 #endif
 	bool operator==(const CEasyTime& Time) const
@@ -452,7 +517,7 @@ public:
 	{
 		return m_wMilliseconds;
 	}
-	bool FromString(LPCTSTR szTime)
+	bool FromString(LPCTSTR szTime, TIME_MODE TargetMode = TIME_MODE_LOCAL)
 	{
 		WORD Year;
 		WORD Month;		
@@ -476,6 +541,7 @@ public:
 			m_wMinute=Minute;
 			m_wSecond=Second;
 			m_wMilliseconds=0;
+			m_TimeMode = TargetMode;
 			return true;
 		}
 		return false;
@@ -489,12 +555,20 @@ public:
 	}
 	size_t Format(LPTSTR szFormatBuffer,size_t BufferLen,LPCTSTR szFormat) const
 	{
-		tm Time;
-		GetTime(Time);
-		size_t Len=_tcsftime(szFormatBuffer,BufferLen-1,szFormat,&Time);
-		if(szFormatBuffer)
-			szFormatBuffer[BufferLen-1]=0;
-		return Len;
+		if (IsValidate())
+		{
+			tm Time;
+			GetTime(Time);
+			size_t Len = _tcsftime(szFormatBuffer, BufferLen - 1, szFormat, &Time);
+			if (szFormatBuffer)
+				szFormatBuffer[BufferLen - 1] = 0;
+			return Len;
+		}
+		else
+		{
+			_tcscpy_s(szFormatBuffer, BufferLen, _T("Invalid Time"));
+			return 12;
+		}
 	}
 	void Format(CEasyString& FormatBuffer,LPCTSTR szFormat) const
 	{
@@ -566,14 +640,22 @@ public:
 		*this=Time;
 	}
 
-	bool IsValidate()
+	bool IsValidate() const
 	{
-		return m_wYear<=6199&&m_wMonth>=1&&m_wMonth<=12&&m_wDay>=1&&m_wDay<=31&&m_wHour<=23&&m_wMinute<=59&&m_wSecond<=59;
+		return m_wYear >= 1 && m_wYear <= 6199 &&
+			m_wMonth >= 1 && m_wMonth <= 12 &&
+			m_wDay >= 1 && m_wDay <= 31 &&
+			m_wHour <= 23 && m_wMinute <= 59 && m_wSecond <= 59;
 	}
 
 	static bool IsSameDate(const CEasyTime& Time1,const CEasyTime& Time2)
 	{
 		return Time1.m_wYear==Time2.m_wYear&&Time1.m_wMonth==Time2.m_wMonth&&Time1.m_wDay==Time2.m_wDay;
+	}
+
+	static time_t GetCurTime()
+	{
+		return time(NULL);
 	}
 };
 

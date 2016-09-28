@@ -22,17 +22,15 @@ CFileLogPrinter::CFileLogPrinter()
 
 CFileLogPrinter::CFileLogPrinter(LPCTSTR FileName,DWORD Flag)
 {
+	m_Flag = 0;
+	m_pFileAccessor = NULL;
+	m_FileOpenMode = 0;
+	m_LogLevel = 0;
 	Create(FileName,Flag);
 }
 
 bool CFileLogPrinter::Create(LPCTSTR FileName,DWORD Flag)
 {
-	CEasyString LogFileName;
-
-	m_pFileAccessor=CFileSystemManager::GetInstance()->CreateFileAccessor(FILE_CHANNEL_NORMAL1);
-	if(m_pFileAccessor==NULL)
-		return false;
-
 #ifdef _DEBUG
 	m_LogLevel=ILogPrinter::LOG_LEVEL_DEBUG|ILogPrinter::LOG_LEVEL_NORMAL;
 #else
@@ -41,28 +39,8 @@ bool CFileLogPrinter::Create(LPCTSTR FileName,DWORD Flag)
 
 	m_Flag=Flag;
 	m_LogFileName=FileName;
-	if(m_Flag&FILE_LOG_SPLIT_BY_DAY)
-	{
-		m_RecentLogTime.FetchLocalTime();
-		LogFileName.Format(_T("%s.%u-%02u-%02u.log"),
-			(LPCTSTR)m_LogFileName,
-			m_RecentLogTime.Year(),
-			m_RecentLogTime.Month(),
-			m_RecentLogTime.Day());
-	}
-	else
-	{
-		LogFileName.Format(_T("%s.log"),
-			(LPCTSTR)m_LogFileName);
-	}
-	if(m_Flag&FILE_LOG_APPEND)
-		m_FileOpenMode=IFileAccessor::modeOpenAlways|IFileAccessor::modeAppend;
-	else
-		m_FileOpenMode=IFileAccessor::modeCreateAlways;
-	m_FileOpenMode|=IFileAccessor::modeWrite|IFileAccessor::shareShareRead;
-	if(m_Flag&FILE_LOG_SAFE_WRITE)
-		m_FileOpenMode|=IFileAccessor::osWriteThrough;
-	return m_pFileAccessor->Open(LogFileName,m_FileOpenMode)==TRUE;
+	
+	return OpenLogFile();
 }
 
 CFileLogPrinter::~CFileLogPrinter(void)
@@ -76,6 +54,9 @@ void CFileLogPrinter::PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg)
 
 	if ((m_LogLevel&Level) == 0)
 		return;
+
+	if (m_pFileAccessor == NULL)
+		OpenLogFile();
 
 	if (m_pFileAccessor == NULL)
 		return;
@@ -118,6 +99,9 @@ void CFileLogPrinter::PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list
 	if((m_LogLevel&Level)==0)
 		return;
 
+	if (m_pFileAccessor == NULL)
+		OpenLogFile();
+
 	if(m_pFileAccessor==NULL)
 		return;
 
@@ -127,18 +111,7 @@ void CFileLogPrinter::PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list
 	{
 		if(!CEasyTime::IsSameDate(m_RecentLogTime,CurTime))
 		{
-			CEasyString LogFileName;
-
-			m_pFileAccessor->Close();
-			m_RecentLogTime=CurTime;
-			LogFileName.Format(_T("%s.%u-%02u-%02u.log"),
-				(LPCTSTR)m_LogFileName,
-				m_RecentLogTime.Year(),
-				m_RecentLogTime.Month(),
-				m_RecentLogTime.Day());
-			m_pFileAccessor->Open(LogFileName,m_FileOpenMode);
-			if(m_Flag&FILE_LOG_APPEND)
-				m_pFileAccessor->Seek(0,IFileAccessor::seekEnd);
+			OpenLogFile();
 		}
 	}
 	CurTime.Format(m_MsgBuff,40960,_T("[%m-%d %H:%M:%S]:"));	
@@ -153,4 +126,61 @@ void CFileLogPrinter::PrintLogVL(int Level, LPCTSTR Tag, LPCTSTR Format, va_list
 	m_pFileAccessor->Write(m_MsgBuff, _tcslen(m_MsgBuff)*sizeof(TCHAR));
 	m_pFileAccessor->Write(_T("\r\n"), 2 * sizeof(TCHAR));
 
+}
+
+bool CFileLogPrinter::OpenLogFile()
+{
+	CEasyString LogFileName;
+
+	if (m_pFileAccessor)
+	{
+		m_pFileAccessor->Close();
+	}
+	else
+	{
+		m_pFileAccessor = CFileSystemManager::GetInstance()->CreateFileAccessor(FILE_CHANNEL_NORMAL1);
+		if (m_pFileAccessor == NULL)
+			return false;
+	}
+
+	if (m_Flag&FILE_LOG_SPLIT_BY_DAY)
+	{
+		m_RecentLogTime.FetchLocalTime();
+		LogFileName.Format(_T("%s.%u-%02u-%02u.log"),
+			(LPCTSTR)m_LogFileName,
+			m_RecentLogTime.Year(),
+			m_RecentLogTime.Month(),
+			m_RecentLogTime.Day());
+	}
+	else
+	{
+		LogFileName.Format(_T("%s.log"),
+			(LPCTSTR)m_LogFileName);
+	}
+	if (m_Flag&FILE_LOG_APPEND)
+		m_FileOpenMode = IFileAccessor::modeOpenAlways | IFileAccessor::modeAppend;
+	else
+		m_FileOpenMode = IFileAccessor::modeCreateAlways;
+	m_FileOpenMode |= IFileAccessor::modeWrite | IFileAccessor::shareShareRead;
+	if (m_Flag&FILE_LOG_SAFE_WRITE)
+		m_FileOpenMode |= IFileAccessor::osWriteThrough;
+	if (m_pFileAccessor->Open(LogFileName, m_FileOpenMode))
+	{
+		if (m_pFileAccessor->GetCurPos() == 0)
+		{
+#ifndef WIN32
+			UINT BomHeader = BMT_UTF_8;
+			m_pFileAccessor->Write(&BomHeader, 3);
+#elif defined UNICODE
+			UINT BomHeader = BMT_UNICODE;
+			m_pFileAccessor->Write(&BomHeader, 2);
+#endif
+		}
+		return  TRUE;
+	}
+	else
+	{
+		return  FALSE;
+	}
+	
 }

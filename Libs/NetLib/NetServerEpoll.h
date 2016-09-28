@@ -18,15 +18,12 @@ class CNetServer :
 	public CBaseNetServer
 {
 protected:
-	int									m_hEpoll;
-
-	CThreadSafeIDStorage<CEpollEventObject>	m_EpollEventObjectPool;
+	//CThreadSafeIDStorage<CEpollEventObject>	m_EpollEventObjectPool;
 
 	CThreadSafeIDStorage<CEpollEventRouter>	m_EventRouterPool;
 	
-	CEpollThread *							m_pEpollThreads;
-	int										m_EpollThreadCount;
-	int										m_EpollThreadNumPerCPU;
+	CEasyArray<CEpollThread>				m_EpollThreadList;
+	int										m_EpollWordThreadCount;
 	int										m_EventObjectPoolSize;
 	int										m_EventObjectPoolGrowSize;
 	int										m_EventObjectPoolGrowLimit;
@@ -39,8 +36,8 @@ public:
 	CNetServer(void);
 	virtual ~CNetServer(void);
 
-	virtual BOOL StartUp(int EventObjectPoolSize=DEFAULT_EVENT_OBJECT_COUNT,
-		int ThreadNumberPerCPU=DEFAULT_THREAD_NUMBER_PER_CPU,
+	virtual bool StartUp(int EventObjectPoolSize = DEFAULT_EVENT_OBJECT_COUNT,
+		int WorkThreadCount = DEFAULT_WORK_THREAD_COUNT,
 		int EventRouterPoolSiz=DEFAULT_EVENT_ROUTER_COUNT,
 		int EventObjectPoolGrowSize=DEFAULT_EVENT_OBJECT_POOL_GROW_SIZE,
 		int EventObjectPoolGrowLimit=DEFAULT_EVENT_OBJECT_POOL_GROW_LIMIT,
@@ -49,18 +46,17 @@ public:
 	virtual void ShutDown(DWORD Milliseconds=DEFAULT_THREAD_TERMINATE_TIME);
 
 
-	CEpollEventObject * CreateEventObject();
-	BOOL DeleteEventObject(CEpollEventObject * pEpollEventObject);
+	//CEpollEventObject * CreateEventObject();
+	//bool DeleteEventObject(CEpollEventObject * pEpollEventObject);
 
 	CEpollEventRouter * CreateEventRouter();
 	CEpollEventRouter * GetEventRouter(UINT ID);
-	BOOL DeleteEventRouter(CEpollEventRouter * pEventRouter);	
+	bool DeleteEventRouter(CEpollEventRouter * pEventRouter);
 
 
-	BOOL BindSocket(SOCKET Socket,CEpollEventRouter * pEpollEventRouter);	
-	BOOL ModifySendEvent(SOCKET Socket, CEpollEventRouter * pEpollEventRouter, bool IsSet);
-	BOOL UnbindSocket(SOCKET Socket);
-	BOOL BindFile(HANDLE FileHandle);
+	bool BindSocket(SOCKET Socket,CEpollEventRouter * pEpollEventRouter);	
+	//bool ModifySendEvent(SOCKET Socket, CEpollEventRouter * pEpollEventRouter, bool IsSet);
+	bool UnbindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter);
 
 
 	void PrintObjectStatus();
@@ -69,7 +65,7 @@ protected:
 	virtual BOOL OnRun();
 	virtual void OnTerminate();
 
-	virtual BOOL OnStartUp();
+	virtual bool OnStartUp();
 	virtual void OnShutDown();
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 };

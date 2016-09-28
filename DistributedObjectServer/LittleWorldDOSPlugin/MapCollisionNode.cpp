@@ -58,7 +58,7 @@ bool CMapCollisionNode::Enter(CMapObject * pMapObject)
 {
 	if(pMapObject==NULL)
 		return false;
-	//PrintSystemLog(0,"对象%llu进入碰撞格[%u,%u]",
+	//PrintSystemLog("对象%llu进入碰撞格[%u,%u]",
 	//	pMapObject->GetObjectID(),m_GridX,m_GridY);
 
 	if(GetGridType()!=LT_NONE)
@@ -86,7 +86,7 @@ bool CMapCollisionNode::Leave(CMapObject * pMapObject)
 {
 	if(pMapObject==NULL)
 		return false;
-	//PrintSystemLog(0,"对象%llu离开碰撞格[%u,%u]",
+	//PrintSystemLog("对象%llu离开碰撞格[%u,%u]",
 	//	pMapObject->GetObjectID(),m_GridX,m_GridY);	
 	return true;
 	//if(m_MapObjectList.Delete(pMapObject->GetObjectID()))

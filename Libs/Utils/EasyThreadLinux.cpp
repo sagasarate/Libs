@@ -41,7 +41,7 @@ BOOL CEasyThread::Start(BOOL IsSuspended,DWORD StartWaitTime)
 	{
 		return FALSE;
 	}
-	pthread_detach(m_ThreadID);
+	//pthread_detach(m_ThreadID);
 	WaitForWorking(StartWaitTime);
 
 	return TRUE;
@@ -72,6 +72,7 @@ void CEasyThread::ForceTerminate()
 {
 	if(!IsTerminated())
 	{
+		PrintImportantLog("线程%u被强行终止", (UINT)m_ThreadID);
 		pthread_cancel(m_ThreadID);
 		OnTerminate();		
 	}
@@ -181,6 +182,7 @@ LPVOID CEasyThread::ThreadProc(LPVOID pParam)
 	__try
 	{
 #endif
+		pthread_detach(pthread_self());
 
 		CEasyThread * pThread=(CEasyThread *)pParam;
 

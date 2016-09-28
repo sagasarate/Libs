@@ -61,11 +61,11 @@ BOOL CDOSServerThread::OnStart()
 	m_CountTimer.SaveTime();
 
 	//装载系统配置
-	CSystemConfig::GetInstance()->LoadConfig(MakeModuleFullPath(NULL,GetConfigFileName()));
+	CSystemConfig::GetInstance()->LoadConfig(CFileTools::MakeModuleFullPath(NULL,GetConfigFileName()));
 
 
 	CEasyString LogFileName;
-	CEasyString ModulePath=GetModulePath(NULL);
+	CEasyString ModulePath = CFileTools::GetModulePath(NULL);
 
 	CServerLogPrinter * pLog;
 
@@ -132,9 +132,6 @@ BOOL CDOSServerThread::OnStart()
 	m_ESThread.SetScript(&m_Script);
 
 
-	m_ESFactionList.AddCFunction("StartLog",3,this,&CDOSServerThread::StartLog);
-	m_ESFactionList.AddCFunction("StopLog",2,this,&CDOSServerThread::StopLog);
-	m_ESFactionList.AddCFunction("TestLog",1,this,&CDOSServerThread::TestLog);
 	m_ESFactionList.AddCFunction("RebuildUDPControlPort",0,this,&CDOSServerThread::RebuildUDPControlPort);
 	m_ESFactionList.AddCFunction("SetConsoleLogLevel",1,this,&CDOSServerThread::SFSetConsoleLogLevel);
 	m_ESFactionList.AddCFunction("VerfyMemPool",0,this,&CDOSServerThread::SFVerfyMemPool);
@@ -148,7 +145,7 @@ BOOL CDOSServerThread::OnStart()
 
 	xml_parser Parser;
 
-	if(Parser.parse_file(MakeModuleFullPath(NULL,GetConfigFileName()),pug::parse_trim_attribute))
+	if(Parser.parse_file(CFileTools::MakeModuleFullPath(NULL,GetConfigFileName()),pug::parse_trim_attribute))
 	{
 		xml_node Config=Parser.document();
 		if (Config.moveto_child("Main"))
@@ -202,30 +199,53 @@ BOOL CDOSServerThread::OnStart()
 	SetServerStatusFormat(SC_SST_SS_TCP_RECV_COUNT,"TCP接收次数(次/S)");
 	SetServerStatusFormat(SC_SST_SS_TCP_SEND_COUNT,"TCP发送次数(次/S)");
 	SetServerStatusFormat(SST_SS_OBJECT_COUNT,"系统对象数");
+	SetServerStatusFormat(SST_SS_CONNECTION_COUNT, "连接数");
 	SetServerStatusFormat(SST_SS_ROUTE_IN_MSG_COUNT,"路由输入消息数");
 	SetServerStatusFormat(SST_SS_ROUTE_IN_MSG_FLOW,"路由输入消息流量",SSFT_FLOW);
 	SetServerStatusFormat(SST_SS_ROUTE_OUT_MSG_COUNT,"路由输出消息数");
 	SetServerStatusFormat(SST_SS_ROUTE_OUT_MSG_FLOW,"路由输出消息流量",SSFT_FLOW);
 	SetServerStatusFormat(SST_SS_ROUTE_CYCLE_TIME,"路由循环时间(MS)");
-	SetServerStatusFormat(SST_SS_ROUTE_MSG_QUEUE_LEN,"路由消息队列长度");	
+	SetServerStatusFormat(SST_SS_ROUTE_MSG_QUEUE_LEN,"路由消息队列长度");		
 	Temp.Format("路由(%u)CPU占用率",GetRouter()->GetThreadID());
 	SetServerStatusFormat(SST_SS_ROUTE_CPU_USED_RATE,Temp,SSFT_PERCENT);
+	SetServerStatusFormat(SST_SS_ROUTE_LINK_CYCLE_TIME, "路由连接循环时间(MS)");
+	SetServerStatusFormat(SST_SS_ROUTE_LINK_CPU_USED_RATE, "路由连CPU占用率");
 	SetServerStatusFormat(SST_SS_MONO_GC_USED_SIZE, "MonoGC内存使用量", SSFT_FLOW);
 	SetServerStatusFormat(SST_SS_MONO_GC_HEAP_SIZE, "MonoGC堆大小", SSFT_FLOW);
 
 
-	CEasyString CSVLogHeader="CycleTime,CPUUsed,TCPRecvFlow,TCPSendFlow,TCPRecvCount,TCPSendCount,ObjectCount,"
-		"RouteInMsgCount,RouteInMsgFlow,RouteOutMsgCount,RouteOutMsgFlow,RouteCycleTime,RouteMsgQueueLen,RouteCPUUsed,MonoGCUsedSize,MonoGCHeapSize";
+	CEasyString CSVLogHeader="CycleTime,CPUUsed,TCPRecvFlow,TCPSendFlow,TCPRecvCount,TCPSendCount,ObjectCount,ConnectionCount,"
+		"RouteInMsgCount,RouteInMsgFlow,RouteOutMsgCount,RouteOutMsgFlow,RouteCycleTime,RouteMsgQueueLen,RouteCPUUsed,RouteLinkCycleTime,RouteLinkCPUUsed,MonoGCUsedSize,MonoGCHeapSize";
 
 	for (UINT i = 0; i < GetProxyManager()->GetProxyServiceCount(); i++)
 	{
-		IDOSObjectProxyServiceBase * pProxyService = GetProxyManager()->GetProxyService(i);
+		IDOSObjectProxyServiceBase * pProxyService = GetProxyManager()->GetProxyServiceByIndex(i);
 		if (pProxyService)
 		{
+			Temp.Format("对象代理(%u)循环时间", pProxyService->GetID());
+			SetServerStatusFormat(SST_SS_OBJECT_PROXY_CYCLE_TIME + i, Temp);
 			Temp.Format("对象代理(%u)CPU占用率", pProxyService->GetID());
 			SetServerStatusFormat(SST_SS_OBJECT_PROXY_CPU_USED_RATE + i, Temp, SSFT_PERCENT);
+			Temp.Format(",Proxy%dCycleTime,Proxy%dCPUUsed", pProxyService->GetID(), pProxyService->GetID());
+			CSVLogHeader += Temp;
 
-			Temp.Format(",Proxy%dCPUUsed", pProxyService->GetID());
+			for (UINT i = 0; i < pProxyService->GetGroupCount(); i++)
+			{
+				Temp.Format("连接组(%u)循环时间", pProxyService->GetID());
+				SetServerStatusFormat(SST_SS_PROXY_GROUP_CYCLE_TIME + i, Temp);
+				Temp.Format("连接组(%u)CPU占用率", pProxyService->GetID());
+				SetServerStatusFormat(SST_SS_PROXY_GROUP_CPU_USED_RATE + i, Temp, SSFT_PERCENT);
+				Temp.Format(",ProxyGroup%dCycleTime,ProxyGroup%dCPUUsed", i, i);
+				CSVLogHeader += Temp;
+			}
+		}
+		else
+		{
+			Temp = "对象代理(XX)循环时间";
+			SetServerStatusFormat(SST_SS_OBJECT_PROXY_CYCLE_TIME + i, Temp);
+			Temp = "对象代理(XX)CPU占用率";
+			SetServerStatusFormat(SST_SS_OBJECT_PROXY_CPU_USED_RATE + i, Temp, SSFT_PERCENT);
+			Temp = ",ProxyXXCycle,ProxyXXCPUUsed";
 			CSVLogHeader += Temp;
 		}
 	}
@@ -244,8 +264,7 @@ BOOL CDOSServerThread::OnStart()
 	}
 
 	LogFileName.Format("%s/Log/%s.Status",(LPCTSTR)ModulePath,g_ProgramName);
-	CCSVFileLogPrinter * pCSVLog=new CCSVFileLogPrinter();
-	pCSVLog->Init(CSystemConfig::GetInstance()->GetLogLevel(),LogFileName,CSVLogHeader);
+	CCSVFileLogPrinter * pCSVLog = new CCSVFileLogPrinter(CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSVLogHeader);
 	CLogManager::GetInstance()->AddChannel(SERVER_STATUS_LOG_CHANNEL,pCSVLog);
 	SAFE_RELEASE(pCSVLog);
 
@@ -283,7 +302,7 @@ BOOL CDOSServerThread::OnRun()
 
 	if(Update(CSystemConfig::GetInstance()->GetMainThreadProcessLimit())==0)
 	{
-		DoSleep(1);
+		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
 
 	m_ThreadPerformanceCounter.DoPerformanceCount();
@@ -392,146 +411,6 @@ bool CDOSServerThread::IsServerTerminated()
 	return true;
 }
 
-int CDOSServerThread::StartLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)
-{
-	FUNCTION_BEGIN;
-	CServerLogPrinter * pLog=NULL;
-	if(_stricmp(pParams[0].StrValue,"Normal")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(SERVER_LOG_CHANNEL);
-	}
-	else if(_stricmp(pParams[0].StrValue,"Status")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(SERVER_STATUS_LOG_CHANNEL);
-	}
-	else if(_stricmp(pParams[0].StrValue,"DB")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(LOG_DB_ERROR_CHANNEL);
-	}
-	else if(_stricmp(pParams[0].StrValue,"Net")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(LOG_NET_CHANNEL);
-	}
-	if(pLog)
-	{
-		int WitchMode=0;
-		if(_stricmp(pParams[1].StrValue,"VS")==0)
-		{
-			WitchMode=CServerLogPrinter::LOM_VS;
-		}
-		else if(_stricmp(pParams[1].StrValue,"Console")==0)
-		{
-			WitchMode=CServerLogPrinter::LOM_CONSOLE;
-		}
-		else if(_stricmp(pParams[1].StrValue,"File")==0)
-		{
-			WitchMode=CServerLogPrinter::LOM_FILE;
-		}
-		if(WitchMode)
-		{
-			UINT Mode=pLog->GetLogMode();
-			Mode|=WitchMode;
-
-			int Level=pLog->GetLogLevel();
-
-			CEasyString LogFileName;
-			if(pParams[2].StrValue.IsEmpty())
-			{
-				LogFileName=pLog->GetLogFileName();
-			}
-			else
-			{
-				CEasyString ModulePath=GetModulePath(NULL);
-				LogFileName.Format("%s/Log/%s",(LPCTSTR)ModulePath,(LPCTSTR)pParams[2].StrValue);
-			}
-
-
-			pLog->SetLogMode(Mode,Level,LogFileName);
-			Log("Log模块[%s],模式[%s]的输出已被开启",
-				(LPCTSTR)(pParams[0].StrValue),
-				(LPCTSTR)(pParams[1].StrValue));
-		}
-	}
-	FUNCTION_END;
-	return 0;
-}
-
-int CDOSServerThread::StopLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)
-{
-	FUNCTION_BEGIN;
-	CServerLogPrinter * pLog=NULL;
-	if(_stricmp(pParams[0].StrValue,"Normal")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(SERVER_LOG_CHANNEL);
-	}
-	else if(_stricmp(pParams[0].StrValue,"Status")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(SERVER_STATUS_LOG_CHANNEL);
-	}
-	else if(_stricmp(pParams[0].StrValue,"DB")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(LOG_DB_ERROR_CHANNEL);
-	}
-	else if(_stricmp(pParams[0].StrValue,"Net")==0)
-	{
-		pLog=(CServerLogPrinter *)CLogManager::GetInstance()->
-			GetChannel(LOG_NET_CHANNEL);
-	}
-	if(pLog)
-	{
-		int WitchMode=0;
-		if(_stricmp(pParams[1].StrValue,"VS")==0)
-		{
-			WitchMode=CServerLogPrinter::LOM_VS;
-		}
-		else if(_stricmp(pParams[1].StrValue,"Console")==0)
-		{
-			WitchMode=CServerLogPrinter::LOM_CONSOLE;
-		}
-		else if(_stricmp(pParams[1].StrValue,"File")==0)
-		{
-			WitchMode=CServerLogPrinter::LOM_FILE;
-		}
-		if(WitchMode)
-		{
-			UINT Mode=pLog->GetLogMode();
-			Mode&=~WitchMode;
-			int Level=pLog->GetLogLevel();
-			pLog->SetLogMode(Mode,Level,NULL);
-			Log("Log模块[%s],模式[%s]的输出已被关闭",
-				(LPCTSTR)(pParams[0].StrValue),
-				(LPCTSTR)(pParams[1].StrValue));
-		}
-	}
-	FUNCTION_END;
-	return 0;
-}
-
-int CDOSServerThread::TestLog(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)
-{
-	FUNCTION_BEGIN;
-	CServerLogPrinter * pLog=NULL;
-	if(_stricmp(pParams[0].StrValue,"Normal")==0)
-	{
-		Log("Normal");
-	}
-	else if(_stricmp(pParams[0].StrValue,"Debug")==0)
-	{
-		LogDebug("Debug");
-	}
-	
-
-	FUNCTION_END;
-	return 0;
-}
-
 
 int CDOSServerThread::RebuildUDPControlPort(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount)
 {
@@ -582,6 +461,7 @@ void CDOSServerThread::DoServerStat()
 	float TCPSendCount=(float)m_TCPSendCount*1000/SERVER_INFO_COUNT_TIME;
 
 	UINT ObjectCount=GetObjectManager()->GetObejctCount();
+	UINT ConnectionCount = GetProxyManager()->GetConnectionCount();
 
 	float RouteInMsgCount=(float)GetRouter()->GetInMsgCount()*1000/SERVER_INFO_COUNT_TIME;
 	float RouteInMsgFlow=(float)GetRouter()->GetInMsgFlow()*1000/SERVER_INFO_COUNT_TIME;
@@ -606,6 +486,7 @@ void CDOSServerThread::DoServerStat()
 	SetServerStatus(SC_SST_SS_TCP_RECV_COUNT,CSmartValue(TCPRecvCount));
 	SetServerStatus(SC_SST_SS_TCP_SEND_COUNT,CSmartValue(TCPSendCount));
 	SetServerStatus(SST_SS_OBJECT_COUNT,CSmartValue(ObjectCount));
+	SetServerStatus(SST_SS_CONNECTION_COUNT, CSmartValue(ConnectionCount));
 	SetServerStatus(SST_SS_ROUTE_IN_MSG_COUNT,CSmartValue(RouteInMsgCount));
 	SetServerStatus(SST_SS_ROUTE_IN_MSG_FLOW,CSmartValue(RouteInMsgFlow));
 	SetServerStatus(SST_SS_ROUTE_OUT_MSG_COUNT,CSmartValue(RouteOutMsgCount));
@@ -613,6 +494,8 @@ void CDOSServerThread::DoServerStat()
 	SetServerStatus(SST_SS_ROUTE_CYCLE_TIME,CSmartValue(GetRouter()->GetCycleTime()));
 	SetServerStatus(SST_SS_ROUTE_MSG_QUEUE_LEN,CSmartValue(GetRouter()->GetMsgQueueLen()));
 	SetServerStatus(SST_SS_ROUTE_CPU_USED_RATE,CSmartValue(GetRouter()->GetCPUUsedRate()));
+	SetServerStatus(SST_SS_ROUTE_LINK_CYCLE_TIME, CSmartValue(GetRouterLinkManager()->GetCycleTime()));
+	SetServerStatus(SST_SS_ROUTE_LINK_CPU_USED_RATE, CSmartValue(GetRouterLinkManager()->GetCPUUsedRate()));
 	SetServerStatus(SST_SS_MONO_GC_USED_SIZE, CSmartValue(MonoGCUsedSize));
 	SetServerStatus(SST_SS_MONO_GC_HEAP_SIZE, CSmartValue(MonoGCHeapSize));
 
@@ -622,12 +505,27 @@ void CDOSServerThread::DoServerStat()
 	for (UINT i = 0; i < GetProxyManager()->GetProxyServiceCount(); i++)
 	{
 		CEasyString Temp;
-		IDOSObjectProxyServiceBase * pProxyService = GetProxyManager()->GetProxyService(i);
+		IDOSObjectProxyServiceBase * pProxyService = GetProxyManager()->GetProxyServiceByIndex(i);
 		if (pProxyService)
 		{
+			SetServerStatus(SST_SS_OBJECT_PROXY_CYCLE_TIME + i, CSmartValue(pProxyService->GetCycleTime()));
 			SetServerStatus(SST_SS_OBJECT_PROXY_CPU_USED_RATE + i, CSmartValue(pProxyService->GetCPUUsedRate()));
-			Temp.Format(",%g", pProxyService->GetCPUUsedRate());
+			Temp.Format(",%.03f,%.03f", pProxyService->GetCycleTime(), pProxyService->GetCPUUsedRate());
+			ProxyStatData += Temp;
+
+			for (UINT i = 0; i < pProxyService->GetGroupCount(); i++)
+			{
+				SetServerStatus(SST_SS_PROXY_GROUP_CYCLE_TIME + i, CSmartValue(pProxyService->GetGroupCycleTime(i)));
+				SetServerStatus(SST_SS_PROXY_GROUP_CPU_USED_RATE + i, CSmartValue(pProxyService->GetGroupCPUUsedRate(i)));
+				Temp.Format(",%.03f,%.03f", pProxyService->GetGroupCycleTime(i), pProxyService->GetGroupCPUUsedRate(i));
+				ProxyStatData += Temp;
+			}
 		}
+		else
+		{
+			Temp = ",N/A,N/A";
+			ProxyStatData += Temp;
+		}		
 	}
 
 
@@ -642,18 +540,18 @@ void CDOSServerThread::DoServerStat()
 			SetServerStatus(SST_SS_GROUP_CYCLE_TIME+i,CSmartValue(pGroup->GetCycleTime()));
 			SetServerStatus(SST_SS_GROUP_MAX_OBJECT_MSG_QUEUE_LEN+i,CSmartValue(pGroup->GetMaxObjectMsgQueueLen()));
 			SetServerStatus(SST_SS_GROUP_CPU_USED_RATE+i,CSmartValue(pGroup->GetCPUUsedRate()));
-			Temp.Format(",%g,%d,%g",pGroup->GetCycleTime(),pGroup->GetMaxObjectMsgQueueLen(),pGroup->GetCPUUsedRate());
+			Temp.Format(",%.03f,%d,%.03f",pGroup->GetCycleTime(),pGroup->GetMaxObjectMsgQueueLen(),pGroup->GetCPUUsedRate());
 		}
 		else
 		{
-			Temp=",0,0,0";
+			Temp=",N/A,N/A,N/A";
 		}
 		GroupStatData+=Temp;
 	}
 
 
 	CLogManager::GetInstance()->PrintLog(SERVER_STATUS_LOG_CHANNEL,ILogPrinter::LOG_LEVEL_NORMAL,0,
-		"%g,%g,%s,%s,%g,%g,%u,%s,%s,%s,%s,%g,%u,%g,%s,%s%s%s",
+		"%.03f,%.03f,%s,%s,%.03f,%.03f,%u,%u,%s,%s,%s,%s,%.03f,%u,%.03f,%.03f,%.03f,%s,%s%s%s",
 		CycleTime,
 		CPUCost,
 		(LPCTSTR)FormatNumberWordsFloat(TCPRecvFlow,true),
@@ -661,6 +559,7 @@ void CDOSServerThread::DoServerStat()
 		TCPRecvCount,
 		TCPSendCount,
 		ObjectCount,
+		ConnectionCount,
 		(LPCTSTR)FormatNumberWordsFloat(RouteInMsgCount,true),
 		(LPCTSTR)FormatNumberWordsFloat(RouteInMsgFlow,true),
 		(LPCTSTR)FormatNumberWordsFloat(RouteOutMsgCount,true),
@@ -668,6 +567,8 @@ void CDOSServerThread::DoServerStat()
 		GetRouter()->GetCycleTime(),
 		GetRouter()->GetMsgQueueLen(),
 		GetRouter()->GetCPUUsedRate(),
+		GetRouterLinkManager()->GetCycleTime(),
+		GetRouterLinkManager()->GetCPUUsedRate(),
 		(LPCTSTR)FormatNumberWords(MonoGCUsedSize, true),
 		(LPCTSTR)FormatNumberWords(MonoGCHeapSize, true),
 		(LPCTSTR)ProxyStatData,

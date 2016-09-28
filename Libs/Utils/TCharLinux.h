@@ -66,7 +66,7 @@
 #define _stscanf		scanf
 
 #define _tfopen_s		fopen_s
-
+#define _tsplitpath_s	_splitpath_s
 
 
 #endif

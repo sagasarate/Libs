@@ -20,7 +20,8 @@ class CNetConnection :
 {
 protected:
 	CNetServer*									m_pServer;
-	volatile BOOL								m_WantClose;
+	volatile bool								m_WantClose;
+	volatile bool								m_IsEventProcessing;
 	int											m_CurAddressFamily;
 	bool										m_UseSafeDisconnect;
 	CCycleBuffer								m_RecvQueue;
@@ -31,37 +32,32 @@ protected:
 
 	//CEasyCriticalSection						m_RecvLock;
 	CEasyCriticalSection						m_SendLock;
-	bool										m_EnableSendLock;
 
 	DECLARE_CLASS_INFO_STATIC(CNetConnection);
 public:
 	CNetConnection(void);
 	virtual ~CNetConnection(void);
 
-	virtual BOOL OnEpollEvent(UINT EventID);
+	virtual bool OnEpollEvent(UINT EventID);
 
-	virtual BOOL Create(UINT RecvQueueSize=DEFAULT_SERVER_RECV_DATA_QUEUE,
+	virtual bool Create(UINT RecvQueueSize = DEFAULT_SERVER_RECV_DATA_QUEUE,
 		UINT SendQueueSize=DEFAULT_SERVER_SEND_DATA_QUEUE);
-	virtual BOOL Create(SOCKET Socket, UINT RecvQueueSize = DEFAULT_SERVER_RECV_DATA_QUEUE,
+	virtual bool Create(SOCKET Socket, UINT RecvQueueSize = DEFAULT_SERVER_RECV_DATA_QUEUE,
 		UINT SendQueueSize = DEFAULT_SERVER_SEND_DATA_QUEUE);
 	virtual void Destory();
 	void Close();
 
-	void EnableSendQueueLock(bool Enable);
 
-
-	BOOL Connect(const CIPAddress& Address,DWORD TimeOut=NO_CONNECTION_TIME_OUT);
+	bool Connect(const CIPAddress& Address, DWORD TimeOut = NO_CONNECTION_TIME_OUT);
 	void Disconnect();
 	void QueryDisconnect();
 
 
-	BOOL StartWork();
+	bool StartWork();
 
-	virtual void OnConnection(BOOL IsSucceed);
-	virtual void OnDisconnection();
 
-	BOOL Send(LPCVOID pData, UINT Size);
-	BOOL SendDirect(LPCVOID pData,UINT Size);
+	bool Send(LPCVOID pData, UINT Size);
+	bool SendMulti(LPCVOID * pDataBuffers, const UINT * pDataSizes, UINT BufferCount);
 	
 
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
@@ -73,25 +69,15 @@ public:
 
 	void EnableSafeDisconnect(bool Enable);
 
-	//virtual bool StealFrom(CNameObject * pObject,UINT Param=0);
 
-	void SetSendDelay(UINT Delay);
-	void SetSendQueryLimit(UINT Limit);
 protected:
 	void DoRecv();
 	void DoSend();
 	UINT TrySend(LPCVOID pData, UINT Size);
 };
 
-inline void CNetConnection::EnableSendQueueLock(bool Enable)
-{
-	m_EnableSendLock = Enable;
-}
 
-inline BOOL CNetConnection::SendDirect(LPCVOID pData,UINT Size)
-{
-	return Send(pData,Size);
-}
+
 
 inline void CNetConnection::SetServer(CNetServer* pServer)
 {
@@ -109,9 +95,7 @@ inline void CNetConnection::EnableSafeDisconnect(bool Enable)
 	m_UseSafeDisconnect=Enable;
 }
 
-inline void CNetConnection::SetSendDelay(UINT Delay)
+inline bool CNetConnection::Send(LPCVOID pData, UINT Size)
 {
-}
-inline void CNetConnection::SetSendQueryLimit(UINT Limit)
-{
+	return SendMulti(&pData, &Size, 1);
 }

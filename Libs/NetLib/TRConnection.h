@@ -24,7 +24,7 @@ public:
 
 	bool Init(CDHTService * pParent, UINT SearchID, const NODE_ID& PeerID, const NODE_ID& InfoHash, const CIPAddress& Address);
 
-	virtual void OnConnection(BOOL IsSucceed);
+	virtual void OnConnection(bool IsSucceed);
 	virtual void OnDisconnection();
 
 	virtual void OnRecvData(const BYTE * pData, UINT DataSize);

@@ -15,7 +15,6 @@
 				<Option object_output="Debug" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option use_console_runner="0" />
 				<Option projectLinkerOptionsRelation="2" />
 				<Compiler>
 					<Add option="-g" />
@@ -37,9 +36,9 @@
 				<Option object_output="Release" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option use_console_runner="0" />
 				<Option projectLinkerOptionsRelation="2" />
 				<Compiler>
+					<Add option="-g" />
 					<Add option="-W" />
 				</Compiler>
 				<Linker>
@@ -50,12 +49,15 @@
 				</Linker>
 			</Target>
 		</Build>
+		<Compiler>
+			<Add option="-std=c++11" />
+		</Compiler>
 		<Linker>
 			<Add option="-static-libgcc" />
 			<Add option="-static-libstdc++" />
 			<Add option="-rdynamic" />
 			<Add option="-Wl,-Bstatic -luuid -Wl,-Bdynamic" />
-			<Add library="../../Libs/MonoWrapper/lib/x64/libmonosgen-2.0.a" />
+			<Add library="../../Libs/MonoWrapper/lib/x64/CentOS6.5/libmonosgen-2.0.a" />
 			<Add library="pthread" />
 			<Add library="rt" />
 			<Add library="dl" />

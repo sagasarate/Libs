@@ -195,6 +195,30 @@ public:
 		}
 		return false;
 	}
+	bool Move(size_t Index, size_t Before)
+	{		
+		if (Index < m_ArrayLength)
+		{
+			if (Before > m_ArrayLength)
+				Before = m_ArrayLength;
+			if (Index == Before || Index + 1 == Before)
+				return true;
+			BYTE Temp[sizeof(T)];
+			memcpy(Temp, m_pBuffer + Index, sizeof(T));
+			if (Index < Before)
+			{
+				memmove(m_pBuffer + Index, m_pBuffer + Index + 1, sizeof(T)*(Before - Index - 1));
+				memcpy(m_pBuffer + Before - 1, Temp, sizeof(T));
+			}
+			else
+			{
+				memmove(m_pBuffer + Before + 1, m_pBuffer + Before, sizeof(T)*(Index - Before));
+				memcpy(m_pBuffer + Before, Temp, sizeof(T));
+			}
+			return true;
+		}
+		return false;
+	}
 	size_t GetCount() const
 	{
 		return m_ArrayLength;

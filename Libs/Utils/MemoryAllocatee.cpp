@@ -33,12 +33,12 @@ CMemoryAllocatee::~CMemoryAllocatee(void)
 
 			if(pInfo->FileName)
 			{
-				PrintImportantLog(0,_T("Memory Leak Size=%u,Position=%s:%d"),
+				PrintImportantLog(_T("Memory Leak Size=%u,Position=%s:%d"),
 					pInfo->AllocSize,pInfo->FileName,pInfo->Line);
 			}
 			else
 			{
-				PrintImportantLog(0,_T("Memory Leak Size=%u"),
+				PrintImportantLog(_T("Memory Leak Size=%u"),
 					pInfo->AllocSize);
 			}
 		}

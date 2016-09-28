@@ -12,16 +12,30 @@
 #pragma once
 
 class CDOSObjectProxyServiceDefault;
+class CDOSObjectProxyConnectionGroup;
 
 class CDOSObjectProxyConnectionDefault :
 	public IDOSObjectProxyConnectionBase,
 	public CNetConnection
 {
+public:
+	enum STATUS
+	{
+		STATUS_NONE,
+		STATUS_INITED,
+		STATUS_CONNECTED,
+		STATUS_DISCONNECTED,
+		STATUS_DESTORYED,
+	};
 protected:
 	OBJECT_ID									m_ObjectID;
 	CDOSObjectProxyServiceDefault *				m_pService;
+	CDOSObjectProxyConnectionGroup *			m_pGroup;
+	volatile STATUS								m_Status;
 
-	CThreadSafeIDStorage<CDOSMessagePacket *>	m_MsgQueue;
+	CLIENT_PROXY_CONFIG							m_Config;
+
+	CCycleQueue<CDOSMessagePacket *>			m_MsgQueue;
 	CStaticMap<MSG_ID_TYPE, OBJECT_ID>			m_MessageMap;
 
 	UINT										m_KeepAliveCount;
@@ -35,7 +49,8 @@ protected:
 	bool										m_NeedDelayClose;
 	CEasyTimer									m_DelayCloseTimer;
 
-	CEasyBuffer									m_AssembleBuffer;		
+	CEasyBuffer									m_AssembleBuffer;
+	CEasyBuffer *								m_pCompressBuffer;
 	
 
 	
@@ -51,11 +66,11 @@ public:
 
 
 
-	bool Init(CDOSObjectProxyServiceDefault * pService,UINT ID);
+	bool Init(CDOSObjectProxyServiceDefault * pService, const CLIENT_PROXY_CONFIG& Config, UINT ID);
 
 
 	virtual void OnRecvData(const BYTE * pData, UINT DataSize);
-	virtual void OnConnection(BOOL IsSucceed);
+	virtual void OnConnection(bool IsSucceed);
 	virtual void OnDisconnection();
 	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 
@@ -65,14 +80,26 @@ public:
 	{
 		return m_ObjectID;
 	}
+	STATUS GetStatus()
+	{
+		return m_Status;
+	}
+	void SetCompressBuffer(CEasyBuffer * pCompressBuffer)
+	{
+		m_pCompressBuffer = pCompressBuffer;
+	}
+	void SetGroup(CDOSObjectProxyConnectionGroup * pGroup)
+	{
+		m_pGroup = pGroup;
+	}
 protected:
 
 	CDOSServer * GetServer();
 	void OnClientMsg(CDOSSimpleMessage * pMessage);
 	void OnClientSystemMsg(CDOSSimpleMessage * pMessage);
 
-	bool OnMessage(CDOSMessagePacket * pPacket);
-	bool OnSystemMessage(CDOSMessagePacket * pPacket);
+	bool OnMessage(const CDOSMessagePacket * pPacket);
+	bool OnSystemMessage(const CDOSMessagePacket * pPacket);
 	
 	bool SendDisconnectNotify();
 	void SendKeepAliveMsg();
@@ -82,6 +109,6 @@ protected:
 	bool DoUnregisterMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);
 	void ClearMsgMapByRouterID(UINT RouterID);
 
-	CDOSSimpleMessage * CompressMsg(CDOSSimpleMessage * pMsg);
+	const void * CompressMsg(const void * pData, MSG_LEN_TYPE& DataLen);
 };
 

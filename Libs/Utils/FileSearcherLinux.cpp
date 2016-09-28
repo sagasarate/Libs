@@ -25,9 +25,9 @@ CFileSearcher::~CFileSearcher(void)
 BOOL CFileSearcher::FindFirst(LPCTSTR FindPattern)
 {
 	Close();
-	CEasyString SearchPattern=MakeFullPath(FindPattern);
-	m_SearchDir=GetPathDirectory(SearchPattern);
-	CEasyString FilePattern=GetPathFileNameExt(SearchPattern);
+	CEasyString SearchPattern=CFileTools::MakeFullPath(FindPattern);
+	m_SearchDir = CFileTools::GetPathDirectory(SearchPattern) + DIR_SLASH;
+	CEasyString FilePattern=CFileTools::GetPathFileNameExt(SearchPattern);
 
 	DIR * pDir=opendir(m_SearchDir);
 
@@ -105,7 +105,7 @@ CEasyString CFileSearcher::GetFileTitle()
 {
 	if(m_FetchIndex>=0&&m_FetchIndex<(int)m_FileInfoList.GetCount())
 	{
-		return GetPathFileName(m_FileInfoList[m_FetchIndex].FileInfo.d_name);		
+		return CFileTools::GetPathFileName(m_FileInfoList[m_FetchIndex].FileInfo.d_name);
 	}
 	else
 	{
@@ -117,7 +117,7 @@ CEasyString CFileSearcher::GetFileExt()
 {
 	if(m_FetchIndex>=0&&m_FetchIndex<(int)m_FileInfoList.GetCount())
 	{
-		return GetPathFileExtName(m_FileInfoList[m_FetchIndex].FileInfo.d_name);
+		return CFileTools::GetPathFileExtName(m_FileInfoList[m_FetchIndex].FileInfo.d_name);
 	}
 	else
 	{

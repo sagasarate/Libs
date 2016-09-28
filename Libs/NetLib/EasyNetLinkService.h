@@ -40,7 +40,7 @@ public:
 
 
 	virtual CBaseNetConnection * CreateConnection(CIPAddress& RemoteAddress);
-	virtual BOOL DeleteConnection(CBaseNetConnection * pConnection);
+	virtual bool DeleteConnection(CBaseNetConnection * pConnection);
 
 	CEasyNetLinkManager* GetManager();
 

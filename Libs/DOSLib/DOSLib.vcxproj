@@ -296,9 +296,11 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DOSObjectProxyConnectionGroup.cpp" />
     <ClCompile Include="DOSObjectProxyServiceDefault.cpp" />
     <ClCompile Include="DOSObjectProxyConnectionDefault.cpp" />
     <ClCompile Include="DOSProxyManager.cpp" />
+    <ClCompile Include="DOSRouterLinkManager.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">Create</PrecompiledHeader>
@@ -319,9 +321,11 @@
     <ClCompile Include="DOSDefines.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DOSObjectProxyConnectionGroup.h" />
     <ClInclude Include="DOSObjectProxyServiceDefault.h" />
     <ClInclude Include="DOSObjectProxyConnectionDefault.h" />
     <ClInclude Include="DOSProxyManager.h" />
+    <ClInclude Include="DOSRouterLinkManager.h" />
     <ClInclude Include="IDOSObjectProxy.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="DOSServer.h" />

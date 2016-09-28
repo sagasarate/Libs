@@ -16,7 +16,7 @@
 
 //typedef unsigned long ulong;
 
-inline BOOL PrintDBLog(LPCTSTR Tag, LPCSTR Format, ...)
+inline BOOL PrintDBLogWithTag(LPCTSTR Tag, LPCSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl, Format);
@@ -25,7 +25,7 @@ inline BOOL PrintDBLog(LPCTSTR Tag, LPCSTR Format, ...)
 	return ret;
 }
 
-inline BOOL PrintDBDebugLog(LPCTSTR Tag, LPCSTR Format, ...)
+inline BOOL PrintDBDebugLogWithTag(LPCTSTR Tag, LPCSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl, Format);
@@ -33,6 +33,9 @@ inline BOOL PrintDBDebugLog(LPCTSTR Tag, LPCSTR Format, ...)
 	va_end(vl);
 	return ret;
 }
+
+#define PrintDBLog(_Format, ...)	PrintDBLogWithTag(__PRETTY_FUNCTION__, _Format, ##__VA_ARGS__)
+#define PrintDBDebugLog(_Format, ...)	PrintDBDebugLogWithTag(__PRETTY_FUNCTION__, _Format, ##__VA_ARGS__)
 
 #include "DBTypes.h"
 #include "DBValue.h"

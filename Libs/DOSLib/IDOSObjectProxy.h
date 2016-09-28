@@ -74,9 +74,12 @@ public:
 	virtual bool PushBroadcastMessage(CDOSMessagePacket * pPacket){ return false; }
 	virtual IDOSObjectProxyConnectionBase * GetConnection(UINT ID) { return NULL; }
 
+	virtual UINT GetConnectionCount(){ return 0; }
 	virtual float GetCPUUsedRate(){ return 0; }
 	virtual float GetCycleTime(){ return 0; }
-
+	virtual UINT GetGroupCount(){ return 0; }
+	virtual float GetGroupCPUUsedRate(UINT Index){ return 0; }
+	virtual float GetGroupCycleTime(UINT Index){ return 0; }
 };
 
 class IDOSObjectProxyService

@@ -18,6 +18,7 @@ class CEpollThread :
 protected:
 	CNetServer *	m_pServer;
 	int				m_hEpoll;	
+	volatile UINT	m_BindSocketCount;
 	
 	DECLARE_CLASS_INFO_STATIC(CEpollThread)
 public:
@@ -25,20 +26,20 @@ public:
 	CEpollThread(CNetServer * pServer);
 	virtual ~CEpollThread(void);
 
-	void SetEpollHandle(UINT hEpoll);
-	void SetServer(CNetServer * pServer);
+	bool Init(CNetServer * pServer);
+
+	bool BindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter);
+	//bool ModifySendEvent(SOCKET Socket, CEpollEventRouter * pEpollEventRouter, bool IsSet);
+	bool UnbindSocket(SOCKET Socket);
+
+	UINT GetBindCount()
+	{
+		return m_BindSocketCount;
+	}
+
 protected:	
 	virtual BOOL OnStart();
 	virtual BOOL OnRun();
 	virtual void OnTerminate();
 };
 
-inline void CEpollThread::SetEpollHandle(UINT hEpoll)
-{
-	m_hEpoll=hEpoll;
-}
-
-inline void CEpollThread::SetServer(CNetServer * pServer)
-{
-	m_pServer = pServer;
-}

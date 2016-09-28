@@ -32,12 +32,12 @@ bool CDOSObjectManager::Initialize()
 	FUNCTION_BEGIN;
 	if(m_pServer==NULL)
 	{
-		PrintDOSLog(_T("DOSLib"),_T("没有初始化服务器，对象管理器无法初始化！"));
+		PrintDOSLog(_T("没有初始化服务器，对象管理器无法初始化！"));
 		return false;
 	}
 	if(m_pServer->GetConfig().ObjectGroupCount<=0)
 	{
-		PrintDOSLog(_T("DOSLib"),_T("服务器没有正确配置对象组数量，对象管理器无法初始化！"));
+		PrintDOSLog(_T("服务器没有正确配置对象组数量，对象管理器无法初始化！"));
 		return false;
 	}
 	m_ObjectGroups.Resize(m_pServer->GetConfig().ObjectGroupCount);
@@ -52,7 +52,7 @@ bool CDOSObjectManager::Initialize()
 		}
 	}
 
-	PrintDOSLog(_T("DOSLib"),_T("对象管理器创建了%d个对象组！"),m_pServer->GetConfig().ObjectGroupCount);
+	PrintDOSLog(_T("对象管理器创建了%d个对象组！"),m_pServer->GetConfig().ObjectGroupCount);
 	return true;
 	FUNCTION_END;
 	return false;
@@ -90,7 +90,7 @@ bool CDOSObjectManager::WaitForSuspend(UINT TimeOut)
 		if (Timer.IsTimeOut())
 			return false;
 
-		DoSleep(1);
+		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 
 		bool IsAllSuspended = true;
 		for (UINT i = 0; i < m_ObjectGroups.GetCount(); i++)
@@ -115,19 +115,19 @@ BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterI
 
 	if(ObjectRegisterInfo.pObject==NULL)
 	{
-		PrintDOSLog(_T("DOSLib"),_T("空对象无法注册！"));
+		PrintDOSLog(_T("空对象无法注册！"));
 		return FALSE;
 	}
 
 	if(ObjectRegisterInfo.Weight<=0)
 	{
-		PrintDOSLog(_T("DOSLib"),_T("对象权重必须大于零！"));
+		PrintDOSLog(_T("对象权重必须大于零！"));
 		return FALSE;
 	}
 
 	if (ObjectRegisterInfo.ObjectID.ObjectTypeID < DOT_NORMAL_OBJECT)
 	{
-		PrintDOSLog(_T("DOSLib"), _T("对象类型不能使用系统保留类型！"));
+		PrintDOSLog( _T("对象类型不能使用系统保留类型！"));
 		return FALSE;
 	}
 
@@ -140,7 +140,7 @@ BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterI
 
 	if(pGroup==NULL)
 	{
-		PrintDOSLog(_T("DOSLib"),_T("无法分配合适的对象组！"));
+		PrintDOSLog(_T("无法分配合适的对象组！"));
 		return FALSE;
 	}
 
@@ -151,7 +151,7 @@ BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterI
 
 	if(!pGroup->RegisterObject(ObjectRegisterInfo))
 	{
-		PrintDOSLog(_T("DOSLib"),_T("无法将对象添加到对象组！"));
+		PrintDOSLog(_T("无法将对象添加到对象组！"));
 		return FALSE;
 	}
 
@@ -169,7 +169,7 @@ BOOL CDOSObjectManager::UnregisterObject(OBJECT_ID ObjectID)
 	UINT GroupIndex=ObjectID.GroupIndex;
 	if(GroupIndex>=m_ObjectGroups.GetCount())
 	{
-		PrintDOSLog(_T("DOSLib"),_T("对象所在组%u无效"),GroupIndex);
+		PrintDOSLog(_T("对象所在组%u无效"),GroupIndex);
 		return FALSE;
 	}
 
@@ -179,13 +179,13 @@ BOOL CDOSObjectManager::UnregisterObject(OBJECT_ID ObjectID)
 	{
 		if(!pGroup->UnregisterObject(ObjectID))
 		{
-			PrintDOSLog(_T("DOSLib"),_T("向对象组请求注销对象失败"));
+			PrintDOSLog(_T("向对象组请求注销对象失败"));
 			return FALSE;
 		}
 	}
 	else
 	{
-		PrintDOSLog(_T("DOSLib"),_T("无法找到对象所在的对象组"));
+		PrintDOSLog(_T("无法找到对象所在的对象组"));
 		return FALSE;
 	}
 
@@ -211,7 +211,7 @@ BOOL CDOSObjectManager::PushMessage(OBJECT_ID ObjectID,CDOSMessagePacket * pPack
 	{
 		if(GroupIndex>=m_ObjectGroups.GetCount())
 		{
-			PrintDOSLog(_T("DOSLib"),_T("CDOSObjectManager::PushMessage:对象所在组%u无效"),GroupIndex);
+			PrintDOSLog(_T("对象所在组%u无效"),GroupIndex);
 			return FALSE;
 		}
 		return m_ObjectGroups[GroupIndex]->PushMessage(ObjectID,pPacket);
@@ -255,10 +255,12 @@ void CDOSObjectManager::PrintGroupInfo(UINT LogChannel)
 	{
 
 		CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,
-			_T("对象组[%u]:对象数[%u],权重[%u],CPU占用率[%0.2f%%],循环时间[%gMS]"),
+			_T("对象组[%u]:对象数[%u],权重[%u],CPU占用率[%0.2f%%],循环次数[%u],循环时间[%gMS],单循环CPU时间[%lluNS]"),
 			i,m_ObjectGroups[i]->GetObjectCount(),m_ObjectGroups[i]->GetWeight(),
 			m_ObjectGroups[i]->GetCPUUsedRate()*100,
-			m_ObjectGroups[i]->GetCycleTime());
+			m_ObjectGroups[i]->GetCycleCount(),
+			m_ObjectGroups[i]->GetCycleTime(),
+			m_ObjectGroups[i]->GetCPUUsedTime());
 
 		m_ObjectGroups[i]->PrintObjectStat(LogChannel);
 	}

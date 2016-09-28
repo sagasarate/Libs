@@ -13,7 +13,7 @@
 
 IMPLEMENT_CLASS_INFO_STATIC(CEpollEventRouter,CNameObject);
 
-BOOL CEpollEventRouter::OnEpollEvent(UINT EventID,UINT SessionID)
+bool CEpollEventRouter::OnEpollEvent(UINT EventID, UINT SessionID)
 {
 	CAutoReadLock Lock(m_EasyReadWriteLock);
 	if(m_SessionID==SessionID)
@@ -26,13 +26,13 @@ BOOL CEpollEventRouter::OnEpollEvent(UINT EventID,UINT SessionID)
 		}
 		else
 		{
-			PrintNetLog(_T("NetLib"),"EventRouter没有EventHandler,Event(%u)被忽略",EventID);
+			PrintNetLog("EventRouter没有EventHandler,Event(%u)被忽略",EventID);
 		}
 	}
 	else
 	{
-		PrintNetLog(_T("NetLib"),"不是本次Session的Event,Event(%u)被忽略",EventID);
+		PrintNetLog("不是本次Session的Event,Event(%u)被忽略",EventID);
 	}
 
-	return FALSE;
+	return false;
 }

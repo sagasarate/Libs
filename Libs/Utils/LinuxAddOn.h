@@ -43,7 +43,8 @@
 #include <unistd.h>
 #include <uuid/uuid.h>
 #include "atomic_ops/include/atomic_ops.h"
-
+#include <utime.h>
+#include <dlfcn.h>
 
 #define __forceinline inline
 
@@ -52,7 +53,7 @@
 
 
 
-
+#define DEFAULT_IDLE_SLEEP_TIME		10
 
 #define MAX_PATH        PATH_MAX
 
@@ -103,7 +104,7 @@ typedef int INT_PTR, *PINT_PTR;
 typedef unsigned int UINT_PTR, *PUINT_PTR;
 typedef unsigned int DWORD_PTR, *PDWORD_PTR;
 
-const char DIR_SLASH = '/';
+
 
 
 #define MAKEWORD(a, b)      ((WORD)(((BYTE)(((DWORD_PTR)(a)) & 0xff)) | ((WORD)((BYTE)(((DWORD_PTR)(b)) & 0xff))) << 8))
@@ -180,7 +181,7 @@ inline int wcscpy_s(WCHAR * _Dst, size_t _SizeInWords, const WCHAR * _Src)
 		CpyCount++;
 	}
 	if (CpyCount < _SizeInWords)
-		*_Dst = 0;	
+		*_Dst = 0;
 	return 0;
 }
 
@@ -504,15 +505,9 @@ inline int gmtime_s(struct tm* _tm,const time_t* time)
 	return 0;
 }
 
-inline time_t _mkgmtime(struct tm * _Tm)
-{
-	return mktime(_Tm);
-}
+#define _mkgmtime timegm
 
-inline UINT GetCurProcessID()
-{
-	return getpid();
-}
+
 
 inline size_t GetEnvVar(LPCTSTR pszVarName,LPTSTR pszValue,size_t nBufferLen)
 {
@@ -533,7 +528,7 @@ inline size_t GetEnvVar(LPCTSTR pszVarName,LPTSTR pszValue,size_t nBufferLen)
 	return ValueLen;
 }
 
-inline bool SetEnvVar(LPCTSTR pszVarName,LPTSTR pszValue)
+inline bool SetEnvVar(LPCTSTR pszVarName,LPCTSTR pszValue)
 {
 #ifdef _UNICODE
 	//if(_wputenv_s(pszVarName,pszValue)==0)
@@ -543,6 +538,11 @@ inline bool SetEnvVar(LPCTSTR pszVarName,LPTSTR pszValue)
 		return true;
 #endif
 	return false;
+}
+
+inline UINT GetCurProcessID()
+{
+	return getpid();
 }
 
 inline unsigned int AtomicInc(volatile unsigned int * pVal)

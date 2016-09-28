@@ -19,7 +19,7 @@ bool CBaseServer::PrintConsoleLog(int Level, LPCTSTR szLogMsg)
 	if (m_ConsoleLogLevel&Level)
 	{
 #ifdef WIN32
-		m_LogBuffer.PushBack(szLogMsg, strlen(szLogMsg));
+		m_LogBuffer.PushBack(szLogMsg, (UINT)strlen(szLogMsg));
 		m_LogBuffer.PushBack("\r\n", 2);
 #else
 		printf("%s\n", szLogMsg);
@@ -97,7 +97,7 @@ void CBaseServer::SetServerStatusFormat(WORD StatusID, LPCTSTR szStatusName, int
 		if (m_ServerStatusFormatInfoList[i].StatusID == StatusID)
 		{
 			m_ServerStatusFormatInfoList[i].FormatType = FormatType;
-			strncpy(m_ServerStatusFormatInfoList[i].szName, szStatusName, MAX_SERVER_STATUS_NAME_LEN);
+			strncpy_s(m_ServerStatusFormatInfoList[i].szName, sizeof(m_ServerStatusFormatInfoList[i].szName), szStatusName, MAX_SERVER_STATUS_NAME_LEN);
 			m_ServerStatusFormatInfoList[i].szName[MAX_SERVER_STATUS_NAME_LEN] = 0;
 			return;
 		}
@@ -106,7 +106,7 @@ void CBaseServer::SetServerStatusFormat(WORD StatusID, LPCTSTR szStatusName, int
 	SERVER_STATUS_FORMAT_INFO FormatInfo;
 	FormatInfo.StatusID = StatusID;
 	FormatInfo.FormatType = FormatType;
-	strncpy(FormatInfo.szName, szStatusName, MAX_SERVER_STATUS_NAME_LEN);
+	strncpy_s(FormatInfo.szName, sizeof(FormatInfo.szName), szStatusName, MAX_SERVER_STATUS_NAME_LEN);
 	FormatInfo.szName[MAX_SERVER_STATUS_NAME_LEN] = 0;
 	m_ServerStatusFormatInfoList.Add(FormatInfo);
 }

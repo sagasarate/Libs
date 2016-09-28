@@ -19,8 +19,9 @@ class CDOSServer :
 protected:
 	DOS_CONFIG					m_ServerConfig;
 	CDOSProxyManager *			m_pProxyManager;
-	CDOSRouter*					m_pDOSRouterService;		
+	CDOSRouter*					m_pDOSRouter;		
 	CDOSObjectManager *			m_pObjectManager;
+	CDOSRouterLinkManager *		m_pRouterLinkManager;
 
 	CFastMemoryPool				m_MemoryPool;	
 
@@ -36,12 +37,13 @@ public:
 	CDOSRouter * GetRouter();
 	CDOSObjectManager * GetObjectManager();
 	CFastMemoryPool * GetMemoryPool();
+	CDOSRouterLinkManager * GetRouterLinkManager();
 
 	CDOSMessagePacket * NewMessagePacket(UINT Size);
 	BOOL ReleaseMessagePacket(CDOSMessagePacket * pPacket);
 	void AddRefMessagePacket(CDOSMessagePacket * pPacket);
 protected:
-	virtual BOOL OnStartUp();
+	virtual bool OnStartUp();
 	virtual void OnShutDown();
 	
 };
@@ -58,7 +60,7 @@ inline CDOSProxyManager * CDOSServer::GetProxyManager()
 }
 inline CDOSRouter * CDOSServer::GetRouter()
 {
-	return m_pDOSRouterService;
+	return m_pDOSRouter;
 }
 inline CDOSObjectManager * CDOSServer::GetObjectManager()
 {
@@ -67,6 +69,10 @@ inline CDOSObjectManager * CDOSServer::GetObjectManager()
 inline CFastMemoryPool * CDOSServer::GetMemoryPool()
 {
 	return &m_MemoryPool;
+}
+inline CDOSRouterLinkManager * CDOSServer::GetRouterLinkManager()
+{
+	return m_pRouterLinkManager;
 }
 inline CDOSMessagePacket * CDOSServer::NewMessagePacket(UINT Size)
 {	
@@ -77,7 +83,9 @@ inline CDOSMessagePacket * CDOSServer::NewMessagePacket(UINT Size)
 		pPacket->Init();	
 		pPacket->SetAllocSize(Size);
 		pPacket->SetPacketLength(Size);
+#ifdef _DEBUG
 		pPacket->SetAllocTime(0);
+#endif
 		UINT RefCount=pPacket->IncRefCount();
 #ifdef LOG_MEM_CALL_STACK
 		m_MemoryPool.LogMemUse(pPacket,RefCount);
@@ -85,7 +93,7 @@ inline CDOSMessagePacket * CDOSServer::NewMessagePacket(UINT Size)
 	}
 	else
 	{
-		PrintDOSLog(0,_T("分配%u大小的消息包失败"),Size);
+		PrintDOSLog(_T("分配%u大小的消息包失败"),Size);
 	}
 	return pPacket;
 }

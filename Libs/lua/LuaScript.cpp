@@ -79,7 +79,7 @@ void CLuaScript::DeleteAllScriptThread()
 	void * Pos = m_LuaThreadPool.GetFirstObjectPos();
 	while (Pos)
 	{
-		CLuaThread * pLuaThread = m_LuaThreadPool.GetNext(Pos);
+		CLuaThread * pLuaThread = m_LuaThreadPool.GetNextObject(Pos);
 		pLuaThread->Release();
 	}
 	m_LuaThreadPool.Clear();
@@ -89,7 +89,7 @@ CLuaThread * CLuaScript::GetThreadByYeildType(int YeildType)
 	void * Pos = m_LuaThreadPool.GetFirstObjectPos();
 	while (Pos)
 	{
-		CLuaThread * pLuaThread = m_LuaThreadPool.GetNext(Pos);
+		CLuaThread * pLuaThread = m_LuaThreadPool.GetNextObject(Pos);
 		if (pLuaThread->GetLastLuaStatus() == LUA_YIELD&&pLuaThread->GetYeildType() == YeildType)
 		{
 			return pLuaThread;
@@ -155,7 +155,7 @@ void CLuaScript::Update()
 		void * Pos = m_LuaThreadPool.GetFirstObjectPos();
 		while (Pos)
 		{
-			CLuaThread * pLuaThread = m_LuaThreadPool.GetNext(Pos);
+			CLuaThread * pLuaThread = m_LuaThreadPool.GetNextObject(Pos);
 			if (pLuaThread->GetLastLuaStatus() == LUA_YIELD)
 			{
 				CanReload = false;
@@ -292,7 +292,7 @@ void CLuaScript::RecycleThread()
 	void * Pos = m_LuaThreadPool.GetFirstObjectPos();
 	while (Pos)
 	{
-		CLuaThread * pLuaThread = m_LuaThreadPool.GetNext(Pos);
+		CLuaThread * pLuaThread = m_LuaThreadPool.GetNextObject(Pos);
 		if (pLuaThread->GetLastLuaStatus() != LUA_YIELD)
 		{
 			m_LuaThreadPool.DeleteObject(pLuaThread->GetID());

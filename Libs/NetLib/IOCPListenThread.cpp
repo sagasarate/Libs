@@ -30,7 +30,7 @@ bool CIOCPListenThread::Init(CNetService * pService,SOCKET ListenSocket)
 
 BOOL CIOCPListenThread::OnStart()
 {
-	PrintNetLog(_T("NetLib"),_T("ListenThread启动"));
+	PrintNetLog(_T("ListenThread启动"));
 	return TRUE;
 }
 
@@ -42,14 +42,14 @@ BOOL CIOCPListenThread::OnRun()
 	if(AcceptSocket==INVALID_SOCKET)
 	{
 		int ErrorCode=GetLastError();
-		PrintNetLog(_T("NetLib"),_T("Accept失败(%u)"),ErrorCode);
+		PrintNetLog(_T("Accept失败(%u)"),ErrorCode);
 		if(ErrorCode!=WSAECONNRESET&&ErrorCode!=WSAEINTR&&
 			ErrorCode!=WSAEINPROGRESS&&ErrorCode!=WSAEMFILE&&
 			ErrorCode!=WSAENOBUFS&&ErrorCode!=WSAEWOULDBLOCK&&
 			ErrorCode!=WSAECONNREFUSED&&ErrorCode!=WSAEACCES&&
 			ErrorCode!=WSATRY_AGAIN)
 		{
-			COverLappedObject * pOverLappedObject=m_pServer->GetServer()->CreateOverLappedObject();
+			COverLappedObject * pOverLappedObject = m_pServer->AllocOverLappedObject();
 			if(pOverLappedObject)
 			{
 				pOverLappedObject->SetType(IO_ACCEPT2);				
@@ -58,7 +58,7 @@ BOOL CIOCPListenThread::OnRun()
 			}
 			else
 			{
-				PrintNetLog(_T("NetLib"),_T("CIOCPListenThread创建Accept用OverLappedObject失败！"));			
+				PrintNetLog(_T("CIOCPListenThread创建Accept用OverLappedObject失败！"));			
 			}
 		}
 	}
@@ -68,7 +68,7 @@ BOOL CIOCPListenThread::OnRun()
 		//	SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, 
 		//	(char *)&m_ListenSocket, sizeof(m_ListenSocket))!=SOCKET_ERROR)
 		//{
-			COverLappedObject * pOverLappedObject=m_pServer->GetServer()->CreateOverLappedObject();
+			COverLappedObject * pOverLappedObject = m_pServer->AllocOverLappedObject();
 			if(pOverLappedObject)
 			{
 				pOverLappedObject->SetType(IO_ACCEPT2);
@@ -78,11 +78,11 @@ BOOL CIOCPListenThread::OnRun()
 			}
 			else
 			{
-				PrintNetLog(_T("NetLib"),_T("CIOCPListenThread创建Accept用OverLappedObject失败！"));			
+				PrintNetLog(_T("CIOCPListenThread创建Accept用OverLappedObject失败！"));			
 			}
 		//}				
 		//else
-		//	PrintNetLog(_T("NetLib"),_T("CIOCPListenThread更新AcceptScoket状态失败！"),GetID());
+		//	PrintNetLog(_T("CIOCPListenThread更新AcceptScoket状态失败！"),GetID());
 
 		closesocket(AcceptSocket);
 	}
@@ -91,5 +91,5 @@ BOOL CIOCPListenThread::OnRun()
 
 void CIOCPListenThread::OnTerminate()
 {
-	PrintNetLog(_T("NetLib"),_T("ListenThread关闭"));
+	PrintNetLog(_T("ListenThread关闭"));
 }

@@ -48,11 +48,11 @@ bool CDOSBaseObject::Init(DOS_OBJECT_REGISTER_INFO& ObjectRegisterInfo)
 	if(ObjectRegisterInfo.MsgProcessLimit)
 		m_MsgProcessLimit=ObjectRegisterInfo.MsgProcessLimit;
 
-	if(m_MsgQueue.GetBufferSize()<MsgQueueSize)
+	if (m_MsgQueue.GetBufferSize()<MsgQueueSize)
 	{
 		if(!m_MsgQueue.Create(MsgQueueSize))
 		{
-			PrintDOSLog(0,_T("对象[%llX]创建%u大小的消息队列失败"),
+			PrintDOSLog(_T("对象[%llX]创建%u大小的消息队列失败"),
 				GetObjectID().ID,MsgQueueSize);
 			return false;
 		}
@@ -65,7 +65,7 @@ bool CDOSBaseObject::Init(DOS_OBJECT_REGISTER_INFO& ObjectRegisterInfo)
 	{
 		if(!m_ConcernedObject.Create(CONCERNED_OBJECT_PAGE_SIZE,CONCERNED_OBJECT_PAGE_SIZE))
 		{
-			PrintDOSLog(0,_T("对象[%llX]创建关注对象池失败"),
+			PrintDOSLog(_T("对象[%llX]创建关注对象池失败"),
 				GetObjectID().ID);
 			return false;
 		}
@@ -97,12 +97,12 @@ void CDOSBaseObject::Destory()
 {
 	FUNCTION_BEGIN;
 	CDOSMessagePacket * pPacket;
-	while(m_MsgQueue.PopFront(pPacket))
+	while(m_MsgQueue.PopFront(&pPacket))
 	{
 
 		if(!ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(_T("DOSLib"),_T("CDOSBaseObject::Destory:释放消息内存块失败！"));
+			PrintDOSLog(_T("释放消息内存块失败！"));
 		}
 
 	}
@@ -137,7 +137,7 @@ int CDOSBaseObject::DoCycle(int ProcessPacketLimit)
 	CDOSMessagePacket * pPacket;
 	int ProcessCount=0;
 	int Limit=m_MsgProcessLimit;
-	while(m_MsgQueue.PopFront(pPacket))
+	while(m_MsgQueue.PopFront(&pPacket))
 	{
 		if(pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
 		{
@@ -149,7 +149,7 @@ int CDOSBaseObject::DoCycle(int ProcessPacketLimit)
 		}
 		if(!ReleaseMessagePacket(pPacket))
 		{
-			PrintDOSLog(_T("DOSLib"),_T("CDOSBaseObject::DoCycle:释放消息内存块失败！"));
+			PrintDOSLog(_T("释放消息内存块失败！"));
 		}
 		Limit--;
 		ProcessCount++;
@@ -167,15 +167,17 @@ BOOL CDOSBaseObject::PushMessage(CDOSMessagePacket * pPacket)
 {
 	FUNCTION_BEGIN;
 	((CDOSServer *)m_pRouter->GetServer())->AddRefMessagePacket(pPacket);
+#ifdef _DEBUG
 	pPacket->SetAllocTime(2);
-	if(m_MsgQueue.PushBack(pPacket))
+#endif
+	if(m_MsgQueue.PushBack(&pPacket))
 	{
 		return TRUE;
 	}
 	else
 	{
 		ReleaseMessagePacket(pPacket);
-		PrintDOSLog(_T("DOSLib"),_T("CDOSBaseObject::PushMessage:消息压栈失败！"));
+		PrintDOSLog(_T("消息压栈失败！"));
 	}
 	FUNCTION_END;
 	return FALSE;
@@ -202,7 +204,7 @@ BOOL CDOSBaseObject::SendMessageMulti(OBJECT_ID * pReceiverIDList,UINT ReceiverC
 	CDOSMessagePacket * pNewPacket=m_pRouter->GetServer()->NewMessagePacket(PacketSize);
 	if(pNewPacket==NULL)
 	{
-		PrintDOSLog(_T("DOSLib"),_T("分配消息内存块失败！"));
+		PrintDOSLog(_T("分配消息内存块失败！"));
 		return FALSE;
 	}
 	pNewPacket->GetMessage().SetMsgID(MsgID);
@@ -274,7 +276,7 @@ BOOL CDOSBaseObject::RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE Prox
 	OBJECT_ID ProxyID;
 	ProxyID.RouterID=ProxyRouterID;
 	ProxyID.ObjectTypeID=DOT_PROXY_OBJECT;
-	ProxyID.GroupIndex = MAKE_PROXY_GROUP_INDEX(ProxyType, BROAD_CAST_PROXY_ID);
+	ProxyID.GroupIndex = MAKE_PROXY_GROUP_INDEX(ProxyType);
 	ProxyID.ObjectIndex = 0;
 	return SendMessage(ProxyID,DSM_PROXY_REGISTER_GLOBAL_MSG_MAP,DOS_MESSAGE_FLAG_SYSTEM_MESSAGE,pMsgIDList,sizeof(MSG_ID_TYPE)*CmdCount);
 	FUNCTION_END;
@@ -288,7 +290,7 @@ BOOL CDOSBaseObject::UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE Pr
 	OBJECT_ID ProxyID;
 	ProxyID.RouterID=ProxyRouterID;
 	ProxyID.ObjectTypeID=DOT_PROXY_OBJECT;
-	ProxyID.GroupIndex = MAKE_PROXY_GROUP_INDEX(ProxyType, BROAD_CAST_PROXY_ID);
+	ProxyID.GroupIndex = MAKE_PROXY_GROUP_INDEX(ProxyType);
 	ProxyID.ObjectIndex = 0;
 	return SendMessage(ProxyID,DSM_PROXY_UNREGISTER_GLOBAL_MSG_MAP,DOS_MESSAGE_FLAG_SYSTEM_MESSAGE,pMsgIDList,sizeof(MSG_ID_TYPE)*CmdCount);
 	FUNCTION_END;
@@ -301,7 +303,7 @@ BOOL CDOSBaseObject::SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE Pro
 	OBJECT_ID ProxyID;
 	ProxyID.RouterID = ProxyRouterID;
 	ProxyID.ObjectTypeID = DOT_PROXY_OBJECT;
-	ProxyID.GroupIndex = MAKE_PROXY_GROUP_INDEX(ProxyType, BROAD_CAST_PROXY_ID);
+	ProxyID.GroupIndex = MAKE_PROXY_GROUP_INDEX(ProxyType);
 	ProxyID.ObjectIndex = 0;
 	return SendMessage(ProxyID, DSM_PROXY_SET_UNHANDLE_MSG_RECEIVER, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, NULL, 0);
 	FUNCTION_END;
@@ -471,7 +473,7 @@ void CDOSBaseObject::OnProxyObjectDisconnect(OBJECT_ID ProxyObjectID)
 	FUNCTION_BEGIN;
 	if(DeleteConcernedObject(ProxyObjectID))
 	{
-		PrintDOSDebugLog(0,_T("[0x%llX]被关注的代理对象[0x%llX]已断线"),
+		PrintDOSDebugLog(_T("[0x%llX]被关注的代理对象[0x%llX]已断线"),
 				GetObjectID(),ProxyObjectID.ID);
 		OnConcernedObjectLost(ProxyObjectID);
 	}
@@ -507,7 +509,7 @@ void CDOSBaseObject::OnRouteLinkLost(UINT RouteID)
 		{
 			if(pInfo->ObjectID.RouterID==RouteID)
 			{
-				PrintDOSLog(0,_T("被关注的对象[0x%llX]对应的路由连接已断开"),pInfo->ObjectID.ID);
+				PrintDOSLog(_T("被关注的对象[0x%llX]对应的路由连接已断开"),pInfo->ObjectID.ID);
 				DeleteConcernedObject(Key);
 				OnConcernedObjectLost(Key);
 			}
@@ -546,7 +548,7 @@ int CDOSBaseObject::DoConcernedObjectTest()
 
 						if(pInfo->AliveFailedCount>m_ConcernedObjectKeepAliveCount)
 						{
-							PrintDOSLog(0,_T("被关注的对象[0x%llX]活动测试失败"),
+							PrintDOSLog(_T("被关注的对象[0x%llX]活动测试失败"),
 								pInfo->ObjectID.ID);
 							OBJECT_ID ObjectID=pInfo->ObjectID;
 							DeleteConcernedObject(ObjectID);

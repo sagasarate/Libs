@@ -20,13 +20,24 @@ CLogManager::CLogManager(void):CNameObject()
 {
 	m_LogChannels.Insert(LOG_SYSTEM_CHANNEL,new CVSOutputLogPrinter());
 
-	CEasyString ImportLogFileName=GetModuleFilePath(NULL);
+	CEasyString ImportLogFileName = CFileTools::GetModuleFilePath(NULL);
 
 	m_LogChannels.Insert(LOG_IMPORTANT_CHANNEL,new CFileLogPrinter(ImportLogFileName,FILE_LOG_APPEND|FILE_LOG_SAFE_WRITE));
+
+	m_WorkThreadList.Resize(DEFAULT_ASYNC_LOG_WORK_THREAD_COUNT);
+	for (UINT i = 0; i < m_WorkThreadList.GetCount(); i++)
+	{
+		m_WorkThreadList[i].Start();
+	}
 }
 
 CLogManager::~CLogManager(void)
 {
+	for (UINT i = 0; i < m_WorkThreadList.GetCount(); i++)
+	{
+		m_WorkThreadList[i].SafeTerminate(5);
+	}
+
 	void * Pos=m_LogChannels.GetFirstObjectPos();
 	while(Pos)
 	{
@@ -38,6 +49,20 @@ CLogManager::~CLogManager(void)
 		}
 	}
 	m_LogChannels.Clear();
+}
+
+UINT CLogManager::AddWorkThreadCount(UINT Count)
+{
+	if (Count)
+	{
+		UINT OldCount = (UINT)m_WorkThreadList.GetCount();
+		m_WorkThreadList.Resize(m_WorkThreadList.GetCount() + Count);
+		for (UINT i = OldCount; i < m_WorkThreadList.GetCount(); i++)
+		{
+			m_WorkThreadList[i].Start();
+		}
+	}
+	return (UINT)m_WorkThreadList.GetCount();
 }
 
 UINT CLogManager::GetChannelCount()
@@ -55,6 +80,28 @@ void CLogManager::AddChannel(UINT ChannelID,ILogPrinter * pLogPrinter)
 	}
 	m_LogChannels.Insert(ChannelID,pLogPrinter);
 	pLogPrinter->AddUseRef();
+	if (pLogPrinter->NeedAsyncUpdate())
+	{
+		CAsyncLogWorkThread * pWorkThread = NULL;
+		UINT MinCount = 0;
+		for (UINT i = 0; i < m_WorkThreadList.GetCount(); i++)
+		{
+			if (pWorkThread == NULL || MinCount>m_WorkThreadList[i].GetLogPrinterCount())
+			{
+				pWorkThread = m_WorkThreadList.GetObject(i);
+				MinCount = pWorkThread->GetLogPrinterCount();
+			}
+		}
+		if (pWorkThread)
+		{
+			pWorkThread->AddLogPrinter(pLogPrinter);
+		}
+		else
+		{
+			PrintImportantLog(_T("无法给%u通道的日志输器分配工作线程"), ChannelID);
+		}
+	}
+	PrintImportantLog(_T("已在%u通道添加日志输出器"), ChannelID);
 }
 
 ILogPrinter * CLogManager::GetChannel(UINT ChannelID)
@@ -64,33 +111,59 @@ ILogPrinter * CLogManager::GetChannel(UINT ChannelID)
 	{
 		return *ppLogPrinter;
 	}
+	//else
+	//{
+	//	PrintSystemLog(_T("无法找到Log通道%u"), ChannelID);
+	//}
 	return NULL;
 }
 
-BOOL CLogManager::DelChannel(UINT ChannelID)
+bool CLogManager::DelChannel(UINT ChannelID)
 {
 	ILogPrinter ** ppLogPrinter=m_LogChannels.Find(ChannelID);
 	if(ppLogPrinter)
 	{
+		if ((*ppLogPrinter)->NeedAsyncUpdate())
+		{
+			bool HaveRemoved = false;
+			for (UINT i = 0; i < m_WorkThreadList.GetCount(); i++)
+			{
+				if (m_WorkThreadList[i].RemoveLogPrinter((*ppLogPrinter)))
+					HaveRemoved = true;
+			}
+			if (!HaveRemoved)
+			{
+				PrintSystemLog(_T("无法将通道%u的日志输出其从工作线程移除"), ChannelID);
+				return false;
+			}
+		}
 		SAFE_RELEASE(*ppLogPrinter);
 		m_LogChannels.Delete(ChannelID);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	//else
+	//{
+	//	PrintSystemLog(_T("无法找到Log通道%u"), ChannelID);
+	//}
+	return false;
 }
 
-BOOL CLogManager::PrintLogDirect(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Msg)
+bool CLogManager::PrintLogDirect(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Msg)
 {
 	ILogPrinter * pLogPrinter = GetChannel(ChannelID);
 	if (pLogPrinter)
 	{
 		pLogPrinter->PrintLogDirect(Level, Tag, Msg);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	//else
+	//{
+	//	PrintSystemLog(_T("无法找到Log通道%u"), ChannelID);
+	//}
+	return false;
 }
 
-BOOL CLogManager::PrintLog(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Format, ...)
+bool CLogManager::PrintLog(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	ILogPrinter * pLogPrinter=GetChannel(ChannelID);
 	if(pLogPrinter)
@@ -99,19 +172,27 @@ BOOL CLogManager::PrintLog(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Forma
 		va_start(vl,Format);
 		pLogPrinter->PrintLogVL(Level, Tag, Format, vl);
 		va_end( vl);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	//else
+	//{
+	//	PrintSystemLog(_T("无法找到Log通道%u"), ChannelID);
+	//}
+	return false;
 }
-BOOL CLogManager::PrintLogVL(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl)
+bool CLogManager::PrintLogVL(UINT ChannelID, int Level, LPCTSTR Tag, LPCTSTR Format, va_list vl)
 {
 	ILogPrinter * pLogPrinter=GetChannel(ChannelID);
 	if(pLogPrinter)
 	{
 		pLogPrinter->PrintLogVL(Level, Tag, Format, vl);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	//else
+	//{
+	//	PrintSystemLog(_T("无法找到Log通道%u"), ChannelID);
+	//}
+	return false;
 }
 
 

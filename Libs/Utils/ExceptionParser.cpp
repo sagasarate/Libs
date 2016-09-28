@@ -64,7 +64,7 @@ void DisableSetUnhandledExceptionFilter()
 		{
 			if(WriteProcessMemory(GetCurrentProcess(), addr, code, size, NULL))
 			{
-				PrintImportantLog(_T("Exception"), _T("屏蔽SetUnhandledExceptionFilter成功"));
+				PrintImportantLog( _T("屏蔽SetUnhandledExceptionFilter成功"));
 			}
 			VirtualProtect(addr, size, dwOldFlag, &dwTempFlag);
 		}
@@ -79,7 +79,7 @@ void DisableSetUnhandledExceptionFilter()
 
 LONG CExceptionParser::ExceptionHander(LPEXCEPTION_POINTERS pException)
 {
-	PrintImportantLog(_T("Exception"), _T("收到未处理的异常"));
+	PrintImportantLog( _T("收到未处理的异常"));
 	CExceptionParser::GetInstance()->ParseException(pException);
 	return 0;
 }
@@ -87,13 +87,13 @@ LONG CExceptionParser::ExceptionHander(LPEXCEPTION_POINTERS pException)
 
 void CExceptionParser::ExceptionTranslator(UINT Code,LPEXCEPTION_POINTERS pException)
 {
-	PrintImportantLog(_T("Exception"), _T("捕捉到异常,Code=%u"), Code);
+	PrintImportantLog( _T("捕捉到异常,Code=%u"), Code);
 	CExceptionParser::GetInstance()->ParseException(pException);	
 }
 
 LONG CExceptionParser::ExceptionPrinter(LPEXCEPTION_POINTERS pException,UINT64 DebugInfo1,LPCTSTR szFunName)
 {
-	PrintImportantLog(_T("Exception"), _T("开始输出异常,DebugInfo1=0x%llX,在函数%s"), DebugInfo1, szFunName);
+	PrintImportantLog( _T("开始输出异常,DebugInfo1=0x%llX,在函数%s"), DebugInfo1, szFunName);
 	CExceptionParser::GetInstance()->ParseException(pException);
 	return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -119,7 +119,7 @@ void CExceptionParser::Init(UINT Flag)
 
 	if(m_Flag&EXCEPTION_SET_DEFAULT_HANDLER)
 	{
-		PrintImportantLog(_T("Exception"), _T("启用未处理异常捕捉"));
+		PrintImportantLog( _T("启用未处理异常捕捉"));
 		SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)ExceptionHander);
 
 		
@@ -131,34 +131,34 @@ void CExceptionParser::Init(UINT Flag)
 	}
 	if(m_Flag&EXCEPTION_USE_API_HOOK)
 	{
-		PrintImportantLog(_T("Exception"),_T("屏蔽系统异常捕捉"));
+		PrintImportantLog(_T("屏蔽系统异常捕捉"));
 		DisableSetUnhandledExceptionFilter();
 	}
 	if(m_Flag&EXCEPTION_SET_TRANSLATOR)
 	{
-		PrintImportantLog(_T("Exception"),_T("启用异常处理过滤"));
+		PrintImportantLog(_T("启用异常处理过滤"));
 		_set_se_translator(ExceptionTranslator);
 	}
 
 	if (m_Flag&EXCEPTION_PRE_INIT_SYM)
 	{
-		PrintImportantLog(_T("Exception"), _T("启用符号预加载"));
+		PrintImportantLog( _T("启用符号预加载"));
 		SymInit();
 	}
 
 	if (m_Flag&EXCEPTION_MAKE_DUMP)
 	{
-		PrintImportantLog(_T("Exception"), _T("启用Dump输出"));
+		PrintImportantLog( _T("启用Dump输出"));
 	}
 
 	if (m_Flag&EXCEPTION_MAKE_FULL_DUMP)
 	{
-		PrintImportantLog(_T("Exception"), _T("启用FullDump输出"));
+		PrintImportantLog( _T("启用FullDump输出"));
 	}
 
 	if (m_Flag&EXCEPTION_LOG_MODULE_SYM_STATUS)
 	{
-		PrintImportantLog(_T("Exception"), _T("输出模块符号加载状态"));
+		PrintImportantLog( _T("输出模块符号加载状态"));
 	}
 }
 
@@ -168,25 +168,25 @@ void CExceptionParser::ParseException(LPEXCEPTION_POINTERS pException)
 
 	m_hProcess=GetCurrentProcess();	
 
-	PrintImportantLog(_T("Exception"),_T("进行异常处理"));
+	PrintImportantLog(_T("进行异常处理"));
 
 	PROCESS_MEMORY_COUNTERS MemoryInfo;
 	if(GetProcessMemoryInfo(m_hProcess,&MemoryInfo,sizeof(MemoryInfo)))
 	{
 #ifdef _WIN64
-		PrintImportantLog(_T("Exception"),_T("进程内存占用:%llu,虚拟内存占用:%llu"),MemoryInfo.WorkingSetSize,MemoryInfo.PagefileUsage);
+		PrintImportantLog(_T("进程内存占用:%llu,虚拟内存占用:%llu"),MemoryInfo.WorkingSetSize,MemoryInfo.PagefileUsage);
 #else
-		PrintImportantLog(_T("Exception"),_T("进程内存占用:%u,虚拟内存占用:%u"),MemoryInfo.WorkingSetSize,MemoryInfo.PagefileUsage);
+		PrintImportantLog(_T("进程内存占用:%u,虚拟内存占用:%u"),MemoryInfo.WorkingSetSize,MemoryInfo.PagefileUsage);
 #endif		
 	}
 	else
 	{
-		PrintImportantLog(_T("Exception"),_T("获取进程内存使用情况失败%d"),GetLastError());
+		PrintImportantLog(_T("获取进程内存使用情况失败%d"),GetLastError());
 	}
 
 	if(m_ExceptionCount>0)
 	{
-		PrintImportantLog(_T("Exception"),_T("发生多次异常捕捉%d"),m_ExceptionCount);
+		PrintImportantLog(_T("发生多次异常捕捉%d"),m_ExceptionCount);
 		return;
 	}
 	m_ExceptionCount++;
@@ -213,13 +213,13 @@ void CExceptionParser::ParseException(LPEXCEPTION_POINTERS pException)
 		CurTime.wYear,CurTime.wMonth,CurTime.wDay,
 		CurTime.wHour,CurTime.wMinute,CurTime.wSecond);
 
-	PrintImportantLog(0,_T("开始输出异常Log文件:%s.Log"),
+	PrintImportantLog(_T("开始输出异常Log文件:%s.Log"),
 		szExceptionLogFileName);
 
 	m_hExceptionLog=CreateFile(szExceptionLogFileName,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_WRITE_THROUGH,NULL);
 	if(m_hExceptionLog==INVALID_HANDLE_VALUE)
 	{
-		PrintImportantLog(0,_T("无法创建异常Log文件:%s.Log"),
+		PrintImportantLog(_T("无法创建异常Log文件:%s.Log"),
 			szExceptionLogFileName);
 	}
 	
@@ -414,7 +414,7 @@ BOOL CExceptionParser::GetAddressInfo(DWORD64 Address,ADDRESS_INFO * pAddressInf
 
 	if(SymGetLineFromAddr64T(m_hProcess, Address, &LineDisplacement, &LineInfo))
 	{
-		PrintImportantLog(0, _T("SymGetLineFromAddr64(0x%X,0x%llX) OK"),
+		PrintImportantLog(_T("SymGetLineFromAddr64(0x%X,0x%llX) OK"),
 			m_hProcess, Address); 
 		if (LineInfo.FileName)
 		{
@@ -424,19 +424,19 @@ BOOL CExceptionParser::GetAddressInfo(DWORD64 Address,ADDRESS_INFO * pAddressInf
 	}
 	else
 	{
-		PrintImportantLog(0, _T("SymGetLineFromAddr64(0x%X,0x%llX):%d"),
+		PrintImportantLog(_T("SymGetLineFromAddr64(0x%X,0x%llX):%d"),
 			m_hProcess, Address, GetLastError());
 
 		DWORD64 Displacement = 0;
 
 		if (SymFromAddr(m_hProcess, Address, &Displacement, &(pAddressInfo->SymbolInfo)))
 		{
-			PrintImportantLog(0, _T("SymFromAddr(0x%X,0x%llX,%d) OK"),
+			PrintImportantLog(_T("SymFromAddr(0x%X,0x%llX,%d) OK"),
 				m_hProcess, Address, pAddressInfo->SymbolInfo.MaxNameLen);
 		}
 		else
 		{
-			PrintImportantLog(0, _T("SymFromAddr(0x%X,0x%llX,%d):%d"),
+			PrintImportantLog(_T("SymFromAddr(0x%X,0x%llX,%d):%d"),
 				m_hProcess, Address, pAddressInfo->SymbolInfo.MaxNameLen, GetLastError());
 		}
 	}
@@ -461,7 +461,7 @@ BOOL CExceptionParser::WriteDump(LPEXCEPTION_POINTERS pException)
 		CurTime.wYear,CurTime.wMonth,CurTime.wDay,
 		CurTime.wHour,CurTime.wMinute,CurTime.wSecond);	
 
-	PrintImportantLog(_T("Exception"),_T("开始写入%sDump文件%s"),
+	PrintImportantLog(_T("开始写入%sDump文件%s"),
 		m_Flag&EXCEPTION_MAKE_FULL_DUMP?_T("完整"):_T("最小"),
 		szDumpFileName);
 	hDumpFile=CreateFile(szDumpFileName,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
@@ -481,26 +481,26 @@ BOOL CExceptionParser::WriteDump(LPEXCEPTION_POINTERS pException)
 			pExceptionInfo=&ExceptionInfo;
 		}
 		
-		PrintImportantLog(_T("Exception"),_T("创建Dump文件成功"));
+		PrintImportantLog(_T("创建Dump文件成功"));
 
 		if(MiniDumpWriteDump(m_hProcess,ProcessID,hDumpFile,
 			m_Flag&EXCEPTION_MAKE_FULL_DUMP?MiniDumpWithFullMemory:MiniDumpNormal,
 			pExceptionInfo,NULL,NULL))
 		{
-			PrintImportantLog(_T("Exception"),_T("写入Dump文件成功%s"),szDumpFileName);
+			PrintImportantLog(_T("写入Dump文件成功%s"),szDumpFileName);
 			CloseHandle(hDumpFile);
 			return TRUE;
 		}
 		else
 		{
-			PrintImportantLog(_T("Exception"),_T("写入Dump文件失败%s"),szDumpFileName);
+			PrintImportantLog(_T("写入Dump文件失败%s"),szDumpFileName);
 		}
 		CloseHandle(hDumpFile);
 		
 	}
 	else
 	{
-		PrintImportantLog(_T("Exception"),_T("打开Dump文件失败%s"),szDumpFileName);
+		PrintImportantLog(_T("打开Dump文件失败%s"),szDumpFileName);
 	}
 
 	return FALSE;
@@ -512,14 +512,14 @@ BOOL CExceptionParser::SymInit()
 	TCHAR szModulePath[MAX_PATH];
 	szModulePath[0] = 0;
 
-	PrintImportantLog(_T("Exception"),_T("开始初始化符号"));
+	PrintImportantLog(_T("开始初始化符号"));
 
 	DWORD dwMS, dwLS;
 
 	dwMS = 0;
 	dwLS = 0;
 	GetInMemoryFileVersion(_T("dbghelp.dll"), szModulePath,dwMS, dwLS);
-	PrintImportantLog(_T("Exception"), _T("dbghelp.dll版本%d.%d.%d.%d,路径:%s"),
+	PrintImportantLog( _T("dbghelp.dll版本%d.%d.%d.%d,路径:%s"),
 		HIWORD(dwMS), LOWORD(dwMS), HIWORD(dwLS), LOWORD(dwLS), szModulePath);
 
 	m_hProcess=GetCurrentProcess();	
@@ -539,17 +539,17 @@ BOOL CExceptionParser::SymInit()
 	}
 
 
-	PrintImportantLog(_T("Exception"), _T("搜索符号文件在:%s"), szModulePath);
+	PrintImportantLog( _T("搜索符号文件在:%s"), szModulePath);
 	if (!SymInitializeT(m_hProcess, szModulePath, TRUE))
 	{
-		PrintImportantLog(_T("Exception"),_T("无法在当前模块路径找到PDB文件，尝试进行目录搜索"));
+		PrintImportantLog(_T("无法在当前模块路径找到PDB文件，尝试进行目录搜索"));
 		if(!SymInitialize(m_hProcess,NULL,TRUE))
 		{
-			PrintImportantLog(_T("Exception"),_T("无法到PDB文件"));
+			PrintImportantLog(_T("无法到PDB文件"));
 			return FALSE;
 		}
 	}
-	PrintImportantLog(_T("Exception"),_T("初始化符号完毕"));
+	PrintImportantLog(_T("初始化符号完毕"));
 	
 	return TRUE;
 }
@@ -558,7 +558,7 @@ BOOL CExceptionParser::SymInit()
 
 BOOL CExceptionParser::SymLoadFromModule(LPCTSTR szModuleFileName)
 {
-	PrintImportantLog(_T("Exception"),_T("开始从%s加载符号"),szModuleFileName);
+	PrintImportantLog(_T("开始从%s加载符号"),szModuleFileName);
 	HMODULE hModule=GetModuleHandle(szModuleFileName);
 	if(hModule)
 	{
@@ -566,25 +566,25 @@ BOOL CExceptionParser::SymLoadFromModule(LPCTSTR szModuleFileName)
 		ZeroMemory(&ModuleInfo,sizeof(ModuleInfo));
 		if(GetModuleInformation(m_hProcess,hModule,&ModuleInfo,sizeof(ModuleInfo)))
 		{
-			PrintImportantLog(_T("Exception"),_T("模块起始地址:0x%llX"),(DWORD64)ModuleInfo.lpBaseOfDll);
+			PrintImportantLog(_T("模块起始地址:0x%llX"),(DWORD64)ModuleInfo.lpBaseOfDll);
 			if(SymLoadModuleExT(m_hProcess,NULL,szModuleFileName,NULL,(DWORD64)ModuleInfo.lpBaseOfDll,0,NULL,0))
 			{
-				PrintImportantLog(_T("Exception"),_T("加载符号成功"));
+				PrintImportantLog(_T("加载符号成功"));
 				return TRUE;
 			}
 			else
 			{
-				PrintImportantLog(_T("Exception"),_T("加载符号失败%d"),GetLastError());			
+				PrintImportantLog(_T("加载符号失败%d"),GetLastError());			
 			}
 		}
 		else
 		{
-			PrintImportantLog(_T("Exception"),_T("获取模块信息失败%d"),GetLastError());
+			PrintImportantLog(_T("获取模块信息失败%d"),GetLastError());
 		}
 	}
 	else
 	{
-		PrintImportantLog(_T("Exception"),_T("获取模块句柄失败%d"),GetLastError());
+		PrintImportantLog(_T("获取模块句柄失败%d"),GetLastError());
 	}
 	return FALSE;
 }
@@ -654,7 +654,7 @@ void CExceptionParser::LogException(LPCTSTR Format,...)
 void CExceptionParser::InvalidParameterHandler(const WCHAR * expression,const WCHAR * function,const WCHAR * file,unsigned int line,uintptr_t pReserved)
 {
 #ifdef UNICODE
-	PrintImportantLog(_T("Exception"),_T("非法的调用参数[%s][%s][%s][%d]"),
+	PrintImportantLog(_T("非法的调用参数[%s][%s][%s][%d]"),
 		expression,
 		function,
 		file,
@@ -672,7 +672,7 @@ void CExceptionParser::InvalidParameterHandler(const WCHAR * expression,const WC
 	szFunction[1023]=0;
 	szFile[MAX_PATH-1]=0;
 
-	PrintImportantLog(_T("Exception"),_T("非法的调用参数[%s][%s][%s][%d]"),
+	PrintImportantLog(_T("非法的调用参数[%s][%s][%s][%d]"),
 		szExpression,
 		szFunction,
 		szFile,
@@ -682,7 +682,7 @@ void CExceptionParser::InvalidParameterHandler(const WCHAR * expression,const WC
 
 void CExceptionParser::SignalHandler(int signal)
 {
-	PrintImportantLog(_T("Exception"),_T("系统提示%d"),signal);
+	PrintImportantLog(_T("系统提示%d"),signal);
 }
 
 BOOL CExceptionParser::GetInMemoryFileVersion(LPCTSTR szFile, LPTSTR szFileFullName, DWORD & dwMS, DWORD & dwLS)
@@ -754,10 +754,10 @@ BOOL CALLBACK EnumModulesCallback(LPCSTR   ModuleName, DWORD64 BaseOfDll, PVOID 
 
 	if (!SymGetModuleInfo64((HANDLE)UserContext, BaseOfDll, &ModuleInfo))
 	{
-		PrintImportantLog(_T("Exception"), _T("获取模块信息失败%d"), GetLastError());
+		PrintImportantLog( _T("获取模块信息失败%d"), GetLastError());
 	}
 
-	PrintImportantLog(_T("Exception"), _T("%08llX %s SymType=%d NumSyms=%d CVSig=0x%X PDBSig=0x%X Age=%d PDBUnmatched=%d Image=%s PDB=%s"),
+	PrintImportantLog( _T("%08llX %s SymType=%d NumSyms=%d CVSig=0x%X PDBSig=0x%X Age=%d PDBUnmatched=%d Image=%s PDB=%s"),
 		BaseOfDll, ModuleName, ModuleInfo.SymType, ModuleInfo.NumSyms, ModuleInfo.CVSig, ModuleInfo.PdbSig, ModuleInfo.PdbAge, 
 		ModuleInfo.PdbUnmatched, ModuleInfo.ImageName, ModuleInfo.LoadedPdbName);
 	return TRUE;
@@ -765,10 +765,10 @@ BOOL CALLBACK EnumModulesCallback(LPCSTR   ModuleName, DWORD64 BaseOfDll, PVOID 
 
 void CExceptionParser::EnumModuleSymStatus(HANDLE hProcess)
 {
-	PrintImportantLog(_T("Exception"), _T("开始枚举模块符号加载状态"));
+	PrintImportantLog( _T("开始枚举模块符号加载状态"));
 	if (!SymEnumerateModules64(hProcess, EnumModulesCallback, hProcess))
 	{
-		PrintImportantLog(_T("Exception"), _T("枚举模块失败%d"), GetLastError());
+		PrintImportantLog( _T("枚举模块失败%d"), GetLastError());
 	}
-	PrintImportantLog(_T("Exception"), _T("枚举模块符号加载状态完毕"));
+	PrintImportantLog( _T("枚举模块符号加载状态完毕"));
 }

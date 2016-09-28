@@ -82,10 +82,8 @@ inline int OBJECT_ID::Compare(const void * Value1,const void * Value2)
 #define BROAD_CAST_GROUP_INDEX		(0xFFFF)
 #define BROAD_CAST_OBJECT_INDEX		(0xFFFF)
 #define BROAD_CAST_PROXY_TYPE		(0xFF)
-#define BROAD_CAST_PROXY_ID			(0xFF)
-#define MAKE_PROXY_GROUP_INDEX(ProxyType,ProxyID) ((((ProxyType)&0xFF)<<8)|((ProxyID)&0xFF))
-#define GET_PROXY_ID_FROM_PROXY_GROUP_INDEX(GroupIndex) ((GroupIndex)&0xFF)
-#define GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(GroupIndex) ((GroupIndex>>8)&0xFF)
+#define MAKE_PROXY_GROUP_INDEX(ProxyType) ((ProxyType&0xFF)|0xFF00)
+#define GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(GroupIndex) (GroupIndex&0xFF)
 
 enum DOS_OBJECT_TYPE
 {
@@ -127,7 +125,11 @@ public:
 		m_MsgHeader.MsgID=0;		
 		m_MsgHeader.MsgFlag=0;
 	}
-	DOS_SIMPLE_MESSAGE_HEAD& GetMsgHeader()
+	DOS_SIMPLE_MESSAGE_HEAD& GetMsgHeader() 
+	{
+		return m_MsgHeader;
+	}
+	const DOS_SIMPLE_MESSAGE_HEAD& GetMsgHeader() const
 	{
 		return m_MsgHeader;
 	}
@@ -155,11 +157,15 @@ public:
 	{
 		m_MsgHeader.MsgFlag=Flag;
 	}
-	WORD GetMsgFlag()
+	WORD GetMsgFlag() const
 	{
 		return m_MsgHeader.MsgFlag;
 	}
 	void * GetDataBuffer()
+	{
+		return m_DataBuffer;
+	}
+	const void * GetDataBuffer() const
 	{
 		return m_DataBuffer;
 	}
@@ -168,7 +174,7 @@ public:
 		CSmartStruct DataPacket(m_DataBuffer,GetDataLength(),false);
 
 		return DataPacket;
-	}
+	}	
 	void ClearDataPacket()
 	{
 		CSmartStruct DataPacket(m_DataBuffer,GetDataLength(),true);
@@ -220,6 +226,10 @@ public:
 	{
 		return m_MsgHeader;
 	}
+	const DOS_MESSAGE_HEAD& GetMsgHeader() const
+	{
+		return m_MsgHeader;
+	}
 	void SetMsgID(MSG_ID_TYPE CmdID)
 	{
 		m_MsgHeader.MsgID=CmdID;
@@ -240,7 +250,7 @@ public:
 	{
 		m_MsgHeader.MsgFlag=Flag;
 	}
-	WORD GetMsgFlag()
+	WORD GetMsgFlag() const
 	{
 		return m_MsgHeader.MsgFlag;
 	}
@@ -262,6 +272,10 @@ public:
 		return m_MsgHeader.SenderID;
 	}
 	void * GetDataBuffer()
+	{
+		return m_DataBuffer;
+	}
+	const void * GetDataBuffer() const
 	{
 		return m_DataBuffer;
 	}
@@ -287,6 +301,12 @@ public:
 		m_MsgHeader.SimpleMsgHeader.MsgID=m_MsgHeader.MsgID;
 		m_MsgHeader.SimpleMsgHeader.MsgLen=CDOSSimpleMessage::GetMsgHeaderLength()+GetDataLength();		
 		return (CDOSSimpleMessage *)(&m_MsgHeader.SimpleMsgHeader);
+	}
+	void MakeSimpleMessageHeader(CDOSSimpleMessage::DOS_SIMPLE_MESSAGE_HEAD& MsgHeader) const
+	{
+		MsgHeader.MsgFlag = m_MsgHeader.MsgFlag;
+		MsgHeader.MsgID = m_MsgHeader.MsgID;
+		MsgHeader.MsgLen = CDOSSimpleMessage::GetMsgHeaderLength() + GetDataLength();
 	}
 	static MSG_LEN_TYPE GetMsgHeaderLength()
 	{
@@ -318,6 +338,10 @@ public:
 	{
 		return m_Message;
 	}	
+	const CDOSMessage& GetMessage() const
+	{
+		return m_Message;
+	}
 	void SetAllocTime(UINT Time)
 	{
 		m_AllocTime=Time;
@@ -330,7 +354,7 @@ public:
 	{
 		m_AllocSize=Size;
 	}
-	UINT GetAllocSize()
+	UINT GetAllocSize() const
 	{
 		return m_AllocSize;
 	}
@@ -358,6 +382,10 @@ public:
 	{
 		return &m_PacketLen;
 	}	
+	const void * GetPacketBuffer() const
+	{
+		return &m_PacketLen;
+	}
 	void SetTargetIDs(ID_LIST_COUNT_TYPE TargetCount,OBJECT_ID * pTargetIDs)
 	{
 		GetTargetIDCount()=TargetCount;
@@ -435,3 +463,35 @@ enum DOS_MESSAGE_FLAG
 	DOS_MESSAGE_FLAG_COMPRESSED=(1<<1),
 	DOS_MESSAGE_FLAG_CAN_CACHE = (1 << 2),
 };
+
+
+inline BOOL PrintDOSLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
+{
+	va_list vl;
+	va_start(vl, Format);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DOS_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
+	va_end(vl);
+	return ret;
+}
+
+
+inline BOOL PrintDOSDebugLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
+{
+	va_list vl;
+	va_start(vl, Format);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DOS_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, Tag, Format, vl);
+	va_end(vl);
+	return ret;
+}
+
+inline BOOL PrintDOSObjectStatLog(LPCTSTR Format, ...)
+{
+	va_list vl;
+	va_start(vl, Format);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DOS_OBJECT_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, NULL, Format, vl);
+	va_end(vl);
+	return ret;
+}
+
+#define PrintDOSLog(_Format, ...)	PrintDOSLogWithTag(__PRETTY_FUNCTION__, _Format, ##__VA_ARGS__)
+#define PrintDOSDebugLog(_Format, ...)	PrintDOSDebugLogWithTag(__PRETTY_FUNCTION__, _Format, ##__VA_ARGS__)

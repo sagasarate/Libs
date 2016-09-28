@@ -971,6 +971,7 @@ namespace DOSSystem
                             if (Temp.Length < MaxLen)
                                 MaxLen = Temp.Length;
                             Array.Copy(Temp, 0, m_pData, m_StartIndex + sizeof(byte) + sizeof(uint), MaxLen);
+                            m_pData[m_StartIndex + sizeof(byte) + sizeof(uint) + MaxLen] = 0;
                             SetLength((uint)MaxLen);
                         }
                         break;
@@ -983,6 +984,7 @@ namespace DOSSystem
                             if (Temp.Length < MaxLen)
                                 MaxLen = Temp.Length;
                             Array.Copy(Temp, 0, m_pData, m_StartIndex + sizeof(byte) + sizeof(ushort), MaxLen);
+                            m_pData[m_StartIndex + sizeof(byte) + sizeof(uint) + MaxLen] = 0;
                             SetLength((uint)MaxLen);
                         }
                         break;
@@ -992,6 +994,8 @@ namespace DOSSystem
                             if (Value.Length * sizeof(char) < MaxLen)
                                 MaxLen = Value.Length * sizeof(char);
                             Array.Copy(Encoding.Unicode.GetBytes(Value), 0, m_pData, m_StartIndex + sizeof(byte) + sizeof(uint), MaxLen);
+                            m_pData[m_StartIndex + sizeof(byte) + sizeof(uint) + MaxLen] = 0;
+                            m_pData[m_StartIndex + sizeof(byte) + sizeof(uint) + MaxLen + 1] = 0;
                             SetLength((uint)MaxLen);
                         }
                         break;
@@ -1001,6 +1005,8 @@ namespace DOSSystem
                             if (Value.Length * sizeof(char) < MaxLen)
                                 MaxLen = Value.Length * sizeof(char);
                             Array.Copy(Encoding.Unicode.GetBytes(Value), 0, m_pData, m_StartIndex + sizeof(byte) + sizeof(ushort), MaxLen);
+                            m_pData[m_StartIndex + sizeof(byte) + sizeof(uint) + MaxLen] = 0;
+                            m_pData[m_StartIndex + sizeof(byte) + sizeof(uint) + MaxLen + 1] = 0;
                             SetLength((uint)MaxLen);
                         }
                         break;

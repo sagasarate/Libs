@@ -63,17 +63,28 @@ public:
 		m_UDPSendCount=0;
 	}
 
-	virtual BOOL StartUp(int EventObjectPoolSize=DEFAULT_EVENT_OBJECT_COUNT,
-		int ThreadNumberPerCPU=DEFAULT_THREAD_NUMBER_PER_CPU,
-		int EventRouterPoolSiz=DEFAULT_EVENT_ROUTER_COUNT,
+	virtual bool StartUp(int EventObjectPoolSize = DEFAULT_EVENT_OBJECT_COUNT,
+		int WorkThreadCount = DEFAULT_WORK_THREAD_COUNT,
+		int EventRouterPoolSize=DEFAULT_EVENT_ROUTER_COUNT,
 		int EventObjectPoolGrowSize=DEFAULT_EVENT_OBJECT_POOL_GROW_SIZE,
 		int EventObjectPoolGrowLimit=DEFAULT_EVENT_OBJECT_POOL_GROW_LIMIT,
 		int EventRouterPoolGrowSize=DEFAULT_EVENT_ROUTER_POOL_GROW_SIZE,
 		int EventRouterPoolGrowlimit=DEFAULT_EVENT_ROUTER_POOL_GROW_LIMIT)=0;
+	bool StartUp(const STORAGE_POOL_SETTING& EventObjectPoolSetting, const STORAGE_POOL_SETTING& EventRouterPoolSetting, int WorkThreadCount)
+	{
+		return StartUp(EventObjectPoolSetting.StartSize, WorkThreadCount, EventRouterPoolSetting.StartSize,
+			EventObjectPoolSetting.GrowSize, EventObjectPoolSetting.GrowLimit,
+			EventRouterPoolSetting.GrowSize, EventRouterPoolSetting.GrowLimit);
+	}
 	virtual void ShutDown(DWORD Milliseconds=DEFAULT_THREAD_TERMINATE_TIME)=0;
 
+	UINT GetThreadID()
+	{
+		return CEasyThread::GetThreadID();
+	}
+
 protected:
-	virtual BOOL OnStartUp()=0;
+	virtual bool OnStartUp() = 0;
 	virtual void OnShutDown()=0;
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT)=0;
 

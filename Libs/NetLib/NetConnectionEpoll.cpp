@@ -17,11 +17,11 @@ IMPLEMENT_CLASS_INFO_STATIC(CNetConnection,CBaseNetConnection);
 CNetConnection::CNetConnection(void)
 {
 	m_pServer=NULL;
-	m_WantClose=FALSE;
+	m_WantClose=false;
+	m_IsEventProcessing = false;
 	m_CurAddressFamily = AF_INET;
 	m_UseSafeDisconnect=false;
 	m_pEpollEventRouter=NULL;
-	m_EnableSendLock = false;
 }
 
 CNetConnection::~CNetConnection(void)
@@ -29,15 +29,23 @@ CNetConnection::~CNetConnection(void)
 	Destory();
 }
 
-BOOL CNetConnection::OnEpollEvent(UINT EventID)
+bool CNetConnection::OnEpollEvent(UINT EventID)
 {
+	m_IsEventProcessing = true;
 	if(m_Socket.IsConnected())
 	{
 		if(EventID&(EPOLLERR|EPOLLHUP))
 		{
-			PrintNetLog(_T("NetLib"), "CNetConnection::(%u)Epoll发生错误%d！", GetID(), errno);			
-			QueryDisconnect();
-			return TRUE;
+			int SocketErr = 0;
+			socklen_t DataLen = sizeof(SocketErr);
+			m_Socket.GetOption(SOL_SOCKET, SO_ERROR, (char *)&SocketErr, DataLen);
+			if (SocketErr != 0 && SocketErr != EAGAIN)
+			{
+				PrintNetLog("(%u)Epoll发生错误%d！", GetID(), SocketErr);
+				QueryDisconnect();
+				m_IsEventProcessing = false;
+				return true;
+			}
 		}
 		if(EventID&EPOLLIN)
 		{
@@ -50,34 +58,39 @@ BOOL CNetConnection::OnEpollEvent(UINT EventID)
 	}
 	else
 	{
-		PrintNetLog(_T("NetLib"),"(%d)Connection未连接，Epoll事件被忽略！",GetID());
+		PrintNetLog("(%d)Connection未连接，Epoll事件被忽略！",GetID());
 	}
 
-
-	return FALSE;
+	m_IsEventProcessing = false;
+	return false;
 }
 
-BOOL CNetConnection::Create(UINT RecvQueueSize,UINT SendQueueSize)
+bool CNetConnection::Create(UINT RecvQueueSize, UINT SendQueueSize)
 {
 
 
 	if (GetServer() == NULL)
 	{
-		PrintNetLog(_T("NetLib"), _T("(%d)CNetConnection::Create:未设置Server！"), GetID());
-		return FALSE;
+		PrintNetLog( _T("(%d)CNetConnection::Create:未设置Server！"), GetID());
+		return false;
 	}
-		
+
 
 	Close();
 
-	RecvQueueSize *= EPOLL_DATA_BLOCK_SIZE;
-	SendQueueSize *= EPOLL_DATA_BLOCK_SIZE;
+	RecvQueueSize *= NET_DATA_BLOCK_SIZE;
+	SendQueueSize *= NET_DATA_BLOCK_SIZE;
 
 	if(m_pEpollEventRouter==NULL)
 	{
 		m_pEpollEventRouter=GetServer()->CreateEventRouter();
+		if (m_pEpollEventRouter == NULL)
+		{
+			PrintNetLog(_T("无法分配到EpollEventRouter"));
+			return false;
+		}
 		m_pEpollEventRouter->Init(this);
-	}	
+	}
 
 	if(m_RecvQueue.GetBufferSize()<RecvQueueSize)
 	{
@@ -96,31 +109,36 @@ BOOL CNetConnection::Create(UINT RecvQueueSize,UINT SendQueueSize)
 	{
 		m_SendQueue.Clear();
 	}
-	m_WantClose=FALSE;
+	m_WantClose=false;
 
-	return TRUE;
+	return true;
 }
 
-BOOL CNetConnection::Create(SOCKET Socket,UINT RecvQueueSize,UINT SendQueueSize)
+bool CNetConnection::Create(SOCKET Socket, UINT RecvQueueSize, UINT SendQueueSize)
 {
 
 
 	if (GetServer() == NULL)
 	{
-		PrintNetLog(_T("NetLib"), _T("(%d)CNetConnection::Create:未设置Server！"), GetID());
-		return FALSE;
+		PrintNetLog( _T("(%d)CNetConnection::Create:未设置Server！"), GetID());
+		return false;
 	}
-		
+
 
 	Close();
 
-	RecvQueueSize *= EPOLL_DATA_BLOCK_SIZE;
-	SendQueueSize *= EPOLL_DATA_BLOCK_SIZE;
+	RecvQueueSize *= NET_DATA_BLOCK_SIZE;
+	SendQueueSize *= NET_DATA_BLOCK_SIZE;
 
 
 	if(m_pEpollEventRouter==NULL)
 	{
 		m_pEpollEventRouter=GetServer()->CreateEventRouter();
+		if (m_pEpollEventRouter == NULL)
+		{
+			PrintNetLog(_T("无法分配到EpollEventRouter"));
+			return false;
+		}
 		m_pEpollEventRouter->Init(this);
 	}
 
@@ -143,18 +161,25 @@ BOOL CNetConnection::Create(SOCKET Socket,UINT RecvQueueSize,UINT SendQueueSize)
 	{
 		m_SendQueue.Clear();
 	}
-	m_WantClose=FALSE;
-	return TRUE;
+	m_WantClose=false;
+	return true;
 }
 
 void CNetConnection::Destory()
 {
 	Close();
+	m_RecvQueue.Destory();
+	m_SendQueue.Destory();
 }
 
 void CNetConnection::Close()
 {
 	Disconnect();
+	//等待现有的事件处理完毕
+	while (m_IsEventProcessing)
+	{
+		DoSleep(1);
+	}
 	if (m_pEpollEventRouter)
 	{
 		m_pEpollEventRouter->SetEventHander(NULL);
@@ -163,10 +188,10 @@ void CNetConnection::Close()
 	}
 }
 
-BOOL CNetConnection::Connect(const CIPAddress& Address ,DWORD TimeOut)
+bool CNetConnection::Connect(const CIPAddress& Address, DWORD TimeOut)
 {
 	if(GetServer()==NULL)
-		return FALSE;
+		return false;
 
 	if (Address.IsIPv4())
 		m_CurAddressFamily = AF_INET;
@@ -174,7 +199,7 @@ BOOL CNetConnection::Connect(const CIPAddress& Address ,DWORD TimeOut)
 		m_CurAddressFamily = AF_INET6;
 
 	if (!m_Socket.MakeSocket(m_CurAddressFamily, SOCK_STREAM, IPPROTO_TCP))
-		return FALSE;
+		return false;
 
 	m_pEpollEventRouter->Init(this);
 
@@ -183,23 +208,23 @@ BOOL CNetConnection::Connect(const CIPAddress& Address ,DWORD TimeOut)
 		if(m_Socket.Connect(Address))
 		{
 			StartWork();
-			return TRUE;
+			return true;
 		}
 	}
 	else
 	{
 		if(m_Socket.ConnectNoBlocking(Address,TimeOut))
 		{
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 void CNetConnection::Disconnect()
 {
-	//PrintNetLog(_T("NetLib"),"(%d)Connection关闭",GetID());
+	//PrintNetLog("(%d)Connection关闭",GetID());
 
-	//PrintNetLog(_T("NetLib"),"%s连接关闭",GetName());
+	//PrintNetLog("%s连接关闭",GetName());
 	if (IsConnected())
 	{
 		OnDisconnection();
@@ -207,7 +232,7 @@ void CNetConnection::Disconnect()
 
 	m_Socket.Close();
 
-	m_WantClose=FALSE;
+	m_WantClose=false;
 
 	m_RecvQueue.Clear();
 	m_SendQueue.Clear();
@@ -215,35 +240,35 @@ void CNetConnection::Disconnect()
 }
 void CNetConnection::QueryDisconnect()
 {
-	m_WantClose=TRUE;
-	if (GetServer())
-		GetServer()->UnbindSocket(m_Socket.GetSocket());//解除epoll事件注册，以免收到更多的错误事件
+	if (GetServer() && (!m_WantClose))
+		GetServer()->UnbindSocket(m_Socket.GetSocket(), m_pEpollEventRouter);//解除epoll事件注册，以免收到更多的错误事件
+	m_WantClose=true;	
 }
 
 
 
-BOOL CNetConnection::StartWork()
+bool CNetConnection::StartWork()
 {
-	//PrintNetLog(_T("NetLib"),"(%d)Connection开始工作",GetID());
+	//PrintNetLog("(%d)Connection开始工作",GetID());
 
 	m_pEpollEventRouter->Init(this);
 
 	m_Socket.SetState(CNetSocket::SS_CONNECTED);
 
-	if(!m_Socket.EnableBlocking(FALSE))
+	if(!m_Socket.EnableBlocking(false))
 	{
-		OnConnection(FALSE);
-		PrintNetLog(_T("NetLib"),"(%d)Connection开始非阻塞模式失败！",GetID());
+		OnConnection(false);
+		PrintNetLog("(%d)Connection开始非阻塞模式失败！",GetID());
 		m_Socket.Close();
-		return FALSE;
+		return false;
 	}
 
 	if(!GetServer()->BindSocket(m_Socket.GetSocket(),m_pEpollEventRouter))
 	{
-		OnConnection(FALSE);
-		PrintNetLog(_T("NetLib"),"(%d)Connection绑定Epoll失败！",GetID());
+		OnConnection(false);
+		PrintNetLog("(%d)Connection绑定Epoll失败！",GetID());
 		m_Socket.Close();
-		return FALSE;
+		return false;
 	}
 
 	//CEasyString ConnectionName;
@@ -251,64 +276,44 @@ BOOL CNetConnection::StartWork()
 	//SetName(ConnectionName);;
 
 
-	//PrintNetLog(_T("NetLib"),"%s连接建立[%u]",GetName(),(UINT)m_Socket.GetSocket());
+	//PrintNetLog("%s连接建立[%u]",GetName(),(UINT)m_Socket.GetSocket());
 
-	OnConnection(TRUE);
-	return TRUE;
+	OnConnection(true);
+	return true;
 }
 
-void CNetConnection::OnConnection(BOOL IsSucceed)
+
+
+
+bool CNetConnection::SendMulti(LPCVOID * pDataBuffers, const UINT * pDataSizes, UINT BufferCount)
 {
-
-}
-
-void CNetConnection::OnDisconnection()
-{
-}
-
-BOOL CNetConnection::Send(LPCVOID pData,UINT Size)
-{
-	CAutoLockEx Lock;
-	if (m_EnableSendLock)
-	{
-		Lock.Lock(m_SendLock);
-	}
-
+	CAutoLockEx Lock(m_SendLock);
 
 	if(m_Socket.IsConnected())
 	{
-		if (m_SendQueue.GetUsedSize()>0)
+		for (UINT i = 0; i < BufferCount; i++)
 		{
-			//有数据未发完，直接加入缓冲区，并注册发送事件，保证可靠
-			m_SendQueue.PushBack(pData, Size);
-			if (!GetServer()->ModifySendEvent(m_Socket.GetSocket(), m_pEpollEventRouter, true))
+			LPCVOID pData = pDataBuffers[i];
+			UINT Size = pDataSizes[i];
+			if (m_SendQueue.GetUsedSize()>0)
 			{
-				PrintNetLog(_T("NetLib"), "(%d)注册Epoll发送事件失败！", GetID());
-				QueryDisconnect();
-				return FALSE;
+				//有数据未发完，直接加入缓冲区
+				m_SendQueue.PushBack(pData, Size);
 			}
-		}
-		else
-		{
-			UINT SendSize = TrySend(pData, Size);
-			if (SendSize < Size)
+			else
 			{
-				//发送不完，剩余数据加入缓冲区，并注册发送事件
-				m_SendQueue.PushBack((BYTE *)pData + SendSize, Size - SendSize);
-				if (!GetServer()->ModifySendEvent(m_Socket.GetSocket(), m_pEpollEventRouter, true))
+				UINT SendSize = TrySend(pData, Size);
+				if (SendSize < Size)
 				{
-					PrintNetLog(_T("NetLib"), "(%d)注册Epoll发送事件失败！", GetID());
-					QueryDisconnect();
-					return FALSE;
+					//发送不完，剩余数据加入缓冲区
+					m_SendQueue.PushBack((BYTE *)pData + SendSize, Size - SendSize);
 				}
 			}
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
-
-
 
 
 
@@ -326,7 +331,7 @@ int CNetConnection::Update(int ProcessPacketLimit)
 		}
 		if(m_Socket.GetState()==CNetSocket::SS_UNUSED)
 		{
-			OnConnection(FALSE);
+			OnConnection(false);
 		}
 	}
 	else
@@ -364,7 +369,7 @@ int CNetConnection::Update(int ProcessPacketLimit)
 
 //bool CNetConnection::StealFrom(CNameObject * pObject,UINT Param)
 //{
-//	PrintNetLog(_T("NetLib"),"(%d)执行连接替换(%d)！",GetID(),pObject->GetID());
+//	PrintNetLog("(%d)执行连接替换(%d)！",GetID(),pObject->GetID());
 //	if(pObject->IsKindOf(GET_CLASS_INFO(CNetConnection)))
 //	{
 //		Close();
@@ -397,7 +402,7 @@ void CNetConnection::DoRecv()
 		UINT BufferSize = m_RecvQueue.GetSmoothFreeSize();
 		if (BufferSize <= 0)
 		{
-			PrintNetLog(_T("NetLib"), "CNetConnection接收缓冲溢出！");
+			PrintNetLog( "CNetConnection接收缓冲溢出！");
 			QueryDisconnect();
 			return;
 		}
@@ -415,7 +420,7 @@ void CNetConnection::DoRecv()
 		}
 		else if(RecvSize==0)
 		{
-			PrintNetLog(_T("NetLib"),"CNetConnection收到连接关闭信号！");
+			PrintNetLog("CNetConnection收到连接关闭信号！");
 			QueryDisconnect();
 			return;
 		}
@@ -427,7 +432,7 @@ void CNetConnection::DoRecv()
 			case EAGAIN:
 				return;
 			default:
-				PrintNetLog(_T("NetLib"),"CNetConnection::Recv失败(%u),Socket关闭",ErrorCode);
+				PrintNetLog("CNetConnection::Recv失败(%u),Socket关闭",ErrorCode);
 				QueryDisconnect();
 				return;
 			}
@@ -436,30 +441,20 @@ void CNetConnection::DoRecv()
 }
 void CNetConnection::DoSend()
 {
+	CAutoLockEx Lock(m_SendLock);
+
 	UINT DataSize = m_SendQueue.GetSmoothUsedSize();
 	while (DataSize)
 	{
 		LPVOID pBuffer = m_SendQueue.GetUsedBuffer();
 		UINT SendSize = TrySend(pBuffer, DataSize);
+		if (SendSize > 0)
+			m_SendQueue.PopFront((LPVOID)NULL, SendSize);
 		if (SendSize < DataSize)
 		{
 			//数据发送不完，退出等下一次发送事件
 			break;
-		}
-		else
-		{
-			if (SendSize >= m_SendQueue.GetUsedSize())
-			{
-				//所有数据已发送完毕，注销发送事件
-				if (!GetServer()->ModifySendEvent(m_Socket.GetSocket(), m_pEpollEventRouter, false))
-				{
-					PrintNetLog(_T("NetLib"), "(%d)注销Epoll发送事件失败！", GetID());
-					QueryDisconnect();
-				}
-			}
-		}
-		if (SendSize>0)
-			m_SendQueue.PopFront((LPVOID)NULL, SendSize);
+		}			
 		DataSize = m_SendQueue.GetSmoothUsedSize();
 	}
 }
@@ -474,7 +469,7 @@ UINT CNetConnection::TrySend(LPCVOID pData, UINT Size)
 	if (SendSize >= 0)
 	{
 		GetServer()->AddTCPSendBytes(SendSize);
-		return (UINT)SendSize;		
+		return (UINT)SendSize;
 	}
 	else
 	{
@@ -485,7 +480,7 @@ UINT CNetConnection::TrySend(LPCVOID pData, UINT Size)
 		}
 		else
 		{
-			PrintNetLog(_T("NetLib"), "Send失败(%u)", ErrorCode);
+			PrintNetLog( "Send失败(%u)", ErrorCode);
 			QueryDisconnect();
 			return 0;
 		}

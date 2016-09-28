@@ -13,6 +13,7 @@
 
 
 #define THREAD_CPU_COUNT_TIME			(5000)
+#define GROUP_WEIGHT_UPDATE_TIME		(5000)
 //#define DOS_PROXY_KEEP_ALIVE_TIME		(10000)
 //#define DOS_PROXY_KEEP_ALIVE_MAX_COUNT	(20)
 
@@ -39,14 +40,13 @@ struct CLIENT_PROXY_CONFIG
 	UINT										ProxyType;
 	CLIENT_PROXY_MODE							ProxyMode;
 	CIPAddress									ListenAddress;
-	UINT										MaxConnection;	
+	UINT										ConnectionGroupCount;
+	STORAGE_POOL_SETTING						ConnectionPoolSetting;	
 	UINT										ConnectionMsgQueueSize;
 	UINT										AcceptQueueSize;
 	UINT										ParallelAcceptCount;
 	UINT										RecvBufferSize;
 	UINT										SendBufferSize;
-	UINT										SendDelay;
-	UINT										SendQueryLimit;	
 	UINT										UnacceptConnectionKeepTime;
 	bool										UseServerInitiativeKeepAlive;
 	UINT										KeepAliveTime;
@@ -64,7 +64,10 @@ struct CLIENT_PROXY_CONFIG
 	{
 		ProxyType = 0;
 		ProxyMode = CLIENT_PROXY_MODE_DEFAULT;
-		MaxConnection = 128;
+		ConnectionGroupCount = 0;
+		ConnectionPoolSetting.StartSize = 128;
+		ConnectionPoolSetting.GrowSize = 128;
+		ConnectionPoolSetting.GrowLimit = 32;
 		MsgQueueSize = 512;
 		ConnectionMsgQueueSize = 128;
 		GlobalMsgMapSize = 512;
@@ -74,8 +77,6 @@ struct CLIENT_PROXY_CONFIG
 		ParallelAcceptCount = DEFAULT_PARALLEL_ACCEPT;
 		RecvBufferSize = DEFAULT_SERVER_RECV_DATA_QUEUE;
 		SendBufferSize = DEFAULT_SERVER_SEND_DATA_QUEUE;
-		SendDelay = 0;
-		SendQueryLimit = 0;
 		MsgCompressType = MSG_COMPRESS_NONE;
 		MinMsgCompressSize = 0;
 		UnacceptConnectionKeepTime = 30 * 1000;
@@ -101,12 +102,13 @@ struct DOS_CONFIG
 	UINT										MemoryPoolLevelCount;
 
 	UINT										ObjectGroupCount;
-	UINT										MaxGroupObjectCount;
+	STORAGE_POOL_SETTING						ObjectPoolSetting;
 	UINT										MaxObjectMsgQueue;	
 	UINT										ObjectAliveTestTime;
 	UINT										ObjectAliveCheckTime;
 	UINT										ObjectKeepAliveCount;
 	bool										StatObjectCPUCost;
+	bool										UseRealGroupLoadWeight;
 	DOS_GROUP_INIT_FN							pDOSGroupInitFN;
 	DOS_GROUP_DESTORY_FN						pDOSGroupDestoryFN;
 
@@ -114,18 +116,21 @@ struct DOS_CONFIG
 	{
 		RouterID=0;	
 		MaxRouterSendMsgQueue=10240;
-		RouterMsgProcessLimit=32;
+		RouterMsgProcessLimit=256;
 		
 		MemoryPoolBlockSize=64;
 		MemoryPoolLeveSize=10240;
 		MemoryPoolLevelCount=5;
 		ObjectGroupCount=8;
-		MaxGroupObjectCount=1024;
+		ObjectPoolSetting.StartSize = 128;
+		ObjectPoolSetting.GrowSize = 128;
+		ObjectPoolSetting.GrowLimit = 32;
 		MaxObjectMsgQueue=1024;
 		ObjectAliveTestTime=20*1000;
 		ObjectAliveCheckTime=1000;
 		ObjectKeepAliveCount=5;
 		StatObjectCPUCost=false;
+		UseRealGroupLoadWeight = false;
 		pDOSGroupInitFN = NULL;
 		pDOSGroupDestoryFN = NULL;
 	}
@@ -136,6 +141,7 @@ class CDOSBaseObject;
 struct DOS_OBJECT_REGISTER_INFO
 {
 	OBJECT_ID			ObjectID;
+	LPCSTR				szObjectTypeName;
 	int					Weight;
 	int					ObjectGroupIndex;
 	UINT				MsgQueueSize;
@@ -146,6 +152,7 @@ struct DOS_OBJECT_REGISTER_INFO
 	DOS_OBJECT_REGISTER_INFO()
 	{
 		ObjectID=0;
+		szObjectTypeName = NULL;
 		Weight=1;
 		ObjectGroupIndex=-1;
 		MsgQueueSize=0;
@@ -157,30 +164,3 @@ struct DOS_OBJECT_REGISTER_INFO
 
 extern UINT DistinctObjectID(OBJECT_ID * pObjectIDs,UINT Count);
 
-inline BOOL PrintDOSLog(LPCTSTR Tag, LPCTSTR Format, ...)
-{
-	va_list vl;
-	va_start(vl,Format);
-	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DOS_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
-	va_end(vl);
-	return ret;
-}
-
-
-inline BOOL PrintDOSDebugLog(LPCTSTR Tag, LPCTSTR Format, ...)
-{
-	va_list vl;
-	va_start(vl,Format);
-	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DOS_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, Tag, Format, vl);
-	va_end(vl);
-	return ret;
-}
-
-inline BOOL PrintDOSObjectStatLog(LPCTSTR Format, ...)
-{
-	va_list vl;
-	va_start(vl,Format);
-	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DOS_OBJECT_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, NULL, Format, vl);
-	va_end(vl);
-	return ret;
-}

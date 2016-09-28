@@ -28,6 +28,7 @@ protected:
 	SQLHSTMT				m_hStmt;
 	CEasyString				m_LastErrorString;
 	int						m_LastErrorCode;
+	CEasyString				m_LastSQL;
 	
 	DECLARE_CLASS_INFO(CODBCConnection)
 public:
@@ -54,6 +55,7 @@ public:
 	virtual int RollBack();
 	virtual UINT GetLastDatabaseErrorCode();
 	virtual LPCSTR GetLastDatabaseErrorString();
+	virtual LPCSTR GetLastSQL();
 	virtual int TranslateString(LPCSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen);
 	
 	void ProcessMessagesODBC(SQLSMALLINT plm_handle_type,SQLHANDLE plm_handle,char *logstring,int ConnInd);

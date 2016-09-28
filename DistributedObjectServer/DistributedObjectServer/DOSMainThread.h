@@ -17,6 +17,7 @@ protected:
 		STATUS_COMPILE_LIBS,
 		STATUS_PLUGIN_LOAD,
 		STATUS_WORKING,
+		STATUS_SHUTDOWN,
 	};
 	
 	STATUS										m_Status;
@@ -37,6 +38,8 @@ protected:
 	CEasyTimer									m_MonoBaseGCTimer;
 	CEasyTimer									m_MonoAdvanceGCTimer;
 	CEasyTimer									m_MonoFullGCTimer;
+
+	CEasyCriticalSection						m_MonoExcpetionLock;
 	
 
 	DECLARE_CLASS_INFO_STATIC(CDOSMainThread)
@@ -82,6 +85,8 @@ public:
 	MonoClassField * MonoGetClassField(MonoClass * pMonoClass, LPCTSTR szFieldName);
 	MonoMethod * MonoGetClassMethod(MonoClass * pMonoClass, LPCTSTR szMethodName, int ParamCount);
 
+	void ProcessMonoException(MonoObject * pException);
+
 protected:
 	bool LoadPlugins();
 	void FreePlugins();
@@ -119,7 +124,7 @@ protected:
 	static void MonoInternalCallLogDebug(UINT LogChannel, MonoString * pMsg);
 
 	bool InitPluginDomain(MONO_DOMAIN_INFO& MonoDomainInfo, LPCTSTR szName);
-	bool ReleasePluginDomain(MONO_DOMAIN_INFO& MonoDomainInfo);
+	bool ReleasePluginDomain(PLUGIN_INFO& PluginInfo);
 
 	CEasyString GetProjectGUID(LPCTSTR PrjName);
 	bool CreateCSProj(LPCTSTR szPrjName, LPCTSTR szPrjDir, const CEasyArray<CEasyString>& SourceDirs, LPCTSTR szOutFileName);

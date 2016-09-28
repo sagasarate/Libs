@@ -46,7 +46,7 @@ public:
 	}
 	CLuaThread * GetNextThread(LPVOID& Pos)
 	{
-		return m_LuaThreadPool.GetNext(Pos);
+		return m_LuaThreadPool.GetNextObject(Pos);
 	}
 	CLuaThread * GetThreadByID(UINT ID)
 	{

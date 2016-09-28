@@ -23,8 +23,15 @@ class CENLConnection :
 	public CNetConnection
 {
 protected:
+	enum STATUS
+	{
+		STATUS_ACCEPTING,
+		STATUS_ACCEPTED,
+	};
 	CEasyNetLinkManager *						m_pManager;
 	CEasyNetLink *								m_pParent;
+	STATUS										m_Status;
+	CIPAddress									m_ConnectionAddress;
 	CEasyBuffer									m_AssembleBuffer;
 	CEasyTimer									m_KeepAliveTimer;
 	int											m_KeepAliveCount;
@@ -44,7 +51,7 @@ public:
 
 	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 	virtual void OnRecvData(const BYTE * pData, UINT DataSize);
-	virtual void OnConnection(BOOL IsSucceed);
+	virtual void OnConnection(bool IsSucceed);
 	virtual void OnDisconnection();
 
 	void SendLinkMsg(DWORD MsgID, LPCVOID pData = NULL, UINT DataSize = 0);

@@ -12,11 +12,11 @@ CDistributedObjectManager::~CDistributedObjectManager(void)
 {
 }
 
-BOOL CDistributedObjectManager::Init(CDOSObjectManager * pDOSObjectManager, const CDOSConfig::POOL_CONFIG& PoolConfig)
+BOOL CDistributedObjectManager::Init(CDOSObjectManager * pDOSObjectManager, const STORAGE_POOL_SETTING& PoolConfig)
 {
 	FUNCTION_BEGIN;
 	m_pDOSObjectManager=pDOSObjectManager;
-	if (!m_ObjectPool.Create(PoolConfig.StartSize, PoolConfig.GrowSize, PoolConfig.GrowLimit))
+	if (!m_ObjectPool.Create(PoolConfig))
 	{
 		Log("无法创建[%u,%u,%u]大小的插件对象池", PoolConfig.StartSize, PoolConfig.GrowSize, PoolConfig.GrowLimit);
 		return FALSE;
@@ -46,6 +46,7 @@ BOOL CDistributedObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& Obje
 			DOS_OBJECT_REGISTER_INFO RegisterInfo;
 
 			RegisterInfo.ObjectID=ObjectRegisterInfo.ObjectID;
+			RegisterInfo.szObjectTypeName = ObjectRegisterInfo.szObjectTypeName;
 			RegisterInfo.pObject=pObjectOperator;
 			RegisterInfo.Weight=ObjectRegisterInfo.Weight;
 			RegisterInfo.ObjectGroupIndex=ObjectRegisterInfo.ObjectGroupIndex;

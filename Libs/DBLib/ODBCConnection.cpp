@@ -478,6 +478,11 @@ LPCSTR CODBCConnection::GetLastDatabaseErrorString()
 	return m_LastErrorString;
 }
 
+LPCSTR CODBCConnection::GetLastSQL()
+{
+	return m_LastSQL;
+}
+
 int CODBCConnection::TranslateString(LPCSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen)
 {
 	int Len;
@@ -616,7 +621,7 @@ void CODBCConnection::ProcessMessagesODBC(SQLSMALLINT plm_handle_type,SQLHANDLE 
 		}
 		plm_cRecNmbr++; 
 	} 
-	PrintDBLog(_T("DBLib"), "%s", (LPCSTR)m_LastErrorString);
+	PrintDBLog("%s", (LPCSTR)m_LastErrorString);
 }
 
 int CODBCConnection::ODBCCTypeTODBLibType(int Type,UINT64& Size)
@@ -824,6 +829,10 @@ int CODBCConnection::ExecuteSQLDirect(LPCSTR SQLStr,int StrLen)
 	{
 		return DBERR_INVALID_PARAM;
 	}
+	if (StrLen)
+		m_LastSQL.SetString(SQLStr, StrLen);
+	else
+		m_LastSQL = SQLStr;
 
 	if(m_hStmt)
 	{
@@ -870,6 +879,10 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 	{
 		return DBERR_INVALID_PARAM;
 	}
+	if (StrLen)
+		m_LastSQL.SetString(SQLStr, StrLen);
+	else
+		m_LastSQL = SQLStr;
 
 	if(m_hStmt)
 	{
@@ -1004,7 +1017,7 @@ void CODBCConnection::SetConnectFlags(LPCSTR szFlags)
 		Flag.Trim(' ');
 		if(Flag.CompareNoCase("NC_MARS_ENABLED")==0)
 		{
-			PrintDBDebugLog(0,"应用参数NC_MARS_ENABLED");
+			PrintDBDebugLog("应用参数NC_MARS_ENABLED");
 			int nResult=SQLSetConnectAttr(m_hDBConn, SQL_COPT_SS_MARS_ENABLED, (SQLPOINTER)1, SQL_IS_UINTEGER);
 			if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 			{

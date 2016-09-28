@@ -20,22 +20,13 @@ class CNetConnection :
 {
 protected:	
 	CNetServer*									m_pServer;	
-	volatile BOOL								m_WantClose;
+	volatile bool								m_WantClose;
 	int											m_CurAddressFamily;
 	
-	CThreadSafeIDStorage<COverLappedObject *>	m_DataQueue;
+	CCycleQueue<COverLappedObject *>			m_OverLappedObjectPool;
+	CEasyCriticalSection						m_OverLappedObjectPoolLock;
+	CCycleQueue<COverLappedObject *>			m_RecvDataQueue;
 	CIOCPEventRouter *							m_pIOCPEventRouter;
-
-	volatile UINT								m_SendQueryCount;
-
-	bool										m_UseSendBuffer;
-	CIDStorage<COverLappedObject *>				m_SendBuffer;
-
-	volatile bool								m_IsRecvPaused;
-
-	UINT										m_SendDelay;
-	CEasyTimer									m_SendDelayTimer;
-	UINT										m_SendQueryLimit;
 	
 
 	DECLARE_CLASS_INFO_STATIC(CNetConnection);
@@ -43,29 +34,26 @@ public:
 	CNetConnection(void);
 	virtual ~CNetConnection(void);
 
-	virtual BOOL OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObject);
+	virtual bool OnIOCPEvent(int EventID, COverLappedObject * pOverLappedObject);
 
-	virtual BOOL Create(UINT RecvQueueSize=DEFAULT_SERVER_RECV_DATA_QUEUE,
+	virtual bool Create(UINT RecvQueueSize = DEFAULT_SERVER_RECV_DATA_QUEUE,
 		UINT SendQueueSize = DEFAULT_SERVER_SEND_DATA_QUEUE);
-	virtual BOOL Create(SOCKET Socket,
+	virtual bool Create(SOCKET Socket,
 		UINT RecvQueueSize,UINT SendQueueSize);
 	virtual void Destory();
 
 	void Close();
 
-	BOOL Connect(const CIPAddress& Address,DWORD TimeOut=NO_CONNECTION_TIME_OUT);
+	bool Connect(const CIPAddress& Address, DWORD TimeOut = NO_CONNECTION_TIME_OUT);
 	void Disconnect();
 	void QueryDisconnect();
 	
 
-	BOOL StartWork();
+	bool StartWork();
 
-	virtual void OnConnection(BOOL IsSucceed);
-	virtual void OnDisconnection();
 
-	BOOL Send(LPCVOID pData,UINT Size);
-	BOOL SendDirect(LPCVOID pData,UINT Size);
-
+	bool Send(LPCVOID pData, UINT Size);
+	bool SendMulti(LPCVOID * pDataBuffers, const UINT * pDataSizes, UINT BufferCount);
 	
 
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
@@ -75,25 +63,13 @@ public:
 
 	CNetServer* GetServer();		
 
-		
 
-	//virtual bool StealFrom(CNameObject * pObject,UINT Param=0);
 
-	void SetDataQueueSize(UINT Size);
-	UINT GetDataQueueSize();
 
-	virtual UINT GetCurSendQueryCount();
-
-	UINT GetSendBufferSize();
-	UINT GetUsedSendBufferSize();
-
-	void SetSendDelay(UINT Delay);
-	void SetSendQueryLimit(UINT Limit);
-private:
-	BOOL QuerySend(LPCVOID pData,UINT Size);
 protected:
-	BOOL QueryRecv();
-	int DoBufferSend(int ProcessPacketLimit);
+	bool QueryRecv();
+	COverLappedObject * AllocOverLappedObject();
+	bool ReleaseOverLappedObject(COverLappedObject * pObject);
 
 };
 
@@ -109,19 +85,7 @@ inline CNetServer* CNetConnection::GetServer()
 	return m_pServer;
 }
 
-inline UINT CNetConnection::GetSendBufferSize()
+inline bool CNetConnection::Send(LPCVOID pData, UINT Size)
 {
-	return m_SendBuffer.GetBufferSize();
-}
-inline UINT CNetConnection::GetUsedSendBufferSize()
-{
-	return m_SendBuffer.GetObjectCount();
-}
-inline void CNetConnection::SetSendDelay(UINT Delay)
-{
-	m_SendDelay=Delay;
-}
-inline void CNetConnection::SetSendQueryLimit(UINT Limit)
-{
-	m_SendQueryLimit=Limit;
+	return SendMulti(&pData, &Size, 1);
 }

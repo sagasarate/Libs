@@ -262,6 +262,11 @@
     </ProjectReference>
     <ProjectReference Include="..\..\Libs\MonoWrapper\MonoWrapper.vcxproj">
       <Project>{4018c851-e5bd-45fc-b5fd-fd06d1f490c3}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
     <ProjectReference Include="..\..\Libs\NetLib\NetLib.vcxproj">
       <Project>{4b66b9df-5bc1-4fbd-aa7e-aa517b99d9d9}</Project>

@@ -39,7 +39,8 @@
 
 #define START_DOS_MSG_MAP(ClassName)	\
 	void ClassName::InitDOSMsgMap()\
-	{
+	{\
+		m_MsgFnMap.Create(64,16384);
 
 #define DOS_MSG_MAP(MsgHandlerClassName) \
 		MsgHandlerClassName::InitMsgMap(m_MsgFnMap);
@@ -52,6 +53,10 @@
 		if(pHandleInfo)\
 		{\
 			return ((pHandleInfo->pObject)->*(pHandleInfo->pFN))(MsgPacket);\
+		}\
+		else\
+		{\
+			PrintDOSDebugLog(_T("[0x%llX]无法找到消息[0x%X]的处理函数"), m_pOperator->GetObjectID(), MsgID);\
 		}\
 		return COMMON_RESULT_MSG_HANDLER_NOT_FIND;\
 	}\
@@ -82,7 +87,9 @@
 
 #define START_DOS_MSG_MAP_CLIENT(ClassName)	\
 	void ClassName::InitDOSMsgMap()\
-	{
+	{\
+		m_MsgFnMap.Create(64,16384);
+
 
 #define DOS_MSG_MAP_CLIENT(MsgHandlerClassName) \
 		MsgHandlerClassName::InitMsgMap(m_MsgFnMap);
@@ -143,6 +150,7 @@ class IDistributedObject;
 struct DOS_OBJECT_REGISTER_INFO_EX
 {
 	OBJECT_ID				ObjectID;
+	LPCSTR					szObjectTypeName;
 	int						Weight;
 	int						ObjectGroupIndex;
 	UINT					MsgQueueSize;
@@ -153,6 +161,7 @@ struct DOS_OBJECT_REGISTER_INFO_EX
 	DOS_OBJECT_REGISTER_INFO_EX()
 	{
 		ObjectID=0;
+		szObjectTypeName = NULL;
 		Weight=1;
 		ObjectGroupIndex=-1;
 		MsgQueueSize=0;
@@ -204,7 +213,7 @@ class IDistributedObject
 protected:
 	OBJECT_ID									m_CurMsgSenderID;
 	CDOSMessage *								m_pCurHandleMsg;
-	CEasyMap<MSG_ID_TYPE,DOS_MSG_HANDLE_INFO>	m_MsgFnMap;
+	CHashMap<MSG_ID_TYPE,DOS_MSG_HANDLE_INFO>	m_MsgFnMap;
 public:
 	virtual BOOL Initialize(IDistributedObjectOperator * pOperator)=0;
 	virtual void Destory()=0;

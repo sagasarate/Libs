@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-CStaticMap<UINT, FN_SET_META_CLASS> CLuaBaseStaticMetaClass::m_SetMetaClassFNMap(16,16,16);
+CEasyMap<UINT, FN_SET_META_CLASS> CLuaBaseStaticMetaClass::m_SetMetaClassFNMap;
 
 CSetMetaClassFNRegister::CSetMetaClassFNRegister(UINT ClassID, FN_SET_META_CLASS pFN)
 {

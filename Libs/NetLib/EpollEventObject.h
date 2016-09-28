@@ -69,8 +69,6 @@ public:
 
 	void SetEventID(UINT EventID);
 	UINT GetEventID();
-
-	void Release();
 };
 
 inline void CEpollEventObject::SetID(UINT ID)

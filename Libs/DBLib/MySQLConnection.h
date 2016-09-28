@@ -30,6 +30,7 @@ protected:
 	MYSQL_STMT_HANDLE	m_MySQLStmt;
 	CMySQLDatabase *	m_pDatabase;
 	bool				m_UseSTMTMode;
+	CEasyString			m_LastSQL;
 
 	DECLARE_CLASS_INFO(CMySQLConnection)
 public:
@@ -56,6 +57,7 @@ public:
 
 	virtual UINT GetLastDatabaseErrorCode();
 	virtual LPCSTR GetLastDatabaseErrorString();
+	virtual LPCSTR GetLastSQL();
 
 	virtual int TranslateString(LPCSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen);
 
