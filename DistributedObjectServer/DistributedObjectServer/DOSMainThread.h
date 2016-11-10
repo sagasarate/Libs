@@ -86,7 +86,8 @@ public:
 	MonoMethod * MonoGetClassMethod(MonoClass * pMonoClass, LPCTSTR szMethodName, int ParamCount);
 
 	void ProcessMonoException(MonoObject * pException);
-
+	bool AddConsoleCommandReceiver(CDistributedObjectOperator * pOperator);
+	bool DeleteConsoleCommandReceiver(CDistributedObjectOperator * pOperator);
 protected:
 	bool LoadPlugins();
 	void FreePlugins();

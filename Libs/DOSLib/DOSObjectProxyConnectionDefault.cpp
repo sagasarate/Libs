@@ -44,14 +44,7 @@ void CDOSObjectProxyConnectionDefault::Destory()
 	m_MessageMap.Destory();
 	m_Status = STATUS_DESTORYED;
 }
-UINT CDOSObjectProxyConnectionDefault::AddUseRef()
-{
-	return CNetConnection::AddUseRef();
-}
-void CDOSObjectProxyConnectionDefault::Release()
-{
-	CNetConnection::Release();
-}
+
 
 bool CDOSObjectProxyConnectionDefault::PushMessage(CDOSMessagePacket * pPacket)
 {
@@ -60,13 +53,10 @@ bool CDOSObjectProxyConnectionDefault::PushMessage(CDOSMessagePacket * pPacket)
 
 	((CDOSServer *)GetServer())->AddRefMessagePacket(pPacket);
 #ifdef _DEBUG
-	pPacket->SetAllocTime(3);
+	pPacket->SetAllocTime(0x14);
 #endif
 	if (m_MsgQueue.PushBack(&pPacket))
 	{
-#ifdef _DEBUG
-		pPacket->SetAllocTime(31);
-#endif
 		return true;
 	}
 	else
@@ -236,7 +226,7 @@ int CDOSObjectProxyConnectionDefault::Update(int ProcessPacketLimit)
 	while (m_MsgQueue.PopFront(&pPacket))
 	{
 #ifdef _DEBUG
-		pPacket->SetAllocTime(32);
+		pPacket->SetAllocTime(0x15);
 #endif
 		if (pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
 			OnSystemMessage(pPacket);

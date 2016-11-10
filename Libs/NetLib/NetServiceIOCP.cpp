@@ -177,7 +177,8 @@ bool CNetService::Create(int Protocol, UINT AcceptQueueSize, UINT RecvQueueSize,
 void CNetService::Destory()
 {
 	Close();
-	if (GetServer())
+	CAutoLock Lock(m_OverLappedObjectPoolLock);
+	if (GetServer() && m_OverLappedObjectPool.GetBufferSize())
 	{
 		GetServer()->ReleaseOverLappedObject(m_OverLappedObjectPool);
 		m_OverLappedObjectPool.Destory();

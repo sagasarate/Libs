@@ -218,7 +218,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DOSObjectProxyServiceCustom.cpp" />
-    <ClCompile Include="DOSObjectProxyConnectionCustom.cpp" />
     <ClCompile Include="DOSServerThread.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -234,7 +233,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DOSObjectProxyServiceCustom.h" />
-    <ClInclude Include="DOSObjectProxyConnectionCustom.h" />
     <ClInclude Include="DOSServerThread.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="DOSMainApp.h" />

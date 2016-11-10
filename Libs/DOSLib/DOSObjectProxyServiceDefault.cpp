@@ -21,10 +21,6 @@ CDOSObjectProxyServiceDefault::~CDOSObjectProxyServiceDefault(void)
 {
 }
 
-UINT CDOSObjectProxyServiceDefault::AddUseRef()
-{
-	return CNetService::AddUseRef();
-}
 void CDOSObjectProxyServiceDefault::Release()
 {
 	CNetService::Release();
@@ -53,40 +49,58 @@ void CDOSObjectProxyServiceDefault::StopService()
 {
 	SafeTerminate();
 }
-bool CDOSObjectProxyServiceDefault::PushMessage(CDOSMessagePacket * pPacket)
-{	
-
-	((CDOSServer *)GetServer())->AddRefMessagePacket(pPacket);
-#ifdef _DEBUG
-	pPacket->SetAllocTime(4);
-#endif
-	if (m_MsgQueue.PushBack(&pPacket))
+bool CDOSObjectProxyServiceDefault::PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket)
+{
+	if (ObjectID.ObjectIndex == 0)
 	{
+		//发送到Service的消息
+		((CDOSServer *)GetServer())->AddRefMessagePacket(pPacket);
+#ifdef _DEBUG
+		pPacket->SetAllocTime(0x13);
+#endif
+		if (m_MsgQueue.PushBack(&pPacket))
+		{
+			return true;
+		}
+		else
+		{
+			((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket);
+			return false;
+		}
+	}
+	else if (ObjectID.ObjectIndex == BROAD_CAST_OBJECT_INDEX)
+	{
+		//群发消息
+		LPVOID Pos = m_ConnectionPool.GetFirstObjectPos();
+		while (Pos)
+		{
+			CDOSObjectProxyConnectionDefault * pConnection = m_ConnectionPool.GetNextObject(Pos);
+			if (pConnection)
+			{
+				pConnection->PushMessage(pPacket);
+			}
+		}
 		return true;
 	}
 	else
 	{
-		((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket);
-	}
-	return false;
-}
-bool CDOSObjectProxyServiceDefault::PushBroadcastMessage(CDOSMessagePacket * pPacket)
-{
-	LPVOID Pos = m_ConnectionPool.GetFirstObjectPos();
-	while (Pos)
-	{
-		CDOSObjectProxyConnectionDefault * pConnection = m_ConnectionPool.GetNextObject(Pos);
-		if (pConnection)
+		//发送到Connection的消息
+		CDOSObjectProxyConnectionDefault * pProxyConnection = GetConnection(ObjectID.ObjectIndex);
+		if (pProxyConnection)
 		{
-			pConnection->PushMessage(pPacket);
+			return pProxyConnection->PushMessage(pPacket);
+		}
+		else
+		{
+			PrintDOSDebugLog(_T("将[0x%llX]发出的消息[%X]递送到代理对象[%llX]时代理对象不存在"),
+				pPacket->GetMessage().GetSenderID(),
+				pPacket->GetMessage().GetMsgID(),
+				ObjectID);
+			return false;
 		}
 	}
-	return true;
 }
-IDOSObjectProxyConnectionBase * CDOSObjectProxyServiceDefault::GetConnection(UINT ID)
-{
-	return m_ConnectionPool.GetObject(ID);
-}
+
 UINT CDOSObjectProxyServiceDefault::GetConnectionCount()
 {
 	return m_ConnectionPool.GetObjectCount();
@@ -402,6 +416,8 @@ bool CDOSObjectProxyServiceDefault::DeleteConnection(CBaseNetConnection * pConne
 	}
 	return false;
 }
+
+
 
 void CDOSObjectProxyServiceDefault::AcceptConnection(CDOSObjectProxyConnectionDefault * pConnection)
 {

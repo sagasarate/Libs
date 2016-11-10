@@ -119,12 +119,11 @@ UINT CDOSProxyManager::GetConnectionCount()
 	return Count;
 }
 
-bool CDOSProxyManager::RegisterProxyService(IDOSObjectProxyServiceBase * pService)
+bool CDOSProxyManager::RegisterProxyService(CBaseDOSObjectProxyService * pService)
 {
 	pService->SetID((UINT)m_ProxyServiceList.GetCount() + 1);
 	if (pService->StartService())
 	{
-		pService->AddUseRef();
 		m_ProxyServiceList.Add(pService);
 		PrintDOSLog( _T("类型为%d的代理已被注册"), pService->GetProxyType());
 		return true;
@@ -150,75 +149,26 @@ bool CDOSProxyManager::UnregisterProxyService(BYTE ProxyID)
 
 bool CDOSProxyManager::PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket)
 {
-	if (ObjectID.ObjectIndex == 0)
+	BYTE ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(ObjectID.GroupIndex);
+	if (ProxyType == BROAD_CAST_PROXY_TYPE)
 	{
-		//发送到Service的消息
-		BYTE ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(ObjectID.GroupIndex);
-		if (ProxyType == BROAD_CAST_PROXY_TYPE)
+		//群发到各Serivce
+		for (UINT j = 0; j < m_ProxyServiceList.GetCount(); j++)
 		{
-			for (UINT j = 0; j < m_ProxyServiceList.GetCount(); j++)
-			{
-				m_ProxyServiceList[j]->PushMessage(pPacket);
-			}
-			return true;
+			m_ProxyServiceList[j]->PushMessage(ObjectID, pPacket);
 		}
-		else
-		{
-			IDOSObjectProxyServiceBase * pProxyService = m_ProxyServiceMap[ProxyType];
-			if (pProxyService)
-			{
-				return pProxyService->PushMessage(pPacket);
-			}
-			else
-			{
-				PrintDOSDebugLog(_T("将[0x%llX]发出的消息[%X]递送到代理服务[%llX]时代理服务不存在"),
-					pPacket->GetMessage().GetSenderID(),
-					pPacket->GetMessage().GetMsgID(),
-					ObjectID);
-				return false;
-			}
-		}
-	}
-	else if (ObjectID.ObjectIndex == BROAD_CAST_OBJECT_INDEX)
-	{
-		//群发消息
-		BYTE ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(ObjectID.GroupIndex);
-		if (ProxyType == BROAD_CAST_PROXY_TYPE)
-		{
-			for (UINT j = 0; j < m_ProxyServiceList.GetCount(); j++)
-			{
-				m_ProxyServiceList[j]->PushBroadcastMessage(pPacket);
-			}
-			return true;
-		}
-		else
-		{
-			IDOSObjectProxyServiceBase * pProxyService = m_ProxyServiceMap[ProxyType];
-			if (pProxyService)
-			{
-				return pProxyService->PushBroadcastMessage(pPacket);
-			}
-			else
-			{
-				PrintDOSDebugLog(_T("将[0x%llX]发出的消息[%X]群发到代理服务[%llX]时代理服务不存在"),
-					pPacket->GetMessage().GetSenderID(),
-					pPacket->GetMessage().GetMsgID(),
-					ObjectID);
-				return false;
-			}
-		}
+		return true;
 	}
 	else
 	{
-		//单个消息
-		IDOSObjectProxyConnectionBase * pProxyConnection = GetProxyConnect(ObjectID);
-		if (pProxyConnection)
+		CBaseDOSObjectProxyService * pProxyService = m_ProxyServiceMap[ProxyType];
+		if (pProxyService)
 		{
-			return pProxyConnection->PushMessage(pPacket);
+			return pProxyService->PushMessage(ObjectID, pPacket);
 		}
 		else
 		{
-			PrintDOSDebugLog(_T("将[0x%llX]发出的消息[%X]递送到代理对象[%llX]时代理对象不存在"),
+			PrintDOSDebugLog(_T("将[0x%llX]发出的消息[%X]递送到代理服务[%llX]时代理服务不存在"),
 				pPacket->GetMessage().GetSenderID(),
 				pPacket->GetMessage().GetMsgID(),
 				ObjectID);

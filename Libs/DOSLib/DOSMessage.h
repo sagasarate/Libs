@@ -63,6 +63,10 @@ struct OBJECT_ID:public OBJECT_ID_BASE
 	{
 		return ID<ObjectID.ID;
 	}
+	UINT GetHashCode() const
+	{
+		return CHashCodeMaker::GetHashCode(ID);
+	}
 	static int Compare(const void * Value1,const void * Value2);
 };
 
@@ -429,6 +433,12 @@ struct PING_DATA
 	WORD	RecentDelay;
 };
 
+struct SHUTDOWN_INFO
+{
+	BYTE	Level;
+	UINT	Param;
+};
+
 #pragma pack(pop)
 
 enum DOS_SYSTEM_MESSAGE
@@ -493,5 +503,5 @@ inline BOOL PrintDOSObjectStatLog(LPCTSTR Format, ...)
 	return ret;
 }
 
-#define PrintDOSLog(_Format, ...)	PrintDOSLogWithTag(__PRETTY_FUNCTION__, _Format, ##__VA_ARGS__)
-#define PrintDOSDebugLog(_Format, ...)	PrintDOSDebugLogWithTag(__PRETTY_FUNCTION__, _Format, ##__VA_ARGS__)
+#define PrintDOSLog(_Format, ...)	PrintDOSLogWithTag(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)
+#define PrintDOSDebugLog(_Format, ...)	PrintDOSDebugLogWithTag(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)

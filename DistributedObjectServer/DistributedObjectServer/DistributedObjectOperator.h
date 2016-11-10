@@ -10,6 +10,7 @@ protected:
 	CDistributedObjectManager		*m_pManager;
 	IDistributedObject				*m_pDistributedObject;
 	UINT							m_PoolID;
+	bool							m_IsCommandReceiver;
 
 	PLUGIN_TYPE						m_PluginType;
 	MONO_DOMAIN_INFO				m_MonoDomainInfo;
@@ -57,8 +58,11 @@ public:
 	virtual BOOL RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& ObjectRegisterInfo);
 	virtual void Release();
 
-	virtual BOOL QueryShutDown(OBJECT_ID TargetID,int Level);
+	virtual BOOL QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param);
 	virtual void ShutDown(UINT PluginID);
+	virtual bool RegisterCommandReceiver();
+	virtual bool UnregisterCommandReceiver();
+	bool OnConsoleCommand(LPCTSTR szCommand);
 
 	virtual BOOL RegisterLogger(UINT LogChannel, LPCTSTR FileName);
 	virtual BOOL RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader);
@@ -71,7 +75,7 @@ protected:
 	virtual void OnFindObject(OBJECT_ID CallerID);
 	virtual void OnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize);
 	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString);
-	virtual void OnShutDown(int Level);
+	virtual void OnShutDown(BYTE Level, UINT Param);
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 
 	bool CallCSInitialize();
@@ -83,9 +87,10 @@ protected:
 	BOOL CallCSOnFindObject(OBJECT_ID CallerID);
 	void CallCSOnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize);
 	void CallCSOnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString);
-	void CallCSOnShutDown(int Level);
+	void CallCSOnShutDown(BYTE Level, UINT Param);
 	int CallCSUpdate(int ProcessPacketLimit);
-	void CallCSOnException(MonoObject * pException);
+	void CallCSOnException(MonoObject * pPostException);
+	bool CallOnConsoleCommand(LPCTSTR szCommand);
 
 	static bool DoRegisterLogger(UINT LogChannel, LPCTSTR FileName);
 	static bool DoRegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader);
@@ -110,10 +115,12 @@ public:
 	static bool InternalCallRegisterObjectStatic(UINT PluginID, MonoObject * ObjectRegisterInfo);
 	static bool InternalCallRegisterObject(CDistributedObjectOperator * pOperator, MonoObject * ObjectRegisterInfo);
 	static void InternalCallRelease(CDistributedObjectOperator * pOperator);
-	static bool InternalCallQueryShutDown(CDistributedObjectOperator * pOperator, OBJECT_ID TargetID, int Level);
+	static bool InternalCallQueryShutDown(CDistributedObjectOperator * pOperator, OBJECT_ID TargetID, BYTE Level, UINT Param);
 	static void InternalCallShutDown(CDistributedObjectOperator * pOperator, UINT PluginID);
 	static bool InternalCallRegisterLogger(UINT LogChannel, MonoString * FileName);
 	static bool InternalCallRegisterCSVLogger(UINT LogChannel, MonoString * FileName, MonoString * CSVLogHeader);
+	static bool InternalCallRegisterCommandReceiver(CDistributedObjectOperator * pOperator);
+	static bool InternalCallUnregisterCommandReceiver(CDistributedObjectOperator * pOperator);
 };
 
 inline UINT CDistributedObjectOperator::GetPoolID()

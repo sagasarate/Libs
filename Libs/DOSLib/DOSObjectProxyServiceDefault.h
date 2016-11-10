@@ -11,9 +11,30 @@
 /****************************************************************************/
 #pragma once
 
+class CBaseDOSObjectProxyService
+{
+public:
+	virtual void Destory() = 0;
+	virtual void Release() = 0;
+	virtual BYTE GetProxyType() = 0;
+	virtual void SetID(UINT ID) = 0;
+	virtual UINT GetID() = 0;
+
+	virtual bool StartService() = 0;
+	virtual void StopService() = 0;
+	virtual bool PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket) = 0;
+
+	virtual UINT GetConnectionCount(){ return 0; }
+	virtual float GetCPUUsedRate(){ return 0; }
+	virtual float GetCycleTime(){ return 0; }
+	virtual UINT GetGroupCount(){ return 0; }
+	virtual float GetGroupCPUUsedRate(UINT Index){ return 0; }
+	virtual float GetGroupCycleTime(UINT Index){ return 0; }
+};
+
 
 class CDOSObjectProxyServiceDefault :
-	public IDOSObjectProxyServiceBase,
+	public CBaseDOSObjectProxyService,
 	public CNetService, 
 	public CEasyThread
 {
@@ -38,18 +59,15 @@ public:
 	CDOSObjectProxyServiceDefault(void);
 	virtual ~CDOSObjectProxyServiceDefault(void);
 	
-	
-	virtual UINT AddUseRef();
 	virtual void Release();
 	virtual void Destory();
-	BYTE GetProxyType();
+	virtual BYTE GetProxyType();
 	virtual void SetID(UINT ID);
 	virtual UINT GetID();
 	virtual bool StartService();
 	virtual void StopService();
-	virtual bool PushMessage(CDOSMessagePacket * pPacket);
-	virtual bool PushBroadcastMessage(CDOSMessagePacket * pPacket);
-	virtual IDOSObjectProxyConnectionBase * GetConnection(UINT ID);
+	virtual bool PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket);
+	
 	virtual UINT GetConnectionCount();
 	virtual float GetCPUUsedRate();
 	virtual float GetCycleTime();
@@ -71,6 +89,7 @@ public:
 	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 	virtual CBaseNetConnection * CreateConnection(CIPAddress& RemoteAddress);
 	virtual bool DeleteConnection(CBaseNetConnection * pConnection);	
+	CDOSObjectProxyConnectionDefault * GetConnection(UINT ID);
 
 	void AcceptConnection(CDOSObjectProxyConnectionDefault * pConnection);
 	void QueryDestoryConnection(CDOSObjectProxyConnectionDefault * pConnection);
@@ -99,3 +118,7 @@ protected:
 
 
 
+inline CDOSObjectProxyConnectionDefault * CDOSObjectProxyServiceDefault::GetConnection(UINT ID)
+{
+	return m_ConnectionPool.GetObject(ID);
+}

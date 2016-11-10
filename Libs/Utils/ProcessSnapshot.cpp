@@ -108,20 +108,27 @@ bool CProcessSnapshot::Snapshot()
 			PROCESS_INFO * pProcessInfo = ProcessList.AddEmpty();
 			pProcessInfo->ProcessID = ProcessIDList[i];
 
-			HMODULE hModule;
+			
 
-			if (EnumProcessModules(hProcess, &hModule, sizeof(hModule), &ReturnSize))
+			TCHAR ImageFilePath[1024];
+			DWORD BufferLen = sizeof(ImageFilePath) - 1;
+			if (QueryFullProcessImageName(hProcess, 0, ImageFilePath, &BufferLen))
 			{
-				TCHAR ImageFilePath[MAX_PATH];
-				if (GetModuleFileNameEx(hProcess, hModule, ImageFilePath, MAX_PATH) != 0)
-				{
-					UINT Len = GetLongPathName(ImageFilePath, NULL, 0);
-					pProcessInfo->ImageFile.Resize(Len);
-					GetLongPathName(ImageFilePath, (TCHAR *)pProcessInfo->ImageFile.GetBuffer(), MAX_PATH);
-					pProcessInfo->ImageFile.TrimBuffer();
-					pProcessInfo->ImageFile = CFileTools::MakeFullPath(pProcessInfo->ImageFile);
-				}
+				ImageFilePath[BufferLen] = 0;
+				pProcessInfo->ImageFile = CFileTools::MakeFullPath(ImageFilePath);
 			}
+			//if (EnumProcessModulesEx(hProcess, &hModule, sizeof(hModule), &ReturnSize, LIST_MODULES_ALL))
+			//{
+			//	
+			//	if (GetModuleFileNameEx(hProcess, hModule, ImageFilePath, MAX_PATH) != 0)
+			//	{
+			//		UINT Len = GetLongPathName(ImageFilePath, NULL, 0);
+			//		pProcessInfo->ImageFile.Resize(Len);
+			//		GetLongPathName(ImageFilePath, (TCHAR *)pProcessInfo->ImageFile.GetBuffer(), MAX_PATH);
+			//		pProcessInfo->ImageFile.TrimBuffer();
+			//		pProcessInfo->ImageFile = CFileTools::MakeFullPath(pProcessInfo->ImageFile);
+			//	}
+			//}
 
 			int err = GetLastError();
 

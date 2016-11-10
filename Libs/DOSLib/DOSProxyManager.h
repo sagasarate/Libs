@@ -17,8 +17,8 @@ class CDOSProxyManager :
 {
 protected:
 	CDOSServer *								m_pServer;
-	CEasyArray<IDOSObjectProxyServiceBase *>	m_ProxyServiceList;
-	IDOSObjectProxyServiceBase *				m_ProxyServiceMap[256];
+	CEasyArray<CBaseDOSObjectProxyService *>	m_ProxyServiceList;
+	CBaseDOSObjectProxyService *				m_ProxyServiceMap[256];
 
 	DECLARE_CLASS_INFO_STATIC(CDOSProxyManager);
 public:
@@ -38,43 +38,33 @@ public:
 	}
 	UINT GetConnectionCount();
 
-	bool RegisterProxyService(IDOSObjectProxyServiceBase * pService);
+	bool RegisterProxyService(CBaseDOSObjectProxyService * pService);
 	bool UnregisterProxyService(BYTE ProxyID);
 
 	bool PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket);
 	
-	IDOSObjectProxyServiceBase * GetProxyService(OBJECT_ID ObjectID);
-	IDOSObjectProxyServiceBase * GetProxyServiceByType(BYTE ProxyType);
-	IDOSObjectProxyServiceBase * GetProxyServiceByIndex(UINT Index);
-	IDOSObjectProxyConnectionBase * GetProxyConnect(OBJECT_ID ObjectID);
+	CBaseDOSObjectProxyService * GetProxyService(OBJECT_ID ObjectID);
+	CBaseDOSObjectProxyService * GetProxyServiceByType(BYTE ProxyType);
+	CBaseDOSObjectProxyService * GetProxyServiceByIndex(UINT Index);
 };
 
 
 
-inline IDOSObjectProxyServiceBase * CDOSProxyManager::GetProxyService(OBJECT_ID ObjectID)
+inline CBaseDOSObjectProxyService * CDOSProxyManager::GetProxyService(OBJECT_ID ObjectID)
 {
 	UINT ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(ObjectID.GroupIndex);
 	return GetProxyServiceByType(ProxyType);
 }
-inline IDOSObjectProxyServiceBase * CDOSProxyManager::GetProxyServiceByType(BYTE ProxyType)
+inline CBaseDOSObjectProxyService * CDOSProxyManager::GetProxyServiceByType(BYTE ProxyType)
 {
 	return m_ProxyServiceMap[ProxyType];
 }
-inline IDOSObjectProxyServiceBase * CDOSProxyManager::GetProxyServiceByIndex(UINT Index)
+inline CBaseDOSObjectProxyService * CDOSProxyManager::GetProxyServiceByIndex(UINT Index)
 {
 	if (Index < m_ProxyServiceList.GetCount())
 		return m_ProxyServiceList[Index];
 	return NULL;
 }
-inline IDOSObjectProxyConnectionBase * CDOSProxyManager::GetProxyConnect(OBJECT_ID ObjectID)
-{
-	UINT ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(ObjectID.GroupIndex);
-	IDOSObjectProxyServiceBase * pService = GetProxyServiceByType(ProxyType);
-	if (pService)
-	{
-		return pService->GetConnection(ObjectID.ObjectIndex);
-	}
-	return NULL;
-}
+
 
 

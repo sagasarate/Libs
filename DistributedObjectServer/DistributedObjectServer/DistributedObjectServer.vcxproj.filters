@@ -51,9 +51,6 @@
     <ClCompile Include="DOSObjectProxyServiceCustom.cpp">
       <Filter>客户端代理插件</Filter>
     </ClCompile>
-    <ClCompile Include="DOSObjectProxyConnectionCustom.cpp">
-      <Filter>客户端代理插件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DOSServerThread.h">
@@ -81,9 +78,6 @@
       <Filter>主程序</Filter>
     </ClInclude>
     <ClInclude Include="DOSObjectProxyServiceCustom.h">
-      <Filter>客户端代理插件</Filter>
-    </ClInclude>
-    <ClInclude Include="DOSObjectProxyConnectionCustom.h">
       <Filter>客户端代理插件</Filter>
     </ClInclude>
   </ItemGroup>

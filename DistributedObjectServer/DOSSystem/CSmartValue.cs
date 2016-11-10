@@ -879,20 +879,20 @@ namespace DOSSystem
         }
         public static explicit operator CSmartValue(string Value)
         {
-            
-            //byte[] Temp = Encoding.UTF8.GetBytes(Value);
 
-            //CSmartValue SmartValue = new CSmartValue();
-            //SmartValue.Create(SMART_VALUE_TYPE.VT_STRING, (uint)Temp.Length);
-            //SmartValue.SetValue(Temp);
-            //return SmartValue;
-
-            byte[] Temp = Encoding.Unicode.GetBytes(Value);
+            byte[] Temp = Encoding.UTF8.GetBytes(Value);
 
             CSmartValue SmartValue = new CSmartValue();
-            SmartValue.Create(SMART_VALUE_TYPE.VT_USTRING, (uint)Temp.Length);
+            SmartValue.Create(SMART_VALUE_TYPE.VT_STRING, (uint)Temp.Length);
             SmartValue.SetValue(Temp);
             return SmartValue;
+
+            //byte[] Temp = Encoding.Unicode.GetBytes(Value);
+
+            //CSmartValue SmartValue = new CSmartValue();
+            //SmartValue.Create(SMART_VALUE_TYPE.VT_USTRING, (uint)Temp.Length);
+            //SmartValue.SetValue(Temp);
+            //return SmartValue;
         }
         public static explicit operator CSmartValue(byte[] Value)
         {

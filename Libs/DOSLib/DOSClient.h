@@ -69,7 +69,7 @@ public:
 	virtual BOOL RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& ObjectRegisterInfo);
 	virtual void Release();
 
-	virtual BOOL QueryShutDown(OBJECT_ID TargetID,int Level);
+	virtual BOOL QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param);
 	virtual void ShutDown(UINT PluginID);
 	virtual BOOL RegisterLogger(UINT LogChannel, LPCTSTR FileName);
 	virtual BOOL RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader);

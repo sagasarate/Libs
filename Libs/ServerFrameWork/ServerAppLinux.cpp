@@ -14,6 +14,8 @@
 #include <execinfo.h>
 #include <malloc.h>
 #include <sys/wait.h>
+#include  <termios.h>
+
 
 #define MAX_STACK_LAYERS    20
 
@@ -70,12 +72,49 @@ void CServerApp::OnShutDown()
 		m_pServer->QueryShowDown();
 }
 
+
+int kbhit(void)
+{
+	struct timeval tv;
+	fd_set rdfs;
+
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+
+	FD_ZERO(&rdfs);
+	FD_SET(STDIN_FILENO, &rdfs);
+
+	select(STDIN_FILENO + 1, &rdfs, NULL, NULL, &tv);
+	return FD_ISSET(STDIN_FILENO, &rdfs);
+}
+
 int CServerApp::Run()
 {
+	char KeyBuffer[2048];
+	int BufferPtr = 0;
 	if(OnStartUp())
 	{
+		struct termios oldt, newt;
+
+		tcgetattr(STDIN_FILENO, &oldt);
+		newt = oldt;
+		newt.c_lflag &= ~(ICANON);
+		tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+
 		while ((!m_WantExist) && m_pServer && (!m_pServer->IsServerTerminated()))
 		{
+			if (kbhit())
+			{
+				KeyBuffer[BufferPtr++] = getchar();
+				if (KeyBuffer[BufferPtr - 1] == '\n' || BufferPtr >= 2000)
+				{
+					//输入了回车或者缓冲满了，提交命令
+					KeyBuffer[BufferPtr - 1] = 0;
+					m_pServer->PushConsoleCmd(KeyBuffer);
+					BufferPtr = 0;
+				}
+			}
 			DoSleep(100);
 		}
 		OnShutDown();
@@ -93,8 +132,9 @@ void CServerApp::InitSignals()
 	signal(SIGPIPE, SIG_IGN);
 	PrintImportantLog("已忽略SIGPIPE处理");
 
-	signal(SIGPWR, SIG_IGN);
-	PrintImportantLog("已忽略SIGPWR处理");
+	//屏蔽此信号会导致mono gc死锁
+	//signal(SIGPWR, SIG_IGN);
+	//PrintImportantLog("已忽略SIGPWR处理");
 
 	ZeroMemory(&SigAction, sizeof(SigAction));
 	SigAction.sa_flags = 0;
@@ -193,7 +233,7 @@ void CServerApp::OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * p
 				Dl_info DLInfo;
 				if (dladdr(CallStacks[i], &DLInfo))
 				{
-					PrintExceptionLog("BaseAddress:%p at %s", DLInfo.dli_fbase, DLInfo.dli_fname);					
+					PrintExceptionLog("BaseAddress:%p at %s", DLInfo.dli_fbase, DLInfo.dli_fname);
 				}
 				PrintExceptionLog("-------------------------------------------------------\r\n");
 			}
@@ -275,7 +315,7 @@ bool CServerApp::OutputExceptionAddress(const char * ModulaName, void * Address)
 		PrintImportantLog("调用addr2line");
 		dup2(m_Pipe[1], STDOUT_FILENO);
 		dup2(m_Pipe[1], STDERR_FILENO);
-		execvp(argv[0], argv);		
+		execvp(argv[0], argv);
 		PrintImportantLog("调用addr2line失败%d", errno);
 		exit(2);
 	}

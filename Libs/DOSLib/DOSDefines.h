@@ -54,7 +54,6 @@ struct CLIENT_PROXY_CONFIG
 	UINT										MsgCompressType;
 	UINT										MinMsgCompressSize;
 
-	UINT										MsgQueueSize;
 	UINT										GlobalMsgMapSize;
 	UINT										MsgMapSize;
 	UINT										MaxMsgSize;
@@ -68,7 +67,6 @@ struct CLIENT_PROXY_CONFIG
 		ConnectionPoolSetting.StartSize = 128;
 		ConnectionPoolSetting.GrowSize = 128;
 		ConnectionPoolSetting.GrowLimit = 32;
-		MsgQueueSize = 512;
 		ConnectionMsgQueueSize = 128;
 		GlobalMsgMapSize = 512;
 		MsgMapSize = 512;
@@ -127,7 +125,7 @@ struct DOS_CONFIG
 		ObjectPoolSetting.GrowLimit = 32;
 		MaxObjectMsgQueue=1024;
 		ObjectAliveTestTime=20*1000;
-		ObjectAliveCheckTime=1000;
+		ObjectAliveCheckTime=5000;
 		ObjectKeepAliveCount=5;
 		StatObjectCPUCost=false;
 		UseRealGroupLoadWeight = false;

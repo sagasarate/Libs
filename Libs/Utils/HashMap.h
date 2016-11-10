@@ -100,6 +100,14 @@ protected:
 		{
 			return &Object;
 		}
+		const OBJECT_TYPE& GetObjectRef() const
+		{
+			return Object;
+		}
+		const OBJECT_TYPE * GetObjectPointer() const
+		{
+			return &Object;
+		}
 		void NewObject()
 		{
 
@@ -136,6 +144,14 @@ protected:
 			return *pObject;
 		}
 		OBJECT_TYPE * GetObjectPointer()
+		{
+			return pObject;
+		}
+		const OBJECT_TYPE& GetObjectRef() const
+		{
+			return *pObject;
+		}
+		const OBJECT_TYPE * GetObjectPointer() const
 		{
 			return pObject;
 		}
@@ -177,6 +193,14 @@ protected:
 			return *pObject;
 		}
 		OBJECT_TYPE * GetObjectPointer()
+		{
+			return pObject;
+		}
+		const OBJECT_TYPE& GetObjectRef() const
+		{
+			return *pObject;
+		}
+		const OBJECT_TYPE * GetObjectPointer() const
 		{
 			return pObject;
 		}
@@ -276,9 +300,9 @@ public:
 	}
 	bool Create(const STORAGE_POOL_SETTING& PoolSetting)
 	{
-		return Create(PoolSetting.StartSize, PoolSetting.GrowLimit);
+		return Create(PoolSetting.StartSize, PoolSetting.StartSize + PoolSetting.GrowSize*PoolSetting.GrowLimit);
 	}
-	UINT GetBufferSize()
+	UINT GetBufferSize() const
 	{
 		return m_BufferSize;
 	}
@@ -401,7 +425,16 @@ public:
 		}
 		return NULL;
 	}
-	void * FinPos(const KEY& Key)
+	const T * Find(const KEY& Key) const
+	{
+		const StorageNode * pNode = FindNode(Key);
+		if (pNode)
+		{
+			return pNode->GetObjectPointer();
+		}
+		return NULL;
+	}
+	void * FinPos(const KEY& Key) const
 	{
 		return FindNode(Key);
 	}
@@ -413,11 +446,23 @@ public:
 		else
 			return NULL;
 	}
+	const T* GetObject(LPVOID Pos) const
+	{
+		const StorageNode * pNode = (const StorageNode *)Pos;
+		if (Pos)
+			return pNode->GetObjectPointer();
+		else
+			return NULL;
+	}
 	T* GetObject(UINT ID)
 	{
 		return GetObject(GetObjectPosByID(ID));
 	}
-	LPVOID GetObjectPosByID(UINT ID)
+	const T* GetObject(UINT ID) const
+	{
+		return GetObject(GetObjectPosByID(ID));
+	}
+	LPVOID GetObjectPosByID(UINT ID) const
 	{
 		if (ID == 0)
 			return NULL;
@@ -445,29 +490,29 @@ public:
 		return pNode->Object;
 	}
 
-	UINT GetObjectCount()
+	UINT GetObjectCount() const
 	{
 		return m_ObjectCount;
 	}
-	UINT GetUsedObjectCount()
+	UINT GetUsedObjectCount() const
 	{
 		return m_UsedObjectCount;
 	}
-	LPVOID GetFirstObjectPos()
+	LPVOID GetFirstObjectPos() const
 	{
 		return m_pObjectListHead;
 	}
 
-	LPVOID GetLastObjectPos()
+	LPVOID GetLastObjectPos() const
 	{
 		return m_pObjectListTail;
 	}
 
-	T * GetNextObject(LPVOID& Pos, KEY& Key)
+	T * GetNextObject(LPVOID& Pos, KEY& Key) const
 	{
 		if (Pos)
 		{
-			StorageNode * pNode = (StorageNode *)Pos;
+			const StorageNode * pNode = (StorageNode *)Pos;
 			Pos = pNode->pNext;
 			Key = pNode->Key;
 			return pNode->GetObjectPointer();
@@ -475,11 +520,11 @@ public:
 		return NULL;
 	}
 
-	T * GetPrevObject(LPVOID& Pos, KEY& Key)
+	T * GetPrevObject(LPVOID& Pos, KEY& Key) const
 	{
 		if (Pos)
 		{
-			StorageNode * pNode = (StorageNode *)Pos;
+			const StorageNode * pNode = (StorageNode *)Pos;
 			Pos = pNode->pPrev;
 			Key = pNode->Key;
 			return pNode->GetObjectPointer();
@@ -505,14 +550,14 @@ public:
 			return pNode->GetObjectPointer();
 		}
 		return NULL;
-	}
+	}	
 	
-	void Verfy(UINT& ObjectCount, UINT& HashCount)
+	void Verfy(UINT& ObjectCount, UINT& HashCount) const
 	{
 		ObjectCount = 0;
 		HashCount = 0;
 
-		StorageNode * pNode = m_pObjectListHead;
+		const StorageNode * pNode = m_pObjectListHead;
 		while (pNode)
 		{
 			ObjectCount++;
@@ -520,7 +565,7 @@ public:
 		}
 		for (UINT i = 0; i < m_HashTableLen; i++)
 		{
-			StorageNode * pNode = m_HashTable[i];
+			const StorageNode * pNode = m_HashTable[i];
 			while (pNode)
 			{
 				HashCount++;
@@ -752,6 +797,24 @@ protected:
 		if (Index < m_HashTableLen)
 		{
 			StorageNode * pNode = m_HashTable[Index];
+			while (pNode)
+			{
+				if (pNode->Key == Key)
+				{
+					return pNode;
+				}
+				pNode = pNode->pBack;
+			}
+		}
+		return NULL;
+	}
+	const StorageNode * FindNode(const KEY& Key) const
+	{
+		UINT HashCode = CHashCodeMaker::GetHashCode(Key);
+		UINT Index = HashCode&m_HashMask;
+		if (Index < m_HashTableLen)
+		{
+			const StorageNode * pNode = m_HashTable[Index];
 			while (pNode)
 			{
 				if (pNode->Key == Key)

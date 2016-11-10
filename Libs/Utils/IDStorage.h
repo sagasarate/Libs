@@ -35,6 +35,14 @@ protected:
 		{
 			return &Object;
 		}
+		const OBJECT_TYPE& GetObjectRef() const
+		{
+			return Object;
+		}
+		const OBJECT_TYPE * GetObjectPointer() const
+		{
+			return &Object;
+		}
 		void NewObject()
 		{
 
@@ -68,6 +76,14 @@ protected:
 			return *pObject;
 		}
 		OBJECT_TYPE * GetObjectPointer()
+		{
+			return pObject;
+		}
+		const OBJECT_TYPE& GetObjectRef() const
+		{
+			return *pObject;
+		}
+		const OBJECT_TYPE * GetObjectPointer() const
 		{
 			return pObject;
 		}
@@ -106,6 +122,14 @@ protected:
 			return *pObject;
 		}
 		OBJECT_TYPE * GetObjectPointer()
+		{
+			return pObject;
+		}
+		const OBJECT_TYPE& GetObjectRef() const
+		{
+			return *pObject;
+		}
+		const OBJECT_TYPE * GetObjectPointer() const
 		{
 			return pObject;
 		}
@@ -186,7 +210,7 @@ public:
 	{
 		return Create(PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
 	}
-	UINT GetBufferSize()
+	UINT GetBufferSize() const
 	{
 		UINT BufferSize=0;
 		for(UINT i=0;i<m_ObjectBuffPages.GetCount();i++)
@@ -195,7 +219,7 @@ public:
 		}
 		return BufferSize;
 	}
-	BOOL IsCreated()
+	BOOL IsCreated() const
 	{
 		return m_ObjectBuffPages.GetCount()!=0;
 	}
@@ -370,14 +394,14 @@ public:
 		}
 		return NULL;
 	}
-	LPVOID GetObjectPosByID(UINT ID)
+	LPVOID GetObjectPosByID(UINT ID) const
 	{
 		if(ID==0)
 			return NULL;
 		if (m_ObjectBuffPages.GetCount())
 		{
 			ID--;
-			OBJECT_BUFF_PAGE_INFO& FirstPage = m_ObjectBuffPages[0];
+			const OBJECT_BUFF_PAGE_INFO& FirstPage = m_ObjectBuffPages[0];
 			if (ID < FirstPage.BufferSize)
 			{
 				if (!FirstPage.pObjectBuffer[ID].IsFree)
@@ -390,7 +414,7 @@ public:
 				UINT Index = ID % m_GrowSize;
 				if (PageIndex < m_ObjectBuffPages.GetCount())
 				{
-					OBJECT_BUFF_PAGE_INFO& Page = m_ObjectBuffPages[PageIndex];
+					const OBJECT_BUFF_PAGE_INFO& Page = m_ObjectBuffPages[PageIndex];
 					if (Index < Page.BufferSize)
 					{
 						if (!Page.pObjectBuffer[Index].IsFree)
@@ -403,7 +427,7 @@ public:
 	}
 	T* GetObject(LPVOID Pos)
 	{
-		StorageNode * pNode=(StorageNode *)Pos;	
+		StorageNode * pNode = (StorageNode *)Pos;
 		if (pNode)
 		{
 			if (!pNode->IsFree)
@@ -412,13 +436,28 @@ public:
 		
 		return NULL;
 	}	
+	const T* GetObject(LPVOID Pos) const
+	{
+		const StorageNode * pNode = (const StorageNode *)Pos;
+		if (pNode)
+		{
+			if (!pNode->IsFree)
+				return pNode->GetObjectPointer();
+		}
+
+		return NULL;
+	}
 	T* GetObject(UINT ID)
 	{		
 		return GetObject(GetObjectPosByID(ID));
 	}
-	UINT GetObjectID(LPVOID Pos)
+	const T* GetObject(UINT ID) const
 	{
-		StorageNode * pNode=(StorageNode *)Pos;	
+		return GetObject(GetObjectPosByID(ID));
+	}
+	UINT GetObjectID(LPVOID Pos) const
+	{
+		const StorageNode * pNode = (const StorageNode *)Pos;
 		if (pNode)
 			return pNode->ID;
 		else
@@ -443,21 +482,21 @@ public:
 		return false;;
 	}	
 
-	UINT GetObjectCount()
+	UINT GetObjectCount() const
 	{
 		return m_ObjectCount;
 	}
-	UINT GetUsedObjectCount()
+	UINT GetUsedObjectCount() const
 	{
 		return m_UsedObjectCount;
 	}
 
-	LPVOID GetFirstObjectPos()
+	LPVOID GetFirstObjectPos() const
 	{
 		return m_pObjectListHead;
 	}
 
-	LPVOID GetLastObjectPos()
+	LPVOID GetLastObjectPos() const
 	{
 		return m_pObjectListTail;
 	}
@@ -466,7 +505,7 @@ public:
 	{
 		if(Pos)
 		{
-			StorageNode * pNode=(StorageNode *)Pos;
+			StorageNode * pNode = (StorageNode *)Pos;
 			Pos=pNode->pNext;
 			return pNode->GetObjectPointer();
 		}
@@ -477,8 +516,29 @@ public:
 	{
 		if(Pos)
 		{
-			StorageNode * pNode=(StorageNode *)Pos;
+			StorageNode * pNode = (StorageNode *)Pos;
 			Pos=pNode->pPrev;
+			return pNode->GetObjectPointer();
+		}
+		return NULL;
+	}
+	const T* GetNextObject(LPVOID& Pos) const
+	{
+		if (Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			Pos = pNode->pNext;
+			return pNode->GetObjectPointer();
+		}
+		return NULL;
+	}
+
+	const T* GetPrevObject(LPVOID& Pos) const
+	{
+		if (Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			Pos = pNode->pPrev;
 			return pNode->GetObjectPointer();
 		}
 		return NULL;
@@ -596,9 +656,9 @@ public:
 		}
 		return FALSE;
 	}
-	LPVOID Find(const T& Object)
+	LPVOID Find(const T& Object) const
 	{
-		StorageNode * pNode=m_pObjectListHead;
+		const StorageNode * pNode = m_pObjectListHead;
 		while(pNode)
 		{
 			if(pNode->Object==Object)
@@ -607,13 +667,13 @@ public:
 		}
 		return NULL;
 	}
-	void Verfy(UINT& UsedCount, UINT& FreeCount)
+	void Verfy(UINT& UsedCount, UINT& FreeCount) const
 	{
 		UsedCount = 0;
 		FreeCount = 0;
 		UINT ObjectBuffSize = GetBufferSize();
 
-		StorageNode * pNode = m_pObjectListHead;
+		const StorageNode * pNode = m_pObjectListHead;
 		while (pNode&&UsedCount < ObjectBuffSize)
 		{
 			pNode = pNode->pNext;

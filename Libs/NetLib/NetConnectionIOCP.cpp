@@ -67,6 +67,7 @@ bool CNetConnection::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObje
 					{
 						//这里加个锁，以免和Destory调用并发而导致OverLappedObject未正确释放
 						CAutoLock Lock(m_OverLappedObjectPoolLock);
+						//PrintNetLog(_T("Recv=%u,(%u/%u)"), pOverLappedObject->GetDataBuff()->GetUsedSize(), m_RecvDataQueue.GetUsedSize(), m_RecvDataQueue.GetBufferSize());
 						Ret = m_RecvDataQueue.PushBack(&pOverLappedObject);
 					}				
 
@@ -85,7 +86,7 @@ bool CNetConnection::OnIOCPEvent(int EventID,COverLappedObject * pOverLappedObje
 						
 					}
 					else
-						PrintNetLog(_T("Recv数据队列已满！"));
+						PrintNetLog(_T("Recv数据队列已满(%u/%u)！"), m_RecvDataQueue.GetUsedSize(), m_RecvDataQueue.GetBufferSize());
 				}
 			}
 			else
@@ -428,11 +429,11 @@ bool CNetConnection::QueryRecv()
 	
 	if(m_Socket.IsConnected())
 	{
-		if (m_RecvDataQueue.GetUsedSize() >= m_RecvDataQueue.GetBufferSize())
-		{
-			PrintNetDebugLog(_T("接收缓冲已满"));			
-			return false;
-		}
+		//if (m_RecvDataQueue.GetUsedSize() >= m_RecvDataQueue.GetBufferSize())
+		//{
+		//	PrintNetDebugLog(_T("接收缓冲已满"));			
+		//	return false;
+		//}
 		COverLappedObject * pOverLappedObject = AllocOverLappedObject();
 		if(pOverLappedObject==NULL)
 		{

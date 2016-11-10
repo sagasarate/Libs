@@ -201,8 +201,10 @@ public:
 	virtual BOOL RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& ObjectRegisterInfo)=0;
 	virtual void Release()=0;
 
-	virtual BOOL QueryShutDown(OBJECT_ID TargetID,int Level)=0;
+	virtual BOOL QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param) = 0;
 	virtual void ShutDown(UINT PluginID)=0;
+	virtual bool RegisterCommandReceiver() = 0;
+	virtual bool UnregisterCommandReceiver() = 0;
 
 	virtual BOOL RegisterLogger(UINT LogChannel, LPCTSTR FileName) = 0;
 	virtual BOOL RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader) = 0;
@@ -227,8 +229,9 @@ public:
 	virtual BOOL OnFindObject(OBJECT_ID CallerID){return FALSE;}
 	virtual void OnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize){}
 	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString){}
-	virtual void OnShutDown(int Level){}
+	virtual void OnShutDown(BYTE Level, UINT Param){}
 	virtual int Update(int ProcessPacketLimit){return 0;}
+	virtual bool OnConsoleCommand(LPCTSTR szCommand){}
 
 };
 

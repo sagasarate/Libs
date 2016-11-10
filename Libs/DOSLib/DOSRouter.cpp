@@ -23,6 +23,7 @@ CDOSRouter::CDOSRouter(void)
 
 CDOSRouter::~CDOSRouter(void)
 {
+	SafeTerminate();
 }
 
 BOOL CDOSRouter::Init(CDOSServer * pServer)
@@ -94,6 +95,7 @@ void CDOSRouter::OnTerminate()
 		{
 			((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket);
 		}
+		m_MsgQueue.Destory();
 	}
 }
 
@@ -139,7 +141,7 @@ BOOL CDOSRouter::RouterMessage(CDOSMessagePacket * pPacket)
 	}
 	((CDOSServer *)GetServer())->AddRefMessagePacket(pPacket);
 #ifdef _DEBUG
-	pPacket->SetAllocTime(1);
+	pPacket->SetAllocTime(0x11);
 #endif
 	CAutoLock Lock(m_EasyCriticalSection);
 	if(!m_MsgQueue.PushBack(&pPacket))
@@ -171,6 +173,9 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 	while(m_MsgQueue.PopFront(&pPacket))
 	{
 		//PrintDOSDebugLog(_T("路由了消息[%u]"),pPacket->GetMessage().GetCmdID());
+#ifdef _DEBUG
+		pPacket->SetAllocTime(0x21);
+#endif
 
 		AtomicInc(&m_RouteInMsgCount);
 		AtomicAdd(&m_RouteInMsgFlow,pPacket->GetPacketLength());

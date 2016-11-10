@@ -92,6 +92,7 @@
 #define MONO_CLASS_METHOD_NAME_DO_ONSHUTDOWN				"OnShutDown"
 #define MONO_CLASS_METHOD_NAME_DO_UPDATE					"Update"
 #define MONO_CLASS_METHOD_NAME_DO_ONEXCEPTION				"OnException"
+#define MONO_CLASS_METHOD_NAME_DO_ONCONSOLECOMMAND			"OnConsoleCommand"
 
 #define MONO_CLASS_METHOD_PARAM_DO_INITIALIZE				1
 #define MONO_CLASS_METHOD_PARAM_DO_DESTORY					0
@@ -102,9 +103,10 @@
 #define MONO_CLASS_METHOD_PARAM_DO_ONFINDOBJECT				1
 #define MONO_CLASS_METHOD_PARAM_DO_ONOBJECTREPORT			2
 #define MONO_CLASS_METHOD_PARAM_DO_ONPROXYOBJECTIPREPORT	3
-#define MONO_CLASS_METHOD_PARAM_DO_ONSHUTDOWN				1
+#define MONO_CLASS_METHOD_PARAM_DO_ONSHUTDOWN				2
 #define MONO_CLASS_METHOD_PARAM_DO_UPDATE					1
 #define MONO_CLASS_METHOD_PARAM_DO_ONEXCEPTION				1
+#define MONO_CLASS_METHOD_PARAM_DO_ONCONSOLECOMMAND			1
 
 
 #define MONO_CLASS_METHOD_NAME_OBJECT_ID_CTOR			".ctor"
@@ -156,7 +158,6 @@ extern "C" typedef void(*PLUGIN_RELEASE_FN)();
 
 extern "C" typedef bool(*CLIENT_PROXY_INIT_FN)(UINT PluginID, UINT LogChannel, LPCTSTR ConfigDir, LPCTSTR LogDir);
 extern "C" typedef IDOSObjectProxyService * (*CLIENT_PROXY_GET_SERVICE_FN)();
-extern "C" typedef IDOSObjectProxyConnection * (*CLIENT_PROXY_CONNECTION_CREATE_FN)();
 
 enum PLUGIN_TYPE
 {
@@ -240,6 +241,7 @@ struct PLUGIN_INFO
 	PLUGIN_TYPE					PluginType;
 	CEasyString					PluginName;
 	PLUGIN_LOAD_TYPE			LoadType;
+	CEasyString					PrjDir;
 	CEasyArray<CEasyString>		SourceDirs;
 	CEasyString					MainClassNameSpace;
 	CEasyString					MainClass;
@@ -282,7 +284,7 @@ struct LIB_INFO
 {
 	CEasyString					LibName;
 	bool						NeedCompile;
-	CEasyString					OutDir;
+	//CEasyString					OutDir;
 	CEasyString					PrjDir;
 	CEasyArray<CEasyString>		SourceDirs;
 	LIB_COMPILE_STATE			Status;
@@ -322,6 +324,7 @@ struct MONO_CLASS_INFO_DO
 	MonoMethod *		pOnShutDownMethod;
 	MonoMethod *		pUpdateMethod;
 	MonoMethod *		pOnExceptionMethod;
+	MonoMethod *		pOnConsoleCommandMethod;
 	MONO_CLASS_INFO_DO()
 	{
 		pClass = NULL;
@@ -337,6 +340,7 @@ struct MONO_CLASS_INFO_DO
 		pOnShutDownMethod = NULL;
 		pUpdateMethod = NULL;
 		pOnExceptionMethod = NULL;
+		pOnConsoleCommandMethod = NULL;
 	}
 //	bool IsValid()
 //	{
@@ -361,7 +365,6 @@ struct CLIENT_PROXY_PLUGIN_INFO :CLIENT_PROXY_CONFIG
 	HMODULE									hModule;
 	CLIENT_PROXY_INIT_FN					pInitFN;
 	CLIENT_PROXY_GET_SERVICE_FN				pGetServiceFN;
-	CLIENT_PROXY_CONNECTION_CREATE_FN		pConnectionCreateFN;
 	UINT									LogChannel;
 	CLIENT_PROXY_PLUGIN_INFO()
 	{
@@ -370,14 +373,12 @@ struct CLIENT_PROXY_PLUGIN_INFO :CLIENT_PROXY_CONFIG
 		hModule = NULL;
 		pInitFN = NULL;
 		pGetServiceFN = NULL;
-		pConnectionCreateFN = NULL;
 		LogChannel = 0;
 	}
 };
 
 #include "DOSConfig.h"
 
-#include "DOSObjectProxyConnectionCustom.h"
 #include "DOSObjectProxyServiceCustom.h"
 
 #include "DistributedObjectOperator.h"

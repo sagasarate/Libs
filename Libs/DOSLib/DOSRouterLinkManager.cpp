@@ -11,6 +11,7 @@ CDOSRouterLinkManager::CDOSRouterLinkManager()
 
 CDOSRouterLinkManager::~CDOSRouterLinkManager()
 {
+	SafeTerminate();
 }
 
 

@@ -117,20 +117,18 @@ bool CDOSServer::OnStartUp()
 void CDOSServer::OnShutDown()
 {
 	FUNCTION_BEGIN;
-	m_MemoryPool.Verfy(0);
 
-	SAFE_DELETE(m_pDOSRouter);
-
-	if(m_pDOSRouter)
+	if (m_pDOSRouter)
 	{
 		m_pDOSRouter->SafeTerminate();
 	}
 
 	SAFE_DELETE(m_pRouterLinkManager);
 	SAFE_DELETE(m_pProxyManager);
-	SAFE_RELEASE(m_pObjectManager);
-	
+	SAFE_DELETE(m_pObjectManager);	
+	SAFE_DELETE(m_pDOSRouter);
 
+	m_MemoryPool.Verfy(LOG_DOS_CHANNEL);
 	m_MemoryPool.Destory();
 
 	FUNCTION_END;

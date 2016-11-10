@@ -171,7 +171,7 @@ void CDOSClient::Release()
 	CNetConnection::Release();
 }
 
-BOOL CDOSClient::QueryShutDown(OBJECT_ID TargetID,int Level)
+BOOL CDOSClient::QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param)
 {
 	return FALSE;
 }

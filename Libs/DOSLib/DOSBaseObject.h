@@ -92,7 +92,7 @@ public:
 	BOOL ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize);
 	BOOL CloseProxyObject(OBJECT_ID ProxyObjectID,UINT Delay);
 	BOOL RequestProxyObjectIP(OBJECT_ID ProxyObjectID);
-	BOOL QueryShutDown(OBJECT_ID TargetID,int Level);
+	BOOL QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param);
 
 protected:
 	virtual BOOL OnMessage(CDOSMessage * pMessage);
@@ -106,7 +106,7 @@ protected:
 	virtual void OnProxyObjectDisconnect(OBJECT_ID ProxyObjectID);
 	virtual void OnAliveTest(OBJECT_ID SenderID,BYTE IsEcho);
 	virtual void OnRouteLinkLost(UINT RouteID);
-	virtual void OnShutDown(int Level);
+	virtual void OnShutDown(BYTE Level, UINT Param);
 
 	int DoConcernedObjectTest();
 

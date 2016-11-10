@@ -111,9 +111,9 @@ namespace DOSSystem
             InternalCallRelease(m_ObjectHandle);
         }
 
-        public bool QueryShutDown(OBJECT_ID TargetID, int Level)
+        public bool QueryShutDown(OBJECT_ID TargetID, byte Level, uint Param)
         {
-            return InternalCallQueryShutDown(m_ObjectHandle, TargetID, Level);
+            return InternalCallQueryShutDown(m_ObjectHandle, TargetID, Level, Param);
         }
         public void ShutDown(uint PluginID)
         {
@@ -127,6 +127,15 @@ namespace DOSSystem
         public static bool RegisterCSVLogger(uint LogChannel, string FileName, string CSVLogHeader)
         {
             return InternalCallRegisterCSVLogger(LogChannel, FileName, CSVLogHeader);
+        }
+
+        public bool RegisterCommandReceiver()
+        {
+            return InternalCallRegisterCommandReceiver(m_ObjectHandle);
+        }
+	    public bool UnregisterCommandReceiver()
+        {
+            return InternalCallUnregisterCommandReceiver(m_ObjectHandle);
         }
 
 
@@ -178,7 +187,7 @@ namespace DOSSystem
         extern static void InternalCallRelease(IntPtr ObjectHandle);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static bool InternalCallQueryShutDown(IntPtr ObjectHandle,OBJECT_ID TargetID, int Level);
+        extern static bool InternalCallQueryShutDown(IntPtr ObjectHandle, OBJECT_ID TargetID, byte Level, uint Param);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static void InternalCallShutDown(IntPtr ObjectHandle,uint PluginID);
 
@@ -186,6 +195,10 @@ namespace DOSSystem
         extern static bool InternalCallRegisterLogger(uint LogChannel, string FileName);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static bool InternalCallRegisterCSVLogger(uint LogChannel, string FileName, string CSVLogHeader);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static bool InternalCallRegisterCommandReceiver(IntPtr ObjectHandle);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static bool InternalCallUnregisterCommandReceiver(IntPtr ObjectHandle);
     };
 
     class DistributedObjectSample
@@ -226,7 +239,7 @@ namespace DOSSystem
         {
 
         }
-        public void OnShutDown(int Level)
+        public void OnShutDown(byte Level, uint Param)
         {
 
         }
@@ -238,6 +251,11 @@ namespace DOSSystem
         public void OnException(System.Exception Exp)
         {
 
+        }
+
+        public bool OnConsoleCommand(string Command)
+        {
+            return false;
         }
     };
 

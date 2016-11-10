@@ -168,7 +168,7 @@ BOOL CDOSBaseObject::PushMessage(CDOSMessagePacket * pPacket)
 	FUNCTION_BEGIN;
 	((CDOSServer *)m_pRouter->GetServer())->AddRefMessagePacket(pPacket);
 #ifdef _DEBUG
-	pPacket->SetAllocTime(2);
+	pPacket->SetAllocTime(0x12);
 #endif
 	if(m_MsgQueue.PushBack(&pPacket))
 	{
@@ -370,10 +370,13 @@ BOOL CDOSBaseObject::RequestProxyObjectIP(OBJECT_ID ProxyObjectID)
 	return FALSE;
 }
 
-BOOL CDOSBaseObject::QueryShutDown(OBJECT_ID TargetID,int Level)
+BOOL CDOSBaseObject::QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param)
 {
 	FUNCTION_BEGIN;
-	return SendMessage(TargetID,DSM_SYSTEM_SHUTDOWN,DOS_MESSAGE_FLAG_SYSTEM_MESSAGE,&Level,sizeof(int));
+	SHUTDOWN_INFO Info;
+	Info.Level = Level;
+	Info.Param = Param;
+	return SendMessage(TargetID, DSM_SYSTEM_SHUTDOWN, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, &Info, sizeof(Info));
 	FUNCTION_END;
 	return FALSE;
 }
@@ -424,10 +427,10 @@ BOOL CDOSBaseObject::OnSystemMessage(CDOSMessage * pMessage)
 		OnObjectReport(pMessage->GetSenderID(), pMessage->GetDataBuffer(), pMessage->GetDataLength());
 		return TRUE;
 	case DSM_SYSTEM_SHUTDOWN:
-		if(pMessage->GetDataLength()>=sizeof(int))
+		if (pMessage->GetDataLength() >= sizeof(SHUTDOWN_INFO))
 		{
-			int * pLevel=((int *)pMessage->GetDataBuffer());
-			OnShutDown(*pLevel);
+			SHUTDOWN_INFO * pInfo = ((SHUTDOWN_INFO *)pMessage->GetDataBuffer());
+			OnShutDown(pInfo->Level, pInfo->Param);
 		}
 		return TRUE;
 	}
@@ -518,7 +521,7 @@ void CDOSBaseObject::OnRouteLinkLost(UINT RouteID)
 	FUNCTION_END;
 }
 
-void CDOSBaseObject::OnShutDown(int Level)
+void CDOSBaseObject::OnShutDown(BYTE Level, UINT Param)
 {
 	FUNCTION_BEGIN;
 	FUNCTION_END;

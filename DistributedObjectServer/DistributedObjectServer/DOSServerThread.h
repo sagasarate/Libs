@@ -30,20 +30,21 @@ protected:
 		SST_SS_GROUP_MAX_OBJECT_MSG_QUEUE_LEN=3000,
 		SST_SS_GROUP_CPU_USED_RATE=4000,
 	};
-	CESVariableList				m_ESVariableList;
-	CESFunctionList				m_ESFactionList;
-	CESBolanStack				m_Script;
-	CESThread					m_ESThread;
-	CEasyScriptExecutor			m_ScriptExecutor;
+	CESVariableList								m_ESVariableList;
+	CESFunctionList								m_ESFactionList;
+	CESBolanStack								m_Script;
+	CESThread									m_ESThread;
+	CEasyScriptExecutor							m_ScriptExecutor;
+	CEasyArray<CDistributedObjectOperator *>	m_ConsoleCommandReceiverList;
 
-	CSystemNetLinkManager		*m_pSysNetLinkManager;
-	CSystemControlPort			*m_pUDPSystemControlPort;
+	CSystemNetLinkManager *						m_pSysNetLinkManager;
+	CSystemControlPort *						m_pUDPSystemControlPort;
 
 	
 
-	CEasyTimer					m_CountTimer;
+	CEasyTimer									m_CountTimer;
 
-	CThreadPerformanceCounter	m_ThreadPerformanceCounter;
+	CThreadPerformanceCounter					m_ThreadPerformanceCounter;
 
 	DECLARE_CLASS_INFO_STATIC(CDOSServerThread);
 public:

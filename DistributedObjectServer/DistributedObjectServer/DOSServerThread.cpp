@@ -219,7 +219,7 @@ BOOL CDOSServerThread::OnStart()
 
 	for (UINT i = 0; i < GetProxyManager()->GetProxyServiceCount(); i++)
 	{
-		IDOSObjectProxyServiceBase * pProxyService = GetProxyManager()->GetProxyServiceByIndex(i);
+		CBaseDOSObjectProxyService * pProxyService = GetProxyManager()->GetProxyServiceByIndex(i);
 		if (pProxyService)
 		{
 			Temp.Format("对象代理(%u)循环时间", pProxyService->GetID());
@@ -372,6 +372,15 @@ void CDOSServerThread::ExecCommand(LPCTSTR szCommand)
 
 	Log("执行命令:%s",szCommand);
 
+	for (UINT i = 0; i < m_ConsoleCommandReceiverList.GetCount(); i++)
+	{
+		if (m_ConsoleCommandReceiverList[i]->OnConsoleCommand(szCommand))
+		{
+			Log("命令已由对象0x%llX处理", m_ConsoleCommandReceiverList[i]->GetObjectID());
+			return;
+		}			
+	}
+
 	RetCode=m_ESThread.PushScript(szCommand);
 	if(RetCode)
 	{
@@ -505,7 +514,7 @@ void CDOSServerThread::DoServerStat()
 	for (UINT i = 0; i < GetProxyManager()->GetProxyServiceCount(); i++)
 	{
 		CEasyString Temp;
-		IDOSObjectProxyServiceBase * pProxyService = GetProxyManager()->GetProxyServiceByIndex(i);
+		CBaseDOSObjectProxyService * pProxyService = GetProxyManager()->GetProxyServiceByIndex(i);
 		if (pProxyService)
 		{
 			SetServerStatus(SST_SS_OBJECT_PROXY_CYCLE_TIME + i, CSmartValue(pProxyService->GetCycleTime()));

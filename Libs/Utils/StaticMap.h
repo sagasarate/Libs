@@ -48,6 +48,14 @@ protected:
 		{
 			return &Object;
 		}
+		const OBJECT_TYPE& GetObjectRef() const
+		{
+			return Object;
+		}
+		const OBJECT_TYPE * GetObjectPointer() const
+		{
+			return &Object;
+		}
 		void NewObject()
 		{
 
@@ -87,6 +95,14 @@ protected:
 			return *pObject;
 		}
 		OBJECT_TYPE * GetObjectPointer()
+		{
+			return pObject;
+		}
+		const OBJECT_TYPE& GetObjectRef() const
+		{
+			return *pObject;
+		}
+		const OBJECT_TYPE * GetObjectPointer() const
 		{
 			return pObject;
 		}
@@ -130,6 +146,14 @@ protected:
 			return *pObject;
 		}
 		OBJECT_TYPE * GetObjectPointer()
+		{
+			return pObject;
+		}
+		const OBJECT_TYPE& GetObjectRef() const
+		{
+			return *pObject;
+		}
+		const OBJECT_TYPE * GetObjectPointer() const
 		{
 			return pObject;
 		}
@@ -300,7 +324,7 @@ public:
 		}
 		return NULL;
 	}
-	UINT GetBufferSize()
+	UINT GetBufferSize() const
 	{
 		UINT BufferSize=0;
 		for(UINT i=0;i<m_ObjectBuffPages.GetCount();i++)
@@ -408,22 +432,35 @@ public:
 		}
 		return FALSE;
 	}
-	void * FinPos(const KEY& Key)
+	void * FinPos(const KEY& Key) const
 	{
 		return FindNode(m_pTreeRoot, Key);
 	}
 	T * Find(const KEY& Key)
 	{
-		StorageNode * pNode=FindNode(m_pTreeRoot,Key);
+		StorageNode * pNode = FindNode(m_pTreeRoot, Key);
 		if(pNode)
 		{
 			return pNode->GetObjectPointer();
 		}
 		return NULL;
 	}
-	void * FindNearPos(const KEY& Key)
+	const T * Find(const KEY& Key) const
 	{
-		return FindNodeNear(m_pTreeRoot, Key);
+		const StorageNode * pNode = FindNode(m_pTreeRoot, Key);
+		if (pNode)
+		{
+			return pNode->GetObjectPointer();
+		}
+		return NULL;
+	}
+	LPVOID FindPos(const KEY& Key) const
+	{
+		return (LPVOID)FindNode(m_pTreeRoot, Key);
+	}
+	LPVOID FindNearPos(const KEY& Key) const
+	{
+		return (LPVOID)FindNodeNear(m_pTreeRoot, Key);
 	}
 	T * FindNear(const KEY& Key)
 	{
@@ -434,10 +471,27 @@ public:
 		}
 		return NULL;
 	}
+	const T * FindNear(const KEY& Key) const
+	{
+		const StorageNode * pNode = FindNodeNear(m_pTreeRoot, Key);
+		if (pNode)
+		{
+			return pNode->GetObjectPointer();
+		}
+		return NULL;
+	}
 	T* GetObject(LPVOID Pos)
 	{
-		StorageNode * pNode=(StorageNode *)Pos;
+		StorageNode * pNode = (StorageNode *)Pos;
 		if(Pos)
+			return pNode->GetObjectPointer();
+		else
+			return NULL;
+	}
+	const T* GetObject(LPVOID Pos) const
+	{
+		const StorageNode * pNode = (StorageNode *)Pos;
+		if (Pos)
 			return pNode->GetObjectPointer();
 		else
 			return NULL;
@@ -446,33 +500,37 @@ public:
 	{
 		return GetObject(GetObjectPosByID(ID));
 	}
+	const T* GetObject(UINT ID) const
+	{
+		return GetObject(GetObjectPosByID(ID));
+	}
 
-	UINT GetObjectCount()
+	UINT GetObjectCount() const
 	{
 		return m_ObjectCount;
 	}
-	UINT GetUsedObjectCount()
+	UINT GetUsedObjectCount() const
 	{
 		return m_UsedObjectCount;
 	}
 
-	LPVOID GetFirstObjectPos()
+	LPVOID GetFirstObjectPos() const
 	{
 		return m_pObjectListHead;
 	}
 
-	LPVOID GetLastObjectPos()
+	LPVOID GetLastObjectPos() const
 	{
 		return m_pObjectListTail;
 	}
-	LPVOID GetObjectPosByID(UINT ID)
+	LPVOID GetObjectPosByID(UINT ID) const
 	{
 		if (ID == 0)
 			return NULL;
 		if (m_ObjectBuffPages.GetCount())
 		{
 			ID--;
-			OBJECT_BUFF_PAGE_INFO& FirstPage = m_ObjectBuffPages[0];
+			const OBJECT_BUFF_PAGE_INFO& FirstPage = m_ObjectBuffPages[0];
 			if (ID < FirstPage.BufferSize)
 			{
 				if (!FirstPage.pObjectBuffer[ID].IsFree)
@@ -485,7 +543,7 @@ public:
 				UINT Index = ID % m_GrowSize;
 				if (PageIndex < m_ObjectBuffPages.GetCount())
 				{
-					OBJECT_BUFF_PAGE_INFO& Page = m_ObjectBuffPages[PageIndex];
+					const OBJECT_BUFF_PAGE_INFO& Page = m_ObjectBuffPages[PageIndex];
 					if (Index < Page.BufferSize)
 					{
 						if (!Page.pObjectBuffer[Index].IsFree)
@@ -497,11 +555,11 @@ public:
 		return NULL;
 	}
 
-	T * GetNextObject(LPVOID& Pos,KEY& Key)
+	T * GetNextObject(LPVOID& Pos, KEY& Key)
 	{
 		if(Pos)
 		{
-			StorageNode * pNode=(StorageNode *)Pos;			
+			StorageNode * pNode = (StorageNode *)Pos;
 			if(!pNode->IsFree)
 			{
 				Pos=pNode->pNext;
@@ -516,11 +574,11 @@ public:
 		return NULL;
 	}
 
-	T * GetPrevObject(LPVOID& Pos,KEY& Key)
+	T * GetPrevObject(LPVOID& Pos, KEY& Key)
 	{
 		if(Pos)
 		{
-			StorageNode * pNode=(StorageNode *)Pos;			
+			StorageNode * pNode = (StorageNode *)Pos;
 			if(!pNode->IsFree)
 			{
 				Pos=pNode->pPrev;
@@ -534,19 +592,56 @@ public:
 		}
 		return NULL;
 	}
-	T * GetNextObject(LPVOID& Pos)
+	const T * GetNextObject(LPVOID& Pos, KEY& Key) const
 	{
-		if(Pos)
+		if (Pos)
 		{
-			StorageNode * pNode=(StorageNode *)Pos;			
-			if(!pNode->IsFree)
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			if (!pNode->IsFree)
 			{
-				Pos=pNode->pNext;
+				Pos = pNode->pNext;
+				Key = pNode->Key;
 				return pNode->GetObjectPointer();
 			}
 			else
 			{
-				Pos=NULL;
+				Pos = NULL;
+			}
+		}
+		return NULL;
+	}
+
+	const T * GetPrevObject(LPVOID& Pos, KEY& Key) const
+	{
+		if (Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			if (!pNode->IsFree)
+			{
+				Pos = pNode->pPrev;
+				Key = pNode->Key;
+				return pNode->GetObjectPointer();
+			}
+			else
+			{
+				Pos = NULL;
+			}
+		}
+		return NULL;
+	}
+	T * GetNextObject(LPVOID& Pos)
+	{
+		if (Pos)
+		{
+			StorageNode * pNode = (StorageNode *)Pos;
+			if (!pNode->IsFree)
+			{
+				Pos = pNode->pNext;
+				return pNode->GetObjectPointer();
+			}
+			else
+			{
+				Pos = NULL;
 			}
 		}
 		return NULL;
@@ -554,9 +649,44 @@ public:
 
 	T * GetPrevObject(LPVOID& Pos)
 	{
+		if (Pos)
+		{
+			StorageNode * pNode = (StorageNode *)Pos;
+			if (!pNode->IsFree)
+			{
+				Pos = pNode->pPrev;
+				return pNode->GetObjectPointer();
+			}
+			else
+			{
+				Pos = NULL;
+			}
+		}
+		return NULL;
+	}
+	const T * GetNextObject(LPVOID& Pos) const
+	{
 		if(Pos)
 		{
-			StorageNode * pNode=(StorageNode *)Pos;			
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			if(!pNode->IsFree)
+			{
+				Pos=pNode->pNext;
+				return pNode->GetObjectPointer();
+			}
+			else
+			{
+				Pos=NULL;
+			}
+		}
+		return NULL;
+	}
+
+	const T * GetPrevObject(LPVOID& Pos) const
+	{
+		if(Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
 			if(!pNode->IsFree)
 			{
 				Pos=pNode->pPrev;
@@ -569,20 +699,21 @@ public:
 		}
 		return NULL;
 	}
-	LPVOID GetSortedFirstObjectPos()
+	
+	LPVOID GetSortedFirstObjectPos() const
 	{
 		return m_pFront;
 	}
 
-	LPVOID GetSortedLastObjectPos()
+	LPVOID GetSortedLastObjectPos() const
 	{
 		return m_pBack;
 	}
-	T * GetSortedNextObject(LPVOID& Pos,KEY& Key)
+	T * GetSortedNextObject(LPVOID& Pos, KEY& Key)
 	{
 		if(Pos)
 		{
-			StorageNode * pNode=(StorageNode *)Pos;			
+			StorageNode * pNode = (StorageNode *)Pos;
 			if(!pNode->IsFree)
 			{
 				Pos=pNode->pBack;
@@ -597,11 +728,11 @@ public:
 		return NULL;
 	}
 
-	T * GetSortedPrevObject(LPVOID& Pos,KEY& Key)
+	T * GetSortedPrevObject(LPVOID& Pos, KEY& Key)
 	{
 		if(Pos)
 		{
-			StorageNode * pNode=(StorageNode *)Pos;			
+			StorageNode * pNode = (StorageNode *)Pos;
 			if(!pNode->IsFree)
 			{
 				Pos=pNode->pFront;
@@ -615,11 +746,48 @@ public:
 		}
 		return NULL;
 	}
+	const T * GetSortedNextObject(LPVOID& Pos, KEY& Key) const
+	{
+		if (Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			if (!pNode->IsFree)
+			{
+				Pos = pNode->pBack;
+				Key = pNode->Key;
+				return pNode->GetObjectPointer();
+			}
+			else
+			{
+				Pos = NULL;
+			}
+		}
+		return NULL;
+	}
+
+	const T * GetSortedPrevObject(LPVOID& Pos, KEY& Key) const
+	{
+		if (Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			if (!pNode->IsFree)
+			{
+				Pos = pNode->pFront;
+				Key = pNode->Key;
+				return pNode->GetObjectPointer();
+			}
+			else
+			{
+				Pos = NULL;
+			}
+		}
+		return NULL;
+	}
 	T * GetSortedNextObject(LPVOID& Pos)
 	{
 		if(Pos)
 		{
-			StorageNode * pNode=(StorageNode *)Pos;			
+			StorageNode * pNode = (StorageNode *)Pos;
 			if(!pNode->IsFree)
 			{
 				Pos=pNode->pBack;
@@ -637,7 +805,7 @@ public:
 	{
 		if(Pos)
 		{
-			StorageNode * pNode=(StorageNode *)Pos;			
+			StorageNode * pNode = (StorageNode *)Pos;
 			if(!pNode->IsFree)
 			{
 				Pos=pNode->pFront;
@@ -646,6 +814,41 @@ public:
 			else
 			{
 				Pos=NULL;
+			}
+		}
+		return NULL;
+	}
+	const T * GetSortedNextObject(LPVOID& Pos) const
+	{
+		if (Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			if (!pNode->IsFree)
+			{
+				Pos = pNode->pBack;
+				return pNode->GetObjectPointer();
+			}
+			else
+			{
+				Pos = NULL;
+			}
+		}
+		return NULL;
+	}
+
+	const T * GetSortedPrevObject(LPVOID& Pos) const
+	{
+		if (Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			if (!pNode->IsFree)
+			{
+				Pos = pNode->pFront;
+				return pNode->GetObjectPointer();
+			}
+			else
+			{
+				Pos = NULL;
 			}
 		}
 		return NULL;
@@ -753,7 +956,7 @@ protected:
 	//		
 	//	}
 	//}
-	StorageNode * FindNode(StorageNode * pRoot,const KEY& Key)
+	StorageNode * FindNode(StorageNode * pRoot, const KEY& Key)
 	{
 		if(pRoot)
 		{
@@ -772,7 +975,51 @@ protected:
 		}
 		return NULL;
 	}
+	const StorageNode * FindNode(StorageNode * pRoot, const KEY& Key) const
+	{
+		if (pRoot)
+		{
+			if (pRoot->Key>Key)
+			{
+				return FindNode(pRoot->pLeftChild, Key);
+			}
+			else if (pRoot->Key<Key)
+			{
+				return FindNode(pRoot->pRightChild, Key);
+			}
+			else
+			{
+				return pRoot;
+			}
+		}
+		return NULL;
+	}
 	StorageNode * FindNodeNear(StorageNode * pRoot, const KEY& Key)
+	{
+		if (pRoot)
+		{
+			if (pRoot->Key>Key)
+			{
+				if (pRoot->pLeftChild)
+					return FindNodeNear(pRoot->pLeftChild, Key);
+				else
+					return pRoot;
+			}
+			else if (pRoot->Key<Key)
+			{
+				if (pRoot->pRightChild)
+					return FindNodeNear(pRoot->pRightChild, Key);
+				else
+					return pRoot;
+			}
+			else
+			{
+				return pRoot;
+			}
+		}
+		return NULL;
+	}
+	const StorageNode * FindNodeNear(StorageNode * pRoot, const KEY& Key) const
 	{
 		if (pRoot)
 		{

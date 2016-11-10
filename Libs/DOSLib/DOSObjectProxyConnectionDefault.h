@@ -15,7 +15,6 @@ class CDOSObjectProxyServiceDefault;
 class CDOSObjectProxyConnectionGroup;
 
 class CDOSObjectProxyConnectionDefault :
-	public IDOSObjectProxyConnectionBase,
 	public CNetConnection
 {
 public:
@@ -60,8 +59,6 @@ public:
 	virtual ~CDOSObjectProxyConnectionDefault(void);
 
 	virtual void Destory();
-	virtual UINT AddUseRef();
-	virtual void Release();
 	virtual bool PushMessage(CDOSMessagePacket * pPacket);
 
 

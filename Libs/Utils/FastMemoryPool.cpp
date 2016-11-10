@@ -159,31 +159,31 @@ void CFastMemoryPool::Verfy(int LogChannel)
 	if(m_IsThreadLock)
 		ThreadLock.Lock(m_EasyCriticalSection);
 
+	CLogManager::GetInstance()->PrintLog(LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, 0, _T("开始内存池校验：PoolAlloc=%u/%u,SystemAlloc=%u/%u"), 
+		m_AllocCount, m_FreeCount, m_SystemAllocCount, m_SystemFreeCount);
 	for(UINT i=0;i<m_BlockLevelCount;i++)
 	{
 		for(UINT j=0;j<m_pBlockLevels[i].BlockCount;j++)
 		{
 			BlockNode * pNode=(BlockNode *)((char *)m_pBlockLevels[i].pBlocks+j*m_pBlockLevels[i].BlockSize);
-
+			BYTE * pData = (BYTE *)pNode + sizeof(BlockNode);
 
 			if(pNode->Flag==BF_USED)
 			{
 				if(*((UINT *)(((BYTE *)pNode)+sizeof(BlockNode)+pNode->AllocSize))!=BF_TAIL)
 				{
-					PrintImportantLog(_T("内存块%p尾部已被破坏"));
+					PrintImportantLog(_T("内存块%p尾部已被破坏"), pNode);
 					assert(false);
 				}
 			}
 			else if(pNode->Flag!=BF_FREE)
 			{
-				PrintImportantLog(_T("内存块%p头部已被破坏"));
+				PrintImportantLog(_T("内存块%p头部已被破坏"), pNode);
 				assert(false);
 
 			}
 			if(pNode->Flag==BF_USED)
 			{
-				BYTE * pData=(BYTE *)pNode+sizeof(BlockNode);
-
 				CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,
 					_T("AllocedMem:%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,")
 					_T("%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X"),
@@ -194,9 +194,8 @@ void CFastMemoryPool::Verfy(int LogChannel)
 			}
 
 		}
-
-
 	}
+	CLogManager::GetInstance()->PrintLog(LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, 0, _T("内存池校验结束"));
 }
 
 LPVOID CFastMemoryPool::Alloc(UINT Size)
@@ -283,6 +282,9 @@ LPVOID CFastMemoryPool::AllocBlock(BlockList * pBlockList,UINT AllocSize)
 			pNode->AllocSize=AllocSize;
 			*((UINT *)(((BYTE *)pNode)+sizeof(BlockNode)+pNode->AllocSize))=BF_TAIL;
 			pBlockList->UsedCount++;
+//#ifdef _DEBUG
+//			memset((BYTE *)pNode + sizeof(BlockNode), 0xCD, pNode->AllocSize);
+//#endif
 
 			return (char *)pNode+sizeof(BlockNode);
 		}
@@ -325,6 +327,10 @@ BOOL CFastMemoryPool::FreeBlock(BlockNode * pNode)
 			pBlockList->pFreeList->pPrev=pNode;
 		pBlockList->pFreeList=pNode;
 		pBlockList->UsedCount--;
+
+//#ifdef _DEBUG
+//		memset((BYTE *)pNode + sizeof(BlockNode), 0xFE, pBlockList->AvailableSize);
+//#endif
 		return TRUE;
 
 	}

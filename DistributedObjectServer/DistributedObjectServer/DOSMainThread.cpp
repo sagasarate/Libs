@@ -748,7 +748,6 @@ bool CDOSMainThread::LoadProxyPlugins()
 				{
 					GetProxyManager()->UnregisterProxyService(pProxy->GetID());
 				}
-				SAFE_RELEASE(pProxy);
 			}
 			else
 			{
@@ -1183,7 +1182,7 @@ bool CDOSMainThread::CompileCSharpPlugin(PLUGIN_INFO& PluginInfo)
 	CEasyString OutFileName = PluginInfo.ModuleFileName;
 
 	if (CDOSConfig::GetInstance()->GetMonoConfig().CreateProj)
-		CreateCSProj(PluginInfo.PluginName, ".", PluginInfo.SourceDirs, OutFileName);
+		CreateCSProj(PluginInfo.PluginName, PluginInfo.PrjDir, PluginInfo.SourceDirs, OutFileName);
 
 	if (CallMCS(SourceList, LibList, PluginInfo.ModuleFileName, CDOSConfig::GetInstance()->GetMonoConfig().EnableDebug, PluginInfo.hMCSProcess))
 	{
@@ -1270,7 +1269,7 @@ bool CDOSMainThread::CompileCSharpLib(LIB_INFO& LibInfo)
 
 
 	CEasyString OutFileName;
-	OutFileName.Format("%s/%s.dll", (LPCTSTR)LibInfo.OutDir, (LPCTSTR)LibInfo.LibName);
+	OutFileName.Format("%s/%s.dll", (LPCTSTR)CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir, (LPCTSTR)LibInfo.LibName);
 	OutFileName = CFileTools::MakeModuleFullPath(NULL, OutFileName);
 
 
@@ -1500,7 +1499,7 @@ void CDOSMainThread::RegisterMonoFunctions()
 		(void *)CDistributedObjectOperator::InternalCallRegisterObject);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallRelease(intptr)",
 		(void *)CDistributedObjectOperator::InternalCallRelease);
-	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallQueryShutDown(intptr,DOSSystem.OBJECT_ID,int)",
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallQueryShutDown(intptr,DOSSystem.OBJECT_ID,byte,uint)",
 		(void *)CDistributedObjectOperator::InternalCallQueryShutDown);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallShutDown(intptr,uint)",
 		(void *)CDistributedObjectOperator::InternalCallShutDown);
@@ -1508,6 +1507,10 @@ void CDOSMainThread::RegisterMonoFunctions()
 		(void *)CDistributedObjectOperator::InternalCallRegisterLogger);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallRegisterCSVLogger(uint,string,string)",
 		(void *)CDistributedObjectOperator::InternalCallRegisterCSVLogger);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallRegisterCommandReceiver(intptr)",
+		(void *)CDistributedObjectOperator::InternalCallRegisterCommandReceiver);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallUnregisterCommandReceiver(intptr)",
+		(void *)CDistributedObjectOperator::InternalCallUnregisterCommandReceiver);
 
 	FUNCTION_END;
 }
@@ -1611,6 +1614,32 @@ void CDOSMainThread::ProcessMonoException(MonoObject * pException)
 		LogMono("%s", pBuff);
 		mono_free(pBuff);
 	}
+}
+
+bool CDOSMainThread::AddConsoleCommandReceiver(CDistributedObjectOperator * pOperator)
+{
+	for (UINT i = 0; i < m_ConsoleCommandReceiverList.GetCount(); i++)
+	{
+		if (m_ConsoleCommandReceiverList[i] == pOperator)
+			return false;
+	}
+	m_ConsoleCommandReceiverList.Add(pOperator);
+	Log("对象0x%llX已注册为控制台命令接收者", pOperator->GetObjectID());
+	return true;
+}
+bool CDOSMainThread::DeleteConsoleCommandReceiver(CDistributedObjectOperator * pOperator)
+{
+	for (UINT i = 0; i < m_ConsoleCommandReceiverList.GetCount(); i++)
+	{
+		if (m_ConsoleCommandReceiverList[i] == pOperator)
+		{
+			m_ConsoleCommandReceiverList.Delete(i);
+			Log("控制台命令接收者0x%llX已注销", pOperator->GetObjectID());
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 void CDOSMainThread::MonoInternalCallLog(UINT LogChannel, MonoString * pMsg)
@@ -2010,8 +2039,18 @@ bool CDOSMainThread::CallMCS(CEasyArray<CEasyString>& SourceList, CEasyArray<CEa
 
 	CEasyString Cmd;
 
+	CEasyString CompilerPath = CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().CompilerPath);
+
+	CEasyString FileExt = CFileTools::GetPathFileExtName(CompilerPath);
+
+	if (FileExt.IsEmpty())
+	{
+		//没有扩展名，补个.exe
+		CompilerPath += ".exe";
+	}
+
 	Cmd.Format("%s %s %s %s -nostdlib -target:library %s",
-		(LPCTSTR)CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().CompilerPath),
+		(LPCTSTR)CompilerPath,
 		(LPCTSTR)Sources, (LPCTSTR)szDebugSwitch, (LPCTSTR)Libs, (LPCTSTR)OutFileName);
 
 	LogMono("开始生成:%s", (LPCTSTR)Cmd);

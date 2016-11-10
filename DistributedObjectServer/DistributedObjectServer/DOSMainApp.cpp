@@ -130,6 +130,7 @@ BOOL CDOSMainApp::OnStartUp()
 void CDOSMainApp::OnShutDown()
 {	
 	CDOSMainThread::GetInstance()->ShutDown(MAX_SERVER_TERMINATE_WAIT_TIME);
+	PrintImportantLog("服务完成关闭");
 
 	CLogManager::ReleaseInstance();
 	CPerformanceStatistician::ReleaseInstance();

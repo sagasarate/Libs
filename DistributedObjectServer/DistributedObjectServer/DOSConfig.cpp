@@ -303,8 +303,6 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 	if (XMLContent.has_attribute("MinMsgCompressSize"))
 		Config.MinMsgCompressSize = XMLContent.attribute("MinMsgCompressSize");
 
-	if (XMLContent.has_attribute("MsgQueueSize"))
-		Config.MsgQueueSize = (UINT)XMLContent.attribute("MsgQueueSize");
 
 	if (XMLContent.has_attribute("GlobalMsgMapSize"))
 		Config.GlobalMsgMapSize = (UINT)XMLContent.attribute("GlobalMsgMapSize");
@@ -354,8 +352,8 @@ bool CDOSConfig::LoadLibInfo(xml_node& XMLContent)
 					if (Lib.has_attribute("NeedCompile"))
 						LibInfo.NeedCompile = Lib.attribute("NeedCompile");
 
-					if (Lib.has_attribute("OutDir"))
-						LibInfo.OutDir = Lib.attribute("OutDir").getvalue();
+					//if (Lib.has_attribute("OutDir"))
+					//	LibInfo.OutDir = Lib.attribute("OutDir").getvalue();
 
 					if (Lib.has_attribute("PrjDir"))
 						LibInfo.PrjDir = Lib.attribute("PrjDir").getvalue();
@@ -404,6 +402,10 @@ bool CDOSConfig::LoadPluginInfo(xml_node& XMLContent)
 			if (Plugin.has_attribute("ModuleFileName"))
 			{
 				PluginInfo.ModuleFileName = Plugin.attribute("ModuleFileName").getvalue();
+			}
+			if (Plugin.has_attribute("PrjDir"))
+			{
+				PluginInfo.PrjDir = Plugin.attribute("PrjDir").getvalue();
 			}
 			if (Plugin.has_attribute("ConfigDir"))
 			{

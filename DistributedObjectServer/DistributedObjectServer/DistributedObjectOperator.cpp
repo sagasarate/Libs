@@ -10,6 +10,7 @@ CDistributedObjectOperator::CDistributedObjectOperator()
 	m_PluginType = PLUGIN_TYPE_NATIVE;	
 	m_hCSOperatorObject = 0;
 	m_hCSObject = 0;	
+	m_IsCommandReceiver = false;
 	FUNCTION_END;
 }
 
@@ -71,6 +72,8 @@ BOOL CDistributedObjectOperator::Init(CDistributedObjectManager * pManager, UINT
 			MONO_CLASS_METHOD_NAME_DO_UPDATE, MONO_CLASS_METHOD_PARAM_DO_UPDATE);
 		m_MonoClassInfo_DO.pOnExceptionMethod = CDOSMainThread::GetInstance()->MonoGetClassMethod(m_MonoClassInfo_DO.pClass,
 			MONO_CLASS_METHOD_NAME_DO_ONEXCEPTION, MONO_CLASS_METHOD_PARAM_DO_ONEXCEPTION);
+		m_MonoClassInfo_DO.pOnConsoleCommandMethod = CDOSMainThread::GetInstance()->MonoGetClassMethod(m_MonoClassInfo_DO.pClass,
+			MONO_CLASS_METHOD_NAME_DO_ONCONSOLECOMMAND, MONO_CLASS_METHOD_PARAM_DO_ONCONSOLECOMMAND);
 		return TRUE;
 	}
 	
@@ -98,6 +101,10 @@ bool CDistributedObjectOperator::Initialize()
 void CDistributedObjectOperator::Destory()
 {
 	FUNCTION_BEGIN;
+	if (m_IsCommandReceiver)
+	{
+		UnregisterCommandReceiver();
+	}
 	switch (m_PluginType)
 	{
 	case PLUGIN_TYPE_NATIVE:
@@ -287,10 +294,10 @@ void CDistributedObjectOperator::Release()
 	FUNCTION_END;
 }
 
-BOOL CDistributedObjectOperator::QueryShutDown(OBJECT_ID TargetID,int Level)
+BOOL CDistributedObjectOperator::QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param)
 {
 	FUNCTION_BEGIN;
-	return CDOSBaseObject::QueryShutDown(TargetID,Level);
+	return CDOSBaseObject::QueryShutDown(TargetID, Level, Param);
 	FUNCTION_END;
 }
 
@@ -299,6 +306,37 @@ void CDistributedObjectOperator::ShutDown(UINT PluginID)
 	FUNCTION_BEGIN;
 	CDOSMainThread::GetInstance()->QueryFreePlugin(PluginID);
 	FUNCTION_END;
+}
+bool CDistributedObjectOperator::RegisterCommandReceiver()
+{
+	if (CDOSMainThread::GetInstance()->AddConsoleCommandReceiver(this))
+	{
+		m_IsCommandReceiver = true;
+		return true;
+	}
+	return false;
+}
+
+bool CDistributedObjectOperator::UnregisterCommandReceiver()
+{
+	m_IsCommandReceiver = false;
+	if (CDOSMainThread::GetInstance()->DeleteConsoleCommandReceiver(this))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool CDistributedObjectOperator::OnConsoleCommand(LPCTSTR szCommand)
+{
+	switch (m_PluginType)
+	{
+	case PLUGIN_TYPE_NATIVE:
+		return m_pDistributedObject->OnConsoleCommand(szCommand);
+	case PLUGIN_TYPE_CSHARP:
+		return CallOnConsoleCommand(szCommand);
+	}
+	return false;
 }
 
 BOOL CDistributedObjectOperator::RegisterLogger(UINT LogChannel, LPCTSTR FileName)
@@ -429,16 +467,16 @@ void CDistributedObjectOperator::OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, 
 	}
 	OBJECT_EXCEPTION_CATCH_END;
 }
-void CDistributedObjectOperator::OnShutDown(int Level)
+void CDistributedObjectOperator::OnShutDown(BYTE Level, UINT Param)
 {
 	OBJECT_EXCEPTION_CATCH_START;
 	switch (m_PluginType)
 	{
 	case PLUGIN_TYPE_NATIVE:
-		m_pDistributedObject->OnShutDown(Level);
+		m_pDistributedObject->OnShutDown(Level, Param);
 		break;
 	case PLUGIN_TYPE_CSHARP:
-		CallCSOnShutDown(Level);
+		CallCSOnShutDown(Level, Param);
 		break;
 	}
 	OBJECT_EXCEPTION_CATCH_END;
@@ -862,7 +900,7 @@ void CDistributedObjectOperator::CallCSOnProxyObjectIPReport(OBJECT_ID ProxyObje
 	}
 	FUNCTION_END;
 }
-void CDistributedObjectOperator::CallCSOnShutDown(int Level)
+void CDistributedObjectOperator::CallCSOnShutDown(BYTE Level, UINT Param)
 {
 	FUNCTION_BEGIN;
 	if (m_MonoClassInfo_DO.pOnShutDownMethod)
@@ -872,8 +910,9 @@ void CDistributedObjectOperator::CallCSOnShutDown(int Level)
 		if (pObject)
 		{
 			MonoObject * pException = NULL;
-			LPVOID Params[1];
+			LPVOID Params[2];
 			Params[0] = &Level;
+			Params[1] = &Param;
 			MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnShutDownMethod, pObject, Params, &pException);
 			if (pException)
 			{
@@ -943,7 +982,7 @@ int CDistributedObjectOperator::CallCSUpdate(int ProcessPacketLimit)
 	return 0;
 }
 
-void CDistributedObjectOperator::CallCSOnException(MonoObject * pException)
+void CDistributedObjectOperator::CallCSOnException(MonoObject * pPostException)
 {
 	FUNCTION_BEGIN;
 	if (m_MonoClassInfo_DO.pOnExceptionMethod)
@@ -954,7 +993,7 @@ void CDistributedObjectOperator::CallCSOnException(MonoObject * pException)
 		{
 			MonoObject * pException = NULL;
 			LPVOID Params[1];
-			Params[0] = pException;
+			Params[0] = pPostException;
 			MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnExceptionMethod, pObject, Params, &pException);
 			if (pException)
 			{
@@ -969,6 +1008,59 @@ void CDistributedObjectOperator::CallCSOnException(MonoObject * pException)
 
 	}
 	FUNCTION_END;
+}
+
+bool CDistributedObjectOperator::CallOnConsoleCommand(LPCTSTR szCommand)
+{
+	if (m_MonoClassInfo_DO.pOnConsoleCommandMethod)
+	{
+		mono_domain_set(m_MonoDomainInfo.pMonoDomain, FALSE);
+		MonoObject * pObject = mono_gchandle_get_target(m_hCSObject);
+		if (pObject)
+		{
+			MonoString * pParam1 = CDOSMainThread::GetInstance()->MonoCreateString(m_MonoDomainInfo, szCommand, 0);
+			if (pParam1)
+			{
+				MonoObject * pException = NULL;
+				LPVOID Params[1];
+				Params[0] = pParam1;
+				MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnConsoleCommandMethod, pObject, Params, &pException);
+				if (pException)
+				{
+					CDOSMainThread::GetInstance()->ProcessMonoException(pException);
+					CallCSOnException(pException);
+				}
+				else if (pReturnValue)
+				{
+					void * pValue = mono_object_unbox(pReturnValue);
+					if (pValue)
+					{
+						if (*((bool *)pValue))
+							return true;
+						else
+							return false;
+					}
+					else
+					{
+						Log("无法获取返回值");
+					}
+				}
+				else
+				{
+					Log("没有返回值");
+				}
+			}
+			else
+			{
+				Log("无法创建对象");
+			}
+		}
+		else
+		{
+			LogMono("无法获得DistributedObject对象");
+		}
+	}
+	return false;
 }
 
 bool CDistributedObjectOperator::DoRegisterLogger(UINT LogChannel, LPCTSTR FileName)
@@ -1189,11 +1281,11 @@ void CDistributedObjectOperator::InternalCallRelease(CDistributedObjectOperator 
 	if (pOperator)
 		pOperator->Release();
 }
-bool CDistributedObjectOperator::InternalCallQueryShutDown(CDistributedObjectOperator * pOperator, OBJECT_ID TargetID, int Level)
+bool CDistributedObjectOperator::InternalCallQueryShutDown(CDistributedObjectOperator * pOperator, OBJECT_ID TargetID, BYTE Level, UINT Param)
 {
 	if (pOperator)
 	{
-		return pOperator->QueryShutDown(TargetID, Level) != FALSE;
+		return pOperator->QueryShutDown(TargetID, Level, Param) != FALSE;
 	}
 	return false;
 }
@@ -1227,6 +1319,23 @@ bool CDistributedObjectOperator::InternalCallRegisterCSVLogger(UINT LogChannel, 
 		}
 		mono_free(szFileName);
 		return Ret;
+	}
+	return false;
+}
+
+bool CDistributedObjectOperator::InternalCallRegisterCommandReceiver(CDistributedObjectOperator * pOperator)
+{
+	if (pOperator)
+	{
+		return pOperator->RegisterCommandReceiver();
+	}
+	return false;
+}
+bool CDistributedObjectOperator::InternalCallUnregisterCommandReceiver(CDistributedObjectOperator * pOperator)
+{
+	if (pOperator)
+	{
+		return pOperator->UnregisterCommandReceiver();
 	}
 	return false;
 }

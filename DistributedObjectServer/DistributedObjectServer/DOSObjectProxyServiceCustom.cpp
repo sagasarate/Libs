@@ -13,26 +13,12 @@ CDOSObjectProxyServiceCustom::~CDOSObjectProxyServiceCustom()
 {
 }
 
-UINT CDOSObjectProxyServiceCustom::AddUseRef()
-{
-	return CEasyThread::AddUseRef();
-}
 void CDOSObjectProxyServiceCustom::Release()
 {
-	CEasyThread::Release();
+	CNameObject::Release();
 }
 void CDOSObjectProxyServiceCustom::Destory()
 {
-
-	LPVOID Pos = m_ConnectionPool.GetFirstObjectPos();
-	while (Pos)
-	{
-		CDOSObjectProxyConnectionCustom * pConnection = m_ConnectionPool.GetNextObject(Pos);
-
-		pConnection->Destory();
-
-	}
-	m_ConnectionPool.Clear();
 
 	SAFE_RELEASE(m_pProxyService);
 
@@ -61,61 +47,67 @@ BYTE CDOSObjectProxyServiceCustom::GetProxyType()
 }
 void CDOSObjectProxyServiceCustom::SetID(UINT ID)
 {
-	CEasyThread::SetID(ID);
+	CNameObject::SetID(ID);
 }
 UINT CDOSObjectProxyServiceCustom::GetID()
 {
-	return CEasyThread::GetID();
+	return CNameObject::GetID();
 }
 bool CDOSObjectProxyServiceCustom::StartService()
 {
-	return Start() != FALSE;
+	if (m_pProxyService)
+		m_pProxyService->StartService(this);
+	return false;
 }
 void CDOSObjectProxyServiceCustom::StopService()
 {
-	SafeTerminate();
+	if (m_pProxyService)
+		m_pProxyService->StopService();
 }
-bool CDOSObjectProxyServiceCustom::PushMessage(CDOSMessagePacket * pPacket)
+bool CDOSObjectProxyServiceCustom::PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket)
 {
-	m_pServer->AddRefMessagePacket(pPacket);
-#ifdef _DEBUG
-	pPacket->SetAllocTime(6);
-#endif
-	if (m_MsgQueue.PushBack(&pPacket))
-	{
-		return true;
-	}
-	else
-	{
-		m_pServer->ReleaseMessagePacket(pPacket);
-	}
+	if (m_pProxyService)
+		return m_pProxyService->PushMessage(ObjectID, pPacket);
 	return false;
 }
-bool CDOSObjectProxyServiceCustom::PushBroadcastMessage(CDOSMessagePacket * pPacket)
+
+UINT  CDOSObjectProxyServiceCustom::GetConnectionCount()
 {
-	LPVOID Pos = m_ConnectionPool.GetFirstObjectPos();
-	while (Pos)
-	{
-		CDOSObjectProxyConnectionCustom * pConnection = m_ConnectionPool.GetNextObject(Pos);
-		if (pConnection)
-		{
-			pConnection->PushMessage(pPacket);
-		}
-	}
-	return true;
-}
-IDOSObjectProxyConnectionBase * CDOSObjectProxyServiceCustom::GetConnection(UINT ID)
-{
-	return m_ConnectionPool.GetObject(ID);
+	if (m_pProxyService)
+		return m_pProxyService->GetConnectionCount();
+	return 0;
 }
 
 float CDOSObjectProxyServiceCustom::GetCPUUsedRate()
 {
-	return m_ThreadPerformanceCounter.GetCPUUsedRate();
+	if (m_pProxyService)
+		return m_pProxyService->GetCPUUsedRate();
+	return 0;
 }
 float CDOSObjectProxyServiceCustom::GetCycleTime()
 {
-	return m_ThreadPerformanceCounter.GetCycleTime();
+	if (m_pProxyService)
+		return m_pProxyService->GetCycleTime();
+	return 0;
+}
+
+UINT CDOSObjectProxyServiceCustom::GetGroupCount()
+{
+	if (m_pProxyService)
+		return m_pProxyService->GetGroupCount();
+	return 0;
+}
+float CDOSObjectProxyServiceCustom::GetGroupCPUUsedRate(UINT Index)
+{
+	if (m_pProxyService)
+		return m_pProxyService->GetGroupCPUUsedRate(Index);
+	return 0;
+}
+float CDOSObjectProxyServiceCustom::GetGroupCycleTime(UINT Index)
+{
+	if (m_pProxyService)
+		return m_pProxyService->GetGroupCycleTime(Index);
+	return 0;
 }
 
 
@@ -137,41 +129,55 @@ bool CDOSObjectProxyServiceCustom::SendMessage(OBJECT_ID ReceiverID, MSG_ID_TYPE
 	return m_pServer->GetRouter()->RouterMessage(m_ObjectID, ReceiverID, MsgID, MsgFlag, pData, DataSize) != FALSE;
 }
 
-IDOSObjectProxyConnection * CDOSObjectProxyServiceCustom::CreateConnection(CIPAddress& RemoteAddress)
+bool CDOSObjectProxyServiceCustom::SendMessageMulti(OBJECT_ID * pReceiverIDList, UINT ReceiverCount, bool IsSorted, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
 {
-	CDOSObjectProxyConnectionCustom * pConnection = NULL;
-	UINT ID = m_ConnectionPool.NewObject(&pConnection);
-	if (pConnection)
+	if (pReceiverIDList == NULL || ReceiverCount == 0)
 	{
-		IDOSObjectProxyConnection * pProxyConnection = (*(m_PluginInfo.pConnectionCreateFN))();
-		if (pProxyConnection)
-		{
-			if (!pConnection->Init(this, ID, pProxyConnection))
-			{
-				m_ConnectionPool.DeleteObject(ID);
-			}
-			SAFE_RELEASE(pProxyConnection);
-		}
-		else
-		{
-			m_ConnectionPool.DeleteObject(ID);
-		}
-		return pConnection->GetInterface();
+		return false;
 	}
-	return NULL;
+	int PacketSize = CDOSMessagePacket::CaculatePacketLength(DataSize, ReceiverCount);
+
+	CDOSMessagePacket * pNewPacket = m_pServer->NewMessagePacket(PacketSize);
+	if (pNewPacket == NULL)
+	{
+		PrintDOSLog(_T("分配消息内存块失败！"));
+		return false;
+	}
+	pNewPacket->GetMessage().SetMsgID(MsgID);
+	pNewPacket->GetMessage().SetSenderID(GetObjectID());
+	pNewPacket->GetMessage().SetDataLength(DataSize);
+	pNewPacket->GetMessage().SetMsgFlag(MsgFlag);
+	if (pData)
+		memcpy(pNewPacket->GetMessage().GetDataBuffer(), pData, DataSize);
+	pNewPacket->SetTargetIDs(ReceiverCount, pReceiverIDList);
+	if (!IsSorted)
+	{
+		qsort(pNewPacket->GetTargetIDs(), ReceiverCount, sizeof(OBJECT_ID), OBJECT_ID::Compare);
+	}
+
+	pNewPacket->MakePacketLength();
+
+	BOOL Ret = m_pServer->GetRouter()->RouterMessage(pNewPacket);
+	m_pServer->ReleaseMessagePacket(pNewPacket);
+	return Ret != FALSE;
 }
-bool CDOSObjectProxyServiceCustom::DeleteConnection(UINT ID)
+CDOSMessagePacket * CDOSObjectProxyServiceCustom::NewMessagePacket(UINT DataSize, UINT ReceiverCount)
 {
-	CDOSObjectProxyConnectionCustom * pConnection = m_ConnectionPool.GetObject(ID);
-	if (pConnection)
+	if (ReceiverCount == 0)
 	{
-		pConnection->Destory();
-		if (m_ConnectionPool.DeleteObject(ID))
-		{
-			return true;
-		}
+		return NULL;
 	}
-	return false;
+	int PacketSize = CDOSMessagePacket::CaculatePacketLength(DataSize, ReceiverCount);
+
+	return m_pServer->NewMessagePacket(PacketSize);
+}
+bool CDOSObjectProxyServiceCustom::ReleaseMessagePacket(CDOSMessagePacket * pPacket)
+{
+	return m_pServer->ReleaseMessagePacket(pPacket) != FALSE;;
+}
+bool CDOSObjectProxyServiceCustom::SendMessagePacket(CDOSMessagePacket * pPacket)
+{
+	return m_pServer->GetRouter()->RouterMessage(pPacket) != FALSE;
 }
 
 BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGIN_INFO& PluginInfo)
@@ -179,6 +185,11 @@ BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGI
 	m_pServer = pServer;
 	m_Config = PluginInfo;
 	m_PluginInfo = PluginInfo;
+
+	m_ObjectID.ObjectIndex = 0;
+	m_ObjectID.GroupIndex = MAKE_PROXY_GROUP_INDEX(m_Config.ProxyType);
+	m_ObjectID.ObjectTypeID = DOT_PROXY_OBJECT;
+	m_ObjectID.RouterID = GetRouterID();
 
 	if (m_PluginInfo.ModuleFileName.IsEmpty())
 #ifdef _DEBUG
@@ -254,16 +265,13 @@ BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGI
 		}
 		m_PluginInfo.pInitFN = (CLIENT_PROXY_INIT_FN)GetProcAddress(m_PluginInfo.hModule, CLIENT_PROXY_INIT_FN_NAME);
 		m_PluginInfo.pGetServiceFN = (CLIENT_PROXY_GET_SERVICE_FN)GetProcAddress(m_PluginInfo.hModule, CLIENT_PROXY_GET_SERVICE_FN_NAME);
-		m_PluginInfo.pConnectionCreateFN = (CLIENT_PROXY_CONNECTION_CREATE_FN)GetProcAddress(m_PluginInfo.hModule, CLIENT_PROXY_CONNECTION_CREATE_FN_NAME);
-		if (m_PluginInfo.pInitFN && m_PluginInfo.pGetServiceFN && m_PluginInfo.pConnectionCreateFN)
+		if (m_PluginInfo.pInitFN && m_PluginInfo.pGetServiceFN)
 #else
 		m_PluginInfo.pInitFN = (CLIENT_PROXY_INIT_FN)dlsym(m_PluginInfo.hModule, CLIENT_PROXY_INIT_FN_NAME);
 		LPCTSTR InitFNError = dlerror();
 		m_PluginInfo.pGetServiceFN = (CLIENT_PROXY_GET_SERVICE_FN)dlsym(m_PluginInfo.hModule, CLIENT_PROXY_GET_SERVICE_FN_NAME);
 		LPCTSTR GetServiceFNError = dlerror();
-		m_PluginInfo.pConnectionCreateFN = (CLIENT_PROXY_CONNECTION_CREATE_FN)dlsym(m_PluginInfo.hModule, CLIENT_PROXY_CONNECTION_CREATE_FN_NAME);
-		LPCTSTR CreateFNError = dlerror();
-		if (InitFNError == NULL && GetServiceFNError == NULL && CreateFNError == NULL && m_PluginInfo.pInitFN && m_PluginInfo.pGetServiceFN && m_PluginInfo.pConnectionCreateFN)
+		if (InitFNError == NULL && GetServiceFNError == NULL && m_PluginInfo.pInitFN && m_PluginInfo.pGetServiceFN)
 #endif
 		{
 			if (m_PluginInfo.pInitFN(m_PluginInfo.ID, m_PluginInfo.LogChannel, m_PluginInfo.ConfigDir, m_PluginInfo.LogDir))
@@ -283,7 +291,7 @@ BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGI
 
 					Log("代理插件装载成功%s", (LPCTSTR)m_PluginInfo.ModuleFileName);
 					m_PluginInfo.PluginStatus = PLUGIN_STATUS_RUNNING;
-					return Start();
+					return true;
 				}
 				else
 				{
@@ -304,7 +312,8 @@ BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGI
 		{
 			Log("不合法的代理插件%s", (LPCTSTR)m_PluginInfo.ModuleFileName);
 #ifndef WIN32
-			Log("CreateFN错误信息:%s", CreateFNError);
+			Log("InitFN错误信息:%s", InitFNError);
+			Log("GetServiceFN错误信息:%s", GetServiceFNError);
 #endif
 		}
 	}
@@ -322,145 +331,5 @@ BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGI
 }
 
 
-BOOL CDOSObjectProxyServiceCustom::OnStart()
-{
-
-	m_ObjectID.ObjectIndex = 0;
-	m_ObjectID.GroupIndex = MAKE_PROXY_GROUP_INDEX(m_Config.ProxyType);
-	m_ObjectID.ObjectTypeID = DOT_PROXY_OBJECT;
-	m_ObjectID.RouterID = GetRouterID();
 
 
-	if (!m_ConnectionPool.Create(m_Config.ConnectionPoolSetting))
-	{
-		PrintDOSLog(_T("DOSLib"), _T("代理服务[%u]创建(%u,%u,%u)大小的连接池失败！"),
-			GetID(),
-			m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
-		return FALSE;
-	}
-
-	m_ThreadPerformanceCounter.Init(GetThreadHandle(), THREAD_CPU_COUNT_TIME);
-
-	if (!m_MsgQueue.Create(m_Config.ConnectionMsgQueueSize))
-	{
-		PrintDOSLog(_T("DOSLib"), _T("代理服务[%u]创建%u大小的消息队列失败！"),
-			GetID(),
-			m_Config.ConnectionMsgQueueSize);
-		return FALSE;
-	}
-
-	if (!m_pProxyService->Initialize(this))
-		return FALSE;
-
-	PrintDOSLog(_T("DOSLib"), _T("对象代理[%u]线程[%u]已启动"), GetID(), GetThreadID());
-	
-	return TRUE;
-}
-
-BOOL CDOSObjectProxyServiceCustom::OnRun()
-{
-	m_ThreadPerformanceCounter.DoPerformanceCount();
-	int ProcessCount = Update();
-	if (ProcessCount == 0)
-	{
-		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
-	}
-	return TRUE;
-}
-
-void CDOSObjectProxyServiceCustom::OnTerminate()
-{
-	m_pProxyService->Destory();
-	LPVOID Pos = m_ConnectionPool.GetFirstObjectPos();
-	while (Pos)
-	{
-		CDOSObjectProxyConnectionCustom * pConnection = m_ConnectionPool.GetNextObject(Pos);
-
-		pConnection->Destory();
-
-	}
-	m_ConnectionPool.Clear();
-	PrintDOSLog(_T("DOSLib"), _T("代理服务[%u]关闭"), GetID());
-}
-
-int CDOSObjectProxyServiceCustom::Update(int ProcessPacketLimit)
-{
-	int ProcessCount = 0;
-	LPVOID Pos = m_ConnectionPool.GetFirstObjectPos();
-	while (Pos)
-	{
-		CDOSObjectProxyConnectionCustom * pConnection = m_ConnectionPool.GetNextObject(Pos);
-		if (pConnection->IsConnected())
-			ProcessCount += pConnection->Update();
-		else
-			DeleteConnection(pConnection->GetID());
-	}
-
-	if (m_pProxyService)
-		ProcessCount += m_pProxyService->Update(ProcessPacketLimit);
-
-	CDOSMessagePacket * pPacket;
-	while (m_MsgQueue.PopFront(&pPacket))
-	{		
-		if (pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
-			OnSystemMsg(&(pPacket->GetMessage()));
-		else
-			OnMsg(&(pPacket->GetMessage()));
-
-		if (!m_pServer->ReleaseMessagePacket(pPacket))
-		{
-			PrintDOSLog(_T("DOSLib"), _T("释放消息内存块失败！"));
-		}
-
-		ProcessCount++;
-		if (ProcessCount >= ProcessPacketLimit)
-			break;
-	}
-
-	return ProcessCount;
-}
-
-void CDOSObjectProxyServiceCustom::OnMsg(CDOSMessage * pMessage)
-{
-	m_pProxyService->OnMessage(pMessage);	
-}
-void CDOSObjectProxyServiceCustom::OnSystemMsg(CDOSMessage * pMessage)
-{
-	if (!m_pProxyService->OnSystemMessage(pMessage))
-	{
-		switch (pMessage->GetMsgID())
-		{
-		case DSM_PROXY_REGISTER_GLOBAL_MSG_MAP:
-			if (pMessage->GetDataLength() >= sizeof(MSG_ID_TYPE))
-			{
-				int Count = (pMessage->GetDataLength()) / sizeof(MSG_ID_TYPE);
-				MSG_ID_TYPE * pMsgIDs = (MSG_ID_TYPE *)(pMessage->GetDataBuffer());
-				for (int i = 0; i < Count; i++)
-				{
-					m_pProxyService->OnRegisterMsgMap(pMsgIDs[i], pMessage->GetSenderID());
-				}
-			}
-			break;
-		case DSM_PROXY_UNREGISTER_GLOBAL_MSG_MAP:
-			if (pMessage->GetDataLength() >= sizeof(MSG_ID_TYPE))
-			{
-				int Count = (pMessage->GetDataLength()) / sizeof(MSG_ID_TYPE);
-				MSG_ID_TYPE * pMsgIDs = (MSG_ID_TYPE *)(pMessage->GetDataBuffer());
-				for (int i = 0; i < Count; i++)
-				{
-					m_pProxyService->OnUnregisterMsgMap(pMsgIDs[i], pMessage->GetSenderID());
-				}
-			}
-			break;
-		case DSM_PROXY_SET_UNHANDLE_MSG_RECEIVER:
-			m_pProxyService->SetUnhandleMsgReceiver(pMessage->GetSenderID());
-			break;
-		case DSM_ROUTE_LINK_LOST:
-			m_pProxyService->OnClearMsgMapByRouterID(pMessage->GetSenderID().RouterID);
-			break;
-		default:
-			PrintDOSLog(_T("DOSLib"), _T("收到未知系统消息0x%llX"), pMessage->GetMsgID());
-		}
-	}
-	
-}

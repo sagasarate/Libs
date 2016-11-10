@@ -80,12 +80,6 @@
 		<Unit filename="DOSMainThread.h">
 			<Option virtualFolder="主线程/" />
 		</Unit>
-		<Unit filename="DOSObjectProxyConnectionCustom.cpp">
-			<Option virtualFolder="客户端代理插件/" />
-		</Unit>
-		<Unit filename="DOSObjectProxyConnectionCustom.h">
-			<Option virtualFolder="客户端代理插件/" />
-		</Unit>
 		<Unit filename="DOSObjectProxyServiceCustom.cpp">
 			<Option virtualFolder="客户端代理插件/" />
 		</Unit>
