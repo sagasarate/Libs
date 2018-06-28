@@ -69,7 +69,7 @@ bool CD3DParticleEmitterResource::LoadM2ParticleEmitter(UINT ID,M2_PARTICLE_EMIT
 
 	m_GlobalSequences=GlobalSequences;
 
-	//PrintSystemLog(0,"Particle%u,Flag=0x%X",i,pParticleEmitter->Flags);
+	//PrintD3DLog("Particle%u,Flag=0x%X",i,pParticleEmitter->Flags);
 	m_ParticleEmitterInfo.ID=ID;
 	m_ParticleEmitterInfo.Flags=pParticleEmitter->Flags;
 	m_ParticleEmitterInfo.BlendingType=pParticleEmitter->BlendingType;
@@ -266,7 +266,7 @@ bool CD3DParticleEmitterResource::ToSmartStruct(CSmartStruct& Packet,CUSOResourc
 	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DPER_TEXTURE,m_ParticleEmitterInfo.pTexture->GetName()));
 	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DPER_BLENDING_TYPE,m_ParticleEmitterInfo.BlendingType));
 	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DPER_EMITTER_TYPE,m_ParticleEmitterInfo.EmitterType));
-	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DPER_GLOBAL_COLOR,m_ParticleEmitterInfo.GlobalColor));
+	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DPER_GLOBAL_COLOR, (UINT)m_ParticleEmitterInfo.GlobalColor));
 	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DPER_PARTICLE_TYPE,m_ParticleEmitterInfo.ParticleType));
 	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DPER_HEAD_OR_TAIL,m_ParticleEmitterInfo.HeadOrTail));
 	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DPER_TEXTURE_TILE_ROTATION,m_ParticleEmitterInfo.TextureTileRotation));
@@ -353,7 +353,7 @@ bool CD3DParticleEmitterResource::FromSmartStruct(CSmartStruct& Packet,CUSOResou
 			m_ParticleEmitterInfo.EmitterType=Value;
 			break;
 		case SST_D3DPER_GLOBAL_COLOR:
-			m_ParticleEmitterInfo.GlobalColor=Value;
+			m_ParticleEmitterInfo.GlobalColor = (UINT)Value;
 			break;
 		case SST_D3DPER_PARTICLE_TYPE:
 			m_ParticleEmitterInfo.ParticleType=Value;
@@ -465,22 +465,22 @@ UINT CD3DParticleEmitterResource::GetSmartStructSize(UINT Param)
 {
 	UINT Size=CD3DObjectResource::GetSmartStructSize(Param);
 
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.ID));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.Flags));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_ParticleEmitterInfo.pTexture->GetNameLength());
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.BlendingType));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.EmitterType));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.GlobalColor));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.ParticleType));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.HeadOrTail));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.TextureTileRotation));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.TextureRows));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.TextureCols));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.Scale));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.Slowdown));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.Rotation));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_ParticleEmitterInfo.Trans));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_ParticleEmitterInfo.pFX->GetNameLength());
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ParticleEmitterInfo.ID));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ParticleEmitterInfo.Flags));
+	Size += CSmartStruct::GetStringMemberSize(m_ParticleEmitterInfo.pTexture->GetNameLength());
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ParticleEmitterInfo.BlendingType));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ParticleEmitterInfo.EmitterType));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ParticleEmitterInfo.GlobalColor));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ParticleEmitterInfo.ParticleType));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ParticleEmitterInfo.HeadOrTail));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ParticleEmitterInfo.TextureTileRotation));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ParticleEmitterInfo.TextureRows));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ParticleEmitterInfo.TextureCols));
+	Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_ParticleEmitterInfo.Scale));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ParticleEmitterInfo.Slowdown));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ParticleEmitterInfo.Rotation));
+	Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_ParticleEmitterInfo.Trans));
+	Size += CSmartStruct::GetStringMemberSize(m_ParticleEmitterInfo.pFX->GetNameLength());
 	Size+=GetAnimationBlockSmartStructSize<FLOAT>(m_ParticleEmitterInfo.Speed);
 	Size+=GetAnimationBlockSmartStructSize<FLOAT>(m_ParticleEmitterInfo.SpeedVariation);
 	Size+=GetAnimationBlockSmartStructSize<FLOAT>(m_ParticleEmitterInfo.VerticalRange);
@@ -497,7 +497,7 @@ UINT CD3DParticleEmitterResource::GetSmartStructSize(UINT Param)
 	Size+=GetFakeAnimationBlockSmartStructSize<CD3DVector2>(m_ParticleEmitterInfo.ParticleSizes);
 	Size+=GetFakeAnimationBlockSmartStructSize<short>(m_ParticleEmitterInfo.Intensity);
 
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_GlobalSequences.GetCount()*sizeof(UINT));
+	Size += CSmartStruct::GetStringMemberSizeA(m_GlobalSequences.GetCount()*sizeof(UINT));
 
 	return Size;
 }
@@ -571,7 +571,7 @@ CD3DFX * CD3DParticleEmitterResource::BuildParticleFX(UINT BlendingType)
 		EnableAlphaTest="False";
 		break;
 	default:
-		PrintSystemLog(0,_T("CD3DWOWM2ModelResource::BuildParticleFX:未知混合模式%d"),BlendingType);
+		PrintD3DLog( _T("CD3DWOWM2ModelResource::BuildParticleFX:未知混合模式%d"), BlendingType);
 		EnableZWrite="True";
 		EnableAlphaBlend="False";
 		BlendOp="Add";

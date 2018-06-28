@@ -80,6 +80,15 @@ bool CDOSObjectProxyServiceDefault::PushMessage(OBJECT_ID ObjectID, CDOSMessageP
 				pConnection->PushMessage(pPacket);
 			}
 		}
+		//Service也压入一份
+		((CDOSServer *)GetServer())->AddRefMessagePacket(pPacket);
+#ifdef _DEBUG
+		pPacket->SetAllocTime(0x13);
+#endif
+		if (!m_MsgQueue.PushBack(&pPacket))		
+		{
+			((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket);
+		}
 		return true;
 	}
 	else
@@ -199,6 +208,12 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 		m_Config.MsgCompressType = MSG_COMPRESS_NONE;
 	}
 
+	if (!CheckEncryptConfig())
+	{
+		m_Config.MsgEnCryptType = MSG_ENCRYPT_NONE;
+		PrintDOSLog(_T("加密设置不合法，消息加密被取消"));
+	}
+
 	if (!Create(IPPROTO_TCP,
 		m_Config.AcceptQueueSize,
 		m_Config.RecvBufferSize,
@@ -228,12 +243,12 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 
 	if (m_Config.MsgCompressType == MSG_COMPRESS_LZO)
 	{
-		if (m_CompressBuffer.GetBufferSize() < m_Config.MaxMsgSize)
+		if (m_CompressBuffer.GetBufferSize() < m_Config.MaxSendMsgSize)
 		{
-			if (!m_CompressBuffer.Create(m_Config.MaxMsgSize))
+			if (!m_CompressBuffer.Create(m_Config.MaxSendMsgSize))
 			{
 				PrintDOSLog( _T("创建%u大小的压缩缓冲失败！"),
-					m_Config.MaxMsgSize);
+					m_Config.MaxSendMsgSize);
 				return FALSE;
 			}
 		}
@@ -446,7 +461,7 @@ void CDOSObjectProxyServiceDefault::AcceptConnection(CDOSObjectProxyConnectionDe
 	}
 	else
 	{
-		pConnection->SetCompressBuffer(&m_CompressBuffer);
+		pConnection->SetCompressBuffer(&m_CompressBuffer, m_LZOCompressWorkMemory);
 	}
 }
 void CDOSObjectProxyServiceDefault::QueryDestoryConnection(CDOSObjectProxyConnectionDefault * pConnection)
@@ -587,3 +602,43 @@ void CDOSObjectProxyServiceDefault::ClearMsgMapByRouterID(UINT RouterID)
 }
 
 
+bool CDOSObjectProxyServiceDefault::CheckEncryptConfig()
+{
+	switch (m_Config.MsgEnCryptType)
+	{
+	case MSG_ENCRYPT_DES:
+		{
+			if (m_Config.SecretKey.GetLength() < DES_KEY_SIZE)
+			{
+				PrintDOSLog(_T("DES密钥过短,必须8字符以上"));
+				return false;
+			}
+			PrintDOSLog(_T("启用DES消息加密"));
+			return true;
+		}
+		break;
+	case MSG_ENCRYPT_AES:
+		{
+			if (m_Config.SecretKey.GetLength() < AES_KEYSIZE_128)
+			{
+				PrintDOSLog(_T("AES密钥过短,必须16字符以上"));
+				return false;
+			}
+			PrintDOSLog(_T("启用AES消息加密"));
+			return true;
+		}
+		break;
+	case MSG_ENCRYPT_TEA:
+		{
+			if (m_Config.SecretKey.GetLength() < TEA_KEY_SIZE)
+			{
+				PrintDOSLog(_T("TEA密钥过短,必须16字符以上"));
+				return false;
+			}
+			PrintDOSLog(_T("启用TEA消息加密"));
+			return true;
+		}
+		break;
+	}
+	return true;
+}

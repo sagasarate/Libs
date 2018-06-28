@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 
 
@@ -38,11 +38,11 @@ void CLuaThread::Release()
 	if (m_IsInExec)
 	{
 		LogLua(_T("Release In Exec"));
-		ClearYeild();
+		ClearYield();
 	}
 	else if (m_pLuaScript)
 	{
-		ClearYeild();
+		ClearYield();
 		if (m_pLuaThread)
 		{
 			lua_reset_state(m_pLuaThread);
@@ -143,7 +143,7 @@ bool CLuaThread::Prepare(CBaseScriptHost * pObject, LPCSTR szFunctionName)
 	if (!lua_isfunction(m_pLuaThread, -1))
 	{
 		lua_pop(m_pLuaThread, 3);
-		LogLua(_T("CLuaScriptPool::InitLuaThread:Luaº¯Êı%sÎ´ÕÒµ½"),szFunctionName);
+		LogLua(_T("CLuaScriptPool::InitLuaThread:Luaå‡½æ•°%sæœªæ‰¾åˆ°"),szFunctionName);
 		return false;
 	}
 
@@ -157,9 +157,9 @@ int CLuaThread::DoCall(int ParamCount)
 	{
 		if (!m_IsInExec)
 		{
-			if (m_IsNeedYield&&m_YeildReturnCount != ParamCount)
+			if (m_IsNeedYield&&m_YieldReturnCount != ParamCount)
 			{
-				LogLua(_T("CLuaThread::DoCall:YeildReturnCount Error Need %d Have %d"), m_YeildReturnCount, ParamCount);
+				LogLua(_T("CLuaThread::DoCall:YeildReturnCount Error Need %d Have %d"), m_YieldReturnCount, ParamCount);
 			}
 			m_IsNeedYield = false;
 			m_IsInExec = true;
@@ -176,9 +176,9 @@ int CLuaThread::DoCall(int ParamCount)
 			else
 			{
 				if (lua_type(m_pLuaThread, -1) == LUA_TSTRING)
-					LogLua(_T("½Å±¾Ö´ĞĞ³ö´í:%s"), lua_tolstring(m_pLuaThread, -1, NULL));
+					LogLua(_T("è„šæœ¬æ‰§è¡Œå‡ºé”™:%s"), lua_tolstring(m_pLuaThread, -1, NULL));
 				else
-					LogLua(_T("½Å±¾Ö´ĞĞ³ö´í"));
+					LogLua(_T("è„šæœ¬æ‰§è¡Œå‡ºé”™"));
 
 			}
 		}
@@ -269,7 +269,7 @@ bool CLuaThread::PackTable(CSmartStruct& Packet, int Index)
 		Index--;
 	while (lua_next(m_pLuaThread, Index) != 0)
 	{	
-		//´ò°üKey
+		//æ‰“åŒ…Key
 		switch (GetLuaObjectType(m_pLuaThread, -2))
 		{
 		case LUA_TNIL:
@@ -288,11 +288,11 @@ bool CLuaThread::PackTable(CSmartStruct& Packet, int Index)
 			Packet.AddMember(SSID_LUA_VALUE_TABLE_KEY, lua_tointeger(m_pLuaThread, -2));
 			break;
 		default:
-			//¶ÔÓÚ²»Ö§³ÖµÄÀàĞÍ£¬Ò»ÂÉµ±×÷null
+			//å¯¹äºä¸æ”¯æŒçš„ç±»å‹ï¼Œä¸€å¾‹å½“ä½œnull
 			Packet.AddMember(SSID_LUA_VALUE_TABLE_KEY, (char)0);
 			break;
 		}
-		//´ò°üValue
+		//æ‰“åŒ…Value
 		switch (GetLuaObjectType(m_pLuaThread, -1))
 		{
 		case LUA_TNIL:
@@ -324,7 +324,7 @@ bool CLuaThread::PackTable(CSmartStruct& Packet, int Index)
 			Packet.AddMember(SSID_LUA_VALUE_TABLE_VALUE, lua_tointeger(m_pLuaThread, -1));
 			break;
 		default:
-			//¶ÔÓÚ²»Ö§³ÖµÄÀàĞÍ£¬Ò»ÂÉµ±×÷null
+			//å¯¹äºä¸æ”¯æŒçš„ç±»å‹ï¼Œä¸€å¾‹å½“ä½œnull
 			Packet.AddMember(SSID_LUA_VALUE_TABLE_VALUE, (char)0);
 			break;
 		}		
@@ -463,9 +463,9 @@ void CLuaThread::Update()
 				}
 			}
 		}
-		else if (m_YieldTimer.IsTimeOut(LUA_YIELD_TIME_OUT))
+		else if (m_YieldTimer.IsTimeOut())
 		{
-			LogLua(_T("CLuaThread::Update:½Å±¾ÖĞ¶Ï³¬Ê±"));
+			LogLua(_T("CLuaThread::Update:è„šæœ¬ä¸­æ–­è¶…æ—¶"));
 			m_pTimeManager = NULL;
 			m_SleepTime = 0;
 			m_SleepPastTime = 0;

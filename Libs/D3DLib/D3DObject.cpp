@@ -516,8 +516,8 @@ UINT CD3DObject::GetSmartStructSize(UINT Param)
 	SAFE_RELEASE(m_pBoundingFrame);
 
 	UINT Size=CTreeObject::GetSmartStructSize(Param);
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_LocalMatrix));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Flag));
+	Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_LocalMatrix));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Flag));
 	return Size;
 }
 

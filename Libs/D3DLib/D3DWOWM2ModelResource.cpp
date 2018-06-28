@@ -281,7 +281,7 @@ bool CD3DWOWM2ModelResource::LoadFromFile(LPCTSTR szModelFileName)
 		return false;
 	if(!pFile->Open(szModelFileName,IFileAccessor::modeRead))
 	{
-		PrintD3DLog(0,_T("文件%s打开失败"),szModelFileName);
+		PrintD3DLog(_T("文件%s打开失败"),szModelFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -315,7 +315,7 @@ bool CD3DWOWM2ModelResource::LoadFromFile(LPCTSTR szModelFileName)
 	if(m_SkinFiles.GetCount()<=0)
 		return false;
 
-	//PrintD3DDebugLog(0,"M2 Flag=0x%X",pHeader->ModelFlag);
+	//PrintD3DDebugLog("M2 Flag=0x%X",pHeader->ModelFlag);
 
 	if(!LoadColorAnimation((BYTE *)ModelData.GetBuffer()))
 		return false;
@@ -1030,29 +1030,29 @@ UINT CD3DWOWM2ModelResource::GetSmartStructSize(UINT Param)
 
 	for(UINT i=0;i<m_AnimationSequence.GetCount();i++)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_AnimationSequence[i].AnimationID));		
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_AnimationSequence[i].AnimationName.GetLength());
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_AnimationSequence[i].SubAnimationID));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_AnimationSequence[i].Index));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_AnimationSequence[i].Length));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_AnimationSequence[i].MovingSpeed));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_AnimationSequence[i].Flags));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_AnimationSequence[i].Flags2));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_AnimationSequence[i].PlaybackSpeed));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_AnimationSequence[i].BoundingBox));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_AnimationSequence[i].BoundingSphere));
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_AnimationSequence[i].AnimationID));		
+		Size += CSmartStruct::GetStringMemberSize(m_AnimationSequence[i].AnimationName.GetLength());
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_AnimationSequence[i].SubAnimationID));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_AnimationSequence[i].Index));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_AnimationSequence[i].Length));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_AnimationSequence[i].MovingSpeed));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_AnimationSequence[i].Flags));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_AnimationSequence[i].Flags2));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_AnimationSequence[i].PlaybackSpeed));
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_AnimationSequence[i].BoundingBox));
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_AnimationSequence[i].BoundingSphere));
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
 	for(UINT i=0;i<m_ColorAnimations.GetCount();i++)
 	{
 		Size+=GetAnimationBlockSmartStructSize<CD3DVector3>(m_ColorAnimations[i].ColorAnimations);
 		Size+=GetAnimationBlockSmartStructSize<FLOAT>(m_ColorAnimations[i].AlphaAnimations);
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
 	for(UINT i=0;i<m_TransparencyAnimations.GetCount();i++)
 	{
 		Size+=GetAnimationBlockSmartStructSize<FLOAT>(m_TransparencyAnimations[i].AlphaAnimations);
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);		
+		Size+=CSmartStruct::GetStructMemberSize(0);		
 	}
 
 	for(UINT i=0;i<m_TextureUVAnimations.GetCount();i++)
@@ -1060,53 +1060,53 @@ UINT CD3DWOWM2ModelResource::GetSmartStructSize(UINT Param)
 		Size+=GetAnimationBlockSmartStructSize<CD3DVector3>(m_TextureUVAnimations[i].Translations);
 		Size+=GetAnimationBlockSmartStructSize<CD3DQuaternion>(m_TextureUVAnimations[i].Rotations);
 		Size+=GetAnimationBlockSmartStructSize<CD3DVector3>(m_TextureUVAnimations[i].Scalings);
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
 
 	for(UINT i=0;i<m_Bones.GetCount();i++)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Bones[i].AnimationSeq));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Bones[i].Flags));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Bones[i].ParentBone));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Bones[i].GeosetID));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_Bones[i].PivotPoint));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Bones[i].AnimationSeq));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Bones[i].Flags));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Bones[i].ParentBone));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Bones[i].GeosetID));
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_Bones[i].PivotPoint));
 		Size+=GetAnimationBlockSmartStructSize<CD3DVector3>(m_Bones[i].Translations);
 		Size+=GetAnimationBlockSmartStructSize<CD3DQuaternion>(m_Bones[i].Rotations);
 		Size+=GetAnimationBlockSmartStructSize<CD3DVector3>(m_Bones[i].Scalings);
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
 
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_SkinMeshBoneCount));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_KeyBoneIndex.GetCount()*sizeof(short));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_GlobalSequences.GetCount()*sizeof(UINT));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_SkinMeshBoneCount));
+	Size += CSmartStruct::GetStringMemberSizeA(m_KeyBoneIndex.GetCount()*sizeof(short));
+	Size += CSmartStruct::GetStringMemberSizeA(m_GlobalSequences.GetCount()*sizeof(UINT));
 
 	for(UINT i=0;i<m_Attachments.GetCount();i++)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Attachments[i].ID));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Attachments[i].Bone));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_Attachments[i].Name.GetLength());
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_Attachments[i].Position));
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Attachments[i].ID));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Attachments[i].Bone));
+		Size += CSmartStruct::GetStringMemberSize(m_Attachments[i].Name.GetLength());
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_Attachments[i].Position));
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
 
 	for(UINT i=0;i<m_ParticleEmitters.GetCount();i++)
 	{
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_ParticleEmitters[i].pModelResource->GetNameLength());
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_ParticleEmitters[i].BindPosition));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ParticleEmitters[i].BindBone));	
+		Size += CSmartStruct::GetStringMemberSize(m_ParticleEmitters[i].pModelResource->GetNameLength());
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_ParticleEmitters[i].BindPosition));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ParticleEmitters[i].BindBone));	
 		
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
 	for(UINT i=0;i<m_RibbonEmitters.GetCount();i++)
 	{
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_RibbonEmitters[i].pModelResource->GetNameLength());
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_RibbonEmitters[i].BindPosition));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_RibbonEmitters[i].BindBone));	
+		Size += CSmartStruct::GetStringMemberSize(m_RibbonEmitters[i].pModelResource->GetNameLength());
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_RibbonEmitters[i].BindPosition));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_RibbonEmitters[i].BindBone));	
 	
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
 
-	Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(sizeof(m_Flag));
+	Size+=CSmartStruct::GetStructMemberSize(sizeof(m_Flag));
 	return Size;
 }	
 
@@ -1185,12 +1185,12 @@ bool CD3DWOWM2ModelResource::LoadSkin(LPCTSTR SkinFileName,CEasyArray<CD3DSubMes
 		WORD Index=pTriangles[Triangle];
 		if(Index>=pSkinHeader->IndicesCount)
 		{
-			PrintSystemLog(0,_T("Error Triangle"));
+			PrintD3DLog(_T("Error Triangle"));
 		}
 		m_Indices[i]=pIndices[Index];
 		if(m_Indices[i]>=pHeader->VerticesCount)
 		{
-			PrintSystemLog(0,_T("Error Indice"));
+			PrintD3DLog(_T("Error Indice"));
 		}			
 	}
 
@@ -1225,12 +1225,12 @@ bool CD3DWOWM2ModelResource::LoadSkin(LPCTSTR SkinFileName,CEasyArray<CD3DSubMes
 			if(Index<StartVertex)
 			{
 				StartVertex=Index;
-				PrintD3DDebugLog(0,_T("Index值有异常，修正Vertex范围"));
+				PrintD3DDebugLog(_T("Index值有异常，修正Vertex范围"));
 			}
 			if(Index>EndVertex)
 			{
 				EndVertex=Index;
-				PrintD3DDebugLog(0,_T("Index值有异常，修正Vertex范围"));
+				PrintD3DDebugLog(_T("Index值有异常，修正Vertex范围"));
 			}
 			if(!HasSkinMeshAni)
 			{
@@ -1510,15 +1510,15 @@ bool CD3DWOWM2ModelResource::LoadBones(BYTE * pModelData,LPCTSTR szModelPath)
 
 		//if(m_Bones[i].Translations.GlobalSequenceID>=0)
 		//{
-		//	PrintSystemLog(0,"BoneInfo[%u].Translations.GlobalSequenceID=%u",i,m_Bones[i].Translations.GlobalSequenceID);
+		//	PrintD3DLog("BoneInfo[%u].Translations.GlobalSequenceID=%u",i,m_Bones[i].Translations.GlobalSequenceID);
 		//}
 		//if(m_Bones[i].Rotations.GlobalSequenceID>=0)
 		//{
-		//	PrintSystemLog(0,"BoneInfo[%u].Rotations.GlobalSequenceID=%u",i,m_Bones[i].Rotations.GlobalSequenceID);
+		//	PrintD3DLog("BoneInfo[%u].Rotations.GlobalSequenceID=%u",i,m_Bones[i].Rotations.GlobalSequenceID);
 		//}
 		//if(m_Bones[i].Scalings.GlobalSequenceID>=0)
 		//{
-		//	PrintSystemLog(0,"BoneInfo[%u].Scalings.GlobalSequenceID=%u",i,m_Bones[i].Scalings.GlobalSequenceID);
+		//	PrintD3DLog("BoneInfo[%u].Scalings.GlobalSequenceID=%u",i,m_Bones[i].Scalings.GlobalSequenceID);
 		//}
 
 		for(UINT AniIndex=0;AniIndex<m_AnimationSequence.GetCount();AniIndex++)
@@ -1917,7 +1917,7 @@ bool CD3DWOWM2ModelResource::LoadAnimationFromFile(BYTE * pData,UINT AnimationID
 		return false;
 	if(!pFile->Open(AniFileName,IFileAccessor::modeRead))
 	{
-		PrintSystemLog(0,_T("打开外部动画文件%s失败"),(LPCTSTR)AniFileName);
+		PrintD3DLog(_T("打开外部动画文件%s失败"),(LPCTSTR)AniFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -1932,7 +1932,7 @@ bool CD3DWOWM2ModelResource::LoadAnimationFromFile(BYTE * pData,UINT AnimationID
 		LoadBoneAnimation(pData,(BYTE *)AniData.GetBuffer(),m_Bones[i],pOrgBoneInfo[i],AniIndex);
 	}
 
-	PrintSystemLog(0,_T("装载了外部动画文件%s"),(LPCTSTR)AniFileName);
+	PrintD3DLog(_T("装载了外部动画文件%s"),(LPCTSTR)AniFileName);
 	return true;
 }
 
@@ -1972,7 +1972,7 @@ bool CD3DWOWM2ModelResource::LoadRibbonEmitters(BYTE * pModelData)
 {
 	BLZ_M2_HEADER * pHeader=(BLZ_M2_HEADER *)pModelData;
 
-	//PrintSystemLog(0,"一共有%u个条带生成器",
+	//PrintD3DLog("一共有%u个条带生成器",
 	//	pHeader->RibbonEmittersCount);
 
 	M2_RIBBON_EMITTER * pRibbonEmitters=(M2_RIBBON_EMITTER *)(pModelData+pHeader->RibbonEmittersOffset);
@@ -2002,7 +2002,7 @@ bool CD3DWOWM2ModelResource::LoadParticleEmitters(BYTE * pModelData)
 {
 	BLZ_M2_HEADER * pHeader=(BLZ_M2_HEADER *)pModelData;
 
-	//PrintSystemLog(0,"一共有%u个粒子生成器",
+	//PrintD3DLog("一共有%u个粒子生成器",
 	//	pHeader->ParticleEmittersCount);
 
 	int size=sizeof(M2_PARTICLE_EMITTER);
@@ -2014,7 +2014,7 @@ bool CD3DWOWM2ModelResource::LoadParticleEmitters(BYTE * pModelData)
 	for(UINT i=0;i<pHeader->ParticleEmittersCount;i++)
 	{
 		CEasyString Name;
-		//PrintSystemLog(0,"Particle%u,Flag=0x%X",i,pParticleEmitters[i].Flags);
+		//PrintD3DLog("Particle%u,Flag=0x%X",i,pParticleEmitters[i].Flags);
 		m_ParticleEmitters[i].pModelResource=new CD3DParticleEmitterResource(m_pManager);
 		Name.Format(_T("%s_PE_%d"),GetName(),i);
 		m_ParticleEmitters[i].pModelResource->SetName(Name);
@@ -2031,7 +2031,7 @@ bool CD3DWOWM2ModelResource::LoadTextureUVAnimation(BYTE * pModelData)
 {
 	BLZ_M2_HEADER * pHeader=(BLZ_M2_HEADER *)pModelData;
 
-	//PrintSystemLog(0,"一共有%u个纹理动画",
+	//PrintD3DLog("一共有%u个纹理动画",
 	//	pHeader->TexAnimsCount);
 
 	M2_TEXTURE_UV_ANIMATION * pTexAnims=(M2_TEXTURE_UV_ANIMATION *)(pModelData+pHeader->TexAnimsOffset);
@@ -2295,10 +2295,10 @@ void CD3DWOWM2ModelResource::BuildFX(CD3DSubMesh * pSubMesh)
 		DestBlend="One";
 		break;
 	case D3D_BLEND_MODE_MODULATE:		
-		PrintSystemLog(0,_T("未处理的混合模式:D3D_BLEND_MODE_MODULATE[%s]"),GetName());
+		PrintD3DLog(_T("未处理的混合模式:D3D_BLEND_MODE_MODULATE[%s]"),GetName());
 		break;
 	case D3D_BLEND_MODE_MUL:
-		PrintSystemLog(0,_T("未处理的混合模式:D3D_BLEND_MODE_MUL[%s]"),GetName());
+		PrintD3DLog(_T("未处理的混合模式:D3D_BLEND_MODE_MUL[%s]"),GetName());
 		break;
 	}
 	if(MeshFlag&D3D_MESH_FLAG_USE_VERTEX_ALPHA1)

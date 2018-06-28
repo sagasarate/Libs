@@ -146,6 +146,7 @@ ULONG64 CLinuxFileAccessor::Write(LPCVOID pBuff,ULONG64 Size)
 			}
 			return (ULONG64)WriteSize;
 		}
+		return 0;
 	}
 	else
 	{

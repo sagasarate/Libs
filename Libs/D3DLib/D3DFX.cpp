@@ -78,7 +78,7 @@ bool CD3DFX::LoadFromFile(LPCTSTR FileName)
 	if(pFile==NULL)
 		return false;
 
-	PrintD3DDebugLog(0,_T("装载FX<%s>....."),(LPCTSTR)FxFileName);
+	PrintD3DDebugLog(_T("装载FX<%s>....."),(LPCTSTR)FxFileName);
 	if(pFile->Open(FxFileName,IFileAccessor::modeRead))
 	{
 		UINT Size=(UINT)pFile->GetSize();
@@ -93,13 +93,13 @@ bool CD3DFX::LoadFromFile(LPCTSTR FileName)
 		
 		if(LoadFromMemory(NULL,0))
 		{
-			PrintD3DDebugLog(0,_T("装载FX<%s>成功"),(LPCTSTR)FxFileName);
+			PrintD3DDebugLog(_T("装载FX<%s>成功"),(LPCTSTR)FxFileName);
 			return true;
 		}
 	}
 	else
 		pFile->Release();
-	PrintD3DLog(0,_T("装载FX<%s>失败%d"),(LPCTSTR)FxFileName,GetLastError());
+	PrintD3DLog(_T("装载FX<%s>失败%d"),(LPCTSTR)FxFileName,GetLastError());
 	return false;
 }
 
@@ -172,16 +172,16 @@ bool CD3DFX::LoadFromMemory(const void * pData,int DataSize)
 			SAFE_RELEASE(pCompiledData);
 
 			if(pErrors)
-				PrintD3DLog(0,_T("%s"),(LPCTSTR)(pErrors->GetBufferPointer()));
+				PrintD3DLog(_T("%s"),(LPCTSTR)(pErrors->GetBufferPointer()));
 
 			return LoadFXDirect(m_CompiledEffectData.GetBuffer(),m_CompiledEffectData.GetUsedSize());
 		}
 		else
 		{
 			if(pErrors)
-				PrintD3DLog(0,_T("无法编译FX,Err=(%s)"),(LPCTSTR)(pErrors->GetBufferPointer()));
+				PrintD3DLog(_T("无法编译FX,Err=(%s)"),(LPCTSTR)(pErrors->GetBufferPointer()));
 			else
-				PrintD3DLog(0,_T("无法编译FX"));
+				PrintD3DLog(_T("无法编译FX"));
 			SAFE_RELEASE(pErrors);
 		}
 		SAFE_RELEASE(pCompiler);
@@ -190,9 +190,9 @@ bool CD3DFX::LoadFromMemory(const void * pData,int DataSize)
 	else
 	{
 		if(pErrors)
-			PrintD3DLog(0,_T("无法创建FX编译器,Err=(%s)"),(LPCTSTR)(pErrors->GetBufferPointer()));
+			PrintD3DLog(_T("无法创建FX编译器,Err=(%s)"),(LPCTSTR)(pErrors->GetBufferPointer()));
 		else
-			PrintD3DLog(0,_T("无法创建FX编译"));
+			PrintD3DLog(_T("无法创建FX编译"));
 		SAFE_RELEASE(pErrors);
 		return false;
 	}
@@ -555,9 +555,9 @@ bool CD3DFX::LoadFXDirect(const void * pData,int DataSize)
 	if(m_pEffect==NULL)
 	{
 		if(pErrors)
-			PrintD3DLog(0,_T("无法加载FX,Err=(%s)"),(LPCTSTR)(pErrors->GetBufferPointer()));
+			PrintD3DLog(_T("无法加载FX,Err=(%s)"),(LPCTSTR)(pErrors->GetBufferPointer()));
 		else
-			PrintD3DLog(0,_T("无法加载FX"));
+			PrintD3DLog(_T("无法加载FX"));
 		SAFE_RELEASE(pErrors);
 		return false;
 	}
@@ -614,8 +614,8 @@ bool CD3DFX::FromSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pResourc
 UINT CD3DFX::GetSmartStructSize(UINT Param)
 {
 	UINT Size=CNameObject::GetSmartStructSize(Param);	
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_EffectData.GetUsedSize());
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_CompiledEffectData.GetUsedSize());
+	Size += CSmartStruct::GetStringMemberSizeA(m_EffectData.GetUsedSize());
+	Size += CSmartStruct::GetStringMemberSizeA(m_CompiledEffectData.GetUsedSize());
 	return Size;
 }
 

@@ -315,13 +315,18 @@ void CDOSObjectGroup::PrintObjectStat(UINT LogChannel)
 		OBJECT_STAT_INFO * pInfo=m_ObjectCountStatMap.GetSortedNextObject(Pos,ObjectID);
 		if(pInfo)
 		{
-			CLogManager::GetInstance()->PrintLog(LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, 0,
+			CLogManager::GetInstance()->PrintLog(LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, NULL,
 				_T("组%u:对象0x%llX(%s)=%u,CPUCost=%lldns,ExecCount=%u,UnitCost=%0.2fns"),
 				m_Index, ObjectID, (LPCSTR)pInfo->ObjectTypeName, pInfo->Count, pInfo->CPUCost, pInfo->ExecCount,
 				pInfo->ExecCount ? (float)pInfo->CPUCost / (float)pInfo->ExecCount : 0.0f);
 			TotalCost+=pInfo->CPUCost;			
 			pInfo->CPUCost=0;
 			pInfo->ExecCount = 0;
+			if (pInfo->Count == 0)
+			{
+				//如果该对象的数量为0，删除统计数据，下一次日志就不输出了
+				m_ObjectCountStatMap.Delete(ObjectID);
+			}
 		}
 	}
 	CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,

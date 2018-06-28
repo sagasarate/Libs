@@ -18,7 +18,9 @@ struct des3_ede_ctx {
 	u32 expkey[DES3_EDE_EXPKEY_WORDS];
 };
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int des_setkey(struct des_ctx *ctx, const u8 *key,
 				      unsigned int keylen);
@@ -31,3 +33,6 @@ void des3_ede_encrypt(struct des3_ede_ctx *dctx, u8 *dst, const u8 *src);
 void des3_ede_decrypt(struct des3_ede_ctx *dctx, u8 *dst, const u8 *src);
 
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

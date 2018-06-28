@@ -79,6 +79,12 @@
 		<Unit filename="SystemConfig.h">
 			<Option virtualFolder="系统配置/" />
 		</Unit>
+		<Unit filename="SystemControlPipe.cpp">
+			<Option virtualFolder="系统连接/" />
+		</Unit>
+		<Unit filename="SystemControlPipe.h">
+			<Option virtualFolder="系统连接/" />
+		</Unit>
 		<Unit filename="SystemControlPort.cpp">
 			<Option virtualFolder="系统连接/" />
 		</Unit>

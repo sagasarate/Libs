@@ -26,6 +26,11 @@ extern const u32 crypto_fl_tab[4][256];
 extern const u32 crypto_it_tab[4][256];
 extern const u32 crypto_il_tab[4][256];
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int crypto_aes_expand_key(struct crypto_aes_ctx *ctx, const u8 *in_key,
 		unsigned int key_len);
 /*
@@ -35,3 +40,6 @@ int crypto_aes_expand_key(struct crypto_aes_ctx *ctx, const u8 *in_key,
 void aes_encrypt(struct crypto_aes_ctx *ctx, u8 *out, const u8 *in);
 void aes_decrypt(struct crypto_aes_ctx *ctx, u8 *out, const u8 *in);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

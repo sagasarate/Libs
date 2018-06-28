@@ -20,12 +20,12 @@ bool CDOSObjectProxyConnectionGroup::Init(CDOSObjectProxyServiceDefault * pServi
 	m_Index = Index;
 	if (m_Config.MsgCompressType == MSG_COMPRESS_LZO)
 	{
-		if (m_CompressBuffer.GetBufferSize() < m_Config.MaxMsgSize)
+		if (m_CompressBuffer.GetBufferSize() < m_Config.MaxSendMsgSize)
 		{
-			if (!m_CompressBuffer.Create(m_Config.MaxMsgSize))
+			if (!m_CompressBuffer.Create(m_Config.MaxSendMsgSize))
 			{
 				PrintDOSLog(_T("创建%u大小的压缩缓冲失败！"),
-					m_Config.MaxMsgSize);
+					m_Config.MaxSendMsgSize);
 				return FALSE;
 			}
 		}
@@ -47,7 +47,7 @@ bool CDOSObjectProxyConnectionGroup::AddConnection(CDOSObjectProxyConnectionDefa
 		
 	if (m_ConnectionPool.PushBack(pConnection))
 	{
-		pConnection->SetCompressBuffer(&m_CompressBuffer);
+		pConnection->SetCompressBuffer(&m_CompressBuffer, m_LZOCompressWorkMemory);
 		pConnection->SetGroup(this);		
 		return true;
 	}

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 
 typedef void (*LUA_META_DATA_REGISTER_FUNCTION) (lua_State *L);

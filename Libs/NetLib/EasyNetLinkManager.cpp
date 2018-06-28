@@ -20,6 +20,8 @@ IMPLEMENT_CLASS_INFO_STATIC(CEasyNetLinkManager,CNameObject);
 CEasyNetLinkManager::CEasyNetLinkManager(void)
 {
 	m_pServer=NULL;
+	m_LinkMap.Create(128, 128, 128);
+	m_ServiceMap.Create(64, 64, 64);
 }
 
 CEasyNetLinkManager::~CEasyNetLinkManager(void)
@@ -433,7 +435,7 @@ CEasyNetLink * CEasyNetLinkManager::CreateLink(UINT ID)
 		pLink->SetID(ID);
 		pLink->SetStatus(ENL_LINK_ACCEPTED);
 		m_LinkList.Add(pLink);
-		m_LinkMap[ID] = pLink;
+		m_LinkMap.Insert(ID, pLink);
 	}
 	return pLink;
 }
@@ -533,7 +535,7 @@ CEasyNetLinkService * CEasyNetLinkManager::CreateLinkService(UINT ID)
 	if(pService)
 	{
 		pService->SetID(ID);
-		m_ServiceMap[ID]=pService;
+		m_ServiceMap.Insert(ID, pService);
 		m_ServiceList.Add(pService);
 	}
 	return pService;

@@ -37,7 +37,7 @@ CD3DFXManager::~CD3DFXManager(void)
 		CEasyString Key;
 		FX_INFO * pFXInfo=m_FXStorage.GetNextObject(Pos,Key);
 		if(m_DelayReleaseTime==0)
-			PrintSystemLog(0,_T("FX<%s>未释放！"),(LPCTSTR)pFXInfo->pFX->GetName());
+			PrintD3DLog(_T("FX<%s>未释放！"), (LPCTSTR)pFXInfo->pFX->GetName());
 		SAFE_RELEASE(pFXInfo->pFX);
 	}
 	m_FXStorage.Destory();
@@ -92,7 +92,7 @@ bool CD3DFXManager::AddFX(CD3DFX * pFX,LPCTSTR Name)
 	}
 	else
 	{
-		PrintD3DLog(0,_T("将FX加入FX管理器失败(%u,%u)"),
+		PrintD3DLog(_T("将FX加入FX管理器失败(%u,%u)"),
 			m_FXStorage.GetObjectCount(),m_FXStorage.GetBufferSize());
 		return false;
 	}
@@ -106,7 +106,7 @@ bool CD3DFXManager::DeleteFX(UINT ID)
 	}
 	else
 	{
-		PrintD3DLog(0,_T("CD3DFXManager::DeleteFX:FX[%u]未找到"),
+		PrintD3DLog(_T("CD3DFXManager::DeleteFX:FX[%u]未找到"),
 			ID);
 		return false;
 	}		
@@ -124,7 +124,7 @@ bool CD3DFXManager::DeleteFX(LPCTSTR Name)
 	}
 	else
 	{
-		PrintD3DLog(0,_T("CD3DFXManager::DeleteFX:FX[%s]未找到"),
+		PrintD3DLog(_T("CD3DFXManager::DeleteFX:FX[%s]未找到"),
 			Name);
 		return false;
 	}
@@ -223,7 +223,7 @@ int CD3DFXManager::Update(FLOAT Time)
 				{
 					if(pFXInfo->ReleaseTimer.IsTimeOut(m_DelayReleaseTime))
 					{
-						//PrintD3DDebugLog(0,"CD3DFXManager::Update:已延时删除FX:%s",pFXInfo->pFX->GetName());
+						//PrintD3DDebugLog("CD3DFXManager::Update:已延时删除FX:%s",pFXInfo->pFX->GetName());
 						SAFE_RELEASE(pFXInfo->pFX);						
 					}
 				}

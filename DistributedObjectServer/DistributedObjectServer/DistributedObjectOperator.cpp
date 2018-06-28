@@ -355,6 +355,11 @@ BOOL CDistributedObjectOperator::RegisterCSVLogger(UINT LogChannel, LPCTSTR File
 	return FALSE;
 }
 
+void CDistributedObjectOperator::SetServerWorkStatus(BYTE WorkStatus)
+{
+	CDOSMainThread::GetInstance()->SetServerStatus(SC_SST_SS_WORK_STATUS, CSmartValue(WorkStatus));
+}
+
 BOOL CDistributedObjectOperator::OnPreTranslateMessage(CDOSMessage * pMessage)
 {
 	OBJECT_EXCEPTION_CATCH_START;
@@ -1072,7 +1077,7 @@ bool CDistributedObjectOperator::DoRegisterLogger(UINT LogChannel, LPCTSTR FileN
 
 	LogFileName.Format("%s/Log/%s", (LPCTSTR)ModulePath, FileName);
 	pLog = new CServerLogPrinter(CDOSMainThread::GetInstance(), CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
-		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName);
+		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(LogChannel, pLog);
 	SAFE_RELEASE(pLog);
 	return true;
@@ -1085,7 +1090,7 @@ bool CDistributedObjectOperator::DoRegisterCSVLogger(UINT LogChannel, LPCTSTR Fi
 	CCSVFileLogPrinter * pLog;
 
 	LogFileName.Format("%s/Log/%s", (LPCTSTR)ModulePath, FileName);
-	pLog = new CCSVFileLogPrinter(CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSVLogHeader);
+	pLog = new CCSVFileLogPrinter(CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSVLogHeader, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(LogChannel, pLog);
 	SAFE_RELEASE(pLog);
 	return true;
@@ -1338,4 +1343,11 @@ bool CDistributedObjectOperator::InternalCallUnregisterCommandReceiver(CDistribu
 		return pOperator->UnregisterCommandReceiver();
 	}
 	return false;
+}
+void CDistributedObjectOperator::InternalCallSetServerWorkStatus(CDistributedObjectOperator * pOperator, BYTE WorkStatus)
+{
+	if (pOperator)
+	{
+		CDOSMainThread::GetInstance()->SetServerStatus(SC_SST_SS_WORK_STATUS, CSmartValue(WorkStatus));
+	}
 }

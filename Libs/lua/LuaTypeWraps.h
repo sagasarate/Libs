@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CLuaBaseMetaClass;
 class CLuaGrid;
@@ -43,7 +43,7 @@ namespace LuaWrap
 	inline void Push(lua_State* L, double value)			{ lua_pushnumber(L, (lua_Number)value); }
 	inline void Push(lua_State* L, float value)				{ lua_pushnumber(L, (lua_Number)value); }
 	inline void Push(lua_State* L, const char* value)		{ lua_pushstring(L, value); }
-	inline void Push(lua_State* L, const wchar_t* value)		
+	inline void Push(lua_State* L, const WCHAR* value)		
 	{ 
 		CEasyStringA StringA;
 		StringA = value;
@@ -134,7 +134,7 @@ namespace LuaWrap
 	{
 		return lua_isstring(L, idx) != 0;
 	}
-	inline bool	Match(TypeWrapper<const wchar_t*>, lua_State* L, int idx)
+	inline bool	Match(TypeWrapper<const WCHAR*>, lua_State* L, int idx)
 	{
 		return lua_isstring(L, idx) != 0;
 	}
@@ -236,7 +236,7 @@ namespace LuaWrap
 	{
 		return static_cast<const char*>(lua_tostring(L, idx));
 	}
-	inline const wchar_t*		Get(TypeWrapper<const wchar_t*>, lua_State* L, int idx)
+	inline const WCHAR*		Get(TypeWrapper<const WCHAR*>, lua_State* L, int idx)
 	{
 		static CEasyStringW StringW;
 		StringW = lua_tostring(L, idx);

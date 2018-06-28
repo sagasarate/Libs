@@ -52,6 +52,8 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 					m_DOSConfig.MaxRouterSendMsgQueue=(UINT)Router.attribute("MsgQueueSize");
 				if(Router.has_attribute("MsgProcessLimit"))
 					m_DOSConfig.RouterMsgProcessLimit=(UINT)Router.attribute("MsgProcessLimit");
+				if (Router.has_attribute("StateMsgTransfer"))
+					m_DOSConfig.StateMsgTransfer = Router.attribute("StateMsgTransfer");
 
 			}
 
@@ -304,6 +306,22 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 		Config.MinMsgCompressSize = XMLContent.attribute("MinMsgCompressSize");
 
 
+	if (XMLContent.has_attribute("MsgEnCryptType"))
+	{
+		CEasyString TypeStr = XMLContent.attribute("MsgEnCryptType").getvalue();
+		if (TypeStr.CompareNoCase("DES") == 0)
+			Config.MsgEnCryptType = MSG_ENCRYPT_DES;
+		else if (TypeStr.CompareNoCase("AES") == 0)
+			Config.MsgCompressType = MSG_ENCRYPT_AES;
+		else if (TypeStr.CompareNoCase("TEA") == 0)
+			Config.MsgCompressType = MSG_ENCRYPT_TEA;
+		else
+			Config.MsgCompressType = MSG_COMPRESS_NONE;
+	}
+
+	if (XMLContent.has_attribute("SecretKey"))
+		Config.SecretKey = XMLContent.attribute("SecretKey").getvalue();
+
 	if (XMLContent.has_attribute("GlobalMsgMapSize"))
 		Config.GlobalMsgMapSize = (UINT)XMLContent.attribute("GlobalMsgMapSize");
 
@@ -312,6 +330,9 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 
 	if (XMLContent.has_attribute("MaxMsgSize"))
 		Config.MaxMsgSize = (UINT)XMLContent.attribute("MaxMsgSize");
+
+	if (XMLContent.has_attribute("MaxSendMsgSize"))
+		Config.MaxSendMsgSize = (UINT)XMLContent.attribute("MaxSendMsgSize");
 
 	if (XMLContent.has_attribute("PluginName"))
 	{

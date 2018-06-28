@@ -170,7 +170,7 @@ bool CD3DTexture::LoadTexture(LPCTSTR TextureFileName,UINT MipLevels,bool UseFil
 	CEasyString FileName=FindFileOne(TextureFileName);
 
 
-	//PrintSystemLog(0,"装载纹理<%s>...\r\n",FileName);
+	//PrintD3DLog("装载纹理<%s>...\r\n",FileName);
 
 
 	IFileAccessor * pFile;
@@ -184,12 +184,12 @@ bool CD3DTexture::LoadTexture(LPCTSTR TextureFileName,UINT MipLevels,bool UseFil
 		Ret=LoadTexture(pFile,MipLevels,UseFilter,IsManaged,KeyColor);
 		if(!Ret)
 		{
-			PrintSystemLog(0,_T("装载纹理<%s>失败\r\n"),TextureFileName);	
+			PrintD3DLog(_T("装载纹理<%s>失败\r\n"),TextureFileName);	
 		}
 	}
 	else
 	{
-		PrintSystemLog(0,_T("打开纹理<%s>失败\r\n"),TextureFileName);			
+		PrintD3DLog(_T("打开纹理<%s>失败\r\n"),TextureFileName);			
 	}
 
 	pFile->Release();
@@ -323,7 +323,7 @@ bool CD3DTexture::ToSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pReso
 		CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTEX_MIP_LEVEL,m_TextureOrgInfo.MipLevels));
 		CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTEX_USE_FILTER,(BYTE)m_TextureOrgInfo.UseFilter));
 		CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTEX_IS_MANAGED,(BYTE)m_TextureOrgInfo.IsManaged));
-		CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTEX_KEY_COLOR,m_TextureOrgInfo.KeyColor));
+		CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTEX_KEY_COLOR,(UINT)m_TextureOrgInfo.KeyColor));
 
 	}
 
@@ -338,7 +338,7 @@ bool CD3DTexture::FromSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pRe
 	m_TextureOrgInfo.UseFilter=(BYTE)Packet.GetMember(SST_D3DTEX_USE_FILTER)!=0;
 	m_TextureOrgInfo.IsManaged=(BYTE)Packet.GetMember(SST_D3DTEX_IS_MANAGED)!=0;
 	m_TextureOrgInfo.WantRestore=!m_TextureOrgInfo.IsManaged;
-	m_TextureOrgInfo.KeyColor=Packet.GetMember(SST_D3DTEX_KEY_COLOR);
+	m_TextureOrgInfo.KeyColor = (UINT)Packet.GetMember(SST_D3DTEX_KEY_COLOR);
 
 	CSmartValue TextureData=Packet.GetMember(SST_D3DTEX_TESTURE_DATA);
 
@@ -365,11 +365,11 @@ UINT CD3DTexture::GetSmartStructSize(UINT Param)
 		
 		if(D3DXSaveTextureToFileInMemory(&m_pTextureSaveData,D3DXIFF_PNG,m_pTexture,NULL)!=D3D_OK)
 			return false;
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_pTextureSaveData->GetBufferSize());		
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_TextureOrgInfo.MipLevels));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_TextureOrgInfo.UseFilter));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_TextureOrgInfo.IsManaged));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_TextureOrgInfo.KeyColor));
+		Size += CSmartStruct::GetStringMemberSizeA(m_pTextureSaveData->GetBufferSize());
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_TextureOrgInfo.MipLevels));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_TextureOrgInfo.UseFilter));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_TextureOrgInfo.IsManaged));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_TextureOrgInfo.KeyColor));
 	}
 	
 	return Size;
@@ -491,7 +491,7 @@ bool CD3DTexture::LoadBLPTexture(LPVOID pData,int DataSize,DWORD Usage,bool IsMa
 			DXTBlockBytes=DXT5_BLOCK_BYTES;
 			break;
 		default:
-			PrintSystemLog(0,_T("CD3DTexture::LoadBLPTexture:无法识别的压缩格式"));
+			PrintD3DLog(_T("CD3DTexture::LoadBLPTexture:无法识别的压缩格式"));
 			return false;
 		}		
 		

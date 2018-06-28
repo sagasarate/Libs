@@ -19,7 +19,7 @@ CServerThread::CServerThread()
 	FUNCTION_BEGIN
 	m_pSysNetLinkManager=NULL;
 	m_pUDPSystemControlPort=NULL;
-	
+	m_pSystemControlPipe = NULL;
 	FUNCTION_END;
 }
 
@@ -91,7 +91,7 @@ BOOL CServerThread::OnStart()
 
 	LogFileName.Format("%s/Log/%s",(LPCTSTR)ModulePath,g_ProgramName);
 	pLog=new CServerLogPrinter(this,CServerLogPrinter::LOM_CONSOLE|CServerLogPrinter::LOM_FILE,
-		CSystemConfig::GetInstance()->GetLogLevel(),LogFileName);
+		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(SERVER_LOG_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
@@ -100,7 +100,7 @@ BOOL CServerThread::OnStart()
 	LogFileName.Format("%s/Log/%s.Status",(LPCTSTR)ModulePath,g_ProgramName);
 	CCSVFileLogPrinter * pCSVLog = new CCSVFileLogPrinter(CSystemConfig::GetInstance()->GetLogLevel(), LogFileName,
 		"CycleTime,CPUUsed,TCPRecvFlow,TCPSendFlow,UDPRecvFlow,UDPSendFlow,"
-		"TCPRecvCount,TCPSendCount,UDPRecvCount=,UDPSendCount,ClientCount");
+		"TCPRecvCount,TCPSendCount,UDPRecvCount=,UDPSendCount,ClientCount", CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(SERVER_STATUS_LOG_CHANNEL,pCSVLog);
 	SAFE_RELEASE(pCSVLog);
 
@@ -108,13 +108,13 @@ BOOL CServerThread::OnStart()
 
 	LogFileName.Format("%s/Log/%s.NetLib",(LPCTSTR)ModulePath,g_ProgramName);
 	pLog=new CServerLogPrinter(this,CServerLogPrinter::LOM_FILE,
-		CSystemConfig::GetInstance()->GetLogLevel(),LogFileName);
+		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(LOG_NET_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
 	LogFileName.Format("%s/Log/%s.DBLib",(LPCTSTR)ModulePath,g_ProgramName);
 	pLog=new CServerLogPrinter(this,CServerLogPrinter::LOM_FILE,
-		CSystemConfig::GetInstance()->GetLogLevel(),LogFileName);
+		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(LOG_DB_ERROR_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
@@ -177,12 +177,23 @@ BOOL CServerThread::OnStart()
 		Log("未找到系统连接配置文件%s",GetConfigFileName());
 	}
 
-	m_pUDPSystemControlPort=new CSystemControlPort();
-	if(!m_pUDPSystemControlPort->Init(this))
+	if (CSystemConfig::GetInstance()->GetUDPControlAddress().GetPort())
 	{
-		Log("初始化UDP系统控制端口失败");
+		m_pUDPSystemControlPort = new CSystemControlPort();
+		if (!m_pUDPSystemControlPort->Init(this))
+		{
+			Log("初始化UDP系统控制端口失败");
+		}
 	}
 
+	if (CSystemConfig::GetInstance()->IsControlPipeEnable())
+	{
+		m_pSystemControlPipe = new CSystemControlPipe();
+		if (!m_pSystemControlPipe->Init(this))
+		{
+			Log("初始化系统控制管道失败");
+		}
+	}
 
 	
 
@@ -191,6 +202,8 @@ BOOL CServerThread::OnStart()
 
 	SetServerStatus(SC_SST_SS_PROGRAM_VERSION,CSmartValue(Version.QuadPart));
 	SetServerStatusFormat(SC_SST_SS_PROGRAM_VERSION,"服务器版本",SSFT_VERSION);
+	SetServerStatusFormat(SC_SST_SS_WORK_STATUS, "工作状态");
+	SetServerStatus(SC_SST_SS_WORK_STATUS, CSmartValue((BYTE)SERVER_WORK_STATUS_STARTUP));
 	SetServerStatusFormat(SC_SST_SS_CLIENT_COUNT,"客户端数量");
 	SetServerStatusFormat(SC_SST_SS_CYCLE_TIME,"循环时间(毫秒)");
 	SetServerStatusFormat(SC_SST_SS_CPU_COST,"CPU占用率",SSFT_PERCENT);
@@ -224,6 +237,7 @@ void CServerThread::OnTerminate()
 
 	SAFE_RELEASE(m_pSysNetLinkManager);
 	SAFE_RELEASE(m_pUDPSystemControlPort);
+	SAFE_RELEASE(m_pSystemControlPipe);
 	CNetServer::OnTerminate();
 	Log("服务器关闭");
 	FUNCTION_END;
@@ -268,7 +282,10 @@ int CServerThread::Update(int ProcessPacketLimit)
 	int Process=0;
 	Process+=CNetServer::Update(ProcessPacketLimit);
 	Process+=m_pSysNetLinkManager->Update(ProcessPacketLimit);
-	Process+=m_pUDPSystemControlPort->Update(ProcessPacketLimit);
+	if (m_pUDPSystemControlPort)
+		Process += m_pUDPSystemControlPort->Update(ProcessPacketLimit);
+	if (m_pSystemControlPipe)
+		Process += m_pSystemControlPipe->Update(ProcessPacketLimit);
 	return Process;
 	FUNCTION_END;
 	return 0;
@@ -293,14 +310,21 @@ LPCTSTR CServerThread::GetConfigFileName()
 bool CServerThread::PrintConsoleLog(int Level, LPCTSTR szLogMsg)
 {
 	CBaseServer::PrintConsoleLog(Level, szLogMsg);
-	if (m_pSysNetLinkManager&&(m_ConsoleLogLevel&Level))
+	if (m_ConsoleLogLevel&Level)
 	{
-		m_pSysNetLinkManager->SendLogMsg(szLogMsg);
+		if (m_pSysNetLinkManager)
+		{
+			m_pSysNetLinkManager->SendLogMsg(szLogMsg);
+		}
+		if (m_pSystemControlPipe)
+		{
+			m_pSystemControlPipe->SendLogMsg(szLogMsg);
+		}
 	}
 	return true;
 }
 
-void CServerThread::ExecCommand(LPCTSTR szCommand)
+bool CServerThread::ExecCommand(LPCTSTR szCommand)
 {
 	FUNCTION_BEGIN;
 	int RetCode;
@@ -314,6 +338,7 @@ void CServerThread::ExecCommand(LPCTSTR szCommand)
 		Log("解析命令出错:Line=%d,%s",
 			m_ESThread.GetLastLine(),
 			ESGetErrorMsg(RetCode));
+		return false;
 	}
 	RetCode=m_ScriptExecutor.ExecScript(m_ESThread);
 	if(RetCode)
@@ -321,13 +346,16 @@ void CServerThread::ExecCommand(LPCTSTR szCommand)
 		Log("解析命令出错:Line=%d,%s",
 			m_ESThread.GetLastLine(),
 			ESGetErrorMsg(RetCode));
+		return false;
 	}
 	else
 	{
 		Log("执行命令结果:%s",
 			(LPCTSTR)BolanToString(m_ESThread.GetResult()));
+		return true;
 	}
 	FUNCTION_END;
+	return false;
 }
 
 
@@ -352,13 +380,20 @@ int CServerThread::RebuildUDPControlPort(CESThread * pESThread,ES_BOLAN* pResult
 {
 	FUNCTION_BEGIN;
 
-	if(!m_pUDPSystemControlPort->Init(this))
+	if (m_pUDPSystemControlPort)
 	{
-		Log("重建UDP系统控制端口失败");
+		if (!m_pUDPSystemControlPort->Init(this))
+		{
+			Log("重建UDP系统控制端口失败");
+		}
+		else
+		{
+			Log("重建UDP系统控制端口成功");
+		}
 	}
 	else
 	{
-		Log("重建UDP系统控制端口成功");
+		Log("未配置UDP系统控制端口");
 	}
 
 	FUNCTION_END;

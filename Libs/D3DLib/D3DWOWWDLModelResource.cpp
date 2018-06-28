@@ -226,7 +226,7 @@ bool CD3DWOWWDLModelResource::LoadFromFile(LPCTSTR ModelFileName)
 					}
 					else
 					{
-						PrintD3DLog(0,_T("CD3DWOWWDLModelResource::LoadFromFile:区块[%d,%d]没有洞信息"),X,Y);
+						PrintD3DLog(_T("CD3DWOWWDLModelResource::LoadFromFile:区块[%d,%d]没有洞信息"),X,Y);
 					}
 				}
 			}

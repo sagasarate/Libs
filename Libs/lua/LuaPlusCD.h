@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+ï»¿///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
 // 2001-2005 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
@@ -270,11 +270,11 @@ namespace LPCD
 	{  
 		CLuaTable LuaTable;
 
-		/* table ·ÅÔÚË÷Òý 'idx' ´¦ */
-		lua_pushnil(L);  /* µÚÒ»¸ö key */
+		/* table æ”¾åœ¨ç´¢å¼• 'idx' å¤„ */
+		lua_pushnil(L);  /* ç¬¬ä¸€ä¸ª key */
 		while (lua_next(L, idx) != 0) 
 		{
-			/* ÓÃÒ»ÏÂ 'key' £¨ÔÚË÷Òý -2 ´¦£© ºÍ 'value' £¨ÔÚË÷Òý -1 ´¦£© */
+			/* ç”¨ä¸€ä¸‹ 'key' ï¼ˆåœ¨ç´¢å¼• -2 å¤„ï¼‰ å’Œ 'value' ï¼ˆåœ¨ç´¢å¼• -1 å¤„ï¼‰ */
 		
 			if(lua_type(L, -2)==LUA_TNUMBER)
 			{

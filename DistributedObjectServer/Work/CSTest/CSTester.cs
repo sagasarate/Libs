@@ -34,8 +34,8 @@ namespace CSTest
             CountStartTime = (uint)System.Environment.TickCount;
             m_TargetID.ID = 0;
 
-            
 
+            m_Operator.SetServerWorkStatus(2);
             Logger.Log("CSTester Initialized");
             return true;
         }

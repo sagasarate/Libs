@@ -284,7 +284,7 @@ BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGI
 					CServerLogPrinter * pLog;
 					LogFileName.Format("%s/Log/Plugin.%s", (LPCTSTR)m_PluginInfo.LogDir, (LPCTSTR)CFileTools::GetPathFileName(m_PluginInfo.PluginName));
 					pLog = new CServerLogPrinter(CDOSMainThread::GetInstance(), CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
-						CSystemConfig::GetInstance()->GetLogLevel(), LogFileName);
+						CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 					CLogManager::GetInstance()->AddChannel(m_PluginInfo.LogChannel, pLog);
 					SAFE_RELEASE(pLog);
 

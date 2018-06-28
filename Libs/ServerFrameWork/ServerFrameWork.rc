@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// 中文(中华人民共和国) resources
+// 中文(简体，中国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
-#ifdef _WIN32
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 #pragma code_page(936)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -63,7 +61,7 @@ BEGIN
     LTEXT           "",IDC_ST_CYCLE_TIME,62,221,32,8
     LTEXT           "TCPRecv:",IDC_STATIC,98,221,31,8
     LTEXT           "TCPSend:",IDC_STATIC,98,231,32,8
-    LTEXT           "",IDC_ST_TCP_SEND,134,231,32,8
+    LTEXT           "",IDC_ST_TCP_SEND,134,233,32,8
     LTEXT           "",IDC_ST_TCP_RECV,134,221,32,8
     LTEXT           "UDPRecv:",IDC_STATIC,169,221,31,8
     LTEXT           "UDPSend:",IDC_STATIC,169,231,32,8
@@ -73,6 +71,8 @@ BEGIN
     DEFPUSHBUTTON   "执行",IDC_EXEC_COMMAND,240,205,24,12
     PUSHBUTTON      "关闭服务器",IDC_CLOSE_SERVER,91,243,37,12
     PUSHBUTTON      "服务器状态",IDC_SHOW_SERVER_STATUS,143,243,37,12
+    LTEXT           "工作状态:",IDC_STATIC,7,231,31,8
+    LTEXT           "",IDC_ST_WORK_STATUS,43,231,32,8
 END
 
 IDD_SERVER_STATUS DIALOGEX 0, 0, 259, 228
@@ -91,7 +91,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_SERVER_CONSOLE, DIALOG
     BEGIN
@@ -120,7 +120,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_ICON_TRAY           ICON                    "TrayIcon.ico"
-#endif    // 中文(中华人民共和国) resources
+#endif    // 中文(简体，中国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -34,7 +34,7 @@ bool CD3DWOWM2ItemModel::BuildModel()
 	CBLZWOWDatabase::BLZ_DB_ITEM_DISPLAY_INFO * pDisplayInfo=CBLZWOWDatabase::GetInstance()->GetItemDisplayInfo(m_ItemDisplayID);
 	if(pDisplayInfo)
 	{
-		CEasyString TexturePath=GetPathDirectory(m_pModelResource->GetName());
+		CEasyString TexturePath=CFileTools::GetPathDirectory(m_pModelResource->GetName());
 		if(m_ItemHandType==IHT_LEFT)
 			TexturePath+=pDisplayInfo->LeftModelTexture+".blp";
 		else
@@ -106,8 +106,8 @@ bool CD3DWOWM2ItemModel::FromSmartStruct(CSmartStruct& Packet,CUSOResourceManage
 UINT CD3DWOWM2ItemModel::GetSmartStructSize(UINT Param)
 {
 	UINT Size=CD3DWOWM2Model::GetSmartStructSize(Param);
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ItemDisplayID));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ItemHandType));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ItemDisplayID));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ItemHandType));
 
 	return Size;
 }

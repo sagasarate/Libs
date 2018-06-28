@@ -228,7 +228,7 @@ bool CD3DWOWADTModelResource::LoadTerrain(LPCTSTR ModelFileName)
 		return false;
 	if(!pFile->Open(ModelFileName,IFileAccessor::modeRead))
 	{
-		PrintD3DLog(0,_T("文件%s打开失败"),ModelFileName);
+		PrintD3DLog(_T("文件%s打开失败"),ModelFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -802,7 +802,7 @@ bool CD3DWOWADTModelResource::LoadObjectsInfo(LPCTSTR ModelFileName,bool BeLoadO
 		return false;
 	if(!pFile->Open(ModelFileName,IFileAccessor::modeRead))
 	{
-		PrintD3DLog(0,_T("文件%s打开失败"),ModelFileName);
+		PrintD3DLog(_T("文件%s打开失败"),ModelFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -868,7 +868,7 @@ bool CD3DWOWADTModelResource::LoadObjectsInfo(LPCTSTR ModelFileName,bool BeLoadO
 					pResource=new CD3DWOWM2ModelResource(m_pManager);
 					if(pResource->LoadFromFile(ObjectFileName))
 					{
-						//PrintSystemLog(0,"加载了[%s]",(LPCTSTR)ObjectFileName);
+						//PrintD3DLog("加载了[%s]",(LPCTSTR)ObjectFileName);
 						if(!m_pManager->AddResource(pResource,ObjectFileName))
 						{
 							pResource->Release();
@@ -877,7 +877,7 @@ bool CD3DWOWADTModelResource::LoadObjectsInfo(LPCTSTR ModelFileName,bool BeLoadO
 					}
 					else
 					{
-						PrintD3DLog(0,_T("加载M2文件%s失败"),(LPCTSTR)ObjectFileName);
+						PrintD3DLog(_T("加载M2文件%s失败"),(LPCTSTR)ObjectFileName);
 						pResource->Release();
 						pResource=NULL;
 					}						
@@ -928,7 +928,7 @@ bool CD3DWOWADTModelResource::LoadObjectsInfo(LPCTSTR ModelFileName,bool BeLoadO
 				pResource=new CD3DWOWWMOModelResource(m_pManager);
 				if(pResource->LoadFromFile(FileName))
 				{
-					//PrintSystemLog(0,"加载了[%s]",(LPCTSTR)FileName);
+					//PrintD3DLog("加载了[%s]",(LPCTSTR)FileName);
 					if(!m_pManager->AddResource(pResource,FileName))
 					{
 						pResource->Release();
@@ -937,7 +937,7 @@ bool CD3DWOWADTModelResource::LoadObjectsInfo(LPCTSTR ModelFileName,bool BeLoadO
 				}
 				else
 				{
-					PrintD3DLog(0,_T("加载WMO文件%s失败"),(LPCTSTR)FileName);
+					PrintD3DLog(_T("加载WMO文件%s失败"),(LPCTSTR)FileName);
 					pResource->Release();
 					pResource=NULL;
 				}						
@@ -965,7 +965,7 @@ bool CD3DWOWADTModelResource::LoadTextureInfo(LPCTSTR ModelFileName,bool IsBigAl
 		return false;
 	if(!pFile->Open(ModelFileName,IFileAccessor::modeRead))
 	{
-		PrintD3DLog(0,_T("文件%s打开失败"),ModelFileName);
+		PrintD3DLog(_T("文件%s打开失败"),ModelFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -1317,39 +1317,39 @@ bool CD3DWOWADTModelResource::FromSmartStruct(CSmartStruct& Packet,CUSOResourceM
 UINT CD3DWOWADTModelResource::GetSmartStructSize(UINT Param)
 {
 	UINT Size=CD3DObjectResource::GetSmartStructSize(Param);
-	Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+	Size+=CSmartStruct::GetStructMemberSize(0);
 	for(UINT i=0;i<m_M2ObjectList.GetCount();i++)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_M2ObjectList[i].ID));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_M2ObjectList[i].pModelResource->GetNameLength());		
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_M2ObjectList[i].Position));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_M2ObjectList[i].Orientation));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_M2ObjectList[i].Scale));		
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_M2ObjectList[i].ID));
+		Size += CSmartStruct::GetStringMemberSize(m_M2ObjectList[i].pModelResource->GetNameLength());
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_M2ObjectList[i].Position));
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_M2ObjectList[i].Orientation));
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_M2ObjectList[i].Scale));
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
-	Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+	Size+=CSmartStruct::GetStructMemberSize(0);
 	for(UINT i=0;i<m_WMOObjectList.GetCount();i++)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_WMOObjectList[i].ID));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_WMOObjectList[i].pModelResource->GetNameLength());		
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_WMOObjectList[i].Position));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_WMOObjectList[i].Orientation));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_WMOObjectList[i].DoodadSet));		
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_WMOObjectList[i].ID));
+		Size += CSmartStruct::GetStringMemberSize(m_WMOObjectList[i].pModelResource->GetNameLength());
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_WMOObjectList[i].Position));
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_WMOObjectList[i].Orientation));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_WMOObjectList[i].DoodadSet));		
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
-	Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+	Size+=CSmartStruct::GetStructMemberSize(0);
 	for(UINT i=0;i<BLZ_ADT_MAP_TILE_COUNT;i++)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_TerrainHeightInfo[i].HaveWater));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_TerrainHeightInfo[i].TerrainHeight));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_TerrainHeightInfo[i].HaveWater));
+		Size += CSmartStruct::GetFixMemberSize(sizeof(m_TerrainHeightInfo[i].TerrainHeight));
 		if(m_TerrainHeightInfo[i].HaveWater)
 		{
-			Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_TerrainHeightInfo[i].WaterHeight));
+			Size += CSmartStruct::GetFixMemberSize(sizeof(m_TerrainHeightInfo[i].WaterHeight));
 		}		
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
 
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_Position));
+	Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_Position));
 
 	return Size;
 }
@@ -1475,7 +1475,7 @@ CD3DTexture * CD3DWOWADTModelResource::CreateAlphaMap(int DataType,LPBYTE pData,
 	{
 	case ADT_UNCOMPRESS_2048:
 		{	
-			//PrintSystemLog(0,"4位AlphaMap");
+			//PrintD3DLog("4位AlphaMap");
 			//if(DataSize>=2048)
 			{
 				D3DLOCKED_RECT LockedRect;
@@ -1516,7 +1516,7 @@ CD3DTexture * CD3DWOWADTModelResource::CreateAlphaMap(int DataType,LPBYTE pData,
 		break;
 	case ADT_UNCOMPRESS_4096:
 		{
-			//PrintSystemLog(0,"8位AlphaMap");
+			//PrintD3DLog("8位AlphaMap");
 			//if(DataSize>=4096)
 			{
 				D3DLOCKED_RECT LockedRect;
@@ -1539,7 +1539,7 @@ CD3DTexture * CD3DWOWADTModelResource::CreateAlphaMap(int DataType,LPBYTE pData,
 		break;
 	case ADT_COMPRESS:
 		{
-			//PrintSystemLog(0,"压缩格式AlphaMap");
+			//PrintD3DLog("压缩格式AlphaMap");
 			D3DLOCKED_RECT LockedRect;
 			if(pAlphaMap->LockBits(0,&LockedRect,NULL,0))
 			{

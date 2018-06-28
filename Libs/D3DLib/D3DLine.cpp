@@ -96,12 +96,12 @@ CD3DBoundingBox * CD3DLine::GetBoundingBox()
 
 bool CD3DLine::ToSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pResourceManager,UINT Param)
 {
-	PrintSystemLog(0,_T("CD3DLine被保存"));
+	PrintD3DLog(_T("CD3DLine被保存"));
 	return CD3DObject::ToSmartStruct(Packet,pResourceManager,Param);
 }
 UINT CD3DLine::GetSmartStructSize(UINT Param)
 {
-	PrintSystemLog(0,_T("CD3DLine被保存"));
+	PrintD3DLog(_T("CD3DLine被保存"));
 	return CD3DObject::GetSmartStructSize(Param);
 }
 

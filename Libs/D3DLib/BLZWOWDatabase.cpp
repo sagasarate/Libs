@@ -149,43 +149,43 @@ CBLZWOWDatabase::~CBLZWOWDatabase(void)
 
 void CBLZWOWDatabase::Destory()
 {
-	//PrintSystemLog(0,"卸载CharSectionData");
+	//PrintD3DLog("卸载CharSectionData");
 	m_CharSectionData.Clear();
 
-	//PrintSystemLog(0,"卸载AnimationData");
+	//PrintD3DLog("卸载AnimationData");
 	m_AnimationData.Clear();
 
-	//PrintSystemLog(0,"卸载CharHairSubMeshInfo");
+	//PrintD3DLog("卸载CharHairSubMeshInfo");
 	m_CharHairSubMeshInfo.Clear();
 
-	//PrintSystemLog(0,"卸载CharWhiskerSubMeshInfo");
+	//PrintD3DLog("卸载CharWhiskerSubMeshInfo");
 	m_CharWhiskerSubMeshInfo.Clear();
 
-	//PrintSystemLog(0,"卸载CharRaceInfo");
+	//PrintD3DLog("卸载CharRaceInfo");
 	m_CharRaceInfo.Clear();
 
-	//PrintSystemLog(0,"卸载CreatureDisplayInfo");
+	//PrintD3DLog("卸载CreatureDisplayInfo");
 	m_CreatureDisplayInfo.Clear();
 
-	//PrintSystemLog(0,"卸载CreatureModelInfo");
+	//PrintD3DLog("卸载CreatureModelInfo");
 	m_CreatureModelInfo.Clear();
 
-	//PrintSystemLog(0,"卸载ItemClass");
+	//PrintD3DLog("卸载ItemClass");
 	m_ItemClass.Clear();
 
-	//PrintSystemLog(0,"卸载ItemSubClassMask");
+	//PrintD3DLog("卸载ItemSubClassMask");
 	m_ItemSubClassMask.Clear();
 
-	//PrintSystemLog(0,"卸载ItemData");
+	//PrintD3DLog("卸载ItemData");
 	m_ItemData.Clear();
 
-	//PrintSystemLog(0,"卸载ItemDisplayInfo");
+	//PrintD3DLog("卸载ItemDisplayInfo");
 	m_ItemDisplayInfo.Clear();
 
-	//PrintSystemLog(0,"卸载HelmetGeosetVisibleInfo");
+	//PrintD3DLog("卸载HelmetGeosetVisibleInfo");
 	m_HelmetGeosetVisibleInfo.Clear();
 
-	//PrintSystemLog(0,"CBLZWOWDatabase卸载完毕");
+	//PrintD3DLog("CBLZWOWDatabase卸载完毕");
 
 	m_MapInfo.Clear();
 
@@ -205,196 +205,196 @@ bool CBLZWOWDatabase::LoadDBCs(CEasyString& ErrorMsg)
 
 	
 	FileName=BLZ_DBC_CHAR_SECTION_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCharSectionData(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ANIMATION_DATA_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadAnimationData(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_CHAR_HAIR_GEOSET_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCharHairSubMeshInfo(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_CHAR_WHISKER_GEOSET_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCharWhiskerSubMeshInfo(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_CHAR_RACE_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCharRaceInfo(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_CREATURE_DISPLAY_INFO_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCreatureDisplayInfo(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_CREATURE_EXTRA_DISPLAY_INFO_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCreatureExtraDisplayInfo(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_CREATURE_MODEL_INFO_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCreatureModelInfo(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	BuildCreatureModelInfo();
 
 	FileName=BLZ_DBC_NPC_DATA_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadNPCData(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ITEM_CLASS_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadItemClass(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ITEM_SUB_CLASS_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadItemSubClass(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ITEM_SUB_CLASS_MASK_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadItemSubClassMask(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ITEM_DATA_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadItemData(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ITEM_CACHE_DATA_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadItemCacheData(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ITEM_DISPLAY_INFO_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadItemDisplayInfo(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_HELMET_GEOSET_VISIBLE_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadHelmetGeosetVisibleInfo(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_MAP_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadMapInfo(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	//FileName=BLZ_DBC_SPELL_VISUAL_EFFECT_NAME_FILE_NAME;
-	//PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	//PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	//LoadTime=CEasyTimer::GetTime();
 	//if(!m_SpellVisualEffectNameInfo.Load(FileName,
 	//	BLZ_DBC_SPELL_VISUAL_EFFECT_NAME_RECORD_SIZE))
@@ -402,68 +402,68 @@ bool CBLZWOWDatabase::LoadDBCs(CEasyString& ErrorMsg)
 	//	ErrorMsg=FileName+_T("装载失败！");
 	//	return false;
 	//}
-	//PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	//PrintD3DLog(_T("装载%s花了%u毫秒"),
 	//	(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 
 	FileName=BLZ_DBC_LIQUID_TYPE_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadLiquidTypeInfo(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	
 	//FileName=BLZ_TRS_MINI_MAP_TEXTURE_FILES;
-	//PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	//PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	//LoadTime=CEasyTimer::GetTime();
 	//if(!LoadMiniMapInfo(FileName))
 	//{
 	//	ErrorMsg=FileName+_T("装载失败！");
 	//	return false;
 	//}
-	//PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	//PrintD3DLog(_T("装载%s花了%u毫秒"),
 	//	(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_LIGHT_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadMapLightInfos(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 
 	FileName=BLZ_DBC_LIGHT_PARAMS_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadLightParams(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_LIGHT_INT_BAND_FILE_NAME;
-	PrintSystemLog(0,_T("装载%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("装载%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadLightColors(FileName))
 	{
 		ErrorMsg=FileName+_T("装载失败！");
 		return false;
 	}
-	PrintSystemLog(0,_T("装载%s花了%u毫秒"),
+	PrintD3DLog(_T("装载%s花了%u毫秒"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
-	PrintSystemLog(0,_T("CBLZWOWDatabase装载完毕"));
+	PrintD3DLog(_T("CBLZWOWDatabase装载完毕"));
 
 	return true;
 }
@@ -2017,10 +2017,10 @@ void CBLZWOWDatabase::PrintColors(BLZ_DB_LIGHT_INFO * pInfo)
 {
 	for(UINT i=0;i<DBC_LICI_MAX;i++)
 	{
-		PrintSystemLog(0,_T("Color(%d):"),i);
+		PrintD3DLog(_T("Color(%d):"),i);
 		for(UINT j=0;j<pInfo->Colors[i].GetCount();j++)
 		{
-			PrintSystemLog(0,_T("	C=(%d,%d,%d),T=%u"),
+			PrintD3DLog(_T("	C=(%d,%d,%d),T=%u"),
 				D3DCOLOR_RED(pInfo->Colors[i][j].Color),
 				D3DCOLOR_GREEN(pInfo->Colors[i][j].Color),
 				D3DCOLOR_BLUE(pInfo->Colors[i][j].Color),

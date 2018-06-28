@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 
 
@@ -35,12 +35,12 @@ bool CLuaTable::GetFromLuaState(lua_State * pLuaState, int Index)
 		return false;
 	}
 	Clear();
-	lua_pushnil(pLuaState);  /* µÚÒ»¸ö key */
+	lua_pushnil(pLuaState);  /* ç¬¬ä¸€ä¸ª key */
 	if (Index < 0)
 		Index--;
 	while (lua_next(pLuaState, Index) != 0)
 	{
-		/* ÓÃÒ»ÏÂ 'key' £¨ÔÚË÷Òý -2 ´¦£© ºÍ 'value' £¨ÔÚË÷Òý -1 ´¦£© */
+		/* ç”¨ä¸€ä¸‹ 'key' ï¼ˆåœ¨ç´¢å¼• -2 å¤„ï¼‰ å’Œ 'value' ï¼ˆåœ¨ç´¢å¼• -1 å¤„ï¼‰ */
 		if (!GetElementFromLuaState(pLuaState, -1))
 		{
 			LogLua(_T("unsupport table value"));

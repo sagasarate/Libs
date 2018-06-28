@@ -115,7 +115,7 @@ inline bool GetInterpolationValue(UINT Time,bool IsLoop,int InterpolationType,UI
 				Value=AniFrame.Keys[Frame]*(1.0f-S)+AniFrame.Keys[Frame+1]*S;
 				break;
 			case INTERPOLATE_TYPE_HERMITE:
-				PrintSystemLog(0,_T("Unsupport Hermite Interpolate in GetInterpolationValue"));
+				PrintD3DLog(_T("Unsupport Hermite Interpolate in GetInterpolationValue"));
 				break;
 			}				
 		}
@@ -181,7 +181,7 @@ inline bool GetInterpolationValue(UINT Time,bool IsLoop,int InterpolationType,UI
 				Value=CD3DVector3::Lerp(AniFrame.Keys[Frame],AniFrame.Keys[Frame+1],S);
 				break;
 			case INTERPOLATE_TYPE_HERMITE:
-				PrintSystemLog(0,_T("Unsupport Hermite Interpolate in GetInterpolationValue"));
+				PrintD3DLog(_T("Unsupport Hermite Interpolate in GetInterpolationValue"));
 				break;
 			}				
 		}
@@ -249,7 +249,7 @@ inline bool GetInterpolationValue(UINT Time,bool IsLoop,int InterpolationType,UI
 				Value=CD3DQuaternion::SLerp(AniFrame.Keys[Frame],AniFrame.Keys[Frame+1],S);
 				break;
 			case INTERPOLATE_TYPE_HERMITE:
-				PrintSystemLog(0,_T("Unsupport Hermite Interpolate in GetInterpolationValue"));
+				PrintD3DLog(_T("Unsupport Hermite Interpolate in GetInterpolationValue"));
 				break;
 			}				
 		}
@@ -694,22 +694,22 @@ inline UINT GetAnimationBlockSmartStructSize(ANIMATION_BLOCK<KEY_TYPE>& AniBlock
 {
 	UINT Size=0;
 
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(AniBlock.InterpolationType));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(AniBlock.GlobalSequenceID));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(AniBlock.InterpolationType));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(AniBlock.GlobalSequenceID));
 
 	for(UINT i=0;i<AniBlock.Animations.GetCount();i++)
 	{
 		if(AniBlock.Animations[i].TimeStamps.GetCount())
 		{
-			Size+=SMART_STRUCT_STRING_MEMBER_SIZE(AniBlock.Animations[i].TimeStamps.GetCount()*sizeof(UINT));
+			Size+=CSmartStruct::GetStringMemberSizeA(AniBlock.Animations[i].TimeStamps.GetCount()*sizeof(UINT));
 		}
 		if(AniBlock.Animations[i].Keys.GetCount())
 		{
-			Size+=SMART_STRUCT_STRING_MEMBER_SIZE(AniBlock.Animations[i].Keys.GetCount()*sizeof(KEY_TYPE));
+			Size += CSmartStruct::GetStringMemberSizeA(AniBlock.Animations[i].Keys.GetCount()*sizeof(KEY_TYPE));
 		}
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
-	Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+	Size+=CSmartStruct::GetStructMemberSize(0);
 	return Size;
 }
 
@@ -719,13 +719,13 @@ inline UINT GetFakeAnimationBlockSmartStructSize(FAKE_ANIMATION_FRAME<KEY_TYPE>&
 	UINT Size=0;
 	if(AniBlock.TimeStamps.GetCount())
 	{
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(AniBlock.TimeStamps.GetCount()*sizeof(FLOAT));
+		Size+=CSmartStruct::GetStringMemberSizeA(AniBlock.TimeStamps.GetCount()*sizeof(FLOAT));
 	}
 	if(AniBlock.Keys.GetCount())
 	{
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(AniBlock.Keys.GetCount()*sizeof(KEY_TYPE));
+		Size += CSmartStruct::GetStringMemberSizeA(AniBlock.Keys.GetCount()*sizeof(KEY_TYPE));
 	}
-	Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+	Size+=CSmartStruct::GetStructMemberSize(0);
 
 	return Size;
 }

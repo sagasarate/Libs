@@ -191,12 +191,12 @@ UINT CD3DWOWADTModel::GetSmartStructSize(UINT Param)
 			if((!m_ChildList[i]->IsKindOf(GET_CLASS_INFO(CD3DWOWWMOModel)))&&
 				(!m_ChildList[i]->IsKindOf(GET_CLASS_INFO(CD3DWOWDoodadModel))))
 			{
-				Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(m_ChildList[i]->GetSmartStructSize(Param));
+				Size+=CSmartStruct::GetStructMemberSize(m_ChildList[i]->GetSmartStructSize(Param));
 			}
 		}
 	}
 
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_pModelResource->GetNameLength());
+	Size += CSmartStruct::GetStringMemberSize(m_pModelResource->GetNameLength());
 
 	return Size;
 }
@@ -443,7 +443,7 @@ bool CD3DWOWADTModel::LoadObjects()
 			{
 				if(!pObject->LoadFromResource(pInfo->pModelResource))
 				{
-					PrintSystemLog(0,_T("地图对象装载失败"));
+					PrintD3DLog( _T("地图对象装载失败"));
 					SAFE_RELEASE(pObject);
 					return false;
 				}		
@@ -452,7 +452,7 @@ bool CD3DWOWADTModel::LoadObjects()
 			{
 				if(!pObject->LoadFromFile(pInfo->ModelFilePath))
 				{
-					PrintSystemLog(0,_T("地图对象装载失败"));
+					PrintD3DLog( _T("地图对象装载失败"));
 					SAFE_RELEASE(pObject);
 					return false;
 				}
@@ -486,7 +486,7 @@ bool CD3DWOWADTModel::LoadObjects()
 			{
 				if(!pObject->LoadFromResource(pInfo->pModelResource))
 				{
-					PrintSystemLog(0,_T("地图对象装载失败"));
+					PrintD3DLog(_T("地图对象装载失败"));
 					SAFE_RELEASE(pObject);
 					return false;
 				}
@@ -495,7 +495,7 @@ bool CD3DWOWADTModel::LoadObjects()
 			{
 				if(!pObject->LoadFromFile(pInfo->ModelFilePath))
 				{
-					PrintSystemLog(0,_T("地图对象装载失败"));
+					PrintD3DLog(_T("地图对象装载失败"));
 					SAFE_RELEASE(pObject);
 					return false;
 				}

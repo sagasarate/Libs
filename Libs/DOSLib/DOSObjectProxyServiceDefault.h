@@ -54,6 +54,7 @@ protected:
 	CThreadSafeIDStorage<CDOSObjectProxyConnectionDefault *>	m_DestoryConnectionList;
 	CEasyArray<CDOSObjectProxyConnectionGroup>					m_ConnectionGroups;
 	CEasyBuffer													m_CompressBuffer;
+	char														m_LZOCompressWorkMemory[LZO1X_1_MEM_COMPRESS];
 
 public:
 	CDOSObjectProxyServiceDefault(void);
@@ -114,6 +115,7 @@ protected:
 	bool DoRegisterGlobalMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);
 	bool DoUnregisterGlobalMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);
 	void ClearMsgMapByRouterID(UINT RouterID);
+	bool CheckEncryptConfig();
 };
 
 

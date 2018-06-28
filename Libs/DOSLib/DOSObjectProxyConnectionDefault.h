@@ -50,8 +50,7 @@ protected:
 
 	CEasyBuffer									m_AssembleBuffer;
 	CEasyBuffer *								m_pCompressBuffer;
-	
-
+	char *										m_pLZOCompressWorkBuffer;
 	
 
 public:
@@ -81,9 +80,10 @@ public:
 	{
 		return m_Status;
 	}
-	void SetCompressBuffer(CEasyBuffer * pCompressBuffer)
+	void SetCompressBuffer(CEasyBuffer * pCompressBuffer, char * pLZOCompressWorkBuffer)
 	{
 		m_pCompressBuffer = pCompressBuffer;
+		m_pLZOCompressWorkBuffer = pLZOCompressWorkBuffer;
 	}
 	void SetGroup(CDOSObjectProxyConnectionGroup * pGroup)
 	{
@@ -107,5 +107,7 @@ protected:
 	void ClearMsgMapByRouterID(UINT RouterID);
 
 	const void * CompressMsg(const void * pData, MSG_LEN_TYPE& DataLen);
+	bool EncyptMsg(const void * pData, MSG_LEN_TYPE& DataLen, LPCVOID& pOut);
+	MSG_LEN_TYPE DecyptMsg(void * pData, MSG_LEN_TYPE DataLen);
 };
 

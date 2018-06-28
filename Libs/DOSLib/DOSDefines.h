@@ -29,6 +29,14 @@ enum MSG_COMPRESS_TYPE
 	MSG_COMPRESS_ZIP_SLOW,
 };
 
+enum MSG_ENCRYPT_TYPE
+{
+	MSG_ENCRYPT_NONE,
+	MSG_ENCRYPT_DES,
+	MSG_ENCRYPT_AES,
+	MSG_ENCRYPT_TEA
+};
+
 enum CLIENT_PROXY_MODE
 {
 	CLIENT_PROXY_MODE_DEFAULT,
@@ -53,10 +61,13 @@ struct CLIENT_PROXY_CONFIG
 	UINT										KeepAliveCount;
 	UINT										MsgCompressType;
 	UINT										MinMsgCompressSize;
+	UINT										MsgEnCryptType;
+	CEasyString									SecretKey;
 
 	UINT										GlobalMsgMapSize;
 	UINT										MsgMapSize;
 	UINT										MaxMsgSize;
+	UINT										MaxSendMsgSize;
 	
 	
 	CLIENT_PROXY_CONFIG()
@@ -71,12 +82,14 @@ struct CLIENT_PROXY_CONFIG
 		GlobalMsgMapSize = 512;
 		MsgMapSize = 512;
 		MaxMsgSize = 4096;
+		MaxSendMsgSize = 10 * 1024 * 1204;
 		AcceptQueueSize = DEFAULT_SERVER_ACCEPT_QUEUE;
 		ParallelAcceptCount = DEFAULT_PARALLEL_ACCEPT;
 		RecvBufferSize = DEFAULT_SERVER_RECV_DATA_QUEUE;
 		SendBufferSize = DEFAULT_SERVER_SEND_DATA_QUEUE;
 		MsgCompressType = MSG_COMPRESS_NONE;
 		MinMsgCompressSize = 0;
+		MsgEnCryptType = MSG_ENCRYPT_NONE;
 		UnacceptConnectionKeepTime = 30 * 1000;
 		UseServerInitiativeKeepAlive = false;
 		KeepAliveTime = 30000;
@@ -91,6 +104,7 @@ struct DOS_CONFIG
 	CEasyNetLinkManager::ENL_CONFIG				RouterLinkConfig;
 	UINT										MaxRouterSendMsgQueue;
 	UINT										RouterMsgProcessLimit;
+	bool										StateMsgTransfer;
 	
 
 	CEasyArray<CLIENT_PROXY_CONFIG>				ClientProxyConfigs;
@@ -115,6 +129,7 @@ struct DOS_CONFIG
 		RouterID=0;	
 		MaxRouterSendMsgQueue=10240;
 		RouterMsgProcessLimit=256;
+		StateMsgTransfer = false;
 		
 		MemoryPoolBlockSize=64;
 		MemoryPoolLeveSize=10240;

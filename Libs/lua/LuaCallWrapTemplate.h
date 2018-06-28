@@ -1,4 +1,4 @@
-namespace LuaWrap
+﻿namespace LuaWrap
 {	
 	template<>
 	struct ReturnSpecialization < LUA_WRAP_CALL_RETURN_TYPE >
@@ -428,6 +428,38 @@ namespace LuaWrap
 				Get(TypeWrapper<P8>(), L, index + 7),
 				Get(TypeWrapper<P9>(), L, index + 8),
 				Get(TypeWrapper<P10>(), L, index + 9)
+				);
+			LUA_WRAP_RETURN_PUSH_OPERATION;
+		}
+
+		template <typename Callee, typename P1, typename P2, typename P3,
+			typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10, typename P11>
+			static int Call(Callee& callee, LUA_WRAP_CALL_RETURN_TYPE(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11), lua_State* L, int index, CLuaThread * pThreadInfo)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+			luaL_argassert(9, index + 8);
+			luaL_argassert(10, index + 9);
+			luaL_argassert(11, index + 10);
+
+			LUA_WRAP_RETURN_FETCH_OPERATION(callee.*func)(pThreadInfo,
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7),
+				Get(TypeWrapper<P9>(), L, index + 8),
+				Get(TypeWrapper<P10>(), L, index + 9),
+				Get(TypeWrapper<P11>(), L, index + 10)
 				);
 			LUA_WRAP_RETURN_PUSH_OPERATION;
 		}

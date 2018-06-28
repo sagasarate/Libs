@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CLuaGrid :
 	public CLuaBaseStaticMetaClass
@@ -236,5 +236,5 @@ namespace LuaWrap
 
 #define LUA_WRAP_CALL_RETURN_TYPE CLuaGrid
 #define LUA_WRAP_RETURN_FETCH_OPERATION CLuaGrid Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYeildReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"

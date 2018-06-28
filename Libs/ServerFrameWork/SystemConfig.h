@@ -17,9 +17,12 @@ class CSystemConfig :
 protected:
 	UINT			m_MainThreadProcessLimit;
 	CIPAddress		m_UDPControlAddress;
+	CEasyString		m_ControlPipeName;
+	UINT			m_ControlPipeAssembleBufferSize;
 	bool			m_LogServerObjectUse;	
 	UINT			m_LogLevel;
 	UINT			m_ConsoleLogLevel;
+	UINT			m_LogCacheSize;
 	UINT			m_GuardThreadKeepAliveTime;
 	UINT			m_GuardThreadKeepAliveCount;
 	bool			m_PreLoadModuleSym;
@@ -39,7 +42,18 @@ public:
 	{
 		return m_UDPControlAddress;
 	}
-
+	bool IsControlPipeEnable()
+	{
+		return (!m_ControlPipeName.IsEmpty()) && m_ControlPipeAssembleBufferSize > 0;
+	}
+	LPCTSTR GetControlPipeName()
+	{
+		return m_ControlPipeName;
+	}
+	UINT GetControlPipeAssembleBufferSize()
+	{
+		return m_ControlPipeAssembleBufferSize;
+	}
 	bool IsLogServerObjectUse()
 	{
 		return m_LogServerObjectUse;
@@ -63,6 +77,10 @@ public:
 	UINT GetConsoleLogLevel()
 	{
 		return m_ConsoleLogLevel;
+	}
+	UINT GetLogCacheSize()
+	{
+		return m_LogCacheSize;
 	}
 	UINT GetGuardThreadKeepAliveTime()
 	{

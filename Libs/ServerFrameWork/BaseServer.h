@@ -19,13 +19,7 @@
 #define DEFAULT_CONSOLE_CMD_COUNT			64
 
 
-enum SERVER_STATUS_FORMAT_TYPE
-{
-	SSFT_DEFAULT,
-	SSFT_FLOW,
-	SSFT_VERSION,
-	SSFT_PERCENT,
-};
+
 struct SERVER_STATUS_FORMAT_INFO
 {
 	WORD	StatusID;
@@ -76,6 +70,7 @@ public:
 	virtual CSmartValue GetServerStatus(WORD StatusID);
 	virtual CSmartStruct& GetAllServerStatus();
 	virtual UINT GetAllServerStatus(BYTE * pBuff, UINT BuffLen);
+	virtual bool GetAllServerStatus(CSmartStruct& Packet, WORD MemberID);
 	virtual void SetServerStatusFormat(WORD StatusID, LPCTSTR szStatusName, int FormatType = SSFT_DEFAULT);
 	virtual bool GetServerStatusFormat(WORD StatusID, SERVER_STATUS_FORMAT_INFO& FormatInfo);
 	virtual void GetAllServerStatusFormat(CEasyArray<SERVER_STATUS_FORMAT_INFO>& FormatInfoList);

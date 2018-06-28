@@ -317,6 +317,7 @@
   <ItemGroup>
     <ClInclude Include="AsyncLogWorkThread.h" />
     <ClInclude Include="Base32.h" />
+    <ClInclude Include="CryptTools.h" />
     <ClInclude Include="CycleQueue.h" />
     <ClInclude Include="EasyTime.h" />
     <ClInclude Include="EasyTimer.h" />
@@ -333,6 +334,8 @@
     <ClInclude Include="iconv\miniconv.h" />
     <ClInclude Include="iconv\ucs2internal.h" />
     <ClInclude Include="iconv\utf8.h" />
+    <ClInclude Include="NamedPipeLinux.h" />     
+    <ClInclude Include="NamedPipeWin.h" />
     <ClInclude Include="ProcessSnapshot.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="IFileAccessor.h" />
@@ -497,6 +500,7 @@
   <ItemGroup>
     <ClCompile Include="AsyncLogWorkThread.cpp" />
     <ClCompile Include="Base32.cpp" />
+    <ClCompile Include="CryptTools.cpp" />
     <ClCompile Include="EasyTimerEx.cpp" />
     <ClCompile Include="FileTools.cpp" />
     <ClCompile Include="iconv\miniconv.c">
@@ -518,6 +522,17 @@
       </PrecompiledHeader>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">Default</CompileAs>
     </ClCompile>
+    <ClCompile Include="NamedPipeLinux.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="NamedPipeWin.cpp" />
     <ClCompile Include="ProcessSnapshot.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Create</PrecompiledHeader>
@@ -894,8 +909,7 @@
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">
       </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|x64'">NotUsing</PrecompiledHeader>

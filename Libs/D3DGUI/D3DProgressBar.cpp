@@ -157,15 +157,15 @@ void CD3DProgressBar::SaveToXml(xml_node * pXMLNode)
 {
 	xml_node Wnd=pXMLNode->append_child(node_element,_T("ProgressBar"));
 	Wnd.append_attribute(_T("Name"),(LPCTSTR)GetName());
-	Wnd.append_attribute(_T("ID"),(long)GetID());
+	Wnd.append_attribute(_T("ID"),GetID());
 	Wnd.append_attribute(_T("IsInternal"),IsInternal());
 
 	xml_node Behavior=Wnd.append_child(node_element,_T("Behavior"));
 	SaveBehaviorToXML(Behavior);	
-	Behavior.append_attribute(_T("Style"),(long)m_Style);
-	Behavior.append_attribute(_T("WorkMode"),(long)m_WorkMode);
-	Behavior.append_attribute(_T("CurPos"),(long)m_CurPos);
-	Behavior.append_attribute(_T("MaxPos"),(long)m_MaxPos);
+	Behavior.append_attribute(_T("Style"),m_Style);
+	Behavior.append_attribute(_T("WorkMode"),m_WorkMode);
+	Behavior.append_attribute(_T("CurPos"),m_CurPos);
+	Behavior.append_attribute(_T("MaxPos"),m_MaxPos);
 
 	xml_node Frame=Wnd.append_child(node_element,_T("Frame"));
 	SaveFrameToXML(Frame);	
@@ -193,7 +193,7 @@ bool CD3DProgressBar::LoadFromXml(xml_node * pXMLNode)
 		SetName(pXMLNode->attribute(_T("Name")).getvalue());
 
 	if(pXMLNode->has_attribute(_T("ID")))
-		SetID((long)pXMLNode->attribute(_T("ID")));
+		SetID(pXMLNode->attribute(_T("ID")));
 
 	if(pXMLNode->has_attribute(_T("IsInternal")))
 		SetInternal((bool)pXMLNode->attribute(_T("IsInternal")));
@@ -205,13 +205,13 @@ bool CD3DProgressBar::LoadFromXml(xml_node * pXMLNode)
 		{
 			LoadBehaviorFromXML(pXMLNode->child(i));
 			if(pXMLNode->child(i).has_attribute(_T("Style")))
-				SetProgressStyle((long)pXMLNode->child(i).attribute(_T("Style")));
+				SetProgressStyle(pXMLNode->child(i).attribute(_T("Style")));
 			if(pXMLNode->child(i).has_attribute(_T("WorkMode")))
-				SetWorkMode((long)pXMLNode->child(i).attribute(_T("WorkMode")));
+				SetWorkMode(pXMLNode->child(i).attribute(_T("WorkMode")));
 			if(pXMLNode->child(i).has_attribute(_T("MaxPos")))
-				SetMaxPos((long)pXMLNode->child(i).attribute(_T("MaxPos")));
+				SetMaxPos(pXMLNode->child(i).attribute(_T("MaxPos")));
 			if(pXMLNode->child(i).has_attribute(_T("CurPos")))
-				SetPos((long)pXMLNode->child(i).attribute(_T("CurPos")));
+				SetPos(pXMLNode->child(i).attribute(_T("CurPos")));
 			
 		}
 		else if(_tcsnicmp(pXMLNode->child(i).name(),_T("Frame"),6)==0)

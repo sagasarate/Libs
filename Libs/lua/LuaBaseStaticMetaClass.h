@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CLuaThread;
 class CLuaBaseStaticMetaClass;
@@ -7,11 +7,18 @@ typedef void (CLuaBaseStaticMetaClass::*FN_SET_META_CLASS)(lua_State * pLuaState
 
 class CSetMetaClassFNRegister
 {
+protected:
+	UINT m_ClassID;
+	static CStaticMap<UINT, FN_SET_META_CLASS> * m_pSetMetaClassFNMap;
 public:
 	CSetMetaClassFNRegister(UINT ClassID, FN_SET_META_CLASS pFN);
-	~CSetMetaClassFNRegister()
-	{
+	~CSetMetaClassFNRegister();
 
+	static FN_SET_META_CLASS * FindSetMetaClassFN(UINT ClassID)
+	{
+		if (m_pSetMetaClassFNMap)
+			return m_pSetMetaClassFNMap->Find(ClassID);
+		return NULL;
 	}
 };
 
@@ -28,9 +35,6 @@ class CLuaBaseStaticMetaClass
 protected:
 	int				m_ClassID;
 	const char *	m_ClassName;
-
-	static CEasyMap<UINT, FN_SET_META_CLASS>	m_SetMetaClassFNMap;
-	friend class CSetMetaClassFNRegister;
 
 	DECLARE_STATIC_META_CLASS(CLuaBaseStaticMetaClass)
 public:

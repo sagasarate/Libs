@@ -53,6 +53,6 @@ public:
 		return true;
 	}
 protected:
-	bool ResetLog();
+	virtual bool ResetLog();
 	bool PushLog(LPCTSTR LogData);
 };

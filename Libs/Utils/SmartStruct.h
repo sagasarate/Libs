@@ -686,6 +686,7 @@ public:
 	}
 	static LENGTH_TYPE GetStringMemberSize(LPCTSTR szStr)
 	{
+		return GetStringMemberSize((LENGTH_TYPE)_tcslen(szStr));
 	}
 	LENGTH_TYPE GetFreeLen()
 	{

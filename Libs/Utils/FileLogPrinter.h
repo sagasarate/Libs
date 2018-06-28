@@ -16,7 +16,8 @@ enum FILE_LOG_MODE
 {
 	FILE_LOG_APPEND=1,
 	FILE_LOG_SAFE_WRITE=(1<<1),
-	FILE_LOG_SPLIT_BY_DAY=(1<<2)
+	FILE_LOG_SPLIT_BY_DAY=(1<<2),
+	FILE_LOG_SHARE_WRITE = (1 << 3),
 };
 
 class IFileAccessor;
@@ -43,6 +44,10 @@ public:
 	IFileAccessor * GetFile()
 	{
 		return m_pFileAccessor;
+	}
+	LPCTSTR GetLogFileName()
+	{
+		return m_LogFileName;
 	}
 
 	virtual void PrintLogDirect(int Level, LPCTSTR Tag, LPCTSTR Msg);

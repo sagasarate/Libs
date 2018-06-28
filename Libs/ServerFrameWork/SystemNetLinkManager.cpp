@@ -36,23 +36,19 @@ void CSystemNetLinkManager::SendLogMsg(LPCTSTR LogMsg)
 {
 	FUNCTION_BEGIN;
 
-	static char s_SendBuffer[65536];
+	static BYTE s_SendBuffer[65536];
 
 	if(m_LinkMap.GetObjectCount())
 	{
-		CSmartStruct LogStr(5000);
-
-		LogStr.AddMember(SC_SST_SL_LOG_STR,LogMsg);
-
-
 		CEasyBuffer	SendBuffer(s_SendBuffer,65536);
-		SMSG_HEADER MsgHeader;
+		SMSG_HEADER * pMsgHeader = (SMSG_HEADER *)s_SendBuffer;
+		UINT StrLne = _tcslen(LogMsg);
 
-		MsgHeader.MsgID=SC_MSG_SERVER_LOG;
-		MsgHeader.Size=(WORD)(sizeof(SMSG_HEADER)+LogStr.GetDataLen());
-		SendBuffer.PushBack(&MsgHeader,sizeof(SMSG_HEADER));
+		pMsgHeader->MsgID = SC_MSG_SERVER_LOG;
+		pMsgHeader->Size = (WORD)(sizeof(SMSG_HEADER) + StrLne*sizeof(TCHAR));
+		memcpy(s_SendBuffer + sizeof(SMSG_HEADER), LogMsg, StrLne*sizeof(TCHAR));
 
-		SendBuffer.PushBack(LogStr.GetData(),LogStr.GetDataLen());
+		SendBuffer.SetUsedSize(pMsgHeader->Size);
 
 		void * Pos = m_LinkMap.GetFirstObjectPos();
 		while(Pos)

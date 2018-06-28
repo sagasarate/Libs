@@ -230,7 +230,7 @@ bool CAsyncFileLogPrinter::PushLog(LPCTSTR LogData)
 	}
 	else
 	{
-		PrintImportantLog(_T("将日志压入缓冲失败%u/%u"), m_LogDataBuffer.GetUsedSize(), m_LogDataBuffer.GetBufferSize());
+		PrintImportantLog(_T("将日志压入缓冲失败%u/%u[%s]"), m_LogDataBuffer.GetUsedSize(), m_LogDataBuffer.GetBufferSize(), (LPCTSTR)m_LogName);
 		return false;
 	}
 }

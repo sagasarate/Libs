@@ -71,7 +71,7 @@ bool CD3DDevice::Create(D3DDEVICE_PARAMS& Params)
 
 	if(m_D3DCaps.NumSimultaneousRTs==0)
 	{
-		PrintD3DLog(0,_T("异常，RenderTarget数量为0"));
+		PrintD3DLog(_T("异常，RenderTarget数量为0"));
 		return false;
 	}
 

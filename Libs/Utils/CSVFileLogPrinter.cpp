@@ -6,7 +6,7 @@ CCSVFileLogPrinter::CCSVFileLogPrinter(void)
 {
 }
 CCSVFileLogPrinter::CCSVFileLogPrinter(int Level, LPCTSTR LogName, LPCTSTR HeaderStr, int FileLogBufferLen)
-	:CAsyncFileLogPrinter(Level, LogName, FileLogBufferLen, _T("csv"), DEFULT_HEADER_STRING + HeaderStr)
+	:CAsyncFileLogPrinter(Level, LogName, FileLogBufferLen, _T("csv"), HeaderStr ? DEFULT_HEADER_STRING + HeaderStr : _T(""))
 {
 	
 }

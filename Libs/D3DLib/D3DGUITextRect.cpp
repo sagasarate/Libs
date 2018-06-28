@@ -78,7 +78,7 @@ void CD3DGUITextRect::SetRender(CD3DBaseRender * pRender)
 		m_pTexture=new CD3DTextTexture(GetDevice()->GetTextureManager());//->CreateTextTexture("[TextTexture]",NULL,(int)m_Rect.Width(),(int)m_Rect.Height(),1,0xffffffff);
 		if(!m_pTexture->Create(NULL,(int)m_Rect.Width(),(int)m_Rect.Height(),1,0xffffffff))
 		{
-			PrintD3DLog(0,_T("CD3DGUITextRect::SetRender:创建文字纹理失败"));
+			PrintD3DLog(_T("CD3DGUITextRect::SetRender:创建文字纹理失败"));
 		}
 		if(!m_SubMesh.GetMaterial().SetTexture(0,m_pTexture))
 			m_SubMesh.GetMaterial().AddTexture(m_pTexture,0,"","");

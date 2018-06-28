@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+ï»¿#include "StdAfx.h"
 
 
 
@@ -81,7 +81,7 @@ CLuaScript * CLuaScriptPool::GetScript(LPCTSTR szLuaFileName)
 		}
 		else
 		{
-			LogLua(_T("CLuaScriptPool::InitLuaScript:´ò¿ªlua½Å±¾Ê§°Ü%s"), (LPCTSTR)FileName);
+			LogLua(_T("CLuaScriptPool::InitLuaScript:æ‰“å¼€luaè„šæœ¬å¤±è´¥%s"), (LPCTSTR)FileName);
 		}
 	}
 	return pScript;
@@ -93,25 +93,27 @@ CLuaScript * CLuaScriptPool::GetScript(UINT ScriptID)
 CLuaScript * CLuaScriptPool::LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent)
 {
 	CLuaScript * pScript = NULL;
-	UINT ScriptID = m_LuaScriptPool.New(ScriptName, &pScript);
+	CEasyString Key(ScriptName);
+	Key.MakeUpper();
+	UINT ScriptID = m_LuaScriptPool.New(Key, &pScript);
 	if (ScriptID)
 	{
 		pScript->SetID(ScriptID);
 
 		if (pScript->Init(ScriptName, ScriptContent, &m_LuaCFunList, m_LuaStackSize, m_ThreadStartSize, m_ThreadGrowSize, m_ThreadGrowLimit))
 		{
-			LogLuaDebug(_T("CLuaScriptPool::InitLuaScript:¼ÓÔØlua½Å±¾Íê±Ï%s"), (LPCTSTR)ScriptName);
+			LogLuaDebug(_T("CLuaScriptPool::InitLuaScript:åŠ è½½luaè„šæœ¬å®Œæ¯•%s"), (LPCTSTR)ScriptName);
 		}
 		else
 		{
-			LogLua(_T("CLuaScriptPool::InitLuaScript:¼ÓÔØlua½Å±¾Ê§°Ü%s"), (LPCTSTR)ScriptName);
+			LogLua(_T("CLuaScriptPool::InitLuaScript:åŠ è½½luaè„šæœ¬å¤±è´¥%s"), (LPCTSTR)ScriptName);
 			m_LuaScriptPool.DeleteByID(ScriptID);
 			pScript = NULL;
 		}
 	}
 	else
 	{
-		LogLua(_T("CLuaScriptPool::InitLuaScript:(%s)½Å±¾»º³å³ØÒÑÂú"), (LPCTSTR)ScriptName);
+		LogLua(_T("CLuaScriptPool::InitLuaScript:(%s)è„šæœ¬ç¼“å†²æ± å·²æ»¡"), (LPCTSTR)ScriptName);
 	}
 	return pScript;
 }
@@ -155,7 +157,7 @@ void CLuaScriptPool::ReloadAllScript()
 			}
 			else
 			{
-				LogLua(_T("CLuaScriptPool::ReloadAllScript:´ò¿ªlua½Å±¾Ê§°Ü%s"), (LPCTSTR)pScript->GetScriptName());
+				LogLua(_T("CLuaScriptPool::ReloadAllScript:æ‰“å¼€luaè„šæœ¬å¤±è´¥%s"), (LPCTSTR)pScript->GetScriptName());
 			}
 		}
 	}

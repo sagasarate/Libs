@@ -691,7 +691,7 @@ bool CD3DSimpleList::LoadFromXml(xml_node * pXMLNode)
 		SetName(pXMLNode->attribute(_T("Name")).getvalue());
 
 	if(pXMLNode->has_attribute(_T("ID")))
-		SetID((long)pXMLNode->attribute(_T("ID")));
+		SetID((UINT)pXMLNode->attribute(_T("ID")));
 
 	if(pXMLNode->has_attribute(_T("IsInternal")))
 		SetInternal((bool)pXMLNode->attribute(_T("IsInternal")));
@@ -703,11 +703,11 @@ bool CD3DSimpleList::LoadFromXml(xml_node * pXMLNode)
 		{
 			LoadBehaviorFromXML(pXMLNode->child(i));
 			if(pXMLNode->child(i).has_attribute(_T("LineSpace")))
-				SetLineSpace((long)pXMLNode->child(i).attribute(_T("LineSpace")));
+				SetLineSpace((int)pXMLNode->child(i).attribute(_T("LineSpace")));
 			if(pXMLNode->child(i).has_attribute(_T("IsMultiSelect")))
 				SetAllowMutliSelect((bool)pXMLNode->child(i).attribute(_T("IsMultiSelect")));
 			if(pXMLNode->child(i).has_attribute(_T("ScrollBarWidth")))
-				SetScrollBarWidth((long)pXMLNode->child(i).attribute(_T("ScrollBarWidth")));	
+				SetScrollBarWidth((int)pXMLNode->child(i).attribute(_T("ScrollBarWidth")));	
 			if(pXMLNode->child(i).has_attribute(_T("IsLoopScroll")))
 				EnableLoopScroll(pXMLNode->child(i).attribute(_T("IsLoopScroll")));
 		}

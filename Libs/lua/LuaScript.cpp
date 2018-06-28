@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 UINT CLuaScript::m_LogChannel = 0;
 CLuaScript::CLuaScript()
@@ -46,7 +46,7 @@ CLuaThread * CLuaScript::AllocScriptThread(CBaseScriptHost * pObject, LPCTSTR sz
 
 	if (m_LuaThreadPool.GetObjectCount() == m_LuaThreadPool.GetBufferSize())
 	{
-		//Ïß³Ì³ØÒÑÂú£¬³¢ÊÔ»ØÊÕÎÞÓÃÏß³Ì
+		//çº¿ç¨‹æ± å·²æ»¡ï¼Œå°è¯•å›žæ”¶æ— ç”¨çº¿ç¨‹
 		RecycleThread();
 	}	
 	CLuaThread * pLuaThread = m_LuaThreadPool.NewObject();
@@ -169,12 +169,12 @@ void CLuaScript::Update()
 			{
 				if (LoadScript(m_ScriptName, m_ReloadScriptContent, m_pFunctionList))
 				{
-					LogLuaDebug(_T("CLuaScript::Update:ÒÑÖØÐÂ¼ÓÔØ½Å±¾[%s]"), (LPCTSTR)m_ScriptName);
+					LogLuaDebug(_T("CLuaScript::Update:å·²é‡æ–°åŠ è½½è„šæœ¬[%s]"), (LPCTSTR)m_ScriptName);
 				}
 				else
 				{
 					LoadScript(m_ScriptName, m_ScriptContent, m_pFunctionList);
-					LogLua(_T("CLuaScript::Update:ÖØÐÂ¼ÓÔØ½Å±¾[%s]Ê§°Ü£¬·µ»Ø¼ÓÔØÔ´½Å±¾"), (LPCTSTR)m_ScriptName);
+					LogLua(_T("CLuaScript::Update:é‡æ–°åŠ è½½è„šæœ¬[%s]å¤±è´¥ï¼Œè¿”å›žåŠ è½½æºè„šæœ¬"), (LPCTSTR)m_ScriptName);
 				}
 			}
 		}
@@ -195,7 +195,7 @@ void CLuaScript::Update()
 //			}
 //		}
 //	}
-//	LogLua(_T("CLuaScript::Update:ÎÞ·¨µ¯³öÏß³Ì"));
+//	LogLua(_T("CLuaScript::Update:æ— æ³•å¼¹å‡ºçº¿ç¨‹"));
 //	return false;
 //}
 void CLuaScript::CloseLuaState()
@@ -255,7 +255,7 @@ bool CLuaScript::LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent, CEasyArra
 					pLuaThread->Init(this, m_ScriptID, m_LuaStackSize);
 				}
 			}
-			LogLuaDebug(_T("CLuaScript::LoadScript:[%s]´´½¨ÁË%u¸öluaÏß³Ì"), 
+			LogLuaDebug(_T("CLuaScript::LoadScript:[%s]åˆ›å»ºäº†%uä¸ªluaçº¿ç¨‹"), 
 				(LPCTSTR)m_ScriptName,
 				m_LuaThreadPool.GetBufferSize());
 
@@ -271,7 +271,7 @@ bool CLuaScript::LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent, CEasyArra
 	}
 	else
 	{
-		LogLua(_T("CLuaScript::LoadScript:³õÊ¼»¯luaÊ§°Ü"));
+		LogLua(_T("CLuaScript::LoadScript:åˆå§‹åŒ–luaå¤±è´¥"));
 	}
 	return false;
 }
@@ -295,7 +295,7 @@ void CLuaScript::RecycleThread()
 		CLuaThread * pLuaThread = m_LuaThreadPool.GetNextObject(Pos);
 		if (pLuaThread->GetLastLuaStatus() != LUA_YIELD)
 		{
-			m_LuaThreadPool.DeleteObject(pLuaThread->GetID());
+			//m_LuaThreadPool.DeleteObject(pLuaThread->GetID());
 			pLuaThread->Release();
 		}
 	}

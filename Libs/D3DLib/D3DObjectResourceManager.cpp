@@ -31,7 +31,7 @@ CD3DObjectResourceManager::~CD3DObjectResourceManager(void)
 	{
 		CEasyString Key;
 		CD3DObjectResource * pResource=*(m_ObjectStorage.GetNextObject(Pos,Key));
-		PrintSystemLog(0,_T("对象资源<%s>未释放！"),(LPCTSTR)pResource->GetName());
+		PrintD3DLog(_T("对象资源<%s>未释放！"), (LPCTSTR)pResource->GetName());
 
 	}
 	m_ObjectStorage.Destory();
@@ -51,7 +51,7 @@ bool CD3DObjectResourceManager::AddResource(CD3DObjectResource * pResource,LPCTS
 	}
 	else
 	{
-		PrintD3DLog(0,_T("将资源添加到对象资源管理器失败(%u,%u)"),
+		PrintD3DLog(_T("将资源添加到对象资源管理器失败(%u,%u)"),
 			m_ObjectStorage.GetObjectCount(),m_ObjectStorage.GetBufferSize());
 		return false;
 	}
@@ -67,7 +67,7 @@ CD3DObjectResource * CD3DObjectResourceManager::DeleteResource(UINT ID)
 	}
 	else
 	{
-		PrintD3DLog(0,_T("CD3DObjectResourceManager::DeleteResource:资源[%u]未找到"),
+		PrintD3DLog(_T("CD3DObjectResourceManager::DeleteResource:资源[%u]未找到"),
 			ID);
 	}
 	return NULL;
@@ -85,7 +85,7 @@ CD3DObjectResource * CD3DObjectResourceManager::DeleteResource(LPCTSTR ResourceN
 	}
 	else
 	{
-		PrintD3DLog(0,_T("CD3DObjectResourceManager::DeleteResource:资源[%s]未找到"),
+		PrintD3DLog(_T("CD3DObjectResourceManager::DeleteResource:资源[%s]未找到"),
 			ResourceName);
 	}
 	return NULL;

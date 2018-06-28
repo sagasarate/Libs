@@ -131,13 +131,13 @@ CD3DBoundingBox * CD3DBoard::GetBoundingBox()
 
 bool CD3DBoard::ToSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pResourceManager,UINT Param)
 {
-	PrintSystemLog(0,_T("CD3DBoard被保存"));
+	PrintD3DLog( _T("CD3DBoard被保存"));
 	return CD3DObject::ToSmartStruct(Packet,pResourceManager,Param);
 }
 
 UINT CD3DBoard::GetSmartStructSize(UINT Param)
 {
-	PrintSystemLog(0,_T("CD3DBoard被保存"));
+	PrintD3DLog( _T("CD3DBoard被保存"));
 	return CD3DObject::GetSmartStructSize(Param);
 }
 

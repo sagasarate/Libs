@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CLuaThread;
 class CLuaScript;
@@ -27,7 +27,7 @@ protected:
 	int					m_LastLuaStatus;
 	CEasyTimer			m_YieldTimer;
 	int					m_YieldType;
-	int					m_YeildReturnCount;
+	int					m_YieldReturnCount;
 	CEasyTimer			m_SleepTimer;
 	ITimeManager *		m_pTimeManager;
 	float				m_SleepTime;
@@ -47,7 +47,7 @@ public:
 		m_IsNeedYield = false;
 		m_LastLuaStatus = LUA_OK;		
 		m_YieldType = LUA_YIELD_TYPE_NONE;
-		m_YeildReturnCount = 0;		
+		m_YieldReturnCount = 0;		
 		m_pTimeManager = NULL;
 		m_SleepTime = 0;
 		m_SleepPastTime = 0;
@@ -87,9 +87,9 @@ public:
 	{
 		return m_YieldType;
 	}
-	int GetYeildReturnCount()
+	int GetYieldReturnCount()
 	{
-		return m_YeildReturnCount;
+		return m_YieldReturnCount;
 	}
 	lua_State * GetLuaState()
 	{
@@ -119,23 +119,27 @@ public:
 	{
 		return m_ThreadType;
 	}
-	void NeedYield(int YeildType,int YeildReturnCount)
+	void NeedYield(int YeildType, int YeildReturnCount, UINT Timeout = LUA_YIELD_TIME_OUT)
 	{
 		m_IsNeedYield = true;
 		m_YieldType = YeildType;
-		m_YeildReturnCount = YeildReturnCount;
-		m_YieldTimer.SaveTime();
+		m_YieldReturnCount = YeildReturnCount;
+		m_YieldTimer.SetTimeOut(Timeout);
 	}	
 	bool IsNeedYield()
 	{
 		return m_IsNeedYield;
 	}
-	void ClearYeild()
+	void ClearYield()
 	{
 		m_IsNeedYield = false;
 		m_LastLuaStatus = LUA_OK;
 		m_YieldType = LUA_YIELD_TYPE_NONE;
-		m_YeildReturnCount = 0;
+		m_YieldReturnCount = 0;
+	}
+	bool IsYieldTimeOut()
+	{
+		return m_YieldTimer.IsTimeOut();
 	}
 	void DoSleep(UINT Time)
 	{

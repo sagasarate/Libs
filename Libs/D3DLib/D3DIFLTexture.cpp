@@ -48,7 +48,7 @@ bool CD3DIFLTexture::LoadTexture(LPCTSTR TextureFileName,UINT MipLevels,bool Use
 		return false;
 	Temp=FindFileOne(TextureFileName);
 #ifdef _DEBUG
-	PrintSystemLog(0,_T("装载IFL纹理<%s>..."),Temp);
+	PrintD3DLog(_T("装载IFL纹理<%s>..."), Temp);
 #endif
 
 	CStringFile	Lines(Temp,m_FileChannel);
@@ -236,9 +236,9 @@ UINT CD3DIFLTexture::GetSmartStructSize(UINT Param)
 
 	for(UINT i=0;i<m_TextrueList.GetCount();i++)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_TextrueList[i].FrameTime));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_TextrueList[i].pTexture->GetNameLength());	
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_TextrueList[i].FrameTime));
+		Size += CSmartStruct::GetStringMemberSize(m_TextrueList[i].pTexture->GetNameLength());
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}	
 	return Size;
 }

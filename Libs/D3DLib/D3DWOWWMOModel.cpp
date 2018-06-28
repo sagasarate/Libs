@@ -433,13 +433,13 @@ UINT CD3DWOWWMOModel::GetSmartStructSize(UINT Param)
 			if((!m_ChildList[i]->IsKindOf(GET_CLASS_INFO(CD3DWOWWMOGroupModel)))&&
 				(!m_ChildList[i]->IsKindOf(GET_CLASS_INFO(CD3DWOWDoodadModel))))
 			{
-				Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(m_ChildList[i]->GetSmartStructSize(Param));
+				Size+=CSmartStruct::GetStructMemberSize(m_ChildList[i]->GetSmartStructSize(Param));
 			}
 		}
 	}
 
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_pModelResource->GetNameLength());
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_CurDoodadSet));	
+	Size+=CSmartStruct::GetStringMemberSize(m_pModelResource->GetNameLength());
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_CurDoodadSet));	
 
 	return Size;
 }

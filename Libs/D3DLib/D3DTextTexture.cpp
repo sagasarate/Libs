@@ -312,12 +312,12 @@ bool CD3DTextTexture::ToSmartStruct(CSmartStruct& Packet,CUSOResourceManager * p
 	
 
 	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_LOG_FONT,(char *)&m_LogFont,sizeof(m_LogFont)));
-	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_COLOR,m_Color));
-	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_BACK_COLOR,m_BKColor));
-	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_SHADOW_MODE,m_ShadowMode));
+	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_COLOR,(UINT)m_Color));
+	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_BACK_COLOR, (UINT)m_BKColor));
+	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_SHADOW_MODE, (UINT)m_ShadowMode));
 	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_SHADOW_WIDTH,m_ShadowWidth));
-	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_SHADOWCOLOR,m_ShadowColor));
-	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_ALIGN,m_Align));
+	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_SHADOWCOLOR, (UINT)m_ShadowColor));
+	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_ALIGN, (UINT)m_Align));
 	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_CHARSPACE,m_CharSpace));
 	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_LINESPACE,m_LineSpace));
 	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DTTEX_TEXT,(LPCWSTR)m_Text));
@@ -345,22 +345,22 @@ bool CD3DTextTexture::FromSmartStruct(CSmartStruct& Packet,CUSOResourceManager *
 			memcpy(&m_LogFont,(LPCSTR)Value,sizeof(m_LogFont));
 			break;
 		case SST_D3DTTEX_COLOR:
-			m_Color=Value;
+			m_Color=(UINT)Value;
 			break;
 		case SST_D3DTTEX_BACK_COLOR:
-			m_BKColor=Value;
+			m_BKColor = (UINT)Value;
 			break;
 		case SST_D3DTTEX_SHADOW_MODE:
-			m_ShadowMode=Value;
+			m_ShadowMode = (UINT)Value;
 			break;
 		case SST_D3DTTEX_SHADOW_WIDTH:
 			m_ShadowWidth=Value;
 			break;
 		case SST_D3DTTEX_SHADOWCOLOR:
-			m_ShadowColor=Value;
+			m_ShadowColor = (UINT)Value;
 			break;
 		case SST_D3DTTEX_ALIGN:
-			m_Align=Value;
+			m_Align = (UINT)Value;
 			break;
 		case SST_D3DTTEX_CHARSPACE:
 			m_CharSpace=Value;
@@ -397,19 +397,19 @@ UINT CD3DTextTexture::GetSmartStructSize(UINT Param)
 {
 	UINT Size=CNameObject::GetSmartStructSize(Param);	
 
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_LogFont));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Color));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_BKColor));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ShadowMode));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ShadowWidth));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_ShadowColor));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Align));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_CharSpace));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_LineSpace));
-	Size+=SMART_STRUCT_WSTRING_MEMBER_SIZE(m_Text.GetLength());
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_MipLevels));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Width));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Height));
+	Size+=CSmartStruct::GetStringMemberSizeA(sizeof(m_LogFont));
+	Size += CSmartStruct::GetFixMemberSize(sizeof(m_Color));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_BKColor));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ShadowMode));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ShadowWidth));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_ShadowColor));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Align));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_CharSpace));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_LineSpace));
+	Size += CSmartStruct::GetStringMemberSizeW(m_Text.GetLength());
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_MipLevels));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Width));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Height));
 
 	return Size;
 }

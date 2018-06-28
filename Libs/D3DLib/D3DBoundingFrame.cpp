@@ -292,13 +292,13 @@ void CD3DBoundingFrame::BuildLine(BF_VERTEX * pBuff,CD3DVector3 p1,CD3DVector3 p
 
 bool CD3DBoundingFrame::ToSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pResourceManager,UINT Param)
 {
-	PrintSystemLog(0,_T("CD3DBoundingFrame被保存"));
+	PrintD3DLog( _T("CD3DBoundingFrame被保存"));
 	return CD3DObject::ToSmartStruct(Packet,pResourceManager,Param);
 }
 
 UINT CD3DBoundingFrame::GetSmartStructSize(UINT Param)
 {
-	PrintSystemLog(0,_T("CD3DBoundingFrame被保存"));
+	PrintD3DLog(_T("CD3DBoundingFrame被保存"));
 	return CD3DObject::GetSmartStructSize(Param);
 }
 

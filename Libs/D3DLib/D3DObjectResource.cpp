@@ -167,12 +167,12 @@ bool CD3DObjectResource::FromSmartStruct(CSmartStruct& Packet,CUSOResourceManage
 UINT CD3DObjectResource::GetSmartStructSize(UINT Param)
 {
 	UINT Size=CNameObject::GetSmartStructSize(Param);
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_BoundingBox));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_BoundingSphere));
+	Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_BoundingBox));
+	Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_BoundingSphere));
 	
 	for(UINT i=0;i<m_SubMeshList.GetCount();i++)
 	{
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(m_SubMeshList[i]->GetSmartStructSize(Param));
+		Size+=CSmartStruct::GetStructMemberSize(m_SubMeshList[i]->GetSmartStructSize(Param));
 	}
 	
 	return Size;

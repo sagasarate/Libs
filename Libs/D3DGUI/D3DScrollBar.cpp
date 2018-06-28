@@ -489,10 +489,10 @@ bool CD3DScrollBar::LoadFromXml(xml_node * pXMLNode)
 		SetName(pXMLNode->attribute(_T("Name")).getvalue());
 
 	if(pXMLNode->has_attribute(_T("ID")))
-		SetID((long)pXMLNode->attribute(_T("ID")));
+		SetID((UINT)pXMLNode->attribute(_T("ID")));
 
 	if(pXMLNode->has_attribute(_T("IsInternal")))
-		SetInternal((bool)pXMLNode->attribute(_T("IsInternal")));
+		SetInternal(pXMLNode->attribute(_T("IsInternal")));
 
 
 	for(int i=0;i<(int)pXMLNode->children();i++)
@@ -501,9 +501,9 @@ bool CD3DScrollBar::LoadFromXml(xml_node * pXMLNode)
 		{
 			LoadBehaviorFromXML(pXMLNode->child(i));
 			if(pXMLNode->child(i).has_attribute(_T("ScrollRange")))
-				SetMaxScrollPos((long)pXMLNode->child(i).attribute(_T("ScrollRange")));
+				SetMaxScrollPos(pXMLNode->child(i).attribute(_T("ScrollRange")));
 			if(pXMLNode->child(i).has_attribute(_T("Style")))
-				SetScrollStyle((long)pXMLNode->child(i).attribute(_T("Style")));
+				SetScrollStyle(pXMLNode->child(i).attribute(_T("Style")));
 		}
 		else if(_tcsnicmp(pXMLNode->child(i).name(),_T("Frame"),6)==0)
 		{

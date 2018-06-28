@@ -38,9 +38,9 @@ BOOL CDOSRouter::Init(CDOSServer * pServer)
 BOOL CDOSRouter::OnStart()
 {
 	FUNCTION_BEGIN;
-	DOS_CONFIG& Config=m_pServer->GetConfig();
+	m_Config = m_pServer->GetConfig();
 
-	m_MsgProcessLimit=Config.RouterMsgProcessLimit;
+	m_MsgProcessLimit = m_Config.RouterMsgProcessLimit;
 
 	if(m_MsgProcessLimit==0)
 	{
@@ -48,10 +48,15 @@ BOOL CDOSRouter::OnStart()
 		return FALSE;
 	}
 
-	if(!m_MsgQueue.Create(Config.MaxRouterSendMsgQueue))
+	if (!m_MsgQueue.Create(m_Config.MaxRouterSendMsgQueue))
 	{
-		PrintDOSLog(_T("创建%d大小的路由消息队列失败！"),Config.MaxRouterSendMsgQueue);
+		PrintDOSLog(_T("创建%d大小的路由消息队列失败！"), m_Config.MaxRouterSendMsgQueue);
 		return FALSE;
+	}
+
+	if (m_Config.StateMsgTransfer)
+	{
+		m_MsgStateInfos.Create(256, 256, 256);
 	}
 
 	ResetStatData();
@@ -150,6 +155,15 @@ BOOL CDOSRouter::RouterMessage(CDOSMessagePacket * pPacket)
 		PrintDOSLog(_T("将消息压入路由发送队列失败！"));
 		return FALSE;
 	}
+	if (m_Config.StateMsgTransfer)
+	{
+		MSG_STATE_INFO * pStateInfo = NULL;
+		m_MsgStateInfos.New(pPacket->GetMessage().GetMsgID(), &pStateInfo);
+		if (pStateInfo)
+		{
+			pStateInfo->CurCount++;
+		}
+	}
 
 	return TRUE;
 	FUNCTION_END;
@@ -159,10 +173,26 @@ BOOL CDOSRouter::RouterMessage(CDOSMessagePacket * pPacket)
 UINT CDOSRouter::GetRouterID()
 {
 	FUNCTION_BEGIN;
-	return ((CDOSServer *)GetServer())->GetConfig().RouterID;
+	return m_Config.RouterID;
 	FUNCTION_END;
 	return 0;
 }
+
+void CDOSRouter::PrintMsgStat(UINT LogChannel)
+{
+	CAutoLock Lock(m_EasyCriticalSection);
+	void * Pos = m_MsgStateInfos.GetFirstObjectPos();
+	while (Pos)
+	{
+		UINT MsgID;
+		MSG_STATE_INFO * pStateInfo = m_MsgStateInfos.GetNextObject(Pos, MsgID);
+		CLogManager::GetInstance()->PrintLog(LogChannel,
+			ILogPrinter::LOG_LEVEL_NORMAL, NULL, "[0x%lX]:%u", MsgID, pStateInfo->CurCount);
+		pStateInfo->CurCount = 0;
+	}
+	m_MsgStateInfos.Clear();
+}
+
 
 int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 {
@@ -306,7 +336,7 @@ BOOL CDOSRouter::DispatchMessage(CDOSMessagePacket * pPacket,OBJECT_ID * pReceiv
 	{
 		pReceiverIDs[i].RouterID = RouterID;
 
-		if(pReceiverIDs[i].ObjectTypeID==DOT_PROXY_OBJECT)
+		if (pReceiverIDs[i].ObjectTypeID == DOT_PROXY_OBJECT || pReceiverIDs[i].ObjectTypeID == BROAD_CAST_OBJECT_TYPE_ID)
 		{
 			if (((CDOSServer *)GetServer())->GetProxyManager()->PushMessage(pReceiverIDs[i], pPacket))
 			{
@@ -321,7 +351,7 @@ BOOL CDOSRouter::DispatchMessage(CDOSMessagePacket * pPacket,OBJECT_ID * pReceiv
 			//		pReceiverIDs[i]);
 			//}
 		}
-		else
+		if (pReceiverIDs[i].ObjectTypeID != DOT_PROXY_OBJECT)
 		{
 			
 			if(((CDOSServer *)GetServer())->GetObjectManager()->PushMessage(pReceiverIDs[i],pPacket))

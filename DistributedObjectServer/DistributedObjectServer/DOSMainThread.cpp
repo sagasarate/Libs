@@ -840,7 +840,7 @@ bool CDOSMainThread::FreePlugin(UINT PluginID)
 	{
 		if (m_PluginList[i].ID == PluginID)
 		{
-			if (FreeNativePlugin(m_PluginList[i]))
+			if (FreePlugin(m_PluginList[i]))
 			{
 				m_PluginList.Delete(i);
 				return true;
@@ -925,7 +925,7 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 
 			LogFileName.Format("%s/Plugin.%s", (LPCTSTR)PluginInfo.LogDir, (LPCTSTR)CFileTools::GetPathFileName(PluginInfo.PluginName));
 			pLog = new CServerLogPrinter(this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
-				CSystemConfig::GetInstance()->GetLogLevel(), LogFileName);
+				CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 			CLogManager::GetInstance()->AddChannel(PluginInfo.LogChannel, pLog);
 			SAFE_RELEASE(pLog);
 
@@ -1074,7 +1074,7 @@ bool CDOSMainThread::LoadCSharpPlugin(PLUGIN_INFO& PluginInfo)
 
 									LogFileName.Format("%s/Plugin.%s", (LPCTSTR)PluginInfo.LogDir, (LPCTSTR)CFileTools::GetPathFileName(PluginInfo.PluginName));
 									pLog = new CServerLogPrinter(this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
-										CSystemConfig::GetInstance()->GetLogLevel(), LogFileName);
+										CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 									CLogManager::GetInstance()->AddChannel(PluginInfo.LogChannel, pLog);
 									SAFE_RELEASE(pLog);
 
@@ -1511,6 +1511,8 @@ void CDOSMainThread::RegisterMonoFunctions()
 		(void *)CDistributedObjectOperator::InternalCallRegisterCommandReceiver);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallUnregisterCommandReceiver(intptr)",
 		(void *)CDistributedObjectOperator::InternalCallUnregisterCommandReceiver);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSetServerWorkStatus(intptr,byte)",
+		(void *)CDistributedObjectOperator::InternalCallSetServerWorkStatus);
 
 	FUNCTION_END;
 }

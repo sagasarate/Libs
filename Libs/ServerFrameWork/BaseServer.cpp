@@ -59,6 +59,8 @@ bool CBaseServer::PushConsoleCmd(LPCTSTR szCommand)
 
 bool CBaseServer::SetServerStatus(WORD StatusID, const CSmartValue& Value)
 {
+	CAutoLock Lock(m_ServerStatusCriticalSection);
+
 	if (m_ServerStatus.IDToIndex(StatusID) == CSmartStruct::INVALID_MEMBER_ID)
 	{
 		return m_ServerStatus.AddMember(StatusID, Value);
@@ -87,6 +89,12 @@ UINT CBaseServer::GetAllServerStatus(BYTE * pBuff, UINT BuffLen)
 		return m_ServerStatus.GetDataLen();
 	}
 	return 0;
+}
+bool CBaseServer::GetAllServerStatus(CSmartStruct& Packet, WORD MemberID)
+{
+	CAutoLock Lock(m_ServerStatusCriticalSection);
+	
+	return Packet.AddMember(MemberID, m_ServerStatus);
 }
 void CBaseServer::SetServerStatusFormat(WORD StatusID, LPCTSTR szStatusName, int FormatType)
 {

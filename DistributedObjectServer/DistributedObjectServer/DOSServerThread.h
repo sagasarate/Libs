@@ -39,6 +39,7 @@ protected:
 
 	CSystemNetLinkManager *						m_pSysNetLinkManager;
 	CSystemControlPort *						m_pUDPSystemControlPort;
+	CSystemControlPipe *						m_pSystemControlPipe;
 
 	
 
@@ -61,7 +62,7 @@ public:
 
 	virtual bool PrintConsoleLog(int Level, LPCTSTR szLogMsg);
 
-	virtual void ExecCommand(LPCTSTR szCommand);
+	virtual bool ExecCommand(LPCTSTR szCommand);
 
 	
 

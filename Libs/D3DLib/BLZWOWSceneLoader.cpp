@@ -143,19 +143,19 @@ BOOL CBLZWOWSceneLoader::OnRun()
 		case TASK_AREA_RELEASE:
 			SAFE_RELEASE(TaskInfo.pMapArea->pModel);
 			TaskInfo.pMapArea->Status=MAS_NOT_LOAD;
-			PrintD3DDebugLog(0,_T("区块[%u,%u]释放完毕"),
+			PrintD3DDebugLog(_T("区块[%u,%u]释放完毕"),
 				TaskInfo.pMapArea->AreaX,
 				TaskInfo.pMapArea->AreaY);
 			if(!m_FinishTaskQueue.PushBack(TaskInfo))
 			{
-				PrintD3DLog(0,_T("任务完成队列溢出"));
+				PrintD3DLog(_T("任务完成队列溢出"));
 			}
 			break;
 		case TASK_PRE_LOAD_FINISH:
 		case TASK_ALL_FINISH:
 			if(!m_FinishTaskQueue.PushBack(TaskInfo))
 			{
-				PrintD3DLog(0,_T("任务完成队列溢出"));
+				PrintD3DLog(_T("任务完成队列溢出"));
 			}
 			break;
 		}
@@ -186,13 +186,13 @@ int CBLZWOWSceneLoader::Update(int ProcessLimit)
 			break;
 		case TASK_AREA_PRE_LOAD:
 			m_pRender->AddSceneObject(TaskInfo.pMapArea->pModel,false);
-			PrintD3DDebugLog(0,_T("区块[%u,%u]预加载完毕"),
+			PrintD3DDebugLog(_T("区块[%u,%u]预加载完毕"),
 				TaskInfo.pMapArea->AreaX,
 				TaskInfo.pMapArea->AreaY);
 			TaskInfo.TaskType=TASK_AREA_LOAD;
 			if(!m_TaskQueue.PushBack(TaskInfo))
 			{
-				PrintD3DLog(0,_T("任务队列溢出"));
+				PrintD3DLog(_T("任务队列溢出"));
 			}
 			//m_pLowSceneModel->SetAreaVisible(
 			//	TaskInfo.pMapArea->AreaX,
@@ -200,13 +200,13 @@ int CBLZWOWSceneLoader::Update(int ProcessLimit)
 			break;
 		case TASK_CRUCIAL_AREA_LOAD:
 			m_pRender->AddSceneObject(TaskInfo.pMapArea->pModel,false);
-			PrintD3DDebugLog(0,_T("区块[%u,%u]预加载完毕"),
+			PrintD3DDebugLog(_T("区块[%u,%u]预加载完毕"),
 				TaskInfo.pMapArea->AreaX,
 				TaskInfo.pMapArea->AreaY);
 			TaskInfo.TaskType=TASK_AREA_LOAD;
 			if(!m_TaskQueue.PushBack(TaskInfo))
 			{
-				PrintD3DLog(0,_T("任务队列溢出"));
+				PrintD3DLog(_T("任务队列溢出"));
 			}
 			//m_pLowSceneModel->SetAreaVisible(
 			//	TaskInfo.pMapArea->AreaX,
@@ -214,20 +214,20 @@ int CBLZWOWSceneLoader::Update(int ProcessLimit)
 			m_Status=SLS_WORING;		
 			break;
 		case TASK_AREA_LOAD:
-			PrintD3DDebugLog(0,_T("区块[%u,%u]加载完毕"),
+			PrintD3DDebugLog(_T("区块[%u,%u]加载完毕"),
 				TaskInfo.pMapArea->AreaX,
 				TaskInfo.pMapArea->AreaY);
 			TaskInfo.pMapArea->pModel->CheckNeedUpdateObjects();
 			break;
 		case TASK_AREA_PRE_RELEASE:
 			m_pRender->DelObject(TaskInfo.pMapArea->pModel,false);
-			PrintD3DDebugLog(0,_T("区块[%u,%u]预释放完毕"),
+			PrintD3DDebugLog(_T("区块[%u,%u]预释放完毕"),
 				TaskInfo.pMapArea->AreaX,
 				TaskInfo.pMapArea->AreaY);
 			TaskInfo.TaskType=TASK_AREA_RELEASE;
 			if(!m_TaskQueue.PushBack(TaskInfo))
 			{
-				PrintD3DLog(0,_T("任务队列溢出"));
+				PrintD3DLog(_T("任务队列溢出"));
 			}
 			//m_pLowSceneModel->SetAreaVisible(
 			//	TaskInfo.pMapArea->AreaX,
@@ -236,15 +236,15 @@ int CBLZWOWSceneLoader::Update(int ProcessLimit)
 		case TASK_AREA_RELEASE:			
 			break;
 		case TASK_PRE_LOAD_FINISH:
-			PrintD3DDebugLog(0,_T("全部预加载完毕"));
+			PrintD3DDebugLog(_T("全部预加载完毕"));
 			TaskInfo.TaskType=TASK_ALL_FINISH;
 			if(!m_TaskQueue.PushBack(TaskInfo))
 			{
-				PrintD3DLog(0,_T("任务队列溢出"));
+				PrintD3DLog(_T("任务队列溢出"));
 			}
 			break;
 		case TASK_ALL_FINISH:
-			PrintD3DDebugLog(0,_T("全部加载完毕"));
+			PrintD3DDebugLog(_T("全部加载完毕"));
 			m_Status=SLS_IDLE;
 			break;
 		}
@@ -299,7 +299,7 @@ bool CBLZWOWSceneLoader::FirstLoad(UINT MapID,FLOAT PosX,FLOAT PosY)
 			}
 			else
 			{
-				PrintD3DLog(0,_T("加载%s失败"),(LPCTSTR)WDLFileName);
+				PrintD3DLog(_T("加载%s失败"),(LPCTSTR)WDLFileName);
 				SAFE_RELEASE(m_pLowSceneModel);
 			}
 			
@@ -339,17 +339,17 @@ bool CBLZWOWSceneLoader::FirstLoad(UINT MapID,FLOAT PosX,FLOAT PosY)
 			}
 			else
 			{
-				PrintD3DLog(0,_T("所要到达的区域[%u,%u,%u]不存在"),MapID,CenterAreaX,CenterAreaY);
+				PrintD3DLog(_T("所要到达的区域[%u,%u,%u]不存在"),MapID,CenterAreaX,CenterAreaY);
 			}
 		}
 		else
 		{
-			PrintD3DLog(0,_T("无法打开文件%s"),(LPCTSTR)WDTFileName);
+			PrintD3DLog(_T("无法打开文件%s"),(LPCTSTR)WDTFileName);
 		}
 	}
 	else
 	{
-		PrintD3DLog(0,_T("地图%u不存在"),MapID);
+		PrintD3DLog(_T("地图%u不存在"),MapID);
 	}
 	return false;
 }
@@ -383,7 +383,7 @@ void CBLZWOWSceneLoader::CheckTasks()
 					m_SceneAreas[i].Status=MAS_LOADING;
 					if(m_SceneAreas[i].pModel)
 					{
-						PrintD3DLog(0,_T("加载区块时发现区块[%u,%u]已有内容"),
+						PrintD3DLog(_T("加载区块时发现区块[%u,%u]已有内容"),
 							m_SceneAreas[i].AreaX,
 							m_SceneAreas[i].AreaY);
 					}
@@ -417,7 +417,7 @@ void CBLZWOWSceneLoader::CheckTasks()
 		TaskInfo.pModel=NULL;
 		TaskInfo.pMapArea=pCrucialLoadArea;
 		m_TaskQueue.PushBack(TaskInfo);
-		PrintD3DDebugLog(0,_T("开始加载关键区块[%u,%u]"),
+		PrintD3DDebugLog(_T("开始加载关键区块[%u,%u]"),
 			pCrucialLoadArea->AreaX,
 			pCrucialLoadArea->AreaY);
 	}
@@ -432,7 +432,7 @@ void CBLZWOWSceneLoader::CheckTasks()
 			TaskInfo.pModel=NULL;
 			TaskInfo.pMapArea=LoadAreas[i];
 			m_TaskQueue.PushBack(TaskInfo);
-			PrintD3DDebugLog(0,_T("开始加载区块[%u,%u]"),
+			PrintD3DDebugLog(_T("开始加载区块[%u,%u]"),
 				LoadAreas[i]->AreaX,
 				LoadAreas[i]->AreaY);
 		}
@@ -444,7 +444,7 @@ void CBLZWOWSceneLoader::CheckTasks()
 			TaskInfo.pModel=NULL;
 			TaskInfo.pMapArea=ReleaseAreas[i];
 			m_TaskQueue.PushBack(TaskInfo);
-			PrintD3DDebugLog(0,_T("开始卸载区块[%u,%u]"),
+			PrintD3DDebugLog(_T("开始卸载区块[%u,%u]"),
 				ReleaseAreas[i]->AreaX,
 				ReleaseAreas[i]->AreaY);
 		}
@@ -459,7 +459,7 @@ void CBLZWOWSceneLoader::CheckTasks()
 
 void CBLZWOWSceneLoader::LoadArea(TASK_INFO& TaskInfo)
 {
-	PrintD3DDebugLog(0,_T("区块[%u,%u]加载中..."),
+	PrintD3DDebugLog(_T("区块[%u,%u]加载中..."),
 		TaskInfo.pMapArea->AreaX,
 		TaskInfo.pMapArea->AreaY);	
 
@@ -480,12 +480,12 @@ void CBLZWOWSceneLoader::LoadArea(TASK_INFO& TaskInfo)
 	{
 		if(!m_FinishTaskQueue.PushBack(TaskInfo))
 		{
-			PrintD3DLog(0,_T("任务完成队列溢出"));
+			PrintD3DLog(_T("任务完成队列溢出"));
 		}
 	}
 	else
 	{
-		PrintD3DLog(0,_T("CBLZWOWSceneLoader::LoadArea:加载失败%s"),(LPCTSTR)AreaFile);
+		PrintD3DLog(_T("CBLZWOWSceneLoader::LoadArea:加载失败%s"),(LPCTSTR)AreaFile);
 		SAFE_RELEASE(TaskInfo.pMapArea->pModel);
 		TaskInfo.pMapArea->Status=MAS_NOT_EXIST;	
 	}
@@ -506,7 +506,7 @@ void CBLZWOWSceneLoader::LoadAreaObjects(TASK_INFO& TaskInfo)
 
 	if(!m_FinishTaskQueue.PushBack(TaskInfo))
 	{
-		PrintD3DLog(0,_T("任务完成队列溢出"));
+		PrintD3DLog(_T("任务完成队列溢出"));
 	}
 }
 
@@ -524,7 +524,7 @@ void CBLZWOWSceneLoader::PreReleaseArea(MAP_AREA_INFO * pMapArea)
 	Info.pModel=NULL;
 	if(!m_FinishTaskQueue.PushBack(Info))
 	{
-		PrintD3DLog(0,_T("任务完成队列溢出"));
+		PrintD3DLog(_T("任务完成队列溢出"));
 	}
 }
 
@@ -536,7 +536,7 @@ void CBLZWOWSceneLoader::PushObjectFinishEvent(CD3DObject * pObject)
 	Info.pModel=pObject;
 	if(!m_FinishTaskQueue.PushBack(Info))
 	{
-		PrintD3DLog(0,_T("任务完成队列溢出"));
+		PrintD3DLog(_T("任务完成队列溢出"));
 	}
 
 	for(UINT i=0;i<pObject->GetChildCount();i++)
@@ -560,7 +560,7 @@ void CBLZWOWSceneLoader::PushObjectPreReleaseEvent(CD3DObject * pObject)
 	Info.pModel=pObject;
 	if(!m_FinishTaskQueue.PushBack(Info))
 	{
-		PrintD3DLog(0,_T("任务完成队列溢出"));
+		PrintD3DLog(_T("任务完成队列溢出"));
 	}
 }
 

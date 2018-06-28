@@ -17,7 +17,7 @@ CBLZWDTFile::~CBLZWDTFile(void)
 
 bool CBLZWDTFile::Load(LPCTSTR FileName)
 {
-	PrintD3DDebugLog(0,_T("Load %s"),FileName);
+	PrintD3DDebugLog(_T("Load %s"),FileName);
 	IFileAccessor * pFile;
 
 	pFile=CreateFileAccessor();

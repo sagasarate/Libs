@@ -381,7 +381,7 @@ bool CD3DWOWM2CharacterModel::BuildModel()
 				}
 				break;
 			default:
-				PrintSystemLog(0,_T("SubMesh[%s] has no Texture"),m_SubMeshList[i]->GetName());
+				PrintD3DLog(_T("SubMesh[%s] has no Texture"),m_SubMeshList[i]->GetName());
 				break;
 			}
 		}
@@ -744,7 +744,7 @@ bool CD3DWOWM2CharacterModel::FromSmartStruct(CSmartStruct& Packet,CUSOResourceM
 			m_CreatureDisplayID=Value;
 			break;
 		case SST_D3DWMCM_NEED_REBUILD_SUBMESH:
-			m_NeedRebuildSubMesh=(BYTE)Value;
+			m_NeedRebuildSubMesh=Value;
 			break;
 		}
 	}
@@ -760,50 +760,50 @@ UINT CD3DWOWM2CharacterModel::GetSmartStructSize(UINT Param)
 
 	for(UINT i=0;i<m_SubMeshList.GetCount();i++)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_SubMeshList[i]->GetStorageID()));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_SubMeshList[i]->GetStorageID()));
 	}
 	for(UINT i=0;i<m_SubMeshMaterialList.GetCount();i++)
 	{
 		Size+=m_SubMeshMaterialList[i].GetSmartStructSize(Param);
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_CharRace));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_CharSex));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_CharSkinColor));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_CharHairColor));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_CharFaceType));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_CharHairType));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_CharBeardType));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_IsCharBald));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_Equipments));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_CharRace));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_CharSex));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_CharSkinColor));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_CharHairColor));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_CharFaceType));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_CharHairType));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_CharBeardType));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_IsCharBald));
+	Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_Equipments));
 
 	if(m_pHelmetModel)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_pHelmetModel->GetStorageID()));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_pHelmetModel->GetStorageID()));
 	}
 	if(m_pLeftShoulderModel)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_pLeftShoulderModel->GetStorageID()));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_pLeftShoulderModel->GetStorageID()));
 	}
 	if(m_pRightShoulderModel)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_pRightShoulderModel->GetStorageID()));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_pRightShoulderModel->GetStorageID()));
 	}
 	if(m_pLeftWeaponModel)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_pLeftWeaponModel->GetStorageID()));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_pLeftWeaponModel->GetStorageID()));
 	}
 	if(m_pRightWeaponModel)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_pRightWeaponModel->GetStorageID()));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_pRightWeaponModel->GetStorageID()));
 	}
 	if(m_pRightShieldModel)
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_pRightShieldModel->GetStorageID()));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_pRightShieldModel->GetStorageID()));
 	}
 
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_CreatureDisplayID));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_NeedRebuildSubMesh));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_CreatureDisplayID));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_NeedRebuildSubMesh));
 
 	return Size;
 }
@@ -1366,21 +1366,21 @@ bool CD3DWOWM2CharacterModel::MakeCharSkinTexture(CD3DDevice * pD3DDevice,CD3DTe
 		{
 			if(!pDisplayInfo->Skin1.IsEmpty())
 			{
-				CEasyString SkinTextureFileName=GetPathDirectory(pModelInfo->ModelPath);
+				CEasyString SkinTextureFileName = CFileTools::GetPathDirectory(pModelInfo->ModelPath);
 				SkinTextureFileName+=pDisplayInfo->Skin1;
 				SkinTextureFileName+=".blp";
 				pSkinTexture1=GetDevice()->GetTextureManager()->LoadTexture(SkinTextureFileName);
 			}
 			if(!pDisplayInfo->Skin2.IsEmpty())
 			{
-				CEasyString SkinTextureFileName=GetPathDirectory(pModelInfo->ModelPath);
+				CEasyString SkinTextureFileName = CFileTools::GetPathDirectory(pModelInfo->ModelPath);
 				SkinTextureFileName+=pDisplayInfo->Skin2;
 				SkinTextureFileName+=".blp";
 				pSkinTexture2=GetDevice()->GetTextureManager()->LoadTexture(SkinTextureFileName);
 			}
 			if(!pDisplayInfo->Skin3.IsEmpty())
 			{
-				CEasyString SkinTextureFileName=GetPathDirectory(pModelInfo->ModelPath);
+				CEasyString SkinTextureFileName = CFileTools::GetPathDirectory(pModelInfo->ModelPath);
 				SkinTextureFileName+=pDisplayInfo->Skin3;
 				SkinTextureFileName+=".blp";
 				pSkinTexture3=GetDevice()->GetTextureManager()->LoadTexture(SkinTextureFileName);

@@ -196,7 +196,7 @@ bool CD3DSceneRender::DelObject(CD3DObject * pObj,bool IsRecursive)
 			{
 				if(!DeleteSceneObject(pObj))				
 				{
-					PrintD3DLog(0,_T("从场景树中删除对象[%s,%s]失败"),
+					PrintD3DLog(_T("从场景树中删除对象[%s,%s]失败"),
 						pObj->GetName(),pObj->GetClassInfo().ClassName);
 				}
 			}
@@ -234,7 +234,7 @@ bool CD3DSceneRender::AddSceneObject(CD3DObject * pObject,bool IsRecursive)
 	//CD3DVector3 BoxSize=BBox.GetSize();
 	//if(BoxSize.x<=0||BoxSize.y<=0||BoxSize.z<=0)
 	//{
-	//	PrintD3DDebugLog(0,"对象[%s]包围和大小异常，无法加入场景树，当作非场景对象处理",pObject->GetName());
+	//	PrintD3DDebugLog("对象[%s]包围和大小异常，无法加入场景树，当作非场景对象处理",pObject->GetName());
 	//	if(!AddObject(pObject,false))
 	//		return false;
 	//}
@@ -243,7 +243,7 @@ bool CD3DSceneRender::AddSceneObject(CD3DObject * pObject,bool IsRecursive)
 		int Relation=m_pSceneRoot->NodeBox.CheckRelation(BBox);
 		if((!BBox.IsValid())||Relation==CD3DBoundingBox::RELATION_TYPE_OUT||Relation==CD3DBoundingBox::RELATION_TYPE_BE_INCLUDE)
 		{
-			PrintD3DLog(0,_T("对象[%s]因为超出场景范围，无法加入场景树"),pObject->GetName());
+			PrintD3DLog(_T("对象[%s]因为超出场景范围，无法加入场景树"),pObject->GetName());
 			if(!AddObject(pObject,false))
 				return false;
 		}
@@ -276,7 +276,7 @@ bool CD3DSceneRender::AddSceneObject(CD3DObject * pObject,bool IsRecursive)
 		}
 		else
 		{
-			PrintD3DLog(0,_T("对象[%s]不是可渲染对象，不加入场景树"));
+			PrintD3DLog(_T("对象[%s]不是可渲染对象，不加入场景树"));
 			return AddObject(pObject,IsRecursive);
 		}
 	}
@@ -471,7 +471,7 @@ bool CD3DSceneRender::GetHeightByXZ(const CD3DVector3 Pos,FLOAT MinHeight,FLOAT 
 		Height=FinalHeight;
 		WaterHeight=FinalWaterHeight;
 	}
-	//PrintD3DDebugLog(0,"HeightTest(%u)",m_HeightTestCount);
+	//PrintD3DDebugLog("HeightTest(%u)",m_HeightTestCount);
 	return HaveHeight;
 }
 
@@ -484,7 +484,7 @@ bool CD3DSceneRender::RayIntersect(const CD3DVector3& Point,const CD3DVector3& D
 	m_RayIntersectCount=0;
 	if(RayIntersect(m_pSceneRoot,Point,Dir,IntersectPoint,Distance,DotValue,ppIntersectObject,TestMode))
 	{
-		//PrintD3DDebugLog(0,"RayIntersect(%u)",m_RayIntersectCount);
+		//PrintD3DDebugLog("RayIntersect(%u)",m_RayIntersectCount);
 		return true;
 	}
 	return false;
@@ -499,7 +499,7 @@ bool CD3DSceneRender::LineIntersect(const CD3DVector3& StartPoint,const CD3DVect
 	m_LineIntersectCount=0;
 	if(LineIntersect(m_pSceneRoot,StartPoint,EndPoint,IntersectPoint,Distance,DotValue,ppIntersectObject,TestMode))
 	{
-		//PrintD3DDebugLog(0,"LineIntersect(%u)",m_LineIntersectCount);
+		//PrintD3DDebugLog("LineIntersect(%u)",m_LineIntersectCount);
 		return true;
 	}
 	return false;
@@ -527,7 +527,7 @@ bool CD3DSceneRender::AddWMOObject(CD3DWOWWMOModel * pWMOObject)
 	{
 		if(m_WMOObjectList[i]==pWMOObject)
 		{
-			PrintD3DLog(0,_T("CD3DSceneRender::AddWMOObject:WMO对象[%s]已经存在了"),
+			PrintD3DLog(_T("CD3DSceneRender::AddWMOObject:WMO对象[%s]已经存在了"),
 				pWMOObject->GetName());
 			return false;
 		}
@@ -545,7 +545,7 @@ bool CD3DSceneRender::DelWMOObject(CD3DWOWWMOModel * pWMOObject)
 			return true;
 		}
 	}
-	PrintD3DLog(0,_T("CD3DSceneRender::DelWMOObject:WMO对象[%s]不存在"),
+	PrintD3DLog(_T("CD3DSceneRender::DelWMOObject:WMO对象[%s]不存在"),
 		pWMOObject->GetName());
 	return false;
 }
@@ -1020,7 +1020,7 @@ bool CD3DSceneRender::DeleteSceneObject(CD3DObject * pObject)
 			}
 			if(m_SceneRenderUnitList[i]->TreeNodes.GetCount())
 			{
-				PrintD3DLog(0,_T("未能从所有树节点中清除此对象"));
+				PrintD3DLog(_T("未能从所有树节点中清除此对象"));
 			}
 			//DeleteObjectFromTree(m_pSceneRoot,m_SceneRenderUnitList[i]);
 			SAFE_DELETE(m_SceneRenderUnitList[i]);
@@ -1138,7 +1138,7 @@ bool CD3DSceneRender::AddObjectToTree(TREE_NODE * pTree,CD3DObject * pObject,boo
 	{
 		if(m_SceneObjectList[i]==pObject)
 		{
-			PrintD3DLog(0,_T("对象[%s]已经存在于场景中"),
+			PrintD3DLog(_T("对象[%s]已经存在于场景中"),
 				pObject->GetName());
 			return false;
 		}
@@ -1189,7 +1189,7 @@ bool CD3DSceneRender::AddObjectToTree(TREE_NODE * pTree,CD3DObject * pObject,boo
 			}
 			else
 			{
-				PrintD3DLog(0,_T("对象[%s]的SubMesh[%u]没有FX,无法加入渲染"),
+				PrintD3DLog(_T("对象[%s]的SubMesh[%u]没有FX,无法加入渲染"),
 					pObject->GetName(),i);
 			}
 		}
@@ -1199,7 +1199,7 @@ bool CD3DSceneRender::AddObjectToTree(TREE_NODE * pTree,CD3DObject * pObject,boo
 	if(CostTime>MaxCost)
 	{
 		MaxCost=CostTime;
-		PrintD3DDebugLog(0,_T("CD3DSceneRender::AddSceneObject:最大耗时:%g[%u,%u,%u,%u,%u,%u]"),
+		PrintD3DDebugLog(_T("CD3DSceneRender::AddSceneObject:最大耗时:%g[%u,%u,%u,%u,%u,%u]"),
 			(double)MaxCost/CEasyTimerEx::TIME_UNIT_PER_SECOND,
 			m_AddObjectSubMeshCount,m_AddObjectTreeWalkCount,m_AddObjectTreeAddCount,
 			m_AddObjectTreeCutCount,m_AddObjectTreeUpdateCount,m_AddObjectObjectTestCount);
@@ -1245,7 +1245,7 @@ void CD3DSceneRender::AddObjectToTree(TREE_NODE * pTree,RENDER_OBJECT_INFO * pOb
 		}
 		else
 		{
-			PrintD3DLog(0,_T("CD3DSceneRender::AddObjectToTree:异常，加入节点的对象和节点的任何一个子结点都不相交"));
+			PrintD3DLog(_T("CD3DSceneRender::AddObjectToTree:异常，加入节点的对象和节点的任何一个子结点都不相交"));
 		}
 	}	
 	//未能加入子树，就加入当前节点
@@ -1261,7 +1261,7 @@ void CD3DSceneRender::UpdateTree(TREE_NODE * pNode)
 	{
 		m_MaxTreeDepth=pNode->Depth;
 		CD3DVector3 Size=pNode->NodeBox.GetSize();
-		PrintSystemLog(0,_T("Depth=%u,XSize=%g,ZSize=%g"),m_MaxTreeDepth,Size.x,Size.z);
+		PrintD3DLog(_T("Depth=%u,XSize=%g,ZSize=%g"), m_MaxTreeDepth, Size.x, Size.z);
 	}
 
 	m_AddObjectTreeUpdateCount++;
@@ -2816,7 +2816,7 @@ void CD3DSceneRender::RenderSubMeshEx(CD3DSubMesh * pSubMesh)
 		}
 		else
 		{
-			//PrintSystemLog(0,"%d",pSubMesh->GetIndexStartR());
+			//PrintD3DLog("%d",pSubMesh->GetIndexStartR());
 
 			hr=m_pDevice->GetD3DDevice()->DrawIndexedPrimitiveUP((D3DPRIMITIVETYPE)pSubMesh->GetPrimitiveType(),
 				pSubMesh->GetVertexStartR(),

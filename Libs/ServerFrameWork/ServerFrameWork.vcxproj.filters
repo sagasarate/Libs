@@ -110,6 +110,9 @@
     <ClInclude Include="BaseServer.h">
       <Filter>基础类</Filter>
     </ClInclude>
+    <ClInclude Include="SystemControlPipe.h">
+      <Filter>系统连接</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="TrayIcon.ico">
@@ -161,6 +164,9 @@
     </ClCompile>
     <ClCompile Include="BaseServer.cpp">
       <Filter>基础类</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemControlPipe.cpp">
+      <Filter>系统连接</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -94,27 +94,28 @@ int CServerApp::Run()
 	int BufferPtr = 0;
 	if(OnStartUp())
 	{
-		struct termios oldt, newt;
+		//struct termios oldt, newt;
 
-		tcgetattr(STDIN_FILENO, &oldt);
-		newt = oldt;
-		newt.c_lflag &= ~(ICANON);
-		tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+		//tcgetattr(STDIN_FILENO, &oldt);
+		//newt = oldt;
+		//newt.c_lflag &= ~(ICANON);
+		//tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
 
 		while ((!m_WantExist) && m_pServer && (!m_pServer->IsServerTerminated()))
 		{
-			if (kbhit())
-			{
-				KeyBuffer[BufferPtr++] = getchar();
-				if (KeyBuffer[BufferPtr - 1] == '\n' || BufferPtr >= 2000)
-				{
-					//输入了回车或者缓冲满了，提交命令
-					KeyBuffer[BufferPtr - 1] = 0;
-					m_pServer->PushConsoleCmd(KeyBuffer);
-					BufferPtr = 0;
-				}
-			}
+			//经常收到异常字符，暂时关闭控制台命令输入功能
+			//if (kbhit())
+			//{
+			//	KeyBuffer[BufferPtr++] = getchar();
+			//	if (KeyBuffer[BufferPtr - 1] == '\n' || BufferPtr >= 2000)
+			//	{
+			//		//输入了回车或者缓冲满了，提交命令
+			//		KeyBuffer[BufferPtr - 1] = 0;
+			//		m_pServer->PushConsoleCmd(KeyBuffer);
+			//		BufferPtr = 0;
+			//	}
+			//}
 			DoSleep(100);
 		}
 		OnShutDown();

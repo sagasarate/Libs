@@ -184,6 +184,9 @@
     <Filter Include="进程">
       <UniqueIdentifier>{deb7e476-2656-4fb0-87fb-4982c4aa5a4f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="命名管道">
+      <UniqueIdentifier>{58192949-4be5-4fbc-be33-96e69e1a8e63}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EasyTime.h">
@@ -720,6 +723,15 @@
     <ClInclude Include="HashMap.h">
       <Filter>对象存储模版</Filter>
     </ClInclude>
+    <ClInclude Include="CryptTools.h">
+      <Filter>加解密</Filter>
+    </ClInclude>
+    <ClInclude Include="NamedPipeWin.h">
+      <Filter>命名管道</Filter>
+    </ClInclude>
+    <ClInclude Include="NamedPipeLinux.h">
+      <Filter>命名管道</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EasyTimerEx.cpp">
@@ -961,6 +973,15 @@
     </ClCompile>
     <ClCompile Include="AsyncLogWorkThread.cpp">
       <Filter>Log\管理器</Filter>
+    </ClCompile>
+    <ClCompile Include="CryptTools.cpp">
+      <Filter>加解密</Filter>
+    </ClCompile>
+    <ClCompile Include="NamedPipeWin.cpp">
+      <Filter>命名管道</Filter>
+    </ClCompile>
+    <ClCompile Include="NamedPipeLinux.cpp">
+      <Filter>命名管道</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

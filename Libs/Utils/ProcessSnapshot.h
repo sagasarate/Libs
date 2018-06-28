@@ -30,6 +30,12 @@ public:
 		CEasyString		ImageFile;
 		FILE *			InfoFile;
 		UINT			AccessCount;
+		PROCESS_INFO_FILE()
+		{
+			ProcessID = 0;
+			InfoFile = NULL;
+			AccessCount = 0;
+		}
 	};
 protected:
 	UINT64							m_RecentSystemTime;

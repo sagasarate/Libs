@@ -430,7 +430,7 @@ bool CD3DGUI::SaveToFile(LPCTSTR FileName)
 	SaveToXML(&GUI);
 
 
-	return Xml.document().SaveToFile(GetFileChannel(),FileName);
+	return Xml.SaveToFile(Xml.document(), FileName, -1, GetFileChannel());
 }
 
 void CD3DGUI::SaveToXML(xml_node * pXMLNode)
@@ -473,7 +473,7 @@ bool CD3DGUI::LoadFromFile(LPCTSTR FileName)
 	
 	pug::xml_parser Xml;
 
-	Xml.parse_file(GetFileChannel(),FileName,pug::parse_trim_attribute);
+	Xml.parse_file(FileName, pug::parse_trim_attribute, GetFileChannel());
 	xml_node GUI=Xml.document();
 	if(GUI.moveto_child(_T("D3DGUI")))
 	{

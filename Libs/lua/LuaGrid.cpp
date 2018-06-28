@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 IMPLEMENT_STATIC_META_CLASS(CLuaGrid)
 

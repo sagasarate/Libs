@@ -23,23 +23,26 @@
 #define LOG_D3D_ERROR_CHANNEL	1202
 
 
-inline BOOL PrintD3DLog(DWORD Color,LPCTSTR Format,...)
+inline BOOL PrintD3DLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl,Format);
-	BOOL ret=CLogManager::GetInstance()->PrintLogVL(LOG_D3D_ERROR_CHANNEL,ILogPrinter::LOG_LEVEL_NORMAL,Color,Format,vl);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_D3D_ERROR_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }
 
-inline BOOL PrintD3DDebugLog(DWORD Color,LPCTSTR Format,...)
+inline BOOL PrintD3DDebugLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl,Format);
-	BOOL ret=CLogManager::GetInstance()->PrintLogVL(LOG_D3D_ERROR_CHANNEL,ILogPrinter::LOG_LEVEL_DEBUG,Color,Format,vl);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_D3D_ERROR_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }
+
+#define PrintD3DLog(_Format, ...)	PrintD3DLogWithTag(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)
+#define PrintD3DDebugLog(_Format, ...)	PrintD3DDebugLogWithTag(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)
 
 #include <D3D9.h>
 

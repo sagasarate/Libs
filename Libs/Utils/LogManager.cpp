@@ -18,10 +18,11 @@ TCHAR LOG_MANAGER_INSTANCE[]=_T("LogManagerInstance");
 
 CLogManager::CLogManager(void):CNameObject()
 {
+	m_LogChannels.Create(128, 128, 128);
 	m_LogChannels.Insert(LOG_SYSTEM_CHANNEL,new CVSOutputLogPrinter());
 
 	CEasyString ImportLogFileName = CFileTools::GetModuleFilePath(NULL);
-
+	
 	m_LogChannels.Insert(LOG_IMPORTANT_CHANNEL,new CFileLogPrinter(ImportLogFileName,FILE_LOG_APPEND|FILE_LOG_SAFE_WRITE));
 
 	m_WorkThreadList.Resize(DEFAULT_ASYNC_LOG_WORK_THREAD_COUNT);

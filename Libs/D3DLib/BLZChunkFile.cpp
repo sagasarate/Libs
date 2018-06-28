@@ -72,7 +72,7 @@ BOOL CBLZChunkFile::Load(BYTE * pData,UINT DataSize)
 		CChunkList * pChunkList=m_Chunks.GetNextObject(Pos,Key);
 		//CEasyString Name;
 		//Name.SetString((*pChunkList)[0]->ChunkName,4);
-		//PrintSystemLog(0,"Chunk %s=%u",
+		//PrintSystemLog((0,"Chunk %s=%u",
 		//	(LPCTSTR)Name,pChunkList->GetCount());
 	}
 	return TRUE;

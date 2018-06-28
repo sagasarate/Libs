@@ -145,6 +145,8 @@ enum COMMON_RESULT_CODE
 	COMMON_RESULT_FAILED=-2,
 };
 
+
+
 class IDistributedObject;
 
 struct DOS_OBJECT_REGISTER_INFO_EX
@@ -208,6 +210,8 @@ public:
 
 	virtual BOOL RegisterLogger(UINT LogChannel, LPCTSTR FileName) = 0;
 	virtual BOOL RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader) = 0;
+
+	virtual void SetServerWorkStatus(BYTE WorkStatus) = 0;
 };
 
 class IDistributedObject
@@ -231,7 +235,7 @@ public:
 	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString){}
 	virtual void OnShutDown(BYTE Level, UINT Param){}
 	virtual int Update(int ProcessPacketLimit){return 0;}
-	virtual bool OnConsoleCommand(LPCTSTR szCommand){}
+	virtual bool OnConsoleCommand(LPCTSTR szCommand){ return false; }
 
 };
 

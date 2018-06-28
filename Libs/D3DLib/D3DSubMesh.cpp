@@ -450,7 +450,7 @@ bool CD3DSubMesh::AllocDXVertexBuffer(DWORD Usage,D3DPOOL Pool)
 	}
 	else
 	{
-		PrintSystemLog(0,_T("申请顶点缓冲失败%X"),hResult);
+		PrintD3DLog( _T("申请顶点缓冲失败%X"), hResult);
 	}
 	return false;	
 }
@@ -490,7 +490,7 @@ bool CD3DSubMesh::AllocDXIndexBuffer(DWORD Usage,D3DPOOL Pool)
 	}
 	else
 	{
-		PrintSystemLog(0,_T("申请索引缓冲失败%X"),hResult);
+		PrintD3DLog(_T("申请索引缓冲失败%X"), hResult);
 	}
 	return false;
 }
@@ -709,7 +709,7 @@ bool CD3DSubMesh::ToSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pReso
 	}
 	else
 	{
-		CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DSM_FVF,m_VertexFormat.FVF));
+		CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DSM_FVF, (UINT)m_VertexFormat.FVF));
 	}
 	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DSM_VERTEX_SIZE,m_VertexFormat.VertexSize));
 	CHECK_SMART_STRUCT_ADD_AND_RETURN(Packet.AddMember(SST_D3DSM_INDEX_SIZE,m_VertexFormat.IndexSize));
@@ -787,7 +787,7 @@ bool CD3DSubMesh::FromSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pRe
 		switch(MemberID)
 		{
 		case SST_D3DSM_FVF:
-			m_VertexFormat.FVF=Value;
+			m_VertexFormat.FVF=(UINT)Value;
 			break;
 		case SST_D3DSM_VERTEX_DECLARATION:
 			{
@@ -866,25 +866,25 @@ UINT CD3DSubMesh::GetSmartStructSize(UINT Param)
 	{
 		UINT ElementCount;
 		m_VertexFormat.pVertexDeclaration->GetDeclaration(NULL,&ElementCount);
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(D3DVERTEXELEMENT9)*ElementCount);
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(D3DVERTEXELEMENT9)*ElementCount);
 	}
 	else
 	{
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_VertexFormat.FVF));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_VertexFormat.FVF));
 	}
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_VertexFormat.VertexSize));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_VertexFormat.IndexSize));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_PrimitiveType));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_PrimitiveCount));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_VertexCount));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_IndexCount));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_BoundingBox));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_BoundingSphere));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Property));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_VertexCount*m_VertexFormat.VertexSize);
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_IndexCount*m_VertexFormat.IndexSize);
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_VertexFormat.VertexSize));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_VertexFormat.IndexSize));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_PrimitiveType));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_PrimitiveCount));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_VertexCount));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_IndexCount));
+	Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_BoundingBox));
+	Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_BoundingSphere));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Property));
+	Size += CSmartStruct::GetStringMemberSizeA(m_VertexCount*m_VertexFormat.VertexSize);
+	Size += CSmartStruct::GetStringMemberSizeA(m_IndexCount*m_VertexFormat.IndexSize);
 
-	Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(m_Material.GetSmartStructSize(Param));
+	Size+=CSmartStruct::GetStructMemberSize(m_Material.GetSmartStructSize(Param));
 	
 	return Size;
 }
@@ -906,7 +906,7 @@ bool CD3DSubMesh::CheckValid()
 			}
 			if(Index<m_StartVertex||Index>=m_StartVertex+m_VertexCount)
 			{
-				PrintD3DLog(0,_T("CD3DSubMesh::CheckValid:索引值超出顶点范围"));
+				PrintD3DLog(_T("CD3DSubMesh::CheckValid:索引值超出顶点范围"));
 				return false;
 			}
 		}
@@ -915,7 +915,7 @@ bool CD3DSubMesh::CheckValid()
 			float VertexValue=*((float *)(m_pVertexBuffer+i*m_VertexFormat.VertexSize));
 			if(VertexValue<-1e10f&&VertexValue>1e10f)
 			{
-				PrintD3DLog(0,_T("CD3DSubMesh::CheckValid:顶点数值异常"));
+				PrintD3DLog(_T("CD3DSubMesh::CheckValid:顶点数值异常"));
 				return false;
 			}
 			BYTE LastByte=(m_pVertexBuffer+i*m_VertexFormat.VertexSize)[m_VertexFormat.VertexSize-1];
@@ -941,7 +941,7 @@ bool CD3DSubMesh::CheckValidR()
 			}
 			if(Index<m_StartVertexR||Index>=m_StartVertexR+m_VertexCountR)
 			{
-				PrintD3DLog(0,_T("CD3DSubMesh::CheckValidR:索引值超出顶点范围"));
+				PrintD3DLog(_T("CD3DSubMesh::CheckValidR:索引值超出顶点范围"));
 				return false;
 			}
 		}
@@ -950,7 +950,7 @@ bool CD3DSubMesh::CheckValidR()
 			float VertexValue=*((float *)(GetVertexBufferR()+i*m_VertexFormat.VertexSize));
 			if(VertexValue<-1e10f&&VertexValue>1e10f)
 			{
-				PrintD3DLog(0,_T("CD3DSubMesh::CheckValidR:顶点数值异常"));
+				PrintD3DLog(_T("CD3DSubMesh::CheckValidR:顶点数值异常"));
 				return false;
 			}
 			BYTE LastByte=(GetVertexBufferR()+i*m_VertexFormat.VertexSize)[m_VertexFormat.VertexSize-1];

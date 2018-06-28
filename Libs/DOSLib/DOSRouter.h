@@ -18,8 +18,18 @@ class CDOSRouter :
 	public CEasyThread
 {
 protected:
-	
+
+	struct MSG_STATE_INFO
+	{
+		UINT	CurCount;
+		MSG_STATE_INFO()
+		{
+			CurCount = 0;
+		}
+	};
+
 	CDOSServer										*m_pServer;
+	DOS_CONFIG										m_Config;
 	CCycleQueue<CDOSMessagePacket *>				m_MsgQueue;
 	CEasyCriticalSection							m_EasyCriticalSection;
 	UINT											m_MsgProcessLimit;
@@ -28,6 +38,8 @@ protected:
 	volatile UINT									m_RouteInMsgFlow;
 	volatile UINT									m_RouteOutMsgCount;
 	volatile UINT									m_RouteOutMsgFlow;
+
+	CStaticMap<UINT, MSG_STATE_INFO>				m_MsgStateInfos;
 	
 	CThreadPerformanceCounter						m_ThreadPerformanceCounter;
 
@@ -57,6 +69,7 @@ public:
 	UINT GetMsgQueueLen();
 	float GetCycleTime();
 	float GetCPUUsedRate();
+	void PrintMsgStat(UINT LogChannel);
 	void ResetStatData();
 protected:
 	int DoMessageRoute(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);	
@@ -101,8 +114,8 @@ inline float CDOSRouter::GetCPUUsedRate()
 }
 inline void CDOSRouter::ResetStatData()
 {
-	m_RouteInMsgCount=0;
-	m_RouteInMsgFlow=0;
-	m_RouteOutMsgCount=0;
-	m_RouteOutMsgFlow=0;	
+	m_RouteInMsgCount = 0;
+	m_RouteInMsgFlow = 0;
+	m_RouteOutMsgCount = 0;
+	m_RouteOutMsgFlow = 0;
 }

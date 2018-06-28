@@ -175,6 +175,7 @@
     <ClInclude Include="ServerAppLinux.h" />
     <ClInclude Include="ServerAppWin.h" />
     <ClInclude Include="ServerFrameWork.h" />
+    <ClInclude Include="SystemControlPipe.h" />
     <ClInclude Include="Tools.h" />
     <ClInclude Include="NTService.h" />
     <ClInclude Include="NTServiceEventLogMsg.h" />
@@ -206,6 +207,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="ServerAppWin.cpp" />
+    <ClCompile Include="SystemControlPipe.cpp" />
     <ClCompile Include="Tools.cpp" />
     <ClCompile Include="NTService.cpp" />
     <ClCompile Include="ServerLogPrinter.cpp" />

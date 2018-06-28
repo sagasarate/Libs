@@ -236,10 +236,10 @@ bool CD3DButton::LoadFromXml(xml_node * pXMLNode)
 		SetName(pXMLNode->attribute(_T("Name")).getvalue());
 
 	if(pXMLNode->has_attribute(_T("ID")))
-		SetID((long)pXMLNode->attribute(_T("ID")));
+		SetID(pXMLNode->attribute(_T("ID")));
 
 	if(pXMLNode->has_attribute(_T("IsInternal")))
-		SetInternal((bool)pXMLNode->attribute(_T("IsInternal")));
+		SetInternal(pXMLNode->attribute(_T("IsInternal")));
 
 
 	for(int i=0;i<(int)pXMLNode->children();i++)
@@ -397,12 +397,12 @@ void CD3DButton::LoadTextureFromXML(xml_node& Texture)
 		CEasyRect Rect;
 		FLOAT_POINT TextOffset;
 		TexFile=Texture.child(i).attribute(_T("TextureFile")).getvalue();
-		Rect.left=Texture.child(i).attribute(_T("RectLeft"));
-		Rect.top=Texture.child(i).attribute(_T("RectTop"));
-		Rect.right=Texture.child(i).attribute(_T("RectRight"));
-		Rect.bottom=Texture.child(i).attribute(_T("RectBottom"));
-		TextOffset.x=(double)Texture.child(i).attribute(_T("TextOffsetX"));
-		TextOffset.y=(double)Texture.child(i).attribute(_T("TextOffsetY"));
+		Rect.left=(int)Texture.child(i).attribute(_T("RectLeft"));
+		Rect.top = (int)Texture.child(i).attribute(_T("RectTop"));
+		Rect.right = (int)Texture.child(i).attribute(_T("RectRight"));
+		Rect.bottom = (int)Texture.child(i).attribute(_T("RectBottom"));
+		TextOffset.x=Texture.child(i).attribute(_T("TextOffsetX"));
+		TextOffset.y=Texture.child(i).attribute(_T("TextOffsetY"));
 		if(_tcsnicmp(Texture.child(i).name(),_T("Normal"),7)==0)
 		{
 			SetTexture(BUTTON_STATUS_NORMAL,TexFile,Rect,TextOffset);

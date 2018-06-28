@@ -138,6 +138,10 @@ namespace DOSSystem
             return InternalCallUnregisterCommandReceiver(m_ObjectHandle);
         }
 
+        public void SetServerWorkStatus(byte WorkStatus)
+        {
+            InternalCallSetServerWorkStatus(m_ObjectHandle, WorkStatus);
+        }
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static uint InternalCallGetRouterID();
@@ -199,6 +203,9 @@ namespace DOSSystem
         extern static bool InternalCallRegisterCommandReceiver(IntPtr ObjectHandle);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static bool InternalCallUnregisterCommandReceiver(IntPtr ObjectHandle);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static bool InternalCallSetServerWorkStatus(IntPtr ObjectHandle, byte WorkStatus);
+        
     };
 
     class DistributedObjectSample

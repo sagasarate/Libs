@@ -62,11 +62,14 @@ void CSystemNetLink::OnData(const BYTE * pData, UINT DataSize)
 		{
 			CSmartStruct QueryInfo(pMsg->Data,DataSize,false);
 			CSmartStruct ServerStatus(SERVER_STATUS_BLOCK_SIZE);
-			for(int i=0;i<QueryInfo.GetMemberCount();i++)
+			void * Pos = QueryInfo.GetFirstMemberPosition();
+			while (Pos)
 			{
-				if(QueryInfo.IndexToID(i)==SC_SST_QSS_STATUS_ID)
+				WORD MemberID;
+				CSmartValue Value = QueryInfo.GetNextMember(Pos, MemberID);
+				if (MemberID == SC_SST_QSS_STATUS_ID)
 				{
-					WORD StatusID=QueryInfo.GetMemberByIndex(i);
+					WORD StatusID = Value;
 					ServerStatus.AddMember(StatusID,
 						m_pServer->GetServerStatus(StatusID));
 				}
@@ -80,25 +83,6 @@ void CSystemNetLink::OnData(const BYTE * pData, UINT DataSize)
 			SendMsg(SC_MSG_QUERY_SERVER_STATUS_RESULT,
 				m_pServer->GetAllServerStatus().GetData(),
 				m_pServer->GetAllServerStatus().GetDataLen());
-		}
-		break;
-	case SC_MSG_SET_SERVER_STATUS:
-		{
-		}
-		break;
-	case SC_MSG_LINK_LOG:
-		m_IsLinkLog=TRUE;
-		Log("已开启接收Log");
-		break;
-	case SC_MSG_UNLINK_LOG:
-		Log("已关闭接收Log");
-		m_IsLinkLog=FALSE;
-		break;
-	case SC_MSG_EXEC_COMMAND:
-		{
-			CSmartStruct CommandInfo(pMsg->Data,DataSize,false);
-			LPCTSTR szCommand=CommandInfo.GetMember(SC_SST_EC_COMMAND_STR);
-			m_pServer->PushConsoleCmd(szCommand);
 		}
 		break;
 	case SC_MSG_GET_SERVER_STATUS_FORMAT_INFO:
@@ -122,9 +106,29 @@ void CSystemNetLink::OnData(const BYTE * pData, UINT DataSize)
 			}
 
 			SendMsg(SC_MSG_GET_SERVER_STATUS_FORMAT_INFO_RESULT,
-				Packet.GetData(),Packet.GetDataLen());
+				Packet.GetData(), Packet.GetDataLen());
 		}
 		break;
+	case SC_MSG_SET_SERVER_STATUS:
+		{
+		}
+		break;
+	case SC_MSG_LINK_LOG:
+		m_IsLinkLog=TRUE;
+		Log("已开启接收Log");
+		break;
+	case SC_MSG_UNLINK_LOG:
+		Log("已关闭接收Log");
+		m_IsLinkLog=FALSE;
+		break;
+	case SC_MSG_EXEC_COMMAND:
+		{
+			CSmartStruct CommandInfo(pMsg->Data,DataSize,false);
+			LPCTSTR szCommand=CommandInfo.GetMember(SC_SST_EC_COMMAND_STR);
+			m_pServer->PushConsoleCmd(szCommand);
+		}
+		break;
+	
 	}
 
 	FUNCTION_END;

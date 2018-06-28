@@ -306,10 +306,10 @@ bool CD3DCombo::LoadFromXml(xml_node * pXMLNode)
 		SetName(pXMLNode->attribute(_T("Name")).getvalue());
 
 	if(pXMLNode->has_attribute(_T("ID")))
-		SetID((long)pXMLNode->attribute(_T("ID")));
+		SetID(pXMLNode->attribute(_T("ID")));
 
 	if(pXMLNode->has_attribute(_T("IsInternal")))
-		SetInternal((bool)pXMLNode->attribute(_T("IsInternal")));
+		SetInternal(pXMLNode->attribute(_T("IsInternal")));
 
 	for(int i=0;i<(int)pXMLNode->children();i++)
 	{
@@ -317,21 +317,21 @@ bool CD3DCombo::LoadFromXml(xml_node * pXMLNode)
 		{
 			LoadBehaviorFromXML(pXMLNode->child(i));
 			if(pXMLNode->child(i).has_attribute(_T("IsMultiLine")))
-				SetMultiLine((bool)pXMLNode->child(i).attribute(_T("IsMultiLine")));
+				SetMultiLine(pXMLNode->child(i).attribute(_T("IsMultiLine")));
 			if(pXMLNode->child(i).has_attribute(_T("ShowCaret")))
-				EnableCaret((bool)pXMLNode->child(i).attribute(_T("ShowCaret")));
+				EnableCaret(pXMLNode->child(i).attribute(_T("ShowCaret")));
 			if(pXMLNode->child(i).has_attribute(_T("CaretColor")))
-				SetCaretColor((long)pXMLNode->child(i).attribute(_T("CaretColor")));
+				SetCaretColor((UINT)pXMLNode->child(i).attribute(_T("CaretColor")));
 			if(pXMLNode->child(i).has_attribute(_T("AutoWrap")))
-				EnableAutoWrap((bool)pXMLNode->child(i).attribute(_T("AutoWrap")));
+				EnableAutoWrap(pXMLNode->child(i).attribute(_T("AutoWrap")));
 			if(pXMLNode->child(i).has_attribute(_T("ReadOnly")))
-				SetReadOnly((bool)pXMLNode->child(i).attribute(_T("ReadOnly")));
+				SetReadOnly(pXMLNode->child(i).attribute(_T("ReadOnly")));
 			if(pXMLNode->child(i).has_attribute(_T("Encryption")))
-				SetEncryption((bool)pXMLNode->child(i).attribute(_T("Encryption")));
+				SetEncryption(pXMLNode->child(i).attribute(_T("Encryption")));
 			if(pXMLNode->child(i).has_attribute(_T("EnableScrollBar")))
-				EnableScrollBar((bool)pXMLNode->child(i).attribute(_T("EnableScrollBar")));
+				EnableScrollBar(pXMLNode->child(i).attribute(_T("EnableScrollBar")));
 			if(pXMLNode->child(i).has_attribute(_T("ScrollBarWidth")))
-				SetScrollBarWidth((long)pXMLNode->child(i).attribute(_T("ScrollBarWidth")));
+				SetScrollBarWidth(pXMLNode->child(i).attribute(_T("ScrollBarWidth")));
 		}
 		else if(_tcsnicmp(pXMLNode->child(i).name(),_T("Frame"),6)==0)
 		{
@@ -422,7 +422,7 @@ void CD3DCombo::LoadFrameFromXML(xml_node& Frame)
 {
 	CD3DWnd::LoadFrameFromXML(Frame);
 	if(Frame.has_attribute(_T("ComboListHeight")))
-		SetComboListHeight((long)Frame.attribute(_T("ComboListHeight")));
+		SetComboListHeight(Frame.attribute(_T("ComboListHeight")));
 }
 
 

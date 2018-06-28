@@ -11,5 +11,10 @@
 /****************************************************************************/
 #pragma once
 
-extern bool TEAEncode(const BYTE * pIn, BYTE * pOut, UINT DataLen, const BYTE * pKey, unsigned int Cycle);
-extern bool TEADecode(const BYTE * pIn, BYTE * pOut, UINT DataLen, const BYTE * pKey, unsigned int Cycle);
+#define TEA_KEY_SIZE		16
+#define TEA_BLOCK_SIZE		8
+#define DEFAULT_TEA_CYCLE	16
+
+void tea_encrypt(unsigned int *v, const unsigned int *k, unsigned int Cycle);
+void tea_decrypt(unsigned int *v, const unsigned int *k, unsigned int Cycle);
+

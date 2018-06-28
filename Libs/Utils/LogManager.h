@@ -19,6 +19,7 @@
 #define LOG_DB_ERROR_CHANNEL			1202
 #define LOG_DOS_CHANNEL					1301
 #define LOG_DOS_OBJECT_STATE_CHANNEL	1302
+#define LOG_DOS_MSG_STATE_CHANNEL		1303
 #define LOG_MONO_CHANNEL				1401
 
 #define IMPORTANT_LOG_FILE_NAME	_T("ImportantError")
@@ -31,7 +32,7 @@ class CLogManager :
 	public CStaticObject2<CLogManager,LOG_MANAGER_INSTANCE>
 {
 protected:
-	CEasyMap<UINT,ILogPrinter *>		m_LogChannels;
+	CStaticMap<UINT,ILogPrinter *>		m_LogChannels;
 	CEasyArray<CAsyncLogWorkThread>		m_WorkThreadList;
 
 	DECLARE_CLASS_INFO_STATIC(CLogManager);

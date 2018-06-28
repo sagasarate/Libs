@@ -12,7 +12,7 @@
 
 #include "StdAfx.h"
 
-void encrypt(unsigned int *v, const unsigned int *k, unsigned int Cycle)
+void tea_encrypt(unsigned int *v, const unsigned int *k, unsigned int Cycle)
 {
 	unsigned int y=v[0], z=v[1], sum=0, i;         /* set up */
 	unsigned int delta=0x9e3779b9;                 /* a key schedule constant */
@@ -27,7 +27,7 @@ void encrypt(unsigned int *v, const unsigned int *k, unsigned int Cycle)
 	v[1]=z;
  }
  
-void decrypt(unsigned int *v, const unsigned int *k, unsigned int Cycle)
+void tea_decrypt(unsigned int *v, const unsigned int *k, unsigned int Cycle)
 {
 	unsigned int y=v[0], z=v[1], sum=0, i; /* set up */
 	unsigned int delta=0x9e3779b9;                  /* a key schedule constant */
@@ -51,30 +51,3 @@ void decrypt(unsigned int *v, const unsigned int *k, unsigned int Cycle)
 	v[1]=z;
 }
 
-bool TEAEncode(const BYTE * pIn, BYTE * pOut, UINT DataLen, const BYTE * pKey, unsigned int Cycle)
-{
-	if((DataLen%8)!=0)
-		return false;
-
-	memcpy(pOut,pIn,DataLen);
-	UINT BlockCount=DataLen/8;
-	for(UINT i=0;i<BlockCount;i++)
-	{
-		encrypt((unsigned int *)(pOut+i*8),(const unsigned int *)pKey,Cycle);
-	}
-	return true;
-}
-
-bool TEADecode(const BYTE * pIn, BYTE * pOut, UINT DataLen, const BYTE * pKey, unsigned int Cycle)
-{
-	if((DataLen%8)!=0)
-		return false;
-
-	memcpy(pOut,pIn,DataLen);
-	UINT BlockCount=DataLen/8;
-	for(UINT i=0;i<BlockCount;i++)
-	{
-		decrypt((unsigned int *)(pOut+i*8),(const unsigned int *)pKey,Cycle);
-	}
-	return true;
-}

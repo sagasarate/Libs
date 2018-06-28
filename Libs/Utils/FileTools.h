@@ -175,8 +175,10 @@ public:
 	inline static CEasyString MakeFullPath(LPCTSTR Path)
 	{
 		TCHAR FilePath[MAX_PATH];
-		realpath(Path, FilePath);
-		return FilePath;
+		if(realpath(Path, FilePath))
+			return FilePath;
+		else
+			return Path;
 	}
 #endif
 
@@ -258,38 +260,47 @@ public:
 #else
 	inline static bool CreateDirEx(LPCTSTR szDirName)
 	{
-		CEasyString DirName = MakeFullPath(szDirName);
+		TCHAR SrcDir[MAX_PATH];
+		TCHAR DirBuffer[MAX_PATH];
+		size_t Len=_tcslen(szDirName);
+		_tcscpy_s(SrcDir,MAX_PATH,szDirName);
 
-		for (UINT i = 1; i < DirName.GetLength(); i++)
+		PrintImportantLog(_T("try mkdir %s"), SrcDir);
+
+		for (size_t i = 1; i < Len; i++)
 		{
-			if (DirName[i] == '/')
+			if (SrcDir[i] == '/')
 			{
-				DirName[i] = 0;
-				if (access(DirName, F_OK) != 0)
+				SrcDir[i] = 0;
+				realpath(SrcDir, DirBuffer);
+				if (access(DirBuffer, F_OK) != 0)
 				{
-					if (mkdir(DirName, S_IRWXU) == -1)
+					PrintImportantLog(_T("mkdir %s "), DirBuffer);
+					if (mkdir(DirBuffer, S_IRWXU) == -1)
 					{
-						PrintImportantLog(_T("mkdir failed:%d"), errno);
+						PrintImportantLog(_T("mkdir %s failed:%d"), DirBuffer, errno);
 						return false;
-					}
-					else
-					{
-						return true;
-					}
+					}					
 				}
-				DirName[i] = '/';
+				else
+				{
+					PrintImportantLog(_T("exist %s "), DirBuffer);
+				}
+				SrcDir[i] = '/';
 			}
 		}
-		if (access(DirName, F_OK) != 0)
+		realpath(SrcDir, DirBuffer);
+		if (access(DirBuffer, F_OK) != 0)
 		{
-			if (mkdir(DirName, S_IRWXU) == -1)
+			PrintImportantLog(_T("mkdir %s "), DirBuffer);
+			if (mkdir(DirBuffer, S_IRWXU) == -1)
 			{
-				PrintImportantLog(_T("mkdir failed:%d"), errno);
+				PrintImportantLog(_T("mkdir %s failed:%d"), DirBuffer, errno);
 				return false;
-			}
+			}		
 			else
 			{
-				return true;
+				PrintImportantLog(_T("exist %s "), DirBuffer);
 			}
 		}
 		return true;

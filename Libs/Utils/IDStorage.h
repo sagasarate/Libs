@@ -455,7 +455,7 @@ public:
 	{
 		return GetObject(GetObjectPosByID(ID));
 	}
-	UINT GetObjectID(LPVOID Pos) const
+	UINT GetObjectIDByPos(LPVOID Pos) const
 	{
 		const StorageNode * pNode = (const StorageNode *)Pos;
 		if (pNode)

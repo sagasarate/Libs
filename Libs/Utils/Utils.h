@@ -143,6 +143,11 @@ struct STORAGE_POOL_SETTING
 //#include "IndexSet.h"
 #include "EasyArray.h"
 #include "EasyMap.h"
+#include "EasyList.h"
+#include "IDStorage.h"
+#include "StaticMap.h"
+#include "HashMap.h"
+#include "CycleQueue.h"
 
 #include "MemoryAllocatee.h"
 
@@ -262,11 +267,7 @@ using namespace pug;
 #include "USOResourceManager.h"
 
 
-#include "EasyList.h"
-#include "IDStorage.h"
-#include "StaticMap.h"
-#include "HashMap.h"
-#include "CycleQueue.h"
+
 #include "TreeObject.h"
 
 
@@ -314,7 +315,7 @@ using namespace pug;
 #include "TEA.h"
 #include "Crypto/aes.h"
 #include "Crypto/des.h"
-
+#include "CryptTools.h"
 
 #include "ProcessSnapshot.h"
 #ifdef WIN32
@@ -323,3 +324,8 @@ using namespace pug;
 
 #include "TimerQueue.h"
 
+#ifdef WIN32
+#include "NamedPipeWin.h"
+#else
+#include "NamedPipeLinux.h"
+#endif

@@ -107,11 +107,11 @@ public:
 protected:
 	CNetServer *								m_pServer;
 
-	CEasyMap<UINT,CEasyNetLink*>		m_LinkMap;
-	CEasyArray<CEasyNetLink*>			m_LinkList;	
+	CStaticMap<UINT,CEasyNetLink*>				m_LinkMap;
+	CEasyArray<CEasyNetLink*>					m_LinkList;	
 	
 
-	CEasyMap<UINT,CEasyNetLinkService*>			m_ServiceMap;
+	CStaticMap<UINT, CEasyNetLinkService*>		m_ServiceMap;
 	CEasyArray<CEasyNetLinkService*>			m_ServiceList;
 
 	CIDStorage<int>								m_LinkIDPool;

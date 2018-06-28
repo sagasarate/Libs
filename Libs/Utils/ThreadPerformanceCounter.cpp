@@ -12,6 +12,7 @@ CThreadPerformanceCounter::CThreadPerformanceCounter(void)
 	m_CycleTime=0;
 	m_CPUUsedRate=0;
 	m_CycleCPUUsedTime = 0;
+	m_LastUpdateTime = (UINT)time(NULL);
 }
 
 CThreadPerformanceCounter::~CThreadPerformanceCounter(void)
@@ -25,7 +26,7 @@ void CThreadPerformanceCounter::Init(HANDLE ThreadHandle,UINT CountIntervalTime)
 	m_CountIntervalTimer.SaveTime();
 	m_StartTime=CEasyTimerEx::GetTime();
 	m_CycleCount=0;
-
+	m_LastUpdateTime = (UINT)time(NULL);
 #ifdef WIN32
 	SYSTEM_INFO	si;
 	GetSystemInfo( &si );
@@ -58,6 +59,8 @@ void CThreadPerformanceCounter::DoPerformanceCount()
 		if(m_CountIntervalTimer.IsTimeOut(m_CountIntervalTime))
 		{
 			m_CountIntervalTimer.SaveTime();
+
+			m_LastUpdateTime = (UINT)time(NULL);
 
 			UINT64 CurTime = CEasyTimerEx::GetTime();
 			UINT64 CPUTime = CurTime - m_StartTime;

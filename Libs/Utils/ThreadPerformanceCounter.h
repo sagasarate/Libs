@@ -14,6 +14,7 @@ protected:
 	volatile float	m_CPUUsedRate;
 	volatile UINT64	m_CycleCPUUsedTime;
 	volatile UINT	m_RecentCycleCount;
+	volatile UINT	m_LastUpdateTime;
 public:
 	CThreadPerformanceCounter(void);
 	~CThreadPerformanceCounter(void);
@@ -36,5 +37,9 @@ public:
 	float GetCPUUsedRate()
 	{
 		return m_CPUUsedRate;
+	}
+	UINT GetLastUpdateTime()
+	{
+		return m_LastUpdateTime;
 	}
 };

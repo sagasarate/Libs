@@ -1,6 +1,6 @@
-ï»¿//{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by ServerFrameWork.rc
+//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ Éú³ÉµÄ°üº¬ÎÄ¼þ¡£
+// ¹© ServerFrameWork.rc Ê¹ÓÃ
 //
 #define IDD_SERVER_STATUS               132
 #define IDC_LIST1                       1016
@@ -13,6 +13,8 @@
 #define IDC_ST_TCP_SEND                 21008
 #define IDC_ST_TCP_RECV                 21009
 #define IDC_ST_UDP_SEND                 21010
+#define IDC_ST_CYCLE_TIME2              21011
+#define IDC_ST_WORK_STATUS              21011
 #define IDC_ST_UDP_RECV                 21012
 #define IDC_EDIT_COMMAND                21013
 #define IDC_EXEC_COMMAND                21014

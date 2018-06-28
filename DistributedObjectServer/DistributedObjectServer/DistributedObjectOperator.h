@@ -31,41 +31,43 @@ public:
 
 	UINT GetPoolID();
 
-	virtual UINT GetRouterID();
-	virtual OBJECT_ID GetObjectID();
-	virtual int GetGroupIndex();
-	virtual BOOL SendMessage(OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag=0,LPCVOID pData=0,UINT DataSize=0);
-	virtual BOOL SendMessageMulti(OBJECT_ID * pReceiverIDList,UINT ReceiverCount,bool IsSorted,MSG_ID_TYPE MsgID,WORD MsgFlag=0,LPCVOID pData=0,UINT DataSize=0);
+	virtual UINT GetRouterID() override;
+	virtual OBJECT_ID GetObjectID() override;
+	virtual int GetGroupIndex() override;
+	virtual BOOL SendMessage(OBJECT_ID ReceiverID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) override;
+	virtual BOOL SendMessageMulti(OBJECT_ID * pReceiverIDList, UINT ReceiverCount, bool IsSorted, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) override;
 
-	virtual CDOSMessagePacket * NewMessagePacket(UINT DataSize,UINT ReceiverCount);
-	virtual BOOL ReleaseMessagePacket(CDOSMessagePacket * pPacket);
-	virtual BOOL SendMessagePacket(CDOSMessagePacket * pPacket);
+	virtual CDOSMessagePacket * NewMessagePacket(UINT DataSize, UINT ReceiverCount) override;
+	virtual BOOL ReleaseMessagePacket(CDOSMessagePacket * pPacket) override;
+	virtual BOOL SendMessagePacket(CDOSMessagePacket * pPacket) override;
 
-	virtual BOOL RegisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount);
-	virtual BOOL UnregisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount);
-	virtual BOOL RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount);
-	virtual BOOL UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount);
-	virtual BOOL SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType);
+	virtual BOOL RegisterMsgMap(OBJECT_ID ProxyObjectID, MSG_ID_TYPE * pMsgIDList, int CmdCount) override;
+	virtual BOOL UnregisterMsgMap(OBJECT_ID ProxyObjectID, MSG_ID_TYPE * pMsgIDList, int CmdCount) override;
+	virtual BOOL RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount) override;
+	virtual BOOL UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount) override;
+	virtual BOOL SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType) override;
 
-	virtual BOOL AddConcernedObject(OBJECT_ID ObjectID,bool NeedTest);
-	virtual BOOL DeleteConcernedObject(OBJECT_ID ObjectID);
+	virtual BOOL AddConcernedObject(OBJECT_ID ObjectID, bool NeedTest) override;
+	virtual BOOL DeleteConcernedObject(OBJECT_ID ObjectID) override;
 
-	virtual BOOL FindObject(UINT ObjectType);
-	virtual BOOL ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize);
-	virtual BOOL CloseProxyObject(OBJECT_ID ProxyObjectID,UINT Delay);
-	virtual BOOL RequestProxyObjectIP(OBJECT_ID ProxyObjectID);
+	virtual BOOL FindObject(UINT ObjectType) override;
+	virtual BOOL ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize) override;
+	virtual BOOL CloseProxyObject(OBJECT_ID ProxyObjectID, UINT Delay) override;
+	virtual BOOL RequestProxyObjectIP(OBJECT_ID ProxyObjectID) override;
 
-	virtual BOOL RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& ObjectRegisterInfo);
-	virtual void Release();
+	virtual BOOL RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& ObjectRegisterInfo) override;
+	virtual void Release() override;
 
-	virtual BOOL QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param);
-	virtual void ShutDown(UINT PluginID);
-	virtual bool RegisterCommandReceiver();
-	virtual bool UnregisterCommandReceiver();
+	virtual BOOL QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param) override;
+	virtual void ShutDown(UINT PluginID) override;
+	virtual bool RegisterCommandReceiver() override;
+	virtual bool UnregisterCommandReceiver() override;
 	bool OnConsoleCommand(LPCTSTR szCommand);
 
-	virtual BOOL RegisterLogger(UINT LogChannel, LPCTSTR FileName);
-	virtual BOOL RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader);
+	virtual BOOL RegisterLogger(UINT LogChannel, LPCTSTR FileName) override;
+	virtual BOOL RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader) override;
+
+	virtual void SetServerWorkStatus(BYTE WorkStatus) override;
 
 protected:
 	BOOL OnPreTranslateMessage(CDOSMessage * pMessage);
@@ -121,6 +123,7 @@ public:
 	static bool InternalCallRegisterCSVLogger(UINT LogChannel, MonoString * FileName, MonoString * CSVLogHeader);
 	static bool InternalCallRegisterCommandReceiver(CDistributedObjectOperator * pOperator);
 	static bool InternalCallUnregisterCommandReceiver(CDistributedObjectOperator * pOperator);
+	static void InternalCallSetServerWorkStatus(CDistributedObjectOperator * pOperator, BYTE WorkStatus);
 };
 
 inline UINT CDistributedObjectOperator::GetPoolID()

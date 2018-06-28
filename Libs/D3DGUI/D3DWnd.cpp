@@ -1072,10 +1072,10 @@ bool CD3DWnd::LoadFromXml(xml_node * pXMLNode)
 		SetName(pXMLNode->attribute(_T("Name")).getvalue());
 
 	if(pXMLNode->has_attribute(_T("ID")))
-		SetID((long)pXMLNode->attribute(_T("ID")));
+		SetID(pXMLNode->attribute(_T("ID")));
 
 	if(pXMLNode->has_attribute(_T("IsInternal")))
-		SetInternal((bool)pXMLNode->attribute(_T("IsInternal")));
+		SetInternal(pXMLNode->attribute(_T("IsInternal")));
 
 
 	for(int i=0;i<(int)pXMLNode->children();i++)
@@ -1309,7 +1309,7 @@ UINT CD3DWnd::GetSmartStructSize(UINT Param)
 
 	m_TempScript.Replace(_T("\n"),_T("\r\n"));
 
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_TempScript.GetLength());
+	Size+=CSmartStruct::GetStringMemberSize(m_TempScript.GetLength());
 
 	return Size;
 }
@@ -1357,21 +1357,21 @@ void CD3DWnd::SaveTextToXML(xml_node& Text)
 void CD3DWnd::SaveFontToXML(xml_node& Font)
 {
 	Font.append_attribute(_T("FaceName"),m_LogFont.lfFaceName);
-	Font.append_attribute(_T("Height"),(long)m_LogFont.lfHeight);
-	Font.append_attribute(_T("Width"),(long)m_LogFont.lfWidth);
-	Font.append_attribute(_T("Weight"),(long)m_LogFont.lfWeight);
-	Font.append_attribute(_T("CharSet"),(long)m_LogFont.lfCharSet);
-	Font.append_attribute(_T("Italic"),(bool)m_LogFont.lfItalic);
-	Font.append_attribute(_T("OutPrecision"),(long)m_LogFont.lfOutPrecision);
-	Font.append_attribute(_T("PitchAndFamily"),(long)m_LogFont.lfPitchAndFamily);
-	Font.append_attribute(_T("Quality"),(long)m_LogFont.lfQuality);
-	Font.append_attribute(_T("FontColor"),(long)m_FontColor);
-	Font.append_attribute(_T("Align"),(long)m_FontAlign);
-	Font.append_attribute(_T("ShadowMode"),(long)m_FontShadowMode);
-	Font.append_attribute(_T("ShadowColor"),(long)m_FontShadowColor);
-	Font.append_attribute(_T("ShadowWidth"),(long)m_FontShadowWidth);
-	Font.append_attribute(_T("CharSpace"),(long)m_FontCharSpace);
-	Font.append_attribute(_T("LineSpace"),(long)m_FontLineSpace);
+	Font.append_attribute(_T("Height"),m_LogFont.lfHeight);
+	Font.append_attribute(_T("Width"),m_LogFont.lfWidth);
+	Font.append_attribute(_T("Weight"),m_LogFont.lfWeight);
+	Font.append_attribute(_T("CharSet"),m_LogFont.lfCharSet);
+	Font.append_attribute(_T("Italic"),m_LogFont.lfItalic);
+	Font.append_attribute(_T("OutPrecision"),m_LogFont.lfOutPrecision);
+	Font.append_attribute(_T("PitchAndFamily"),m_LogFont.lfPitchAndFamily);
+	Font.append_attribute(_T("Quality"),m_LogFont.lfQuality);
+	Font.append_attribute(_T("FontColor"),(UINT)m_FontColor);
+	Font.append_attribute(_T("Align"), (UINT)m_FontAlign);
+	Font.append_attribute(_T("ShadowMode"), (UINT)m_FontShadowMode);
+	Font.append_attribute(_T("ShadowColor"), (UINT)m_FontShadowColor);
+	Font.append_attribute(_T("ShadowWidth"), (UINT)m_FontShadowWidth);
+	Font.append_attribute(_T("CharSpace"),m_FontCharSpace);
+	Font.append_attribute(_T("LineSpace"),m_FontLineSpace);
 }
 void CD3DWnd::SaveTextureToXML(xml_node& Texture)
 {
@@ -1405,28 +1405,28 @@ void CD3DWnd::LoadFrameFromXML(xml_node& Frame)
 	if(Frame.has_attribute(_T("X")))
 	{
 		CEasyRect Rect(0,0,0,0);
-		Rect.left=(long)Frame.attribute(_T("X"));
-		Rect.top=(long)Frame.attribute(_T("Y"));
-		Rect.right=Rect.left+(long)Frame.attribute(_T("Width"));
-		Rect.bottom=Rect.top+(long)Frame.attribute(_T("Height"));
+		Rect.left=(int)Frame.attribute(_T("X"));
+		Rect.top = (int)Frame.attribute(_T("Y"));
+		Rect.right = Rect.left + (int)Frame.attribute(_T("Width"));
+		Rect.bottom = Rect.top + (int)Frame.attribute(_T("Height"));
 		SetRect(Rect);
 	}
 	if(Frame.has_attribute(_T("BKColor")))
-		SetBKColor((long)Frame.attribute(_T("BKColor")));
+		SetBKColor((int)Frame.attribute(_T("BKColor")));
 }
 
 void CD3DWnd::LoadBorderFromXML(xml_node& Borders)
 {
 	WIN_BORDERS WndBorders;
 
-	WndBorders[RECT_TOP]=(long)Borders.attribute(_T("Top"));
-	WndBorders[RECT_BOTTOM]=(long)Borders.attribute(_T("Bottom"));
-	WndBorders[RECT_LEFT]=(long)Borders.attribute(_T("Left"));
-	WndBorders[RECT_RIGHT]=(long)Borders.attribute(_T("Right"));
-	WndBorders[RECT_TOP_LEFT]=(long)Borders.attribute(_T("TopLeft"));
-	WndBorders[RECT_TOP_RIGHT]=(long)Borders.attribute(_T("TopRight"));
-	WndBorders[RECT_BOTTOM_LEFT]=(long)Borders.attribute(_T("BottomLeft"));
-	WndBorders[RECT_BOTTOM_RIGHT]=(long)Borders.attribute(_T("BottomRight"));
+	WndBorders[RECT_TOP] = (int)Borders.attribute(_T("Top"));
+	WndBorders[RECT_BOTTOM] = (int)Borders.attribute(_T("Bottom"));
+	WndBorders[RECT_LEFT] = (int)Borders.attribute(_T("Left"));
+	WndBorders[RECT_RIGHT] = (int)Borders.attribute(_T("Right"));
+	WndBorders[RECT_TOP_LEFT] = (int)Borders.attribute(_T("TopLeft"));
+	WndBorders[RECT_TOP_RIGHT] = (int)Borders.attribute(_T("TopRight"));
+	WndBorders[RECT_BOTTOM_LEFT] = (int)Borders.attribute(_T("BottomLeft"));
+	WndBorders[RECT_BOTTOM_RIGHT] = (int)Borders.attribute(_T("BottomRight"));
 
 	SetBorders(WndBorders);
 }
@@ -1447,30 +1447,30 @@ void CD3DWnd::LoadFontFromXML(xml_node& Font)
 	if(Font.has_attribute(_T("FaceName")))
 	{
 		strncpy_0(LogFont.lfFaceName,LF_FACESIZE,Font.attribute(_T("FaceName")).getvalue(),LF_FACESIZE);
-		LogFont.lfHeight=(long)Font.attribute(_T("Height"));
-		LogFont.lfWidth=(long)Font.attribute(_T("Width"));
-		LogFont.lfWeight=(long)Font.attribute(_T("Weight"));
-		LogFont.lfCharSet=(long)Font.attribute(_T("CharSet"));
+		LogFont.lfHeight = (int)Font.attribute(_T("Height"));
+		LogFont.lfWidth = (int)Font.attribute(_T("Width"));
+		LogFont.lfWeight = (int)Font.attribute(_T("Weight"));
+		LogFont.lfCharSet = (int)Font.attribute(_T("CharSet"));
 		LogFont.lfItalic=(bool)Font.attribute(_T("Italic"));
-		LogFont.lfOutPrecision=(long)Font.attribute(_T("OutPrecision"));
-		LogFont.lfPitchAndFamily=(long)Font.attribute(_T("PitchAndFamily"));
-		LogFont.lfQuality=(long)Font.attribute(_T("Quality"));
+		LogFont.lfOutPrecision = (int)Font.attribute(_T("OutPrecision"));
+		LogFont.lfPitchAndFamily = (int)Font.attribute(_T("PitchAndFamily"));
+		LogFont.lfQuality = (int)Font.attribute(_T("Quality"));
 		SetFont(&LogFont);
 	}
 	if(Font.has_attribute(_T("FontColor")))
-		SetFontColor((long)Font.attribute(_T("FontColor")));
+		SetFontColor((int)Font.attribute(_T("FontColor")));
 	if(Font.has_attribute(_T("Align")))
-		SetFontAlign((long)Font.attribute(_T("Align")));
+		SetFontAlign((int)Font.attribute(_T("Align")));
 	if(Font.has_attribute(_T("ShadowMode")))
-		SetFontShadowMode((long)Font.attribute(_T("ShadowMode")));
+		SetFontShadowMode((int)Font.attribute(_T("ShadowMode")));
 	if(Font.has_attribute(_T("ShadowColor")))
-		SetFontShadowColor((long)Font.attribute(_T("ShadowColor")));
+		SetFontShadowColor((int)Font.attribute(_T("ShadowColor")));
 	if(Font.has_attribute(_T("ShadowWidth")))
-		SetFontShadowWidth((long)Font.attribute(_T("ShadowWidth")));
+		SetFontShadowWidth((int)Font.attribute(_T("ShadowWidth")));
 	if(Font.has_attribute(_T("CharSpace")))
-		SetFontCharSpace((long)Font.attribute(_T("CharSpace")));
+		SetFontCharSpace((int)Font.attribute(_T("CharSpace")));
 	if(Font.has_attribute(_T("LineSpace")))
-		SetFontLineSpace((long)Font.attribute(_T("LineSpace")));
+		SetFontLineSpace((int)Font.attribute(_T("LineSpace")));
 }
 
 void CD3DWnd::LoadTextureFromXML(xml_node& Texture)
@@ -1478,10 +1478,10 @@ void CD3DWnd::LoadTextureFromXML(xml_node& Texture)
 	CEasyString TexFile;
 	CEasyRect Rect;
 	TexFile=Texture.attribute(_T("TextureFile")).getvalue();
-	Rect.left=Texture.attribute(_T("RectLeft"));
-	Rect.top=Texture.attribute(_T("RectTop"));
-	Rect.right=Texture.attribute(_T("RectRight"));
-	Rect.bottom=Texture.attribute(_T("RectBottom"));
+	Rect.left = (int)Texture.attribute(_T("RectLeft"));
+	Rect.top = (int)Texture.attribute(_T("RectTop"));
+	Rect.right = (int)Texture.attribute(_T("RectRight"));
+	Rect.bottom = (int)Texture.attribute(_T("RectBottom"));
 	SetTexture(TexFile,Rect);
 }
 
@@ -1500,7 +1500,7 @@ void CD3DWnd::LoadBehaviorFromXML(xml_node& Behavior)
 	if(Behavior.has_attribute(_T("IsTopmost")))
 		SetTopmost((bool)Behavior.attribute(_T("IsTopmost")));
 	if(Behavior.has_attribute(_T("TabIndex")))
-		SetTabIndex((long)Behavior.attribute(_T("TabIndex")));
+		SetTabIndex((int)Behavior.attribute(_T("TabIndex")));
 	if(Behavior.has_attribute(_T("IsTabContainer")))
 		EnableTabContainer((bool)Behavior.attribute(_T("IsTabContainer")));
 

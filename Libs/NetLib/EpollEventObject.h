@@ -11,7 +11,7 @@
 /****************************************************************************/
 #pragma once
 
-enum EVENT_TYPE
+enum NET_EVENT_TYPE
 {
 	IO_NOTSET,
 	IO_RECV,

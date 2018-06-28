@@ -39,7 +39,8 @@ CServerConsoleDlg::CServerConsoleDlg(CWnd* pParent /*=NULL*/)
 	, m_TCPSend(_T(""))
 	, m_UDPRecv(_T(""))
 	, m_UCPSend(_T(""))
-{	
+	, m_WorkStatus(_T(""))
+{
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON_TRAY);
 	m_pServer=NULL;
 }
@@ -59,6 +60,7 @@ void CServerConsoleDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_ST_UDP_RECV, m_UDPRecv);
 	DDX_Text(pDX, IDC_ST_UDP_SEND, m_UCPSend);
 	DDX_Text(pDX, IDC_EDIT_COMMAND, m_Command);
+	DDX_Text(pDX, IDC_ST_WORK_STATUS, m_WorkStatus);
 }
 
 BEGIN_MESSAGE_MAP(CServerConsoleDlg, CDialog)
@@ -234,9 +236,9 @@ void CServerConsoleDlg::OnLogMsg(LPCTSTR szLogMsg)
 	m_edMsgWnd.ReplaceSel(szLogMsg);
 
 
-	m_edMsgWnd.SetSel(0,-1);
-	m_edMsgWnd.GetSel(s1,s2);
-	m_edMsgWnd.SetSel(s2,s2);	
+	//m_edMsgWnd.SetSel(0,-1);
+	//m_edMsgWnd.GetSel(s1,s2);
+	//m_edMsgWnd.SetSel(s2,s2);	
 
 	//m_edMsgWnd.ReplaceSel("\r\n");
 
@@ -271,6 +273,8 @@ void CServerConsoleDlg::OnTimer(UINT_PTR nIDEvent)
 		m_TCPSend=FormatNumberWordsFloat(StatusPacket.GetMember(SC_SST_SS_TCP_SEND_FLOW),true);
 		m_UDPRecv=FormatNumberWordsFloat(StatusPacket.GetMember(SC_SST_SS_UDP_RECV_FLOW),true);
 		m_UCPSend=FormatNumberWordsFloat(StatusPacket.GetMember(SC_SST_SS_UDP_SEND_FLOW),true);
+		BYTE WorkStatus = StatusPacket.GetMember(SC_SST_SS_WORK_STATUS);
+		m_WorkStatus = WorkStatus <= SERVER_WORK_STATUS_SHUTDOWN ? g_szSERVER_WORK_STATUS[WorkStatus] : _T("未知");
 
 		UpdateData(false);
 

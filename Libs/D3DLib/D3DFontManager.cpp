@@ -32,7 +32,7 @@ CD3DFontManager::~CD3DFontManager(void)
 	{
 		CEasyString Key;
 		CD3DBaseFont * pFont=*(m_FontStorage.GetNextObject(Pos,Key));
-		PrintSystemLog(0,_T("字体<%s>未释放！"),(LPCTSTR)pFont->GetName());
+		PrintD3DLog(_T("字体<%s>未释放！"), (LPCTSTR)pFont->GetName());
 	}
 	m_FontStorage.Destory();
 #endif
@@ -92,7 +92,7 @@ bool CD3DFontManager::AddD3DFont(CD3DBaseFont * pFont,LPCTSTR FontName)
 	}
 	else
 	{
-		PrintD3DLog(0,_T("将字体加入字体管理器失败(%u,%u)"),
+		PrintD3DLog(_T("将字体加入字体管理器失败(%u,%u)"),
 			m_FontStorage.GetObjectCount(),m_FontStorage.GetBufferSize());
 		return false;
 	}
@@ -106,7 +106,7 @@ bool CD3DFontManager::DeleteD3DFont(UINT ID)
 	}
 	else
 	{
-		PrintD3DLog(0,_T("CD3DFontManager::DeleteD3DFont:字体[%u]未找到"),
+		PrintD3DLog(_T("CD3DFontManager::DeleteD3DFont:字体[%u]未找到"),
 			ID);
 		return false;
 	}
@@ -122,7 +122,7 @@ bool CD3DFontManager::DeleteD3DFont(LPCTSTR FontName)
 	}
 	else
 	{
-		PrintD3DLog(0,_T("CD3DFontManager::DeleteD3DFont:字体[%s]未找到"),
+		PrintD3DLog(_T("CD3DFontManager::DeleteD3DFont:字体[%s]未找到"),
 			FontName);
 		return false;
 	}

@@ -7,8 +7,12 @@
       <!--EventRouterPool为连接数据转接器对象池大小设置，最大连接数不能超过此对象池大小-->
   </Net>
   
-  <Router RouterID="0" MsgQueueSize="10240" MsgProcessLimit="32" />
-  <!--路由设置，RouterID为路由ID，容器的唯一ID,不同容器间不可重复，MsgQueueSize为路由的消息队列大小，MsgProcessLimit为每循环处理消息的上限-->
+  <Router RouterID="0" MsgQueueSize="10240" MsgProcessLimit="32" StateMsgTransfer="true" />
+  <!--路由设置，
+    RouterID：路由ID，容器的唯一ID,不同容器间不可重复
+    MsgQueueSize：路由的消息队列大小，
+    MsgProcessLimit：每循环处理消息的上限
+    StateMsgTransfer：是否对处理的消息进行统计-->
 
   <!--RouterLink块为容器间的连接设置，其中的ServerID/ReportID/ID都会被自动替换为RouterID，可随意设置-->
   <RouterLink ServerID="0-0-0-200">
@@ -37,7 +41,8 @@
                  AcceptQueueSize="128" ParallelAcceptCount="32" RecvBufferSize="128" SendBufferSize="128"                 
                  UnacceptConnectionKeepTime="30000" UseServerInitiativeKeepAlive="false" KeepAliveTime="10000" KeepAliveCount="20"
                  MsgCompressType="lzo" MinMsgCompressSize="1024" 
-                 GlobalMsgMapSize="128" MsgMapSize="1024" MaxMsgSize="40960"
+                 MsgEnCryptType="none" SecretKey="1234567890"
+                 GlobalMsgMapSize="128" MsgMapSize="1024" MaxMsgSize="40960" MaxSendMsgSize="10485760"
                  PluginName="WebSocketProxy" PluginModuleFileName="" ConfigDir="" LogDir=""/>
     <!--ProxyType：代理类型，必须唯一，所有的客户端代理不能有相同的代理类型
     ProxyMode：代理模式，0=使用内置缺省客户端代理，1=使用客户端代理插件
@@ -54,9 +59,12 @@
     KeepAliveCount：KeepAlive最大丢失数，超过即判定死连接，然后断开
     MsgCompressType：数据包压缩格式，lzo代表使用lzo格式压缩，其他不压缩
     MinMsgCompressSize：最小压缩的数据包大小，小于这个大小的数据包不压缩
+    MsgEnCryptType：数据包加密格式，可选择DES,AES和TEA
+    SecretKey：加密所使用的密钥，密钥长度，DES为8字符，AES为16/24/32字符，TEA为16字符
     GlobalMsgMapSize：全局消息映射表大小，用于决定将消息发送至那个对象
     MsgMapSize：消息映射表大小，用于决定将消息发送至那个对象
-    MaxMsgSize：消息最大大小
+    MaxMsgSize：接收的消息最大大小
+    MaxSendMsgSize：发送的消息最大大小
     PluginName：客户端代理插件名
     PluginModuleFileName：客户端代理插件DLL文件路径
     ConfigDir：传递给客户端代理插件的配置文件目录
@@ -133,7 +141,12 @@
   </Plugins>
 
   <System>
-    <LogConfig LogLevel="3" ConsoleLogLevel="3" LogServerObjectUse="false" />
+    <MainThread ProcessLimit="64"/>
+    <LogConfig LogLevel="3" ConsoleLogLevel="3" LogCacheSize="655360" LogServerObjectUse="false" PreLoadModuleSym="false" 
+               MakeFullDump="false" LogModuleSymStatus="false"/>
+    <UDPControlAddress IP="0" Port="8900"/>
+    <GuardThread KeepAliveTime="20000" KeepAliveCount="5"/>
+    <ControlPipe Name="DOSS" AssembleBufferSize="8192" />
   </System>
 
 

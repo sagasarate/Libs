@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CLuaBaseMetaClass;
 class CLuaTable;
@@ -283,48 +283,48 @@ struct LuaValue
 	char operator=(char Value)
 	{
 		Clear();
-		Type = LUA_TNUMBER;
-		fValue = Value;
+		Type = LUA_TINTEGER;
+		i64Value = Value;
 		return (char)fValue;
 	}
 
 	unsigned char operator=(unsigned char Value)
 	{
 		Clear();
-		Type = LUA_TNUMBER;
-		fValue = Value;
+		Type = LUA_TINTEGER;
+		i64Value = Value;
 		return (unsigned char)fValue;
 	}
 
 	short operator=(short Value)
 	{
 		Clear();
-		Type = LUA_TNUMBER;
-		fValue = Value;
+		Type = LUA_TINTEGER;
+		i64Value = Value;
 		return (short)fValue;
 	}
 
 	unsigned short operator=(unsigned short Value)
 	{
 		Clear();
-		Type = LUA_TNUMBER;
-		fValue = Value;
+		Type = LUA_TINTEGER;
+		i64Value = Value;
 		return (unsigned short)fValue;
 	}
 
 	int operator=(int Value)
 	{
 		Clear();
-		Type = LUA_TNUMBER;
-		fValue = Value;
+		Type = LUA_TINTEGER;
+		i64Value = Value;
 		return (int)fValue;
 	}
 
 	unsigned int operator=(unsigned int Value)
 	{
 		Clear();
-		Type = LUA_TNUMBER;
-		fValue = Value;
+		Type = LUA_TINTEGER;
+		i64Value = Value;
 		return (unsigned int)fValue;
 	}
 

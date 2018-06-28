@@ -182,7 +182,7 @@ bool CD3DRibbonEmitter::FromSmartStruct(CSmartStruct& Packet,CUSOResourceManager
 UINT CD3DRibbonEmitter::GetSmartStructSize(UINT Param)
 {
 	UINT Size=CD3DBaseDynamicModel::GetSmartStructSize(Param);
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_pModelResource->GetNameLength());
+	Size += CSmartStruct::GetStringMemberSize(m_pModelResource->GetNameLength());
 
 	return Size;
 }
@@ -330,7 +330,7 @@ void CD3DRibbonEmitter::Update(FLOAT Time)
 
 	
 
-	//PrintSystemLog(0,"Particle=%u,%u",CreateCount,DeleteCount);
+	//PrintD3DLog("Particle=%u,%u",CreateCount,DeleteCount);
 }
 
 bool CD3DRibbonEmitter::NeedUpdateAni()

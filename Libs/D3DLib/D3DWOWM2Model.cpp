@@ -565,17 +565,17 @@ UINT CD3DWOWM2Model::GetSmartStructSize(UINT Param)
 {
 	UINT Size=CD3DBaseDynamicModel::GetSmartStructSize(Param|OPP_WITHOUT_CHILD);
 
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_pModelResource->GetNameLength());
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_CurAnimationID));
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_CurSubAnimationID));
+	Size += CSmartStruct::GetStringMemberSize(m_pModelResource->GetNameLength());
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_CurAnimationID));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_CurSubAnimationID));
 	
 	for(UINT i=0;i<m_BoneMatrices.GetCount();i++)
 	{
 		if(m_BoneMatrices[i].pAttachObject&&m_BoneMatrices[i].AttachmentType==CD3DWOWM2ModelResource::MAT_DUMMY)
 		{
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_BoneMatrices[i].AttachmentID));
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_BoneMatrices[i].pAttachObject->GetStorageID()));
-			Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_BoneMatrices[i].AttachmentID));
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_BoneMatrices[i].pAttachObject->GetStorageID()));
+			Size+=CSmartStruct::GetStructMemberSize(0);
 		}
 	}
 
@@ -586,7 +586,7 @@ UINT CD3DWOWM2Model::GetSmartStructSize(UINT Param)
 			if((!m_ChildList[i]->IsKindOf(GET_CLASS_INFO(CD3DBillBoardParticleEmitter)))&&
 				(!m_ChildList[i]->IsKindOf(GET_CLASS_INFO(CD3DRibbonEmitter))))
 			{
-				Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(m_ChildList[i]->GetSmartStructSize(Param));
+				Size+=CSmartStruct::GetStructMemberSize(m_ChildList[i]->GetSmartStructSize(Param));
 			}
 		}
 	}

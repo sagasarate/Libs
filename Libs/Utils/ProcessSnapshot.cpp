@@ -234,7 +234,7 @@ bool CProcessSnapshot::Snapshot()
 			{
 				PROCESS_INFO * pProcessInfo = ProcessList.AddEmpty();
 				pProcessInfo->ProcessID = ProcessID;
-				pProcessInfo->ImageFile = CFileTools::MakeFullPath(pProcessFile->ImageFile);
+				pProcessInfo->ImageFile = pProcessFile->ImageFile;
 
 
 				int PID = 0;
@@ -358,6 +358,11 @@ CProcessSnapshot::PROCESS_INFO_FILE * CProcessSnapshot::GetProcessInfoFile(UINT 
 			pInfo->ImageFile[Len] = 0;
 			pInfo->ImageFile.TrimBuffer();
 		}
+		else
+		{
+			pInfo->ImageFile.Clear();
+		}
+		//PrintImportantLog("Process Snapshot PID:%d File:%s",pInfo->ProcessID,(LPCTSTR)pInfo->ImageFile);
 		pInfo->AccessCount = m_SnapshotCount;
 		return pInfo;
 	}
@@ -370,6 +375,7 @@ void CProcessSnapshot::CheckProcessInfoFile()
 	{
 		if (m_ProcessInfoFileList[i].AccessCount != m_SnapshotCount)
 		{
+			fclose(m_ProcessInfoFileList[i].InfoFile);
 			m_ProcessInfoFileList.Delete(i);
 		}
 	}

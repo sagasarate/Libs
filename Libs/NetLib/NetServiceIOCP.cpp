@@ -394,7 +394,7 @@ int CNetService::Update(int ProcessPacketLimit)
 		}
 		else
 		{
-			PrintNetLog(_T("(%d)Servicec收到不明类型的OverLapped！"),GetID());			
+			PrintNetLog(_T("(%d)Servicec收到不明类型(%d)的OverLapped！"), GetID(), pOverLappedObject->GetType());
 		}
 		ReleaseOverLappedObject(pOverLappedObject);
 		PacketCount++;

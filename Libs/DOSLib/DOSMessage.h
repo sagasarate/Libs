@@ -472,6 +472,7 @@ enum DOS_MESSAGE_FLAG
 	DOS_MESSAGE_FLAG_SYSTEM_MESSAGE=1,
 	DOS_MESSAGE_FLAG_COMPRESSED=(1<<1),
 	DOS_MESSAGE_FLAG_CAN_CACHE = (1 << 2),
+	DOS_MESSAGE_FLAG_ENCRYPT = (1 << 3),
 };
 
 
@@ -499,6 +500,15 @@ inline BOOL PrintDOSObjectStatLog(LPCTSTR Format, ...)
 	va_list vl;
 	va_start(vl, Format);
 	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DOS_OBJECT_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, NULL, Format, vl);
+	va_end(vl);
+	return ret;
+}
+
+inline BOOL PrintDOSMsgStatLog(LPCTSTR Format, ...)
+{
+	va_list vl;
+	va_start(vl, Format);
+	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DOS_MSG_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, NULL, Format, vl);
 	va_end(vl);
 	return ret;
 }

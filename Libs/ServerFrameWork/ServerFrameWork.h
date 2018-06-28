@@ -48,7 +48,7 @@
 #include "SystemNetLink.h"
 #include "SystemNetLinkManager.h"
 #include "SystemControlPort.h"
-
+#include "SystemControlPipe.h"
 
 
 

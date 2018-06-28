@@ -270,22 +270,22 @@ UINT CD3DRibbonEmitterResource::GetSmartStructSize(UINT Param)
 {
 	UINT Size=CD3DObjectResource::GetSmartStructSize(Param);
 
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_RibbonEmitterInfo.ID));
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_RibbonEmitterInfo.ID));
 	for(UINT j=0;j<m_RibbonEmitterInfo.Textures.GetCount();j++)
 	{
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_RibbonEmitterInfo.Textures[j]->GetNameLength());
+		Size += CSmartStruct::GetStringMemberSize(m_RibbonEmitterInfo.Textures[j]->GetNameLength());
 	}
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(m_RibbonEmitterInfo.pFX->GetNameLength());
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_RibbonEmitterInfo.IsTransparent));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_RibbonEmitterInfo.Resolution));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_RibbonEmitterInfo.Length));
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_RibbonEmitterInfo.Emissionangle));
+	Size+=CSmartStruct::GetStringMemberSize(m_RibbonEmitterInfo.pFX->GetNameLength());
+	Size += CSmartStruct::GetFixMemberSize(sizeof(m_RibbonEmitterInfo.IsTransparent));
+	Size += CSmartStruct::GetFixMemberSize(sizeof(m_RibbonEmitterInfo.Resolution));
+	Size += CSmartStruct::GetFixMemberSize(sizeof(m_RibbonEmitterInfo.Length));
+	Size += CSmartStruct::GetFixMemberSize(sizeof(m_RibbonEmitterInfo.Emissionangle));
 
 	Size+=GetAnimationBlockSmartStructSize<CD3DVector3>(m_RibbonEmitterInfo.Color);
 	Size+=GetAnimationBlockSmartStructSize<FLOAT>(m_RibbonEmitterInfo.Opacity);
 	Size+=GetAnimationBlockSmartStructSize<FLOAT>(m_RibbonEmitterInfo.Above);
 	Size+=GetAnimationBlockSmartStructSize<FLOAT>(m_RibbonEmitterInfo.Below);
-	Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+	Size+=CSmartStruct::GetStructMemberSize(0);
 
 	return Size;
 }

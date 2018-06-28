@@ -180,6 +180,14 @@ void CDOSClient::ShutDown(UINT PluginID)
 {
 
 }
+bool CDOSClient::RegisterCommandReceiver()
+{
+	return false;
+}
+bool CDOSClient::UnregisterCommandReceiver()
+{
+	return false;
+}
 BOOL CDOSClient::RegisterLogger(UINT LogChannel, LPCTSTR FileName)
 {
 	return FALSE;
@@ -187,6 +195,10 @@ BOOL CDOSClient::RegisterLogger(UINT LogChannel, LPCTSTR FileName)
 BOOL CDOSClient::RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader)
 {
 	return FALSE;
+}
+void CDOSClient::SetServerWorkStatus(BYTE WorkStatus)
+{
+
 }
 void CDOSClient::OnRecvData(const BYTE * pData, UINT DataSize)
 {

@@ -162,6 +162,8 @@ bool CFileLogPrinter::OpenLogFile()
 	else
 		m_FileOpenMode = IFileAccessor::modeCreateAlways;
 	m_FileOpenMode |= IFileAccessor::modeWrite | IFileAccessor::shareShareRead;
+	if (m_Flag&FILE_LOG_SHARE_WRITE)
+		m_FileOpenMode |= IFileAccessor::shareShareWrite;
 	if (m_Flag&FILE_LOG_SAFE_WRITE)
 		m_FileOpenMode |= IFileAccessor::osWriteThrough;
 	if (m_pFileAccessor->Open(LogFileName, m_FileOpenMode))

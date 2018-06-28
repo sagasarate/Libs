@@ -1,19 +1,34 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
-CEasyMap<UINT, FN_SET_META_CLASS> CLuaBaseStaticMetaClass::m_SetMetaClassFNMap;
+CStaticMap<UINT, FN_SET_META_CLASS> * CSetMetaClassFNRegister::m_pSetMetaClassFNMap = NULL;
 
 CSetMetaClassFNRegister::CSetMetaClassFNRegister(UINT ClassID, FN_SET_META_CLASS pFN)
-{
-	CLuaBaseStaticMetaClass::m_SetMetaClassFNMap.Insert(ClassID, pFN);
+{	
+	m_ClassID = ClassID;
+	if (m_pSetMetaClassFNMap == NULL)
+	{
+		m_pSetMetaClassFNMap = new CStaticMap<UINT, FN_SET_META_CLASS>(64, 64, 64);
+	}
+	m_pSetMetaClassFNMap->Insert(ClassID, pFN);
 }
-
+CSetMetaClassFNRegister::~CSetMetaClassFNRegister()
+{
+	if (m_pSetMetaClassFNMap)
+	{
+		m_pSetMetaClassFNMap->Delete(m_ClassID);
+		if (m_pSetMetaClassFNMap->GetObjectCount() == 0)
+		{
+			SAFE_DELETE(m_pSetMetaClassFNMap);
+		}
+	}
+}
 
 IMPLEMENT_STATIC_META_CLASS(CLuaBaseStaticMetaClass)
 
 
 bool CLuaBaseStaticMetaClass::SetMetaClassByObject(lua_State * pLuaState, CLuaBaseStaticMetaClass * pObject)
 {
-	FN_SET_META_CLASS * ppFN = m_SetMetaClassFNMap.Find(pObject->m_ClassID);
+	FN_SET_META_CLASS * ppFN = CSetMetaClassFNRegister::FindSetMetaClassFN(pObject->m_ClassID);
 	if (ppFN)
 	{
 		(pObject->*(*ppFN))(pLuaState);

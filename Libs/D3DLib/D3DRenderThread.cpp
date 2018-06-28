@@ -29,7 +29,7 @@ BOOL CD3DRenderThread::OnStart()
 {
 	if(!CD3DDevice::IsUseMultiThreadRender())
 	{
-		PrintD3DLog(0,_T("未采用多线程模式创建设备,渲染线程无法启用"));
+		PrintD3DLog(_T("未采用多线程模式创建设备,渲染线程无法启用"));
 		return FALSE;
 	}
 	m_FrameCountTimer.SaveTime();
@@ -63,7 +63,7 @@ BOOL CD3DRenderThread::OnRun()
 		//	{
 		//		if(m_RenderInstances[j].RenderList[i]->IsKindOf(GET_CLASS_INFO(CD3DSceneRender)))
 		//		{
-		//			PrintSystemLog(0,_T("FrameRate=%g,FaceCount=%u,SubMeshCount=%u,TreeCheck=%u,TreeCut=%u,ObjectCheck=%u,DirectRenderCount=%u,BranchObjectCheckCount=%u,ObjectCutCount=%u,MergeRender=%u,FXApplyCount=%u,MaterialSetCount=%u"),
+		//			PrintD3DLog(_T("FrameRate=%g,FaceCount=%u,SubMeshCount=%u,TreeCheck=%u,TreeCut=%u,ObjectCheck=%u,DirectRenderCount=%u,BranchObjectCheckCount=%u,ObjectCutCount=%u,MergeRender=%u,FXApplyCount=%u,MaterialSetCount=%u"),
 		//				m_FrameRate,
 		//				((CD3DSceneRender *)m_RenderInstances[j].RenderList[i])->GetRenderFaceCount(),
 		//				((CD3DSceneRender *)m_RenderInstances[j].RenderList[i])->GetRenderSubMeshCount(),

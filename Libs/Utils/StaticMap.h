@@ -490,8 +490,8 @@ public:
 	}
 	const T* GetObject(LPVOID Pos) const
 	{
-		const StorageNode * pNode = (StorageNode *)Pos;
-		if (Pos)
+		const StorageNode * pNode = (const StorageNode *)Pos;
+		if (pNode)
 			return pNode->GetObjectPointer();
 		else
 			return NULL;
@@ -554,7 +554,14 @@ public:
 		}
 		return NULL;
 	}
-
+	UINT GetObjectIDByPos(LPVOID Pos) const
+	{
+		const StorageNode * pNode = (const StorageNode *)Pos;
+		if (pNode)
+			return pNode->ID;
+		else
+			return 0;
+	}
 	T * GetNextObject(LPVOID& Pos, KEY& Key)
 	{
 		if(Pos)

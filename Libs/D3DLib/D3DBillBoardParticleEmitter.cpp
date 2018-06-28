@@ -208,8 +208,8 @@ bool CD3DBillBoardParticleEmitter::FromSmartStruct(CSmartStruct& Packet,CUSOReso
 UINT CD3DBillBoardParticleEmitter::GetSmartStructSize(UINT Param)
 {
 	UINT Size=CD3DBaseDynamicModel::GetSmartStructSize(Param);
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_pModelResource->GetNameLength());
-	Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_MaxParticleCount));
+	Size += CSmartStruct::GetStringMemberSize(m_pModelResource->GetNameLength());
+	Size+=CSmartStruct::GetFixMemberSize(sizeof(m_MaxParticleCount));
 
 	return Size;
 }
@@ -381,13 +381,13 @@ void CD3DBillBoardParticleEmitter::Update(FLOAT Time)
 			m_SubMesh.SetPrimitiveCount(m_ParticleCount*2);
 			m_IsRenderDataChanged=true;
 
-			//PrintD3DDebugLog(0,"%s粒子数%d",GetName(),m_ParticleCount);
+			//PrintD3DDebugLog("%s粒子数%d",GetName(),m_ParticleCount);
 			//m_SubMesh.CheckValid();
 		}
 	}
 	
 
-	//PrintSystemLog(0,"Particle=%u,%u",CreateCount,DeleteCount);
+	//PrintD3DLog("Particle=%u,%u",CreateCount,DeleteCount);
 
 }
 
@@ -550,12 +550,12 @@ void CD3DBillBoardParticleEmitter::BuildParticle(CD3DParticleEmitterResource::PA
 	{
 		if((pParticleEmitterInfo->Flags&CD3DParticleEmitterResource::PED_DIR_NO_HORIZONTAL_TRANS)==0)
 		{
-			RotationX=GetRandf(0.0f,pParam->HorizontalRange)-pParam->HorizontalRange/2;
+			RotationX=GetRand(0.0f,pParam->HorizontalRange)-pParam->HorizontalRange/2;
 		}
 
 		//if(pParticleEmitterInfo->Flags&PEF_DIR_VERTICAL_TRANS)
 		{
-			RotationZ=GetRandf(0.0f,pParam->VerticalRange)-pParam->VerticalRange/2;
+			RotationZ = GetRand(0.0f, pParam->VerticalRange) - pParam->VerticalRange / 2;
 		}
 
 		if(RotationX!=0.0f||RotationZ!=0.0f)
@@ -564,23 +564,23 @@ void CD3DBillBoardParticleEmitter::BuildParticle(CD3DParticleEmitterResource::PA
 			Dir.Normalize();
 		}
 
-		StartPos.x=GetRandf(-pParam->EmissionAreaLength/2,pParam->EmissionAreaLength/2);
+		StartPos.x = GetRand(-pParam->EmissionAreaLength / 2, pParam->EmissionAreaLength / 2);
 		StartPos.y=0;
-		StartPos.z=GetRandf(-pParam->EmissionAreaWidth/2,pParam->EmissionAreaWidth/2);
+		StartPos.z = GetRand(-pParam->EmissionAreaWidth / 2, pParam->EmissionAreaWidth / 2);
 	}
 	else
 	{
-		RotationX=GetRandf(0.0f,pParam->HorizontalRange)-pParam->HorizontalRange/2;
-		RotationZ=GetRandf(0.0f,pParam->VerticalRange)-pParam->VerticalRange/2;
+		RotationX = GetRand(0.0f, pParam->HorizontalRange) - pParam->HorizontalRange / 2;
+		RotationZ = GetRand(0.0f, pParam->VerticalRange) - pParam->VerticalRange / 2;
 		Dir=Dir*CD3DMatrix::FromRotationX(RotationX)*CD3DMatrix::FromRotationZ(RotationZ);	
 		Dir.Normalize();
 
-		FLOAT S=GetRandf(0.0f,1.0f);
+		FLOAT S = GetRand(0.0f, 1.0f);
 		FLOAT Radius1=pParam->EmissionAreaWidth*S;
 		FLOAT Radius2=pParam->EmissionAreaLength*S;		
-		FLOAT Angle=GetRandf(0.0f,D3DX_PI*2);
+		FLOAT Angle = GetRand(0.0f, D3DX_PI * 2);
 
-		StartPos.y=GetRandf(-Radius2,Radius2);
+		StartPos.y = GetRand(-Radius2, Radius2);
 		
 		if(Radius2>0)
 		{
@@ -610,7 +610,7 @@ void CD3DBillBoardParticleEmitter::BuildParticle(CD3DParticleEmitterResource::PA
 
 	m_pParticleVertexBuffer[m_ParticleCount].Vertex[0].Info.Slowdown=pParticleEmitterInfo->Slowdown;
 	m_pParticleVertexBuffer[m_ParticleCount].Vertex[0].Info.ParticleRotation=
-		GetRandf(-pParticleEmitterInfo->Rotation*D3DX_PI,pParticleEmitterInfo->Rotation*D3DX_PI);
+		GetRand(-pParticleEmitterInfo->Rotation*D3DX_PI, pParticleEmitterInfo->Rotation*D3DX_PI);
 
 	//m_pParticleVertexBuffer[m_ParticleCount].Vertex[0].Info.ColorLifeMid=pParticleEmitterInfo->ParticleColor.TimeStamps[1];
 	//m_pParticleVertexBuffer[m_ParticleCount].Vertex[0].Info.OpacityLifeMid=pParticleEmitterInfo->ParticleOpacity.TimeStamps[1];

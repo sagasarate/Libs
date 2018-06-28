@@ -236,17 +236,17 @@ bool CD3DSubMeshMaterial::FromSmartStruct(CSmartStruct& Packet,CUSOResourceManag
 UINT CD3DSubMeshMaterial::GetSmartStructSize(UINT Param)
 {
 	UINT Size=CNameObject::GetSmartStructSize(Param);
-	Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_Material));
+	Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_Material));
 	for(UINT i=0;i<m_TextureList.GetCount();i++)
 	{
 		if(m_TextureList[i].pTexture)
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(m_TextureList[i].pTexture->GetNameLength());
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_TextureList[i].Property));
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+			Size+=CSmartStruct::GetStringMemberSize(m_TextureList[i].pTexture->GetNameLength());
+		Size += CSmartStruct::GetFixMemberSize(sizeof(m_TextureList[i].Property));
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
 	if(m_pFX)
 	{
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_pFX->GetNameLength());
+		Size += CSmartStruct::GetStringMemberSize(m_pFX->GetNameLength());
 	}	
 	return Size;
 }

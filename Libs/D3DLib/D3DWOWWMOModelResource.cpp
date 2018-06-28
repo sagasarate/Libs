@@ -75,7 +75,7 @@ bool CD3DWOWWMOModelResource::LoadFromFile(LPCTSTR ModelFileName)
 		return false;
 	if(!pFile->Open(ModelFileName,IFileAccessor::modeRead))
 	{
-		PrintD3DLog(0,_T("文件%s打开失败"),ModelFileName);
+		PrintD3DLog(_T("文件%s打开失败"),ModelFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -84,7 +84,7 @@ bool CD3DWOWWMOModelResource::LoadFromFile(LPCTSTR ModelFileName)
 
 	if(!WMOChunk.Load(pFile))
 	{
-		PrintD3DLog(0,_T("文件%s格式错误"),ModelFileName);
+		PrintD3DLog(_T("文件%s格式错误"),ModelFileName);
 		pFile->Release();
 		return false;
 	}
@@ -167,7 +167,7 @@ bool CD3DWOWWMOModelResource::LoadFromFile(LPCTSTR ModelFileName)
 	UINT PortalCount=pPortalInfos->ChunkSize/sizeof(WMOPortalInfo);
 	if(pHeader->PortalCount!=PortalCount)
 	{
-		PrintD3DLog(0,_T("Portal数量有异常"));
+		PrintD3DLog(_T("Portal数量有异常"));
 	}
 
 	for(UINT i=0;i<GroupPortalCount;i++)
@@ -196,12 +196,12 @@ bool CD3DWOWWMOModelResource::LoadFromFile(LPCTSTR ModelFileName)
 			}
 			else
 			{
-				PrintD3DLog(0,_T("Portal(%d)找不到对应Group(%d)"),i,PortalInfo.GroupIndex);
+				PrintD3DLog(_T("Portal(%d)找不到对应Group(%d)"),i,PortalInfo.GroupIndex);
 			}
 		}
 		else
 		{
-			PrintD3DLog(0,_T("Portal(%d)找不到"),Index);
+			PrintD3DLog(_T("Portal(%d)找不到"),Index);
 		}
 	}
 
@@ -278,7 +278,7 @@ bool CD3DWOWWMOModelResource::ToSmartStruct(CSmartStruct& Packet,CUSOResourceMan
 				(LPCTSTR)(&m_DoodadInfos[i].Rotation),sizeof(m_DoodadInfos[i].Rotation)));
 			CHECK_SMART_STRUCT_ADD_AND_RETURN(DoodadInfo.AddMember(SST_DI_SCALING,
 				(LPCTSTR)(&m_DoodadInfos[i].Scaling),sizeof(m_DoodadInfos[i].Scaling)));
-			CHECK_SMART_STRUCT_ADD_AND_RETURN(DoodadInfo.AddMember(SST_DI_COLOR,m_DoodadInfos[i].Color));
+			CHECK_SMART_STRUCT_ADD_AND_RETURN(DoodadInfo.AddMember(SST_DI_COLOR,(UINT)m_DoodadInfos[i].Color));
 			CHECK_SMART_STRUCT_ADD_AND_RETURN(DoodadInfo.AddMember(SST_DI_GROUP_INDEX,m_DoodadInfos[i].GroupIndex));
 			if(!DoodadInfoList.FinishMember(SST_DIL_DOODAD_INFO,DoodadInfo.GetDataLen()))
 				return false;
@@ -569,7 +569,7 @@ bool CD3DWOWWMOModelResource::FromSmartStruct(CSmartStruct& Packet,CUSOResourceM
 							sizeof(m_DoodadInfos[DoodadInfoCount].Rotation));
 						memcpy(&(m_DoodadInfos[DoodadInfoCount].Scaling),(LPCSTR)DoodadInfo.GetMember(SST_DI_SCALING),
 							sizeof(m_DoodadInfos[DoodadInfoCount].Scaling));
-						m_DoodadInfos[DoodadInfoCount].Color=DoodadInfo.GetMember(SST_DI_COLOR);
+						m_DoodadInfos[DoodadInfoCount].Color=(UINT)DoodadInfo.GetMember(SST_DI_COLOR);
 						m_DoodadInfos[DoodadInfoCount].GroupIndex=DoodadInfo.GetMember(SST_DI_GROUP_INDEX);
 						DoodadInfoCount++;
 					}
@@ -769,81 +769,81 @@ bool CD3DWOWWMOModelResource::FromSmartStruct(CSmartStruct& Packet,CUSOResourceM
 UINT CD3DWOWWMOModelResource::GetSmartStructSize(UINT Param)
 {
 	UINT Size=CD3DObjectResource::GetSmartStructSize(Param);
-	Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+	Size += CSmartStruct::GetStructMemberSize(0);
 	for(UINT i=0;i<m_DoodadInfos.GetCount();i++)
 	{
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_DoodadInfos[i].pDoodadModel->GetNameLength());
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_DoodadInfos[i].Translation));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_DoodadInfos[i].Rotation));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_DoodadInfos[i].Scaling));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_DoodadInfos[i].Color));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_DoodadInfos[i].GroupIndex));
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size += CSmartStruct::GetStringMemberSize(m_DoodadInfos[i].pDoodadModel->GetNameLength());
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_DoodadInfos[i].Translation));
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_DoodadInfos[i].Rotation));
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_DoodadInfos[i].Scaling));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_DoodadInfos[i].Color));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_DoodadInfos[i].GroupIndex));
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
-	Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+	Size+=CSmartStruct::GetStructMemberSize(0);
 	for(UINT i=0;i<m_DoodadSets.GetCount();i++)
 	{		
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_DoodadSets[i].Name.GetLength());
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_DoodadSets[i].StartDoodad));
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_DoodadSets[i].DoodadCount));
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size += CSmartStruct::GetStringMemberSize(m_DoodadSets[i].Name.GetLength());
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_DoodadSets[i].StartDoodad));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_DoodadSets[i].DoodadCount));
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
-	Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+	Size+=CSmartStruct::GetStructMemberSize(0);
 	for(UINT i=0;i<m_Groups.GetCount();i++)
 	{	
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].Index));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_Groups[i].Name.GetLength());
-		Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].Flags));
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_Groups[i].BoundingBox));
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].Index));
+		Size += CSmartStruct::GetStringMemberSize(m_Groups[i].Name.GetLength());
+		Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].Flags));
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_Groups[i].BoundingBox));
 		
 		for(UINT j=0;j<m_Groups[i].PortalList.GetCount();j++)
 		{
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].PortalList[j].GroupIndex));
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].PortalList[j].Filler));
-			Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_Groups[i].PortalList[j].Normal));
-			Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(m_Groups[i].PortalList[j].Center));
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].PortalList[j].Factor));
-			Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(CD3DVector3)*m_Groups[i].PortalList[j].Vertices.GetCount());
-			Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].PortalList[j].GroupIndex));
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].PortalList[j].Filler));
+			Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_Groups[i].PortalList[j].Normal));
+			Size += CSmartStruct::GetStringMemberSizeA(sizeof(m_Groups[i].PortalList[j].Center));
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].PortalList[j].Factor));
+			Size += CSmartStruct::GetStringMemberSizeA(sizeof(CD3DVector3)*m_Groups[i].PortalList[j].Vertices.GetCount());
+			Size+=CSmartStruct::GetStructMemberSize(0);
 		}
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetStructMemberSize(0);
 
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(WORD)*m_Groups[i].IndexList.GetCount());
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(MODEL_VERTEXT)*m_Groups[i].VertexList.GetCount());
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(WORD)*m_Groups[i].IndexList.GetCount());
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(MODEL_VERTEXT)*m_Groups[i].VertexList.GetCount());
 
 		for(UINT j=0;j<m_Groups[i].BSPTree.GetCount();j++)
 		{
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].BSPTree[j].PlaneType));
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].BSPTree[j].RightChildIndex));
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].BSPTree[j].LeftChildIndex));
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].BSPTree[j].FaceCount));
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].BSPTree[j].FirstFace));
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].BSPTree[j].Distance));
-			Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].BSPTree[j].PlaneType));
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].BSPTree[j].RightChildIndex));
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].BSPTree[j].LeftChildIndex));
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].BSPTree[j].FaceCount));
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].BSPTree[j].FirstFace));
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].BSPTree[j].Distance));
+			Size+=CSmartStruct::GetStructMemberSize(0);
 		}
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetStructMemberSize(0);
 
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(WORD)*m_Groups[i].BSPFaceList.GetCount());
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(WORD)*m_Groups[i].BSPFaceList.GetCount());
 
 		for(UINT j=0;j<m_Groups[i].RenderBatchs.GetCount();j++)
 		{
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].RenderBatchs[j].StartIndex));
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].RenderBatchs[j].IndexCount));
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].RenderBatchs[j].StartVertex));
-			Size+=SMART_STRUCT_FIX_MEMBER_SIZE(sizeof(m_Groups[i].RenderBatchs[j].VertexCount));			
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].RenderBatchs[j].StartIndex));
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].RenderBatchs[j].IndexCount));
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].RenderBatchs[j].StartVertex));
+			Size+=CSmartStruct::GetFixMemberSize(sizeof(m_Groups[i].RenderBatchs[j].VertexCount));			
 			if(m_Groups[i].RenderBatchs[j].pTexture1)
-				Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_Groups[i].RenderBatchs[j].pTexture1->GetNameLength());
+				Size += CSmartStruct::GetStringMemberSize(m_Groups[i].RenderBatchs[j].pTexture1->GetNameLength());
 			if(m_Groups[i].RenderBatchs[j].pTexture2)
-				Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_Groups[i].RenderBatchs[j].pTexture2->GetNameLength());
+				Size += CSmartStruct::GetStringMemberSize(m_Groups[i].RenderBatchs[j].pTexture2->GetNameLength());
 			if(m_Groups[i].RenderBatchs[j].pFX)
-				Size+=SMART_STRUCT_STRING_MEMBER_SIZE(m_Groups[i].RenderBatchs[j].pFX->GetNameLength());
-			Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+				Size += CSmartStruct::GetStringMemberSize(m_Groups[i].RenderBatchs[j].pFX->GetNameLength());
+			Size+=CSmartStruct::GetStructMemberSize(0);
 		}
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetStructMemberSize(0);
 
-		Size+=SMART_STRUCT_STRING_MEMBER_SIZE(sizeof(BYTE)*m_Groups[i].FaceFlags.GetCount());
+		Size += CSmartStruct::GetStringMemberSizeA(sizeof(BYTE)*m_Groups[i].FaceFlags.GetCount());
 
-		Size+=SMART_STRUCT_STRUCT_MEMBER_SIZE(0);
+		Size+=CSmartStruct::GetStructMemberSize(0);
 	}
 	return Size;
 }
@@ -857,7 +857,7 @@ bool CD3DWOWWMOModelResource::LoadGroup(GROUP_INFO& GroupInfo,LPCTSTR ModelFileN
 		return false;
 	if(!pFile->Open(ModelFileName,IFileAccessor::modeRead))
 	{
-		PrintD3DLog(0,_T("文件%s打开失败"),ModelFileName);
+		PrintD3DLog(_T("文件%s打开失败"),ModelFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -1061,7 +1061,7 @@ bool CD3DWOWWMOModelResource::LoadDoodads(UINT DoodadCount,UINT DoodadSetCount,B
 					ModelFileName=ModelFileName.Left(Pos);
 					ModelFileName+=".m2";
 
-					CEasyString ObjectName=ModelFileName+"_"+GetPathFileName(SkinFileName);
+					CEasyString ObjectName = ModelFileName + "_" + CFileTools::GetPathFileName(SkinFileName);
 
 					CD3DWOWM2ModelResource* pResource=
 						dynamic_cast<CD3DWOWM2ModelResource*>(m_pManager->GetResource(ObjectName));

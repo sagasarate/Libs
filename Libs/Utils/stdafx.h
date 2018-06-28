@@ -35,9 +35,9 @@
 
 #define WIN32_LEAN_AND_MEAN		// 从 Windows 头中排除极少使用的资料
 
-#include <afx.h>
-
-#define USE_CRT_DETAIL_NEW
+//#include <afx.h>
+//
+//#define USE_CRT_DETAIL_NEW
 
 #endif
 
