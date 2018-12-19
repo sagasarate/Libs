@@ -38,7 +38,7 @@ BOOL CDOSRouter::Init(CDOSServer * pServer)
 BOOL CDOSRouter::OnStart()
 {
 	FUNCTION_BEGIN;
-	m_Config = m_pServer->GetConfig();
+	m_Config = m_pServer->GetConfig().RouterConfig;
 
 	m_MsgProcessLimit = m_Config.RouterMsgProcessLimit;
 
@@ -63,6 +63,12 @@ BOOL CDOSRouter::OnStart()
 
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(),THREAD_CPU_COUNT_TIME);
 
+	if (m_Config.EnableGuardThread)
+	{
+		m_GuardThread.SetTargetThreadID(GetThreadID());
+		m_GuardThread.SetKeepAliveTime(m_Config.GuardThreadKeepAliveTime, m_Config.GuardThreadKeepAliveCount);
+		m_GuardThread.Start();
+	}
 
 	PrintDOSLog(_T("路由线程[%u]已启动"),GetThreadID());
 	return TRUE;
@@ -85,6 +91,11 @@ BOOL CDOSRouter::OnRun()
 
 	m_ThreadPerformanceCounter.DoPerformanceCount();
 
+	if (m_Config.EnableGuardThread)
+	{
+		m_GuardThread.MakeKeepAlive();
+	}
+
 	EXCEPTION_CATCH_END
 	return TRUE;
 	FUNCTION_END;
@@ -93,6 +104,9 @@ BOOL CDOSRouter::OnRun()
 
 void CDOSRouter::OnTerminate()
 {
+	if (m_Config.EnableGuardThread)
+		m_GuardThread.SafeTerminate();
+
 	if (GetServer())
 	{
 		CDOSMessagePacket * pPacket;
@@ -129,7 +143,28 @@ BOOL CDOSRouter::RouterMessage(OBJECT_ID SenderID,OBJECT_ID ReceiverID,MSG_ID_TY
 	FUNCTION_END;
 	return FALSE;
 }
+BOOL CDOSRouter::RouterMessage(OBJECT_ID SenderID, OBJECT_ID * pReceiverID, UINT ReceiverCount, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
+{
+	FUNCTION_BEGIN;
+	UINT PacketSize = CDOSMessagePacket::CaculatePacketLength(DataSize, ReceiverCount);
+	CDOSMessagePacket * pPacket = ((CDOSServer *)GetServer())->NewMessagePacket(PacketSize);
+	if (pPacket == NULL)
+		return FALSE;
+	pPacket->GetMessage().SetMsgID(MsgID);
+	pPacket->GetMessage().SetSenderID(SenderID);
+	pPacket->GetMessage().SetDataLength(DataSize);
+	pPacket->GetMessage().SetMsgFlag(MsgFlag);
+	if (pData)
+		memcpy(pPacket->GetMessage().GetDataBuffer(), pData, DataSize);
+	pPacket->SetTargetIDs(ReceiverCount, pReceiverID);
+	pPacket->MakePacketLength();
 
+	BOOL Ret = RouterMessage(pPacket);
+	((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket);
+	return Ret;
+	FUNCTION_END;
+	return FALSE;
+}
 BOOL CDOSRouter::RouterMessage(CDOSMessagePacket * pPacket)
 {
 	FUNCTION_BEGIN;

@@ -14,7 +14,6 @@
 
 CDOSObjectProxyServiceDefault::CDOSObjectProxyServiceDefault(void)
 {
-
 }
 
 CDOSObjectProxyServiceDefault::~CDOSObjectProxyServiceDefault(void)
@@ -297,6 +296,13 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 			PrintDOSDebugLog(_T("连接组线程[%u]已启动"), m_ConnectionGroups[i].GetThreadID());
 		}
 	}
+
+	if (m_Config.EnableGuardThread)
+	{
+		m_GuardThread.SetTargetThreadID(GetThreadID());
+		m_GuardThread.SetKeepAliveTime(m_Config.GuardThreadKeepAliveTime, m_Config.GuardThreadKeepAliveCount);
+		m_GuardThread.Start();
+	}
 	
 	return TRUE;
 }
@@ -304,6 +310,12 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 BOOL CDOSObjectProxyServiceDefault::OnRun()
 {
 	m_ThreadPerformanceCounter.DoPerformanceCount();
+
+	if (m_Config.EnableGuardThread)
+	{
+		m_GuardThread.MakeKeepAlive();
+	}
+
 	int ProcessCount = Update();
 	if (ProcessCount == 0)
 	{
@@ -314,6 +326,8 @@ BOOL CDOSObjectProxyServiceDefault::OnRun()
 
 void CDOSObjectProxyServiceDefault::OnTerminate()
 {
+	if (m_Config.EnableGuardThread)
+		m_GuardThread.SafeTerminate();
 	CNetService::Close();
 	PrintDOSLog( _T("代理服务[%u]关闭"), GetID());
 }
@@ -474,8 +488,7 @@ void CDOSObjectProxyServiceDefault::QueryDestoryConnection(CDOSObjectProxyConnec
 		}
 	}
 }
-
-OBJECT_ID CDOSObjectProxyServiceDefault::GetGlobalMsgMapObjectID(MSG_ID_TYPE MsgID)
+bool CDOSObjectProxyServiceDefault::HaveGlobalMsgMap(MSG_ID_TYPE MsgID)
 {
 	CAutoLockEx Lock;
 	if (m_Config.ConnectionGroupCount)
@@ -484,15 +497,15 @@ OBJECT_ID CDOSObjectProxyServiceDefault::GetGlobalMsgMapObjectID(MSG_ID_TYPE Msg
 		Lock.Lock(m_EasyCriticalSection);
 	}
 
-	OBJECT_ID * pObjectID = m_MessageMap.Find(MsgID);
-	if (pObjectID)
+	MSG_MAP_INFO * pMapInfo = m_MessageMap.Find(MsgID);
+	if (pMapInfo)
 	{
-		return *pObjectID;
+		return true;
 	}	
-	return 0;
+	return m_UnhandleMsgReceiverID.ID != 0;
 }
 
-OBJECT_ID CDOSObjectProxyServiceDefault::GetUnhandleMsgReceiverID()
+bool CDOSObjectProxyServiceDefault::SendGlobalMapMessage(OBJECT_ID SenderID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
 {
 	CAutoLockEx Lock;
 	if (m_Config.ConnectionGroupCount)
@@ -501,7 +514,43 @@ OBJECT_ID CDOSObjectProxyServiceDefault::GetUnhandleMsgReceiverID()
 		Lock.Lock(m_EasyCriticalSection);
 	}
 
-	return m_UnhandleMsgReceiverID;
+	MSG_MAP_INFO * pMapInfo = m_MessageMap.Find(MsgID);
+	if (pMapInfo)
+	{
+		switch (pMapInfo->MsgMapType)
+		{
+		case GLOBAL_MSG_MAP_TYPE_OVERLAP:
+			{
+				return GetServer()->GetRouter()->RouterMessage(SenderID, pMapInfo->ObjectIDList[0],
+					MsgID, MsgFlag, pData, DataSize) != FALSE;
+			}
+			break;
+		case GLOBAL_MSG_MAP_TYPE_RANDOM:
+			{
+				CEasyArray<OBJECT_ID>&	ObjectIDList = pMapInfo->ObjectIDList;
+				UINT Index = 0;
+				if (ObjectIDList.GetCount() > 1)
+					Index = GetRand((UINT)0, (UINT)ObjectIDList.GetCount() - 1);
+				return GetServer()->GetRouter()->RouterMessage(SenderID, pMapInfo->ObjectIDList[Index],
+					MsgID, MsgFlag, pData, DataSize) != FALSE;
+			}
+			break;
+		case GLOBAL_MSG_MAP_TYPE_BROADCAST:
+			{
+				CEasyArray<OBJECT_ID>&	ObjectIDList = pMapInfo->ObjectIDList;
+				return GetServer()->GetRouter()->RouterMessage(SenderID, pMapInfo->ObjectIDList.GetBuffer(), (UINT)pMapInfo->ObjectIDList.GetCount(),
+					MsgID, MsgFlag, pData, DataSize) != FALSE;
+			}
+			break;
+		}
+		return true;
+	}
+	else if (m_UnhandleMsgReceiverID.ID)
+	{
+		return GetServer()->GetRouter()->RouterMessage(SenderID, m_UnhandleMsgReceiverID,
+			MsgID, MsgFlag, pData, DataSize) != FALSE;
+	}
+	return false;
 }
 
 
@@ -515,25 +564,17 @@ void CDOSObjectProxyServiceDefault::OnSystemMsg(CDOSMessage * pMessage)
 	switch (pMessage->GetMsgID())
 	{
 	case DSM_PROXY_REGISTER_GLOBAL_MSG_MAP:
-		if (pMessage->GetDataLength() >= sizeof(MSG_ID_TYPE))
+		if (pMessage->GetDataLength() >= sizeof(UINT)*2)
 		{
-			int Count = (pMessage->GetDataLength()) / sizeof(MSG_ID_TYPE);
-			MSG_ID_TYPE * pMsgIDs = (MSG_ID_TYPE *)(pMessage->GetDataBuffer());
-			for (int i = 0; i < Count; i++)
-			{
-				DoRegisterGlobalMsgMap(pMsgIDs[i], pMessage->GetSenderID());
-			}
+			UINT * pData = (UINT *)(pMessage->GetDataBuffer());
+			DoRegisterGlobalMsgMap((MSG_ID_TYPE)(pData[0]), (int)(pData[1]), pMessage->GetSenderID());
 		}
 		break;
 	case DSM_PROXY_UNREGISTER_GLOBAL_MSG_MAP:
 		if (pMessage->GetDataLength() >= sizeof(MSG_ID_TYPE))
 		{
-			int Count = (pMessage->GetDataLength()) / sizeof(MSG_ID_TYPE);
-			MSG_ID_TYPE * pMsgIDs = (MSG_ID_TYPE *)(pMessage->GetDataBuffer());
-			for (int i = 0; i < Count; i++)
-			{
-				DoUnregisterGlobalMsgMap(pMsgIDs[i], pMessage->GetSenderID());
-			}
+			MSG_ID_TYPE MsgID = *((MSG_ID_TYPE *)(pMessage->GetDataBuffer()));
+			DoUnregisterGlobalMsgMap(MsgID, pMessage->GetSenderID());
 		}
 		break;
 	case DSM_PROXY_SET_UNHANDLE_MSG_RECEIVER:
@@ -555,7 +596,7 @@ void CDOSObjectProxyServiceDefault::OnSystemMsg(CDOSMessage * pMessage)
 	}
 }
 
-bool CDOSObjectProxyServiceDefault::DoRegisterGlobalMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID)
+bool CDOSObjectProxyServiceDefault::DoRegisterGlobalMsgMap(MSG_ID_TYPE MsgID, int MapType, OBJECT_ID ObjectID)
 {
 	CAutoLockEx Lock;
 	if (m_Config.ConnectionGroupCount)
@@ -563,9 +604,46 @@ bool CDOSObjectProxyServiceDefault::DoRegisterGlobalMsgMap(MSG_ID_TYPE MsgID, OB
 		//多线连接组模式需要加锁
 		Lock.Lock(m_EasyCriticalSection);
 	}
-
-	PrintDOSLog( _T("0x%llX注册了全局代理消息映射[0x%X]！"), ObjectID.ID, MsgID);
-	return m_MessageMap.Insert(MsgID, ObjectID) != 0;
+	
+	MSG_MAP_INFO * pMapInfo = NULL;
+	m_MessageMap.New(MsgID, &pMapInfo);
+	if (pMapInfo)
+	{
+		pMapInfo->MsgMapType = MapType;
+		if (pMapInfo->MsgMapType == GLOBAL_MSG_MAP_TYPE_OVERLAP)
+		{
+			if (pMapInfo->ObjectIDList.GetCount() != 1)
+			{
+				pMapInfo->ObjectIDList.Resize(1);
+			}
+			pMapInfo->ObjectIDList[0] = ObjectID;
+		}
+		else
+		{
+			bool IsExist = false;
+			for (UINT i = 0; i < pMapInfo->ObjectIDList.GetCount(); i++)
+			{
+				if (pMapInfo->ObjectIDList[i] == ObjectID)
+				{
+					IsExist = true;
+					break;
+				}
+			}
+			if (!IsExist)
+			{
+				pMapInfo->ObjectIDList.Add(ObjectID);
+				if (pMapInfo->ObjectIDList.GetCount())
+					qsort(pMapInfo->ObjectIDList.GetBuffer(), pMapInfo->ObjectIDList.GetCount(), sizeof(OBJECT_ID), OBJECT_ID::Compare);
+			}
+		}
+		PrintDOSLog(_T("0x%llX注册了全局代理消息映射[0x%X,%d]！"), ObjectID.ID, MsgID, MapType);
+		return true;
+	}
+	else
+	{
+		PrintDOSLog(_T("全局代理映射已满(%u,%u)！"), m_MessageMap.GetObjectCount(), m_MessageMap.GetBufferSize());
+		return false;
+	}
 }
 bool CDOSObjectProxyServiceDefault::DoUnregisterGlobalMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID)
 {
@@ -575,9 +653,33 @@ bool CDOSObjectProxyServiceDefault::DoUnregisterGlobalMsgMap(MSG_ID_TYPE MsgID, 
 		//多线连接组模式需要加锁
 		Lock.Lock(m_EasyCriticalSection);
 	}
-
-	PrintDOSLog( _T("0x%llX注销了全局代理消息映射[0x%X]！"), ObjectID.ID, MsgID);
-	return m_MessageMap.Delete(MsgID) != FALSE;
+	MSG_MAP_INFO * pMapInfo = m_MessageMap.Find(MsgID);
+	if (pMapInfo)
+	{
+		if (pMapInfo->MsgMapType == GLOBAL_MSG_MAP_TYPE_OVERLAP)
+		{
+			pMapInfo->ObjectIDList.Empty();
+			m_MessageMap.Delete(MsgID);
+		}
+		else
+		{
+			for (UINT i = 0; i < pMapInfo->ObjectIDList.GetCount(); i++)
+			{
+				if (pMapInfo->ObjectIDList[i] == ObjectID)
+				{
+					pMapInfo->ObjectIDList.Delete(i);
+					break;
+				}
+			}
+			if (pMapInfo->ObjectIDList.GetCount() == 0)
+			{
+				m_MessageMap.Delete(MsgID);
+			}
+		}
+		PrintDOSLog(_T("0x%llX注销了全局代理消息映射[0x%X]！"), ObjectID.ID, MsgID);
+		return true;
+	}
+	return false;
 }
 
 void CDOSObjectProxyServiceDefault::ClearMsgMapByRouterID(UINT RouterID)
@@ -593,8 +695,15 @@ void CDOSObjectProxyServiceDefault::ClearMsgMapByRouterID(UINT RouterID)
 	while (Pos)
 	{
 		MSG_ID_TYPE MsgID;
-		OBJECT_ID * pObjectID = m_MessageMap.GetNextObject(Pos, MsgID);
-		if (pObjectID->RouterID == RouterID)
+		MSG_MAP_INFO * pMapInfo = m_MessageMap.GetNextObject(Pos, MsgID);
+		for (int i = (int)pMapInfo->ObjectIDList.GetCount() - 1; i >= 0; i--)
+		{
+			if (pMapInfo->ObjectIDList[i].RouterID == RouterID)
+			{
+				pMapInfo->ObjectIDList.Delete(i);
+			}
+		}
+		if (pMapInfo->ObjectIDList.GetCount() == 0)
 		{
 			m_MessageMap.Delete(MsgID);
 		}
@@ -641,4 +750,8 @@ bool CDOSObjectProxyServiceDefault::CheckEncryptConfig()
 		break;
 	}
 	return true;
+}
+inline CDOSServer * CDOSObjectProxyServiceDefault::GetServer()
+{
+	return (CDOSServer *)CNetService::GetServer();
 }

@@ -89,8 +89,8 @@ protected:
 	bool QueryUDPRecv();
 	bool AcceptSocket(SOCKET Socket);
 	bool AcceptSocketEx(SOCKET Socket, CEasyBuffer * pAcceptData);
-	COverLappedObject * AllocOverLappedObject();
-	bool ReleaseOverLappedObject(COverLappedObject * pObject);
+	COverLappedObject * AllocOverLappedObject(int Type);
+	bool ReleaseOverLappedObject(COverLappedObject * pObject, int Where);
 };
 
 

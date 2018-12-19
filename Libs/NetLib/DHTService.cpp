@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 
 
@@ -102,36 +102,39 @@ bool CDHTService::DeleteSearch(UINT SearchID)
 bool CDHTService::LoadNodes(LPCTSTR FileName)
 {	
 	m_NodesFileName = FileName;
-	CWinFileAccessor NodesFile;
+	CSmartPtr<IFileAccessor> pNodesFile = CFileSystemManager::GetInstance()->CreateFileAccessor(FILE_CHANNEL_NORMAL1);
+
+	if (pNodesFile == NULL)
+		return false;
 
 	CEasyTimerEx CostTimer;
 
 	CostTimer.SaveTime();
-	if (NodesFile.Open(FileName, IFileAccessor::modeOpen | IFileAccessor::modeRead | IFileAccessor::shareShareAll))
+	if (pNodesFile->Open(FileName, IFileAccessor::modeOpen | IFileAccessor::modeRead | IFileAccessor::shareShareAll))
 	{
-		UINT FileSize = (UINT)NodesFile.GetSize();
+		UINT FileSize = (UINT)pNodesFile->GetSize();
 		if (FileSize < sizeof(BYTE) + sizeof(UINT))
 		{
-			PrintNetLog( _T("½ÚµãÎÄ¼ş²»ºÏ·¨"));
+			PrintNetLog( _T("èŠ‚ç‚¹æ–‡ä»¶ä¸åˆæ³•"));
 			return false;
 		}
 			
 		BYTE Version;
 		UINT NodeCount;
 
-		NodesFile.Read(&Version, sizeof(BYTE));
-		NodesFile.Read(&NodeCount, sizeof(UINT));
+		pNodesFile->Read(&Version, sizeof(BYTE));
+		pNodesFile->Read(&NodeCount, sizeof(UINT));
 
 		if (Version != CUR_NODES_FILE_VERSION)
 		{
-			PrintNetLog( _T("½ÚµãÎÄ¼ş°æ±¾´íÎó"));
+			PrintNetLog( _T("èŠ‚ç‚¹æ–‡ä»¶ç‰ˆæœ¬é”™è¯¯"));
 			return false;
 		}
 
 		UINT Size = sizeof(BYTE) + sizeof(UINT) + (sizeof(NODE_ID) + sizeof(CIPAddress))*NodeCount;
 		if (FileSize < Size)
 		{
-			PrintNetLog( _T("½ÚµãÎÄ¼ş´óĞ¡´íÎó"));
+			PrintNetLog( _T("èŠ‚ç‚¹æ–‡ä»¶å¤§å°é”™è¯¯"));
 			return false;
 		}
 
@@ -140,14 +143,14 @@ bool CDHTService::LoadNodes(LPCTSTR FileName)
 			NODE_ID NodeID;
 			CIPAddress Address;
 
-			NodesFile.Read(&NodeID, sizeof(NodeID));
-			NodesFile.Read(&Address, sizeof(Address));
+			pNodesFile->Read(&NodeID, sizeof(NodeID));
+			pNodesFile->Read(&Address, sizeof(Address));
 			InsertNode(NodeID, Address, NODE_FROM_TYPE_NEW);
 		}
 
-		NodesFile.Close();
+		pNodesFile->Close();
 
-		PrintNetLog( _T("½ÚµãÎÄ¼ş¼ÓÔØÍê±Ï£¬Ò»¹²%u¸ö½Úµã%u¸öPeer,»¨·Ñ%gÃë"),
+		PrintNetLog( _T("èŠ‚ç‚¹æ–‡ä»¶åŠ è½½å®Œæ¯•ï¼Œä¸€å…±%uä¸ªèŠ‚ç‚¹%uä¸ªPeer,èŠ±è´¹%gç§’"),
 			m_NodePool.GetObjectCount(), m_PeerPool.GetObjectCount(), (float)CostTimer.GetPastTime() / (float)CEasyTimerEx::TIME_UNIT_PER_SECOND);
 
 		//void * Pos = m_PeerPool.GetFirstObjectPos();
@@ -157,7 +160,7 @@ bool CDHTService::LoadNodes(LPCTSTR FileName)
 		//	NODE_PEER * pPeer = m_PeerPool.GetNextObject(Pos, Key);
 		//	if (pPeer->PeerAddress != Key)
 		//	{
-		//		PrintNetLog( _T("½ÚµãÎÄ¼ş¼ÓÔØÒì³£"));
+		//		PrintNetLog( _T("èŠ‚ç‚¹æ–‡ä»¶åŠ è½½å¼‚å¸¸"));
 		//	}
 		//}
 
@@ -168,20 +171,20 @@ bool CDHTService::LoadNodes(LPCTSTR FileName)
 bool CDHTService::SaveNodes(LPCTSTR FileName)
 {
 	m_NodesFileName = FileName;
-	CWinFileAccessor NodesFile;
+	CSmartPtr<IFileAccessor> pNodesFile = CFileSystemManager::GetInstance()->CreateFileAccessor(FILE_CHANNEL_NORMAL1);
 
-	PrintNetLog( _T("×¼±¸±£´æ½Úµã£¬Ò»¹²%u¸ö½Úµã%u¸öPeer"), m_NodePool.GetObjectCount(), m_PeerPool.GetObjectCount());
+	PrintNetLog( _T("å‡†å¤‡ä¿å­˜èŠ‚ç‚¹ï¼Œä¸€å…±%uä¸ªèŠ‚ç‚¹%uä¸ªPeer"), m_NodePool.GetObjectCount(), m_PeerPool.GetObjectCount());
 	CEasyTimerEx CostTimer;
 
 	CostTimer.SaveTime();
 
-	if (NodesFile.Open(FileName, IFileAccessor::modeCreateAlways | IFileAccessor::modeWrite | IFileAccessor::shareShareAll))
+	if (pNodesFile->Open(FileName, IFileAccessor::modeCreateAlways | IFileAccessor::modeWrite | IFileAccessor::shareShareAll))
 	{
 		BYTE Version = CUR_NODES_FILE_VERSION;
 		UINT NodeCount = m_NodePool.GetObjectCount();
 
-		NodesFile.Write(&Version, sizeof(BYTE));
-		NodesFile.Write(&NodeCount, sizeof(UINT));
+		pNodesFile->Write(&Version, sizeof(BYTE));
+		pNodesFile->Write(&NodeCount, sizeof(UINT));
 
 		NodeCount = 0;
 		void * Pos = m_NodePool.GetSortedFirstObjectPos();
@@ -189,14 +192,14 @@ bool CDHTService::SaveNodes(LPCTSTR FileName)
 		{
 			DHT_NODE * pNode = m_NodePool.GetSortedNextObject(Pos);
 
-			NodesFile.Write(&pNode->NodeID, sizeof(NODE_ID));
-			NodesFile.Write(&pNode->pPeer->PeerAddress, sizeof(CIPAddress));
+			pNodesFile->Write(&pNode->NodeID, sizeof(NODE_ID));
+			pNodesFile->Write(&pNode->pPeer->PeerAddress, sizeof(CIPAddress));
 		}
 
-		PrintNetLog( _T("½ÚµãÎÄ¼ş±£´æÍê±Ï£¬»¨·Ñ%gÃë"),
+		PrintNetLog( _T("èŠ‚ç‚¹æ–‡ä»¶ä¿å­˜å®Œæ¯•ï¼ŒèŠ±è´¹%gç§’"),
 			(float)CostTimer.GetPastTime() / (float)CEasyTimerEx::TIME_UNIT_PER_SECOND);
 
-		NodesFile.Close();
+		pNodesFile->Close();
 		return true;
 	}
 	
@@ -223,7 +226,7 @@ void CDHTService::OnTorrent(UINT SearchID, const BYTE * pTorrentData, UINT DataS
 	}
 	else
 	{
-		PrintNetLog( _T("ÖÖ×ÓÏÂÔØÍê±Ï£¬µ«ÕÒ²»µ½¶ÔÓ¦ËÑË÷%u"), SearchID);
+		PrintNetLog( _T("ç§å­ä¸‹è½½å®Œæ¯•ï¼Œä½†æ‰¾ä¸åˆ°å¯¹åº”æœç´¢%u"), SearchID);
 	}
 }
 
@@ -288,7 +291,7 @@ int CDHTService::Update(int ProcessPacketLimit)
 			{
 				if (pPeer->PingCount > MAX_PEER_PING_TEST_COUNT)
 				{
-					PrintNetLog( _T("Peer[%s]³¤Ê±¼äÎŞÏìÓ¦ÒÑÉ¾³ı"), pPeer->PeerAddress.GetAddressString());
+					PrintNetLog( _T("Peer[%s]é•¿æ—¶é—´æ— å“åº”å·²åˆ é™¤"), pPeer->PeerAddress.GetAddressString());
 					DeleteNodePeer(pPeer);
 				}
 				else if (CurTime - pPeer->LastPingTime > PEER_PING_TIME_COUNT)
@@ -296,7 +299,7 @@ int CDHTService::Update(int ProcessPacketLimit)
 					pPeer->LastPingTime = CurTime;
 					pPeer->PingCount++;
 					SendPing(pPeer->PeerAddress, 0);
-					PrintNetLog( _T("¶ÔPeer[%s]½øĞĞPing²âÊÔ"), pPeer->PeerAddress.GetAddressString());
+					PrintNetLog( _T("å¯¹Peer[%s]è¿›è¡ŒPingæµ‹è¯•"), pPeer->PeerAddress.GetAddressString());
 					ProcessCount++;
 				}
 			}
@@ -339,17 +342,17 @@ void CDHTService::OnRecvData(const CIPAddress& IPAddress, const BYTE * pData, UI
 						ErrCode = (int)Data.GetListValue(0).GetIntValue();
 					if (Data.GetListValue(1).GetType() == BENCODING_TYPE_STRING)
 						ErrMsg = Data.GetListValue(1).GetStrValue();
-					PrintNetLog( _T("ÊÕµ½´íÎóÏûÏ¢(%d)%s"), ErrCode, ErrMsg);
+					PrintNetLog( _T("æ”¶åˆ°é”™è¯¯æ¶ˆæ¯(%d)%s"), ErrCode, ErrMsg);
 				}
 				else
 				{
-					PrintNetLog( _T("ÊÕµ½Î´Öª¸ñÊ½µÄ´íÎóÏûÏ¢"));
+					PrintNetLog( _T("æ”¶åˆ°æœªçŸ¥æ ¼å¼çš„é”™è¯¯æ¶ˆæ¯"));
 				}
 			}
 			else
 			{
 				CEasyString Msg = MsgType.GetStrValue();
-				PrintNetLog( _T("ÊÕµ½Î´ÖªÏûÏ¢ÀàĞÍ=%s"), (LPCTSTR)Msg);
+				PrintNetLog( _T("æ”¶åˆ°æœªçŸ¥æ¶ˆæ¯ç±»å‹=%s"), (LPCTSTR)Msg);
 			}
 		}
 	}
@@ -377,7 +380,7 @@ int CDHTService::UpdateSearch(int ProcessPacketLimit)
 					{
 						if (PeerInfo.RequestCount<MAX_GET_PEERS_TRY_COUNT)
 						{
-							//PrintNetDebugLog( _T("Ïò%s·¢ËÍGetPeersÇëÇó%u"), PeerInfo.PeerAddress.GetAddressString(), PeerInfo.RequestCount);
+							//PrintNetDebugLog( _T("å‘%så‘é€GetPeersè¯·æ±‚%u"), PeerInfo.PeerAddress.GetAddressString(), PeerInfo.RequestCount);
 							PeerInfo.RequestTime = CurTime;
 							PeerInfo.RequestCount++;
 							WORD TID = TID_GET_PEERS + pSearchInfo->SearchID;
@@ -386,7 +389,7 @@ int CDHTService::UpdateSearch(int ProcessPacketLimit)
 						}
 						else
 						{
-							PrintNetDebugLog( _T("Ïò%s·¢ËÍGetPeersÇëÇó%u¶à´ÎÎŞÏìÓ¦£¬ÒÑÉ¾³ı"), 
+							PrintNetDebugLog( _T("å‘%så‘é€GetPeersè¯·æ±‚%uå¤šæ¬¡æ— å“åº”ï¼Œå·²åˆ é™¤"), 
 								PeerInfo.PeerAddress.GetAddressString(), PeerInfo.RequestCount);
 							pSearchInfo->PeerList.Delete(i);
 						}
@@ -398,7 +401,7 @@ int CDHTService::UpdateSearch(int ProcessPacketLimit)
 					{
 						if (PeerInfo.RequestCount < MAX_ANNOUNCE_PEER_TRY_COUNT)
 						{
-							//PrintNetDebugLog( _T("Ïò%s·¢ËÍAnnouncePeerÇëÇó%u"), PeerInfo.PeerAddress.GetAddressString(), PeerInfo.RequestCount);
+							//PrintNetDebugLog( _T("å‘%så‘é€AnnouncePeerè¯·æ±‚%u"), PeerInfo.PeerAddress.GetAddressString(), PeerInfo.RequestCount);
 							PeerInfo.RequestTime = CurTime;
 							PeerInfo.RequestCount++;
 							SendAnnouncePeer(PeerInfo.PeerAddress, TID_ANNOUNCE_PEER + pSearchInfo->SearchID, pSearchInfo->InfoHash,
@@ -407,7 +410,7 @@ int CDHTService::UpdateSearch(int ProcessPacketLimit)
 						}
 						else
 						{
-							PrintNetDebugLog( _T("Ïò%s·¢ËÍAnnouncePeerÇëÇó%u¶à´ÎÎŞÏìÓ¦£¬ÒÑÉ¾³ı"), 
+							PrintNetDebugLog( _T("å‘%så‘é€AnnouncePeerè¯·æ±‚%uå¤šæ¬¡æ— å“åº”ï¼Œå·²åˆ é™¤"), 
 								PeerInfo.PeerAddress.GetAddressString(), PeerInfo.RequestCount);
 							pSearchInfo->PeerList.Delete(i);
 						}
@@ -444,13 +447,13 @@ int CDHTService::UpdateSearch(int ProcessPacketLimit)
 							if (pConnection->Init(this, pSearchInfo->SearchID, PeerID, pSearchInfo->InfoHash, 
 								Info.PeerAddress))
 							{
-								//PrintNetDebugLog( _T("³¢ÊÔ´Ó%sÏÂÔØÖÖ×Ó%u"),
+								//PrintNetDebugLog( _T("å°è¯•ä»%sä¸‹è½½ç§å­%u"),
 								//	Info.PeerAddress.GetAddressString(),
 								//	Info.RequestCount);
 							}
 							else
 							{
-								PrintNetDebugLog( _T("³¢ÊÔ´Ó%sÏÂÔØÖÖ×Ó%uÊ§°Ü"),
+								PrintNetDebugLog( _T("å°è¯•ä»%sä¸‹è½½ç§å­%uå¤±è´¥"),
 									Info.PeerAddress.GetAddressString(),
 									Info.RequestCount);
 							}
@@ -460,7 +463,7 @@ int CDHTService::UpdateSearch(int ProcessPacketLimit)
 				}
 				else
 				{
-					PrintNetDebugLog( _T("ÖÖ×ÓÏÂÔØ%s¶à´Î³¢ÊÔÊ§°Ü£¬ÒÑÒÆ³ı"),
+					PrintNetDebugLog( _T("ç§å­ä¸‹è½½%så¤šæ¬¡å°è¯•å¤±è´¥ï¼Œå·²ç§»é™¤"),
 						Info.PeerAddress.GetAddressString(),
 						Info.RequestCount);
 					pSearchInfo->DataPortAddressList.Delete(i);
@@ -471,7 +474,7 @@ int CDHTService::UpdateSearch(int ProcessPacketLimit)
 
 		if ((CurTime - pSearchInfo->SearchStartTime) > pSearchInfo->SearchTimeout)
 		{
-			PrintNetDebugLog( _T("ËÑË÷%u³¬Ê±£¬·ÅÆú"), pSearchInfo->SearchID);
+			PrintNetDebugLog( _T("æœç´¢%uè¶…æ—¶ï¼Œæ”¾å¼ƒ"), pSearchInfo->SearchID);
 			OnSearchTimeout(pSearchInfo->InfoHash, pSearchInfo->Param);
 			DeleteSearch(pSearchInfo->SearchID);
 		}
@@ -489,7 +492,7 @@ DHT_NODE * CDHTService::InsertNode(const NODE_ID& NodeID, const CIPAddress& IPAd
 	{
 		if (pNode->AccessCount == 0)
 		{
-			//PrintNetDebugLog( _T("Ôö¼ÓĞÂ½ÚµãID=%s,Address=%s"),
+			//PrintNetDebugLog( _T("å¢åŠ æ–°èŠ‚ç‚¹ID=%s,Address=%s"),
 			//	(LPCTSTR)BinToString(NodeID.NodeID, NODE_ID_BYTE_COUNT), IPAddress.GetAddressString());
 
 			pNode->NodeID = NodeID;			
@@ -507,7 +510,7 @@ DHT_NODE * CDHTService::InsertNode(const NODE_ID& NodeID, const CIPAddress& IPAd
 	}
 	else
 	{
-		PrintNetLog( _T("Node³ØÒÑÂú%u/%u"), m_NodePool.GetObjectCount(), m_NodePool.GetBufferSize());
+		PrintNetLog( _T("Nodeæ± å·²æ»¡%u/%u"), m_NodePool.GetObjectCount(), m_NodePool.GetBufferSize());
 	}
 	return pNode;
 }
@@ -520,7 +523,7 @@ NODE_PEER * CDHTService::InsertNodePeer(DHT_NODE * pNode, const CIPAddress& IPAd
 	{		
 		if (pPeer->AccessCount == 0)
 		{
-			//PrintNetDebugLog( _T("Ôö¼ÓPeer,Address=%s"), IPAddress.GetAddressString());
+			//PrintNetDebugLog( _T("å¢åŠ Peer,Address=%s"), IPAddress.GetAddressString());
 			pPeer->PeerAddress = IPAddress;
 		}
 		
@@ -537,7 +540,7 @@ NODE_PEER * CDHTService::InsertNodePeer(DHT_NODE * pNode, const CIPAddress& IPAd
 	}
 	else
 	{
-		PrintNetLog( _T("Peer³ØÒÑÂú%u/%u"), m_PeerPool.GetObjectCount(), m_PeerPool.GetBufferSize());
+		PrintNetLog( _T("Peeræ± å·²æ»¡%u/%u"), m_PeerPool.GetObjectCount(), m_PeerPool.GetBufferSize());
 	}
 	return pPeer;
 }
@@ -560,8 +563,8 @@ void CDHTService::ShrinkPeerNodes(DHT_NODE * pNode)
 	NODE_PEER * pPeer = pNode->pPeer;
 	if (pPeer->NodeList.GetObjectCount() >= MAX_PEER_NODE_COUNT)
 	{
-		//Í¬Ò»¸öPeerµÄNode´ïµ½ÉÏÏŞºó½øĞĞ¼õ°ëÊÕËõ
-		PrintNetDebugLog( _T("Peer(%s)µÄ½Úµã¹ı¶à£¬¿ªÊ¼ÊÕËõ"), pPeer->PeerAddress.GetAddressString());
+		//åŒä¸€ä¸ªPeerçš„Nodeè¾¾åˆ°ä¸Šé™åè¿›è¡Œå‡åŠæ”¶ç¼©
+		PrintNetDebugLog( _T("Peer(%s)çš„èŠ‚ç‚¹è¿‡å¤šï¼Œå¼€å§‹æ”¶ç¼©"), pPeer->PeerAddress.GetAddressString());
 		UINT Count = pPeer->NodeList.GetObjectCount() + 32;
 		void * Pos = pPeer->NodeList.GetSortedFirstObjectPos();
 		bool NeedDelete = false;
@@ -579,7 +582,7 @@ void CDHTService::ShrinkPeerNodes(DHT_NODE * pNode)
 			Count--;
 			if (Count <= 0)
 			{
-				PrintNetLog( _T("ShrinkPeerNodes±éÀúÒì³£"));
+				PrintNetLog( _T("ShrinkPeerNodeséå†å¼‚å¸¸"));
 				break;
 			}
 		}
@@ -617,7 +620,7 @@ SEARCH_PEER * CDHTService::AddSearchPeer(SEARCH_INFO * pSearchInfo, DHT_NODE * p
 	{
 		pSearchPeer = pSearchInfo->PeerList.AddEmpty();
 		pSearchPeer->PeerAddress = pNode->pPeer->PeerAddress;
-		//PrintNetDebugLog( _T("Îª%sÔö¼ÓËÑË÷Peer,ID=%s,Address=%s"),
+		//PrintNetDebugLog( _T("ä¸º%så¢åŠ æœç´¢Peer,ID=%s,Address=%s"),
 		//	(LPCTSTR)BinToString(pSearchInfo->InfoHash.NodeID, NODE_ID_BYTE_COUNT),
 		//	(LPCTSTR)BinToString(pNode->NodeID.NodeID, NODE_ID_BYTE_COUNT), pSearchPeer->PeerAddress.GetAddressString());
 	}	
@@ -652,7 +655,7 @@ void CDHTService::AddSearchPeers(SEARCH_INFO * pSearchInfo)
 			SearchCount++;
 			if (SearchCount > m_NodePool.GetObjectCount())
 			{
-				PrintNetLog( _T("Ìí¼ÓËÑË÷½ÚµãÒì³££¬¿ÉÄÜËÀÑ­»·ÁË"));
+				PrintNetLog( _T("æ·»åŠ æœç´¢èŠ‚ç‚¹å¼‚å¸¸ï¼Œå¯èƒ½æ­»å¾ªç¯äº†"));
 			}
 		}
 	}
@@ -707,7 +710,7 @@ void CDHTService::ProcessRespond(const CIPAddress& IPAddress, LPCVOID pTID, UINT
 			{
 				const CBencodingValue& ID = Data.GetDictValue("id");
 				NODE_ID NodeID;
-				memcpy(NodeID.NodeID, ID.GetStrValue().GetBuffer(), min(ID.GetStrValue().GetLength(), NODE_ID_BYTE_COUNT));
+				memcpy(NodeID.NodeID, ID.GetStrValue().GetBuffer(), min((UINT)ID.GetStrValue().GetLength(), (UINT)NODE_ID_BYTE_COUNT));
 				OnNodePong(IPAddress, NodeID, TID - TID_PING);
 			}
 		}
@@ -721,7 +724,7 @@ void CDHTService::ProcessRespond(const CIPAddress& IPAddress, LPCVOID pTID, UINT
 			{
 				const CBencodingValue& ID = Data.GetDictValue("id");
 				NODE_ID NodeID;
-				memcpy(NodeID.NodeID, ID.GetStrValue().GetBuffer(), min(ID.GetStrValue().GetLength(), NODE_ID_BYTE_COUNT));
+				memcpy(NodeID.NodeID, ID.GetStrValue().GetBuffer(), min((UINT)ID.GetStrValue().GetLength(), (UINT)NODE_ID_BYTE_COUNT));
 				OnAnnouncePeerRespond(IPAddress, NodeID, TID - TID_ANNOUNCE_PEER);
 			}
 		}
@@ -734,7 +737,7 @@ void CDHTService::ProcessRespond(const CIPAddress& IPAddress, LPCVOID pTID, UINT
 
 void CDHTService::OnNodePong(const CIPAddress& IPAddress, const NODE_ID& NodeID, WORD ID)
 {	
-	PrintNetLog( _T("ÊÕµ½Peer[%s]Pong"), IPAddress.GetAddressString());
+	PrintNetLog( _T("æ”¶åˆ°Peer[%s]Pong"), IPAddress.GetAddressString());
 	DHT_NODE * pNode = InsertNode(NodeID, IPAddress, NODE_FROM_TYPE_REPLAY);
 	if (ID > 0)
 	{
@@ -757,7 +760,7 @@ void CDHTService::OnGetPeersRespond(const CIPAddress& IPAddress, UINT SearchID, 
 		if (Data.HaveDictValue("id"))
 		{
 			const CBencodingValue& ID = Data.GetDictValue("id");			
-			memcpy(NodeID.NodeID, ID.GetStrValue().GetBuffer(), min(ID.GetStrValue().GetLength(), NODE_ID_BYTE_COUNT));
+			memcpy(NodeID.NodeID, ID.GetStrValue().GetBuffer(), min((UINT)ID.GetStrValue().GetLength(), (UINT)NODE_ID_BYTE_COUNT));
 			pNode = InsertNode(NodeID, IPAddress, NODE_FROM_TYPE_REPLAY);			
 		}		
 		if (pSearchPeer)
@@ -776,7 +779,7 @@ void CDHTService::OnGetPeersRespond(const CIPAddress& IPAddress, UINT SearchID, 
 		}
 		else
 		{
-			PrintNetLog( _T("ËÑË÷µ½ÁËÄ¿±ê£¬µ«Ã»ÓĞ¶ÔÓ¦ËÑË÷Peer(%s)"),
+			PrintNetLog( _T("æœç´¢åˆ°äº†ç›®æ ‡ï¼Œä½†æ²¡æœ‰å¯¹åº”æœç´¢Peer(%s)"),
 				IPAddress.GetAddressString());
 		}
 		if (Data.HaveDictValue("values"))
@@ -807,7 +810,7 @@ void CDHTService::OnGetPeersRespond(const CIPAddress& IPAddress, UINT SearchID, 
 							pAddress->SetIPv4(pData);
 							pAddress->SetPort(ntohs(*((WORD *)(pData + 4))));
 							
-							//PrintNetDebugLog( _T("ÒÑÕÒµ½ÖÖ×ÓÏÂÔØµØÖ·%s"), pAddress->GetAddressString());
+							//PrintNetDebugLog( _T("å·²æ‰¾åˆ°ç§å­ä¸‹è½½åœ°å€%s"), pAddress->GetAddressString());
 						}
 					}
 					else
@@ -820,7 +823,7 @@ void CDHTService::OnGetPeersRespond(const CIPAddress& IPAddress, UINT SearchID, 
 							pAddress->SetIPv6(pData);
 							pAddress->SetPort(ntohs(*((WORD *)(pData + 16))));
 							
-							//PrintNetDebugLog( _T("ÒÑÕÒµ½ÖÖ×ÓÏÂÔØµØÖ·%s"), pAddress->GetAddressString());
+							//PrintNetDebugLog( _T("å·²æ‰¾åˆ°ç§å­ä¸‹è½½åœ°å€%s"), pAddress->GetAddressString());
 						}
 					}
 				}
@@ -861,19 +864,19 @@ void CDHTService::OnAnnouncePeerRespond(const CIPAddress& IPAddress, const NODE_
 				{
 					TORRENT_DOWNLOAD_ADDRESS_INFO * pAddrInfo = pSearchInfo->DataPortAddressList.AddEmpty();
 					pAddrInfo->PeerAddress = DataPortAddress;					
-					//PrintNetLog( _T("ÒÑÌí¼ÓÖÖ×ÓÏÂÔØµØÖ·(%s)Ò»¹²%u¸ö"), 
+					//PrintNetLog( _T("å·²æ·»åŠ ç§å­ä¸‹è½½åœ°å€(%s)ä¸€å…±%uä¸ª"), 
 					//	DataPortAddress.GetAddressString(), pSearchInfo->DataPortAddressList.GetCount());
 				}
 			}			
 		}
 		else
 		{
-			PrintNetLog( _T("ÊÕµ½AnnouncePeer»ØÓ¦£¬µ«ÕÒ²»µ½Peer(%s)"), IPAddress.GetAddressString());
+			PrintNetLog( _T("æ”¶åˆ°AnnouncePeerå›åº”ï¼Œä½†æ‰¾ä¸åˆ°Peer(%s)"), IPAddress.GetAddressString());
 		}
 	}
 	else
 	{
-		PrintNetLog( _T("ÊÕµ½AnnouncePeer»ØÓ¦£¬µ«ÕÒ²»µ½ËÑË÷Ïî(%d)"), SearchID);
+		PrintNetLog( _T("æ”¶åˆ°AnnouncePeerå›åº”ï¼Œä½†æ‰¾ä¸åˆ°æœç´¢é¡¹(%d)"), SearchID);
 	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -888,7 +891,7 @@ void CDHTService::SendRequest(const CIPAddress& IPAddress, LPCSTR Type, LPCVOID 
 	memcpy_s(pBuff + BuffPtr, BuffSize, pData, DataLen);
 	BuffPtr += DataLen;
 	BuffSize -= DataLen;
-	Len = _snprintf_s(pBuff + BuffPtr, BuffSize, BuffSize, "1:q%u:%s1:t%u:", strlen(Type), Type, TIDLen);
+	Len = _snprintf_s(pBuff + BuffPtr, BuffSize, BuffSize, "1:q%u:%s1:t%u:", (UINT)strlen(Type), Type, TIDLen);
 	BuffPtr += Len;
 	BuffSize -= Len;
 	memcpy_s(pBuff + BuffPtr, BuffSize, TID, TIDLen);

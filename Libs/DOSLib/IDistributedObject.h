@@ -157,8 +157,9 @@ struct DOS_OBJECT_REGISTER_INFO_EX
 	int						ObjectGroupIndex;
 	UINT					MsgQueueSize;
 	UINT					MsgProcessLimit;
+	UINT					Flag;
 	IDistributedObject *	pObject;
-	//UINT					Param;
+	
 
 	DOS_OBJECT_REGISTER_INFO_EX()
 	{
@@ -168,9 +169,14 @@ struct DOS_OBJECT_REGISTER_INFO_EX
 		ObjectGroupIndex=-1;
 		MsgQueueSize=0;
 		MsgProcessLimit=0;
-		pObject=NULL;
-		//Param=0;
+		Flag = 0;
+		pObject=NULL;		
 	}
+};
+
+enum DOS_OBJECT_REGISTER_FLAG
+{
+	DOS_OBJECT_REGISTER_FLAG_USE_PRIVATE_OBJECT_GROUP=1,
 };
 
 class IDistributedObjectOperator
@@ -188,8 +194,8 @@ public:
 
 	virtual BOOL RegisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount)=0;
 	virtual BOOL UnregisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount)=0;
-	virtual BOOL RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount) = 0;
-	virtual BOOL UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount) = 0;
+	virtual BOOL RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID, int MapType) = 0;
+	virtual BOOL UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgIDList) = 0;
 	virtual BOOL SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType) = 0;
 
 	virtual BOOL AddConcernedObject(OBJECT_ID ObjectID,bool NeedTest)=0;

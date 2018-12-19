@@ -49,10 +49,9 @@ BOOL CIOCPListenThread::OnRun()
 			ErrorCode!=WSAECONNREFUSED&&ErrorCode!=WSAEACCES&&
 			ErrorCode!=WSATRY_AGAIN)
 		{
-			COverLappedObject * pOverLappedObject = m_pServer->AllocOverLappedObject();
+			COverLappedObject * pOverLappedObject = m_pServer->AllocOverLappedObject(IO_ACCEPT2);
 			if(pOverLappedObject)
 			{
-				pOverLappedObject->SetType(IO_ACCEPT2);				
 				m_pServer->OnIOCPEvent(IOE_ERROR,pOverLappedObject);
 				return FALSE;
 			}
@@ -68,10 +67,9 @@ BOOL CIOCPListenThread::OnRun()
 		//	SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, 
 		//	(char *)&m_ListenSocket, sizeof(m_ListenSocket))!=SOCKET_ERROR)
 		//{
-			COverLappedObject * pOverLappedObject = m_pServer->AllocOverLappedObject();
+		COverLappedObject * pOverLappedObject = m_pServer->AllocOverLappedObject(IO_ACCEPT2);
 			if(pOverLappedObject)
 			{
-				pOverLappedObject->SetType(IO_ACCEPT2);
 				pOverLappedObject->SetAcceptSocket(AcceptSocket);
 				m_pServer->OnIOCPEvent(IOE_PACKET,pOverLappedObject);
 				return TRUE;

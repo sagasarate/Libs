@@ -121,7 +121,10 @@ BOOL CDBTransationWorkThread::OnRun()
 			m_pConnection->RollBack();
 		}
 		pDBTansaction->SetResult(Ret);
-		m_FinishTransQueue.PushBack(&pDBTansaction);
+		if (!m_FinishTransQueue.PushBack(&pDBTansaction))
+		{
+			PrintDBLog("完成队列已满(%u,%u)", m_FinishTransQueue.GetUsedSize(), m_FinishTransQueue.GetBufferSize());
+		}
 		//m_TransQueue.PopFront(pDBTansaction);
 	}
 	else

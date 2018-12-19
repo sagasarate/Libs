@@ -36,23 +36,25 @@ void CServerThread::Execute()
 
 
 
+	bool EnableGuardThread = CSystemConfig::GetInstance()->GetEnableGuardThread();
+	if (EnableGuardThread)
+	{
+		CMainGuardThread::GetInstance()->SetTargetThreadID(GetThreadID());
+		CMainGuardThread::GetInstance()->SetKeepAliveTime(
+			CSystemConfig::GetInstance()->GetGuardThreadKeepAliveTime(),
+			CSystemConfig::GetInstance()->GetGuardThreadKeepAliveCount());
+		CMainGuardThread::GetInstance()->Start();
+	}
 
-#ifndef _DEBUG
-	CMainGuardThread::GetInstance()->SetTargetThreadID(GetThreadID());
-	CMainGuardThread::GetInstance()->SetKeepAliveTime(
-		CSystemConfig::GetInstance()->GetGuardThreadKeepAliveTime(),
-		CSystemConfig::GetInstance()->GetGuardThreadKeepAliveCount());
-	CMainGuardThread::GetInstance()->Start();
-#endif
 	while((!m_WantTerminate)&&(OnRun()))
 	{
-#ifndef _DEBUG
-		CMainGuardThread::GetInstance()->MakeKeepAlive();
-#endif
+		if (EnableGuardThread)
+			CMainGuardThread::GetInstance()->MakeKeepAlive();
 	}
-#ifndef _DEBUG
-	CMainGuardThread::GetInstance()->SafeTerminate();
-#endif
+
+	if (EnableGuardThread)
+		CMainGuardThread::GetInstance()->SafeTerminate();
+
 	OnBeginTerminate();
 	DWORD Time=CEasyTimer::GetTime();
 	while(GetTimeToTime(Time,CEasyTimer::GetTime())<SERVER_ENDING_TIME&&OnTerminating())

@@ -302,7 +302,8 @@ BOOL CFastMemoryPool::FreeBlock(BlockNode * pNode)
 	{
 		if(pNode->Flag!=BF_USED)
 		{
-			PrintImportantLog(_T("内存块%p头部已被破坏"));
+			PrintImportantLog(_T("内存块头部已被破坏[0x%X],大小%u"), pNode->Flag, pNode->AllocSize);
+			DumpBlock(pNode);
 #ifdef LOG_MEM_CALL_STACK
 			PrintCallStackLog(pNode);
 #endif
@@ -311,7 +312,8 @@ BOOL CFastMemoryPool::FreeBlock(BlockNode * pNode)
 		}
 		if(*((UINT *)(((BYTE *)pNode)+sizeof(BlockNode)+pNode->AllocSize))!=BF_TAIL)
 		{
-			PrintImportantLog(_T("内存块%p尾部已被破坏"));
+			PrintImportantLog(_T("内存块尾部已被破坏,大小%u"), pNode->AllocSize);
+			DumpBlock(pNode);
 #ifdef LOG_MEM_CALL_STACK
 			PrintCallStackLog(pNode);
 #endif
@@ -335,6 +337,26 @@ BOOL CFastMemoryPool::FreeBlock(BlockNode * pNode)
 
 	}
 	return FALSE;
+}
+
+void CFastMemoryPool::DumpBlock(BlockNode * pNode)
+{
+	BlockList * pBlockList = pNode->pBlockList;
+	UINT BlockSize = pBlockList->BlockSize;
+	BYTE * pBlockData = (BYTE *)pNode;
+	for (UINT i = 0; i < BlockSize; i += 32)
+	{
+		PrintImportantLog(_T("%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,")
+			_T("%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X"),
+			pBlockData[i], pBlockData[i + 1], pBlockData[i + 2], pBlockData[i + 3],
+			pBlockData[i + 4], pBlockData[i + 5], pBlockData[i + 6], pBlockData[i + 7],
+			pBlockData[i + 8], pBlockData[i + 9], pBlockData[i + 10], pBlockData[i + 11],
+			pBlockData[i + 12], pBlockData[i + 13], pBlockData[i + 14], pBlockData[i + 15],
+			pBlockData[i + 16], pBlockData[i + 17], pBlockData[i + 18], pBlockData[i + 19],
+			pBlockData[i + 20], pBlockData[i + 21], pBlockData[i + 22], pBlockData[i + 23],
+			pBlockData[i + 24], pBlockData[i + 25], pBlockData[i + 26], pBlockData[i + 27],
+			pBlockData[i + 28], pBlockData[i + 29], pBlockData[i + 30], pBlockData[i + 31]);
+	}
 }
 
 #ifdef LOG_MEM_CALL_STACK

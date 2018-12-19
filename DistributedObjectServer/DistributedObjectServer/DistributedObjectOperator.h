@@ -43,8 +43,8 @@ public:
 
 	virtual BOOL RegisterMsgMap(OBJECT_ID ProxyObjectID, MSG_ID_TYPE * pMsgIDList, int CmdCount) override;
 	virtual BOOL UnregisterMsgMap(OBJECT_ID ProxyObjectID, MSG_ID_TYPE * pMsgIDList, int CmdCount) override;
-	virtual BOOL RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount) override;
-	virtual BOOL UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount) override;
+	virtual BOOL RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID, int MapType) override;
+	virtual BOOL UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID) override;
 	virtual BOOL SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType) override;
 
 	virtual BOOL AddConcernedObject(OBJECT_ID ObjectID, bool NeedTest) override;
@@ -105,8 +105,8 @@ public:
 	static bool InternalCallSendMessageMulti(CDistributedObjectOperator * pOperator, MonoArray * ReceiverIDList, bool IsSorted, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen);
 	static bool InternalCallRegisterMsgMap(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, MonoArray * MsgIDList);
 	static bool InternalCallUnregisterMsgMap(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, MonoArray * MsgIDList);
-	static bool InternalCallRegisterGlobalMsgMap(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType, MonoArray * MsgIDList);
-	static bool InternalCallUnregisterGlobalMsgMap(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType, MonoArray * MsgIDList);
+	static bool InternalCallRegisterGlobalMsgMap(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType, UINT MsgID, int MapType);
+	static bool InternalCallUnregisterGlobalMsgMap(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType, UINT MsgID);
 	static bool InternalCallSetUnhanleMsgReceiver(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType);
 	static bool InternalCallAddConcernedObject(CDistributedObjectOperator * pOperator, OBJECT_ID ObjectID, bool NeedTest);
 	static bool InternalCallDeleteConcernedObject(CDistributedObjectOperator * pOperator, OBJECT_ID ObjectID);

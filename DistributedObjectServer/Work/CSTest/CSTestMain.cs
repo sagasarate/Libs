@@ -34,13 +34,10 @@ namespace CSTest
 
             return true;
         }
-        void QueryReleasePlugin()
+       
+        public bool CheckPluginRelease()
         {
-
-        }
-        void ReleasePlugin()
-        {
-
+            return true;
         }
         
     };

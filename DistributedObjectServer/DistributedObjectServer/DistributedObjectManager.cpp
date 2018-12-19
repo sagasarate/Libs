@@ -52,7 +52,7 @@ BOOL CDistributedObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& Obje
 			RegisterInfo.ObjectGroupIndex=ObjectRegisterInfo.ObjectGroupIndex;
 			RegisterInfo.MsgQueueSize=ObjectRegisterInfo.MsgQueueSize;
 			RegisterInfo.MsgProcessLimit=ObjectRegisterInfo.MsgProcessLimit;
-			//RegisterInfo.Param=ObjectRegisterInfo.Param;
+			RegisterInfo.Flag = ObjectRegisterInfo.Flag;
 
 			if(m_pDOSObjectManager->RegisterObject(RegisterInfo))
 			{
@@ -89,7 +89,7 @@ BOOL CDistributedObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO_FOR_CS& 
 			RegisterInfo.ObjectGroupIndex = ObjectRegisterInfo.ObjectGroupIndex;
 			RegisterInfo.MsgQueueSize = ObjectRegisterInfo.MsgQueueSize;
 			RegisterInfo.MsgProcessLimit = ObjectRegisterInfo.MsgProcessLimit;
-			//RegisterInfo.Param=ObjectRegisterInfo.Param;
+			RegisterInfo.Flag=ObjectRegisterInfo.Flag;
 
 			if (m_pDOSObjectManager->RegisterObject(RegisterInfo))
 			{

@@ -123,18 +123,18 @@ bool CNetService::OnIOCPEvent(int EventID, COverLappedObject * pOverLappedObject
 			if(EventID==IOE_PACKET)
 			{
 				GetServer()->AddUDPSendBytes(pOverLappedObject->GetDataBuff()->GetUsedSize());
-				ReleaseOverLappedObject(pOverLappedObject);
+				ReleaseOverLappedObject(pOverLappedObject, 1);
 				return true;
 			}
 			else
 				PrintNetLog(_T("发送失败！"));
 		}			
 		else
-			PrintNetLog(_T("Service收到非法IOCP包！"));
+			PrintNetLog(_T("Service收到非法IOCP包(%u)！"), pOverLappedObject->GetType());
 	}
 	else
 		PrintNetLog(_T("Service未启用，IOCP包被忽略！"));
-	ReleaseOverLappedObject(pOverLappedObject);
+	ReleaseOverLappedObject(pOverLappedObject, 2);
 
 
 	return false;
@@ -348,7 +348,7 @@ void CNetService::Close()
 	COverLappedObject * pOverLappedObject;
 	while(m_AcceptQueue.PopFront(&pOverLappedObject))
 	{	
-		ReleaseOverLappedObject(pOverLappedObject);		
+		ReleaseOverLappedObject(pOverLappedObject, 3);
 	}	
 
 	
@@ -396,7 +396,7 @@ int CNetService::Update(int ProcessPacketLimit)
 		{
 			PrintNetLog(_T("(%d)Servicec收到不明类型(%d)的OverLapped！"), GetID(), pOverLappedObject->GetType());
 		}
-		ReleaseOverLappedObject(pOverLappedObject);
+		ReleaseOverLappedObject(pOverLappedObject, 4);
 		PacketCount++;
 		if(PacketCount>=ProcessPacketLimit)
 			break;
@@ -434,17 +434,17 @@ bool CNetService::QueryAccept()
 		return false;
 	}
 
-	COverLappedObject * pOverLappedObject = AllocOverLappedObject();
+	COverLappedObject * pOverLappedObject = AllocOverLappedObject(IO_ACCEPT);
 	if(pOverLappedObject==NULL)
 	{
 		PrintNetLog(_T("(%d)Service创建OverLappedObject失败！"),GetID());
 		return false;
 	}
 
-	pOverLappedObject->SetType(IO_ACCEPT);
+	//pOverLappedObject->SetType(IO_ACCEPT);
 	pOverLappedObject->SetAcceptSocket(AcceptSocket);
-	pOverLappedObject->SetIOCPEventRouter(m_pIOCPEventRouter);
-	pOverLappedObject->SetParentID(GetID());
+	//pOverLappedObject->SetIOCPEventRouter(m_pIOCPEventRouter);
+	//pOverLappedObject->SetParentID(GetID());
 	
 	static DWORD NumberOfBytes;	
 		
@@ -457,7 +457,7 @@ bool CNetService::QueryAccept()
 	}
 	PrintNetLog(_T("发出Accept请求失败！"));
 	closesocket(AcceptSocket);
-	ReleaseOverLappedObject(pOverLappedObject);
+	ReleaseOverLappedObject(pOverLappedObject, 5);
 
 	return false;
 	
@@ -465,17 +465,17 @@ bool CNetService::QueryAccept()
 bool CNetService::QueryUDPRecv()
 {	
 
-	COverLappedObject * pOverLappedObject = AllocOverLappedObject();
+	COverLappedObject * pOverLappedObject = AllocOverLappedObject(IO_RECV);
 	if(pOverLappedObject==NULL)
 	{
 		PrintNetLog(_T("(%d)Service创建热UDPRecv用OverLappedObject失败！"),GetID());
 		return false;
 	}
 
-	pOverLappedObject->SetType(IO_RECV);	
-	pOverLappedObject->GetDataBuff()->SetUsedSize(0);
-	pOverLappedObject->SetIOCPEventRouter(m_pIOCPEventRouter);	
-	pOverLappedObject->SetParentID(GetID());
+	//pOverLappedObject->SetType(IO_RECV);	
+	//pOverLappedObject->GetDataBuff()->SetUsedSize(0);
+	//pOverLappedObject->SetIOCPEventRouter(m_pIOCPEventRouter);	
+	//pOverLappedObject->SetParentID(GetID());
 
 	static DWORD NumberOfBytes;
 	static DWORD Flag;	
@@ -493,14 +493,14 @@ bool CNetService::QueryUDPRecv()
 		return true;
 	}
 	PrintNetLog(_T("Service发出UDPRecv请求失败！"));	
-	ReleaseOverLappedObject(pOverLappedObject);
+	ReleaseOverLappedObject(pOverLappedObject, 6);
 	return false;
 }
 
 bool CNetService::QueryUDPSend(const CIPAddress& IPAddress, LPCVOID pData, int Size)
 {	
 	
-	COverLappedObject * pOverLappedObject = AllocOverLappedObject();
+	COverLappedObject * pOverLappedObject = AllocOverLappedObject(IO_SEND);
 	if(pOverLappedObject==NULL)
 	{
 		PrintNetLog(_T("创建UDPSend用OverLappedObject失败！"));
@@ -509,14 +509,14 @@ bool CNetService::QueryUDPSend(const CIPAddress& IPAddress, LPCVOID pData, int S
 
 	pOverLappedObject->SetAddress(IPAddress);
 
-	pOverLappedObject->SetType(IO_SEND);	
-	pOverLappedObject->SetIOCPEventRouter(m_pIOCPEventRouter);
-	pOverLappedObject->GetDataBuff()->SetUsedSize(0);
-	pOverLappedObject->SetParentID(GetID());
+	//pOverLappedObject->SetType(IO_SEND);	
+	//pOverLappedObject->SetIOCPEventRouter(m_pIOCPEventRouter);
+	//pOverLappedObject->GetDataBuff()->SetUsedSize(0);
+	//pOverLappedObject->SetParentID(GetID());
 
 	if(!pOverLappedObject->GetDataBuff()->PushBack(pData,Size))
 	{
-		ReleaseOverLappedObject(pOverLappedObject);
+		ReleaseOverLappedObject(pOverLappedObject, 7);
 		PrintNetLog(_T("要发送的数据包过大！"));
 		return false;
 	}
@@ -537,7 +537,7 @@ bool CNetService::QueryUDPSend(const CIPAddress& IPAddress, LPCVOID pData, int S
 		return true;
 	}
 	PrintNetLog(_T("Service发出UDPSend请求失败！"));	
-	ReleaseOverLappedObject(pOverLappedObject);
+	ReleaseOverLappedObject(pOverLappedObject, 8);
 	return false;
 }
 
@@ -649,14 +649,23 @@ bool CNetService::AcceptSocketEx(SOCKET Socket,CEasyBuffer * pAcceptData)
 	return false;
 }
 
-COverLappedObject * CNetService::AllocOverLappedObject()
+COverLappedObject * CNetService::AllocOverLappedObject(int Type)
 {
 	CAutoLock Lock(m_OverLappedObjectPoolLock);
 
 	COverLappedObject * pObject = NULL;
 	if (m_OverLappedObjectPool.PopFront(&pObject))
 	{
+		if (pObject->GetStatus() != OVERLAPPED_OBJECT_STATUS_IDLE)
+		{
+			PrintNetLog(_T("OverLappedObject(%u,%u)状态%u错误"), pObject->GetID(), pObject->GetType(), pObject->GetStatus());
+		}
+
+		pObject->SetType(Type);
 		pObject->SetStatus(OVERLAPPED_OBJECT_STATUS_USING);
+		pObject->GetDataBuff()->SetUsedSize(0);
+		pObject->SetIOCPEventRouter(m_pIOCPEventRouter);
+		//PrintNetLog(_T("OverLappedObject(%u,%u)已分配"), pObject->GetID(), pObject->GetType());
 		return pObject;
 	}
 	else
@@ -666,18 +675,28 @@ COverLappedObject * CNetService::AllocOverLappedObject()
 	}
 	return NULL;
 }
-bool CNetService::ReleaseOverLappedObject(COverLappedObject * pObject)
+bool CNetService::ReleaseOverLappedObject(COverLappedObject * pObject, int Where)
 {
 	CAutoLock Lock(m_OverLappedObjectPoolLock);
 
+	if (pObject->GetStatus() != OVERLAPPED_OBJECT_STATUS_USING)
+	{
+		PrintNetLog(_T("(%d)OverLappedObject(%u,%u)状态%u错误,缓冲池状态(%u/%u)"),
+			Where, pObject->GetID(), pObject->GetType(), pObject->GetStatus(),
+			m_OverLappedObjectPool.GetUsedSize(), m_OverLappedObjectPool.GetBufferSize());
+		return false;
+	}
 	
 	if (m_OverLappedObjectPool.PushBack(&pObject))
-	{
+	{		
 		pObject->SetStatus(OVERLAPPED_OBJECT_STATUS_IDLE);
+		//PrintNetLog(_T("(%d)OverLappedObject(%u,%u)已释放"), Where, pObject->GetID(), pObject->GetType());
 		return true;
 	}
 	else
 	{
+		PrintNetLog(_T("(%d)OverLappedObject缓冲已满(%u/%u)，直接释放"),
+			m_OverLappedObjectPool.GetUsedSize(), Where, m_OverLappedObjectPool.GetBufferSize());
 		pObject->Release();
 		return false;
 	}

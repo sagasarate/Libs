@@ -43,6 +43,12 @@ enum CLIENT_PROXY_MODE
 	CLIENT_PROXY_MODE_CUSTOM,
 };
 
+enum OBJECT_GROUP_TYPE
+{
+	OBJECT_GROUP_TYPE_NORMAL,
+	OBJECT_GROUP_TYPE_PRIVATE,
+};
+
 struct CLIENT_PROXY_CONFIG
 {
 	UINT										ProxyType;
@@ -68,6 +74,11 @@ struct CLIENT_PROXY_CONFIG
 	UINT										MsgMapSize;
 	UINT										MaxMsgSize;
 	UINT										MaxSendMsgSize;
+
+	bool										EnableGuardThread;
+	UINT										GuardThreadKeepAliveTime;
+	UINT										GuardThreadKeepAliveCount;
+
 	
 	
 	CLIENT_PROXY_CONFIG()
@@ -94,28 +105,39 @@ struct CLIENT_PROXY_CONFIG
 		UseServerInitiativeKeepAlive = false;
 		KeepAliveTime = 30000;
 		KeepAliveCount = 10;
+		EnableGuardThread = false;
+		GuardThreadKeepAliveTime = 20 * 1000;
+		GuardThreadKeepAliveCount = 5;
 	}
 };
 
-
-struct DOS_CONFIG
+struct DOS_ROUTER_CONFIG
 {
-	UINT										RouterID;	
+	UINT										RouterID;
 	CEasyNetLinkManager::ENL_CONFIG				RouterLinkConfig;
 	UINT										MaxRouterSendMsgQueue;
 	UINT										RouterMsgProcessLimit;
 	bool										StateMsgTransfer;
-	
+	bool										EnableGuardThread;
+	UINT										GuardThreadKeepAliveTime;
+	UINT										GuardThreadKeepAliveCount;
+	DOS_ROUTER_CONFIG()
+	{
+		RouterID = 0;
+		MaxRouterSendMsgQueue = 10240;
+		RouterMsgProcessLimit = 256;
+		StateMsgTransfer = false;
+		EnableGuardThread = false;
+		GuardThreadKeepAliveTime = 20 * 1000;
+		GuardThreadKeepAliveCount = 5;
+	}
+};
 
-	CEasyArray<CLIENT_PROXY_CONFIG>				ClientProxyConfigs;
-
-	UINT										MemoryPoolBlockSize;
-	UINT										MemoryPoolLeveSize;
-	UINT										MemoryPoolLevelCount;
-
+struct DOS_OBJECT_CONFIG
+{
 	UINT										ObjectGroupCount;
 	STORAGE_POOL_SETTING						ObjectPoolSetting;
-	UINT										MaxObjectMsgQueue;	
+	UINT										MaxObjectMsgQueue;
 	UINT										ObjectAliveTestTime;
 	UINT										ObjectAliveCheckTime;
 	UINT										ObjectKeepAliveCount;
@@ -123,29 +145,53 @@ struct DOS_CONFIG
 	bool										UseRealGroupLoadWeight;
 	DOS_GROUP_INIT_FN							pDOSGroupInitFN;
 	DOS_GROUP_DESTORY_FN						pDOSGroupDestoryFN;
+	bool										EnableGuardThread;
+	UINT										GuardThreadKeepAliveTime;
+	UINT										GuardThreadKeepAliveCount;
 
-	DOS_CONFIG()
+	DOS_OBJECT_CONFIG()
 	{
-		RouterID=0;	
-		MaxRouterSendMsgQueue=10240;
-		RouterMsgProcessLimit=256;
-		StateMsgTransfer = false;
-		
-		MemoryPoolBlockSize=64;
-		MemoryPoolLeveSize=10240;
-		MemoryPoolLevelCount=5;
-		ObjectGroupCount=8;
+		ObjectGroupCount = 8;
 		ObjectPoolSetting.StartSize = 128;
 		ObjectPoolSetting.GrowSize = 128;
 		ObjectPoolSetting.GrowLimit = 32;
-		MaxObjectMsgQueue=1024;
-		ObjectAliveTestTime=20*1000;
-		ObjectAliveCheckTime=5000;
-		ObjectKeepAliveCount=5;
-		StatObjectCPUCost=false;
+		MaxObjectMsgQueue = 1024;
+		ObjectAliveTestTime = 20 * 1000;
+		ObjectAliveCheckTime = 5000;
+		ObjectKeepAliveCount = 5;
+		StatObjectCPUCost = false;
 		UseRealGroupLoadWeight = false;
 		pDOSGroupInitFN = NULL;
 		pDOSGroupDestoryFN = NULL;
+		EnableGuardThread = false;
+		GuardThreadKeepAliveTime = 20 * 1000;
+		GuardThreadKeepAliveCount = 5;
+	}
+};
+
+struct DOS_MEMORY_POOL_CONFIG
+{
+	UINT										MemoryPoolBlockSize;
+	UINT										MemoryPoolLeveSize;
+	UINT										MemoryPoolLevelCount;
+	DOS_MEMORY_POOL_CONFIG()
+	{
+		MemoryPoolBlockSize = 64;
+		MemoryPoolLeveSize = 10240;
+		MemoryPoolLevelCount = 5;
+	}
+};
+
+struct DOS_CONFIG
+{
+	CEasyArray<CLIENT_PROXY_CONFIG>				ClientProxyConfigs;
+	DOS_ROUTER_CONFIG							RouterConfig;	
+	DOS_OBJECT_CONFIG							ObjectConfig;
+	DOS_MEMORY_POOL_CONFIG						MemoryPoolConfig;
+
+	DOS_CONFIG()
+	{
+		
 	}
 };
 
@@ -159,8 +205,9 @@ struct DOS_OBJECT_REGISTER_INFO
 	int					ObjectGroupIndex;
 	UINT				MsgQueueSize;
 	UINT				MsgProcessLimit;
+	UINT				Flag;
 	CDOSBaseObject *	pObject;
-	//UINT				Param;
+	
 
 	DOS_OBJECT_REGISTER_INFO()
 	{
@@ -170,9 +217,9 @@ struct DOS_OBJECT_REGISTER_INFO
 		ObjectGroupIndex=-1;
 		MsgQueueSize=0;
 		MsgProcessLimit=0;
-		pObject=NULL;
-		//Param=0;
-	}
+		Flag = 0;
+		pObject=NULL;		
+	}	
 };
 
 extern UINT DistinctObjectID(OBJECT_ID * pObjectIDs,UINT Count);

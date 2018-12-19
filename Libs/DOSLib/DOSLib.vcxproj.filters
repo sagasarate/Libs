@@ -146,5 +146,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DOSLib.cbp" />
+    <None Include="makefile" />
   </ItemGroup>
 </Project>

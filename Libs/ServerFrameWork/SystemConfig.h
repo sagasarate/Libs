@@ -23,6 +23,7 @@ protected:
 	UINT			m_LogLevel;
 	UINT			m_ConsoleLogLevel;
 	UINT			m_LogCacheSize;
+	bool			m_EnableGuardThread;
 	UINT			m_GuardThreadKeepAliveTime;
 	UINT			m_GuardThreadKeepAliveCount;
 	bool			m_PreLoadModuleSym;
@@ -77,6 +78,10 @@ public:
 	UINT GetConsoleLogLevel()
 	{
 		return m_ConsoleLogLevel;
+	}
+	bool GetEnableGuardThread()
+	{
+		return m_EnableGuardThread;
 	}
 	UINT GetLogCacheSize()
 	{

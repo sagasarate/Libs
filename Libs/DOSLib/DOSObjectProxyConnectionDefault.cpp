@@ -315,9 +315,8 @@ void CDOSObjectProxyConnectionDefault::OnClientMsg(CDOSSimpleMessage * pMessage)
 	{
 		int PacketSize = CDOSMessagePacket::CaculatePacketLength(pMessage->GetDataLength(), 1);
 
-
-		OBJECT_ID TargetObjectID = GetMsgMapObjectID(pMessage->GetMsgID());
-		if (TargetObjectID.ID)
+		OBJECT_ID * pObjectID = m_MessageMap.Find(pMessage->GetMsgID());
+		if (pObjectID)
 		{
 			WORD MsgFlag = pMessage->GetMsgFlag();
 			MSG_LEN_TYPE DataLen = pMessage->GetDataLength();
@@ -331,12 +330,31 @@ void CDOSObjectProxyConnectionDefault::OnClientMsg(CDOSSimpleMessage * pMessage)
 					return;
 				}
 			}
-			GetServer()->GetRouter()->RouterMessage(m_ObjectID, TargetObjectID, 
+			GetServer()->GetRouter()->RouterMessage(m_ObjectID, *pObjectID,
 				pMessage->GetMsgID(), MsgFlag, pData, DataLen);
 		}
 		else
 		{
-			PrintDOSLog( _T("无法找到消息0x%X的接收者！"), pMessage->GetMsgID());
+			if (m_pService->HaveGlobalMsgMap(pMessage->GetMsgID()))
+			{
+				WORD MsgFlag = pMessage->GetMsgFlag();
+				MSG_LEN_TYPE DataLen = pMessage->GetDataLength();
+				LPVOID pData = pMessage->GetDataBuffer();
+				if (MsgFlag & DOS_MESSAGE_FLAG_ENCRYPT)
+				{
+					MsgFlag &= ~DOS_MESSAGE_FLAG_ENCRYPT;
+					if (!DecyptMsg(pData, DataLen))
+					{
+						Disconnect();
+						return;
+					}
+				}
+				m_pService->SendGlobalMapMessage(m_ObjectID, pMessage->GetMsgID(), MsgFlag, pData, DataLen);
+			}
+			else
+			{
+				PrintDOSLog(_T("无法找到消息0x%X的接收者！"), pMessage->GetMsgID());
+			}
 		}
 	}
 }
@@ -543,29 +561,6 @@ void CDOSObjectProxyConnectionDefault::SendKeepAliveMsg()
 	pPingData->RecentDelay = m_RecentPingDelay;
 	
 	Send(pKeepAliveMsg, pKeepAliveMsg->GetMsgLength());
-}
-
-OBJECT_ID CDOSObjectProxyConnectionDefault::GetMsgMapObjectID(MSG_ID_TYPE CmdID)
-{
-	OBJECT_ID * pObjectID = m_MessageMap.Find(CmdID);
-	if (pObjectID)
-	{
-		return *pObjectID;
-	}
-	else
-	{
-		if (m_pService == NULL)
-		{
-			PrintDOSLog(_T("异常,未初始化的代理连接"));
-			return 0;
-		}
-		OBJECT_ID ObjectID = m_pService->GetGlobalMsgMapObjectID(CmdID);
-		if (ObjectID.ID == 0)
-		{
-			ObjectID = m_pService->GetUnhandleMsgReceiverID();
-		}
-		return ObjectID;
-	}
 }
 
 

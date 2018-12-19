@@ -27,6 +27,7 @@ CSystemConfig::CSystemConfig(void)
 #endif
 	m_ConsoleLogLevel=m_LogLevel;
 	m_LogCacheSize = 65536;
+	m_EnableGuardThread = false;
 	m_GuardThreadKeepAliveTime=20*1000;
 	m_GuardThreadKeepAliveCount=5;
 
@@ -98,6 +99,9 @@ bool CSystemConfig::LoadConfig(LPCTSTR ConfigFileName)
 				xml_node GuardThread = Config;
 				if (GuardThread.moveto_child("GuardThread"))
 				{
+					if (GuardThread.has_attribute("Enable"))
+						m_EnableGuardThread = GuardThread.attribute("Enable");
+
 					if (GuardThread.has_attribute("KeepAliveTime"))
 						m_GuardThreadKeepAliveTime = GuardThread.attribute("KeepAliveTime");
 

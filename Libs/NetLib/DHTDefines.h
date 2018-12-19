@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 
 #define NODE_ID_BYTE_COUNT		20

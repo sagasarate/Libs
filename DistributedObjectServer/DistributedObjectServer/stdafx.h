@@ -56,10 +56,10 @@
 
 #define SERVER_INFO_COUNT_TIME					5000
 #define MAX_SERVER_TERMINATE_WAIT_TIME			3000000
+#define PLUGIN_RELASE_CHECK_TIME				1000
 
 #define PLUGIN_INIT_FN_NAME						"InitPlugin"
-#define PLUGIN_QUERY_RELEASE_FN_NAME			"QueryReleasePlugin"
-#define PLUGIN_RELEASE_FN_NAME					"ReleasePlugin"
+#define PLUGIN_CHECK_RELEASE_FN_NAME			"CheckPluginRelease"
 #define CLIENT_PROXY_INIT_FN_NAME				"InitPlugin"
 #define CLIENT_PROXY_GET_SERVICE_FN_NAME		"GetProxyService"
 #define CLIENT_PROXY_CONNECTION_CREATE_FN_NAME	"CreateProxyConnection"
@@ -77,6 +77,7 @@
 #define MONO_CLASS_FIELD_NAME_DORI_OBJECT_GROUP_INDEX	"ObjectGroupIndex"
 #define MONO_CLASS_FIELD_NAME_DORI_MSG_QUEUE_SIZE		"MsgQueueSize"
 #define MONO_CLASS_FIELD_NAME_DORI_MSG_PROCESS_LIMIT	"MsgProcessLimit"
+#define MONO_CLASS_FIELD_NAME_DORI_FLAG					"Flag"
 #define MONO_CLASS_FIELD_NAME_DORI_OBJECT				"Object"
 
 
@@ -153,8 +154,7 @@
 #endif
 
 extern "C" typedef BOOL(*PLUGIN_INIT_FN)(IDistributedObjectManager* pObjectManager, UINT PluginID, UINT LogChannel, LPCTSTR ConfigDir, LPCTSTR LogDir);
-extern "C" typedef void(*PLUGIN_QUERY_RELEASE_FN)();
-extern "C" typedef void(*PLUGIN_RELEASE_FN)();
+extern "C" typedef bool(*PLUGIN_CHECK_RELEASE_FN)();
 
 extern "C" typedef bool(*CLIENT_PROXY_INIT_FN)(UINT PluginID, UINT LogChannel, LPCTSTR ConfigDir, LPCTSTR LogDir);
 extern "C" typedef IDOSObjectProxyService * (*CLIENT_PROXY_GET_SERVICE_FN)();
@@ -194,6 +194,7 @@ struct MONO_CLASS_INFO_DORI
 	MonoClassField *	pFeildObjectGroupIndex;
 	MonoClassField *	pFeildMsgQueueSize;
 	MonoClassField *	pFeildMsgProcessLimit;
+	MonoClassField *	pFeildFlag;
 	MonoClassField *	pFeildObject;
 	MONO_CLASS_INFO_DORI()
 	{
@@ -203,13 +204,14 @@ struct MONO_CLASS_INFO_DORI
 		pFeildObjectGroupIndex = NULL;
 		pFeildMsgQueueSize = NULL;
 		pFeildMsgProcessLimit = NULL;
+		pFeildFlag = NULL;
 		pFeildObject = NULL;
 	}
 	bool IsValid()
 	{
-		return pClass != NULL&&pFeildObjectID != NULL&&pFeildWeight != NULL&&
-			pFeildObjectGroupIndex != NULL&&pFeildMsgQueueSize != NULL&&
-			pFeildMsgProcessLimit != NULL&&pFeildObject != NULL;
+		return (pClass != NULL) && (pFeildObjectID != NULL) && (pFeildWeight != NULL) &&
+			(pFeildObjectGroupIndex != NULL) && (pFeildMsgQueueSize != NULL) &&
+			(pFeildMsgProcessLimit != NULL) && (pFeildFlag != NULL) && (pFeildObject != NULL);
 	}
 };
 
@@ -253,8 +255,7 @@ struct PLUGIN_INFO
 	CEasyString					LogDir;
 	HMODULE						hModule;
 	PLUGIN_INIT_FN				pInitFN;
-	PLUGIN_QUERY_RELEASE_FN		pQueryReleaseFN;
-	PLUGIN_RELEASE_FN			pReleaseFN;
+	PLUGIN_CHECK_RELEASE_FN		pCheckReleaseFN;
 	MonoAssembly *				pCSPluginAssembly;
 	UINT						hCSMainObj;
 	HANDLE						hMCSProcess;
@@ -271,8 +272,7 @@ struct PLUGIN_INFO
 		PluginStatus = PLUGIN_STATUS_NONE;
 		hModule = NULL;
 		pInitFN = NULL;
-		pQueryReleaseFN = NULL;
-		pReleaseFN = NULL;
+		pCheckReleaseFN = NULL;
 		pCSPluginAssembly = NULL;
 		hCSMainObj = 0;
 		hMCSProcess = NULL;
@@ -304,7 +304,8 @@ struct DOS_OBJECT_REGISTER_INFO_FOR_CS
 	int						ObjectGroupIndex;
 	UINT					MsgQueueSize;
 	UINT					MsgProcessLimit;
-	MonoObject * 			pObject;
+	UINT					Flag;
+	MonoObject * 			pObject;	
 };
 
 

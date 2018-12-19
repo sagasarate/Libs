@@ -884,6 +884,29 @@ public:
 		}
 		return FALSE;
 	}
+	BOOL MoveSorted(LPVOID Pos)
+	{
+		StorageNode * pNode = (StorageNode *)Pos;
+		if (pNode)
+		{
+			PickNode(pNode);
+			StorageNode * pHead = m_pObjectListHead;
+			while (pHead&&pHead->GetObjectRef() < pNode->GetObjectRef())
+			{
+				pHead = pHead->pNext;
+			}
+			if (pHead)
+			{
+				InsertNodeBefore(pNode, pHead);
+			}
+			else
+			{
+				InsertNodeAfter(pNode, pHead);
+			}
+			return TRUE;
+		}
+		return FALSE;
+	}
 	//void PrintTree(CDC * pDC,int StartX,int StartY,int Dis)
 	//{
 	//	DrawTree(pDC,StartX,StartY,Dis,m_pTreeRoot,1);

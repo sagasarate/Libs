@@ -51,6 +51,19 @@ public:
 		return m_FinishTransQueue.GetUsedSize();
 	}
 
+	bool IsQueueFull()
+	{
+		return m_TransQueue.GetUsedSize() >= m_TransQueue.GetBufferSize();
+	}
+	bool IsFinishQueueFull()
+	{
+		return m_FinishTransQueue.GetUsedSize() >= m_FinishTransQueue.GetBufferSize();
+	}
+	bool IsJam()
+	{
+		return IsQueueFull() && (GetFinishQueueLen() == 0);
+	}
+
 protected:
 	virtual BOOL OnStart();	
 	virtual BOOL OnRun();

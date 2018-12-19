@@ -25,7 +25,8 @@ protected:
 	CDistributedObjectManager					m_PluginObjectManager;
 	CEasyArray<PLUGIN_INFO>						m_PluginList;
 	CEasyArray<LIB_INFO>						m_LibList;
-	CThreadSafeIDStorage<UINT>					m_PluginUnloadQueue;
+	CEasyArray<UINT>							m_PluginReleaseList;
+	CEasyCriticalSection						m_PluginReleaseLock;
 
 	HANDLE										m_hMCSOutRead;
 	HANDLE										m_hMCSOutWrite;
@@ -40,6 +41,8 @@ protected:
 	CEasyTimer									m_MonoFullGCTimer;
 
 	CEasyCriticalSection						m_MonoExcpetionLock;
+
+	CEasyTimer									m_PluginReleaseCheckTimer;
 	
 
 	DECLARE_CLASS_INFO_STATIC(CDOSMainThread)

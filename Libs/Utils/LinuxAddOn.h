@@ -162,6 +162,11 @@ inline size_t fread_s(void * _DstBuf, size_t _DstSize, size_t _ElementSize, size
 	return fread(_DstBuf,_ElementSize,_Count,_File);
 }
 
+inline void memcpy_s(void * _Dst, size_t _DstSize, const void * _Src, size_t _MaxCount)
+{
+	memcpy(_Dst, _Src, _MaxCount);
+}
+
 inline int strcpy_s(char * _Dst, size_t _SizeInBytes, const char * _Src)
 {
 	strcpy(_Dst,_Src);
@@ -422,6 +427,7 @@ inline WCHAR * wcsrchr(const WCHAR * string, WCHAR c)
 //#define _vscwprintf(_Format, _ArgList)		vswprintf(NULL,0,_Format,_ArgList)
 #define vsprintf_s(_DstBuf,_SizeInBytes,_Format,_ArgList)	vsnprintf(_DstBuf,_SizeInBytes,_Format,_ArgList)
 //#define vswprintf_s(_DstBuf,_SizeInBytes,_Format,_ArgList)	vswprintf(_DstBuf,_SizeInBytes,_Format,_ArgList)
+#define _snprintf_s(_DstBuf, _SizeInBytes, _MaxCount, _Format, ...)	sprintf(_DstBuf,_Format,##__VA_ARGS__)
 
 inline int _vscwprintf(const WCHAR *format, va_list argptr)
 {

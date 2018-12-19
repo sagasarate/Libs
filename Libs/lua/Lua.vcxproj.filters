@@ -264,4 +264,8 @@
       <Filter>LuaWrap</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Lua.cbp" />
+    <None Include="makefile" />
+  </ItemGroup>
 </Project>

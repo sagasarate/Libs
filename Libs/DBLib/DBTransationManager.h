@@ -15,7 +15,7 @@ namespace DBLib
 {
 
 #define DEFAULT_TRANS_THREAD	4
-#define PERFORMANCE_COUNT_TIME	(5*60*1000)
+#define PERFORMANCE_COUNT_TIME	(2*60*1000)
 
 
 
@@ -63,6 +63,7 @@ public:
 	int Update(int ProcessLimit=DEFAULT_PROCESS_LIMIT);
 
 	bool IsIdle();
+	bool HaveJam();
 
 	void AddExecTime(UINT ExecTime)
 	{

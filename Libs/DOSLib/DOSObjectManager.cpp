@@ -35,24 +35,31 @@ bool CDOSObjectManager::Initialize()
 		PrintDOSLog(_T("没有初始化服务器，对象管理器无法初始化！"));
 		return false;
 	}
-	if(m_pServer->GetConfig().ObjectGroupCount<=0)
+	if(m_pServer->GetConfig().ObjectConfig.ObjectGroupCount<=0)
 	{
 		PrintDOSLog(_T("服务器没有正确配置对象组数量，对象管理器无法初始化！"));
 		return false;
 	}
-	m_ObjectGroups.Resize(m_pServer->GetConfig().ObjectGroupCount);
-	for(UINT i=0;i<m_pServer->GetConfig().ObjectGroupCount;i++)
+	m_ObjectGroups.Resize(m_pServer->GetConfig().ObjectConfig.ObjectGroupCount);
+	for (UINT i = 0; i<m_pServer->GetConfig().ObjectConfig.ObjectGroupCount; i++)
 	{
 		CDOSObjectGroup * pGroup=new CDOSObjectGroup();
 		m_ObjectGroups[i]=pGroup;
-		pGroup->Initialize(this,i);
-		if(!pGroup->Start())
+		if(pGroup->Initialize(this, i, OBJECT_GROUP_TYPE_NORMAL))
 		{
-			return false;
+			if (!pGroup->Start())
+			{
+				PrintDOSLog(_T("无法启动对象组(%u)！"), i);
+				return false;
+			}
+		}
+		else
+		{
+			PrintDOSLog(_T("无法初始化对象组(%u)！"), i);
 		}
 	}
 
-	PrintDOSLog(_T("对象管理器创建了%d个对象组！"),m_pServer->GetConfig().ObjectGroupCount);
+	PrintDOSLog(_T("对象管理器创建了%d个对象组！"), m_pServer->GetConfig().ObjectConfig.ObjectGroupCount);
 	return true;
 	FUNCTION_END;
 	return false;
@@ -135,8 +142,36 @@ BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterI
 	ObjectRegisterInfo.pObject->SetManager(this);
 	ObjectRegisterInfo.pObject->SetRouter(GetServer()->GetRouter());
 
-
-	CDOSObjectGroup * pGroup=SelectGroup(ObjectRegisterInfo.ObjectGroupIndex);
+	CDOSObjectGroup * pGroup = NULL;
+	if (ObjectRegisterInfo.Flag&DOS_OBJECT_REGISTER_FLAG_USE_PRIVATE_OBJECT_GROUP)
+	{
+		//创建一个私有对象组
+		pGroup = new CDOSObjectGroup();
+		if(pGroup->Initialize(this, m_ObjectGroups.GetCount(), OBJECT_GROUP_TYPE_PRIVATE))
+		{
+			if (pGroup->Start())
+			{
+				m_ObjectGroups.Add(pGroup);
+			}
+			else
+			{
+				PrintDOSLog(_T("无法启动私有对象组！"));
+				SAFE_DELETE(pGroup);
+				return FALSE;
+			}
+		}
+		else
+		{
+			PrintDOSLog(_T("无法初始化私有对象组！"));
+			SAFE_DELETE(pGroup);
+			return FALSE;
+		}
+	}
+	else
+	{
+		pGroup = SelectGroup(ObjectRegisterInfo.ObjectGroupIndex);
+	}
+	
 
 	if(pGroup==NULL)
 	{
@@ -235,7 +270,7 @@ CDOSObjectGroup * CDOSObjectManager::SelectGroup(int GroupIndex)
 		CDOSObjectGroup * pGroup=NULL;
 		for(UINT i=0;i<m_ObjectGroups.GetCount();i++)
 		{
-			if(m_ObjectGroups[i]->GetWeight()<Weight)
+			if ((m_ObjectGroups[i]->GetType() == OBJECT_GROUP_TYPE_NORMAL) && (m_ObjectGroups[i]->GetWeight()<Weight))
 			{
 				Weight=m_ObjectGroups[i]->GetWeight();
 				pGroup=m_ObjectGroups[i];
@@ -255,8 +290,11 @@ void CDOSObjectManager::PrintGroupInfo(UINT LogChannel)
 	{
 
 		CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,
-			_T("对象组[%u]:对象数[%u],权重[%u],CPU占用率[%0.2f%%],循环次数[%u],循环时间[%gMS],单循环CPU时间[%lluNS]"),
-			i,m_ObjectGroups[i]->GetObjectCount(),m_ObjectGroups[i]->GetWeight(),
+			_T("对象组[%u](%d):对象数[%u],权重[%u],CPU占用率[%0.2f%%],循环次数[%u],循环时间[%gMS],单循环CPU时间[%lluNS]"),
+			i,
+			m_ObjectGroups[i]->GetType(),
+			m_ObjectGroups[i]->GetObjectCount(),
+			m_ObjectGroups[i]->GetWeight(),
 			m_ObjectGroups[i]->GetCPUUsedRate()*100,
 			m_ObjectGroups[i]->GetCycleCount(),
 			m_ObjectGroups[i]->GetCycleTime(),

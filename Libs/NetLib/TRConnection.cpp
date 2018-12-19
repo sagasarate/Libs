@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 
 
@@ -31,7 +31,7 @@ bool CTRConnection::Init(CDHTService * pParent, UINT SearchID, const NODE_ID& Pe
 	m_MetaDataSize = 0;
 	m_CurMetaDataPiece = 0;
 	m_LogTag.Format(_T("DHT(%d)"), GetID());
-	//PrintNetDebugLogWithTag(m_LogTag, _T("³¢ÊÔÁ¬½Ó%s"), Address.GetAddressString());
+	//PrintNetDebugLogWithTag(m_LogTag, _T("å°è¯•è¿æ¥%s"), Address.GetAddressString());
 	SetServer(pParent->GetServer());
 	if (Connect(Address,20000))
 		return true;
@@ -42,17 +42,17 @@ void CTRConnection::OnConnection(bool IsSucceed)
 {
 	if (IsSucceed)
 	{
-		//PrintNetLogWithTag( _T("Á¬½Ó%s³É¹¦£¬·¢ËÍÎÕÊÖ1"), GetRemoteAddress().GetAddressString());
+		//PrintNetLogWithTag( _T("è¿æ¥%sæˆåŠŸï¼Œå‘é€æ¡æ‰‹1"), GetRemoteAddress().GetAddressString());
 		SendHandshake1();
 	}
 	else
 	{
-		//PrintNetLogWithTag( _T("Á¬½Ó%sÊ§°Ü"), GetRemoteAddress().GetAddressString());
+		//PrintNetLogWithTag( _T("è¿æ¥%så¤±è´¥"), GetRemoteAddress().GetAddressString());
 	}
 }
 void CTRConnection::OnDisconnection()
 {
-	//PrintNetLogWithTag( _T("Á¬½Ó%s¶Ï¿ª"), GetRemoteAddress().GetAddressString());
+	//PrintNetLogWithTag( _T("è¿æ¥%sæ–­å¼€"), GetRemoteAddress().GetAddressString());
 }
 
 void CTRConnection::OnRecvData(const BYTE * pData, UINT DataSize)
@@ -69,7 +69,7 @@ void CTRConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 				memcpy(m_RemotePeerID.NodeID, pPeerID, NODE_ID_BYTE_COUNT);
 				m_AssembleBuffer.PopFront(NULL, 68);				
 				CEasyString PeerStr((char *)pPeerID, NODE_ID_BYTE_COUNT);
-				//PrintNetDebugLogWithTag(m_LogTag, _T("ÊÕµ½ÎÕÊÖ1»ØÓ¦:%s"), (LPCTSTR)PeerStr);
+				//PrintNetDebugLogWithTag(m_LogTag, _T("æ”¶åˆ°æ¡æ‰‹1å›åº”:%s"), (LPCTSTR)PeerStr);
 				m_FinishHandshake = 1;
 				SendHandshake2();
 			}
@@ -97,12 +97,12 @@ void CTRConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 					}
 					else
 					{
-						PrintNetLogWithTag(m_LogTag, _T("ÏûÏ¢´óĞ¡Òì³£Size=%u"), MsgSize);
+						PrintNetLogWithTag(m_LogTag, _T("æ¶ˆæ¯å¤§å°å¼‚å¸¸Size=%u"), MsgSize);
 					}
 				}
 				else
 				{
-					PrintNetDebugLogWithTag(m_LogTag, _T("¶ªÆúÎ´ÖªÏûÏ¢MsgID=%u,Size=%u"), MsgID, MsgSize);
+					PrintNetDebugLogWithTag(m_LogTag, _T("ä¸¢å¼ƒæœªçŸ¥æ¶ˆæ¯MsgID=%u,Size=%u"), MsgID, MsgSize);
 				}
 				m_AssembleBuffer.PopFront(NULL, MsgSize + sizeof(UINT));
 			}
@@ -186,14 +186,14 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 	if (ExtDataSize >0x8000|| ExtDataSize > DataSize)
 	{
 		pData[DataSize - 1] = 0;
-		PrintNetLogWithTag(m_LogTag, _T("Bencoding½âÎöÒì³£:%s"), pData);
+		PrintNetLogWithTag(m_LogTag, _T("Bencodingè§£æå¼‚å¸¸:%s"), pData);
 		Disconnect();
 		return;
 	}
 
 	if (MsgData.GetType() != BENCODING_TYPE_DICTIONARY)
 	{
-		PrintNetLogWithTag(m_LogTag, _T("1ÊÕµ½²»ºÏ·¨µÄÏûÏ¢¸ñÊ½Á¬½Ó%s¶Ï¿ª"), GetRemoteAddress().GetAddressString());
+		PrintNetLogWithTag(m_LogTag, _T("1æ”¶åˆ°ä¸åˆæ³•çš„æ¶ˆæ¯æ ¼å¼è¿æ¥%sæ–­å¼€"), GetRemoteAddress().GetAddressString());
 		Disconnect();
 	}
 
@@ -210,7 +210,7 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 					if (Pair.Value->GetType() == BENCODING_TYPE_INTEGER)
 					{
 						CEasyString Temp = Pair.Key;
-						//PrintNetDebugLogWithTag(m_LogTag, _T("À©Õ¹ÏûÏ¢%s=%d"), (LPCTSTR)Temp, Pair.Value->GetIntValue());
+						//PrintNetDebugLogWithTag(m_LogTag, _T("æ‰©å±•æ¶ˆæ¯%s=%d"), (LPCTSTR)Temp, Pair.Value->GetIntValue());
 						if (Pair.Key == "ut_metadata")
 						{
 							m_MetaDataMsgID = (int)Pair.Value->GetIntValue();
@@ -230,18 +230,18 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 				}
 				else
 				{
-					PrintNetDebugLogWithTag(m_LogTag, _T("metadata_size=%u´óĞ¡Òì³£"), m_MetaDataSize);
+					PrintNetDebugLogWithTag(m_LogTag, _T("metadata_size=%uå¤§å°å¼‚å¸¸"), m_MetaDataSize);
 					m_MetaDataSize = 0;
 				}
 			}
 
-			//PrintNetDebugLogWithTag(m_LogTag, _T("ÊÕµ½ÎÕÊÖ2£¬¿ªÊ¼ÇëÇóÊı¾İ"));
+			//PrintNetDebugLogWithTag(m_LogTag, _T("æ”¶åˆ°æ¡æ‰‹2ï¼Œå¼€å§‹è¯·æ±‚æ•°æ®"));
 			m_FinishHandshake = 2;
 			SendRequest(m_CurMetaDataPiece);
 		}
 		else
 		{
-			PrintNetLogWithTag( _T("2ÊÕµ½²»ºÏ·¨µÄÏûÏ¢¸ñÊ½Á¬½Ó%s¶Ï¿ª"), GetRemoteAddress().GetAddressString());
+			PrintNetLogWithTag( _T("2æ”¶åˆ°ä¸åˆæ³•çš„æ¶ˆæ¯æ ¼å¼è¿æ¥%sæ–­å¼€"), GetRemoteAddress().GetAddressString());
 			Disconnect();
 		}
 	}
@@ -261,13 +261,13 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 					}
 					else
 					{
-						PrintNetDebugLogWithTag(m_LogTag, _T("total_size=%u´óĞ¡Òì³£"), m_MetaDataSize);
+						PrintNetDebugLogWithTag(m_LogTag, _T("total_size=%uå¤§å°å¼‚å¸¸"), m_MetaDataSize);
 						m_MetaDataSize = 0;
 					}
 				}
 				if (m_MetaDataSize)
 				{
-					PrintNetLogWithTag(m_LogTag, _T("ÊÕµ½MetaData Size=%d"), ExtDataSize);
+					PrintNetLogWithTag(m_LogTag, _T("æ”¶åˆ°MetaData Size=%d"), ExtDataSize);
 					m_MetaDataBuffer.PushBack(pExtData, ExtDataSize);
 					m_CurMetaDataPiece++;
 					if (m_MetaDataBuffer.GetUsedSize() < m_MetaDataSize)
@@ -276,30 +276,30 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 					}
 					else
 					{
-						PrintNetLogWithTag( _T("MetaData½ÓÊÜÍê±Ï£¬Á¬½Ó%s¶Ï¿ª"), GetRemoteAddress().GetAddressString());
+						PrintNetLogWithTag( _T("MetaDataæ¥å—å®Œæ¯•ï¼Œè¿æ¥%sæ–­å¼€"), GetRemoteAddress().GetAddressString());
 						Disconnect();
 						m_pParent->OnTorrent(m_SearchID, (BYTE *)m_MetaDataBuffer.GetBuffer(), m_MetaDataBuffer.GetUsedSize());
 					}
 				}
 				else
 				{
-					PrintNetLogWithTag( _T("Ğ­ÒéÒì³££¬Á¬½Ó%s¶Ï¿ª"), GetRemoteAddress().GetAddressString());
+					PrintNetLogWithTag( _T("åè®®å¼‚å¸¸ï¼Œè¿æ¥%sæ–­å¼€"), GetRemoteAddress().GetAddressString());
 					Disconnect();
 				}
 			}
 			else if (MsgType == 2)
 			{
-				PrintNetLogWithTag( _T("ÇëÇó±»¾Ü¾ø£¬Á¬½Ó%s¶Ï¿ª"), GetRemoteAddress().GetAddressString());
+				PrintNetLogWithTag( _T("è¯·æ±‚è¢«æ‹’ç»ï¼Œè¿æ¥%sæ–­å¼€"), GetRemoteAddress().GetAddressString());
 				Disconnect();
 			}
 			else
 			{
-				PrintNetLogWithTag(m_LogTag, _T("Òì³£MsgType=%d"), MsgType);
+				PrintNetLogWithTag(m_LogTag, _T("å¼‚å¸¸MsgType=%d"), MsgType);
 			}
 		}
 		else
 		{
-			PrintNetLogWithTag( _T("3ÊÕµ½²»ºÏ·¨µÄÏûÏ¢¸ñÊ½Á¬½Ó%s¶Ï¿ª"), GetRemoteAddress().GetAddressString());
+			PrintNetLogWithTag( _T("3æ”¶åˆ°ä¸åˆæ³•çš„æ¶ˆæ¯æ ¼å¼è¿æ¥%sæ–­å¼€"), GetRemoteAddress().GetAddressString());
 			Disconnect();
 		}
 	}

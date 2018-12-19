@@ -101,7 +101,6 @@ protected:
 	bool SendDisconnectNotify();
 	void SendKeepAliveMsg();
 
-	OBJECT_ID GetMsgMapObjectID(MSG_ID_TYPE MsgID);
 	bool DoRegisterMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);
 	bool DoUnregisterMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);
 	void ClearMsgMapByRouterID(UINT RouterID);

@@ -29,7 +29,7 @@ protected:
 	};
 
 	CDOSServer										*m_pServer;
-	DOS_CONFIG										m_Config;
+	DOS_ROUTER_CONFIG								m_Config;
 	CCycleQueue<CDOSMessagePacket *>				m_MsgQueue;
 	CEasyCriticalSection							m_EasyCriticalSection;
 	UINT											m_MsgProcessLimit;
@@ -42,6 +42,7 @@ protected:
 	CStaticMap<UINT, MSG_STATE_INFO>				m_MsgStateInfos;
 	
 	CThreadPerformanceCounter						m_ThreadPerformanceCounter;
+	CGuardThread									m_GuardThread;
 
 	DECLARE_CLASS_INFO_STATIC(CDOSRouter);
 public:
@@ -56,6 +57,7 @@ public:
 	
 
 	BOOL RouterMessage(OBJECT_ID SenderID,OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag,LPCVOID pData,UINT DataSize);
+	BOOL RouterMessage(OBJECT_ID SenderID, OBJECT_ID * pReceiverID, UINT ReceiverCount, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize);
 
 	BOOL RouterMessage(CDOSMessagePacket * pPacket);
 

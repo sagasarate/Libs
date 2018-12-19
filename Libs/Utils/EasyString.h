@@ -25,6 +25,18 @@
 
 #endif
 
+
+
+#define RELEASE_STR_BUFF(pBuffer) \
+	if(pBuffer != EMPTY_STR)\
+	{\
+		SAFE_DELETE_ARRAY(pBuffer);\
+	}\
+	else\
+	{\
+		pBuffer = NULL;\
+	}\
+
 inline int strncpy_0(char *strDest,size_t DestSize, const char *strSource, size_t count)
 {
 	if(strDest&&strSource)
@@ -186,7 +198,7 @@ inline int CompareStringNoCaseWithLen(const WCHAR * pStr1,const WCHAR * pStr2,si
 template <typename T>
 inline T * StringTrimRightT(T * pStr,T TrimChar)
 {
-	char * pStrTail=pStr;
+	T * pStrTail = pStr;
 	while(*pStrTail)
 	{
 		pStrTail++;
@@ -251,6 +263,7 @@ inline T * StringTrimT(T * pStr,T TrimChar)
 #define StringTrimW	StringTrimT<WCHAR>
 
 
+
 template < typename T>
 class CEasyStringT
 {
@@ -260,13 +273,15 @@ public:
 	{
 		ERROR_CHAR_POS=-1,
 	};
+	static T ZERO_CHAR;
+	static T * EMPTY_STR;
 protected:
 	T*			m_pBuffer;
 	SIZE_TYPE	m_BufferSize;
 	SIZE_TYPE	m_StringLength;
 	UINT		m_HashCode;
 
-	static int	m_DefaultCodePage;
+	static int	m_DefaultCodePage;	
 public:
 
 	static void SetDefaultCodePage(int CodePage)
@@ -281,16 +296,14 @@ public:
 
 	CEasyStringT()
 	{
-		m_pBuffer=new T[1];
-		m_pBuffer[0]=0;
+		m_pBuffer = CEasyStringT<T>::EMPTY_STR;
 		m_BufferSize=1;
 		m_StringLength=0;
 		m_HashCode = 0;
 	}
 	CEasyStringT(const char * pStr)
 	{
-		m_pBuffer=new T[1];
-		m_pBuffer[0] = 0;
+		m_pBuffer = EMPTY_STR;		
 		m_BufferSize=1;
 		m_StringLength=0;
 		m_HashCode = 0;
@@ -298,8 +311,7 @@ public:
 	}
 	CEasyStringT(const WCHAR * pStr)
 	{
-		m_pBuffer=new T[1];
-		m_pBuffer[0] = 0;
+		m_pBuffer = EMPTY_STR;
 		m_BufferSize=1;
 		m_StringLength=0;
 		m_HashCode = 0;
@@ -307,8 +319,7 @@ public:
 	}
 	CEasyStringT(const char * pStr,SIZE_TYPE Size)
 	{
-		m_pBuffer=new T[1];
-		m_pBuffer[0] = 0;
+		m_pBuffer = EMPTY_STR;
 		m_BufferSize=1;
 		m_StringLength=0;
 		m_HashCode = 0;
@@ -316,8 +327,7 @@ public:
 	}
 	CEasyStringT(const WCHAR * pStr,SIZE_TYPE Size)
 	{
-		m_pBuffer=new T[1];
-		m_pBuffer[0] = 0;
+		m_pBuffer = EMPTY_STR;
 		m_BufferSize=1;
 		m_StringLength=0;
 		m_HashCode = 0;
@@ -325,8 +335,7 @@ public:
 	}
 	CEasyStringT(const char Char)
 	{
-		m_pBuffer=new T[1];
-		m_pBuffer[0] = 0;
+		m_pBuffer = EMPTY_STR;
 		m_BufferSize=1;
 		m_StringLength=0;
 		m_HashCode = 0;
@@ -334,8 +343,7 @@ public:
 	}
 	CEasyStringT(const WCHAR Char)
 	{
-		m_pBuffer=new T[1];
-		m_pBuffer[0] = 0;
+		m_pBuffer = EMPTY_STR;
 		m_BufferSize=1;
 		m_StringLength=0;
 		m_HashCode = 0;
@@ -343,28 +351,26 @@ public:
 	}
 	CEasyStringT(const CEasyStringT<char>& Str)
 	{
-		m_pBuffer=new T[1];
-		m_pBuffer[0] = 0;
+		m_pBuffer = EMPTY_STR;
 		m_BufferSize=1;
 		m_StringLength=0;
 		SetString(Str.GetBuffer(),Str.GetLength());
 	}
 	CEasyStringT(const CEasyStringT<WCHAR>& Str)
 	{
-		m_pBuffer=new T[1];
-		m_pBuffer[0] = 0;
+		m_pBuffer = EMPTY_STR;
 		m_BufferSize=1;
 		m_StringLength=0;
 		SetString(Str.GetBuffer(),Str.GetLength());
 	}
 	~CEasyStringT()
 	{
-		SAFE_DELETE_ARRAY(m_pBuffer);
+		RELEASE_STR_BUFF(m_pBuffer);
 	}
 	void Clear()
 	{
 		Resize(0,false);
-	}
+	}	
 	bool IsUnicode()
 	{
 		return sizeof(T)==sizeof(WCHAR);
@@ -387,7 +393,7 @@ public:
 		pNewBuffer[Size]=0;
 		m_BufferSize=Size+1;
 		m_StringLength=NewStringLen;
-		SAFE_DELETE_ARRAY(m_pBuffer);
+		RELEASE_STR_BUFF(m_pBuffer);
 		m_pBuffer=pNewBuffer;
 		m_HashCode = 0;
 	}
@@ -822,7 +828,7 @@ public:
 			}
 			m_StringLength=NewStrLen;
 			m_pBuffer[m_StringLength]=0;
-			SAFE_DELETE_ARRAY(pReplacePos);
+			SAFE_DELETE(pReplacePos);
 			m_HashCode = 0;
 		}
 	}
@@ -934,6 +940,14 @@ protected:
 
 template<typename T>
 int	CEasyStringT<T>::m_DefaultCodePage = CP_ACP;
+
+template<typename T>
+T CEasyStringT<T>::ZERO_CHAR = 0;
+
+template<typename T>
+T * CEasyStringT<T>::EMPTY_STR = &CEasyStringT<T>::ZERO_CHAR;
+
+
 
 template<>
 inline void CEasyStringT<char>::SetString(const char * pStr,SIZE_TYPE Size)
@@ -1128,7 +1142,7 @@ inline void CEasyStringT<char>::FormatVL(const char * pFormat,va_list vl)
 	char * pNewBuffer = new char[m_BufferSize];		
 	vsprintf_s(pNewBuffer, m_BufferSize, pFormat, vl);
 	m_StringLength=Len;
-	SAFE_DELETE_ARRAY(m_pBuffer);
+	RELEASE_STR_BUFF(m_pBuffer);
 	m_pBuffer = pNewBuffer;
 	m_HashCode = 0;
 }
@@ -1144,7 +1158,7 @@ inline void CEasyStringT<WCHAR>::FormatVL(const WCHAR * pFormat,va_list vl)
 	WCHAR * pNewBuffer = new WCHAR[m_BufferSize];
 	vswprintf_s(pNewBuffer, m_BufferSize, pFormat, vl);
 	m_StringLength=Len;
-	SAFE_DELETE_ARRAY(m_pBuffer);
+	RELEASE_STR_BUFF(m_pBuffer);
 	m_pBuffer = pNewBuffer;
 	m_HashCode = 0;
 }

@@ -57,6 +57,8 @@ BOOL CDOSMainThread::OnStart()
 	m_ESFactionList.AddCFunction("ListPlugin",0,this,&CDOSMainThread::ListPlugin);
 	m_ESFactionList.AddCFunction("ReleasePlugin",1,this,&CDOSMainThread::ReleasePlugin);
 
+	m_PluginReleaseCheckTimer.SaveTime();
+
 	return TRUE;
 	FUNCTION_END;
 	return FALSE;
@@ -154,10 +156,19 @@ int CDOSMainThread::Update(int ProcessPacketLimit)
 		break;
 	case STATUS_WORKING:
 		{
-			UINT PluginID;
-			while (m_PluginUnloadQueue.PopFront(PluginID))
+			if (m_PluginReleaseCheckTimer.IsTimeOut(PLUGIN_RELASE_CHECK_TIME))
 			{
-				FreePlugin(PluginID);
+				m_PluginReleaseCheckTimer.SaveTime();
+
+				CAutoLock Lock(m_PluginReleaseLock);
+				
+				for (int i = (int)m_PluginReleaseList.GetCount() - 1; i >= 0; i--)
+				{
+					if (FreePlugin(m_PluginReleaseList[i]))
+					{
+						m_PluginReleaseList.Delete(i);
+					}
+				}				
 			}
 
 
@@ -323,7 +334,7 @@ void CDOSMainThread::OnTerminate()
 
 	FreePlugins();
 
-	m_PluginUnloadQueue.Destory();
+	
 	m_PluginObjectManager.Destory();
 
 
@@ -397,7 +408,26 @@ LPCTSTR CDOSMainThread::GetConfigFileName()
 
 bool CDOSMainThread::QueryFreePlugin(UINT PluginID)
 {
-	return m_PluginUnloadQueue.PushBack(PluginID) != NULL;
+	LogDebug("请求释放插件%u", PluginID);
+	CAutoLock Lock(m_PluginReleaseLock);
+	bool IsExist = false;
+	for (UINT i = 0; i < m_PluginReleaseList.GetCount(); i++)
+	{
+		if (m_PluginReleaseList[i] == PluginID)
+		{
+			IsExist = true;
+			break;
+		}
+	}
+	if (!IsExist)
+	{
+		m_PluginReleaseList.Add(PluginID);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 bool CDOSMainThread::DosGroupInitFn(UINT GroupIndex)
@@ -630,6 +660,7 @@ bool CDOSMainThread::MonoGetDORI(MONO_DOMAIN_INFO& DomainInfo, MonoObject * pObj
 				mono_field_get_value(pObject, DomainInfo.MonoClassInfo_DORI.pFeildObjectGroupIndex, &RegisterInfo.ObjectGroupIndex);
 				mono_field_get_value(pObject, DomainInfo.MonoClassInfo_DORI.pFeildMsgQueueSize, &RegisterInfo.MsgQueueSize);
 				mono_field_get_value(pObject, DomainInfo.MonoClassInfo_DORI.pFeildMsgProcessLimit, &RegisterInfo.MsgProcessLimit);
+				mono_field_get_value(pObject, DomainInfo.MonoClassInfo_DORI.pFeildFlag, &RegisterInfo.Flag);
 				mono_field_get_value(pObject, DomainInfo.MonoClassInfo_DORI.pFeildObject, &RegisterInfo.pObject);
 
 				return true;
@@ -686,7 +717,6 @@ bool CDOSMainThread::LoadPlugins()
 		LoadPlugin(PluginInfo);
 	}
 
-	m_PluginUnloadQueue.Create((UINT)m_PluginList.GetCount());
 
 	Log("插件装载完毕");
 
@@ -816,7 +846,7 @@ bool CDOSMainThread::LoadPlugin(PLUGIN_INFO& PluginInfo)
 bool CDOSMainThread::FreePlugin(PLUGIN_INFO& PluginInfo)
 {
 	FUNCTION_BEGIN;
-
+	
 	switch (PluginInfo.PluginType)
 	{
 	case PLUGIN_TYPE_NATIVE:
@@ -828,7 +858,7 @@ bool CDOSMainThread::FreePlugin(PLUGIN_INFO& PluginInfo)
 	default:
 		Log("CMainThread::FreePlugin:不支持的插件类型%d,%s", PluginInfo.PluginType, (LPCTSTR)PluginInfo.PluginName);
 	}
-	return true;
+	return false;
 	FUNCTION_END;
 	return false;
 }
@@ -840,14 +870,18 @@ bool CDOSMainThread::FreePlugin(UINT PluginID)
 	{
 		if (m_PluginList[i].ID == PluginID)
 		{
+			LogDebug("释放插件(%u)%s",
+				m_PluginList[i].ID, (LPCTSTR)m_PluginList[i].PluginName);
+
 			if (FreePlugin(m_PluginList[i]))
 			{
+				LogDebug("插件释放成功(%u)%s", m_PluginList[i].ID, (LPCTSTR)m_PluginList[i].PluginName);
 				m_PluginList.Delete(i);
 				return true;
 			}
 			else
 			{
-				m_PluginList.Delete(i);
+				LogDebug("插件释放失败(%u)%s", m_PluginList[i].ID, (LPCTSTR)m_PluginList[i].PluginName);
 				return false;
 			}
 		}
@@ -888,7 +922,8 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 	if (PluginInfo.PluginName.IsEmpty())
 		PluginInfo.PluginName = CFileTools::GetPathFileName(PluginInfo.ModuleFileName);
 
-	Log("开始装载插件%s,配置目录:%s,日志目录:%s", 
+	Log("开始装载插件(%u)%s,配置目录:%s,日志目录:%s",
+		PluginInfo.ID,
 		(LPCTSTR)PluginInfo.ModuleFileName,
 		(LPCTSTR)PluginInfo.ConfigDir,
 		(LPCTSTR)PluginInfo.LogDir);
@@ -905,18 +940,15 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 			CExceptionParser::GetInstance()->SymLoadFromModule(PluginInfo.ModuleFileName);
 		}
 		PluginInfo.pInitFN = (PLUGIN_INIT_FN)GetProcAddress(PluginInfo.hModule, PLUGIN_INIT_FN_NAME);
-		PluginInfo.pQueryReleaseFN = (PLUGIN_QUERY_RELEASE_FN)GetProcAddress(PluginInfo.hModule, PLUGIN_QUERY_RELEASE_FN_NAME);
-		PluginInfo.pReleaseFN = (PLUGIN_RELEASE_FN)GetProcAddress(PluginInfo.hModule, PLUGIN_RELEASE_FN_NAME);
-		if (PluginInfo.pInitFN&&PluginInfo.pReleaseFN)
+		PluginInfo.pCheckReleaseFN = (PLUGIN_CHECK_RELEASE_FN)GetProcAddress(PluginInfo.hModule, PLUGIN_CHECK_RELEASE_FN_NAME);
+		if (PluginInfo.pInitFN&&PluginInfo.pCheckReleaseFN)
 #else
 		//dlerror();
 		PluginInfo.pInitFN = (PLUGIN_INIT_FN)dlsym(PluginInfo.hModule, PLUGIN_INIT_FN_NAME);
 		LPCTSTR InitFNError = dlerror();
-		PluginInfo.pQueryReleaseFN = (PLUGIN_QUERY_RELEASE_FN)dlsym(PluginInfo.hModule, PLUGIN_QUERY_RELEASE_FN_NAME);
-		LPCTSTR QueryReleaseFNError = dlerror();
-		PluginInfo.pReleaseFN = (PLUGIN_RELEASE_FN)dlsym(PluginInfo.hModule, PLUGIN_RELEASE_FN_NAME);
-		LPCTSTR ReleaseFNError = dlerror();
-		if (InitFNError == NULL&&ReleaseFNError == NULL&&PluginInfo.pInitFN&&PluginInfo.pReleaseFN)
+		PluginInfo.pCheckReleaseFN = (PLUGIN_CHECK_RELEASE_FN)dlsym(PluginInfo.hModule, PLUGIN_CHECK_RELEASE_FN_NAME);
+		LPCTSTR CheckReleaseFNError = dlerror();
+		if (InitFNError == NULL&&CheckReleaseFNError == NULL&&PluginInfo.pInitFN&&PluginInfo.pCheckReleaseFN)
 #endif
 		{
 			CEasyString LogFileName;
@@ -945,7 +977,7 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 			Log("不合法的插件%s", (LPCTSTR)PluginInfo.ModuleFileName);
 #ifndef WIN32
 			Log("InitFN错误信息:%s", InitFNError);
-			Log("ReleaseFN错误信息:%s", ReleaseFNError);
+			Log("CheckReleaseFN错误信息:%s", CheckReleaseFNError);
 #endif
 		}
 	}
@@ -963,33 +995,13 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 }
 bool CDOSMainThread::FreeNativePlugin(PLUGIN_INFO& PluginInfo)
 {
-	FUNCTION_BEGIN;
-	if (PluginInfo.pReleaseFN)
-		(*(PluginInfo.pReleaseFN))();
+	FUNCTION_BEGIN;	
+	if (PluginInfo.pCheckReleaseFN)
+		return (*(PluginInfo.pCheckReleaseFN))();
+	else
+		Log("没有插件释放检测函数");
 
-//	if (PluginInfo.hModule)
-//	{
-//#ifdef WIN32
-//		if (FreeLibrary(PluginInfo.hModule))
-//#else
-//		if (dlclose(PluginInfo.hModule) == 0)
-//#endif
-//		{
-//			Log("插件释放成功%s", (LPCTSTR)PluginInfo.ModuleFileName);
-//		}
-//		else
-//		{
-//			Log("插件释放失败%s", (LPCTSTR)PluginInfo.ModuleFileName);
-//#ifndef WIN32
-//			Log("错误信息:%s", dlerror());
-//#endif
-//			return false;
-//		}
-//	}
-
-	PluginInfo.hModule = NULL;
-
-	return true;
+	return false;
 	FUNCTION_END;
 	return false;
 }
@@ -1037,6 +1049,12 @@ bool CDOSMainThread::LoadCSharpPlugin(PLUGIN_INFO& PluginInfo)
 	}
 	else
 	{
+		Log("开始装载插件(%u)%s,配置目录:%s,日志目录:%s",
+			PluginInfo.ID,
+			(LPCTSTR)PluginInfo.ModuleFileName,
+			(LPCTSTR)PluginInfo.ConfigDir,
+			(LPCTSTR)PluginInfo.LogDir);
+
 		PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
 		if (InitPluginDomain(PluginInfo.MonoDomainInfo, PluginInfo.PluginName))
 		{
@@ -1198,8 +1216,12 @@ bool CDOSMainThread::CompileCSharpPlugin(PLUGIN_INFO& PluginInfo)
 bool CDOSMainThread::FreeCSharpPlugin(PLUGIN_INFO& PluginInfo)
 {
 	FUNCTION_BEGIN;
+	
+
 	if (PluginInfo.pCSPluginAssembly)
 	{
+		bool Ret = false;
+
 		mono_domain_set(PluginInfo.MonoDomainInfo.pMonoDomain, FALSE);
 
 		MonoClass * pClass = mono_class_from_name(mono_assembly_get_image(PluginInfo.pCSPluginAssembly),
@@ -1210,19 +1232,35 @@ bool CDOSMainThread::FreeCSharpPlugin(PLUGIN_INFO& PluginInfo)
 			if (pMainObj)
 			{
 				MonoMethod * pReleaseMethod;
-				pReleaseMethod = mono_class_get_method_from_name(pClass, PLUGIN_RELEASE_FN_NAME, 0);
+				pReleaseMethod = mono_class_get_method_from_name(pClass, PLUGIN_CHECK_RELEASE_FN_NAME, 0);
 				if (pReleaseMethod)
 				{
 					MonoObject * pException = NULL;
-					mono_runtime_invoke(pReleaseMethod, pMainObj, NULL, &pException);
+					MonoObject * pReturnValue = mono_runtime_invoke(pReleaseMethod, pMainObj, NULL, &pException);
 					if (pException)
 					{
 						ProcessMonoException(pException);
 					}
+					else if (pReturnValue)
+					{
+						void * pValue = mono_object_unbox(pReturnValue);
+						if (pValue)
+						{
+							Ret = *((bool *)pValue);							
+						}
+						else
+						{
+							Log("返回值类型不正确");
+						}
+					}
+					else
+					{
+						LogMono("插件释放检测函数没有返回值");
+					}
 				}
 				else
 				{
-					LogMono("CDOSMainThread::FreeCSharpPlugin:无法找到插件[%s]释放函数",
+					LogMono("CDOSMainThread::FreeCSharpPlugin:无法找到插件[%s]释放检测函数",
 						(LPCTSTR)PluginInfo.ModuleFileName);
 				}
 			}
@@ -1232,18 +1270,22 @@ bool CDOSMainThread::FreeCSharpPlugin(PLUGIN_INFO& PluginInfo)
 			LogMono("CDOSMainThread::FreeCSharpPlugin:无法找到插件[%s]类[%s.%s]",
 				(LPCTSTR)PluginInfo.ModuleFileName, (LPCTSTR)PluginInfo.MainClassNameSpace, (LPCTSTR)PluginInfo.MainClass);
 		}
-		if (PluginInfo.hCSMainObj)
+
+		if (Ret)
 		{
-			mono_gchandle_free(PluginInfo.hCSMainObj);
-			PluginInfo.hCSMainObj = 0;
+			if (PluginInfo.hCSMainObj)
+			{
+				mono_gchandle_free(PluginInfo.hCSMainObj);
+				PluginInfo.hCSMainObj = 0;
+			}
+
+			//mono_assembly_close(PluginInfo.pCSPluginAssembly);
+			//PluginInfo.pCSPluginAssembly = NULL;
+
+			ReleasePluginDomain(PluginInfo);
+			LogMono("CDOSMainThread::FreeCSharpPlugin:插件[%s]已释放", (LPCTSTR)PluginInfo.ModuleFileName);
 		}
-
-		//mono_assembly_close(PluginInfo.pCSPluginAssembly);
-		//PluginInfo.pCSPluginAssembly = NULL;
-
-		ReleasePluginDomain(PluginInfo);
-		LogMono("CDOSMainThread::FreeCSharpPlugin:插件[%s]已释放", (LPCTSTR)PluginInfo.ModuleFileName);
-		return true;
+		return Ret;
 	}
 	else
 	{
@@ -1475,9 +1517,9 @@ void CDOSMainThread::RegisterMonoFunctions()
 		(void *)CDistributedObjectOperator::InternalCallRegisterMsgMap);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallUnregisterMsgMap(intptr,DOSSystem.OBJECT_ID,uint[])",
 		(void *)CDistributedObjectOperator::InternalCallUnregisterMsgMap);
-	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallRegisterGlobalMsgMap(intptr,uint16,byte,uint[])",
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallRegisterGlobalMsgMap(intptr,uint16,byte,uint,int)",
 		(void *)CDistributedObjectOperator::InternalCallRegisterGlobalMsgMap);
-	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallUnregisterGlobalMsgMap(intptr,uint16,byte,uint[])",
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallUnregisterGlobalMsgMap(intptr,uint16,byte,uint)",
 		(void *)CDistributedObjectOperator::InternalCallUnregisterGlobalMsgMap);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSetUnhanleMsgReceiver(intptr,uint16,byte)",
 		(void *)CDistributedObjectOperator::InternalCallSetUnhanleMsgReceiver);
@@ -1710,6 +1752,7 @@ bool CDOSMainThread::InitPluginDomain(MONO_DOMAIN_INFO& MonoDomainInfo, LPCTSTR 
 					MonoDomainInfo.MonoClassInfo_DORI.pFeildObjectGroupIndex = MonoGetClassField(MonoDomainInfo.MonoClassInfo_DORI.pClass, MONO_CLASS_FIELD_NAME_DORI_OBJECT_GROUP_INDEX);
 					MonoDomainInfo.MonoClassInfo_DORI.pFeildMsgQueueSize = MonoGetClassField(MonoDomainInfo.MonoClassInfo_DORI.pClass, MONO_CLASS_FIELD_NAME_DORI_MSG_QUEUE_SIZE);
 					MonoDomainInfo.MonoClassInfo_DORI.pFeildMsgProcessLimit = MonoGetClassField(MonoDomainInfo.MonoClassInfo_DORI.pClass, MONO_CLASS_FIELD_NAME_DORI_MSG_PROCESS_LIMIT);
+					MonoDomainInfo.MonoClassInfo_DORI.pFeildFlag = MonoGetClassField(MonoDomainInfo.MonoClassInfo_DORI.pClass, MONO_CLASS_FIELD_NAME_DORI_FLAG);
 					MonoDomainInfo.MonoClassInfo_DORI.pFeildObject = MonoGetClassField(MonoDomainInfo.MonoClassInfo_DORI.pClass, MONO_CLASS_FIELD_NAME_DORI_OBJECT);
 				}
 

@@ -209,17 +209,17 @@ BOOL CDistributedObjectOperator::UnregisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID
 	FUNCTION_END;
 	return FALSE;
 }
-BOOL CDistributedObjectOperator::RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pCmdIDList, int CmdCount)
+BOOL CDistributedObjectOperator::RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID, int MapType)
 {
 	FUNCTION_BEGIN;
-	return CDOSBaseObject::RegisterGlobalMsgMap(ProxyRouterID, ProxyType, pCmdIDList, CmdCount);
+	return CDOSBaseObject::RegisterGlobalMsgMap(ProxyRouterID, ProxyType, MsgID, MapType);
 	FUNCTION_END;
 	return FALSE;
 }
-BOOL CDistributedObjectOperator::UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount)
+BOOL CDistributedObjectOperator::UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID)
 {
 	FUNCTION_BEGIN;
-	return CDOSBaseObject::UnregisterGlobalMsgMap(ProxyRouterID, ProxyType, pMsgIDList, CmdCount);
+	return CDOSBaseObject::UnregisterGlobalMsgMap(ProxyRouterID, ProxyType, MsgID);
 	FUNCTION_END;
 	return FALSE;
 }
@@ -1173,29 +1173,19 @@ bool CDistributedObjectOperator::InternalCallUnregisterMsgMap(CDistributedObject
 	}
 	return false;
 }
-bool CDistributedObjectOperator::InternalCallRegisterGlobalMsgMap(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType, MonoArray * MsgIDList)
+bool CDistributedObjectOperator::InternalCallRegisterGlobalMsgMap(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType, UINT MsgID, int MapType)
 {
 	if (pOperator)
 	{
-		size_t ArrayLen = 0;
-		MSG_ID_TYPE * pBuff = CDOSMainThread::GetInstance()->MonoGetMsgIDArray(MsgIDList, ArrayLen);
-		if (pBuff)
-		{
-			return pOperator->RegisterGlobalMsgMap(ProxyRouterID, ProxyType, pBuff, (int)ArrayLen) != FALSE;
-		}
+		return pOperator->RegisterGlobalMsgMap(ProxyRouterID, ProxyType, MsgID, MapType) != FALSE;
 	}
 	return false;
 }
-bool CDistributedObjectOperator::InternalCallUnregisterGlobalMsgMap(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType, MonoArray * MsgIDList)
+bool CDistributedObjectOperator::InternalCallUnregisterGlobalMsgMap(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType, UINT MsgID)
 {
 	if (pOperator)
 	{
-		size_t ArrayLen = 0;
-		MSG_ID_TYPE * pBuff = CDOSMainThread::GetInstance()->MonoGetMsgIDArray(MsgIDList, ArrayLen);
-		if (pBuff)
-		{
-			return pOperator->UnregisterGlobalMsgMap(ProxyRouterID, ProxyType, pBuff, (int)ArrayLen) != FALSE;
-		}
+		return pOperator->UnregisterGlobalMsgMap(ProxyRouterID, ProxyType, MsgID) != FALSE;
 	}
 	return false;
 }

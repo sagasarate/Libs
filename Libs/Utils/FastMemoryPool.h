@@ -101,13 +101,14 @@ protected:
 #ifdef LOG_MEM_CALL_STACK
 	void PrintCallStackLog(BlockNode * pNode);
 #endif
-
+	void DumpBlock(BlockNode * pNode);
 public:
 	UINT GetAllocCount();
 	UINT GetFreeCount();
 	UINT GetSystemAllocCount();
 	UINT GetSystemFreeCount();
 	void DoStat();
+	
 };
 
 inline UINT CFastMemoryPool::GetAllocCount()

@@ -38,13 +38,18 @@ protected:
 		int					Weight;
 		UINT				ExecCount;
 		volatile UINT64		CPUCost;
+		volatile UINT64		MsgProcCost;
+		volatile UINT64		COTestCost;
+		volatile UINT64		UpdateCost;
 	};
 	CDOSObjectManager *								m_pManager;
 	UINT											m_Index;
+	OBJECT_GROUP_TYPE								m_Type;
 	volatile STATUS									m_Status;
 	volatile int									m_Weight;
-	bool											m_StatObjectCPUCost;
-	bool											m_UseRealGroupLoadWeight;
+
+	DOS_OBJECT_CONFIG								m_Config;
+	
 	UINT64											m_TotalGroupCost;
 	CEasyTimer										m_GroupWeightUpdateTimer;
 
@@ -59,12 +64,15 @@ protected:
 	CStaticMap<OBJECT_ID,OBJECT_STAT_INFO>			m_ObjectCountStatMap;
 
 	CEasyCriticalSection							m_EasyCriticalSection;
+
+	CGuardThread									m_GuardThread;
+
 	DECLARE_CLASS_INFO_STATIC(CDOSObjectGroup);
 public:
 	CDOSObjectGroup(void);
 	virtual ~CDOSObjectGroup(void);
 
-	virtual bool Initialize(CDOSObjectManager * pManager,UINT Index);
+	virtual bool Initialize(CDOSObjectManager * pManager, UINT Index, OBJECT_GROUP_TYPE Type);
 	virtual void Destory();
 
 	
@@ -81,6 +89,7 @@ public:
 	UINT GetCycleCount();
 	UINT GetMaxObjectMsgQueueLen();
 	UINT GetIndex();
+	OBJECT_GROUP_TYPE GetType();
 
 	bool Suspend();
 	bool Resume();
@@ -100,7 +109,7 @@ protected:
 
 	void OnObjectRegister(OBJECT_ID ObjectID, LPCSTR szObjectTypeName, int Weight);
 	void OnObjectUnregister(OBJECT_ID ObjectID, int Weight);
-	void AddObjectCPUCost(OBJECT_ID ObjectID,UINT64 CPUCost);
+	void AddObjectCPUCost(OBJECT_ID ObjectID, UINT64 CPUCost, UINT64 MsgProcCost, UINT64 COTestCost, UINT64 UpdateCost);
 	void AdjustObjectWeights();
 };
 
@@ -139,6 +148,10 @@ inline UINT CDOSObjectGroup::GetCycleCount()
 inline UINT CDOSObjectGroup::GetIndex()
 {
 	return m_Index;
+}
+inline OBJECT_GROUP_TYPE CDOSObjectGroup::GetType()
+{
+	return m_Type;
 }
 
 inline bool CDOSObjectGroup::Suspend()

@@ -92,6 +92,7 @@
   <ItemGroup>
     <None Include="DistributedObjectServer.cbp" />
     <None Include="..\DistributedObjectServer.workspace" />
+    <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\Libs\ServerFrameWork\TrayIcon.ico" />

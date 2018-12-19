@@ -34,8 +34,8 @@ inline BOOL PrintDBDebugLogWithTag(LPCTSTR Tag, LPCSTR Format, ...)
 	return ret;
 }
 
-#define PrintDBLog(_Format, ...)	PrintDBLogWithTag(__PRETTY_FUNCTION__, _Format, ##__VA_ARGS__)
-#define PrintDBDebugLog(_Format, ...)	PrintDBDebugLogWithTag(__PRETTY_FUNCTION__, _Format, ##__VA_ARGS__)
+#define PrintDBLog(_Format, ...)	PrintDBLogWithTag(__FUNCTION__, _Format, ##__VA_ARGS__)
+#define PrintDBDebugLog(_Format, ...)	PrintDBDebugLogWithTag(__FUNCTION__, _Format, ##__VA_ARGS__)
 
 #include "DBTypes.h"
 #include "DBValue.h"
@@ -62,11 +62,11 @@ inline BOOL PrintDBDebugLogWithTag(LPCTSTR Tag, LPCSTR Format, ...)
 
 #ifdef _WIN64
 
-#include "./MySQL/include/x64/win/mysql.h"
+#include "../OtherInclude/MySQL/x64/win/mysql.h"
 
 #else
 
-#include "./MySQL/include/x86/win/mysql.h"
+#include "../OtherInclude/MySQL/x86/win/mysql.h"
 
 #endif
 
@@ -74,12 +74,12 @@ inline BOOL PrintDBDebugLogWithTag(LPCTSTR Tag, LPCSTR Format, ...)
 
 #ifdef __x86_64__
 
-#include "./MySQL/include/x64/linux/mysql.h"
+#include "../OtherInclude/MySQL/x64/linux/mysql.h"
 
 
 #else
 
-#include "./MySQL/include/x86/linux/mysql.h"
+#include "../OtherInclude/MySQL/x86/linux/mysql.h"
 
 #endif
 

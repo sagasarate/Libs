@@ -1100,9 +1100,9 @@ void CNTService::SetupConsole() {
 		DWORD astds[3]={STD_OUTPUT_HANDLE,STD_ERROR_HANDLE,STD_INPUT_HANDLE};
 		FILE *atrgs[3]={stdout,stderr,stdin};
 		for( register int i=0; i<3; i++ ) {
-			long hand=(long)GetStdHandle(astds[i]);
-			if( hand!=(long)INVALID_HANDLE_VALUE ) {
-				int osf=_open_osfhandle(hand,_O_TEXT);
+			HANDLE hand=GetStdHandle(astds[i]);
+			if( hand!=INVALID_HANDLE_VALUE ) {
+				int osf=_open_osfhandle((intptr_t)hand,_O_TEXT);
 				if( osf!=-1 ) {
 					FILE *fp=_fdopen(osf,(astds[i]==STD_INPUT_HANDLE) ? "r" : "w");
 					if( fp!=NULL ) {

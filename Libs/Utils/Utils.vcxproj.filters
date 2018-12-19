@@ -435,9 +435,6 @@
     <ClInclude Include="ToolsLinux.h">
       <Filter>小工具函数</Filter>
     </ClInclude>
-    <ClInclude Include="ToolsWin32.h">
-      <Filter>小工具函数</Filter>
-    </ClInclude>
     <ClInclude Include="LZMA\Alloc.h">
       <Filter>LZMA</Filter>
     </ClInclude>
@@ -732,6 +729,9 @@
     <ClInclude Include="NamedPipeLinux.h">
       <Filter>命名管道</Filter>
     </ClInclude>
+    <ClInclude Include="ToolsWin.h">
+      <Filter>小工具函数</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EasyTimerEx.cpp">
@@ -884,9 +884,6 @@
     <ClCompile Include="ThreadPerformanceCounter.cpp">
       <Filter>性能计数器</Filter>
     </ClCompile>
-    <ClCompile Include="ToolsWin32.cpp">
-      <Filter>小工具函数</Filter>
-    </ClCompile>
     <ClCompile Include="LZMA\Alloc.c">
       <Filter>LZMA</Filter>
     </ClCompile>
@@ -983,11 +980,15 @@
     <ClCompile Include="NamedPipeLinux.cpp">
       <Filter>命名管道</Filter>
     </ClCompile>
+    <ClCompile Include="ToolsWin.cpp">
+      <Filter>小工具函数</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LZO\README.LZO">
       <Filter>LZO</Filter>
     </None>
+    <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="atomic_ops\lib\libatomic_ops_gpl.lib">

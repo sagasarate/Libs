@@ -94,7 +94,10 @@ public:
 	enum
 	{
 		REPORT_HEX = 0,
-		REPORT_DIGIT = 1
+		REPORT_HEX_LITTLE,
+		REPORT_HEX_COMPACT,
+		REPORT_HEX_LITTLE_COMPACT,
+		REPORT_DIGIT
 	};
 #endif
 
@@ -125,7 +128,7 @@ public:
 	void ReportHash(char *szReport, size_t BuffLen, unsigned char uReportType = REPORT_HEX);
 #endif
 	void GetHash(UINT_8 *puDest);
-
+	CEasyString GetHashStr(unsigned char uReportType = REPORT_HEX);
 private:
 	// Private SHA-1 transformation
 	void Transform(UINT_32 *state, const UINT_8 *buffer);

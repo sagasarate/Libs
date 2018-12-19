@@ -57,20 +57,25 @@ static unsigned char PADDING[64] = {
 
 CHashMD5::CHashMD5(void)
 {
+	Init();
+}
+
+CHashMD5::~CHashMD5(void)
+{
+
+}
+
+void CHashMD5::Init()
+{
 	m_mdContext.i[0] = m_mdContext.i[1] = (UINT4)0;
 
-  /* Load magic initialization constants.
-   */
+	/* Load magic initialization constants.
+	*/
 	m_mdContext.buf[0] = (UINT4)0x67452301;
 	m_mdContext.buf[1] = (UINT4)0xefcdab89;
 	m_mdContext.buf[2] = (UINT4)0x98badcfe;
 	m_mdContext.buf[3] = (UINT4)0x10325476;
 }
-
-CHashMD5::~CHashMD5(void)
-{
-}
-
 void CHashMD5::AddData(BYTE * inBuf, size_t inLen)
 {
 	UINT4 in[16];

@@ -513,6 +513,11 @@ COverLappedObject * CNetConnection::AllocOverLappedObject()
 	COverLappedObject * pObject = NULL;
 	if (m_OverLappedObjectPool.PopFront(&pObject))
 	{
+		if (pObject->GetStatus() != OVERLAPPED_OBJECT_STATUS_IDLE)
+		{
+			PrintNetLog(_T("OverLappedObject(%u,%u)状态%u错误"), pObject->GetID(), pObject->GetType(), pObject->GetStatus());
+		}
+
 		pObject->SetStatus(OVERLAPPED_OBJECT_STATUS_USING);
 		return pObject;
 	}
@@ -526,6 +531,12 @@ COverLappedObject * CNetConnection::AllocOverLappedObject()
 bool CNetConnection::ReleaseOverLappedObject(COverLappedObject * pObject)
 {
 	CAutoLock Lock(m_OverLappedObjectPoolLock);
+
+	if (pObject->GetStatus() != OVERLAPPED_OBJECT_STATUS_USING)
+	{
+		PrintNetLog(_T("OverLappedObject(%u,%u)状态%u错误"), pObject->GetID(), pObject->GetType(), pObject->GetStatus());
+		return false;
+	}
 	
 	if (m_OverLappedObjectPool.PushBack(&pObject))
 	{

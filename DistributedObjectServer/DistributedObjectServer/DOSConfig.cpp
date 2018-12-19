@@ -47,20 +47,26 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 			if(Router.moveto_child("Router"))
 			{
 				if(Router.has_attribute("RouterID"))
-					m_DOSConfig.RouterID=(UINT)Router.attribute("RouterID");
+					m_DOSConfig.RouterConfig.RouterID=(UINT)Router.attribute("RouterID");
 				if(Router.has_attribute("MsgQueueSize"))
-					m_DOSConfig.MaxRouterSendMsgQueue=(UINT)Router.attribute("MsgQueueSize");
+					m_DOSConfig.RouterConfig.MaxRouterSendMsgQueue = (UINT)Router.attribute("MsgQueueSize");
 				if(Router.has_attribute("MsgProcessLimit"))
-					m_DOSConfig.RouterMsgProcessLimit=(UINT)Router.attribute("MsgProcessLimit");
+					m_DOSConfig.RouterConfig.RouterMsgProcessLimit = (UINT)Router.attribute("MsgProcessLimit");
 				if (Router.has_attribute("StateMsgTransfer"))
-					m_DOSConfig.StateMsgTransfer = Router.attribute("StateMsgTransfer");
+					m_DOSConfig.RouterConfig.StateMsgTransfer = Router.attribute("StateMsgTransfer");
+				if (Router.has_attribute("EnableGuardThread"))
+					m_DOSConfig.RouterConfig.EnableGuardThread = Router.attribute("EnableGuardThread");
+				if (Router.has_attribute("GuardThreadKeepAliveTime"))
+					m_DOSConfig.RouterConfig.GuardThreadKeepAliveTime = Router.attribute("GuardThreadKeepAliveTime");
+				if (Router.has_attribute("GuardThreadKeepAliveCount"))
+					m_DOSConfig.RouterConfig.GuardThreadKeepAliveCount = Router.attribute("GuardThreadKeepAliveCount");
 
 			}
 
 			xml_node RouterLink = Config;
 			if (RouterLink.moveto_child("RouterLink"))
 			{
-				CEasyNetLinkManager::LoadConfig(RouterLink, m_DOSConfig.RouterLinkConfig);
+				CEasyNetLinkManager::LoadConfig(RouterLink, m_DOSConfig.RouterConfig.RouterLinkConfig);
 			}
 
 			xml_node ClientProxys=Config;
@@ -87,38 +93,44 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 			if(MemoryPool.moveto_child("MemoryPool"))
 			{
 				if(MemoryPool.has_attribute("BlockSize"))
-					m_DOSConfig.MemoryPoolBlockSize=(UINT)MemoryPool.attribute("BlockSize");
+					m_DOSConfig.MemoryPoolConfig.MemoryPoolBlockSize=(UINT)MemoryPool.attribute("BlockSize");
 				if(MemoryPool.has_attribute("LevelSize"))
-					m_DOSConfig.MemoryPoolLeveSize=(UINT)MemoryPool.attribute("LevelSize");
+					m_DOSConfig.MemoryPoolConfig.MemoryPoolLeveSize = (UINT)MemoryPool.attribute("LevelSize");
 				if(MemoryPool.has_attribute("LevelCount"))
-					m_DOSConfig.MemoryPoolLevelCount=(UINT)MemoryPool.attribute("LevelCount");
+					m_DOSConfig.MemoryPoolConfig.MemoryPoolLevelCount = (UINT)MemoryPool.attribute("LevelCount");
 			}
 			xml_node Object=Config;
 			if(Object.moveto_child("Object"))
 			{
 				if(Object.has_attribute("GroupCount"))
-					m_DOSConfig.ObjectGroupCount=(UINT)Object.attribute("GroupCount");
+					m_DOSConfig.ObjectConfig.ObjectGroupCount=(UINT)Object.attribute("GroupCount");
 				if(Object.has_attribute("ObjectPoolStartSize"))
-					m_DOSConfig.ObjectPoolSetting.StartSize=(UINT)Object.attribute("ObjectPoolStartSize");
+					m_DOSConfig.ObjectConfig.ObjectPoolSetting.StartSize = (UINT)Object.attribute("ObjectPoolStartSize");
 				if (Object.has_attribute("ObjectPoolGrowSize"))
-					m_DOSConfig.ObjectPoolSetting.GrowSize = (UINT)Object.attribute("ObjectPoolGrowSize");
+					m_DOSConfig.ObjectConfig.ObjectPoolSetting.GrowSize = (UINT)Object.attribute("ObjectPoolGrowSize");
 				if (Object.has_attribute("ObjectPoolGrowLimit"))
-					m_DOSConfig.ObjectPoolSetting.GrowLimit = (UINT)Object.attribute("ObjectPoolGrowLimit");
+					m_DOSConfig.ObjectConfig.ObjectPoolSetting.GrowLimit = (UINT)Object.attribute("ObjectPoolGrowLimit");
 				if(Object.has_attribute("MsgQueueSize"))
-					m_DOSConfig.MaxObjectMsgQueue=(UINT)Object.attribute("MsgQueueSize");
+					m_DOSConfig.ObjectConfig.MaxObjectMsgQueue = (UINT)Object.attribute("MsgQueueSize");
 				if(Object.has_attribute("AliveTestTime"))
-					m_DOSConfig.ObjectAliveTestTime=(UINT)Object.attribute("AliveTestTime");
+					m_DOSConfig.ObjectConfig.ObjectAliveTestTime = (UINT)Object.attribute("AliveTestTime");
 				if(Object.has_attribute("AliveCheckTime"))
-					m_DOSConfig.ObjectAliveCheckTime=(UINT)Object.attribute("AliveCheckTime");
+					m_DOSConfig.ObjectConfig.ObjectAliveCheckTime = (UINT)Object.attribute("AliveCheckTime");
 				if(Object.has_attribute("KeepAliveCount"))
-					m_DOSConfig.ObjectKeepAliveCount=(UINT)Object.attribute("KeepAliveCount");
+					m_DOSConfig.ObjectConfig.ObjectKeepAliveCount = (UINT)Object.attribute("KeepAliveCount");
 				if(Object.has_attribute("StatObjectCPUCost"))
-					m_DOSConfig.StatObjectCPUCost=Object.attribute("StatObjectCPUCost");
+					m_DOSConfig.ObjectConfig.StatObjectCPUCost = Object.attribute("StatObjectCPUCost");
 				if (Object.has_attribute("UseRealGroupLoadWeight"))
-					m_DOSConfig.UseRealGroupLoadWeight = Object.attribute("UseRealGroupLoadWeight");
+					m_DOSConfig.ObjectConfig.UseRealGroupLoadWeight = Object.attribute("UseRealGroupLoadWeight");
+				if (Object.has_attribute("EnableGuardThread"))
+					m_DOSConfig.ObjectConfig.EnableGuardThread = Object.attribute("EnableGuardThread");
+				if (Object.has_attribute("GuardThreadKeepAliveTime"))
+					m_DOSConfig.ObjectConfig.GuardThreadKeepAliveTime = Object.attribute("GuardThreadKeepAliveTime");
+				if (Object.has_attribute("GuardThreadKeepAliveCount"))
+					m_DOSConfig.ObjectConfig.GuardThreadKeepAliveCount = Object.attribute("GuardThreadKeepAliveCount");
 
-				m_DOSConfig.pDOSGroupInitFN = CDOSMainThread::DosGroupInitFn;
-				m_DOSConfig.pDOSGroupDestoryFN = CDOSMainThread::DosGroupDestoryFn;
+				m_DOSConfig.ObjectConfig.pDOSGroupInitFN = CDOSMainThread::DosGroupInitFn;
+				m_DOSConfig.ObjectConfig.pDOSGroupDestoryFN = CDOSMainThread::DosGroupDestoryFn;
 			}
 
 			xml_node Mono = Config;
@@ -350,7 +362,12 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 	{
 		Config.LogDir = XMLContent.attribute("LogDir").getvalue();
 	}
-
+	if (XMLContent.has_attribute("EnableGuardThread"))
+		Config.EnableGuardThread = XMLContent.attribute("EnableGuardThread");
+	if (XMLContent.has_attribute("GuardThreadKeepAliveTime"))
+		Config.GuardThreadKeepAliveTime = XMLContent.attribute("GuardThreadKeepAliveTime");
+	if (XMLContent.has_attribute("GuardThreadKeepAliveCount"))
+		Config.GuardThreadKeepAliveCount = XMLContent.attribute("GuardThreadKeepAliveCount");
 	return true;
 	FUNCTION_END;
 	return false;

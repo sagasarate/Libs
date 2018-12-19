@@ -23,19 +23,24 @@ CDOSServerThread::~CDOSServerThread(void)
 void CDOSServerThread::Execute()
 {
 	FUNCTION_BEGIN;
-#ifndef _DEBUG
-	CMainGuardThread::GetInstance()->SetTargetThreadID(GetThreadID());
-	CMainGuardThread::GetInstance()->Start();
-#endif
+	bool EnableGuardThread = CSystemConfig::GetInstance()->GetEnableGuardThread();
+	if (EnableGuardThread)
+	{
+		CMainGuardThread::GetInstance()->SetTargetThreadID(GetThreadID());
+		CMainGuardThread::GetInstance()->SetKeepAliveTime(
+			CSystemConfig::GetInstance()->GetGuardThreadKeepAliveTime(),
+			CSystemConfig::GetInstance()->GetGuardThreadKeepAliveCount());
+		CMainGuardThread::GetInstance()->Start();
+	}
+
 	while((!m_WantTerminate)&&(OnRun()))
 	{
-#ifndef _DEBUG
-		CMainGuardThread::GetInstance()->MakeKeepAlive();
-#endif
+		if (EnableGuardThread)
+			CMainGuardThread::GetInstance()->MakeKeepAlive();
 	}
-#ifndef _DEBUG
-	CMainGuardThread::GetInstance()->SafeTerminate();
-#endif
+
+	if (EnableGuardThread)
+		CMainGuardThread::GetInstance()->SafeTerminate();
 	OnBeginTerminate();
 	DWORD Time=CEasyTimer::GetTime();
 	while(GetTimeToTime(Time,CEasyTimer::GetTime())<SERVER_ENDING_TIME&&OnTerminating())
@@ -89,7 +94,7 @@ BOOL CDOSServerThread::OnStart()
 	CLogManager::GetInstance()->AddChannel(LOG_DOS_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
-	if (GetConfig().StatObjectCPUCost)
+	if (GetConfig().ObjectConfig.StatObjectCPUCost)
 	{
 		LogFileName.Format("%s/Log/DOSObjectStat", (LPCTSTR)ModulePath);
 		pLog = new CServerLogPrinter(this, CServerLogPrinter::LOM_FILE,
@@ -98,7 +103,7 @@ BOOL CDOSServerThread::OnStart()
 		SAFE_RELEASE(pLog);
 	}
 
-	if (GetConfig().StateMsgTransfer)
+	if (GetConfig().RouterConfig.StateMsgTransfer)
 	{
 		LogFileName.Format("%s/Log/DOSMsgStat", (LPCTSTR)ModulePath);
 		pLog = new CServerLogPrinter(this, CServerLogPrinter::LOM_FILE,
@@ -636,14 +641,14 @@ void CDOSServerThread::DoServerStat()
 	{
 		PrintObjectStatus();
 	}
-	if (GetConfig().StatObjectCPUCost)
+	if (GetConfig().ObjectConfig.StatObjectCPUCost)
 	{
 		PrintDOSObjectStatLog("================================================================");
 		PrintDOSObjectStatLog("对象使用情况：");
 		PrintDOSObjectStatLog("================================================================");
 		GetObjectManager()->PrintGroupInfo(LOG_DOS_OBJECT_STATE_CHANNEL);
 	}
-	if (GetConfig().StateMsgTransfer)
+	if (GetConfig().RouterConfig.StateMsgTransfer)
 	{
 		PrintDOSMsgStatLog("================================================================");
 		PrintDOSMsgStatLog("消息统计：");

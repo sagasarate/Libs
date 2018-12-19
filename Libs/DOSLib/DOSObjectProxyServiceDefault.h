@@ -39,15 +39,26 @@ class CDOSObjectProxyServiceDefault :
 	public CEasyThread
 {
 protected:
+	struct MSG_MAP_INFO
+	{
+		int						MsgMapType;
+		CEasyArray<OBJECT_ID>	ObjectIDList;
+		MSG_MAP_INFO()
+		{
+			ObjectIDList.Create(16, 16);
+			MsgMapType = GLOBAL_MSG_MAP_TYPE_OVERLAP;
+		}
+	};
+
 	CLIENT_PROXY_CONFIG											m_Config;
 	CCycleQueue<CDOSMessagePacket *>							m_MsgQueue;
 
-	CStaticMap<MSG_ID_TYPE, OBJECT_ID>							m_MessageMap;
+	CStaticMap<MSG_ID_TYPE, MSG_MAP_INFO>						m_MessageMap;
 	OBJECT_ID													m_UnhandleMsgReceiverID;
 	CEasyCriticalSection										m_EasyCriticalSection;
 
 	CThreadPerformanceCounter									m_ThreadPerformanceCounter;
-	
+	CGuardThread												m_GuardThread;
 
 
 	CIDStorage<CDOSObjectProxyConnectionDefault>				m_ConnectionPool;
@@ -96,8 +107,8 @@ public:
 	void QueryDestoryConnection(CDOSObjectProxyConnectionDefault * pConnection);
 
 
-	OBJECT_ID GetGlobalMsgMapObjectID(MSG_ID_TYPE MsgID);
-	OBJECT_ID GetUnhandleMsgReceiverID();
+	bool HaveGlobalMsgMap(MSG_ID_TYPE MsgID);
+	bool SendGlobalMapMessage(OBJECT_ID SenderID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize);
 
 	CLIENT_PROXY_CONFIG& GetConfig()
 	{
@@ -108,14 +119,15 @@ public:
 	{
 		return m_CompressBuffer;
 	}
-
+	CDOSServer * GetServer();
 protected:
 	void OnMsg(CDOSMessage * pMessage);
 	void OnSystemMsg(CDOSMessage * pMessage);
-	bool DoRegisterGlobalMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);
+	bool DoRegisterGlobalMsgMap(MSG_ID_TYPE MsgID, int MapType, OBJECT_ID ObjectID);
 	bool DoUnregisterGlobalMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);
 	void ClearMsgMapByRouterID(UINT RouterID);
 	bool CheckEncryptConfig();
+	
 };
 
 

@@ -44,7 +44,7 @@ bool CDOSBaseObject::Init(DOS_OBJECT_REGISTER_INFO& ObjectRegisterInfo)
 	FUNCTION_BEGIN;
 	UINT MsgQueueSize=ObjectRegisterInfo.MsgQueueSize;
 	if(MsgQueueSize==0)
-		MsgQueueSize=GetManager()->GetServer()->GetConfig().MaxObjectMsgQueue;
+		MsgQueueSize = GetManager()->GetServer()->GetConfig().ObjectConfig.MaxObjectMsgQueue;
 	if(ObjectRegisterInfo.MsgProcessLimit)
 		m_MsgProcessLimit=ObjectRegisterInfo.MsgProcessLimit;
 
@@ -75,9 +75,9 @@ bool CDOSBaseObject::Init(DOS_OBJECT_REGISTER_INFO& ObjectRegisterInfo)
 		m_ConcernedObject.Clear();
 	}
 
-	m_ConcernedObjectTestTime=GetManager()->GetServer()->GetConfig().ObjectAliveTestTime;
-	m_ConcernedObjectCheckTime=GetManager()->GetServer()->GetConfig().ObjectAliveCheckTime;
-	m_ConcernedObjectKeepAliveCount=GetManager()->GetServer()->GetConfig().ObjectKeepAliveCount;
+	m_ConcernedObjectTestTime = GetManager()->GetServer()->GetConfig().ObjectConfig.ObjectAliveTestTime;
+	m_ConcernedObjectCheckTime = GetManager()->GetServer()->GetConfig().ObjectConfig.ObjectAliveCheckTime;
+	m_ConcernedObjectKeepAliveCount = GetManager()->GetServer()->GetConfig().ObjectConfig.ObjectKeepAliveCount;
 	m_ConcernedObjectCheckTimer.SaveTime();
 	m_ConcernedObjectCheckPtr=1;
 	return Initialize();
@@ -131,37 +131,37 @@ int CDOSBaseObject::GetGroupIndex()
 	return -1;
 }
 
-int CDOSBaseObject::DoCycle(int ProcessPacketLimit)
-{
-	FUNCTION_BEGIN;
-	CDOSMessagePacket * pPacket;
-	int ProcessCount=0;
-	int Limit=m_MsgProcessLimit;
-	while(m_MsgQueue.PopFront(&pPacket))
-	{
-		if(pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
-		{
-			OnSystemMessage(&(pPacket->GetMessage()));
-		}
-		else
-		{
-			OnMessage(&(pPacket->GetMessage()));
-		}
-		if(!ReleaseMessagePacket(pPacket))
-		{
-			PrintDOSLog(_T("释放消息内存块失败！"));
-		}
-		Limit--;
-		ProcessCount++;
-		if(Limit<=0)
-			break;
-	}
-	ProcessCount+=DoConcernedObjectTest();
-	ProcessCount+=Update(ProcessPacketLimit);
-	return ProcessCount;
-	FUNCTION_END;
-	return 0;
-}
+//int CDOSBaseObject::DoCycle(int ProcessPacketLimit)
+//{
+//	FUNCTION_BEGIN;
+//	CDOSMessagePacket * pPacket;
+//	int ProcessCount=0;
+//	int Limit=m_MsgProcessLimit;
+//	while(m_MsgQueue.PopFront(&pPacket))
+//	{
+//		if(pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
+//		{
+//			OnSystemMessage(&(pPacket->GetMessage()));
+//		}
+//		else
+//		{
+//			OnMessage(&(pPacket->GetMessage()));
+//		}
+//		if(!ReleaseMessagePacket(pPacket))
+//		{
+//			PrintDOSLog(_T("释放消息内存块失败！"));
+//		}
+//		Limit--;
+//		ProcessCount++;
+//		if(Limit<=0)
+//			break;
+//	}
+//	ProcessCount+=DoConcernedObjectTest();
+//	ProcessCount+=Update(ProcessPacketLimit);
+//	return ProcessCount;
+//	FUNCTION_END;
+//	return 0;
+//}
 
 BOOL CDOSBaseObject::PushMessage(CDOSMessagePacket * pPacket)
 {
@@ -182,6 +182,8 @@ BOOL CDOSBaseObject::PushMessage(CDOSMessagePacket * pPacket)
 	FUNCTION_END;
 	return FALSE;
 }
+
+
 
 BOOL CDOSBaseObject::SendMessage(OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag,LPCVOID pData,UINT DataSize)
 {
@@ -270,7 +272,7 @@ BOOL CDOSBaseObject::UnregisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsg
 }
 
 
-BOOL CDOSBaseObject::RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount)
+BOOL CDOSBaseObject::RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID, int MapType)
 {
 	FUNCTION_BEGIN;
 	OBJECT_ID ProxyID;
@@ -278,13 +280,16 @@ BOOL CDOSBaseObject::RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE Prox
 	ProxyID.ObjectTypeID=DOT_PROXY_OBJECT;
 	ProxyID.GroupIndex = MAKE_PROXY_GROUP_INDEX(ProxyType);
 	ProxyID.ObjectIndex = 0;
-	return SendMessage(ProxyID,DSM_PROXY_REGISTER_GLOBAL_MSG_MAP,DOS_MESSAGE_FLAG_SYSTEM_MESSAGE,pMsgIDList,sizeof(MSG_ID_TYPE)*CmdCount);
+	UINT Data[2];
+	Data[0] = MsgID;
+	Data[1] = MapType;
+	return SendMessage(ProxyID, DSM_PROXY_REGISTER_GLOBAL_MSG_MAP, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, Data, sizeof(Data));
 	FUNCTION_END;
 	return FALSE;
 }
 
 
-BOOL CDOSBaseObject::UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount)
+BOOL CDOSBaseObject::UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID)
 {
 	FUNCTION_BEGIN;
 	OBJECT_ID ProxyID;
@@ -292,7 +297,7 @@ BOOL CDOSBaseObject::UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE Pr
 	ProxyID.ObjectTypeID=DOT_PROXY_OBJECT;
 	ProxyID.GroupIndex = MAKE_PROXY_GROUP_INDEX(ProxyType);
 	ProxyID.ObjectIndex = 0;
-	return SendMessage(ProxyID,DSM_PROXY_UNREGISTER_GLOBAL_MSG_MAP,DOS_MESSAGE_FLAG_SYSTEM_MESSAGE,pMsgIDList,sizeof(MSG_ID_TYPE)*CmdCount);
+	return SendMessage(ProxyID, DSM_PROXY_UNREGISTER_GLOBAL_MSG_MAP, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, &MsgID, sizeof(MSG_ID_TYPE));
 	FUNCTION_END;
 	return FALSE;
 }
@@ -525,6 +530,36 @@ void CDOSBaseObject::OnShutDown(BYTE Level, UINT Param)
 {
 	FUNCTION_BEGIN;
 	FUNCTION_END;
+}
+
+int CDOSBaseObject::ProcessMessage(int ProcessPacketLimit)
+{
+	FUNCTION_BEGIN;
+	CDOSMessagePacket * pPacket;
+	int ProcessCount = 0;
+	int Limit = m_MsgProcessLimit;
+	while (m_MsgQueue.PopFront(&pPacket))
+	{
+		if (pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
+		{
+			OnSystemMessage(&(pPacket->GetMessage()));
+		}
+		else
+		{
+			OnMessage(&(pPacket->GetMessage()));
+		}
+		if (!ReleaseMessagePacket(pPacket))
+		{
+			PrintDOSLog(_T("释放消息内存块失败！"));
+		}
+		Limit--;
+		ProcessCount++;
+		if (Limit <= 0)
+			break;
+	}
+	return ProcessCount;
+	FUNCTION_END;
+	return 0;
 }
 
 int CDOSBaseObject::DoConcernedObjectTest()

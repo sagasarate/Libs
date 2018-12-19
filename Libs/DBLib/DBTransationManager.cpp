@@ -128,13 +128,23 @@ int CDBTransationManager::Update(int ProcessLimit)
 		if(m_ExecTimes)
 			m_AvgExecTime=(float)m_RealExecTime/m_ExecTimes;
 		else
-			m_AvgExecTime=0;
-		m_RealExecTime=0;
-		m_ExecTimes=0;
+			m_AvgExecTime=0;	
+		UINT TotalQueueLen = 0;
+		UINT TotalFinishQueueLen = 0;
+		for (int i = 0; i < (int)m_WorkThreads.GetCount(); i++)
+		{
+			TotalQueueLen += m_WorkThreads[i]->GetQueueLen();
+			TotalFinishQueueLen += m_WorkThreads[i]->GetFinishQueueLen();
+			if (m_WorkThreads[i]->IsJam())
+				PrintDBLog("线程[%u]发生拥堵", m_WorkThreads[i]->GetThreadID());
+		}
 		if(m_Flag&DBTM_FLAG_LOG_PERFORMANCE)
 		{
-			PrintDBLog("[%u]平均执行时间=%g毫秒,每秒执行次数%g",GetID(),m_AvgExecTime,m_ExecTimesPerSec);
+			PrintDBLog("[%s]总执行次数%u,平均执行时间=%0.2f毫秒,每秒执行次数%0.2f,任务队列总长%u,完成队列总长%u", 
+				GetName(), m_ExecTimes, m_AvgExecTime, m_ExecTimesPerSec, TotalQueueLen, TotalFinishQueueLen);
 		}
+		m_RealExecTime = 0;
+		m_ExecTimes = 0;
 	}
 
 	return ProcessCount;
@@ -148,6 +158,16 @@ bool CDBTransationManager::IsIdle()
 		Len+=m_WorkThreads[i]->GetQueueLen()+m_WorkThreads[i]->GetFinishQueueLen();
 	}
 	return Len==0;
+}
+
+bool CDBTransationManager::HaveJam()
+{
+	for (int i = 0; i < (int)m_WorkThreads.GetCount(); i++)
+	{
+		if (m_WorkThreads[i]->IsJam())
+			return true;
+	}
+	return false;
 }
 
 }

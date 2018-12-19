@@ -252,6 +252,33 @@ void CSHA1::ReportHash(char *szReport, size_t BuffLen, unsigned char uReportType
 			strcat_s(szReport, BuffLen, szTemp);
 		}
 	}
+	else if (uReportType == REPORT_HEX_LITTLE)
+	{
+		sprintf_s(szTemp, 16, "%02x", m_digest[0]);
+		strcat_s(szReport, BuffLen, szTemp);
+
+		for (i = 1; i < 20; i++)
+		{
+			sprintf_s(szTemp, 16, " %02x", m_digest[i]);
+			strcat_s(szReport, BuffLen, szTemp);
+		}
+	}
+	else if (uReportType == REPORT_HEX_COMPACT)
+	{
+		for (i = 0; i < 20; i++)
+		{
+			sprintf_s(szTemp, 16, "%02X", m_digest[i]);
+			strcat_s(szReport, BuffLen, szTemp);
+		}
+	}
+	else if (uReportType == REPORT_HEX_LITTLE_COMPACT)
+	{
+		for (i = 0; i < 20; i++)
+		{
+			sprintf_s(szTemp, 16, "%02x", m_digest[i]);
+			strcat_s(szReport, BuffLen, szTemp);
+		}
+	}
 	else if(uReportType == REPORT_DIGIT)
 	{
 		sprintf_s(szTemp, 16, "%u", m_digest[0]);
@@ -271,4 +298,23 @@ void CSHA1::ReportHash(char *szReport, size_t BuffLen, unsigned char uReportType
 void CSHA1::GetHash(UINT_8 *puDest)
 {
 	memcpy(puDest, m_digest, 20);
+}
+
+CEasyString CSHA1::GetHashStr(unsigned char uReportType)
+{
+	CEasyStringA SHAStr;
+	switch (uReportType)
+	{
+	case REPORT_HEX:
+	case REPORT_HEX_LITTLE:
+		SHAStr.Resize(40);
+		break;
+	default:
+		SHAStr.Resize(128);
+		break;
+	}	
+	ZeroMemory((char *)SHAStr.GetBuffer(), SHAStr.GetBufferSize());
+	ReportHash((char *)SHAStr.GetBuffer(), SHAStr.GetBufferSize(), uReportType);
+	SHAStr.TrimBuffer();
+	return SHAStr;
 }

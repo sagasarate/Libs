@@ -34,7 +34,7 @@ void CDOSServer::SetConfig(const DOS_CONFIG& Config)
 {
 	m_ServerConfig = Config;
 
-	if (m_ServerConfig.RouterID == 0)
+	if (m_ServerConfig.RouterConfig.RouterID == 0)
 	{
 		CEasyArray<CIPAddress> AddressList;
 		CIPAddress::FetchAllHostAddress(AddressList);
@@ -44,14 +44,14 @@ void CDOSServer::SetConfig(const DOS_CONFIG& Config)
 			if (AddressList[i].IsIPv4() && !AddressList[i].IsLoopbackAddress())
 			{
 				UINT IP = AddressList[i].GetIPv4();
-				m_ServerConfig.RouterID = IP & 0xFFFF;
+				m_ServerConfig.RouterConfig.RouterID = IP & 0xFFFF;
 			}
 		}		
 	}
-	if (m_ServerConfig.ObjectPoolSetting.MaxSize() >= 0xFFFF)
+	if (m_ServerConfig.ObjectConfig.ObjectPoolSetting.MaxSize() >= 0xFFFF)
 	{
 		PrintDOSLog(_T("DOS对象池的最大大小必须小于65535！"));
-		m_ServerConfig.ObjectPoolSetting.LimitSize(0xFFFF - 1);
+		m_ServerConfig.ObjectConfig.ObjectPoolSetting.LimitSize(0xFFFF - 1);
 	}
 	for (UINT i = 0; i < m_ServerConfig.ClientProxyConfigs.GetCount(); i++)
 	{
@@ -67,7 +67,8 @@ void CDOSServer::SetConfig(const DOS_CONFIG& Config)
 bool CDOSServer::OnStartUp()
 {
 	FUNCTION_BEGIN;
-	if(!m_MemoryPool.Create(m_ServerConfig.MemoryPoolBlockSize,m_ServerConfig.MemoryPoolLeveSize,m_ServerConfig.MemoryPoolLevelCount,true))
+	if(!m_MemoryPool.Create(m_ServerConfig.MemoryPoolConfig.MemoryPoolBlockSize,
+		m_ServerConfig.MemoryPoolConfig.MemoryPoolLeveSize, m_ServerConfig.MemoryPoolConfig.MemoryPoolLevelCount, true))
 	{
 		PrintDOSLog(_T("初始化内存池失败！"));
 		return FALSE;
@@ -107,7 +108,7 @@ bool CDOSServer::OnStartUp()
 
 	PrintDOSLog(_T("对象管理器启动！"));
 
-	PrintDOSLog(_T("服务器(%d)启动！"),m_ServerConfig.RouterID);
+	PrintDOSLog(_T("服务器(%d)启动！"),m_ServerConfig.RouterConfig.RouterID);
 
 	return TRUE;
 	FUNCTION_END;

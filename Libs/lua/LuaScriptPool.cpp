@@ -63,27 +63,27 @@ int CLuaScriptPool::Update()
 }
 
 CLuaScript * CLuaScriptPool::GetScript(LPCTSTR szLuaFileName)
-{
+{	
 	CEasyString FileName(szLuaFileName);
 
 	FileName.MakeUpper();
 
 	CLuaScript * pScript = m_LuaScriptPool.Find(FileName);
-	if (pScript==NULL)
-	{
-		CStringFile LuaFile;
+	//if (pScript==NULL)
+	//{
+	//	CStringFile LuaFile;
 
-		LuaFile.SetLocalCodePage(CP_UTF8);
+	//	LuaFile.SetLocalCodePage(CP_UTF8);
 
-		if (LuaFile.LoadFile(FileName, false))
-		{
-			pScript = LoadScript(FileName, LuaFile.GetData());
-		}
-		else
-		{
-			LogLua(_T("CLuaScriptPool::InitLuaScript:打开lua脚本失败%s"), (LPCTSTR)FileName);
-		}
-	}
+	//	if (LuaFile.LoadFile(FileName, false))
+	//	{
+	//		pScript = LoadScript(FileName, LuaFile.GetData());
+	//	}
+	//	else
+	//	{
+	//		LogLua(_T("CLuaScriptPool::InitLuaScript:打开lua脚本失败%s"), (LPCTSTR)FileName);
+	//	}
+	//}
 	return pScript;
 }
 CLuaScript * CLuaScriptPool::GetScript(UINT ScriptID)

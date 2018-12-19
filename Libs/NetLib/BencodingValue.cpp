@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 
 
@@ -214,7 +214,7 @@ const BYTE * CBencodingValue::Parser(const BYTE * pData, UINT& DataLen)
 	}
 	else
 	{
-		return false;
+		return NULL;
 	}
 }
 

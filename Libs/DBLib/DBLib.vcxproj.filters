@@ -31,15 +31,6 @@
     <Filter Include="通用实现">
       <UniqueIdentifier>{68b96f6a-d872-4c6f-bdeb-67be093b9d6c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="库文件">
-      <UniqueIdentifier>{2235096d-1742-4a91-bf99-08e7798890d3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="库文件\x64">
-      <UniqueIdentifier>{c6efaff5-1c25-4897-be20-cf728b819807}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="库文件\x86">
-      <UniqueIdentifier>{dd912dcf-4674-49a0-af2f-2740680077fb}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DBInterfaces.cpp">
@@ -149,13 +140,5 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DBLib.cbp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="MySQL\lib\x86\mysqlclient.lib">
-      <Filter>库文件\x86</Filter>
-    </Library>
-    <Library Include="MySQL\lib\x64\mysqlclient.lib">
-      <Filter>库文件\x64</Filter>
-    </Library>
   </ItemGroup>
 </Project>

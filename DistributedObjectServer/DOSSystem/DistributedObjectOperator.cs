@@ -13,6 +13,7 @@ namespace DOSSystem
         public int ObjectGroupIndex = -1;
         public uint MsgQueueSize = 1024;
         public uint MsgProcessLimit = 32;
+        public uint Flag = 0;
         public object Object = null;
     };
 
@@ -57,13 +58,13 @@ namespace DOSSystem
         {
             return InternalCallUnregisterMsgMap(m_ObjectHandle, ProxyObjectID, MsgIDList);
         }
-        public bool RegisterGlobalMsgMap(ushort ProxyRouterID, byte ProxyType, uint[] MsgIDList)
+        public bool RegisterGlobalMsgMap(ushort ProxyRouterID, byte ProxyType, uint MsgID, int MapType)
         {
-            return InternalCallRegisterGlobalMsgMap(m_ObjectHandle, ProxyRouterID, ProxyType, MsgIDList);
+            return InternalCallRegisterGlobalMsgMap(m_ObjectHandle, ProxyRouterID, ProxyType, MsgID, MapType);
         }
-        public bool UnregisterGlobalMsgMap(ushort ProxyRouterID, byte ProxyType, uint[] MsgIDList)
+        public bool UnregisterGlobalMsgMap(ushort ProxyRouterID, byte ProxyType, uint MsgID)
         {
-            return InternalCallUnregisterGlobalMsgMap(m_ObjectHandle, ProxyRouterID, ProxyType, MsgIDList);
+            return InternalCallUnregisterGlobalMsgMap(m_ObjectHandle, ProxyRouterID, ProxyType, MsgID);
         }
 
         public bool SetUnhanleMsgReceiver(ushort ProxyRouterID, byte ProxyType)
@@ -163,9 +164,9 @@ namespace DOSSystem
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static bool InternalCallUnregisterMsgMap(IntPtr ObjectHandle, OBJECT_ID ProxyObjectID, uint[] MsgIDList);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static bool InternalCallRegisterGlobalMsgMap(IntPtr ObjectHandle, ushort ProxyRouterID, byte ProxyType, uint[] MsgIDList);
+        extern static bool InternalCallRegisterGlobalMsgMap(IntPtr ObjectHandle, ushort ProxyRouterID, byte ProxyType, uint MsgID, int MapType);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static bool InternalCallUnregisterGlobalMsgMap(IntPtr ObjectHandle, ushort ProxyRouterID, byte ProxyType, uint[] MsgIDList);
+        extern static bool InternalCallUnregisterGlobalMsgMap(IntPtr ObjectHandle, ushort ProxyRouterID, byte ProxyType, uint MsgID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static bool InternalCallSetUnhanleMsgReceiver(IntPtr ObjectHandle, ushort ProxyRouterID, byte ProxyType);
 
@@ -276,9 +277,9 @@ namespace DOSSystem
         {
 
         }
-        public void ReleasePlugin()
+        public bool CheckPluginRelease()
         {
-
+            return true;
         }
     };
 }

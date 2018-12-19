@@ -266,6 +266,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="NetLib.cbp" />
+    <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

@@ -44,6 +44,8 @@ protected:
 
 	CCycleQueue<CDOSMessagePacket *>					m_MsgQueue;
 
+	friend class CDOSObjectGroup;
+
 	DECLARE_CLASS_INFO_STATIC(CDOSBaseObject);
 public:
 	CDOSBaseObject(void);
@@ -67,8 +69,9 @@ public:
 	void SetObjectID(OBJECT_ID ID);
 	OBJECT_ID GetObjectID();
 
-	int DoCycle(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
+	//int DoCycle(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 	BOOL PushMessage(CDOSMessagePacket * pPacket);
+	
 
 	UINT GetMsgQueueLen();
 
@@ -81,8 +84,8 @@ public:
 
 	BOOL RegisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount);
 	BOOL UnregisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount);
-	BOOL RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount);
-	BOOL UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE * pMsgIDList, int CmdCount);
+	BOOL RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID, int MapType);
+	BOOL UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID);
 	BOOL SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType);
 
 	BOOL AddConcernedObject(OBJECT_ID ObjectID,bool NeedTest);
@@ -108,6 +111,7 @@ protected:
 	virtual void OnRouteLinkLost(UINT RouteID);
 	virtual void OnShutDown(BYTE Level, UINT Param);
 
+	int ProcessMessage(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 	int DoConcernedObjectTest();
 
 	CONCERNED_OBJECT_INFO * FindConcernedObjectInfo(OBJECT_ID ObjectID);

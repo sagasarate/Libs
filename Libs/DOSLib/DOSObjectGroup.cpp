@@ -18,11 +18,10 @@ CDOSObjectGroup::CDOSObjectGroup(void)
 	FUNCTION_BEGIN;
 	m_pManager=NULL;
 	m_Index=0;
+	m_Type = OBJECT_GROUP_TYPE_NORMAL;
 	m_Status = STATUS_NONE;
 	m_Weight=0;
-	m_StatObjectCPUCost=false;
 	m_TotalGroupCost = 0;
-	m_UseRealGroupLoadWeight = false;
 	FUNCTION_END;
 }
 
@@ -33,53 +32,53 @@ CDOSObjectGroup::~CDOSObjectGroup(void)
 	FUNCTION_END;
 }
 
-bool CDOSObjectGroup::Initialize(CDOSObjectManager * pManager,UINT Index)
+bool CDOSObjectGroup::Initialize(CDOSObjectManager * pManager, UINT Index, OBJECT_GROUP_TYPE Type)
 {
 	FUNCTION_BEGIN;
 	m_pManager=pManager;
 	m_Index=Index;
-	const STORAGE_POOL_SETTING& PoolSetting = m_pManager->GetServer()->GetConfig().ObjectPoolSetting;
-	if (PoolSetting.StartSize <= 0)
+	m_Type = Type;
+	m_Config = m_pManager->GetServer()->GetConfig().ObjectConfig;
+	if (m_Config.ObjectPoolSetting.StartSize <= 0)
 	{
 		PrintDOSLog(_T("对象池设置错误"));
 		return false;
 	}
-	if (m_ObjectRegisterQueue.Create(PoolSetting))
+	if (m_ObjectRegisterQueue.Create(m_Config.ObjectPoolSetting))
 	{
 		PrintDOSDebugLog( _T("创建[%u,%u,%u]大小的注册队列成功"),
-			PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
+			m_Config.ObjectPoolSetting.StartSize, m_Config.ObjectPoolSetting.GrowSize, m_Config.ObjectPoolSetting.GrowLimit);
 	}
 	else
 	{
 		PrintDOSLog( _T("创建[%u,%u,%u]大小的注册队列失败"), 
-			PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
+			m_Config.ObjectPoolSetting.StartSize, m_Config.ObjectPoolSetting.GrowSize, m_Config.ObjectPoolSetting.GrowLimit);
 		return false;
 	}
-	if (m_ObjectUnregisterQueue.Create(PoolSetting))
+	if (m_ObjectUnregisterQueue.Create(m_Config.ObjectPoolSetting))
 	{
 		PrintDOSDebugLog(_T("创建[%u,%u,%u]大小的注销队列成功"),
-			PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
+			m_Config.ObjectPoolSetting.StartSize, m_Config.ObjectPoolSetting.GrowSize, m_Config.ObjectPoolSetting.GrowLimit);
 	}
 	else
 	{
 		PrintDOSLog( _T("创建[%u,%u,%u]大小的注销队列失败"), 
-			PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
+			m_Config.ObjectPoolSetting.StartSize, m_Config.ObjectPoolSetting.GrowSize, m_Config.ObjectPoolSetting.GrowLimit);
 		return false;
 	}
-	if (m_ObjectPool.Create(PoolSetting))
+	if (m_ObjectPool.Create(m_Config.ObjectPoolSetting))
 	{
 		PrintDOSDebugLog(_T("创建[%u,%u,%u]大小的对象池成功"),
-			PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
+			m_Config.ObjectPoolSetting.StartSize, m_Config.ObjectPoolSetting.GrowSize, m_Config.ObjectPoolSetting.GrowLimit);
 	}
 	else
 	{
 		PrintDOSLog( _T("创建[%u,%u,%u]大小的对象池失败"), 
-			PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
+			m_Config.ObjectPoolSetting.StartSize, m_Config.ObjectPoolSetting.GrowSize, m_Config.ObjectPoolSetting.GrowLimit);
 		return false;
 	}
 
-	m_StatObjectCPUCost=m_pManager->GetServer()->GetConfig().StatObjectCPUCost;
-	m_UseRealGroupLoadWeight = m_pManager->GetServer()->GetConfig().UseRealGroupLoadWeight;
+	
 
 	m_ObjectCountStatMap.Create(128,32,32);
 
@@ -151,11 +150,19 @@ BOOL CDOSObjectGroup::OnStart()
 
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(),THREAD_CPU_COUNT_TIME);
 
-	DOS_GROUP_INIT_FN pDOSGroupInitFN = GetManager()->GetServer()->GetConfig().pDOSGroupInitFN;
+	DOS_GROUP_INIT_FN pDOSGroupInitFN = m_Config.pDOSGroupInitFN;
 	if (pDOSGroupInitFN)
 	{
 		pDOSGroupInitFN(m_Index);
 	}
+
+	if (m_Config.EnableGuardThread)
+	{
+		m_GuardThread.SetTargetThreadID(GetThreadID());
+		m_GuardThread.SetKeepAliveTime(m_Config.GuardThreadKeepAliveTime, m_Config.GuardThreadKeepAliveCount);
+		m_GuardThread.Start();
+	}
+
 	m_Status = STATUS_WORKING;
 
 	PrintDOSLog(_T("对象组[%d]线程[%u]已启动"),m_Index,GetThreadID());
@@ -170,6 +177,11 @@ BOOL CDOSObjectGroup::OnRun()
 
 	//if(!CEasyThread::OnRun())
 	//	return FALSE;
+
+	if (m_Config.EnableGuardThread)
+	{
+		m_GuardThread.MakeKeepAlive();
+	}
 
 	int ProcessCount=0;	
 
@@ -186,15 +198,37 @@ BOOL CDOSObjectGroup::OnRun()
 				if (pObjectInfo)
 				{
 					UINT64 CPUCost = 0;
-					if (m_StatObjectCPUCost)
+					UINT64 MsgProcCost = 0;
+					UINT64 COTestCost = 0;
+					UINT64 UpdateCost = 0;
+					
+					if (m_Config.StatObjectCPUCost)
 						CPUCost = CEasyTimerEx::GetTime();
 
-					ProcessCount += pObjectInfo->pObject->DoCycle();
+					CDOSBaseObject * pObject = pObjectInfo->pObject;
 
-					if (m_StatObjectCPUCost)
+					if (m_Config.StatObjectCPUCost)
+						MsgProcCost = CEasyTimerEx::GetTime();
+					ProcessCount += pObject->ProcessMessage();
+					if (m_Config.StatObjectCPUCost)
+						MsgProcCost = CEasyTimerEx::GetTime() - MsgProcCost;
+
+					if (m_Config.StatObjectCPUCost)
+						COTestCost = CEasyTimerEx::GetTime();
+					ProcessCount += pObject->DoConcernedObjectTest();
+					if (m_Config.StatObjectCPUCost)
+						COTestCost = CEasyTimerEx::GetTime() - COTestCost;
+
+					if (m_Config.StatObjectCPUCost)
+						UpdateCost = CEasyTimerEx::GetTime();
+					ProcessCount += pObject->Update();
+					if (m_Config.StatObjectCPUCost)
+						UpdateCost = CEasyTimerEx::GetTime() - UpdateCost;
+
+					if (m_Config.StatObjectCPUCost)
 					{
 						CPUCost = CEasyTimerEx::GetTime() - CPUCost;
-						AddObjectCPUCost(pObjectInfo->ObjectID, CPUCost);
+						AddObjectCPUCost(pObjectInfo->ObjectID, CPUCost, MsgProcCost, COTestCost, UpdateCost);
 					}
 				}
 			}
@@ -208,7 +242,7 @@ BOOL CDOSObjectGroup::OnRun()
 		}
 		break;
 	}
-	if (m_UseRealGroupLoadWeight)
+	if (m_Config.UseRealGroupLoadWeight)
 	{
 		if (m_GroupWeightUpdateTimer.IsTimeOut(GROUP_WEIGHT_UPDATE_TIME))
 		{
@@ -234,6 +268,10 @@ BOOL CDOSObjectGroup::OnRun()
 void CDOSObjectGroup::OnTerminate()
 {
 	FUNCTION_BEGIN;
+
+	if (m_Config.EnableGuardThread)
+		m_GuardThread.SafeTerminate();
+
 	CAutoLock Lock(m_EasyCriticalSection);
 
 	DOS_OBJECT_REGISTER_INFO ObjectRegisterInfo;
@@ -257,7 +295,7 @@ void CDOSObjectGroup::OnTerminate()
 	m_ObjectPool.Clear();
 	m_Weight = 0;
 
-	DOS_GROUP_DESTORY_FN pDOSGroupDestoryFN = GetManager()->GetServer()->GetConfig().pDOSGroupDestoryFN;
+	DOS_GROUP_DESTORY_FN pDOSGroupDestoryFN = m_Config.pDOSGroupDestoryFN;
 	if (pDOSGroupDestoryFN)
 	{
 		pDOSGroupDestoryFN(m_Index);
@@ -316,11 +354,16 @@ void CDOSObjectGroup::PrintObjectStat(UINT LogChannel)
 		if(pInfo)
 		{
 			CLogManager::GetInstance()->PrintLog(LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, NULL,
-				_T("组%u:对象0x%llX(%s)=%u,CPUCost=%lldns,ExecCount=%u,UnitCost=%0.2fns"),
-				m_Index, ObjectID, (LPCSTR)pInfo->ObjectTypeName, pInfo->Count, pInfo->CPUCost, pInfo->ExecCount,
+				_T("组%u:对象0x%llX(%s)=%u,CPUCost=%lldns,MsgProcCost=%lldns,COTestCost=%lldns,UpdateCost=%lldns,ExecCount=%u,UnitCost=%0.2fns"),
+				m_Index, ObjectID, (LPCSTR)pInfo->ObjectTypeName, pInfo->Count,
+				pInfo->CPUCost, pInfo->MsgProcCost, pInfo->COTestCost, pInfo->UpdateCost,
+				pInfo->ExecCount,
 				pInfo->ExecCount ? (float)pInfo->CPUCost / (float)pInfo->ExecCount : 0.0f);
 			TotalCost+=pInfo->CPUCost;			
 			pInfo->CPUCost=0;
+			pInfo->MsgProcCost = 0;
+			pInfo->COTestCost = 0;
+			pInfo->UpdateCost = 0;
 			pInfo->ExecCount = 0;
 			if (pInfo->Count == 0)
 			{
@@ -434,6 +477,9 @@ void CDOSObjectGroup::OnObjectRegister(OBJECT_ID ObjectID, LPCSTR szObjectTypeNa
 			pInfo->ObjectTypeName = szObjectTypeName;
 			pInfo->Count=1;
 			pInfo->CPUCost=0;
+			pInfo->MsgProcCost = 0;
+			pInfo->COTestCost = 0;
+			pInfo->UpdateCost = 0;
 			pInfo->ExecCount = 0;
 			pInfo->Weight = Weight;
 		}
@@ -461,7 +507,7 @@ void CDOSObjectGroup::OnObjectUnregister(OBJECT_ID ObjectID, int Weight)
 	FUNCTION_END;
 }
 
-void CDOSObjectGroup::AddObjectCPUCost(OBJECT_ID ObjectID,UINT64 CPUCost)
+void CDOSObjectGroup::AddObjectCPUCost(OBJECT_ID ObjectID, UINT64 CPUCost, UINT64 MsgProcCost, UINT64 COTestCost, UINT64 UpdateCost)
 {
 	FUNCTION_BEGIN;
 	ObjectID.ObjectIndex=0;
@@ -470,6 +516,9 @@ void CDOSObjectGroup::AddObjectCPUCost(OBJECT_ID ObjectID,UINT64 CPUCost)
 	{
 		pInfo->ExecCount++;
 		pInfo->CPUCost+=CPUCost;
+		pInfo->MsgProcCost += MsgProcCost;
+		pInfo->COTestCost += COTestCost;
+		pInfo->UpdateCost += UpdateCost;
 	}
 	else
 	{

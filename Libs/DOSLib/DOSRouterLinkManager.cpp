@@ -26,9 +26,9 @@ bool CDOSRouterLinkManager::Init(CDOSServer * pServer)
 	if (m_pRouter == NULL)
 		return false;
 	
-	m_RouterLinkConfig = m_pServer->GetConfig().RouterLinkConfig;
+	m_RouterLinkConfig = m_pServer->GetConfig().RouterConfig.RouterLinkConfig;
 	//将连接ID都设置为RouterID
-	m_RouterLinkConfig.ServerID = m_pServer->GetConfig().RouterID;
+	m_RouterLinkConfig.ServerID = m_pServer->GetConfig().RouterConfig.RouterID;
 	for (UINT i = 0; i < m_RouterLinkConfig.ServiceConfig.ServiceList.GetCount(); i++)
 	{
 		m_RouterLinkConfig.ServiceConfig.ServiceList[i].ReportID = m_RouterLinkConfig.ServerID;

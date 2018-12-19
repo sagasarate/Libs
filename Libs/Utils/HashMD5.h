@@ -33,6 +33,7 @@ public:
 	CHashMD5(void);
 	~CHashMD5(void);
 	
+	void Init();
 	void AddData(BYTE * inBuf, size_t inLen);
 	void MD5Final(void);
 	CEasyString GetHashCodeString(void);

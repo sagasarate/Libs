@@ -181,7 +181,7 @@ struct STORAGE_POOL_SETTING
 #include "FileTools.h"
 
 #ifdef WIN32
-#include "ToolsWin32.h"
+#include "ToolsWin.h"
 #else
 #include "ToolsLinux.h"
 #endif

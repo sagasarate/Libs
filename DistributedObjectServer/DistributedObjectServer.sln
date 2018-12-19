@@ -36,6 +36,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lua", "..\Libs\lua\Lua.vcxp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSTest", "Work\CSTest\CSTest.csproj", "{10E0BA03-C395-4951-9824-E1753F51347B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Make", "Make", "{0CAB551B-006E-4E85-A62B-468DF56E4ECC}"
+	ProjectSection(SolutionItems) = preProject
+		makefile = makefile
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
