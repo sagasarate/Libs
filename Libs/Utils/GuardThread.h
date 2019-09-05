@@ -25,6 +25,8 @@ protected:
 	int						m_RecentSourceLine;
 	CEasyCriticalSection	m_EasyCriticalSection;
 
+	static volatile bool	m_Enable;
+
 	DECLARE_CLASS_INFO_STATIC(CGuardThread)
 public:
 	CGuardThread(void);
@@ -52,6 +54,8 @@ public:
 		m_RecentSourceFileName=SourceFileName;
 		m_RecentSourceLine=Line;
 	}
+
+	static void Enable(bool Enable);
 
 protected:
 	virtual BOOL OnStart();

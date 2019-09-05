@@ -56,6 +56,7 @@ public:
 
 	virtual bool Close();
 
+	virtual bool SetBlobMaxProcessSize(UINT64 MaxSize);
 };
 
 }

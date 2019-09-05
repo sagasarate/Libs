@@ -12,6 +12,9 @@
 #pragma once
 
 
+
+
+
 template < class KEY,class T ,int StorageMode=EDSM_STATIC>
 class CStaticMap
 {
@@ -196,6 +199,10 @@ protected:
 	UINT								m_GrowLimit;
 
 	//int				m_BlackCount;
+
+public:
+	typedef list_iterator<CStaticMap, T> iterator;
+	typedef const_list_iterator<CStaticMap, T> const_iterator;
 public:
 	CStaticMap()
 	{
@@ -522,6 +529,24 @@ public:
 	LPVOID GetLastObjectPos() const
 	{
 		return m_pObjectListTail;
+	}
+	LPVOID GetNextObjectPos(LPVOID Pos) const
+	{
+		if (Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			return pNode->pNext;
+		}
+		return NULL;
+	}
+	LPVOID GetPrevObjectPos(LPVOID Pos) const
+	{
+		if (Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			return pNode->pPrev;
+		}
+		return NULL;
 	}
 	LPVOID GetObjectPosByID(UINT ID) const
 	{
@@ -906,6 +931,24 @@ public:
 			return TRUE;
 		}
 		return FALSE;
+	}
+	iterator begin()
+	{
+		return iterator(this,GetFirstObjectPos());
+	}
+
+	iterator end()
+	{
+		return iterator(this, NULL);
+	}
+	const_iterator begin() const
+	{
+		return const_iterator(this, GetFirstObjectPos());
+	}
+
+	const_iterator end() const
+	{
+		return const_iterator(this, NULL);
 	}
 	//void PrintTree(CDC * pDC,int StartX,int StartY,int Dis)
 	//{

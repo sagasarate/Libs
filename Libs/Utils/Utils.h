@@ -144,6 +144,7 @@ struct STORAGE_POOL_SETTING
 #include "EasyArray.h"
 #include "EasyMap.h"
 #include "EasyList.h"
+#include "ListIterator.h"
 #include "IDStorage.h"
 #include "StaticMap.h"
 #include "HashMap.h"
@@ -152,6 +153,7 @@ struct STORAGE_POOL_SETTING
 #include "MemoryAllocatee.h"
 
 #include "StringSplitter.h"
+#include "WordFilter.h"
 
 #include "SmartValue.h"
 #include "SmartStruct.h"
@@ -287,6 +289,7 @@ using namespace pug;
 #include "ThreadSafeIDStorage.h"
 #include "ThreadSafeCycleBuffer.h"
 #include "ThreadSafeCycleBufferEx.h"
+#include "ThreadSafeCycleQueue.h"
 #include "ThreadSafeStaticMap.h"
 #include "FastMemoryPool.h"
 
@@ -311,6 +314,7 @@ using namespace pug;
 #include "Base32.h"
 #include "SHA1.h"
 #include "HMAC_SHA1.h"
+#include "SHA256.h"
 #include "URLEncode.h"
 #include "TEA.h"
 #include "Crypto/aes.h"

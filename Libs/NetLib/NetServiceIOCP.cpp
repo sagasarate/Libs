@@ -28,7 +28,7 @@ CNetService::CNetService()
 	m_IsUseListenThread=false;
 	m_pIOCPEventRouter=NULL;	
 	m_pListenThread=NULL;
-	
+	m_AcceptQueue.SetLockMode(false, true);
 }
 
 CNetService::~CNetService(void)

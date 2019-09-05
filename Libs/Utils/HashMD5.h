@@ -34,7 +34,7 @@ public:
 	~CHashMD5(void);
 	
 	void Init();
-	void AddData(BYTE * inBuf, size_t inLen);
+	void AddData(const BYTE * inBuf, size_t inLen);
 	void MD5Final(void);
 	CEasyString GetHashCodeString(void);
 	void GetHashCode(BYTE * pBuff);

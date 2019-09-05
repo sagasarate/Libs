@@ -92,6 +92,8 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 			xml_node MemoryPool=Config;
 			if(MemoryPool.moveto_child("MemoryPool"))
 			{
+				if (MemoryPool.has_attribute("Enable"))
+					m_DOSConfig.MemoryPoolConfig.Enable = (UINT)MemoryPool.attribute("Enable");
 				if(MemoryPool.has_attribute("BlockSize"))
 					m_DOSConfig.MemoryPoolConfig.MemoryPoolBlockSize=(UINT)MemoryPool.attribute("BlockSize");
 				if(MemoryPool.has_attribute("LevelSize"))
@@ -298,6 +300,41 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 
 	if (XMLContent.has_attribute("KeepAliveTime"))
 		Config.KeepAliveTime = (UINT)XMLContent.attribute("KeepAliveTime");
+
+	if (XMLContent.has_attribute("RecvFreqProtect"))
+		Config.RecvFreqProtect = XMLContent.attribute("RecvFreqProtect");
+
+	if (XMLContent.has_attribute("RecvFlowProtect"))
+		Config.RecvFlowProtect = XMLContent.attribute("RecvFlowProtect");
+
+	if (XMLContent.has_attribute("RecvProtectCheckInterval"))
+		Config.RecvProtectCheckInterval = XMLContent.attribute("RecvProtectCheckInterval");
+
+	if (XMLContent.has_attribute("ProtectCountToAddBlackList"))
+		Config.ProtectCountToAddBlackList = XMLContent.attribute("ProtectCountToAddBlackList");
+
+	if (XMLContent.has_attribute("ProtectBlockTime"))
+		Config.ProtectBlockTime = XMLContent.attribute("ProtectBlockTime");
+
+	if (XMLContent.has_attribute("EnableBlackList"))
+		Config.EnableBlackList = XMLContent.attribute("EnableBlackList");
+
+	if (XMLContent.has_attribute("InitBlackList"))
+	{
+		CEasyString BlackListStr = XMLContent.attribute("InitBlackList").getvalue();
+		CStringSplitter StringSplitter(BlackListStr, '|');
+		for (UINT i = 0; i < StringSplitter.GetCount(); i++)
+		{
+			CIPAddress IP((LPCTSTR)StringSplitter[i], 0);
+			Config.InitBlackList.Add(IP);
+		}
+	}
+
+	if (XMLContent.has_attribute("BlackListPoolStartSize"))
+		Config.BlackListPoolSetting.StartSize = XMLContent.attribute("BlackListPoolStartSize");
+
+	if (XMLContent.has_attribute("BlackListPoolGrowLimit"))
+		Config.BlackListPoolSetting.GrowLimit = XMLContent.attribute("BlackListPoolGrowLimit");
 
 	if (XMLContent.has_attribute("MsgCompressType"))
 	{

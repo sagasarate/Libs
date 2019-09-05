@@ -65,6 +65,8 @@ public:
 	virtual bool IsBOF();
 
 	virtual bool Close();
+
+	virtual bool SetBlobMaxProcessSize(UINT64 MaxSize);
 protected:
 	int FetchRow(int Orientation,int Offset);
 	void UpdateStatus(bool IsValid,int Orientation,int Offset);

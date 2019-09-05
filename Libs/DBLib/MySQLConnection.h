@@ -63,7 +63,7 @@ public:
 
 	static int DBLibTypeToMySQLType(int Type,UINT& Size,UINT& DitigalSize);
 	static int MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize);
-	static UINT GetMySQLTypeBinLength(int Type,UINT Size,UINT DitigalSize);
+	static UINT GetMySQLTypeBinLength(int Type, UINT Size, UINT DitigalSize, UINT BlobMaxProcessSize);
 
 	static BOOL MySQLStrValueToDBValue(int ValueType, LPCVOID pData, UINT DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue);
 

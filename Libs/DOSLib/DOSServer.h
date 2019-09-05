@@ -77,7 +77,11 @@ inline CDOSRouterLinkManager * CDOSServer::GetRouterLinkManager()
 inline CDOSMessagePacket * CDOSServer::NewMessagePacket(UINT Size)
 {	
 	MSG_LEN_TYPE PacketLen=CDOSMessagePacket::CaculateRealPacketLength(Size);
-	CDOSMessagePacket * pPacket=(CDOSMessagePacket *)m_MemoryPool.Alloc(PacketLen);
+	CDOSMessagePacket * pPacket = NULL;
+	if (m_ServerConfig.MemoryPoolConfig.Enable)
+		pPacket = (CDOSMessagePacket *)m_MemoryPool.Alloc(PacketLen);
+	else
+		pPacket = (CDOSMessagePacket *)malloc(PacketLen);
 	if(pPacket)
 	{
 		pPacket->Init();	
@@ -88,7 +92,8 @@ inline CDOSMessagePacket * CDOSServer::NewMessagePacket(UINT Size)
 #endif
 		UINT RefCount=pPacket->IncRefCount();
 #ifdef LOG_MEM_CALL_STACK
-		m_MemoryPool.LogMemUse(pPacket,RefCount);
+		if (m_ServerConfig.MemoryPoolConfig.Enable)
+			m_MemoryPool.LogMemUse(pPacket,RefCount);
 #endif
 	}
 	else
@@ -101,16 +106,28 @@ inline BOOL CDOSServer::ReleaseMessagePacket(CDOSMessagePacket * pPacket)
 {
 	UINT RefCount=pPacket->DecRefCount();
 #ifdef LOG_MEM_CALL_STACK
-	m_MemoryPool.LogMemUse(pPacket,RefCount);
+	if (m_ServerConfig.MemoryPoolConfig.Enable)
+		m_MemoryPool.LogMemUse(pPacket,RefCount);
 #endif
-	if(RefCount<=0)
-		return m_MemoryPool.Free(pPacket);
+	if (RefCount <= 0)
+	{
+		if (m_ServerConfig.MemoryPoolConfig.Enable)
+		{
+			return m_MemoryPool.Free(pPacket);
+		}
+		else
+		{
+			free(pPacket);
+			return TRUE;
+		}
+	}
 	return TRUE;
 }
 inline void CDOSServer::AddRefMessagePacket(CDOSMessagePacket * pPacket)
 {
 	UINT RefCount=pPacket->IncRefCount();
 #ifdef LOG_MEM_CALL_STACK
-	m_MemoryPool.LogMemUse(pPacket,RefCount);
+	if (m_ServerConfig.MemoryPoolConfig.Enable)
+		m_MemoryPool.LogMemUse(pPacket,RefCount);
 #endif
 }

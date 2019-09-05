@@ -15,7 +15,7 @@
                MaxProxyMsgSize="4096" ProxySendBufferSize="256" ProxySendDelay="50" ProxySendQueryLimit="5" MsgMinCompressSize="50">
     <Listen IP="0" Port="8600" MaxConnection="1000" />
   </ClientProxy>
-  <MemoryPool BlockSize="64" LevelSize="1048576" LevelCount="7" />
+  <MemoryPool Enable="true" BlockSize="64" LevelSize="1048576" LevelCount="7" />
   <Object GroupCount="10" MaxGroupObjectCount="512" MsgQueueSize="4096" />
   <Plugins MaxPluginObject="4096">
     <PluginObjectPool StartSize="4096" GrowSize="1024" GrowLimit="32" />

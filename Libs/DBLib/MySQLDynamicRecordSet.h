@@ -30,6 +30,7 @@ protected:
 	bool							m_IsBOF;
 	bool							m_IsEOF;
 	bool							m_CacheAllData;
+	UINT64							m_BlobMaxProcessSize;
 
 	DECLARE_CLASS_INFO(CMySQLDynamicRecordSet)
 public:
@@ -58,6 +59,8 @@ public:
 	virtual bool IsBOF();
 
 	virtual bool Close();
+
+	virtual bool SetBlobMaxProcessSize(UINT64 MaxSize);
 protected:
 	int FetchRow();
 };

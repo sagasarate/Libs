@@ -11,7 +11,6 @@
 /****************************************************************************/
 #pragma once
 
-
 template < class T ,int StorageMode=EDSM_STATIC>
 class CIDStorage
 {
@@ -167,6 +166,9 @@ protected:
 	UINT								m_UsedObjectCount;
 	UINT								m_GrowSize;
 	UINT								m_GrowLimit;
+public:
+	typedef list_iterator<CIDStorage, T> iterator;
+	typedef const_list_iterator<CIDStorage, T> const_iterator;
 public:
 	CIDStorage()
 	{
@@ -500,6 +502,24 @@ public:
 	{
 		return m_pObjectListTail;
 	}
+	LPVOID GetNextObjectPos(LPVOID Pos) const
+	{
+		if (Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			return pNode->pNext;
+		}
+		return NULL;
+	}
+	LPVOID GetPrevObjectPos(LPVOID Pos) const
+	{
+		if (Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			return pNode->pPrev;
+		}
+		return NULL;
+	}
 
 	T* GetNextObject(LPVOID& Pos)
 	{
@@ -686,6 +706,24 @@ public:
 			pNode = pNode->pNext;
 			FreeCount++;
 		}
+	}
+	iterator begin()
+	{
+		return iterator(this, GetFirstObjectPos());
+	}
+
+	iterator end()
+	{
+		return iterator(this, NULL);
+	}
+	const_iterator begin() const
+	{
+		return const_iterator(this, GetFirstObjectPos());
+	}
+
+	const_iterator end() const
+	{
+		return const_iterator(this, NULL);
 	}
 protected:
 	bool CreateBufferPage(UINT Size)

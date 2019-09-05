@@ -76,7 +76,7 @@ void CHashMD5::Init()
 	m_mdContext.buf[2] = (UINT4)0x98badcfe;
 	m_mdContext.buf[3] = (UINT4)0x10325476;
 }
-void CHashMD5::AddData(BYTE * inBuf, size_t inLen)
+void CHashMD5::AddData(const BYTE * inBuf, size_t inLen)
 {
 	UINT4 in[16];
 	int mdi;

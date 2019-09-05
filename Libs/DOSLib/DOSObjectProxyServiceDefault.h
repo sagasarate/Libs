@@ -50,6 +50,12 @@ protected:
 		}
 	};
 
+	struct IP_INFO
+	{
+		UINT		ExpireTime;
+		CIPAddress	IP;
+	};
+
 	CLIENT_PROXY_CONFIG											m_Config;
 	CCycleQueue<CDOSMessagePacket *>							m_MsgQueue;
 
@@ -66,6 +72,12 @@ protected:
 	CEasyArray<CDOSObjectProxyConnectionGroup>					m_ConnectionGroups;
 	CEasyBuffer													m_CompressBuffer;
 	char														m_LZOCompressWorkMemory[LZO1X_1_MEM_COMPRESS];
+
+	CHashMap<CIPAddress, IP_INFO>								m_IPBlackList;
+	CHashMap<CIPAddress, IP_INFO>								m_RecvProtectedIPList;
+	CEasyArray<IP_INFO>											m_PrepareIPBlackList;
+	CEasyCriticalSection										m_BlackListCriticalSection;
+	CEasyTimer													m_BlackListUpdateTimer;
 
 public:
 	CDOSObjectProxyServiceDefault(void);
@@ -120,6 +132,9 @@ public:
 		return m_CompressBuffer;
 	}
 	CDOSServer * GetServer();
+
+	bool AddBlackList(CIPAddress IP, UINT Duration);
+	bool OnRecvProtected(CIPAddress IP);
 protected:
 	void OnMsg(CDOSMessage * pMessage);
 	void OnSystemMsg(CDOSMessage * pMessage);

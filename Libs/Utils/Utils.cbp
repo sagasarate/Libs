@@ -43,6 +43,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-std=c++11" />
+			<Add option="-fvisibility=hidden" />
 		</Compiler>
 		<Unit filename="AsyncFileLogPrinter.cpp">
 			<Option virtualFolder="Log/缺省实现/" />
@@ -588,6 +589,12 @@
 		</Unit>
 		<Unit filename="WinTypeWrap.h">
 			<Option virtualFolder="数据结构/" />
+		</Unit>
+		<Unit filename="WordFilter.cpp">
+			<Option virtualFolder="字符串/字符串工具/" />
+		</Unit>
+		<Unit filename="WordFilter.h">
+			<Option virtualFolder="字符串/字符串工具/" />
 		</Unit>
 		<Unit filename="atomic_ops/include/atomic_ops.h">
 			<Option virtualFolder="atomic_ops/" />

@@ -67,12 +67,23 @@ void CDOSServer::SetConfig(const DOS_CONFIG& Config)
 bool CDOSServer::OnStartUp()
 {
 	FUNCTION_BEGIN;
-	if(!m_MemoryPool.Create(m_ServerConfig.MemoryPoolConfig.MemoryPoolBlockSize,
-		m_ServerConfig.MemoryPoolConfig.MemoryPoolLeveSize, m_ServerConfig.MemoryPoolConfig.MemoryPoolLevelCount, true))
+	if(m_ServerConfig.MemoryPoolConfig.Enable)
 	{
-		PrintDOSLog(_T("初始化内存池失败！"));
-		return FALSE;
-	}	
+		if (m_MemoryPool.Create(m_ServerConfig.MemoryPoolConfig.MemoryPoolBlockSize,
+			m_ServerConfig.MemoryPoolConfig.MemoryPoolLeveSize, m_ServerConfig.MemoryPoolConfig.MemoryPoolLevelCount, true))
+		{
+			PrintDOSDebugLog(_T("内存池初始化完毕"));
+		}
+		else
+		{
+			PrintDOSLog(_T("初始化内存池失败！"));
+			return FALSE;
+		}
+	}
+	else
+	{
+		PrintDOSDebugLog(_T("内存池未启用"));
+	}
 
 	m_pDOSRouter=new CDOSRouter();
 	if(!m_pDOSRouter->Init(this))
@@ -128,9 +139,11 @@ void CDOSServer::OnShutDown()
 	SAFE_DELETE(m_pProxyManager);
 	SAFE_DELETE(m_pObjectManager);	
 	SAFE_DELETE(m_pDOSRouter);
-
-	m_MemoryPool.Verfy(LOG_DOS_CHANNEL);
-	m_MemoryPool.Destory();
+	if(m_ServerConfig.MemoryPoolConfig.Enable)
+	{
+		m_MemoryPool.Verfy(LOG_DOS_CHANNEL);
+		m_MemoryPool.Destory();
+	}
 
 	FUNCTION_END;
 }

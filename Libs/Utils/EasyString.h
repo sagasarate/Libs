@@ -828,7 +828,7 @@ public:
 			}
 			m_StringLength=NewStrLen;
 			m_pBuffer[m_StringLength]=0;
-			SAFE_DELETE(pReplacePos);
+			SAFE_DELETE_ARRAY(pReplacePos);
 			m_HashCode = 0;
 		}
 	}

@@ -12,6 +12,7 @@ CThreadPerformanceCounter::CThreadPerformanceCounter(void)
 	m_CycleTime=0;
 	m_CPUUsedRate=0;
 	m_CycleCPUUsedTime = 0;
+	m_RecentCycleCount = 0;
 	m_LastUpdateTime = (UINT)time(NULL);
 }
 

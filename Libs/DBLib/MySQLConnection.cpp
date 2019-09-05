@@ -575,7 +575,7 @@ int CMySQLConnection::MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize
 	}
 }
 
-UINT CMySQLConnection::GetMySQLTypeBinLength(int Type,UINT Size,UINT DitigalSize)
+UINT CMySQLConnection::GetMySQLTypeBinLength(int Type,UINT Size,UINT DitigalSize, UINT BlobMaxProcessSize)
 {
 	switch(Type)
 	{
@@ -624,10 +624,14 @@ UINT CMySQLConnection::GetMySQLTypeBinLength(int Type,UINT Size,UINT DitigalSize
 	case MYSQL_TYPE_NEWDECIMAL:
 	case MYSQL_TYPE_ENUM:
 	case MYSQL_TYPE_SET:
+		break;
 	case MYSQL_TYPE_TINY_BLOB:
 	case MYSQL_TYPE_MEDIUM_BLOB:
 	case MYSQL_TYPE_LONG_BLOB:
 	case MYSQL_TYPE_BLOB:
+		if (BlobMaxProcessSize && (BlobMaxProcessSize < Size))
+			return BlobMaxProcessSize;
+		break;
 	case MYSQL_TYPE_VAR_STRING:
 	case MYSQL_TYPE_STRING:
 	case MYSQL_TYPE_GEOMETRY:

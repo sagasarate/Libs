@@ -45,6 +45,8 @@
                  ConnectionMsgQueueSize="256"
                  AcceptQueueSize="128" ParallelAcceptCount="32" RecvBufferSize="128" SendBufferSize="128"                 
                  UnacceptConnectionKeepTime="30000" UseServerInitiativeKeepAlive="false" KeepAliveTime="10000" KeepAliveCount="20"
+                 RecvFreqProtect="0" RecvFlowProtect="0" RecvProtectCheckInterval="10" ProtectCountToAddBlackList="10" ProtectBlockTime="600"
+                 EnableBlackList="false" InitBlackList="" BlackListPoolStartSize="256" BlackListPoolGrowLimit="32"
                  MsgCompressType="lzo" MinMsgCompressSize="1024" 
                  MsgEnCryptType="none" SecretKey="1234567890"
                  GlobalMsgMapSize="128" MsgMapSize="1024" MaxMsgSize="40960" MaxSendMsgSize="10485760"
@@ -63,6 +65,15 @@
       UseServerInitiativeKeepAlive：是否由服务器主动发送KeepAlive包
       KeepAliveTime：KeepAlive间隔
       KeepAliveCount：KeepAlive最大丢失数，超过即判定死连接，然后断开
+      RecvFreqProtect：启动接受保护的最大每秒接收包次数，0为关闭
+      RecvFlowProtect：启动接收保护的最大每秒接收字节数，0为关闭
+      RecvProtectCheckInterval：接收保护检测时间间隔，单位秒
+      ProtectCountToAddBlackList：发生多少次接受保护后加入连接黑名单
+      ProtectBlockTime：加入连接黑名单后的保持时间，单位秒，0为持续到服务器重启
+      EnableBlackList：是否启动连接黑名单
+      InitBlackList：初始黑名单，|隔开的IP地址
+      BlackListPoolStartSize：连接黑名单初始大小
+      BlackListPoolGrowLimit：连接黑名单增长限制
       MsgCompressType：数据包压缩格式，lzo代表使用lzo格式压缩，其他不压缩
       MinMsgCompressSize：最小压缩的数据包大小，小于这个大小的数据包不压缩
       MsgEnCryptType：数据包加密格式，可选择DES,AES和TEA
@@ -81,7 +92,7 @@
       -->
   </ClientProxys>
 
-  <MemoryPool BlockSize="64" LevelSize="1048576" LevelCount="7" />
+  <MemoryPool Enable="true" BlockSize="64" LevelSize="1048576" LevelCount="7" />
   <!--MemoryPool是内存池设置，内部消息使用的内存由内存池分配，每次分配一个block
     内存池是分层设置,每一层的block都是上一层的2倍大，但每层的总大小是一样的
     BlockSize=第一层的block大小，LevelSize=每一层的总大小，LevelCount=层数-->

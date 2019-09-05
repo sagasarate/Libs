@@ -33,6 +33,18 @@ enum BOM_HEADER_TYPE
 //	return Len;
 //}
 
+template<typename T>
+inline T Max(T a, T b)
+{
+	return a > b ? a : b;
+}
+
+template<typename T>
+inline T Min(T a, T b)
+{
+	return a < b ? a : b;
+}
+
 inline void Swap(FLOAT& v1,FLOAT& v2)
 {
 	FLOAT temp=v1;
@@ -63,24 +75,20 @@ inline float Saturate(float Value, float Min, float Max)
 
 inline int GetRand(int Min,int Max)
 {
-	if(Min>Max)
-	{
-		int Temp=Min;
-		Min=Max;
-		Max=Temp;
-	}
-	return rand()%(Max-Min+1)+Min;
+	INT64 RandValue = rand();
+	if (Min > Max)
+		return (int)(RandValue *(Min - Max) / RAND_MAX + Max);
+	else
+		return (int)(RandValue *(Max - Min) / RAND_MAX + Min);
 }
 
 inline UINT GetRand(UINT Min, UINT Max)
 {
+	UINT64 RandValue = rand();
 	if (Min > Max)
-	{
-		int Temp = Min;
-		Min = Max;
-		Max = Temp;
-	}
-	return rand() % (Max - Min + 1) + Min;
+		return (UINT)(RandValue *(Min - Max) / RAND_MAX + Max);
+	else
+		return (UINT)(RandValue *(Max - Min) / RAND_MAX + Min);
 }
 
 inline float GetRand(float Min,float Max)
@@ -119,14 +127,21 @@ inline CEasyString FormatNumberWords(ULONG64 Number,bool IsTiny=false)
 	if(Number<=1024)
 	{
 		temp.Format(_T("%llu"),Number);
-	}else if(Number<=1048576)
+	}
+	else if(Number<=1048576)
 	{
 		float size=Number/1024.0f;
 		temp.Format(_T("%.2fK"),size);
-	}else
+	}
+	else if (Number <= 1073741824)
 	{
-		float size=Number/1048576.0f;
-		temp.Format(_T("%.2fM"),size);
+		float size = Number / 1048576.0f;
+		temp.Format(_T("%.2fM"), size);
+	}
+	else
+	{
+		float size = Number / 1073741824.0f;
+		temp.Format(_T("%.2fG"), size);
 	}
 	
 	if(IsTiny)

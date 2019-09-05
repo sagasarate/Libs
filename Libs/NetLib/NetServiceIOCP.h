@@ -27,7 +27,7 @@ protected:
 	bool										m_IPv6Only;
 	CCycleQueue<COverLappedObject *>			m_OverLappedObjectPool;
 	CEasyCriticalSection						m_OverLappedObjectPoolLock;
-	CCycleQueue<COverLappedObject *>			m_AcceptQueue;
+	CThreadSafeCycleQueue<COverLappedObject *>	m_AcceptQueue;
 	UINT										m_AcceptQueueSize;
 	UINT										m_RecvQueueSize;
 	UINT										m_SendQueueSize;

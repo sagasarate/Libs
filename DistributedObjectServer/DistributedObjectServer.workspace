@@ -11,8 +11,5 @@
 		<Project filename="../../../../../../mnt/hgfs/MyPrj/Libs/Utils/Utils.cbp" />
 		<Project filename="../../../../../../mnt/hgfs/MyPrj/Libs/NetLib/NetLib.cbp" />
 		<Project filename="../../../../../../mnt/hgfs/MyPrj/Libs/ServerFrameWork/ServerFrameWork.cbp" />
-		<Project filename="../../../../../../mnt/hgfs/MyPrj/Libs/DBLib/DBLib.cbp" />
-		<Project filename="../../../../../../mnt/hgfs/MyPrj/Libs/lua/Lua.cbp" />
-		<Project filename="../../../../../../mnt/hgfs/MyPrj/Libs/curl/cb/libcurl.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

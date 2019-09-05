@@ -228,4 +228,9 @@ bool CDBStaticRecordSet::Close()
 	return true;
 }
 
+bool CDBStaticRecordSet::SetBlobMaxProcessSize(UINT64 MaxSize)
+{
+	return false;
+}
+
 }

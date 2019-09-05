@@ -22,6 +22,8 @@ CDOSObjectProxyConnectionDefault::CDOSObjectProxyConnectionDefault(void)
 	m_Status = STATUS_NONE;
 	m_pCompressBuffer = NULL;
 	m_pLZOCompressWorkBuffer = NULL;
+	m_RecvCount = 0;
+	m_RecvFlow = 0;
 }
 
 CDOSObjectProxyConnectionDefault::~CDOSObjectProxyConnectionDefault(void)
@@ -130,6 +132,8 @@ bool CDOSObjectProxyConnectionDefault::Init(CDOSObjectProxyServiceDefault * pSer
 	m_UnacceptConnectionKeepTimer.SaveTime();
 	m_NeedDelayClose = false;
 
+	m_RecvProtectCheckTimer.SaveTime();
+
 	if (m_AssembleBuffer.GetBufferSize() < m_Config.MaxMsgSize * 2)
 	{
 		if (!m_AssembleBuffer.Create(m_Config.MaxMsgSize * 2))
@@ -171,6 +175,8 @@ void CDOSObjectProxyConnectionDefault::OnRecvData(const BYTE * pData, UINT DataS
 				else
 					OnClientMsg(pMsg);
 				m_KeepAliveCount = 0;
+				m_RecvCount++;
+				m_RecvFlow += PacketSize;
 				m_AssembleBuffer.PopFront(NULL, PacketSize);
 				PeekPos = 0;
 				PacketSize = 0;
@@ -187,6 +193,8 @@ void CDOSObjectProxyConnectionDefault::OnConnection(bool IsSucceed)
 	m_KeepAliveTimer.SaveTime();
 	m_KeepAliveCount = 0;
 	m_RecentPingDelay = 0;
+	m_RecvCount = 0;
+	m_RecvFlow = 0;
 
 	if (IsSucceed)
 	{
@@ -267,6 +275,35 @@ int CDOSObjectProxyConnectionDefault::Update(int ProcessPacketLimit)
 			PrintDOSLog( _T("KeepAlive超时！"));
 			m_KeepAliveCount = 0;
 			Disconnect();
+		}
+	}
+
+	if (m_Config.RecvProtectCheckInterval)
+	{
+		if (m_RecvProtectCheckTimer.IsTimeOut(m_Config.RecvProtectCheckInterval * 1000))
+		{
+			m_RecvProtectCheckTimer.SaveTime();
+
+			if (m_Config.RecvFreqProtect)
+			{
+				if ((m_RecvCount / m_Config.RecvProtectCheckInterval) > m_Config.RecvFreqProtect)
+				{
+					PrintDOSLog(_T("接受频率超出限制，断开连接！"));
+					m_pService->OnRecvProtected(GetRemoteAddress());
+					Disconnect();
+				}
+			}
+			if (m_Config.RecvFlowProtect)
+			{
+				if ((m_RecvFlow / m_Config.RecvProtectCheckInterval) > m_Config.RecvFlowProtect)
+				{
+					PrintDOSLog(_T("接受流量超出限制，断开连接！"));
+					m_pService->OnRecvProtected(GetRemoteAddress());
+					Disconnect();
+				}
+			}
+			m_RecvCount = 0;
+			m_RecvFlow = 0;
 		}
 	}
 

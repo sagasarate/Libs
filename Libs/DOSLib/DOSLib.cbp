@@ -41,6 +41,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-std=c++11" />
+			<Add option="-fvisibility=hidden" />
 		</Compiler>
 		<Unit filename="DOSBaseObject.cpp">
 			<Option virtualFolder="对象和对象管理/对象基类/" />

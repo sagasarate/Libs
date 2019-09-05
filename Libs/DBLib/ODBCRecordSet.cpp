@@ -385,4 +385,9 @@ bool CODBCRecordSet::Close()
 	return false;
 }
 
+bool CODBCRecordSet::SetBlobMaxProcessSize(UINT64 MaxSize)
+{
+	return false;
+}
+
 }

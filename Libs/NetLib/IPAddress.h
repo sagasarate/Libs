@@ -62,6 +62,23 @@ public:
 		m_IPAddress.SocketAddress.sin_family=AF_INET;
 	}
 
+	UINT GetHashCode()  const
+	{
+		if (IsIPv4())
+		{
+			return m_IPAddress.SocketAddress.sin_addr.s_addr;
+		}
+		else
+		{
+			UINT HashCode = 1;
+			BYTE * pData = (BYTE *)&m_IPAddress.SocketAddress6.sin6_addr;
+			for (UINT i = 0; i < 16; i++)
+			{
+				HashCode = HashCode * 31 + pData[i];
+			}
+			return HashCode;
+		}
+	}
 
 	CIPAddress& operator=(const CIPAddress& IPAddress)
 	{

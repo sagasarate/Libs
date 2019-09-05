@@ -177,20 +177,22 @@ public:
 			return true;
 		}
 		return false;
-	}
-	bool Delete(size_t Index)
+	}	
+	bool Delete(size_t Index, size_t Count = 1)
 	{
-		if(Index<m_ArrayLength)
+		if (Index < m_ArrayLength)
 		{
-			DestructObjects(m_pBuffer+Index,1);
-			if(m_ArrayLength-Index-1)
-				memmove(m_pBuffer+Index,m_pBuffer+Index+1,sizeof(T)*(m_ArrayLength-Index-1));				
-			m_ArrayLength--;
+			if (Count > m_ArrayLength - Index)
+				Count = m_ArrayLength - Index;
+			DestructObjects(m_pBuffer + Index, Count);
+			if (m_ArrayLength - Index - Count)
+				memmove(m_pBuffer + Index, m_pBuffer + Index + Count, sizeof(T)*(m_ArrayLength - Index - Count));
+			m_ArrayLength -= Count;
 
-			if(m_BufferSize-m_ArrayLength>=m_GrowSize)
+			if (m_BufferSize - m_ArrayLength >= m_GrowSize)
 			{
-				ShrinkBuffer(m_BufferSize-m_GrowSize);
-			}			
+				ShrinkBuffer(m_BufferSize - m_GrowSize);
+			}
 			return true;
 		}
 		return false;
@@ -327,6 +329,26 @@ public:
 			memcpy(m_pBuffer + i, m_pBuffer + GetCount() - i - 1, sizeof(T));
 			memcpy(m_pBuffer + GetCount() - i - 1, pSwapBuff, sizeof(T));
 		}
+	}
+
+	T * begin()
+	{
+		return m_pBuffer;
+	}
+
+	T * end()
+	{
+		return m_pBuffer + m_ArrayLength;
+	}
+
+	const T * begin() const
+	{
+		return m_pBuffer;
+	}
+
+	const T * end() const
+	{
+		return m_pBuffer + m_ArrayLength;
 	}
 
 protected:

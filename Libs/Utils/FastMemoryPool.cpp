@@ -227,19 +227,27 @@ LPVOID CFastMemoryPool::Alloc(UINT Size)
 
 BOOL CFastMemoryPool::Free(LPVOID pMem)
 {
-	if(m_pBuffer)
+	if(pMem)
 	{
-		if((UINT)((char *)pMem-m_pBuffer)<m_BufferSize)
+		if (m_pBuffer)
 		{
-			AtomicInc(&m_FreeCount);
-			return FreeBlock((BlockNode *)((char *)pMem-sizeof(BlockNode)));
+			if ((UINT)((char *)pMem - m_pBuffer) < m_BufferSize)
+			{
+				AtomicInc(&m_FreeCount);
+				return FreeBlock((BlockNode *)((char *)pMem - sizeof(BlockNode)));
+			}
+			AtomicInc(&m_SystemFreeCount);
+			delete[](char *)pMem;
+			return TRUE;
 		}
-		AtomicInc(&m_SystemFreeCount);
-		delete[] (char *)pMem;
-		return TRUE;
+		else
+			return FALSE;
 	}
 	else
+	{
+		PrintImportantLog(_T("错误，释放了一个空指针"));
 		return FALSE;
+	}
 }
 
 #ifdef LOG_MEM_CALL_STACK

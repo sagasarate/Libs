@@ -95,6 +95,8 @@ public:
 
 	virtual bool Close()=0;
 
+	virtual bool SetBlobMaxProcessSize(UINT64 MaxSize) = 0;
+
 };
 
 class IDBParameterSet

@@ -272,6 +272,11 @@ bool CMySQLRecordSet::Close()
 	return true;
 }
 
+bool CMySQLRecordSet::SetBlobMaxProcessSize(UINT64 MaxSize)
+{
+	return false;
+}
+
 int CMySQLRecordSet::FetchRow()
 {
 	int ColNum=GetColumnCount();

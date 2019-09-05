@@ -51,7 +51,10 @@ protected:
 	CEasyBuffer									m_AssembleBuffer;
 	CEasyBuffer *								m_pCompressBuffer;
 	char *										m_pLZOCompressWorkBuffer;
-	
+
+	UINT										m_RecvCount;
+	UINT										m_RecvFlow;
+	CEasyTimer									m_RecvProtectCheckTimer;
 
 public:
 	CDOSObjectProxyConnectionDefault(void);

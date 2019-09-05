@@ -51,6 +51,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-std=c++11" />
+			<Add option="-fvisibility=hidden" />
 		</Compiler>
 		<Linker>
 			<Add option="-static-libgcc" />

@@ -16,6 +16,7 @@
 #define GROUP_WEIGHT_UPDATE_TIME		(5000)
 //#define DOS_PROXY_KEEP_ALIVE_TIME		(10000)
 //#define DOS_PROXY_KEEP_ALIVE_MAX_COUNT	(20)
+#define BLACK_LIST_UPDATE_TIME			(60*1000)
 
 typedef bool (*DOS_GROUP_INIT_FN)(UINT GroupIndex);
 typedef bool(*DOS_GROUP_DESTORY_FN)(UINT GroupIndex);
@@ -65,6 +66,16 @@ struct CLIENT_PROXY_CONFIG
 	bool										UseServerInitiativeKeepAlive;
 	UINT										KeepAliveTime;
 	UINT										KeepAliveCount;
+
+	UINT										RecvFreqProtect;
+	UINT										RecvFlowProtect;
+	UINT										RecvProtectCheckInterval;
+	UINT										ProtectCountToAddBlackList;
+	UINT										ProtectBlockTime;
+	bool										EnableBlackList;
+	CEasyArray<CIPAddress>						InitBlackList;
+	STORAGE_POOL_SETTING						BlackListPoolSetting;
+
 	UINT										MsgCompressType;
 	UINT										MinMsgCompressSize;
 	UINT										MsgEnCryptType;
@@ -105,6 +116,12 @@ struct CLIENT_PROXY_CONFIG
 		UseServerInitiativeKeepAlive = false;
 		KeepAliveTime = 30000;
 		KeepAliveCount = 10;
+		RecvFreqProtect = 0;
+		RecvFlowProtect = 0;
+		RecvProtectCheckInterval = 0;
+		ProtectCountToAddBlackList = 10;
+		ProtectBlockTime = 10 * 60;
+		EnableBlackList = false;
 		EnableGuardThread = false;
 		GuardThreadKeepAliveTime = 20 * 1000;
 		GuardThreadKeepAliveCount = 5;
@@ -171,11 +188,13 @@ struct DOS_OBJECT_CONFIG
 
 struct DOS_MEMORY_POOL_CONFIG
 {
+	bool										Enable;
 	UINT										MemoryPoolBlockSize;
 	UINT										MemoryPoolLeveSize;
 	UINT										MemoryPoolLevelCount;
 	DOS_MEMORY_POOL_CONFIG()
 	{
+		Enable = true;
 		MemoryPoolBlockSize = 64;
 		MemoryPoolLeveSize = 10240;
 		MemoryPoolLevelCount = 5;

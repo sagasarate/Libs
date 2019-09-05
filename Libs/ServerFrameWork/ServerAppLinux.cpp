@@ -204,7 +204,13 @@ void CServerApp::OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * p
 {
 	void * CallStacks[MAX_STACK_LAYERS];
 
-	PrintImportantLog("开始处理信号%d", SignalNum);
+	//关闭守护线程检测
+	CGuardThread::Enable(false);
+
+	if(pSigInfo)
+		PrintImportantLog("开始处理信号%d在线程%u的0x%p", SignalNum, pthread_self(), pSigInfo->si_ptr);
+	else
+		PrintImportantLog("开始处理信号%d在线程%u", SignalNum, pthread_self());
 	size_t CallStackSize = backtrace(CallStacks, MAX_STACK_LAYERS);
 	PrintImportantLog("输出调用栈大小:%d", (int)CallStackSize);
 	char ExceptionFileName[MAX_PATH];
@@ -212,6 +218,18 @@ void CServerApp::OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * p
 
 	//恢复对SIGCHLD的屏蔽
 	signal(SIGCHLD, SIG_DFL);
+
+	//先在重要日志输出一遍原始地址
+	for (size_t i = 0; i < CallStackSize; i++)
+	{
+		PrintImportantLog("%d:RawAddress:%p", i, CallStacks[i]);
+
+		Dl_info DLInfo;
+		if (dladdr(CallStacks[i], &DLInfo))
+		{
+			PrintImportantLog("BaseAddress:%p at %s", DLInfo.dli_fbase, DLInfo.dli_fname);
+		}
+	}
 
 	sprintf_s(ExceptionFileName, MAX_PATH, "/proc/%d/exe", getpid());
 	int Len = readlink(ExceptionFileName, ExeFilePath, MAX_PATH);

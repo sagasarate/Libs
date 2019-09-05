@@ -187,6 +187,9 @@
     <Filter Include="命名管道">
       <UniqueIdentifier>{58192949-4be5-4fbc-be33-96e69e1a8e63}</UniqueIdentifier>
     </Filter>
+    <Filter Include="字符串\关键字过滤">
+      <UniqueIdentifier>{a25b6d2a-3349-4b94-9926-dd5693837656}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EasyTime.h">
@@ -732,6 +735,18 @@
     <ClInclude Include="ToolsWin.h">
       <Filter>小工具函数</Filter>
     </ClInclude>
+    <ClInclude Include="WordFilter.h">
+      <Filter>字符串\关键字过滤</Filter>
+    </ClInclude>
+    <ClInclude Include="SHA256.h">
+      <Filter>加解密\SHA1</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSafeCycleQueue.h">
+      <Filter>线程安全存储</Filter>
+    </ClInclude>
+    <ClInclude Include="ListIterator.h">
+      <Filter>对象存储模版</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EasyTimerEx.cpp">
@@ -982,6 +997,12 @@
     </ClCompile>
     <ClCompile Include="ToolsWin.cpp">
       <Filter>小工具函数</Filter>
+    </ClCompile>
+    <ClCompile Include="WordFilter.cpp">
+      <Filter>字符串\关键字过滤</Filter>
+    </ClCompile>
+    <ClCompile Include="SHA256.cpp">
+      <Filter>加解密\SHA1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

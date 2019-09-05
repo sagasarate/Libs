@@ -22,9 +22,11 @@ protected:
 	struct MSG_STATE_INFO
 	{
 		UINT	CurCount;
+		UINT	CurFlow;
 		MSG_STATE_INFO()
 		{
 			CurCount = 0;
+			CurFlow = 0;
 		}
 	};
 

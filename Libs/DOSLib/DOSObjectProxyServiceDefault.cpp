@@ -84,7 +84,7 @@ bool CDOSObjectProxyServiceDefault::PushMessage(OBJECT_ID ObjectID, CDOSMessageP
 #ifdef _DEBUG
 		pPacket->SetAllocTime(0x13);
 #endif
-		if (!m_MsgQueue.PushBack(&pPacket))		
+		if (!m_MsgQueue.PushBack(&pPacket))
 		{
 			((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket);
 		}
@@ -122,11 +122,11 @@ float CDOSObjectProxyServiceDefault::GetCycleTime()
 	return m_ThreadPerformanceCounter.GetCycleTime();
 }
 UINT CDOSObjectProxyServiceDefault::GetGroupCount()
-{ 
+{
 	return (UINT)m_ConnectionGroups.GetCount();
 }
 float CDOSObjectProxyServiceDefault::GetGroupCPUUsedRate(UINT Index)
-{ 
+{
 	if (Index < m_ConnectionGroups.GetCount())
 	{
 		return m_ConnectionGroups[Index].GetCPUUsedRate();
@@ -135,10 +135,10 @@ float CDOSObjectProxyServiceDefault::GetGroupCPUUsedRate(UINT Index)
 	{
 		return 0;
 	}
-	
+
 }
 float CDOSObjectProxyServiceDefault::GetGroupCycleTime(UINT Index)
-{ 
+{
 	if (Index < m_ConnectionGroups.GetCount())
 	{
 		return m_ConnectionGroups[Index].GetCycleTime();
@@ -152,14 +152,14 @@ float CDOSObjectProxyServiceDefault::GetGroupCycleTime(UINT Index)
 bool CDOSObjectProxyServiceDefault::Init(CDOSServer * pServer, CLIENT_PROXY_CONFIG& Config)
 {
 	SetServer(pServer);
-	m_Config = Config;	
+	m_Config = Config;
 	return true;
 }
 
 
 
 BOOL CDOSObjectProxyServiceDefault::OnStart()
-{	
+{
 
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(), THREAD_CPU_COUNT_TIME);
 
@@ -212,6 +212,28 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 		m_Config.MsgEnCryptType = MSG_ENCRYPT_NONE;
 		PrintDOSLog(_T("加密设置不合法，消息加密被取消"));
 	}
+
+	if (m_Config.EnableBlackList)
+	{
+		CAutoLock Lock(m_BlackListCriticalSection);
+
+		m_IPBlackList.Create(m_Config.BlackListPoolSetting);
+		for (const CIPAddress& IP: m_Config.InitBlackList)
+		{
+			IP_INFO * pInfo = NULL;
+			m_IPBlackList.New(IP, &pInfo);
+			if (pInfo)
+			{
+				pInfo->IP = IP;
+				pInfo->ExpireTime = 0;
+			}
+		}
+		PrintDOSLog(_T("已加载%u个黑名单"), m_IPBlackList.GetObjectCount());
+
+		m_RecvProtectedIPList.Create(m_Config.BlackListPoolSetting);
+	}
+
+	m_BlackListUpdateTimer.SaveTime();
 
 	if (!Create(IPPROTO_TCP,
 		m_Config.AcceptQueueSize,
@@ -267,7 +289,7 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 		return FALSE;
 	}
 
-	
+
 
 	if (m_Config.ConnectionGroupCount)
 	{
@@ -303,7 +325,9 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 		m_GuardThread.SetKeepAliveTime(m_Config.GuardThreadKeepAliveTime, m_Config.GuardThreadKeepAliveCount);
 		m_GuardThread.Start();
 	}
-	
+
+
+
 	return TRUE;
 }
 
@@ -348,7 +372,7 @@ void CDOSObjectProxyServiceDefault::OnClose()
 		{
 			PrintDOSLog( _T("释放消息内存块失败！"));
 		}
-	}	
+	}
 	for (UINT i = 0; i < m_ConnectionGroups.GetCount(); i++)
 	{
 		m_ConnectionGroups[i].SafeTerminate();
@@ -359,7 +383,7 @@ void CDOSObjectProxyServiceDefault::OnClose()
 		CDOSObjectProxyConnectionDefault * pConnection = m_ConnectionPool.GetNextObject(Pos);
 
 		pConnection->Destory();
-		 
+
 	}
 	m_ConnectionPool.Clear();
 	m_MessageMap.Clear();
@@ -415,6 +439,50 @@ int CDOSObjectProxyServiceDefault::Update(int ProcessPacketLimit)
 				break;
 		}
 	}
+	if (m_Config.EnableBlackList)
+	{
+		//处理新增的IP黑名单
+		if (m_PrepareIPBlackList.GetCount())
+		{
+			CAutoLock Lock(m_BlackListCriticalSection);
+
+			for (IP_INFO& IPInfo : m_PrepareIPBlackList)
+			{
+				IP_INFO * pBlackInfo = NULL;
+				m_IPBlackList.New(IPInfo.IP, &pBlackInfo);
+				if (pBlackInfo)
+				{
+					*pBlackInfo = IPInfo;
+				}
+				else
+				{
+					PrintDOSLog(_T("无法新增连接黑名单%u/%u"), m_IPBlackList.GetObjectCount() / m_IPBlackList.GetBufferSize());
+				}
+			}
+			m_PrepareIPBlackList.Empty();
+		}
+
+		if (m_BlackListUpdateTimer.IsTimeOut(BLACK_LIST_UPDATE_TIME))
+		{
+			m_BlackListUpdateTimer.SaveTime();
+
+			UINT CurTime = time(NULL);
+			void * Pos = m_IPBlackList.GetFirstObjectPos();
+			while (Pos)
+			{
+				IP_INFO * pInfo = m_IPBlackList.GetNextObject(Pos);
+				if (pInfo->ExpireTime)
+				{
+					if (pInfo->ExpireTime <= CurTime)
+					{
+						m_IPBlackList.Delete(pInfo->IP);
+					}
+				}
+			}
+		}
+	}
+
+
 	return ProcessCount;
 }
 
@@ -422,7 +490,7 @@ int CDOSObjectProxyServiceDefault::Update(int ProcessPacketLimit)
 CBaseNetConnection * CDOSObjectProxyServiceDefault::CreateConnection(CIPAddress& RemoteAddress)
 {
 	CDOSObjectProxyConnectionDefault * pConnection = NULL;
-	
+
 	UINT ID = m_ConnectionPool.NewObject(&pConnection);
 	if (pConnection)
 	{
@@ -438,7 +506,7 @@ CBaseNetConnection * CDOSObjectProxyServiceDefault::CreateConnection(CIPAddress&
 bool CDOSObjectProxyServiceDefault::DeleteConnection(CBaseNetConnection * pConnection)
 {
 	pConnection->Destory();
-	
+
 	if (m_ConnectionPool.DeleteObject(pConnection->GetID()))
 	{
 		return true;
@@ -450,6 +518,17 @@ bool CDOSObjectProxyServiceDefault::DeleteConnection(CBaseNetConnection * pConne
 
 void CDOSObjectProxyServiceDefault::AcceptConnection(CDOSObjectProxyConnectionDefault * pConnection)
 {
+	if (m_Config.EnableBlackList)
+	{
+		CIPAddress IP = pConnection->GetRemoteAddress();
+		IP.SetPort(0);
+		if (m_IPBlackList.Find(IP) != NULL)
+		{
+			PrintDOSLog(_T("%s在连接黑名单中，拒绝连接"), pConnection->GetRemoteAddress().GetAddressString());
+			pConnection->Disconnect();
+			return;
+		}
+	}
 	if (m_Config.ConnectionGroupCount)
 	{
 		CDOSObjectProxyConnectionGroup * pGroup = NULL;
@@ -470,6 +549,7 @@ void CDOSObjectProxyServiceDefault::AcceptConnection(CDOSObjectProxyConnectionDe
 		}
 		else
 		{
+			pConnection->Disconnect();
 			PrintDOSLog(_T("未能找到合适的连接组"));
 		}
 	}
@@ -501,7 +581,7 @@ bool CDOSObjectProxyServiceDefault::HaveGlobalMsgMap(MSG_ID_TYPE MsgID)
 	if (pMapInfo)
 	{
 		return true;
-	}	
+	}
 	return m_UnhandleMsgReceiverID.ID != 0;
 }
 
@@ -586,7 +666,7 @@ void CDOSObjectProxyServiceDefault::OnSystemMsg(CDOSMessage * pMessage)
 				Lock.Lock(m_EasyCriticalSection);
 			}
 			m_UnhandleMsgReceiverID = pMessage->GetSenderID();
-		}		
+		}
 		break;
 	case DSM_ROUTE_LINK_LOST:
 		ClearMsgMapByRouterID(pMessage->GetSenderID().RouterID);
@@ -604,7 +684,7 @@ bool CDOSObjectProxyServiceDefault::DoRegisterGlobalMsgMap(MSG_ID_TYPE MsgID, in
 		//多线连接组模式需要加锁
 		Lock.Lock(m_EasyCriticalSection);
 	}
-	
+
 	MSG_MAP_INFO * pMapInfo = NULL;
 	m_MessageMap.New(MsgID, &pMapInfo);
 	if (pMapInfo)
@@ -754,4 +834,69 @@ bool CDOSObjectProxyServiceDefault::CheckEncryptConfig()
 inline CDOSServer * CDOSObjectProxyServiceDefault::GetServer()
 {
 	return (CDOSServer *)CNetService::GetServer();
+}
+
+bool CDOSObjectProxyServiceDefault::AddBlackList(CIPAddress IP, UINT Duration)
+{
+	if (!m_Config.EnableBlackList)
+		return false;
+	CAutoLock Lock(m_BlackListCriticalSection);
+
+	IP.SetPort(0);
+	bool IsExist = false;
+	for (IP_INFO& IPInfo : m_PrepareIPBlackList)
+	{
+		if (IPInfo.IP == IP)
+		{
+			if (Duration)
+				IPInfo.ExpireTime = time(NULL) + Duration;
+			else
+				IPInfo.ExpireTime = 0;
+			IsExist = true;
+			break;
+		}
+	}
+	if (!IsExist)
+	{
+		IP_INFO * pIPInfo = m_PrepareIPBlackList.AddEmpty();
+		pIPInfo->IP = IP;
+		if (Duration)
+			pIPInfo->ExpireTime = time(NULL) + Duration;
+		else
+			pIPInfo->ExpireTime = 0;
+	}
+	return true;
+}
+
+bool CDOSObjectProxyServiceDefault::OnRecvProtected(CIPAddress IP)
+{
+	if (!m_Config.EnableBlackList)
+		return false;
+	CAutoLock Lock(m_BlackListCriticalSection);
+
+	IP.SetPort(0);
+	IP_INFO * pIPInfo = m_RecvProtectedIPList.Find(IP);
+
+	if (pIPInfo == NULL)
+	{
+		m_RecvProtectedIPList.New(IP, &pIPInfo);
+		if (pIPInfo)
+		{
+			pIPInfo->IP = IP;
+			pIPInfo->ExpireTime = 0;
+		}
+	}
+
+	if (pIPInfo)
+	{
+		pIPInfo->ExpireTime++;
+		if (pIPInfo->ExpireTime >= m_Config.ProtectCountToAddBlackList)
+		{
+			PrintDOSLog(_T("%s保护启动次数超过规定，加入黑名单%u秒"), IP.GetIPString(), m_Config.ProtectBlockTime);
+			AddBlackList(IP, m_Config.ProtectBlockTime);
+			m_RecvProtectedIPList.Delete(IP);
+		}
+
+	}
+	return true;
 }

@@ -197,6 +197,7 @@ BOOL CDOSRouter::RouterMessage(CDOSMessagePacket * pPacket)
 		if (pStateInfo)
 		{
 			pStateInfo->CurCount++;
+			pStateInfo->CurFlow += pPacket->GetPacketLength();
 		}
 	}
 
@@ -222,8 +223,9 @@ void CDOSRouter::PrintMsgStat(UINT LogChannel)
 		UINT MsgID;
 		MSG_STATE_INFO * pStateInfo = m_MsgStateInfos.GetNextObject(Pos, MsgID);
 		CLogManager::GetInstance()->PrintLog(LogChannel,
-			ILogPrinter::LOG_LEVEL_NORMAL, NULL, "[0x%lX]:%u", MsgID, pStateInfo->CurCount);
+			ILogPrinter::LOG_LEVEL_NORMAL, NULL, "[0x%lX]:C=%u,F=%u", MsgID, pStateInfo->CurCount, pStateInfo->CurFlow);
 		pStateInfo->CurCount = 0;
+		pStateInfo->CurFlow = 0;
 	}
 	m_MsgStateInfos.Clear();
 }
