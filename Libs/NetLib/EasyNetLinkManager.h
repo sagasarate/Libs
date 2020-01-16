@@ -44,6 +44,7 @@ public:
 		CEasyArray<CIPPattern>	IPPatternList;
 
 		ENL_SERVICE()
+			:IPPatternList(_T("ENL_SERVICE"))
 		{
 			ServiceID = 0;
 			ReportID = 0;
@@ -62,6 +63,11 @@ public:
 	struct ENL_SERVICE_CONFIG
 	{
 		CEasyArray<ENL_SERVICE>		ServiceList;
+		ENL_SERVICE_CONFIG()
+			:ServiceList(_T("ENL_SERVICE_CONFIG"))
+		{
+
+		}
 	};
 
 	struct ENL_CONNECTION
@@ -88,6 +94,11 @@ public:
 	struct ENL_CONNECTION_CONFIG
 	{
 		CEasyArray<ENL_CONNECTION>	ConnectionList;
+		ENL_CONNECTION_CONFIG()
+			:ConnectionList(_T("ENL_CONNECTION_CONFIG"))
+		{
+
+		}
 	};
 
 	struct ENL_CONFIG

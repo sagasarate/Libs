@@ -61,6 +61,21 @@ public:
 		}
 		return m_pInstance;
 	}
+	static void RefreshEnv()
+	{
+		CAutoLock Lock(m_InstanceCriticalSection);
+		if (m_pInstance)
+		{
+			TCHAR ThisEnvVarName[260];
+			_stprintf_s(ThisEnvVarName, 260, _T("%s_%u"),
+				EnvVarName, GetCurProcessID());
+			TCHAR InstanceAddrStr[32];
+			_stprintf_s(InstanceAddrStr, 32, _T("%llu"), (UINT64)m_pInstance);
+			InstanceAddrStr[31] = 0;
+			SetEnvVar(ThisEnvVarName, InstanceAddrStr);
+			_tcprintf(_T("已设置环境变量%s=%s"), ThisEnvVarName, InstanceAddrStr);
+		}
+	}
 	static void ReleaseInstance()
 	{
 		CAutoLock Lock(m_InstanceCriticalSection);
@@ -73,7 +88,7 @@ public:
 		m_pInstance=(T *)_tstoi64(InstanceAddrStr);
 		if(m_pInstance)
 		{
-			SAFE_DELETE(m_pInstance)			
+			delete m_pInstance;
 			SetEnvVar(ThisEnvVarName,_T("0"));			
 		}
 		m_pInstance=NULL;		
@@ -122,7 +137,11 @@ public:
 	}
 	static void ReleaseInstance()
 	{
-		SAFE_DELETE(m_pInstance);
+		if (m_pInstance)
+		{
+			delete m_pInstance;
+			m_pInstance = NULL;
+		}
 	}
 protected:
 	static T * m_pInstance;

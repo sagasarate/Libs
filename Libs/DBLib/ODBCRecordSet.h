@@ -36,7 +36,7 @@ protected:
 	CEasyArray<DB_COLUMN_INFO>	m_ParamInfos;
 	CEasyArray<CDBValue>		m_ParamBuffer;
 
-	DECLARE_CLASS_INFO(CODBCRecordSet)
+	DECLARE_CLASS_INFO_STATIC(CODBCRecordSet)
 public:
 	CODBCRecordSet(void);
 	virtual ~CODBCRecordSet(void);

@@ -36,7 +36,7 @@ void CDOSServer::SetConfig(const DOS_CONFIG& Config)
 
 	if (m_ServerConfig.RouterConfig.RouterID == 0)
 	{
-		CEasyArray<CIPAddress> AddressList;
+		CEasyArray<CIPAddress> AddressList(_T("CDOSServer"));
 		CIPAddress::FetchAllHostAddress(AddressList);
 
 		for (size_t i = 0; i < AddressList.GetCount(); i++)
@@ -85,7 +85,7 @@ bool CDOSServer::OnStartUp()
 		PrintDOSDebugLog(_T("内存池未启用"));
 	}
 
-	m_pDOSRouter=new CDOSRouter();
+	m_pDOSRouter = MONITORED_NEW(_T("CDOSServer"), CDOSRouter);
 	if(!m_pDOSRouter->Init(this))
 	{
 		PrintDOSLog(_T("路由服务启动失败！"));
@@ -94,7 +94,7 @@ bool CDOSServer::OnStartUp()
 	//m_pDOSRouterService->WaitForWorking(DEFAULT_THREAD_STARTUP_TIME);
 	PrintDOSLog(_T("路由服务启动！"));
 
-	m_pObjectManager=new CDOSObjectManager();
+	m_pObjectManager = MONITORED_NEW(_T("CDOSServer"), CDOSObjectManager);
 
 	m_pObjectManager->SetServer(this);
 	if(!m_pObjectManager->Initialize())
@@ -103,14 +103,14 @@ bool CDOSServer::OnStartUp()
 		return FALSE;
 	}
 
-	m_pProxyManager = new CDOSProxyManager();
+	m_pProxyManager = MONITORED_NEW(_T("CDOSServer"), CDOSProxyManager);
 	if (!m_pProxyManager->Initialize(this))
 	{
 		PrintDOSLog(_T("代理管理器初始化失败！"));
 		return FALSE;
 	}
 
-	m_pRouterLinkManager = new CDOSRouterLinkManager();
+	m_pRouterLinkManager = MONITORED_NEW(_T("CDOSServer"), CDOSRouterLinkManager);
 	if (!m_pRouterLinkManager->Init(this))
 	{
 		PrintDOSLog(_T("路由连接管理器初始化失败！"));

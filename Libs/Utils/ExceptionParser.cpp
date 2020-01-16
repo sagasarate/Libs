@@ -722,7 +722,7 @@ BOOL CExceptionParser::GetInMemoryFileVersion(LPCTSTR szFile, LPTSTR szFileFullN
 			dwVerSize,
 			lpData))
 		{
-			delete[] lpData;
+			SAFE_DELETE_ARRAY(lpData);
 			return (FALSE);
 		}
 
@@ -738,7 +738,7 @@ BOOL CExceptionParser::GetInMemoryFileVersion(LPCTSTR szFile, LPTSTR szFileFullN
 			dwLS = lpVerInfo->dwFileVersionLS;
 		}
 
-		delete[] lpData;
+		SAFE_DELETE_ARRAY(lpData);
 
 		return (bRet);
 	}

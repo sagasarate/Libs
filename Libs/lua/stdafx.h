@@ -44,6 +44,7 @@
 
 // TODO: 在此处引用程序要求的附加头文件
 
+//#define USE_MONITORED_NEW
 
 #include "../Utils/Utils.h"
 

@@ -1076,7 +1076,7 @@ bool CDistributedObjectOperator::DoRegisterLogger(UINT LogChannel, LPCTSTR FileN
 	CServerLogPrinter * pLog;
 
 	LogFileName.Format("%s/Log/%s", (LPCTSTR)ModulePath, FileName);
-	pLog = new CServerLogPrinter(CDOSMainThread::GetInstance(), CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
+	pLog = MONITORED_NEW(_T("CDistributedObjectOperator"), CServerLogPrinter, CDOSMainThread::GetInstance(), CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(LogChannel, pLog);
 	SAFE_RELEASE(pLog);
@@ -1090,7 +1090,7 @@ bool CDistributedObjectOperator::DoRegisterCSVLogger(UINT LogChannel, LPCTSTR Fi
 	CCSVFileLogPrinter * pLog;
 
 	LogFileName.Format("%s/Log/%s", (LPCTSTR)ModulePath, FileName);
-	pLog = new CCSVFileLogPrinter(CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSVLogHeader, CSystemConfig::GetInstance()->GetLogCacheSize());
+	pLog = MONITORED_NEW(_T("CDistributedObjectOperator"), CCSVFileLogPrinter, CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSVLogHeader, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(LogChannel, pLog);
 	SAFE_RELEASE(pLog);
 	return true;
@@ -1132,7 +1132,7 @@ bool CDistributedObjectOperator::InternalCallSendMessageMulti(CDistributedObject
 {
 	if (pOperator)
 	{
-		CEasyArray<OBJECT_ID> ObjectIDList;
+		CEasyArray<OBJECT_ID> ObjectIDList(_T("CDistributedObjectOperator"));
 		if (CDOSMainThread::GetInstance()->MonoGetObjectIDList(pOperator->m_MonoDomainInfo, ReceiverIDList, ObjectIDList))
 		{
 			size_t ArrayLen = 0;

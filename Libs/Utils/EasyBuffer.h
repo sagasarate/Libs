@@ -17,17 +17,26 @@ class CEasyBuffer :
 {
 protected:
 	BYTE *		m_pBuffer;
-	UINT			m_BufferSize;
-	UINT			m_UsedSize;
+	UINT		m_BufferSize;
+	UINT		m_UsedSize;
 	bool		m_IsSelfBuffer;
-
+	LPCTSTR		m_Tag;
 	DECLARE_CLASS_INFO_STATIC(CEasyBuffer);
 public:
-	CEasyBuffer(void);
-	CEasyBuffer(UINT Size);
-	CEasyBuffer(LPVOID pBuff,UINT Size);
-	CEasyBuffer(const CEasyBuffer& Buffer);
+	CEasyBuffer(LPCTSTR Tag = _T("CEasyBuffer"));
+	CEasyBuffer(UINT Size, LPCTSTR Tag = _T("CEasyBuffer"));
+	CEasyBuffer(LPVOID pBuff,UINT Size, LPCTSTR Tag = _T("CEasyBuffer"));
+	CEasyBuffer(const CEasyBuffer& Buffer, LPCTSTR Tag = _T("CEasyBuffer"));
 	virtual ~CEasyBuffer(void);
+
+	LPCTSTR GetTag()
+	{
+		return m_Tag;
+	}
+	void SetTag(LPCTSTR Tag)
+	{
+		m_Tag = Tag;
+	}
 
 	BOOL Create(UINT Size);
 	BOOL Create(LPVOID pBuff,UINT Size);

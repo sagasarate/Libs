@@ -23,7 +23,7 @@ protected:
 	CESBolanStack				m_Script;
 	CESThread					m_ESThread;
 	CEasyScriptExecutor			m_ScriptExecutor;
-
+	CGuardThread				m_GuardThread;
 
 	CSystemNetLinkManager *		m_pSysNetLinkManager;
 	CSystemControlPort *		m_pUDPSystemControlPort;

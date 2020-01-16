@@ -24,6 +24,10 @@ CDOSObjectProxyConnectionDefault::CDOSObjectProxyConnectionDefault(void)
 	m_pLZOCompressWorkBuffer = NULL;
 	m_RecvCount = 0;
 	m_RecvFlow = 0;
+	m_ReleaseTime = 0;
+	m_MsgQueue.SetTag(_T("CDOSObjectProxyConnectionDefault"));
+	m_MessageMap.SetTag(_T("CDOSObjectProxyConnectionDefault"));
+	m_AssembleBuffer.SetTag(_T("CDOSObjectProxyConnectionDefault"));
 }
 
 CDOSObjectProxyConnectionDefault::~CDOSObjectProxyConnectionDefault(void)
@@ -34,7 +38,7 @@ void CDOSObjectProxyConnectionDefault::Destory()
 {
 	m_pCompressBuffer = NULL;
 	m_pLZOCompressWorkBuffer = NULL;
-	CNetConnection::Destory();
+	CNetConnection::Close();
 	CDOSMessagePacket * pPacket;
 	while (m_MsgQueue.PopFront(&pPacket))
 	{
@@ -43,10 +47,8 @@ void CDOSObjectProxyConnectionDefault::Destory()
 			PrintDOSLog(_T("释放消息内存块失败！"));
 		}
 	}
-	m_MsgQueue.Destory();
-	m_AssembleBuffer.Destory();
-	m_MessageMap.Destory();
 	m_Status = STATUS_DESTORYED;
+	m_ReleaseTime = time(NULL);
 }
 
 
@@ -198,7 +200,7 @@ void CDOSObjectProxyConnectionDefault::OnConnection(bool IsSucceed)
 
 	if (IsSucceed)
 	{
-		PrintDOSLog(_T("收到代理对象的连接！IP=%s"), GetRemoteAddress().GetIPString());		
+		PrintDOSDebugLog(_T("收到代理对象的连接！IP=%s"), GetRemoteAddress().GetIPString());		
 		m_Status = STATUS_CONNECTED;
 		m_pService->AcceptConnection(this);
 	}
@@ -211,7 +213,7 @@ void CDOSObjectProxyConnectionDefault::OnConnection(bool IsSucceed)
 }
 void CDOSObjectProxyConnectionDefault::OnDisconnection()
 {
-	PrintDOSLog( _T("对象代理(%d)的连接断开！IP=%s"), GetID(), GetRemoteAddress().GetIPString());
+	PrintDOSDebugLog( _T("对象代理(%d)的连接断开！IP=%s"), GetID(), GetRemoteAddress().GetIPString());
 	SendDisconnectNotify();
 
 	CDOSMessagePacket * pPacket;
@@ -311,7 +313,7 @@ int CDOSObjectProxyConnectionDefault::Update(int ProcessPacketLimit)
 	{
 		if (m_UnacceptConnectionKeepTimer.IsTimeOut(m_Config.UnacceptConnectionKeepTime))
 		{
-			PrintDOSLog( _T("未确认连接存在时间过长！"));
+			PrintDOSDebugLog( _T("未确认连接存在时间过长！"));
 			Disconnect();
 		}
 	}
@@ -320,7 +322,7 @@ int CDOSObjectProxyConnectionDefault::Update(int ProcessPacketLimit)
 	{
 		if (m_DelayCloseTimer.IsTimeOut())
 		{
-			PrintDOSLog( _T("连接延时关闭！"));
+			PrintDOSDebugLog( _T("连接延时关闭！"));
 			Disconnect();
 		}
 	}
@@ -390,7 +392,7 @@ void CDOSObjectProxyConnectionDefault::OnClientMsg(CDOSSimpleMessage * pMessage)
 			}
 			else
 			{
-				PrintDOSLog(_T("无法找到消息0x%X的接收者！"), pMessage->GetMsgID());
+				PrintDOSDebugLog(_T("无法找到消息0x%X的接收者！"), pMessage->GetMsgID());
 			}
 		}
 	}
@@ -423,7 +425,7 @@ void CDOSObjectProxyConnectionDefault::OnClientSystemMsg(CDOSSimpleMessage * pMe
 		}		
 		break;
 	default:
-		PrintDOSLog( _T("对象代理连接(%d)收到未知系统消息0x%X"), GetID(), pMessage->GetMsgID());
+		PrintDOSDebugLog( _T("对象代理连接(%d)收到未知系统消息0x%X"), GetID(), pMessage->GetMsgID());
 	}
 }
 
@@ -506,7 +508,7 @@ bool CDOSObjectProxyConnectionDefault::OnSystemMessage(const CDOSMessagePacket *
 		{
 			UINT Delay = *((UINT *)(pPacket->GetMessage().GetDataBuffer()));
 			QueryDisconnect(Delay);
-			PrintDOSLog( _T("0x%llX请求在%uMS后断开连接！"), pPacket->GetMessage().GetSenderID().ID, Delay);
+			PrintDOSDebugLog( _T("0x%llX请求在%uMS后断开连接！"), pPacket->GetMessage().GetSenderID().ID, Delay);
 		}
 		return true;
 	case DSM_PROXY_GET_IP:
@@ -534,7 +536,7 @@ bool CDOSObjectProxyConnectionDefault::OnSystemMessage(const CDOSMessagePacket *
 		}
 		return true;
 	default:
-		PrintDOSLog( _T("收到未知系统消息0x%llX"), pPacket->GetMessage().GetMsgID());
+		PrintDOSDebugLog( _T("收到未知系统消息0x%llX"), pPacket->GetMessage().GetMsgID());
 	}
 	return false;
 }
@@ -570,7 +572,7 @@ bool CDOSObjectProxyConnectionDefault::SendDisconnectNotify()
 		UINT RealTargetIDCount = DistinctObjectID(pTargetObjectIDs, MsgMapCount);
 		for (UINT i = 0; i < RealTargetIDCount; i++)
 		{
-			PrintDOSLog( _T("向[0x%llX]发送代理对象断线通知"), pTargetObjectIDs[i]);
+			PrintDOSDebugLog(_T("向[0x%llX]发送代理对象断线通知"), pTargetObjectIDs[i]);
 		}
 		pNewPacket->SetTargetIDs(RealTargetIDCount, NULL);
 		pNewPacket->MakePacketLength();
@@ -635,7 +637,7 @@ bool CDOSObjectProxyConnectionDefault::DoUnregisterMsgMap(MSG_ID_TYPE MsgID, OBJ
 	}
 	else
 	{
-		PrintDOSLog( _T("0x%llX注销代理[0x%X]消息映射[0x%X],未找到映射记录！"), ObjectID.ID, GetID(), MsgID);
+		PrintDOSDebugLog( _T("0x%llX注销代理[0x%X]消息映射[0x%X],未找到映射记录！"), ObjectID.ID, GetID(), MsgID);
 		return false;
 	}
 }
@@ -657,7 +659,7 @@ void CDOSObjectProxyConnectionDefault::ClearMsgMapByRouterID(UINT RouterID)
 	}
 	if (m_MessageMap.GetObjectCount() <= 0)
 	{
-		PrintDOSLog( _T("代理[0x%X]已经没有任何消息映射，连接断开！"), GetID());
+		PrintDOSDebugLog( _T("代理[0x%X]已经没有任何消息映射，连接断开！"), GetID());
 		Disconnect();
 	}
 }

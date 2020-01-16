@@ -23,5 +23,5 @@ CResourceFileObjectCreator::~CResourceFileObjectCreator(void)
 
 IFileAccessor * CResourceFileObjectCreator::CreateFileAccessor()
 {
-	return new CResourceFileAccessor();
+	return MONITORED_NEW(_T("CFileSystemManager"), CResourceFileAccessor);
 }

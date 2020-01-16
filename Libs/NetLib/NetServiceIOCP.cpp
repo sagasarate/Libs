@@ -29,6 +29,8 @@ CNetService::CNetService()
 	m_pIOCPEventRouter=NULL;	
 	m_pListenThread=NULL;
 	m_AcceptQueue.SetLockMode(false, true);
+	m_OverLappedObjectPool.SetTag(_T("CNetService"));
+	m_AcceptQueue.SetTag(_T("CNetService"));
 }
 
 CNetService::~CNetService(void)
@@ -302,8 +304,8 @@ bool CNetService::StartListen(const CIPAddress& Address)
 		if(m_IsUseListenThread)
 		{
 			PrintNetLog(_T("(%d)Service启用线程侦听模式！"),GetID());
-			if(m_pListenThread==NULL)
-				m_pListenThread=new CIOCPListenThread();
+			if (m_pListenThread == NULL)
+				m_pListenThread = MONITORED_NEW(_T("CNetService"), CIOCPListenThread);
 			m_pListenThread->Init(this,m_Socket.GetSocket());
 			m_pListenThread->Start();
 		}

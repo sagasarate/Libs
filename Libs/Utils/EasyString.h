@@ -379,7 +379,7 @@ public:
 	{
 		if (Size == m_StringLength)
 			return;
-		T * pNewBuffer=new T[Size+1];
+		T * pNewBuffer = MONITORED_NEW_ARRAY(_T("CEasyStringT"), T, Size + 1);
 		SIZE_TYPE NewStringLen=0;
 		if(m_pBuffer&&ReserveData)
 		{
@@ -773,7 +773,7 @@ public:
 			int ReplaceCount=0;
 			int ReplaceSrcLen=(int)GetStrLen(pOldStr);
 			int ReplaceDestLen=(int)GetStrLen(pNewStr);
-			int * pReplacePos=new int[m_StringLength/ReplaceSrcLen+2];
+			int * pReplacePos = MONITORED_NEW_ARRAY(_T("CEasyStringT"), int, m_StringLength / ReplaceSrcLen + 2);
 			int FindPos=Find(pOldStr,StartPos);
 			while(FindPos>=0)
 			{
@@ -1139,7 +1139,7 @@ inline void CEasyStringT<char>::FormatVL(const char * pFormat,va_list vl)
 	SIZE_TYPE Len=_vscprintf(pFormat,vl2);
 	va_end(vl2);
 	m_BufferSize = Len + 1;
-	char * pNewBuffer = new char[m_BufferSize];		
+	char * pNewBuffer = MONITORED_NEW_ARRAY(_T("CEasyStringT"), char, m_BufferSize);
 	vsprintf_s(pNewBuffer, m_BufferSize, pFormat, vl);
 	m_StringLength=Len;
 	RELEASE_STR_BUFF(m_pBuffer);
@@ -1155,7 +1155,7 @@ inline void CEasyStringT<WCHAR>::FormatVL(const WCHAR * pFormat,va_list vl)
 	SIZE_TYPE Len=_vscwprintf(pFormat,vl);
 	va_end(vl2);
 	m_BufferSize = Len + 1;
-	WCHAR * pNewBuffer = new WCHAR[m_BufferSize];
+	WCHAR * pNewBuffer = MONITORED_NEW_ARRAY(_T("CEasyStringT"), WCHAR, m_BufferSize);
 	vswprintf_s(pNewBuffer, m_BufferSize, pFormat, vl);
 	m_StringLength=Len;
 	RELEASE_STR_BUFF(m_pBuffer);

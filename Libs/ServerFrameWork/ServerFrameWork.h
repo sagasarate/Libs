@@ -54,7 +54,6 @@
 
 #include "ServerThread.h"
 
-#include "MainGuardThread.h"
 
 #include "Tools.h"
 

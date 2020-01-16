@@ -32,7 +32,7 @@ protected:
 	bool							m_CacheAllData;
 	UINT64							m_BlobMaxProcessSize;
 
-	DECLARE_CLASS_INFO(CMySQLDynamicRecordSet)
+	DECLARE_CLASS_INFO_STATIC(CMySQLDynamicRecordSet)
 public:
 	CMySQLDynamicRecordSet(bool CacheAllData=true);
 	~CMySQLDynamicRecordSet(void);

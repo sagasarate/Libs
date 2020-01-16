@@ -14,6 +14,16 @@
 
 CDOSObjectProxyServiceDefault::CDOSObjectProxyServiceDefault(void)
 {
+	m_FreeObjectCheckPtr = 1;
+	m_MsgQueue.SetTag(_T("CDOSObjectProxyServiceDefault"));
+	m_MessageMap.SetTag(_T("CDOSObjectProxyServiceDefault"));
+	m_ConnectionPool.SetTag(_T("CDOSObjectProxyServiceDefault"));
+	m_DestoryConnectionList.SetTag(_T("CDOSObjectProxyServiceDefault"));
+	m_ConnectionGroups.SetTag(_T("CDOSObjectProxyServiceDefault"));
+	m_CompressBuffer.SetTag(_T("CDOSObjectProxyServiceDefault"));
+	m_IPBlackList.SetTag(_T("CDOSObjectProxyServiceDefault"));
+	m_RecvProtectedIPList.SetTag(_T("CDOSObjectProxyServiceDefault"));
+	m_PrepareIPBlackList.SetTag(_T("CDOSObjectProxyServiceDefault"));
 }
 
 CDOSObjectProxyServiceDefault::~CDOSObjectProxyServiceDefault(void)
@@ -321,7 +331,7 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 
 	if (m_Config.EnableGuardThread)
 	{
-		m_GuardThread.SetTargetThreadID(GetThreadID());
+		m_GuardThread.SetTargetThread(this);
 		m_GuardThread.SetKeepAliveTime(m_Config.GuardThreadKeepAliveTime, m_Config.GuardThreadKeepAliveCount);
 		m_GuardThread.Start();
 	}
@@ -482,6 +492,9 @@ int CDOSObjectProxyServiceDefault::Update(int ProcessPacketLimit)
 		}
 	}
 
+	//已释放连接的对象彻底释放
+	if (m_Config.MaxIdleTimeToFree)
+		ProcessCount += CheckFreeObject();
 
 	return ProcessCount;
 }
@@ -899,4 +912,36 @@ bool CDOSObjectProxyServiceDefault::OnRecvProtected(CIPAddress IP)
 
 	}
 	return true;
+}
+
+int CDOSObjectProxyServiceDefault::CheckFreeObject()
+{
+	int ProcessCount = 0;
+	UINT CurTime = time(NULL);
+	for (UINT i = 0; i < CONNECTION_FREE_CHECK_BATCH; i++)
+	{
+		LPVOID Pos = m_ConnectionPool.GetFreeObjectPosByID(m_FreeObjectCheckPtr);
+		if (Pos)
+		{
+			CDOSObjectProxyConnectionDefault * pConnection = m_ConnectionPool.GetFreeObject(Pos);
+			if (pConnection)
+			{
+				if (pConnection->GetReleaseTime() + m_Config.MaxIdleTimeToFree <= CurTime)
+				{
+					m_ConnectionPool.ReleaseFreeObject(Pos);
+					ProcessCount++;
+				}
+			}
+		}
+		m_FreeObjectCheckPtr++;
+		if (m_FreeObjectCheckPtr > m_ConnectionPool.GetBufferSize())
+		{
+			m_FreeObjectCheckPtr = 1;
+		}
+	}
+	if (ProcessCount)
+	{
+		PrintDOSDebugLog(_T("已彻底释放%d个连接"), ProcessCount);
+	}
+	return ProcessCount;
 }

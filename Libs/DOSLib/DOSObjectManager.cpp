@@ -17,6 +17,7 @@ CDOSObjectManager::CDOSObjectManager(void)
 {
 	FUNCTION_BEGIN;
 	m_pServer=NULL;
+	m_ObjectGroups.SetTag(_T("CDOSObjectManager"));
 	FUNCTION_END;
 }
 
@@ -43,7 +44,7 @@ bool CDOSObjectManager::Initialize()
 	m_ObjectGroups.Resize(m_pServer->GetConfig().ObjectConfig.ObjectGroupCount);
 	for (UINT i = 0; i<m_pServer->GetConfig().ObjectConfig.ObjectGroupCount; i++)
 	{
-		CDOSObjectGroup * pGroup=new CDOSObjectGroup();
+		CDOSObjectGroup * pGroup = MONITORED_NEW(_T("CDOSProxyManager"), CDOSObjectGroup);
 		m_ObjectGroups[i]=pGroup;
 		if(pGroup->Initialize(this, i, OBJECT_GROUP_TYPE_NORMAL))
 		{
@@ -146,7 +147,7 @@ BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterI
 	if (ObjectRegisterInfo.Flag&DOS_OBJECT_REGISTER_FLAG_USE_PRIVATE_OBJECT_GROUP)
 	{
 		//创建一个私有对象组
-		pGroup = new CDOSObjectGroup();
+		pGroup = MONITORED_NEW(_T("CDOSProxyManager"), CDOSObjectGroup);
 		if(pGroup->Initialize(this, m_ObjectGroups.GetCount(), OBJECT_GROUP_TYPE_PRIVATE))
 		{
 			if (pGroup->Start())

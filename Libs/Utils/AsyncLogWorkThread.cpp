@@ -4,6 +4,7 @@
 
 CAsyncLogWorkThread::CAsyncLogWorkThread()
 {
+	m_LogPrinterList.SetTag(_T("CAsyncLogWorkThread"));
 }
 
 

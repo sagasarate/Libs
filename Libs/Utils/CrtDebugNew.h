@@ -17,5 +17,6 @@ extern void operator delete( void* address, LPCSTR file, int line );
 extern void* operator new[]( size_t size, LPCSTR file, int line );
 extern void operator delete[]( void* address , LPCSTR file, int line );
 
-#define new new( __FILE__, __LINE__ )
+#define NEWNEW new( __FILE__, __LINE__ )
 
+#define new				NEWNEW

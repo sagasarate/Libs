@@ -22,6 +22,8 @@ CESThread::CESThread(void)
 	m_IsInInterrupt=false;
 	m_InterruptPos=-1;
 	m_ResultCode=0;
+	m_LocalVariableListStack.SetTag(_T("CESThread"));
+	m_CallStack.SetTag(_T("CESThread"));
 	m_CallStack.Create(DEFAULT_CALL_STACK_SIZE,DEFAULT_CALL_STACK_SIZE);
 
 }

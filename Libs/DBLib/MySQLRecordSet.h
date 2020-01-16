@@ -29,7 +29,7 @@ protected:
 	int								m_CurRow;
 	CDBValue						m_EmptyValue;
 
-	DECLARE_CLASS_INFO(CMySQLRecordSet)
+	DECLARE_CLASS_INFO_STATIC(CMySQLRecordSet)
 public:
 	CMySQLRecordSet(void);
 	virtual ~CMySQLRecordSet(void);

@@ -24,47 +24,58 @@ protected:
 	size_t	m_BufferSize;
 	size_t	m_ArrayLength;
 	size_t	m_GrowSize;
+	LPCTSTR	m_Tag;
 public:
-	CEasyArray()
+	CEasyArray(LPCTSTR Tag = _T("CEasyArray"))
+	{
+		m_pBuffer = NULL;
+		m_BufferSize = 0;
+		m_ArrayLength = 0;
+		m_GrowSize = 1;
+		m_Tag = Tag;
+	}
+	CEasyArray(const CEasyArray& Array, LPCTSTR Tag = _T("CEasyArray"))
 	{
 		m_pBuffer=NULL;
 		m_BufferSize=0;
 		m_ArrayLength=0;
 		m_GrowSize=1;
+		m_Tag = Tag;
+		*this=Array;
 	}
-	CEasyArray(const CEasyArray& Array)
-	{
-		m_pBuffer=NULL;
-		m_BufferSize=0;
-		m_ArrayLength=0;
-		m_GrowSize=1;
-		*this=Array;		
-	}
-	CEasyArray(size_t Size,size_t GrowSize=1)
+	CEasyArray(size_t Size,size_t GrowSize=1, LPCTSTR Tag = _T("CEasyArray"))
 	{
 		ASSERT_AND_THROW(GrowSize>0);
 		m_pBuffer=NULL;
 		m_BufferSize=Size;
 		m_ArrayLength=0;
 		m_GrowSize=GrowSize;
+		m_Tag = Tag;
 		if(m_BufferSize)
 		{
-			m_pBuffer=(T *)malloc(sizeof(T)*m_BufferSize);
+			m_pBuffer=(T *)MONITORED_MALLOC(GetTag(), sizeof(T)*m_BufferSize);
 			//ConstructObjects(m_pBuffer,m_BufferSize);
-		}
+		}		
 	}
 	~CEasyArray()
 	{
 		Clear();
 		m_GrowSize=1;
 	}
-
+	LPCTSTR GetTag()
+	{
+		return m_Tag;
+	}
+	void SetTag(LPCTSTR Tag)
+	{
+		m_Tag = Tag;
+	}
 	void Clear()
 	{
 		if(m_pBuffer)
-		{			
+		{
 			DestructObjects(m_pBuffer,m_ArrayLength);
-			free(m_pBuffer);
+			MONITORED_FREE(m_pBuffer);
 			m_pBuffer=NULL;
 		}
 		m_BufferSize=0;
@@ -73,21 +84,21 @@ public:
 	void Empty()
 	{
 		if(m_pBuffer)
-		{			
-			DestructObjects(m_pBuffer,m_ArrayLength);			
+		{
+			DestructObjects(m_pBuffer,m_ArrayLength);
 			m_ArrayLength=0;
-		}		
+		}
 	}
 	void Create(size_t Size,size_t GrowSize=1)
 	{
 		ASSERT_AND_THROW(GrowSize>0);
-		Clear();		
+		Clear();
 		m_BufferSize=Size;
 		m_ArrayLength=0;
 		m_GrowSize=GrowSize;
 		if(m_BufferSize)
 		{
-			m_pBuffer=(T *)malloc(sizeof(T)*m_BufferSize);
+			m_pBuffer=(T *)MONITORED_MALLOC(GetTag(), sizeof(T)*m_BufferSize);
 			//ConstructObjects(m_pBuffer,m_BufferSize);
 		}
 	}
@@ -172,12 +183,12 @@ public:
 			for(size_t i=0;i<Array.GetCount();i++)
 			{
 				m_pBuffer[BeforeIndex+i]=Array.GetObjectConst(i);
-			}			
+			}
 			m_ArrayLength+=Array.GetCount();
 			return true;
 		}
 		return false;
-	}	
+	}
 	bool Delete(size_t Index, size_t Count = 1)
 	{
 		if (Index < m_ArrayLength)
@@ -198,7 +209,7 @@ public:
 		return false;
 	}
 	bool Move(size_t Index, size_t Before)
-	{		
+	{
 		if (Index < m_ArrayLength)
 		{
 			if (Before > m_ArrayLength)
@@ -282,7 +293,7 @@ public:
 			{
 				ConstructObjects(m_pBuffer+m_ArrayLength,NewSize-m_ArrayLength);
 			}
-			
+
 			m_ArrayLength=NewSize;
 		}
 		else
@@ -291,8 +302,8 @@ public:
 		}
 	}
 	void Reserve(size_t NewSize)
-	{		
-		ResizeBuffer(NewSize);		
+	{
+		ResizeBuffer(NewSize);
 	}
 	const CEasyArray& operator=(const CEasyArray& Array)
 	{
@@ -331,6 +342,19 @@ public:
 		}
 	}
 
+	T * Find(const T& Value)
+	{
+		for (UINT i = 0; i < GetCount(); i++)
+		{
+			T * pValue = GetObject(i);
+			if ((*pValue) == Value)
+			{
+				return pValue;
+			}
+		}
+		return NULL;
+	}
+
 	T * begin()
 	{
 		return m_pBuffer;
@@ -365,7 +389,7 @@ protected:
 			::new(pPoint) T();
 
 #if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
-#define new new( __FILE__, __LINE__ )
+#define new NEWNEW
 #endif
 		}
 	}
@@ -382,12 +406,12 @@ protected:
 		{
 			Clear();
 			return;
-		}	
+		}
 		if(NewSize<=m_BufferSize)
 		{
 			return;
 		}
-		T * pNewBuffer=(T *)malloc(sizeof(T)*NewSize);
+		T * pNewBuffer = (T *)MONITORED_MALLOC(GetTag(), sizeof(T)*NewSize);
 		if (pNewBuffer)
 		{
 			size_t CopySize;
@@ -397,12 +421,12 @@ protected:
 				CopySize = NewSize;
 			memcpy(pNewBuffer, m_pBuffer, sizeof(T)*CopySize);
 			m_BufferSize = NewSize;
-			free(m_pBuffer);
+			MONITORED_FREE(m_pBuffer);
 			m_pBuffer = pNewBuffer;
 		}
-	}	
+	}
 	void ShrinkBuffer(size_t NewSize)
-	{		
+	{
 		if(NewSize==0)
 		{
 			Clear();
@@ -413,12 +437,12 @@ protected:
 			ASSERT_AND_THROW(NewSize<m_BufferSize);
 			return;
 		}
-		T * pNewBuffer=(T *)malloc(sizeof(T)*NewSize);				
+		T * pNewBuffer = (T *)MONITORED_MALLOC(GetTag(), sizeof(T)*NewSize);
 		if (pNewBuffer)
 		{
 			memcpy(pNewBuffer, m_pBuffer, sizeof(T)*m_ArrayLength);
 			m_BufferSize = NewSize;
-			free(m_pBuffer);
+			MONITORED_FREE(m_pBuffer);
 			m_pBuffer = pNewBuffer;
 		}
 	}

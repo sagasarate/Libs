@@ -14,19 +14,23 @@
 
 IMPLEMENT_CLASS_INFO_STATIC(CThreadSafeCycleBufferEx,CCycleBufferEx);
 
-CThreadSafeCycleBufferEx::CThreadSafeCycleBufferEx(void):CCycleBufferEx()
+CThreadSafeCycleBufferEx::CThreadSafeCycleBufferEx(LPCTSTR Tag):CCycleBufferEx(Tag)
 {
 	m_IsLockFront=true;
 	m_IsLockBack=true;
 }
 
-CThreadSafeCycleBufferEx::CThreadSafeCycleBufferEx(UINT Size,UINT SmoothSize):CCycleBufferEx()
+CThreadSafeCycleBufferEx::CThreadSafeCycleBufferEx(UINT Size,UINT SmoothSize, LPCTSTR Tag):CCycleBufferEx(Tag)
 {
+	m_IsLockFront = true;
+	m_IsLockBack = true;
 	Create(Size,SmoothSize);
 }
 
-CThreadSafeCycleBufferEx::CThreadSafeCycleBufferEx(LPVOID pBuff,UINT Size,UINT SmoothSize):CCycleBufferEx()
+CThreadSafeCycleBufferEx::CThreadSafeCycleBufferEx(LPVOID pBuff,UINT Size,UINT SmoothSize, LPCTSTR Tag):CCycleBufferEx(Tag)
 {
+	m_IsLockFront = true;
+	m_IsLockBack = true;
 	Create(pBuff,Size,SmoothSize);
 }
 
@@ -53,7 +57,7 @@ BOOL CThreadSafeCycleBufferEx::Create(UINT Size,UINT SmoothSize)
 	{
 		return FALSE;
 	}
-	m_pBuffer=new BYTE[Size];
+	m_pBuffer = MONITORED_NEW_ARRAY(GetTag(), BYTE, Size);
 	m_BufferSize=Size-SmoothSize;
 	m_SmoothSize=SmoothSize;
 	m_BufferHead=0;

@@ -23,13 +23,22 @@ protected:
 	UINT		m_BufferHead;
 	UINT		m_BufferTail;	
 	bool		m_IsSelfBuffer;
-
+	LPCTSTR		m_Tag;
 	DECLARE_CLASS_INFO_STATIC(CCycleBufferEx);
 public:
-	CCycleBufferEx(void);
-	CCycleBufferEx(UINT Size,UINT SmoothSize);
-	CCycleBufferEx(LPVOID pBuff,UINT Size,UINT SmoothSize);
+	CCycleBufferEx(LPCTSTR Tag = _T("CCycleBufferEx"));
+	CCycleBufferEx(UINT Size,UINT SmoothSize, LPCTSTR Tag = _T("CCycleBufferEx"));
+	CCycleBufferEx(LPVOID pBuff,UINT Size,UINT SmoothSize, LPCTSTR Tag = _T("CCycleBufferEx"));
 	virtual ~CCycleBufferEx(void);
+
+	LPCTSTR GetTag()
+	{
+		return m_Tag;
+	}
+	void SetTag(LPCTSTR Tag)
+	{
+		m_Tag = Tag;
+	}
 
 	BOOL Create(UINT Size,UINT SmoothSize);
 	BOOL Create(LPVOID pBuff,UINT Size,UINT SmoothSize);

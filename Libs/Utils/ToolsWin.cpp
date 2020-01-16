@@ -35,7 +35,7 @@ CEasyString GetFontNameEN(LOGFONT * pFont)
 	bool IsHorizontal=pFont->lfFaceName[0]=='@';
 	if(DataSize!=GDI_ERROR)
 	{
-		BYTE * pBuffer=new BYTE[DataSize];
+		BYTE * pBuffer = MONITORED_NEW_ARRAY(_T("GetFontNameEN"), BYTE, DataSize);
 		if(GetFontData(hdc,'eman',0,pBuffer,DataSize)!=GDI_ERROR)
 		{
 			FONT_NAME_TABLE_HEADER * pHeader=(FONT_NAME_TABLE_HEADER *)pBuffer;
@@ -104,7 +104,7 @@ CEasyString GetFontNameEN(LOGFONT * pFont)
 				}
 			}
 		}
-		delete[] pBuffer;
+		SAFE_DELETE_ARRAY(pBuffer);
 	}
 	SelectObject(hdc,hOldObj);
 	DeleteObject(hFont);
@@ -128,7 +128,7 @@ CEasyString GetFontNameCN(LOGFONT * pFont)
 	bool IsHorizontal=pFont->lfFaceName[0]=='@';
 	if(DataSize!=GDI_ERROR)
 	{
-		BYTE * pBuffer=new BYTE[DataSize];
+		BYTE * pBuffer = MONITORED_NEW_ARRAY(_T("GetFontNameEN"), BYTE, DataSize);
 		if(GetFontData(hdc,'eman',0,pBuffer,DataSize)!=GDI_ERROR)
 		{
 			FONT_NAME_TABLE_HEADER * pHeader=(FONT_NAME_TABLE_HEADER *)pBuffer;
@@ -190,7 +190,7 @@ CEasyString GetFontNameCN(LOGFONT * pFont)
 				}
 			}
 		}
-		delete[] pBuffer;
+		SAFE_DELETE_ARRAY(pBuffer);
 	}
 	SelectObject(hdc,hOldObj);
 	DeleteObject(hFont);

@@ -14,6 +14,7 @@ namespace PropertyGrid
 IMPLEMENT_DYNAMIC(CPropertyGrid, CListCtrl)
 
 CPropertyGrid::CPropertyGrid()
+	:m_PropertyList(_T("CPropertyGrid"))
 {
 	m_CurEditItem=-1;
 }

@@ -53,12 +53,16 @@
 #include "LinuxAddOn.h"
 
 #endif
+#include "stacktrace/stacktrace.h"
+
+
+#if defined(USE_CRT_DETAIL_NEW) && defined(WIN32) && defined(_DEBUG)
+#include "CrtDebugNew.h"
+#endif
 
 #define DEFAULT_PROCESS_LIMIT	32
 
-#define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
-#define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
-#define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=NULL; } }
+
 
 #define ASSERT_AND_THROW(Express)		if(!(Express)) {assert(Express);throw;}
 
@@ -129,8 +133,11 @@ struct STORAGE_POOL_SETTING
 	}
 };
 
-
+#include "StaticObject.h"
+#include "StaticMapLite.h"
 #include "MemoryLeakDetective.h"
+#include "MemoryAllocatee.h"
+
 
 #include "SmartPtr.h"
 
@@ -150,7 +157,7 @@ struct STORAGE_POOL_SETTING
 #include "HashMap.h"
 #include "CycleQueue.h"
 
-#include "MemoryAllocatee.h"
+
 
 #include "StringSplitter.h"
 #include "WordFilter.h"
@@ -163,7 +170,7 @@ struct STORAGE_POOL_SETTING
 #include "AutoReadLock.h"
 #include "AutoWriteLock.h"
 
-#include "StaticObject.h"
+
 #include "NameObject.h"
 
 #include "ClassifiedID.h"

@@ -3,6 +3,8 @@
 
 
 CBencodingValue::CBencodingValue()
+	:m_ListValue(_T("CBencodingValue"))
+	, m_DictValue(_T("CBencodingValue"))
 {
 	m_Type = BENCODING_TYPE_NONE;
 	m_IntValue = 0;
@@ -180,13 +182,13 @@ void CBencodingValue::SetStrValue(LPCSTR Value, UINT Len)
 }
 void CBencodingValue::AddListValue(const CBencodingValue& Value)
 {
-	CSmartPtr<CBencodingValue> pValue = new CBencodingValue();
+	CSmartPtr<CBencodingValue> pValue = MONITORED_NEW(_T("CBencodingValue"), CBencodingValue);
 	*pValue = Value;
 	m_ListValue.Add(pValue);
 }
 void CBencodingValue::AddDictValue(LPCSTR Key, const CBencodingValue& Value)
 {
-	CSmartPtr<CBencodingValue> pValue = new CBencodingValue();
+	CSmartPtr<CBencodingValue> pValue = MONITORED_NEW(_T("CBencodingValue"), CBencodingValue);
 	*pValue = Value;
 	BENCODING_VALUE_PAIR * pPair = m_DictValue.AddEmpty();
 	pPair->Key = Key;
@@ -268,7 +270,7 @@ const BYTE * CBencodingValue::ParseList(const BYTE * pData, UINT& DataLen)
 		DataLen--;
 		while (DataLen&&pData[0] != 'e')
 		{
-			CSmartPtr<CBencodingValue> pValue = new CBencodingValue();
+			CSmartPtr<CBencodingValue> pValue = MONITORED_NEW(_T("CBencodingValue"), CBencodingValue);
 			pData = pValue->Parser(pData, DataLen);			
 			if (pData)
 			{
@@ -303,7 +305,7 @@ const BYTE * CBencodingValue::ParseDict(const BYTE * pData, UINT& DataLen)
 				pData = KeyValue.ParseStr(pData, DataLen);
 				if (pData)
 				{
-					CSmartPtr<CBencodingValue> pValue = new CBencodingValue();
+					CSmartPtr<CBencodingValue> pValue = MONITORED_NEW(_T("CBencodingValue"), CBencodingValue);
 					pData = pValue->Parser(pData, DataLen);					
 					if (pData)
 					{

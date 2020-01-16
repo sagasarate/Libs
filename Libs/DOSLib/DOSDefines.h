@@ -17,6 +17,7 @@
 //#define DOS_PROXY_KEEP_ALIVE_TIME		(10000)
 //#define DOS_PROXY_KEEP_ALIVE_MAX_COUNT	(20)
 #define BLACK_LIST_UPDATE_TIME			(60*1000)
+#define CONNECTION_FREE_CHECK_BATCH		32
 
 typedef bool (*DOS_GROUP_INIT_FN)(UINT GroupIndex);
 typedef bool(*DOS_GROUP_DESTORY_FN)(UINT GroupIndex);
@@ -66,6 +67,7 @@ struct CLIENT_PROXY_CONFIG
 	bool										UseServerInitiativeKeepAlive;
 	UINT										KeepAliveTime;
 	UINT										KeepAliveCount;
+	UINT										MaxIdleTimeToFree;
 
 	UINT										RecvFreqProtect;
 	UINT										RecvFlowProtect;
@@ -93,6 +95,7 @@ struct CLIENT_PROXY_CONFIG
 	
 	
 	CLIENT_PROXY_CONFIG()
+		:InitBlackList(_T("CLIENT_PROXY_CONFIG"))
 	{
 		ProxyType = 0;
 		ProxyMode = CLIENT_PROXY_MODE_DEFAULT;
@@ -125,6 +128,7 @@ struct CLIENT_PROXY_CONFIG
 		EnableGuardThread = false;
 		GuardThreadKeepAliveTime = 20 * 1000;
 		GuardThreadKeepAliveCount = 5;
+		MaxIdleTimeToFree = 30;
 	}
 };
 
@@ -134,7 +138,8 @@ struct DOS_ROUTER_CONFIG
 	CEasyNetLinkManager::ENL_CONFIG				RouterLinkConfig;
 	UINT										MaxRouterSendMsgQueue;
 	UINT										RouterMsgProcessLimit;
-	bool										StateMsgTransfer;
+	bool										StatMsgTransfer;
+	bool										StatMemoryUse;
 	bool										EnableGuardThread;
 	UINT										GuardThreadKeepAliveTime;
 	UINT										GuardThreadKeepAliveCount;
@@ -143,7 +148,8 @@ struct DOS_ROUTER_CONFIG
 		RouterID = 0;
 		MaxRouterSendMsgQueue = 10240;
 		RouterMsgProcessLimit = 256;
-		StateMsgTransfer = false;
+		StatMsgTransfer = false;
+		StatMemoryUse = false;
 		EnableGuardThread = false;
 		GuardThreadKeepAliveTime = 20 * 1000;
 		GuardThreadKeepAliveCount = 5;
@@ -209,6 +215,7 @@ struct DOS_CONFIG
 	DOS_MEMORY_POOL_CONFIG						MemoryPoolConfig;
 
 	DOS_CONFIG()
+		:ClientProxyConfigs(_T("CLIENT_PROXY_CONFIG"))
 	{
 		
 	}

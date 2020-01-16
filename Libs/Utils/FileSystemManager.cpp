@@ -11,16 +11,17 @@
 /****************************************************************************/
 #include "stdafx.h"
 
+TCHAR FILE_SYSTEM_MANAGER_INSTANCE[] = _T("CFileSystemManager");
 
 CFileSystemManager::CFileSystemManager(void)
 {
 #ifdef WIN32
-	m_FileObjectCreators[FILE_CHANNEL_NORMAL1]=new CWinFileAccessorObjectCreator();
+	m_FileObjectCreators[FILE_CHANNEL_NORMAL1] = MONITORED_NEW(_T("CFileSystemManager"), CWinFileAccessorObjectCreator);
 #else
-	m_FileObjectCreators[FILE_CHANNEL_NORMAL1]=new CLinuxFileAccessorObjectCreator();
+	m_FileObjectCreators[FILE_CHANNEL_NORMAL1] = MONITORED_NEW(_T("CFileSystemManager"), CLinuxFileAccessorObjectCreator);
 #endif
-	m_FileObjectCreators[FILE_CHANNEL_NORMAL2]=new CStandardFileObjectCreator();
-	m_FileObjectCreators[FILE_CHANNEL_NORMAL3]=new CStandardFileObjectCreator();
+	m_FileObjectCreators[FILE_CHANNEL_NORMAL2] = MONITORED_NEW(_T("CFileSystemManager"), CStandardFileObjectCreator);
+	m_FileObjectCreators[FILE_CHANNEL_NORMAL3] = MONITORED_NEW(_T("CFileSystemManager"), CStandardFileObjectCreator);
 }
 
 CFileSystemManager::~CFileSystemManager(void)

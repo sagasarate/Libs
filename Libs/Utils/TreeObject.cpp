@@ -17,6 +17,7 @@ CTreeObject::CTreeObject(void)
 {
 	m_pParent=NULL;
 	m_StorageID=(UINT)((UINT64)this);
+	m_ChildList.SetTag(_T("CTreeObject"));
 	m_ChildList.Create(0,5);
 }
 

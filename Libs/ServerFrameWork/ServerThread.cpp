@@ -10,6 +10,7 @@
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
+#include <malloc.h>
 
 
 IMPLEMENT_CLASS_INFO_STATIC(CServerThread,CNetServer);
@@ -39,21 +40,21 @@ void CServerThread::Execute()
 	bool EnableGuardThread = CSystemConfig::GetInstance()->GetEnableGuardThread();
 	if (EnableGuardThread)
 	{
-		CMainGuardThread::GetInstance()->SetTargetThreadID(GetThreadID());
-		CMainGuardThread::GetInstance()->SetKeepAliveTime(
+		m_GuardThread.SetTargetThread(this);
+		m_GuardThread.SetKeepAliveTime(
 			CSystemConfig::GetInstance()->GetGuardThreadKeepAliveTime(),
 			CSystemConfig::GetInstance()->GetGuardThreadKeepAliveCount());
-		CMainGuardThread::GetInstance()->Start();
+		m_GuardThread.Start();
 	}
 
 	while((!m_WantTerminate)&&(OnRun()))
 	{
 		if (EnableGuardThread)
-			CMainGuardThread::GetInstance()->MakeKeepAlive();
+			m_GuardThread.MakeKeepAlive();
 	}
 
 	if (EnableGuardThread)
-		CMainGuardThread::GetInstance()->SafeTerminate();
+		m_GuardThread.SafeTerminate();
 
 	OnBeginTerminate();
 	DWORD Time=CEasyTimer::GetTime();
@@ -83,6 +84,23 @@ BOOL CServerThread::OnStart()
 	//装载系统配置
 	CSystemConfig::GetInstance()->LoadConfig(CFileTools::MakeModuleFullPath(NULL,GetConfigFileName()));
 
+#ifndef WIN32
+	if (CSystemConfig::GetInstance()->GetMallocConfig().bSetTrimThreshold)
+	{
+		mallopt(M_TRIM_THRESHOLD, CSystemConfig::GetInstance()->GetMallocConfig().TrimThreshold);
+		PrintImportantLog("Set M_TRIM_THRESHOLD=%d", CSystemConfig::GetInstance()->GetMallocConfig().TrimThreshold);
+	}
+	if (CSystemConfig::GetInstance()->GetMallocConfig().bSetMMapThreshold)
+	{
+		mallopt(M_MMAP_THRESHOLD, CSystemConfig::GetInstance()->GetMallocConfig().MMapThreshold);
+		PrintImportantLog("Set M_MMAP_THRESHOLD=%d", CSystemConfig::GetInstance()->GetMallocConfig().MMapThreshold);
+	}
+	if (CSystemConfig::GetInstance()->GetMallocConfig().bSetMMapMax)
+	{
+		mallopt(M_MMAP_MAX, CSystemConfig::GetInstance()->GetMallocConfig().MMapMax);
+		PrintImportantLog("Set M_MMAP_MAX=%d", CSystemConfig::GetInstance()->GetMallocConfig().MMapMax);
+	}
+#endif
 
 	CEasyString LogFileName;
 	CEasyString ModulePath = CFileTools::GetModulePath(NULL);
@@ -92,7 +110,7 @@ BOOL CServerThread::OnStart()
 
 
 	LogFileName.Format("%s/Log/%s",(LPCTSTR)ModulePath,g_ProgramName);
-	pLog=new CServerLogPrinter(this,CServerLogPrinter::LOM_CONSOLE|CServerLogPrinter::LOM_FILE,
+	pLog = MONITORED_NEW(_T("CServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(SERVER_LOG_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
@@ -100,7 +118,7 @@ BOOL CServerThread::OnStart()
 	SetConsoleLogLevel(CSystemConfig::GetInstance()->GetConsoleLogLevel());
 
 	LogFileName.Format("%s/Log/%s.Status",(LPCTSTR)ModulePath,g_ProgramName);
-	CCSVFileLogPrinter * pCSVLog = new CCSVFileLogPrinter(CSystemConfig::GetInstance()->GetLogLevel(), LogFileName,
+	CCSVFileLogPrinter * pCSVLog = MONITORED_NEW(_T("CServerThread"), CCSVFileLogPrinter, CSystemConfig::GetInstance()->GetLogLevel(), LogFileName,
 		"CycleTime,CPUUsed,TCPRecvFlow,TCPSendFlow,UDPRecvFlow,UDPSendFlow,"
 		"TCPRecvCount,TCPSendCount,UDPRecvCount=,UDPSendCount,ClientCount", CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(SERVER_STATUS_LOG_CHANNEL,pCSVLog);
@@ -109,13 +127,13 @@ BOOL CServerThread::OnStart()
 
 
 	LogFileName.Format("%s/Log/%s.NetLib",(LPCTSTR)ModulePath,g_ProgramName);
-	pLog=new CServerLogPrinter(this,CServerLogPrinter::LOM_FILE,
+	pLog = MONITORED_NEW(_T("CServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(LOG_NET_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
 	LogFileName.Format("%s/Log/%s.DBLib",(LPCTSTR)ModulePath,g_ProgramName);
-	pLog=new CServerLogPrinter(this,CServerLogPrinter::LOM_FILE,
+	pLog = MONITORED_NEW(_T("CServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(LOG_DB_ERROR_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
@@ -143,7 +161,7 @@ BOOL CServerThread::OnStart()
 		return FALSE;
 
 	//初始化系统连接
-	m_pSysNetLinkManager=new CSystemNetLinkManager();
+	m_pSysNetLinkManager = MONITORED_NEW(_T("CServerThread"), CSystemNetLinkManager);
 	m_pSysNetLinkManager->SetServerThread(this);
 
 	xml_parser Parser;
@@ -181,7 +199,7 @@ BOOL CServerThread::OnStart()
 
 	if (CSystemConfig::GetInstance()->GetUDPControlAddress().GetPort())
 	{
-		m_pUDPSystemControlPort = new CSystemControlPort();
+		m_pUDPSystemControlPort = MONITORED_NEW(_T("CServerThread"), CSystemControlPort);
 		if (!m_pUDPSystemControlPort->Init(this))
 		{
 			Log("初始化UDP系统控制端口失败");
@@ -190,7 +208,7 @@ BOOL CServerThread::OnStart()
 
 	if (CSystemConfig::GetInstance()->IsControlPipeEnable())
 	{
-		m_pSystemControlPipe = new CSystemControlPipe();
+		m_pSystemControlPipe = MONITORED_NEW(_T("CServerThread"), CSystemControlPipe);
 		if (!m_pSystemControlPipe->Init(this))
 		{
 			Log("初始化系统控制管道失败");

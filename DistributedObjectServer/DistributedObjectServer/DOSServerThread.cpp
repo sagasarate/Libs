@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-
+#include <malloc.h>
 
 IMPLEMENT_CLASS_INFO_STATIC(CDOSServerThread,CDOSServer);
 
@@ -10,6 +10,7 @@ CDOSServerThread::CDOSServerThread()
 	m_pUDPSystemControlPort=NULL;
 	m_pSystemControlPipe = NULL;
 	m_ConsoleLogLevel=0;
+	m_ConsoleCommandReceiverList.SetTag(_T("CDOSServerThread"));
 	FUNCTION_END;
 }
 
@@ -26,21 +27,21 @@ void CDOSServerThread::Execute()
 	bool EnableGuardThread = CSystemConfig::GetInstance()->GetEnableGuardThread();
 	if (EnableGuardThread)
 	{
-		CMainGuardThread::GetInstance()->SetTargetThreadID(GetThreadID());
-		CMainGuardThread::GetInstance()->SetKeepAliveTime(
+		m_GuardThread.SetTargetThread(this);
+		m_GuardThread.SetKeepAliveTime(
 			CSystemConfig::GetInstance()->GetGuardThreadKeepAliveTime(),
 			CSystemConfig::GetInstance()->GetGuardThreadKeepAliveCount());
-		CMainGuardThread::GetInstance()->Start();
+		m_GuardThread.Start();
 	}
 
 	while((!m_WantTerminate)&&(OnRun()))
 	{
 		if (EnableGuardThread)
-			CMainGuardThread::GetInstance()->MakeKeepAlive();
+			m_GuardThread.MakeKeepAlive();
 	}
 
 	if (EnableGuardThread)
-		CMainGuardThread::GetInstance()->SafeTerminate();
+		m_GuardThread.SafeTerminate();
 	OnBeginTerminate();
 	DWORD Time=CEasyTimer::GetTime();
 	while(GetTimeToTime(Time,CEasyTimer::GetTime())<SERVER_ENDING_TIME&&OnTerminating())
@@ -56,19 +57,36 @@ BOOL CDOSServerThread::OnStart()
 	FUNCTION_BEGIN;
 
 
-	m_TCPRecvBytes=0;
-	m_TCPSendBytes=0;
-	m_UDPRecvBytes=0;
-	m_UDPSendBytes=0;
-	m_TCPRecvCount=0;
-	m_TCPSendCount=0;
-	m_UDPRecvCount=0;
-	m_UDPSendCount=0;
+	m_TCPRecvBytes = 0;
+	m_TCPSendBytes = 0;
+	m_UDPRecvBytes = 0;
+	m_UDPSendBytes = 0;
+	m_TCPRecvCount = 0;
+	m_TCPSendCount = 0;
+	m_UDPRecvCount = 0;
+	m_UDPSendCount = 0;
 	m_CountTimer.SaveTime();
 
 	//装载系统配置
-	CSystemConfig::GetInstance()->LoadConfig(CFileTools::MakeModuleFullPath(NULL,GetConfigFileName()));
+	//CSystemConfig::GetInstance()->LoadConfig(CFileTools::MakeModuleFullPath(NULL,GetConfigFileName()));
 
+#ifndef WIN32
+	if (CSystemConfig::GetInstance()->GetMallocConfig().bSetTrimThreshold)
+	{
+		mallopt(M_TRIM_THRESHOLD, CSystemConfig::GetInstance()->GetMallocConfig().TrimThreshold);
+		PrintImportantLog("Set M_TRIM_THRESHOLD=%d", CSystemConfig::GetInstance()->GetMallocConfig().TrimThreshold);
+	}
+	if (CSystemConfig::GetInstance()->GetMallocConfig().bSetMMapThreshold)
+	{
+		mallopt(M_MMAP_THRESHOLD, CSystemConfig::GetInstance()->GetMallocConfig().MMapThreshold);
+		PrintImportantLog("Set M_MMAP_THRESHOLD=%d", CSystemConfig::GetInstance()->GetMallocConfig().MMapThreshold);
+	}
+	if (CSystemConfig::GetInstance()->GetMallocConfig().bSetMMapMax)
+	{
+		mallopt(M_MMAP_MAX, CSystemConfig::GetInstance()->GetMallocConfig().MMapMax);
+		PrintImportantLog("Set M_MMAP_MAX=%d", CSystemConfig::GetInstance()->GetMallocConfig().MMapMax);
+	}
+#endif
 
 	CEasyString LogFileName;
 	CEasyString ModulePath = CFileTools::GetModulePath(NULL);
@@ -78,7 +96,7 @@ BOOL CDOSServerThread::OnStart()
 
 
 	LogFileName.Format("%s/Log/%s",(LPCTSTR)ModulePath,g_ProgramName);
-	pLog=new CServerLogPrinter(this,CServerLogPrinter::LOM_CONSOLE|CServerLogPrinter::LOM_FILE,
+	pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(SERVER_LOG_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
@@ -89,7 +107,7 @@ BOOL CDOSServerThread::OnStart()
 
 
 	LogFileName.Format("%s/Log/DOSLib",(LPCTSTR)ModulePath);
-	pLog=new CServerLogPrinter(this,CServerLogPrinter::LOM_FILE,
+	pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(LOG_DOS_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
@@ -97,35 +115,45 @@ BOOL CDOSServerThread::OnStart()
 	if (GetConfig().ObjectConfig.StatObjectCPUCost)
 	{
 		LogFileName.Format("%s/Log/DOSObjectStat", (LPCTSTR)ModulePath);
-		pLog = new CServerLogPrinter(this, CServerLogPrinter::LOM_FILE,
+		pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 			CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 		CLogManager::GetInstance()->AddChannel(LOG_DOS_OBJECT_STATE_CHANNEL, pLog);
 		SAFE_RELEASE(pLog);
 	}
 
-	if (GetConfig().RouterConfig.StateMsgTransfer)
+	if (GetConfig().RouterConfig.StatMsgTransfer)
 	{
 		LogFileName.Format("%s/Log/DOSMsgStat", (LPCTSTR)ModulePath);
-		pLog = new CServerLogPrinter(this, CServerLogPrinter::LOM_FILE,
+		pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 			CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 		CLogManager::GetInstance()->AddChannel(LOG_DOS_MSG_STATE_CHANNEL, pLog);
 		SAFE_RELEASE(pLog);
 	}
 
+	if (GetConfig().RouterConfig.StatMemoryUse)
+	{
+		LogFileName.Format("%s/Log/DOSMemStat", (LPCTSTR)ModulePath);
+		pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
+			CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+		CLogManager::GetInstance()->AddChannel(LOG_DOS_MEM_STATE_CHANNEL, pLog);
+		SAFE_RELEASE(pLog);
+	}
+
+
 	LogFileName.Format("%s/Log/NetLib",(LPCTSTR)ModulePath);
-	pLog=new CServerLogPrinter(this,CServerLogPrinter::LOM_FILE,
+	pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(LOG_NET_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
 	LogFileName.Format("%s/Log/DBLib",(LPCTSTR)ModulePath);
-	pLog=new CServerLogPrinter(this,CServerLogPrinter::LOM_FILE,
+	pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(LOG_DB_ERROR_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
 	LogFileName.Format("%s/Log/Mono", (LPCTSTR)ModulePath);
-	pLog = new CServerLogPrinter(this, CServerLogPrinter::LOM_FILE,
+	pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(LOG_MONO_CHANNEL, pLog);
 	SAFE_RELEASE(pLog);
@@ -158,7 +186,7 @@ BOOL CDOSServerThread::OnStart()
 		return FALSE;
 
 	//初始化系统连接
-	m_pSysNetLinkManager=new CSystemNetLinkManager();
+	m_pSysNetLinkManager = MONITORED_NEW(_T("CDOSServerThread"), CSystemNetLinkManager);
 	m_pSysNetLinkManager->SetServerThread(this);
 
 	xml_parser Parser;
@@ -196,7 +224,7 @@ BOOL CDOSServerThread::OnStart()
 
 	if (CSystemConfig::GetInstance()->GetUDPControlAddress().GetPort())
 	{
-		m_pUDPSystemControlPort = new CSystemControlPort();
+		m_pUDPSystemControlPort = MONITORED_NEW(_T("CDOSServerThread"), CSystemControlPort);
 		if (!m_pUDPSystemControlPort->Init(this))
 		{
 			Log("初始化UDP系统控制端口失败");
@@ -204,7 +232,7 @@ BOOL CDOSServerThread::OnStart()
 	}
 	if (CSystemConfig::GetInstance()->IsControlPipeEnable())
 	{
-		m_pSystemControlPipe = new CSystemControlPipe();
+		m_pSystemControlPipe = MONITORED_NEW(_T("CDOSServerThread"), CSystemControlPipe);
 		if (!m_pSystemControlPipe->Init(this))
 		{
 			Log("初始化系统控制管道失败");
@@ -294,7 +322,7 @@ BOOL CDOSServerThread::OnStart()
 	}
 
 	LogFileName.Format("%s/Log/%s.Status",(LPCTSTR)ModulePath,g_ProgramName);
-	CCSVFileLogPrinter * pCSVLog = new CCSVFileLogPrinter(CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSVLogHeader, CSystemConfig::GetInstance()->GetLogCacheSize());
+	CCSVFileLogPrinter * pCSVLog = MONITORED_NEW(_T("CDOSServerThread"), CCSVFileLogPrinter, CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSVLogHeader, CSystemConfig::GetInstance()->GetLogCacheSize());
 	CLogManager::GetInstance()->AddChannel(SERVER_STATUS_LOG_CHANNEL,pCSVLog);
 	SAFE_RELEASE(pCSVLog);
 
@@ -648,14 +676,37 @@ void CDOSServerThread::DoServerStat()
 		PrintDOSObjectStatLog("================================================================");
 		GetObjectManager()->PrintGroupInfo(LOG_DOS_OBJECT_STATE_CHANNEL);
 	}
-	if (GetConfig().RouterConfig.StateMsgTransfer)
+	if (GetConfig().RouterConfig.StatMsgTransfer)
 	{
 		PrintDOSMsgStatLog("================================================================");
 		PrintDOSMsgStatLog("消息统计：");
 		PrintDOSMsgStatLog("================================================================");
 		GetRouter()->PrintMsgStat(LOG_DOS_MSG_STATE_CHANNEL);
 	}
-	
+
+	if (GetConfig().RouterConfig.StatMemoryUse)
+	{
+#ifndef WIN32
+		struct mallinfo GLibcMallInfo = mallinfo();
+		CLogManager::GetInstance()->PrintLog(LOG_DOS_MEM_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, _T(""), "================================================================");
+		CLogManager::GetInstance()->PrintLog(LOG_DOS_MEM_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, _T(""), "GLibc Heap Status：");
+		CLogManager::GetInstance()->PrintLog(LOG_DOS_MEM_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, _T(""), "Heap Size(arena)：%u,Alloced Size(uordblks)：%u,Free Size(fordblks)：%u,FastBin Free Size(fsmblks)：%u",
+			GLibcMallInfo.arena, GLibcMallInfo.uordblks, GLibcMallInfo.fordblks, GLibcMallInfo.fsmblks);
+		CLogManager::GetInstance()->PrintLog(LOG_DOS_MEM_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, _T(""), "MMap Alloced Size(hblkhd)：%u,MMap Alloced Blocks(hblks)：%u",
+			GLibcMallInfo.hblkhd, GLibcMallInfo.hblks);
+		CLogManager::GetInstance()->PrintLog(LOG_DOS_MEM_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, _T(""), "ordblks：%u,smblks：%u,usmblks：%u,keepcost：%u",
+			GLibcMallInfo.ordblks, GLibcMallInfo.smblks, GLibcMallInfo.usmblks, GLibcMallInfo.keepcost);
+		CLogManager::GetInstance()->PrintLog(LOG_DOS_MEM_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, _T(""), "================================================================");
+
+#endif
+#ifdef USE_MONITORED_NEW
+		CLogManager::GetInstance()->PrintLog(LOG_DOS_MEM_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, _T(""), "================================================================");
+		CLogManager::GetInstance()->PrintLog(LOG_DOS_MEM_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, _T(""), "内存使用统计：");
+		CLogManager::GetInstance()->PrintLog(LOG_DOS_MEM_STATE_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, _T(""), "================================================================");
+		CMemoryAllocatee::GetInstance()->ReportAllocStat(LOG_DOS_MEM_STATE_CHANNEL);
+#endif
+	}
+
 
 	UINT AllocCount=((CDOSServer *)GetServer())->GetMemoryPool()->GetAllocCount();
 	UINT FreeCount=((CDOSServer *)GetServer())->GetMemoryPool()->GetFreeCount();

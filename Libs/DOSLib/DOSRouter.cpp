@@ -17,6 +17,8 @@ CDOSRouter::CDOSRouter(void)
 {
 	FUNCTION_BEGIN;
 	m_pServer=NULL;
+	m_MsgQueue.SetTag(_T("CDOSRouter"));
+	m_MsgStateInfos.SetTag(_T("CDOSRouter"));
 	ResetStatData();
 	FUNCTION_END;
 }
@@ -54,7 +56,7 @@ BOOL CDOSRouter::OnStart()
 		return FALSE;
 	}
 
-	if (m_Config.StateMsgTransfer)
+	if (m_Config.StatMsgTransfer)
 	{
 		m_MsgStateInfos.Create(256, 256, 256);
 	}
@@ -65,7 +67,7 @@ BOOL CDOSRouter::OnStart()
 
 	if (m_Config.EnableGuardThread)
 	{
-		m_GuardThread.SetTargetThreadID(GetThreadID());
+		m_GuardThread.SetTargetThread(this);
 		m_GuardThread.SetKeepAliveTime(m_Config.GuardThreadKeepAliveTime, m_Config.GuardThreadKeepAliveCount);
 		m_GuardThread.Start();
 	}
@@ -190,7 +192,7 @@ BOOL CDOSRouter::RouterMessage(CDOSMessagePacket * pPacket)
 		PrintDOSLog(_T("将消息压入路由发送队列失败！"));
 		return FALSE;
 	}
-	if (m_Config.StateMsgTransfer)
+	if (m_Config.StatMsgTransfer)
 	{
 		MSG_STATE_INFO * pStateInfo = NULL;
 		m_MsgStateInfos.New(pPacket->GetMessage().GetMsgID(), &pStateInfo);
@@ -288,8 +290,8 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 				{
 					//处理广播
 					pPacket->SetTargetIDs(GroupCount,NULL);
-					if(pReceiverIDs!=pReceiverIDGroup)
-						memmove(pReceiverIDs,pReceiverIDGroup,GroupCount);
+					if (pReceiverIDs != pReceiverIDGroup)
+						memmove(pReceiverIDs, pReceiverIDGroup, GroupCount * sizeof(OBJECT_ID));
 					for(UINT i=0;i<GroupCount;i++)
 					{
 						//路由ID设置为0避免被再次广播
@@ -306,7 +308,7 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 				{
 					pPacket->SetTargetIDs(GroupCount, NULL);
 					if (pReceiverIDs != pReceiverIDGroup)
-						memmove(pReceiverIDs, pReceiverIDGroup, GroupCount);
+						memmove(pReceiverIDs, pReceiverIDGroup, GroupCount * sizeof(OBJECT_ID));
 					pPacket->MakePacketLength();
 
 					AtomicInc(&m_RouteOutMsgCount);

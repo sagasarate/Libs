@@ -15,6 +15,7 @@
 CEpollEventObject::CEpollEventObject(void)
 {
 	m_ID=0;
+	m_DataBuff.SetTag(_T("CEpollEventObject"));
 	m_DataBuff.Create(NET_DATA_BLOCK_SIZE);
 	Create(NULL);
 }

@@ -22,5 +22,5 @@ CLinuxFileAccessorObjectCreator::~CLinuxFileAccessorObjectCreator(void)
 
 IFileAccessor * CLinuxFileAccessorObjectCreator::CreateFileAccessor()
 {
-	return new CLinuxFileAccessor();
+	return MONITORED_NEW(_T("CLinuxFileAccessorObjectCreator"), CLinuxFileAccessor);
 }

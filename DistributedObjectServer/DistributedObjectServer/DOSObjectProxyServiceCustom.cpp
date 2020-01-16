@@ -13,10 +13,7 @@ CDOSObjectProxyServiceCustom::~CDOSObjectProxyServiceCustom()
 {
 }
 
-void CDOSObjectProxyServiceCustom::Release()
-{
-	CNameObject::Release();
-}
+
 void CDOSObjectProxyServiceCustom::Destory()
 {
 
@@ -45,14 +42,7 @@ BYTE CDOSObjectProxyServiceCustom::GetProxyType()
 {
 	return m_Config.ProxyType;
 }
-void CDOSObjectProxyServiceCustom::SetID(UINT ID)
-{
-	CNameObject::SetID(ID);
-}
-UINT CDOSObjectProxyServiceCustom::GetID()
-{
-	return CNameObject::GetID();
-}
+
 bool CDOSObjectProxyServiceCustom::StartService()
 {
 	if (m_pProxyService)
@@ -283,7 +273,7 @@ BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGI
 
 					CServerLogPrinter * pLog;
 					LogFileName.Format("%s/Log/Plugin.%s", (LPCTSTR)m_PluginInfo.LogDir, (LPCTSTR)CFileTools::GetPathFileName(m_PluginInfo.PluginName));
-					pLog = new CServerLogPrinter(CDOSMainThread::GetInstance(), CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
+					pLog = MONITORED_NEW(_T("CDOSObjectProxyServiceCustom"), CServerLogPrinter, CDOSMainThread::GetInstance(), CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
 						CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 					CLogManager::GetInstance()->AddChannel(m_PluginInfo.LogChannel, pLog);
 					SAFE_RELEASE(pLog);

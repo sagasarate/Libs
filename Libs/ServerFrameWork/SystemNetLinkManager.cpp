@@ -26,7 +26,7 @@ CSystemNetLinkManager::~CSystemNetLinkManager(void)
 CEasyNetLink * CSystemNetLinkManager::OnCreateLink(UINT ReportID)
 {
 	FUNCTION_BEGIN;
-	return new CSystemNetLink(m_pServer);
+	return MONITORED_NEW(_T("CSystemNetLinkManager"), CSystemNetLink, m_pServer);
 	FUNCTION_END;
 	return NULL;
 }
@@ -40,7 +40,7 @@ void CSystemNetLinkManager::SendLogMsg(LPCTSTR LogMsg)
 
 	if(m_LinkMap.GetObjectCount())
 	{
-		CEasyBuffer	SendBuffer(s_SendBuffer,65536);
+		CEasyBuffer	SendBuffer(s_SendBuffer, 65536, _T("CSystemNetLinkManager"));
 		SMSG_HEADER * pMsgHeader = (SMSG_HEADER *)s_SendBuffer;
 		UINT StrLne = _tcslen(LogMsg);
 

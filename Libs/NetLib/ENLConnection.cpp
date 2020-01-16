@@ -26,6 +26,7 @@ CENLConnection::CENLConnection()
 	m_Status = STATUS_ACCEPTING;
 	m_KeepAliveCount = 0;
 	m_ActiveType = ENL_ACTIVE_TYPE_PASSIVE;
+	m_AssembleBuffer.SetTag(_T("CENLConnection"));
 }
 
 

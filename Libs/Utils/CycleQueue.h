@@ -8,24 +8,33 @@ protected:
 	UINT						m_BufferSize;
 	volatile UINT				m_BufferHead;
 	volatile UINT				m_BufferTail;
-public:
-	CCycleQueue()
+	LPCTSTR						m_Tag;
+public:	
+	CCycleQueue(LPCTSTR Tag = _T("CCycleQueue"))
 	{
 		m_pBuffer = NULL;
 		m_BufferSize = 0;
 		m_BufferHead = 0;
 		m_BufferTail = 0;
+		m_Tag = Tag;
 	}
 	~CCycleQueue()
 	{
 		Destory();
 	}
-
+	LPCTSTR GetTag()
+	{
+		return m_Tag;
+	}
+	void SetTag(LPCTSTR Tag)
+	{
+		m_Tag = Tag;
+	}
 	bool Create(UINT Size)
 	{
 		Destory();
 		m_BufferSize = Size + 1;
-		m_pBuffer = new T[m_BufferSize];
+		m_pBuffer = MONITORED_NEW_ARRAY(GetTag(), T, m_BufferSize);
 		return true;
 	}
 	void Destory()

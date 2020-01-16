@@ -14,32 +14,35 @@
 
 IMPLEMENT_CLASS_INFO_STATIC(CCycleBuffer,CNameObject);
 
-CCycleBuffer::CCycleBuffer(void) :CNameObject()
+CCycleBuffer::CCycleBuffer(LPCTSTR Tag) :CNameObject()
 {
 	m_pBuffer = NULL;
 	m_BufferSize = 0;
 	m_BufferHead = 0;
 	m_BufferTail = 0;
 	m_IsSelfBuffer = true;
+	m_Tag = Tag;
 }
 
-CCycleBuffer::CCycleBuffer(UINT Size) :CNameObject()
+CCycleBuffer::CCycleBuffer(UINT Size, LPCTSTR Tag) :CNameObject()
 {
 	m_pBuffer = NULL;
 	m_BufferSize = 0;
 	m_BufferHead = 0;
 	m_BufferTail = 0;
 	m_IsSelfBuffer = true;
+	m_Tag = Tag;
 	Create(Size);
 }
 
-CCycleBuffer::CCycleBuffer(LPVOID pBuff, UINT Size) :CNameObject()
+CCycleBuffer::CCycleBuffer(LPVOID pBuff, UINT Size, LPCTSTR Tag) :CNameObject()
 {
 	m_pBuffer = NULL;
 	m_BufferSize = 0;
 	m_BufferHead = 0;
 	m_BufferTail = 0;
 	m_IsSelfBuffer = true;
+	m_Tag = Tag;
 	Create(pBuff, Size);
 }
 
@@ -52,7 +55,7 @@ BOOL CCycleBuffer::Create(UINT Size)
 {
 	Destory();	
 	m_BufferSize = Size + 1;
-	m_pBuffer = new BYTE[m_BufferSize];
+	m_pBuffer = MONITORED_NEW_ARRAY(GetTag(), BYTE, m_BufferSize);
 	m_BufferHead = 0;
 	m_BufferTail = 0;
 	m_IsSelfBuffer = true;
@@ -96,7 +99,7 @@ void CCycleBuffer::CloneFrom(const CCycleBuffer& TargetBuffer)
 	if (TargetBuffer.m_pBuffer&&TargetBuffer.m_BufferSize)
 	{
 		m_BufferSize = TargetBuffer.m_BufferSize;
-		m_pBuffer = new BYTE[m_BufferSize];
+		m_pBuffer = MONITORED_NEW_ARRAY(GetTag(), BYTE, m_BufferSize);
 		m_IsSelfBuffer = true;
 		memcpy(m_pBuffer, TargetBuffer.m_pBuffer, m_BufferSize);
 	}

@@ -12,8 +12,27 @@
 #pragma once
 
 class CSystemConfig :
-	public CStaticObject<CSystemConfig>
+	public CStaticObject4<CSystemConfig>
 {
+	struct MALLOC_CONFIG
+	{
+		bool	bSetTrimThreshold;
+		int		TrimThreshold;
+		bool	bSetMMapThreshold;
+		int		MMapThreshold;
+		bool	bSetMMapMax;
+		int		MMapMax;
+
+		MALLOC_CONFIG()
+		{
+			bSetTrimThreshold = false;
+			TrimThreshold = 1024 * 128;
+			bSetMMapThreshold = false;
+			MMapThreshold = 1024 * 128;
+			bSetMMapMax = false;
+			MMapMax = 1024 * 1024 * 64;
+		}
+	};
 protected:
 	UINT			m_MainThreadProcessLimit;
 	CIPAddress		m_UDPControlAddress;
@@ -29,6 +48,7 @@ protected:
 	bool			m_PreLoadModuleSym;
 	bool			m_MakeFullDump;
 	bool			m_LogModuleSymStatus;
+	MALLOC_CONFIG	m_MallocConfig;
 public:
 	CSystemConfig(void);
 	~CSystemConfig(void);
@@ -95,5 +115,8 @@ public:
 	{
 		return m_GuardThreadKeepAliveCount;
 	}
-
+	const MALLOC_CONFIG&	GetMallocConfig()
+	{
+		return m_MallocConfig;
+	}
 };

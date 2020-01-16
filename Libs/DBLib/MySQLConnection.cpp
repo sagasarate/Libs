@@ -15,7 +15,7 @@
 namespace DBLib
 {
 
-IMPLEMENT_CLASS_INFO(CMySQLConnection,IDBConnection);
+IMPLEMENT_CLASS_INFO_STATIC(CMySQLConnection,IDBConnection);
 
 CMySQLConnection::CMySQLConnection(void)
 {
@@ -47,11 +47,11 @@ IDBRecordSet * CMySQLConnection::CreateRecordSet(int RecordSetType)
 	switch(RecordSetType)
 	{
 	case DB_RS_TYPE_STATIC:
-		return new CMySQLRecordSet();
+		return MONITORED_NEW(_T("CMySQLConnection"), CMySQLRecordSet);
 	case DB_RS_TYPE_GENERAL_STATIC:
-		return new CDBStaticRecordSet();
+		return MONITORED_NEW(_T("CMySQLConnection"), CDBStaticRecordSet);
 	case DB_RS_TYPE_DYNAMIC:
-		return new CMySQLDynamicRecordSet();
+		return MONITORED_NEW(_T("CMySQLConnection"), CMySQLDynamicRecordSet);
 	}
 	return NULL;
 }
@@ -260,6 +260,12 @@ int CMySQLConnection::TranslateString(LPCSTR szSource,int SrcLen,LPTSTR szTarget
 	return (int)mysql_real_escape_string(m_MySQLHandle,szTarget,szSource,SrcLen);
 }
 
+void CMySQLConnection::Reset()
+{
+	if (m_MySQLHandle)
+		mysql_reset_connection(m_MySQLHandle);
+}
+
 void CMySQLConnection::ProcessErrorMsg(MYSQL_STMT_HANDLE hStmt,LPCSTR Msg)
 {
 	if(hStmt)
@@ -275,7 +281,7 @@ void CMySQLConnection::ProcessErrorMsg(MYSQL_STMT_HANDLE hStmt,LPCSTR Msg)
 
 int CMySQLConnection::FetchStaticResult(CDBStaticRecordSet * pDBRecordset)
 {
-	CEasyBuffer ResultBuff;
+	CEasyBuffer ResultBuff(_T("CMySQLConnection"));
 
 
 	if(m_MySQLHandle==NULL)
@@ -1030,10 +1036,10 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 		ProcessErrorMsg(m_MySQLStmt,"准备SQL失败\r\n");
 		return DBERR_EXE_SQL_FAIL;
 	}
-	CEasyArray<MYSQL_BIND> ParamList;
+	CEasyArray<MYSQL_BIND> ParamList(_T("CMySQLConnection"));
 
 	UINT ParamNum=mysql_stmt_param_count(m_MySQLStmt);
-	CEasyBuffer ParamBuffer;
+	CEasyBuffer ParamBuffer(_T("CMySQLConnection"));
 
 	if(ParamNum>0)
 	{
@@ -1145,5 +1151,24 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 
 	return DBERR_SUCCEED;
 }
+
+//void MySqlDBTool::clearResult()
+//{
+//	if (mMySql == NULL)
+//		return;
+//
+//	if (mResult != NULL)
+//	{
+//		mysql_free_result(mResult);
+//		mResult = NULL;
+//	}
+//
+//	while (0 == mysql_next_result(mMySql));
+//	{
+//		MYSQL_RES *result = mysql_store_result(mMySql);
+//		if (result != NULL)
+//			mysql_free_result(result);
+//	}
+//}
 
 }

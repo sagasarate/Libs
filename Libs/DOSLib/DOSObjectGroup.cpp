@@ -22,6 +22,10 @@ CDOSObjectGroup::CDOSObjectGroup(void)
 	m_Status = STATUS_NONE;
 	m_Weight=0;
 	m_TotalGroupCost = 0;
+	m_ObjectRegisterQueue.SetTag(_T("CDOSObjectGroup"));
+	m_ObjectUnregisterQueue.SetTag(_T("CDOSObjectGroup"));
+	m_ObjectPool.SetTag(_T("CDOSObjectGroup"));
+	m_ObjectCountStatMap.SetTag(_T("CDOSObjectGroup"));
 	FUNCTION_END;
 }
 
@@ -51,7 +55,7 @@ bool CDOSObjectGroup::Initialize(CDOSObjectManager * pManager, UINT Index, OBJEC
 	}
 	else
 	{
-		PrintDOSLog( _T("创建[%u,%u,%u]大小的注册队列失败"), 
+		PrintDOSLog( _T("创建[%u,%u,%u]大小的注册队列失败"),
 			m_Config.ObjectPoolSetting.StartSize, m_Config.ObjectPoolSetting.GrowSize, m_Config.ObjectPoolSetting.GrowLimit);
 		return false;
 	}
@@ -62,7 +66,7 @@ bool CDOSObjectGroup::Initialize(CDOSObjectManager * pManager, UINT Index, OBJEC
 	}
 	else
 	{
-		PrintDOSLog( _T("创建[%u,%u,%u]大小的注销队列失败"), 
+		PrintDOSLog( _T("创建[%u,%u,%u]大小的注销队列失败"),
 			m_Config.ObjectPoolSetting.StartSize, m_Config.ObjectPoolSetting.GrowSize, m_Config.ObjectPoolSetting.GrowLimit);
 		return false;
 	}
@@ -73,12 +77,12 @@ bool CDOSObjectGroup::Initialize(CDOSObjectManager * pManager, UINT Index, OBJEC
 	}
 	else
 	{
-		PrintDOSLog( _T("创建[%u,%u,%u]大小的对象池失败"), 
+		PrintDOSLog( _T("创建[%u,%u,%u]大小的对象池失败"),
 			m_Config.ObjectPoolSetting.StartSize, m_Config.ObjectPoolSetting.GrowSize, m_Config.ObjectPoolSetting.GrowLimit);
 		return false;
 	}
 
-	
+
 
 	m_ObjectCountStatMap.Create(128,32,32);
 
@@ -92,7 +96,7 @@ bool CDOSObjectGroup::Initialize(CDOSObjectManager * pManager, UINT Index, OBJEC
 void CDOSObjectGroup::Destory()
 {
 	FUNCTION_BEGIN;
-	
+
 	FUNCTION_END;
 }
 
@@ -158,7 +162,7 @@ BOOL CDOSObjectGroup::OnStart()
 
 	if (m_Config.EnableGuardThread)
 	{
-		m_GuardThread.SetTargetThreadID(GetThreadID());
+		m_GuardThread.SetTargetThread(this);
 		m_GuardThread.SetKeepAliveTime(m_Config.GuardThreadKeepAliveTime, m_Config.GuardThreadKeepAliveCount);
 		m_GuardThread.Start();
 	}
@@ -183,7 +187,7 @@ BOOL CDOSObjectGroup::OnRun()
 		m_GuardThread.MakeKeepAlive();
 	}
 
-	int ProcessCount=0;	
+	int ProcessCount=0;
 
 	switch (m_Status)
 	{
@@ -201,7 +205,7 @@ BOOL CDOSObjectGroup::OnRun()
 					UINT64 MsgProcCost = 0;
 					UINT64 COTestCost = 0;
 					UINT64 UpdateCost = 0;
-					
+
 					if (m_Config.StatObjectCPUCost)
 						CPUCost = CEasyTimerEx::GetTime();
 
@@ -237,7 +241,7 @@ BOOL CDOSObjectGroup::OnRun()
 		}
 		break;
 	case STATUS_SUSPENDING:
-		{			
+		{
 			m_Status = STATUS_SUSPENDED;
 		}
 		break;
@@ -249,7 +253,7 @@ BOOL CDOSObjectGroup::OnRun()
 			m_GroupWeightUpdateTimer.SaveTime();
 			AdjustObjectWeights();
 		}
-		
+
 	}
 
 	m_ThreadPerformanceCounter.DoPerformanceCount();
@@ -359,7 +363,7 @@ void CDOSObjectGroup::PrintObjectStat(UINT LogChannel)
 				pInfo->CPUCost, pInfo->MsgProcCost, pInfo->COTestCost, pInfo->UpdateCost,
 				pInfo->ExecCount,
 				pInfo->ExecCount ? (float)pInfo->CPUCost / (float)pInfo->ExecCount : 0.0f);
-			TotalCost+=pInfo->CPUCost;			
+			TotalCost+=pInfo->CPUCost;
 			pInfo->CPUCost=0;
 			pInfo->MsgProcCost = 0;
 			pInfo->COTestCost = 0;
@@ -393,7 +397,7 @@ int CDOSObjectGroup::ProcessObjectRegister(int ProcessLimit)
 		{
 			pObjectInfo->ObjectID=ObjectRegisterInfo.ObjectID;
 			pObjectInfo->ObjectID.GroupIndex=m_Index;
-			pObjectInfo->ObjectID.ObjectIndex=ID;			
+			pObjectInfo->ObjectID.ObjectIndex=ID;
 			pObjectInfo->Weight=ObjectRegisterInfo.Weight;
 			//pObjectInfo->Param=ObjectRegisterInfo.Param;
 			pObjectInfo->pObject=ObjectRegisterInfo.pObject;

@@ -17,6 +17,7 @@ COverLappedObject::COverLappedObject(void)
 	m_ID=0;	
 	m_Status = OVERLAPPED_OBJECT_STATUS_FREE;
 	m_pCreator = NULL;
+	m_DataBuff.SetTag(_T("COverLappedObject"));
 	m_DataBuff.Create(NET_DATA_BLOCK_SIZE);
 	Create(NULL);
 }

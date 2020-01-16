@@ -17,7 +17,7 @@
 namespace DBLib
 {
 
-IMPLEMENT_CLASS_INFO(CODBCRecordSet,IDBRecordSet);
+IMPLEMENT_CLASS_INFO_STATIC(CODBCRecordSet,IDBRecordSet);
 
 CODBCRecordSet::CODBCRecordSet(void)
 {
@@ -28,6 +28,13 @@ CODBCRecordSet::CODBCRecordSet(void)
 	m_IsBOF=true;
 	m_IsEOF=true;
 	m_IsForwardOnly=true;
+	m_ColInfos.SetTag(_T("CODBCRecordSet"));
+	m_BindTypes.SetTag(_T("CODBCRecordSet"));
+	m_FieldSize.SetTag(_T("CODBCRecordSet"));
+	m_RecordLineBuffer.SetTag(_T("CODBCRecordSet"));
+	m_RowBuffer.SetTag(_T("CODBCRecordSet"));
+	m_ParamInfos.SetTag(_T("CODBCRecordSet"));
+	m_ParamBuffer.SetTag(_T("CODBCRecordSet"));
 }
 
 CODBCRecordSet::~CODBCRecordSet(void)

@@ -25,6 +25,8 @@ CNetServer::CNetServer(void):CBaseNetServer()
 	m_EventRouterPoolGrowSize=DEFAULT_EVENT_ROUTER_POOL_GROW_SIZE;
 	m_EventRouterPoolGrowLimit=DEFAULT_EVENT_ROUTER_POOL_GROW_LIMIT;
 	m_IOCPWorkThreadCount = DEFAULT_WORK_THREAD_COUNT;
+	m_OverLappedObjectPool.SetTag(_T("CNetServer"));
+	m_EventRouterPool.SetTag(_T("CNetServer"));
 }
 
 CNetServer::~CNetServer(void)
@@ -82,7 +84,7 @@ BOOL CNetServer::OnStart()
 		return FALSE;
 	}
 
-	m_pIOCPThreads = new CIOCPThread[m_IOCPWorkThreadCount];
+	m_pIOCPThreads = MONITORED_NEW_ARRAY(_T("CNetService"), CIOCPThread, m_IOCPWorkThreadCount);
 
 	for (int i = 0; i < m_IOCPWorkThreadCount; i++)
 	{
@@ -117,7 +119,7 @@ void CNetServer::OnTerminate()
 		{			
 			m_pIOCPThreads[i].SafeTerminate();
 		}
-		delete[] m_pIOCPThreads;
+		MONITORED_DELETE_ARRAY(m_pIOCPThreads);
 		m_pIOCPThreads = NULL;
 	}		
 

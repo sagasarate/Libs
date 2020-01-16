@@ -17,6 +17,7 @@ CAsyncFileLogPrinter::CAsyncFileLogPrinter()
 	m_FileExt = "log";
 	m_RecentLogTime.FetchLocalTime();
 	m_pLogFile = NULL;
+	m_LogDataBuffer.SetTag(_T("CAsyncFileLogPrinter"));
 }
 
 CAsyncFileLogPrinter::CAsyncFileLogPrinter(int Level, LPCTSTR LogName, int FileLogBufferLen, LPCTSTR FileExt, LPCTSTR HeaderStr)
@@ -30,6 +31,7 @@ CAsyncFileLogPrinter::CAsyncFileLogPrinter(int Level, LPCTSTR LogName, int FileL
 	m_HeaderString = HeaderStr;
 	m_RecentLogTime.FetchLocalTime();
 	m_pLogFile = NULL;
+	m_LogDataBuffer.SetTag(_T("CAsyncFileLogPrinter"));
 	if (m_LogDataBuffer.Create(FileLogBufferLen))
 	{
 		m_LogDataBuffer.SetLockMode(false, true);

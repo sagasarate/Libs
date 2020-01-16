@@ -15,6 +15,7 @@
 CFileSearcher::CFileSearcher(void)
 {
 	m_FetchIndex=-1;
+	m_FileInfoList.SetTag(_T("CFileSearcher"));
 }
 
 CFileSearcher::~CFileSearcher(void)

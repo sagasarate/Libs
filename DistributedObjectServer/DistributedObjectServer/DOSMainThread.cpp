@@ -18,6 +18,9 @@ CDOSMainThread::CDOSMainThread(void)
 	m_hMcsInWrite = NULL;
 	m_hMcsErrWrite = NULL;
 	m_pMonoMainDomain = NULL;
+	m_PluginList.SetTag(_T("CDOSMainThread"));
+	m_LibList.SetTag(_T("CDOSMainThread"));
+	m_PluginReleaseList.SetTag(_T("CDOSMainThread"));
 	FUNCTION_END;
 }
 
@@ -58,6 +61,8 @@ BOOL CDOSMainThread::OnStart()
 	m_ESFactionList.AddCFunction("ReleasePlugin",1,this,&CDOSMainThread::ReleasePlugin);
 
 	m_PluginReleaseCheckTimer.SaveTime();
+
+	CMemoryAllocatee::RefreshEnv();
 
 	return TRUE;
 	FUNCTION_END;
@@ -168,7 +173,7 @@ int CDOSMainThread::Update(int ProcessPacketLimit)
 					{
 						m_PluginReleaseList.Delete(i);
 					}
-				}				
+				}								
 			}
 
 
@@ -771,7 +776,7 @@ bool CDOSMainThread::LoadProxyPlugins()
 			PluginInfo.ID = i + 1;
 			PluginInfo.LogChannel = PROXY_PLUGIN_LOG_CHANNEL_START + i + 1;
 			PluginInfo.PluginStatus = PLUGIN_STATUS_NONE;
-			CDOSObjectProxyServiceCustom * pProxy = new CDOSObjectProxyServiceCustom();
+			CDOSObjectProxyServiceCustom * pProxy = MONITORED_NEW(_T("CDOSMainThread"), CDOSObjectProxyServiceCustom);
 			if (GetProxyManager()->RegisterProxyService(pProxy))
 			{
 				if (!pProxy->Init(this, PluginInfo))
@@ -877,6 +882,7 @@ bool CDOSMainThread::FreePlugin(UINT PluginID)
 			{
 				LogDebug("插件释放成功(%u)%s", m_PluginList[i].ID, (LPCTSTR)m_PluginList[i].PluginName);
 				m_PluginList.Delete(i);
+				LogDebug("剩余%u个插件", m_PluginList.GetCount());
 				return true;
 			}
 			else
@@ -956,7 +962,7 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 			CServerLogPrinter * pLog;
 
 			LogFileName.Format("%s/Plugin.%s", (LPCTSTR)PluginInfo.LogDir, (LPCTSTR)CFileTools::GetPathFileName(PluginInfo.PluginName));
-			pLog = new CServerLogPrinter(this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
+			pLog = MONITORED_NEW(_T("CDOSMainThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
 				CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 			CLogManager::GetInstance()->AddChannel(PluginInfo.LogChannel, pLog);
 			SAFE_RELEASE(pLog);
@@ -997,9 +1003,45 @@ bool CDOSMainThread::FreeNativePlugin(PLUGIN_INFO& PluginInfo)
 {
 	FUNCTION_BEGIN;	
 	if (PluginInfo.pCheckReleaseFN)
-		return (*(PluginInfo.pCheckReleaseFN))();
+	{
+		if ((*(PluginInfo.pCheckReleaseFN))())
+		{
+			if(PluginInfo.CanUnload)
+			{
+				Log("准备卸载%s", (LPCTSTR)PluginInfo.ModuleFileName);
+#ifdef WIN32
+				if (FreeLibrary(PluginInfo.hModule))
+				{
+					Log("插件卸载成功%s", (LPCTSTR)PluginInfo.ModuleFileName);
+				}
+				else
+				{
+					Log("插件卸载失败%s:%d", (LPCTSTR)PluginInfo.ModuleFileName, GetLastError());
+				}
+#else
+				if (dlclose(PluginInfo.hModule) == 0)
+				{
+					Log("插件卸载成功%s", (LPCTSTR)PluginInfo.ModuleFileName);
+				}
+				else
+				{
+					LPCTSTR UnloadError = dlerror();
+					Log("插件卸载失败%s:%s", (LPCTSTR)PluginInfo.ModuleFileName, UnloadError);
+				}
+#endif
+			}
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 	else
+	{
 		Log("没有插件释放检测函数");
+	}
+		
 
 	return false;
 	FUNCTION_END;
@@ -1091,7 +1133,7 @@ bool CDOSMainThread::LoadCSharpPlugin(PLUGIN_INFO& PluginInfo)
 									CServerLogPrinter * pLog;
 
 									LogFileName.Format("%s/Plugin.%s", (LPCTSTR)PluginInfo.LogDir, (LPCTSTR)CFileTools::GetPathFileName(PluginInfo.PluginName));
-									pLog = new CServerLogPrinter(this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
+									pLog = MONITORED_NEW(_T("CDOSMainThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
 										CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
 									CLogManager::GetInstance()->AddChannel(PluginInfo.LogChannel, pLog);
 									SAFE_RELEASE(pLog);
@@ -1178,7 +1220,7 @@ bool CDOSMainThread::CompileCSharpPlugin(PLUGIN_INFO& PluginInfo)
 
 
 
-	CEasyArray<CEasyString> SourceList;
+	CEasyArray<CEasyString> SourceList(_T("CDOSMainThread"));
 
 
 	for (UINT i = 0; i < PluginInfo.SourceDirs.GetCount(); i++)
@@ -1193,7 +1235,7 @@ bool CDOSMainThread::CompileCSharpPlugin(PLUGIN_INFO& PluginInfo)
 		SourceList[i] = SourceList[i] + DIR_SLASH + "*.cs";
 	}
 
-	CEasyArray<CEasyString> LibList;
+	CEasyArray<CEasyString> LibList(_T("CDOSMainThread"));
 
 	FetchFiles(CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir), _T(".dll"), LibList);
 
@@ -1316,7 +1358,7 @@ bool CDOSMainThread::CompileCSharpLib(LIB_INFO& LibInfo)
 
 
 
-	CEasyArray<CEasyString> SourceList;
+	CEasyArray<CEasyString> SourceList(_T("CDOSMainThread"));
 
 
 	for (UINT i = 0; i < LibInfo.SourceDirs.GetCount(); i++)
@@ -1332,7 +1374,7 @@ bool CDOSMainThread::CompileCSharpLib(LIB_INFO& LibInfo)
 	}
 
 
-	CEasyArray<CEasyString> LibList;
+	CEasyArray<CEasyString> LibList(_T("CDOSMainThread"));
 
 	FetchFiles(CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir), _T(".dll"), LibList);
 
@@ -1944,7 +1986,7 @@ bool CDOSMainThread::CreateCSProj(LPCTSTR szPrjName, LPCTSTR szPrjDir, const CEa
 
 
 	{
-		CEasyArray<CEasyString> FileList;
+		CEasyArray<CEasyString> FileList(_T("CDOSMainThread"));
 
 		FetchFiles(CFileTools::MakeModuleFullPath(NULL, CDOSConfig::GetInstance()->GetMonoConfig().LibraryDir), _T(".dll"), FileList);
 
@@ -1990,7 +2032,7 @@ bool CDOSMainThread::CreateCSProj(LPCTSTR szPrjName, LPCTSTR szPrjDir, const CEa
 	}
 
 	{
-		CEasyArray<CEasyString> FileList;
+		CEasyArray<CEasyString> FileList(_T("CDOSMainThread"));
 
 		for (UINT i = 0; i < SourceDirs.GetCount(); i++)
 		{

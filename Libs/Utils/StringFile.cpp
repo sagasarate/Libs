@@ -42,13 +42,13 @@ void CStringFile::Destroy()
 {
 	if( m_pLines != NULL )
 	{
-		delete []m_pLines;
+		SAFE_DELETE_ARRAY(m_pLines);
 		m_pLines = NULL;
 	}
 	m_iDataSize = 0;
 	if( m_pData != NULL )
 	{
-		delete []m_pData;
+		SAFE_DELETE_ARRAY(m_pData);
 		m_pData = NULL;
 	}
 	m_iLineCount = 0;
@@ -99,7 +99,7 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 {
 	Destroy();
 
-	CEasyBuffer Buffer;
+	CEasyBuffer Buffer(_T("CStringFile"));
 
 	UINT FileSize=(UINT)pFile->GetSize();
 
@@ -126,32 +126,32 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 		if (m_SaveCodePage == CP_UTF8)
 		{
 			m_iDataSize = MultiByteToWideChar(CP_UTF8, 0, (char *)Buffer.GetBuffer(), FileSize, NULL, 0);
-			m_pData = new TCHAR[m_iDataSize + 1];
+			m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 			MultiByteToWideChar(CP_UTF8, 0, (char *)Buffer.GetBuffer(), FileSize, m_pData, m_iDataSize);
 		}
 		else if (m_SaveCodePage == CP_UNICODE)
 		{
 			m_iDataSize = FileSize / 2;
-			m_pData = new TCHAR[m_iDataSize + 1];
+			m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 			memcpy(m_pData, (char *)Buffer.GetBuffer(), m_iDataSize*sizeof(TCHAR));
 		}
 		else
 		{
 			m_iDataSize = AnsiToUnicode((char *)Buffer.GetBuffer(), FileSize, NULL, 0);
-			m_pData = new TCHAR[m_iDataSize + 1];
+			m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 			AnsiToUnicode((char *)Buffer.GetBuffer(), FileSize, m_pData, m_iDataSize);
 		}
 	}
 	else if(BomHeader==BMT_UNICODE)
 	{
 		m_iDataSize=(FileSize-2)/2;
-		m_pData=new TCHAR[m_iDataSize+1];
+		m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 		memcpy(m_pData,(char *)Buffer.GetBuffer()+2,m_iDataSize*sizeof(TCHAR));
 	}
 	else if(BomHeader==BMT_UTF_8)
 	{
 		m_iDataSize=MultiByteToWideChar(CP_UTF8,0,(char *)Buffer.GetBuffer()+3,FileSize-3,NULL,0);
-		m_pData=new TCHAR[m_iDataSize+1];
+		m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 		MultiByteToWideChar(CP_UTF8,0,(char *)Buffer.GetBuffer()+3,FileSize-3,m_pData,m_iDataSize);
 	}
 	else
@@ -167,14 +167,14 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 			if (m_LocalCodePage == CP_UTF8)
 			{
 				m_iDataSize = FileSize;
-				m_pData = new TCHAR[m_iDataSize + 1];
+				m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 				memcpy(m_pData, Buffer.GetBuffer(), m_iDataSize*sizeof(TCHAR));
 				m_pData[m_iDataSize] = 0;
 			}
 			else
 			{
 				m_iDataSize = UTF8ToAnsi((char *)Buffer.GetBuffer(), FileSize, NULL, 0);
-				m_pData = new TCHAR[m_iDataSize + 1];
+				m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 				UTF8ToAnsi((char *)Buffer.GetBuffer(), FileSize, m_pData, m_iDataSize);
 			}
 		}
@@ -183,13 +183,13 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 			if (m_LocalCodePage == CP_UTF8)
 			{
 				m_iDataSize = UnicodeToUTF8((WCHAR *)Buffer.GetBuffer(), FileSize / 2, NULL, 0);
-				m_pData = new TCHAR[m_iDataSize + 1];
+				m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 				UnicodeToUTF8((WCHAR *)Buffer.GetBuffer(), FileSize / 2, m_pData, m_iDataSize);
 			}
 			else
 			{
 				m_iDataSize = UnicodeToAnsi((WCHAR *)Buffer.GetBuffer() , FileSize / 2 , NULL, 0);
-				m_pData = new TCHAR[m_iDataSize + 1];
+				m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 				UnicodeToAnsi((WCHAR *)Buffer.GetBuffer(), FileSize / 2, m_pData, m_iDataSize);
 			}
 		}
@@ -198,13 +198,13 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 			if (m_LocalCodePage == CP_UTF8)
 			{
 				m_iDataSize = AnsiToUTF8((char *)Buffer.GetBuffer(), FileSize, NULL, 0);
-				m_pData = new TCHAR[m_iDataSize + 1];
+				m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 				AnsiToUTF8((char *)Buffer.GetBuffer(), FileSize, m_pData, m_iDataSize);
 			}
 			else
 			{
 				m_iDataSize = FileSize;
-				m_pData = new TCHAR[m_iDataSize + 1];
+				m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 				memcpy(m_pData, Buffer.GetBuffer(), m_iDataSize*sizeof(TCHAR));
 				m_pData[m_iDataSize] = 0;
 			}
@@ -215,13 +215,13 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 		if(m_LocalCodePage==CP_UTF8)
 		{
 			m_iDataSize=UnicodeToUTF8((WCHAR *)Buffer.GetBuffer()+1,FileSize/2-1,NULL,0);
-			m_pData=new TCHAR[m_iDataSize+1];
+			m_pData=MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 			UnicodeToUTF8((WCHAR *)Buffer.GetBuffer()+1,FileSize/2-1,m_pData,m_iDataSize);
 		}
 		else
 		{
 			m_iDataSize=UnicodeToAnsi((WCHAR *)Buffer.GetBuffer()+1,FileSize/2-1,NULL,0);
-			m_pData=new TCHAR[m_iDataSize+1];
+			m_pData=MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 			UnicodeToAnsi((WCHAR *)Buffer.GetBuffer()+1,FileSize/2-1,m_pData,m_iDataSize);
 		}
 	}
@@ -230,14 +230,14 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 		if(m_LocalCodePage==CP_UTF8)
 		{
 			m_iDataSize=FileSize-3;
-			m_pData=new TCHAR[m_iDataSize+1];
+			m_pData=MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 			memcpy(m_pData,(char *)Buffer.GetBuffer()+3,m_iDataSize*sizeof(TCHAR));
 			m_pData[m_iDataSize]=0;
 		}
 		else
 		{
 			m_iDataSize=UTF8ToAnsi((char *)Buffer.GetBuffer()+3,FileSize-3,NULL,0);
-			m_pData=new TCHAR[m_iDataSize+1];
+			m_pData=MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
 			UTF8ToAnsi((char *)Buffer.GetBuffer()+3,FileSize-3,m_pData,m_iDataSize);
 		}
 	}
@@ -265,7 +265,7 @@ BOOL CStringFile::LoadFromString(LPCTSTR pStr,int Len,bool bSplitLine)
 	if(Len<0)
 		Len=(UINT)_tcslen(pStr);
 	m_iDataSize=Len;
-	m_pData=new TCHAR[m_iDataSize+2];
+	m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 2);
 	_tcsncpy_s(m_pData,m_iDataSize+2,pStr,Len);
 	m_pData[m_iDataSize] = 0;
 	m_pData[m_iDataSize+1] = 0;
@@ -316,21 +316,21 @@ BOOL CStringFile::SaveToFile(TCHAR * pData, IFileAccessor * pFile)
 		pFile->Write(&BomHeader,3);
 		size_t StrLen = _tcslen(pData);
 		UINT64 WriteLen = UnicodeToUTF8(pData, StrLen, NULL, 0);
-		char * pBuffer=new char[WriteLen+1];
+		char * pBuffer = MONITORED_NEW_ARRAY(_T("CStringFile"), char, WriteLen + 1);
 		WriteLen = UnicodeToUTF8(pData, StrLen, pBuffer, WriteLen);
 		if(pFile->Write(pBuffer,WriteLen)!=WriteLen)
 			Ret=FALSE;
-		delete[] pBuffer;
+		SAFE_DELETE_ARRAY(pBuffer);
 	}
 	else if (m_SaveCodePage == CP_ACP)
 	{
 		size_t StrLen = _tcslen(pData);
 		UINT64 WriteLen = UnicodeToAnsi(pData, StrLen, NULL, 0);
-		char * pBuffer = new char[WriteLen + 1];
+		char * pBuffer = MONITORED_NEW_ARRAY(_T("CStringFile"), char, WriteLen + 1);
 		WriteLen = UnicodeToAnsi(pData, StrLen, pBuffer, WriteLen);
 		if (pFile->Write(pBuffer, WriteLen) != WriteLen)
 			Ret = FALSE;
-		delete[] pBuffer;
+		SAFE_DELETE_ARRAY(pBuffer);
 	}
 	else
 	{
@@ -347,11 +347,11 @@ BOOL CStringFile::SaveToFile(TCHAR * pData, IFileAccessor * pFile)
 		pFile->Write(&BomHeader,3);
 		size_t StrLen=_tcslen(pData);
 		size_t WriteLen = AnsiToUTF8(pData, StrLen, NULL, 0);
-		char * pBuffer=new char[WriteLen+1];
+		char * pBuffer = MONITORED_NEW_ARRAY(_T("CStringFile"), char, WriteLen + 1);
 		WriteLen=AnsiToUTF8(pData,StrLen,pBuffer,WriteLen);
 		if(pFile->Write(pBuffer,WriteLen)!=WriteLen)
 			Ret=FALSE;
-		delete[] pBuffer;
+		SAFE_DELETE_ARRAY(pBuffer);
 	}
 	else if (m_SaveCodePage == CP_UNICODE)
 	{
@@ -359,11 +359,11 @@ BOOL CStringFile::SaveToFile(TCHAR * pData, IFileAccessor * pFile)
 		pFile->Write(&BomHeader, 2);
 		size_t StrLen = _tcslen(pData);
 		size_t WriteLen = AnsiToUnicode(pData, StrLen, NULL, 0);
-		WCHAR * pBuffer = new WCHAR[WriteLen + 1];
+		WCHAR * pBuffer = MONITORED_NEW_ARRAY(_T("CStringFile"), WCHAR, WriteLen + 1);
 		WriteLen = AnsiToUnicode(pData, StrLen, pBuffer, WriteLen)*sizeof(WCHAR);
 		if (pFile->Write(pBuffer, WriteLen) != WriteLen)
 			Ret = FALSE;
-		delete[] pBuffer;
+		SAFE_DELETE_ARRAY(pBuffer);
 	}
 	else
 	{
@@ -385,7 +385,7 @@ BOOL CStringFile::BuildLines( )
 {
 	if( m_iLineCount == 0 )return FALSE;
 	TCHAR * p = m_pData;
-	m_pLines = new TCHAR*[m_iLineCount];
+	m_pLines = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR*, m_iLineCount);
 	UINT len = 0;
 	UINT ptr = 0;
 	for( UINT i = 0;i < m_iLineCount;i ++ )

@@ -18,6 +18,7 @@ CDOSProxyManager::CDOSProxyManager()
 {
 	m_pServer = NULL;
 	ZeroMemory(m_ProxyServiceMap, sizeof(m_ProxyServiceMap));
+	m_ProxyServiceList.SetTag(_T("CDOSProxyManager"));
 }
 
 
@@ -73,7 +74,7 @@ bool CDOSProxyManager::Initialize(CDOSServer * pServer)
 	{
 		for (UINT i = 0; i < ProxyConfigs.GetCount(); i++)
 		{
-			CDOSObjectProxyServiceDefault * pProxyServiceList = new CDOSObjectProxyServiceDefault();
+			CDOSObjectProxyServiceDefault * pProxyServiceList = MONITORED_NEW(_T("CDOSProxyManager"), CDOSObjectProxyServiceDefault);
 			pProxyServiceList->SetID(i + 1);
 			if (pProxyServiceList->Init(m_pServer, ProxyConfigs[i]))
 			{
@@ -85,13 +86,13 @@ bool CDOSProxyManager::Initialize(CDOSServer * pServer)
 				else
 				{
 					PrintDOSLog( _T("代理%d无法启动"), pProxyServiceList->GetProxyType());
-					SAFE_RELEASE(pProxyServiceList);
+					SAFE_DELETE(pProxyServiceList);
 				}
 				
 			}
 			else
 			{
-				SAFE_RELEASE(pProxyServiceList);
+				SAFE_DELETE(pProxyServiceList);
 			}
 		}
 	}
@@ -103,7 +104,7 @@ void CDOSProxyManager::Destory()
 	{
 		if (m_ProxyServiceList[i])
 			m_ProxyServiceList[i]->StopService();
-		SAFE_RELEASE(m_ProxyServiceList[i]);
+		SAFE_DELETE(m_ProxyServiceList[i]);
 	}
 	m_ProxyServiceList.Clear();
 }

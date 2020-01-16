@@ -36,13 +36,23 @@ protected:
 	UINT			m_UsedSize;
 	UINT			m_FirstSize;
 	UINT			m_GrowSize;
+	LPCTSTR			m_Tag;
 	DECLARE_CLASS_INFO_STATIC(CGrowBuffer);
 public:	
 
-	CGrowBuffer(void);
-	CGrowBuffer(UINT InitSize,UINT GrowSize);
+	CGrowBuffer(LPCTSTR Tag = _T("CGrowBuffer"));
+	CGrowBuffer(UINT InitSize, UINT GrowSize, LPCTSTR Tag = _T("CGrowBuffer"));
 	
 	virtual ~CGrowBuffer(void);
+
+	LPCTSTR GetTag()
+	{
+		return m_Tag;
+	}
+	void SetTag(LPCTSTR Tag)
+	{
+		m_Tag = Tag;
+	}
 
 	BOOL Create(UINT InitSize,UINT GrowSize);	
 	void Destory();

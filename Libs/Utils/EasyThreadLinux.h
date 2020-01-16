@@ -47,9 +47,16 @@ class CEasyThread :
 	public CNameObject
 {
 protected:
-	pthread_t		m_ThreadID;	
+	pthread_t		m_ThreadHandle;	
+	pid_t			m_ThreadID;
 	volatile UINT	m_Status;
 	volatile UINT	m_WantTerminate;
+
+	static CEasyCriticalSection		m_GetCallStackLock;
+	static pthread_t				m_GetCallStackCaller;
+	static pthread_t				m_GetCallStackTarget;
+	static LPVOID *					m_CallStackSaveBuffer;
+	static UINT						m_CallStackMaxDepth;
 
 	DECLARE_CLASS_INFO_STATIC(CEasyThread)
 public:
@@ -97,6 +104,7 @@ public:
 	BOOL SetThreadPriority(int Priority);
 	int GetThreadPriority();
 
+	static int GetCallStack(HANDLE hThread, LPVOID * CallStacks, UINT MaxDepth);
 protected:
 	virtual BOOL OnStart();
 	virtual void Execute();
@@ -105,6 +113,10 @@ protected:
 
 	///线程例程
 	static LPVOID ThreadProc(LPVOID pParam);
+
+	static void CallStackSignalHandler(int signr, siginfo_t *info, void *secret);
+	static void SuspendSignalHandler(int signr, siginfo_t *info, void *secret);
+	static void ResumeSignalHandler(int signr, siginfo_t *info, void *secret);
 };
 
 inline BOOL CEasyThread::IsTerminated()
@@ -126,7 +138,7 @@ inline int CEasyThread::GetStatus()
 
 inline HANDLE CEasyThread::GetThreadHandle()
 {
-	return (HANDLE)m_ThreadID;
+	return (HANDLE)m_ThreadHandle;
 }
 
 inline UINT CEasyThread::GetThreadID()

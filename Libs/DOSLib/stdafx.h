@@ -42,6 +42,8 @@
 
 #endif
 
+//#define USE_MONITORED_NEW
+
 #include "../Utils/Utils.h"
 #include "../NetLib/NetLib.h"
 

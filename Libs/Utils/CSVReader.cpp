@@ -2,7 +2,6 @@
 
 IMPLEMENT_FILE_CHANNEL_MANAGER(CCSVReader)
 
-IMPLEMENT_CLASS_INFO(CCSVReader,CNameObject);
 CCSVReader::CCSVReader(void)
 {
 	m_pData=NULL;
@@ -11,6 +10,8 @@ CCSVReader::CCSVReader(void)
 	m_GrowSize=0;
 	m_LocalCodePage=CP_ACP;
 	m_SaveCodePage=CP_ACP;
+	m_Records.SetTag(_T("CCSVReader"));
+	m_ColumnNames.SetTag(_T("CCSVReader"));
 }
 
 CCSVReader::~CCSVReader(void)
@@ -58,7 +59,7 @@ bool CCSVReader::Open(IFileAccessor * pFileAccessor,bool HaveHeader)
 	}
 
 	m_DataSize = (UINT)StringFile.GetDataLen();
-	m_pData=new TCHAR[m_DataSize+1];
+	m_pData = MONITORED_NEW_ARRAY(_T("CCSVReader"), TCHAR, m_DataSize + 1);
 	memcpy(m_pData, StringFile.GetData(), m_DataSize*sizeof(TCHAR));
 	m_pData[m_DataSize]=0;
 
@@ -229,7 +230,7 @@ bool CCSVReader::Create(UINT BufferSize,UINT GrowSize)
 
 	m_BufferSize=BufferSize;
 	m_GrowSize=GrowSize;
-	m_pData=new TCHAR[m_BufferSize+1];
+	m_pData = MONITORED_NEW_ARRAY(_T("CCSVReader"), TCHAR, m_BufferSize + 1);
 	m_DataSize=0;
 	m_pData[0]=0;
 
@@ -255,7 +256,7 @@ bool CCSVReader::Save(LPCTSTR szFileName,bool WriteHeader)
 bool CCSVReader::Save(IFileAccessor * pFileAccessor,bool WriteHeader)
 {
 	UINT BufferLen=GetSavedDataLen();
-	TCHAR * pSaveBuffer=new TCHAR[BufferLen];
+	TCHAR * pSaveBuffer = MONITORED_NEW_ARRAY(_T("CCSVReader"), TCHAR, BufferLen);
 	UINT DataLen=SaveLine(pSaveBuffer,BufferLen,m_ColumnNames);
 	for(UINT i=0;i<m_Records.GetCount();i++)
 	{
@@ -472,7 +473,7 @@ void CCSVReader::ConfirmBufferFreeSize(UINT NeedSize)
 	{
   		UINT NewBufferSize=m_DataSize+NeedSize;
 		NewBufferSize=((NewBufferSize/m_GrowSize)+1)*m_GrowSize;
-		TCHAR * pNewBuffer=new TCHAR[NewBufferSize+1];
+		TCHAR * pNewBuffer = MONITORED_NEW_ARRAY(_T("CCSVReader"), TCHAR, NewBufferSize + 1);
 		memcpy(pNewBuffer,m_pData,m_DataSize*sizeof(TCHAR));
 		SAFE_DELETE_ARRAY(m_pData);
 		m_pData=pNewBuffer;

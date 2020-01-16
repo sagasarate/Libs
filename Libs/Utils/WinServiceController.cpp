@@ -172,15 +172,15 @@ bool CWinServiceController::GetServiceImageFilePath(LPTSTR pBuffer,int BufferSiz
 			DWORD dwError = GetLastError();
 			if( ERROR_INSUFFICIENT_BUFFER == dwError )
 			{
-				BYTE * pInfoBuffer=new BYTE[InfoSize];
+				BYTE * pInfoBuffer = MONITORED_NEW_ARRAY(_T("CWinServiceController"), BYTE, InfoSize);
 				QUERY_SERVICE_CONFIG * pConfigInfo=(QUERY_SERVICE_CONFIG *)pInfoBuffer;
 				if(QueryServiceConfig(m_hService,pConfigInfo,InfoSize,&InfoSize))
 				{
 					strncpy_0(pBuffer,BufferSize,pConfigInfo->lpBinaryPathName,BufferSize);
-					delete[] pInfoBuffer;
+					MONITORED_DELETE_ARRAY(pInfoBuffer);
 					return true;
 				}
-				delete[] pInfoBuffer;
+				MONITORED_DELETE_ARRAY(pInfoBuffer);
 			}				
 		}
 	}

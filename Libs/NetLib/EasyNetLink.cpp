@@ -28,6 +28,7 @@ CEasyNetLink::CEasyNetLink(void)
 	m_Status=ENL_LINK_NONE;
 	m_ReportID=0;
 	m_NeedReallocConnectionID = false;
+	m_CompressBuffer.SetTag(_T("CEasyNetLink"));
 }
 
 CEasyNetLink::~CEasyNetLink(void)
@@ -59,7 +60,7 @@ bool CEasyNetLink::Init(CEasyNetLinkManager * pManager, const CIPAddress& Connec
 		}
 	}
 	
-	m_pConnection = new CENLConnection();
+	m_pConnection = MONITORED_NEW(_T("CEasyNetLink"), CENLConnection);
 	if (m_pConnection->Init(m_pManager, this, ConnectionAddress, RecvQueueSize, SendQueueSize, MaxPacketSize))
 	{
 		return true;
@@ -86,7 +87,7 @@ bool CEasyNetLink::Init(CEasyNetLinkManager * pManager, UINT ReportID, UINT MaxP
 		}
 	}
 	m_NeedReallocConnectionID = NeedReallocConnectionID;
-	m_pConnection = new CENLConnection();
+	m_pConnection = MONITORED_NEW(_T("CEasyNetLink"), CENLConnection);
 	if (m_pConnection->Init(m_pManager, this, MaxPacketSize))
 	{
 		return true;

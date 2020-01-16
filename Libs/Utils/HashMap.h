@@ -108,7 +108,7 @@ protected:
 		{
 			return &Object;
 		}
-		void NewObject()
+		void NewObject(LPCTSTR Tag)
 		{
 
 		}
@@ -155,10 +155,10 @@ protected:
 		{
 			return pObject;
 		}
-		void NewObject()
+		void NewObject(LPCTSTR Tag)
 		{
 			if (pObject == NULL)
-				pObject = new OBJECT_TYPE;
+				pObject = MONITORED_NEW(Tag, OBJECT_TYPE);
 		}
 		void DeleteObject()
 		{
@@ -204,10 +204,10 @@ protected:
 		{
 			return pObject;
 		}
-		void NewObject()
+		void NewObject(LPCTSTR Tag)
 		{
 			if (pObject == NULL)
-				pObject = new OBJECT_TYPE;
+				pObject = MONITORED_NEW(GetTag(), OBJECT_TYPE);
 		}
 		void DeleteObject()
 		{
@@ -245,11 +245,12 @@ protected:
 	LPSTORAGENODE *							m_HashTable;
 	UINT									m_HashTableLen;
 	UINT									m_HashMask;
+	LPCTSTR									m_Tag;
 public:
 	typedef list_iterator<CHashMap, T> iterator;
 	typedef const_list_iterator<CHashMap, T> const_iterator;
 public:
-	CHashMap()
+	CHashMap(LPCTSTR Tag = _T("CHashMap"))
 	{
 		m_BufferSize = 0;
 		m_pFreeListHead = NULL;
@@ -262,8 +263,9 @@ public:
 		m_HashTable = NULL;
 		m_HashTableLen = 0;
 		m_HashMask = 0;
+		m_Tag = Tag;
 	}
-	CHashMap(UINT Size, UINT GrowLimit = 0)
+	CHashMap(UINT Size, UINT GrowLimit = 0, LPCTSTR Tag = _T("CHashMap"))
 	{
 		m_BufferSize = 0;
 		m_pFreeListHead = NULL;
@@ -276,7 +278,16 @@ public:
 		m_HashTable = NULL;
 		m_HashTableLen = 0;
 		m_HashMask = 0;
+		m_Tag = Tag;
 		Create(Size, GrowLimit);
+	}
+	LPCTSTR GetTag()
+	{
+		return m_Tag;
+	}
+	void SetTag(LPCTSTR Tag)
+	{
+		m_Tag = Tag;
 	}
 	~CHashMap()
 	{
@@ -284,6 +295,7 @@ public:
 	}
 	bool Create(UINT Size, UINT GrowLimit = 0)
 	{
+		m_ObjectBuffPages.SetTag(GetTag());
 		Destory();
 		if (Size > 1)
 		{
@@ -303,6 +315,7 @@ public:
 	}
 	bool Create(const STORAGE_POOL_SETTING& PoolSetting)
 	{
+		m_ObjectBuffPages.SetTag(GetTag());
 		return Create(PoolSetting.StartSize, PoolSetting.StartSize + PoolSetting.GrowSize*PoolSetting.GrowLimit);
 	}
 	UINT GetBufferSize() const
@@ -620,10 +633,10 @@ protected:
 		{
 			if (m_ObjectBuffPages.GetCount() >= m_GrowLimit)
 				return false;
-		}
+		}		
 		OBJECT_BUFF_PAGE_INFO PageInfo;
 		PageInfo.BufferSize = Size;
-		PageInfo.pObjectBuffer = new StorageNode[Size];
+		PageInfo.pObjectBuffer = MONITORED_NEW_ARRAY(GetTag(), StorageNode, Size);
 		for (UINT i = 0; i < Size; i++)
 		{
 			PageInfo.pObjectBuffer[i].IsUsed = false;
@@ -697,7 +710,7 @@ protected:
 	{
 		m_HashTableLen = GetBufferSize();
 		SAFE_DELETE_ARRAY(m_HashTable);
-		m_HashTable = new LPSTORAGENODE[m_HashTableLen];
+		m_HashTable = MONITORED_NEW_ARRAY(GetTag(), LPSTORAGENODE, m_HashTableLen);
 		ZeroMemory(m_HashTable, sizeof(LPSTORAGENODE)*m_HashTableLen);
 		m_HashMask = m_HashTableLen - 1;
 		//UINT Len = m_HashTableLen;
@@ -803,7 +816,7 @@ protected:
 				m_UsedObjectCount++;
 			}
 			pNode->Key = Key;
-			pNode->NewObject();
+			pNode->NewObject(GetTag());
 			m_ObjectCount++;
 			return pNode;
 		}

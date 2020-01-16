@@ -3,6 +3,7 @@
 
 
 CLuaTable::CLuaTable(void)
+	:CEasyArray(_T("CLuaTable"))
 {
 }
 

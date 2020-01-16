@@ -136,6 +136,8 @@ struct SEARCH_PEER
 	bool					IsFinded;
 	bool					IsAcked;                  /* whether they acked our announcement */
 	SEARCH_PEER()
+		:NodeIDList(_T("SEARCH_PEER"))
+		, DataPortAddressList(_T("SEARCH_PEER"))
 	{
 		Clear();
 	}

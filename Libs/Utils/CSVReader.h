@@ -15,7 +15,6 @@ protected:
 
 	DECLARE_FILE_CHANNEL_MANAGER
 
-	DECLARE_CLASS_INFO(CCSVReader)
 public:
 	CCSVReader(void);
 	~CCSVReader(void);

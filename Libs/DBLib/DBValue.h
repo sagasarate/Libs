@@ -22,7 +22,7 @@ protected:
 	int				m_DigitSize;
 	BYTE *			m_pData;
 	int				m_DataSize;
-	DECLARE_CLASS_INFO(CDBValue)
+	DECLARE_CLASS_INFO_STATIC(CDBValue)
 public:
 	CDBValue(void);
 

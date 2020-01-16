@@ -14,38 +14,42 @@
 
 IMPLEMENT_CLASS_INFO_STATIC(CEasyBuffer,CNameObject);
 
-CEasyBuffer::CEasyBuffer(void)
+CEasyBuffer::CEasyBuffer(LPCTSTR Tag)
 {
 	m_pBuffer=NULL;
 	m_BufferSize=0;
 	m_UsedSize=0;
 	m_IsSelfBuffer=true;
+	m_Tag = Tag;
 }
 
-CEasyBuffer::CEasyBuffer(UINT Size)
+CEasyBuffer::CEasyBuffer(UINT Size, LPCTSTR Tag)
 {
 	m_pBuffer=NULL;
 	m_BufferSize=0;
 	m_UsedSize=0;
 	m_IsSelfBuffer=true;
+	m_Tag = Tag;
 	Create(Size);
 }
 
-CEasyBuffer::CEasyBuffer(LPVOID pBuff,UINT Size)
+CEasyBuffer::CEasyBuffer(LPVOID pBuff,UINT Size, LPCTSTR Tag)
 {
 	m_pBuffer=NULL;
 	m_BufferSize=0;
 	m_UsedSize=0;
 	m_IsSelfBuffer=true;
+	m_Tag = Tag;
 	Create(pBuff,Size);
 }
 
-CEasyBuffer::CEasyBuffer(const CEasyBuffer& Buffer)
+CEasyBuffer::CEasyBuffer(const CEasyBuffer& Buffer, LPCTSTR Tag)
 {
 	m_pBuffer=NULL;
 	m_BufferSize=0;
 	m_UsedSize=0;
 	m_IsSelfBuffer=true;
+	m_Tag = Tag;
 	Create(Buffer.GetBufferSize());
 	PushBack(Buffer.GetBuffer(),Buffer.GetUsedSize());
 }
@@ -60,7 +64,7 @@ BOOL CEasyBuffer::Create(UINT Size)
 	Destory();
 	if(Size)
 	{
-		m_pBuffer=new BYTE[Size];
+		m_pBuffer = MONITORED_NEW_ARRAY(GetTag(), BYTE, Size);
 		m_BufferSize=Size;
 		m_UsedSize=0;
 		m_IsSelfBuffer=true;

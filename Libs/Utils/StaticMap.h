@@ -59,7 +59,7 @@ protected:
 		{
 			return &Object;
 		}
-		void NewObject()
+		void NewObject(LPCTSTR Tag)
 		{
 
 		}
@@ -109,10 +109,10 @@ protected:
 		{
 			return pObject;
 		}
-		void NewObject()
+		void NewObject(LPCTSTR Tag)
 		{
-			if(pObject==NULL)
-				pObject=new OBJECT_TYPE;
+			if (pObject == NULL)
+				pObject = MONITORED_NEW(Tag, OBJECT_TYPE);
 		}
 		void DeleteObject()
 		{
@@ -160,10 +160,10 @@ protected:
 		{
 			return pObject;
 		}
-		void NewObject()
+		void NewObject(LPCTSTR Tag)
 		{
-			if(pObject==NULL)
-				pObject=new OBJECT_TYPE;
+			if (pObject == NULL)
+				pObject = MONITORED_NEW(Tag, OBJECT_TYPE);
 		}
 		void DeleteObject()
 		{
@@ -197,6 +197,7 @@ protected:
 	UINT								m_UsedObjectCount;
 	UINT								m_GrowSize;
 	UINT								m_GrowLimit;
+	LPCTSTR								m_Tag;
 
 	//int				m_BlackCount;
 
@@ -204,7 +205,7 @@ public:
 	typedef list_iterator<CStaticMap, T> iterator;
 	typedef const_list_iterator<CStaticMap, T> const_iterator;
 public:
-	CStaticMap()
+	CStaticMap(LPCTSTR Tag = _T("CStaticMap"))
 	{
 		m_pFreeListHead=NULL;
 		m_pFreeListTail=NULL;
@@ -217,8 +218,9 @@ public:
 		m_UsedObjectCount = 0;
 		m_GrowSize=0;
 		m_GrowLimit=0;
+		m_Tag = Tag;
 	}
-	CStaticMap(UINT Size, UINT GrowSize = 0, UINT GrowLimit = 0)
+	CStaticMap(UINT Size, UINT GrowSize = 0, UINT GrowLimit = 0, LPCTSTR Tag = _T("CStaticMap"))
 	{
 		m_pFreeListHead = NULL;
 		m_pFreeListTail = NULL;
@@ -231,14 +233,24 @@ public:
 		m_UsedObjectCount = 0;
 		m_GrowSize = 0;
 		m_GrowLimit = 0;
+		m_Tag = Tag;
 		Create(Size, GrowSize, GrowLimit);
 	}
 	~CStaticMap()
 	{
 		Destory();
 	}
+	LPCTSTR GetTag()
+	{
+		return m_Tag;
+	}
+	void SetTag(LPCTSTR Tag)
+	{
+		m_Tag = Tag;
+	}
 	bool Create(UINT Size,UINT GrowSize=0,UINT GrowLimit=0)
 	{
+		m_ObjectBuffPages.SetTag(GetTag());
 		Destory();
 		if(Size)
 		{
@@ -250,6 +262,7 @@ public:
 	}
 	bool Create(const STORAGE_POOL_SETTING& PoolSetting)
 	{
+		m_ObjectBuffPages.SetTag(GetTag());
 		return Create(PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
 	}
 	void Destory()
@@ -1159,8 +1172,8 @@ protected:
 					StorageNode * pNewNode=NewNode(Key);
 					if(pNewNode)
 					{
-						pNewNode->pParent=pRoot;			
-						pRoot->pRightChild=pNewNode;
+						pNewNode->pParent=pRoot;	
+						pRoot->pRightChild=pNewNode;						
 
 						pNewNode->pBack=pRoot->pBack;
 						pNewNode->pFront=pRoot;
@@ -1467,9 +1480,10 @@ protected:
 			if(m_ObjectBuffPages.GetCount()>=m_GrowLimit)
 				return false;
 		}
+		
 		OBJECT_BUFF_PAGE_INFO PageInfo;
 		PageInfo.BufferSize=Size;		
-		PageInfo.pObjectBuffer=new StorageNode[Size];
+		PageInfo.pObjectBuffer = MONITORED_NEW_ARRAY(GetTag(), StorageNode, Size);
 		for (UINT i = 0; i < Size; i++)
 		{
 			PageInfo.pObjectBuffer[i].IsUsed = false;
@@ -1579,8 +1593,13 @@ protected:
 				pNode->IsUsed = true;
 				m_UsedObjectCount++;
 			}
-			pNode->NewObject();
+			pNode->NewObject(GetTag());
 			pNode->Key=Key;
+			pNode->Color = NC_NONE;
+			pNode->pFront = NULL;
+			pNode->pBack = NULL;
+			pNode->pRightChild = NULL;
+			pNode->pLeftChild = NULL;
 			
 			m_ObjectCount++;
 			return pNode;

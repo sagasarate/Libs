@@ -102,3 +102,5 @@ inline int CloseAllFD()
 	return retval;
 
 }
+
+bool Addr2Line(const char * ModulaName, void * Address, int * CallPipes, char * pOutBuffer, size_t BufferSize);

@@ -7,13 +7,14 @@
       <!--EventRouterPool为连接数据转接器对象池大小设置，最大连接数不能超过此对象池大小-->
   </Net>
   
-  <Router RouterID="0" MsgQueueSize="10240" MsgProcessLimit="32" StateMsgTransfer="true" 
+  <Router RouterID="0" MsgQueueSize="10240" MsgProcessLimit="32" StatMsgTransfer="true" StatMemoryUse="true"
           EnableGuardThread="true" GuardThreadKeepAliveTime="20000" GuardThreadKeepAliveCount="5" />
   <!--路由设置，
     RouterID：路由ID，容器的唯一ID,不同容器间不可重复
     MsgQueueSize：路由的消息队列大小，
     MsgProcessLimit：每循环处理消息的上限
-    StateMsgTransfer：是否对处理的消息进行统计
+    StatMsgTransfer：是否对处理的消息进行统计
+    StatMemoryUse：是否对内存使用情况进行统计
     EnableGuardThread：是否启用守护线程
     GuardThreadKeepAliveTime：守护线程死锁检测间隔
     GuardThreadKeepAliveCount：守护线程死锁超时次数
@@ -173,6 +174,7 @@
     <UDPControlAddress IP="0" Port="8900"/>
     <GuardThread Enable="true" KeepAliveTime="20000" KeepAliveCount="5"/>
     <ControlPipe Name="DOSS" AssembleBufferSize="8192" />
+    <MallocConfig TrimThreshold="131072" MMapThreshold="131072" MMapMax="33554432" />
   </System>
 
 

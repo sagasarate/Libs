@@ -29,6 +29,8 @@ CDOSBaseObject::CDOSBaseObject(void)
 	m_ConcernedObjectCheckTime=1000;
 	m_ConcernedObjectKeepAliveCount=5;
 	m_ConcernedObjectCheckPtr=1;
+	m_ConcernedObject.SetTag(_T("CDOSBaseObject"));
+	m_MsgQueue.SetTag(_T("CDOSBaseObject"));
 	FUNCTION_END;
 }
 

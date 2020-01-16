@@ -27,7 +27,9 @@ CNetService::CNetService()
 	m_ParallelAcceptCount=0;
 	m_ParallelRecvCount=0;
 	m_pEpollEventRouter=NULL;
-
+	m_RecvQueue.SetTag(_T("CNetService"));
+	m_SendQueue.SetTag(_T("CNetService"));
+	m_AcceptQueue.SetTag(_T("CNetService"));
 }
 
 CNetService::~CNetService(void)

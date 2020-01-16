@@ -22,6 +22,8 @@ CNetConnection::CNetConnection(void)
 	m_CurAddressFamily = AF_INET;
 	m_UseSafeDisconnect=false;
 	m_pEpollEventRouter=NULL;
+	m_RecvQueue.SetTag(_T("CNetConnection"));
+	m_SendQueue.SetTag(_T("CNetConnection"));
 }
 
 CNetConnection::~CNetConnection(void)
@@ -230,6 +232,19 @@ void CNetConnection::Disconnect()
 		OnDisconnection();
 	}
 
+	//解除epoll事件注册
+	if (GetServer() && m_pEpollEventRouter)
+	{
+		if(m_pEpollEventRouter->GetEpollThread())
+		{
+			if (GetServer()->UnbindSocket(m_Socket.GetSocket(), m_pEpollEventRouter))
+			{
+				PrintNetDebugLog("(%d)Connection已解除Epoll绑定", GetID());
+			}
+		}
+	}
+		
+
 	m_Socket.Close();
 
 	m_WantClose=false;
@@ -240,8 +255,19 @@ void CNetConnection::Disconnect()
 }
 void CNetConnection::QueryDisconnect()
 {
-	if (GetServer() && (!m_WantClose))
-		GetServer()->UnbindSocket(m_Socket.GetSocket(), m_pEpollEventRouter);//解除epoll事件注册，以免收到更多的错误事件
+	if(!m_WantClose)
+	{
+		if (GetServer() && m_pEpollEventRouter)
+		{
+			if (m_pEpollEventRouter->GetEpollThread())
+			{
+				if (GetServer()->UnbindSocket(m_Socket.GetSocket(), m_pEpollEventRouter))
+				{
+					PrintNetDebugLog("(%d)Connection已解除Epoll绑定", GetID());
+				}
+			}
+		}
+	}		
 	m_WantClose=true;	
 }
 
@@ -298,7 +324,12 @@ bool CNetConnection::SendMulti(LPCVOID * pDataBuffers, const UINT * pDataSizes, 
 			if (m_SendQueue.GetUsedSize()>0)
 			{
 				//有数据未发完，直接加入缓冲区
-				m_SendQueue.PushBack(pData, Size);
+				if (!m_SendQueue.PushBack(pData, Size))
+				{
+					PrintNetLog("发送缓冲溢出！");
+					QueryDisconnect();
+					return false;
+				}
 			}
 			else
 			{
@@ -306,7 +337,12 @@ bool CNetConnection::SendMulti(LPCVOID * pDataBuffers, const UINT * pDataSizes, 
 				if (SendSize < Size)
 				{
 					//发送不完，剩余数据加入缓冲区
-					m_SendQueue.PushBack((BYTE *)pData + SendSize, Size - SendSize);
+					if (!m_SendQueue.PushBack((BYTE *)pData + SendSize, Size - SendSize))
+					{
+						PrintNetLog("发送缓冲溢出！");
+						QueryDisconnect();
+						return false;
+					}
 				}
 			}
 		}

@@ -50,7 +50,7 @@ void CGifBlock::Release()
 {
 	if(m_next!=NULL) m_next->m_previous=m_previous;
 	if(m_previous!=NULL) m_previous->m_next=m_next;
-	delete this;
+	MONITORED_DELETE(this);
 }
 
 void CGifBlock::ReleaseAll()
@@ -74,7 +74,7 @@ void CGifBlock::AddImageBlock(DWORD offset,DWORD size,WORD x,WORD y,WORD width,W
 {
 	LPCGifBlock	block;
 
-	block=new CGifBlock();
+	block = MONITORED_NEW(_T("CGif"), CGifBlock);
 	block->m_type=GIF_IMAGE_BLOCK;
 	block->m_offset=offset;
 	block->m_size=size;
@@ -90,7 +90,7 @@ void CGifBlock::AddControlBlock(DWORD offset,DWORD size,WORD delay,int BGColor)
 {
 	LPCGifBlock	block;
 
-	block=new CGifBlock();
+	block = MONITORED_NEW(_T("CGif"), CGifBlock);
 	block->m_type=GIF_CONTROL_BLOCK;
 	block->m_offset=offset;
 	block->m_size=size;
@@ -103,7 +103,7 @@ void CGifBlock::AddCommentBlock(DWORD offset,DWORD size)
 {
 	LPCGifBlock	block;
 
-	block=new CGifBlock();
+	block = MONITORED_NEW(_T("CGif"), CGifBlock);
 	block->m_type=GIF_COMMENT_BLOCK;
 	block->m_offset=offset;
 	block->m_size=size;
@@ -114,7 +114,7 @@ void CGifBlock::AddTextBlock(DWORD offset,DWORD size)
 {
 	LPCGifBlock	block;
 
-	block=new CGifBlock();
+	block = MONITORED_NEW(_T("CGif"), CGifBlock);
 	block->m_type=GIF_TEXT_BLOCK;
 	block->m_offset=offset;
 	block->m_size=size;
@@ -125,7 +125,7 @@ void CGifBlock::AddAppBlock(DWORD offset,DWORD size)
 {
 	LPCGifBlock	block;
 
-	block=new CGifBlock();
+	block = MONITORED_NEW(_T("CGif"), CGifBlock);
 	block->m_type=GIF_APP_BLOCK;
 	block->m_offset=offset;
 	block->m_size=size;
@@ -156,7 +156,7 @@ int CGif::Open(LPCTSTR FileName)
 {
 	int			ExitCode;
 	
-	IFileAccessor * pFileAccessor=new CStandardFileAccessor();
+	IFileAccessor * pFileAccessor = MONITORED_NEW(_T("CGif"), CStandardFileAccessor);
 
 	if(!pFileAccessor->Open(FileName,IFileAccessor::modeWrite|IFileAccessor::shareShareRead|IFileAccessor::modeCreateAlways))
 	{
@@ -585,13 +585,13 @@ HBITMAP CGif::GetBitmap(int index)
 	LineWidth=width;
 	if(LineWidth&1) LineWidth++;
 	if(LineWidth&3) LineWidth+=2;
-	bits=(LPSTR)malloc(width*height);
+	bits = (LPSTR)MONITORED_MALLOC(_T("CGif"), width*height);
 	if(GetBits(index,bits))
 	{
-		free(bits);
+		MONITORED_FREE(bits);
 		return NULL;
 	}
-	bih=(BITMAPINFO *)malloc(sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)*256);
+	bih=(BITMAPINFO *)MONITORED_MALLOC(_T("CGif"), sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)*256);
 	GetPalette(index,bih->bmiColors);
 	bih->bmiHeader.biSize=sizeof(bih->bmiHeader);
 	bih->bmiHeader.biWidth=width;
@@ -607,15 +607,15 @@ HBITMAP CGif::GetBitmap(int index)
 	hdc=GetDC(NULL);
 	if(hdc==NULL)
 	{
-		free(bits);
-		free(bih);
+		MONITORED_FREE(bits);
+		MONITORED_FREE(bih);
 		return NULL;
 	}
 	hbmp=CreateDIBSection(hdc,bih,DIB_RGB_COLORS,(void **)&temp1,NULL,0);
 	if(hbmp==NULL)
 	{
-		free(bits);
-		free(bih);
+		MONITORED_FREE(bits);
+		MONITORED_FREE(bih);
 		return NULL;
 	}
 	temp1+=LineWidth*(height-1);
@@ -626,8 +626,8 @@ HBITMAP CGif::GetBitmap(int index)
 		temp1-=LineWidth;
 		temp2+=width;
 	}
-	free(bits);
-	free(bih);
+	MONITORED_FREE(bits);
+	MONITORED_FREE(bih);
 	ReleaseDC(NULL,hdc);
 	return hbmp;
 }
@@ -647,18 +647,18 @@ HBITMAP CGif::GetMergeBitmap()
 	if(LineWidth&1) LineWidth++;
 	if(LineWidth&3) LineWidth+=2;
 	BlockSize=width*GetHeight(0);
-	bits=(LPSTR)malloc(width*height);
+	bits=(LPSTR)MONITORED_MALLOC(_T("CGif"), width*height);
 	temp1=bits;
 	for(i=0;i<GetImageBlockCount();i++)
 	{
 		if(GetBits(i,temp1))
 		{
-			free(bits);
+			MONITORED_FREE(bits);
 			return NULL;
 		}
 		temp1+=BlockSize;
 	}
-	bih=(BITMAPINFO *)malloc(sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)*256);
+	bih=(BITMAPINFO *)MONITORED_MALLOC(_T("CGif"), sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)*256);
 	GetPalette(0,bih->bmiColors);
 	bih->bmiHeader.biSize=sizeof(bih->bmiHeader);
 	bih->bmiHeader.biWidth=width;
@@ -674,15 +674,15 @@ HBITMAP CGif::GetMergeBitmap()
 	hdc=GetDC(NULL);
 	if(hdc==NULL)
 	{
-		free(bits);
-		free(bih);
+		MONITORED_FREE(bits);
+		MONITORED_FREE(bih);
 		return NULL;
 	}
 	hbmp=CreateDIBSection(hdc,bih,DIB_RGB_COLORS,(void **)&temp1,NULL,0);
 	if(hbmp==NULL)
 	{
-		free(bits);
-		free(bih);
+		MONITORED_FREE(bits);
+		MONITORED_FREE(bih);
 		return NULL;
 	}
 	temp1+=LineWidth*(height-1);
@@ -693,8 +693,8 @@ HBITMAP CGif::GetMergeBitmap()
 		temp1-=LineWidth;
 		temp2+=width;
 	}
-	free(bits);
-	free(bih);
+	MONITORED_FREE(bits);
+	MONITORED_FREE(bih);
 	ReleaseDC(NULL,hdc);
 	return hbmp;
 }
@@ -708,7 +708,7 @@ int CGif::Create(LPCTSTR FileName, int width,int height,int BGColor,RGBQUAD * pa
 	if(m_WorkState!=GIF_READY) return -1;
 	m_WorkState=GIF_PACK;
 
-	m_pGifFile=new CStandardFileAccessor();
+	m_pGifFile = MONITORED_NEW(_T("CGif"), CStandardFileAccessor);
 	if(!m_pGifFile->Open(FileName,IFileAccessor::modeWrite|IFileAccessor::shareShareRead|IFileAccessor::modeCreateAlways))
 	{
 		SAFE_RELEASE(m_pGifFile);
@@ -822,7 +822,7 @@ int CGif::AddImageBlock(int x, int y, HBITMAP hbmp, BOOL SavePal)
 	int	result,i;
 
 	if(GetObject(hbmp,sizeof(BITMAP),&bmp)==0) return 7;
-	bih=(BITMAPINFO *)malloc(sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)*256);
+	bih=(BITMAPINFO *)MONITORED_MALLOC(_T("CGif"), sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)*256);
 	bih->bmiHeader.biSize=sizeof(bih->bmiHeader);
 	bih->bmiHeader.biWidth=bmp.bmWidth;
 	bih->bmiHeader.biHeight=bmp.bmHeight;
@@ -837,16 +837,16 @@ int CGif::AddImageBlock(int x, int y, HBITMAP hbmp, BOOL SavePal)
 	hdc=::GetDC(NULL);
 	if(hdc==NULL)
 	{
-		free(bih);
+		MONITORED_FREE(bih);
 		return 8;
 	}
-	buff=(char *)malloc(bmp.bmWidth*bmp.bmHeight);
-	BmpBuff=(char *)malloc(bmp.bmWidthBytes*bmp.bmHeight);
+	buff=(char *)MONITORED_MALLOC(_T("CGif"), bmp.bmWidth*bmp.bmHeight);
+	BmpBuff=(char *)MONITORED_MALLOC(_T("CGif"), bmp.bmWidthBytes*bmp.bmHeight);
 	if(GetDIBits(hdc,hbmp,0,bmp.bmHeight,BmpBuff,bih,DIB_RGB_COLORS)!=bmp.bmHeight)
 	{		
-		free(bih);
-		free(buff);
-		free(BmpBuff);
+		MONITORED_FREE(bih);
+		MONITORED_FREE(buff);
+		MONITORED_FREE(BmpBuff);
 		return 9;
 	}
 	::ReleaseDC(NULL,hdc);
@@ -862,9 +862,9 @@ int CGif::AddImageBlock(int x, int y, HBITMAP hbmp, BOOL SavePal)
 		result=AddImageBlock(x,y,bmp.bmWidth,bmp.bmHeight,buff,bih->bmiColors,256);
 	else
 		result=AddImageBlock(x,y,bmp.bmWidth,bmp.bmHeight,buff);
-	free(bih);
-	free(buff);
-	free(BmpBuff);
+	MONITORED_FREE(bih);
+	MONITORED_FREE(buff);
+	MONITORED_FREE(BmpBuff);
 	if(result==bmp.bmHeight) return 0;
 	else return 10;
 }

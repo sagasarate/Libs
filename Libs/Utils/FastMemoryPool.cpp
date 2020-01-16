@@ -53,8 +53,8 @@ BOOL CFastMemoryPool::Create(UINT BlockSize,UINT LevelSize,UINT MaxLevel,bool Is
 	}
 
 	m_BufferSize=m_LevelSize*m_BlockLevelCount;
-	m_pBuffer=new char[m_BufferSize];
-	m_pBlockLevels=new BlockList[m_BlockLevelCount];
+	m_pBuffer = MONITORED_NEW_ARRAY(_T("CFastMemoryPool"), char, m_BufferSize);
+	m_pBlockLevels = MONITORED_NEW_ARRAY(_T("CFastMemoryPool"), BlockList, m_BlockLevelCount);
 
 	for(UINT i=0;i<m_BlockLevelCount;i++)
 	{
@@ -219,7 +219,7 @@ LPVOID CFastMemoryPool::Alloc(UINT Size)
 		}
 
 		AtomicInc(&m_SystemAllocCount);
-		return new char[Size];
+		return MONITORED_NEW_ARRAY(_T("CFastMemoryPool"), char, Size);
 	}
 	else
 		return NULL;
@@ -237,7 +237,7 @@ BOOL CFastMemoryPool::Free(LPVOID pMem)
 				return FreeBlock((BlockNode *)((char *)pMem - sizeof(BlockNode)));
 			}
 			AtomicInc(&m_SystemFreeCount);
-			delete[](char *)pMem;
+			MONITORED_DELETE_ARRAY((char *)pMem);
 			return TRUE;
 		}
 		else
@@ -350,20 +350,33 @@ BOOL CFastMemoryPool::FreeBlock(BlockNode * pNode)
 void CFastMemoryPool::DumpBlock(BlockNode * pNode)
 {
 	BlockList * pBlockList = pNode->pBlockList;
-	UINT BlockSize = pBlockList->BlockSize;
 	BYTE * pBlockData = (BYTE *)pNode;
-	for (UINT i = 0; i < BlockSize; i += 32)
+	if (m_BlockSize >= 32)
 	{
 		PrintImportantLog(_T("%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,")
-			_T("%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X"),
-			pBlockData[i], pBlockData[i + 1], pBlockData[i + 2], pBlockData[i + 3],
-			pBlockData[i + 4], pBlockData[i + 5], pBlockData[i + 6], pBlockData[i + 7],
-			pBlockData[i + 8], pBlockData[i + 9], pBlockData[i + 10], pBlockData[i + 11],
-			pBlockData[i + 12], pBlockData[i + 13], pBlockData[i + 14], pBlockData[i + 15],
-			pBlockData[i + 16], pBlockData[i + 17], pBlockData[i + 18], pBlockData[i + 19],
-			pBlockData[i + 20], pBlockData[i + 21], pBlockData[i + 22], pBlockData[i + 23],
-			pBlockData[i + 24], pBlockData[i + 25], pBlockData[i + 26], pBlockData[i + 27],
-			pBlockData[i + 28], pBlockData[i + 29], pBlockData[i + 30], pBlockData[i + 31]);
+						  _T("%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X"),
+			pBlockData[0], pBlockData[1], pBlockData[2], pBlockData[3],
+			pBlockData[4], pBlockData[5], pBlockData[6], pBlockData[7],
+			pBlockData[8], pBlockData[9], pBlockData[10], pBlockData[11],
+			pBlockData[12], pBlockData[13], pBlockData[14], pBlockData[15],
+			pBlockData[16], pBlockData[17], pBlockData[18], pBlockData[19],
+			pBlockData[20], pBlockData[21], pBlockData[22], pBlockData[23],
+			pBlockData[24], pBlockData[25], pBlockData[26], pBlockData[27],
+			pBlockData[28], pBlockData[29], pBlockData[30], pBlockData[31]);
+		PrintImportantLog(_T("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c")
+						  _T("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c"),
+			pBlockData[0], pBlockData[1], pBlockData[2], pBlockData[3],
+			pBlockData[4], pBlockData[5], pBlockData[6], pBlockData[7],
+			pBlockData[8], pBlockData[9], pBlockData[10], pBlockData[11],
+			pBlockData[12], pBlockData[13], pBlockData[14], pBlockData[15],
+			pBlockData[16], pBlockData[17], pBlockData[18], pBlockData[19],
+			pBlockData[20], pBlockData[21], pBlockData[22], pBlockData[23],
+			pBlockData[24], pBlockData[25], pBlockData[26], pBlockData[27],
+			pBlockData[28], pBlockData[29], pBlockData[30], pBlockData[31]);
+	}
+	else
+	{
+		PrintImportantLog(_T("内存块太小，无法Dump"));
 	}
 }
 

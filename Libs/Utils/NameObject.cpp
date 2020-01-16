@@ -13,30 +13,30 @@
 
 CLASS_INFO	CNameObject::m_CNameObjectClassInfo={_T("CNameObject"),NULL,CNameObject::CreateObject};
 
-CEasyMap<CEasyString,CLASS_INFO *> * CNameObject::m_pAllClassInfo=NULL;
-int CNameObject::m_AllClassCount=0;
+
+
+CLASS_INFO_MAP CNameObject::m_AllClassInfo;
 
 CClassInfoRegister CNameObject::m_CNameObjectClassInfoRegister(_T("CNameObject"),&m_CNameObjectClassInfo);
 
 CClassInfoRegister::CClassInfoRegister(LPCTSTR ClassName,CLASS_INFO * pClassInfo)
 {
-	if(CNameObject::m_pAllClassInfo==NULL)
-		CNameObject::m_pAllClassInfo=new CEasyMap<CEasyString,CLASS_INFO *>;
-	(*CNameObject::m_pAllClassInfo)[CEasyString(ClassName)]=pClassInfo;
-	CNameObject::m_AllClassCount++;
+	if (CNameObject::m_AllClassInfo.GetBufferSize()==0)
+	{
+		CNameObject::m_AllClassInfo.Create(64, 128, 128);
+	}
+
+	CNameObject::m_AllClassInfo.Insert(ClassName, pClassInfo);
 }
 CClassInfoRegister::~CClassInfoRegister()
 {
-	CNameObject::m_AllClassCount--;
-	if(CNameObject::m_AllClassCount<=0)
-		SAFE_DELETE(CNameObject::m_pAllClassInfo);
 }
 
 CNameObject::CNameObject()
 {
 	m_ID=0;
 	m_UseRef=1;
-	m_pParam=NULL;		
+	m_pParam=NULL;
 }
 
 CNameObject::~CNameObject()
@@ -44,9 +44,26 @@ CNameObject::~CNameObject()
 
 }
 
+bool CNameObject::Initialize()
+{
+	return true;
+}
+
+void CNameObject::Destory()
+{
+}
+
+void CNameObject::Release()
+{
+	if (DecUseRef() <= 0)
+	{
+		MONITORED_DELETE(this);
+	}
+}
+
 CNameObject * CNameObject::CreateObject()
 {
-	return new CNameObject();
+	return MONITORED_NEW(_T("CNameObject"), CNameObject);
 }
 
 
@@ -57,12 +74,15 @@ CLASS_INFO& CNameObject::GetThisClassInfo()
 
 CLASS_INFO * CNameObject::GetClassInfo(LPCTSTR ClassName)
 {
-	return (*m_pAllClassInfo)[ClassName];
+	CLASS_INFO ** pInfo = m_AllClassInfo.Find(ClassName);
+	if (pInfo)
+		return *pInfo;
+	return NULL;
 }
 
 int CNameObject::GetAllClassCount()
 {
-	return m_AllClassCount;
+	return m_AllClassInfo.GetObjectCount();
 }
 
 void CNameObject::RefreshStorageID()
@@ -77,7 +97,7 @@ bool CNameObject::CloneFrom(CNameObject * pObject,UINT Param)
 	Destory();
 
 	m_Name=pObject->m_Name;
-	//strncpy_0(m_Name,MAX_OBJECT_NAME,pObject->m_Name,MAX_OBJECT_NAME);		
+	//strncpy_0(m_Name,MAX_OBJECT_NAME,pObject->m_Name,MAX_OBJECT_NAME);
 	m_StorageID=pObject->m_StorageID;
 	m_pParam=pObject->m_pParam;
 	return true;
@@ -152,9 +172,9 @@ bool CNameObject::FromSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pRe
 //int CNameObject::USOWriteHead(CNameObject::STORAGE_STRUCT * pHead,CUSOFile * pResourceManager,UINT Param)
 //{
 //	if(pHead==NULL)
-//		return false;	
+//		return false;
 //	strncpy_0(pHead->Type,MAX_TYPE_LEN,GetClassInfo().ClassName,MAX_TYPE_LEN);
-//	strncpy_0(pHead->Name,MAX_OBJECT_NAME,GetName(),MAX_OBJECT_NAME);	
+//	strncpy_0(pHead->Name,MAX_OBJECT_NAME,GetName(),MAX_OBJECT_NAME);
 //	pHead->StorageID=GetStorageID();
 //	pHead->ID=GetID();
 //	return sizeof(STORAGE_STRUCT);
@@ -176,7 +196,7 @@ bool CNameObject::FromSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pRe
 //{
 //	pHead->Name[MAX_OBJECT_NAME-1]=0;
 //	SetName(pHead->Name);
-//	SetStorageID(pHead->StorageID);	
+//	SetStorageID(pHead->StorageID);
 //	SetID(pHead->ID);
 //	return sizeof(STORAGE_STRUCT);
 //}

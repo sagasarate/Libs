@@ -19,9 +19,15 @@ protected:
 	
 	CEasyCriticalSection		m_EasyCriticalSection;
 public:
-	CThreadSafeStaticMap()
+	CThreadSafeStaticMap(LPCTSTR Tag = _T("CThreadSafeStaticMap"))
+		:CStaticMap<KEY, T, StorageMode>(Tag)
 	{
 		
+	}
+	CThreadSafeStaticMap(UINT Size, UINT GrowSize = 0, UINT GrowLimit = 0, LPCTSTR Tag = _T("CThreadSafeStaticMap"))
+		:CStaticMap<KEY, T, StorageMode>(Size, GrowSize, GrowLimit, Tag)
+	{
+
 	}
 	~CThreadSafeStaticMap()
 	{

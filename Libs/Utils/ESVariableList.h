@@ -59,6 +59,7 @@ public:
 	CESVariableList()
 	{
 		m_IDStart=0;
+		m_Map.SetTag(_T("CESVariableList"));
 	}
 	~CESVariableList()
 	{

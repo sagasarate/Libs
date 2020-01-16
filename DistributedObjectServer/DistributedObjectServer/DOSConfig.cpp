@@ -47,13 +47,15 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 			if(Router.moveto_child("Router"))
 			{
 				if(Router.has_attribute("RouterID"))
-					m_DOSConfig.RouterConfig.RouterID=(UINT)Router.attribute("RouterID");
+					m_DOSConfig.RouterConfig.RouterID=Router.attribute("RouterID");
 				if(Router.has_attribute("MsgQueueSize"))
-					m_DOSConfig.RouterConfig.MaxRouterSendMsgQueue = (UINT)Router.attribute("MsgQueueSize");
+					m_DOSConfig.RouterConfig.MaxRouterSendMsgQueue = Router.attribute("MsgQueueSize");
 				if(Router.has_attribute("MsgProcessLimit"))
-					m_DOSConfig.RouterConfig.RouterMsgProcessLimit = (UINT)Router.attribute("MsgProcessLimit");
-				if (Router.has_attribute("StateMsgTransfer"))
-					m_DOSConfig.RouterConfig.StateMsgTransfer = Router.attribute("StateMsgTransfer");
+					m_DOSConfig.RouterConfig.RouterMsgProcessLimit = Router.attribute("MsgProcessLimit");
+				if (Router.has_attribute("StatMsgTransfer"))
+					m_DOSConfig.RouterConfig.StatMsgTransfer = Router.attribute("StatMsgTransfer");
+				if (Router.has_attribute("StatMemoryUse"))
+					m_DOSConfig.RouterConfig.StatMemoryUse = Router.attribute("StatMemoryUse");
 				if (Router.has_attribute("EnableGuardThread"))
 					m_DOSConfig.RouterConfig.EnableGuardThread = Router.attribute("EnableGuardThread");
 				if (Router.has_attribute("GuardThreadKeepAliveTime"))
@@ -93,33 +95,33 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 			if(MemoryPool.moveto_child("MemoryPool"))
 			{
 				if (MemoryPool.has_attribute("Enable"))
-					m_DOSConfig.MemoryPoolConfig.Enable = (UINT)MemoryPool.attribute("Enable");
-				if(MemoryPool.has_attribute("BlockSize"))
-					m_DOSConfig.MemoryPoolConfig.MemoryPoolBlockSize=(UINT)MemoryPool.attribute("BlockSize");
-				if(MemoryPool.has_attribute("LevelSize"))
-					m_DOSConfig.MemoryPoolConfig.MemoryPoolLeveSize = (UINT)MemoryPool.attribute("LevelSize");
-				if(MemoryPool.has_attribute("LevelCount"))
-					m_DOSConfig.MemoryPoolConfig.MemoryPoolLevelCount = (UINT)MemoryPool.attribute("LevelCount");
+					m_DOSConfig.MemoryPoolConfig.Enable = MemoryPool.attribute("Enable");
+				if (MemoryPool.has_attribute("BlockSize"))
+					m_DOSConfig.MemoryPoolConfig.MemoryPoolBlockSize = MemoryPool.attribute("BlockSize");
+				if (MemoryPool.has_attribute("LevelSize"))
+					m_DOSConfig.MemoryPoolConfig.MemoryPoolLeveSize = MemoryPool.attribute("LevelSize");
+				if (MemoryPool.has_attribute("LevelCount"))
+					m_DOSConfig.MemoryPoolConfig.MemoryPoolLevelCount = MemoryPool.attribute("LevelCount");
 			}
 			xml_node Object=Config;
 			if(Object.moveto_child("Object"))
 			{
 				if(Object.has_attribute("GroupCount"))
-					m_DOSConfig.ObjectConfig.ObjectGroupCount=(UINT)Object.attribute("GroupCount");
+					m_DOSConfig.ObjectConfig.ObjectGroupCount=Object.attribute("GroupCount");
 				if(Object.has_attribute("ObjectPoolStartSize"))
-					m_DOSConfig.ObjectConfig.ObjectPoolSetting.StartSize = (UINT)Object.attribute("ObjectPoolStartSize");
+					m_DOSConfig.ObjectConfig.ObjectPoolSetting.StartSize = Object.attribute("ObjectPoolStartSize");
 				if (Object.has_attribute("ObjectPoolGrowSize"))
-					m_DOSConfig.ObjectConfig.ObjectPoolSetting.GrowSize = (UINT)Object.attribute("ObjectPoolGrowSize");
+					m_DOSConfig.ObjectConfig.ObjectPoolSetting.GrowSize = Object.attribute("ObjectPoolGrowSize");
 				if (Object.has_attribute("ObjectPoolGrowLimit"))
-					m_DOSConfig.ObjectConfig.ObjectPoolSetting.GrowLimit = (UINT)Object.attribute("ObjectPoolGrowLimit");
+					m_DOSConfig.ObjectConfig.ObjectPoolSetting.GrowLimit = Object.attribute("ObjectPoolGrowLimit");
 				if(Object.has_attribute("MsgQueueSize"))
-					m_DOSConfig.ObjectConfig.MaxObjectMsgQueue = (UINT)Object.attribute("MsgQueueSize");
+					m_DOSConfig.ObjectConfig.MaxObjectMsgQueue = Object.attribute("MsgQueueSize");
 				if(Object.has_attribute("AliveTestTime"))
-					m_DOSConfig.ObjectConfig.ObjectAliveTestTime = (UINT)Object.attribute("AliveTestTime");
+					m_DOSConfig.ObjectConfig.ObjectAliveTestTime = Object.attribute("AliveTestTime");
 				if(Object.has_attribute("AliveCheckTime"))
-					m_DOSConfig.ObjectConfig.ObjectAliveCheckTime = (UINT)Object.attribute("AliveCheckTime");
+					m_DOSConfig.ObjectConfig.ObjectAliveCheckTime = Object.attribute("AliveCheckTime");
 				if(Object.has_attribute("KeepAliveCount"))
-					m_DOSConfig.ObjectConfig.ObjectKeepAliveCount = (UINT)Object.attribute("KeepAliveCount");
+					m_DOSConfig.ObjectConfig.ObjectKeepAliveCount = Object.attribute("KeepAliveCount");
 				if(Object.has_attribute("StatObjectCPUCost"))
 					m_DOSConfig.ObjectConfig.StatObjectCPUCost = Object.attribute("StatObjectCPUCost");
 				if (Object.has_attribute("UseRealGroupLoadWeight"))
@@ -300,6 +302,9 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 
 	if (XMLContent.has_attribute("KeepAliveTime"))
 		Config.KeepAliveTime = (UINT)XMLContent.attribute("KeepAliveTime");
+
+	if (XMLContent.has_attribute("MaxIdleTimeToFree"))
+		Config.MaxIdleTimeToFree = (UINT)XMLContent.attribute("MaxIdleTimeToFree");
 
 	if (XMLContent.has_attribute("RecvFreqProtect"))
 		Config.RecvFreqProtect = XMLContent.attribute("RecvFreqProtect");
@@ -497,6 +502,10 @@ bool CDOSConfig::LoadPluginInfo(xml_node& XMLContent)
 				if (TypeName.CompareNoCase("SourceCode") == 0)
 					PluginInfo.LoadType = PLUGIN_LOAD_TYPE_SOURCE_CODE;
 			}			
+			if (Plugin.has_attribute("CanUnload"))
+			{
+				PluginInfo.CanUnload = Plugin.attribute("CanUnload");
+			}
 			if (Plugin.has_attribute("MainClassNameSpace"))
 			{
 				PluginInfo.MainClassNameSpace = Plugin.attribute("MainClassNameSpace").getvalue();

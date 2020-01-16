@@ -15,7 +15,7 @@
 
 IMPLEMENT_CLASS_INFO_STATIC(CGrowBuffer,CNameObject);
 
-CGrowBuffer::CGrowBuffer(void)
+CGrowBuffer::CGrowBuffer(LPCTSTR Tag)
 {
 	m_BufferNodes=NULL;
 	m_BufferNodeCount=0;
@@ -25,9 +25,10 @@ CGrowBuffer::CGrowBuffer(void)
 	m_UsedSize=0;
 	m_FirstSize=0;
 	m_GrowSize=0;
+	m_Tag = Tag;
 }
 
-CGrowBuffer::CGrowBuffer(UINT InitSize,UINT GrowSize)
+CGrowBuffer::CGrowBuffer(UINT InitSize,UINT GrowSize, LPCTSTR Tag)
 {
 	m_BufferNodes=NULL;
 	m_BufferNodeCount=0;
@@ -37,6 +38,7 @@ CGrowBuffer::CGrowBuffer(UINT InitSize,UINT GrowSize)
 	m_UsedSize=0;
 	m_FirstSize=0;
 	m_GrowSize=0;
+	m_Tag = Tag;
 	Create(InitSize,GrowSize);
 }
 
@@ -48,7 +50,7 @@ CGrowBuffer::~CGrowBuffer(void)
 BOOL CGrowBuffer::Create(UINT InitSize,UINT GrowSize)
 {
 	Destory();
-	m_BufferNodes=new BUFFER_NODE[BUFFER_NODE_INIT_SIZE];
+	m_BufferNodes = MONITORED_NEW_ARRAY(GetTag(), BUFFER_NODE, BUFFER_NODE_INIT_SIZE);
 	m_BufferNodeCount=BUFFER_NODE_INIT_SIZE;
 	m_UsedBufferNodeCount=1;
 	m_CurBufferNodeIndex=0;
@@ -56,7 +58,7 @@ BOOL CGrowBuffer::Create(UINT InitSize,UINT GrowSize)
 	m_UsedSize=0;
 	m_FirstSize=InitSize;
 	m_GrowSize=GrowSize;
-	m_BufferNodes[0].pBuffer=new char[m_FirstSize];
+	m_BufferNodes[0].pBuffer = MONITORED_NEW_ARRAY(GetTag(), char, m_FirstSize);
 	m_BufferNodes[0].BufferSize=m_FirstSize;
 	m_BufferNodes[0].UsedSize=0;
 	return TRUE;
@@ -131,7 +133,7 @@ void CGrowBuffer::MakeSmooth()
 	if(m_CurBufferNodeIndex==0)
 		return;
 
-	char * pNewBuffer=new char[m_UsedSize];
+	char * pNewBuffer = MONITORED_NEW_ARRAY(GetTag(), char, m_UsedSize);
 	UINT CopyPtr=0;
 	for(UINT i=0;i<m_UsedBufferNodeCount;i++)
 	{
@@ -160,7 +162,7 @@ BOOL CGrowBuffer::GrowBuffer(UINT NewSize)
 	if(m_UsedBufferNodeCount>=m_BufferNodeCount)
 	{
 		UINT AddNodeCount=(NewSize-m_BufferSize)/m_GrowSize+1;
-		BUFFER_NODE * pNewBufferNodes=new BUFFER_NODE[m_BufferNodeCount+AddNodeCount];
+		BUFFER_NODE * pNewBufferNodes = MONITORED_NEW_ARRAY(GetTag(), BUFFER_NODE, m_BufferNodeCount + AddNodeCount);
 		memcpy(pNewBufferNodes,m_BufferNodes,sizeof(BUFFER_NODE)*m_BufferNodeCount);
 		SAFE_DELETE_ARRAY(m_BufferNodes);
 		m_BufferNodes=pNewBufferNodes;
@@ -177,7 +179,7 @@ BOOL CGrowBuffer::GrowBuffer(UINT NewSize)
 		{
 			NeedGrowSize=0;
 		}
-		m_BufferNodes[m_UsedBufferNodeCount].pBuffer=new char[m_GrowSize];
+		m_BufferNodes[m_UsedBufferNodeCount].pBuffer = MONITORED_NEW_ARRAY(GetTag(), char, m_GrowSize);
 		m_BufferNodes[m_UsedBufferNodeCount].BufferSize=m_GrowSize;
 		m_BufferNodes[m_UsedBufferNodeCount].UsedSize=0;
 		m_BufferSize+=m_GrowSize;

@@ -42,7 +42,7 @@ class CUSOResourceManager :
 {
 protected:
 	
-	CEasyArray<CUSOObjectCreateFilter*>		m_ObjectCreateFilterList;
+	CEasyArray<CUSOObjectCreateFilter*>	m_ObjectCreateFilterList;
 
 
 	CEasyMap<CEasyString,CNameObject *>	m_Resources;

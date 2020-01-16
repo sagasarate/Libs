@@ -3,9 +3,16 @@
 
 
 CDHTService::CDHTService()
+	:m_NodePool(_T("CDHTService"))
+	, m_PeerPool(_T("CDHTService"))
+	, m_SendBuffer1(_T("CDHTService"))
+	, m_SendBuffer2(_T("CDHTService"))
+	, m_SearchPool(_T("CDHTService"))
+	, m_TRConnectionList(_T("CDHTService"))
+	, m_PeerServerList(_T("CDHTService"))
 {
 	m_SendBuffer1.Create(NET_DATA_BLOCK_SIZE);
-	m_SendBuffer2.Create(NET_DATA_BLOCK_SIZE);	
+	m_SendBuffer2.Create(NET_DATA_BLOCK_SIZE);
 	m_PeerCheckPtr = 1;
 }
 

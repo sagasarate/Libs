@@ -56,6 +56,8 @@ protected:
 	UINT										m_RecvFlow;
 	CEasyTimer									m_RecvProtectCheckTimer;
 
+	UINT										m_ReleaseTime;
+
 public:
 	CDOSObjectProxyConnectionDefault(void);
 	virtual ~CDOSObjectProxyConnectionDefault(void);
@@ -91,6 +93,10 @@ public:
 	void SetGroup(CDOSObjectProxyConnectionGroup * pGroup)
 	{
 		m_pGroup = pGroup;
+	}
+	UINT GetReleaseTime()
+	{
+		return m_ReleaseTime;
 	}
 protected:
 

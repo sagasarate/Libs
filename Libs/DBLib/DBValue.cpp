@@ -15,7 +15,7 @@
 namespace DBLib
 {
 
-IMPLEMENT_CLASS_INFO(CDBValue,CNameObject);
+IMPLEMENT_CLASS_INFO_STATIC(CDBValue,CNameObject);
 
 CDBValue::CDBValue(void)
 {
@@ -256,7 +256,7 @@ void CDBValue::SetValue(int ValueType,LPCVOID pData,int DataSize,int DitigalSize
 		default:
 			return;
 		}
-		m_pData=new BYTE[AllocSize];
+		m_pData = MONITORED_NEW_ARRAY(_T("CDBValue"), BYTE, AllocSize);
 		ZeroMemory(m_pData,AllocSize);
 		memcpy(m_pData,pData,m_DataSize);
 	}
@@ -331,7 +331,7 @@ void CDBValue::SetEmptyValue(int ValueType,int DataSize,int DitigalSize)
 	default:
 		return;
 	}
-	m_pData=new BYTE[AllocSize];
+	m_pData = MONITORED_NEW_ARRAY(_T("CDBValue"), BYTE, AllocSize);
 	ZeroMemory(m_pData,AllocSize);
 }
 

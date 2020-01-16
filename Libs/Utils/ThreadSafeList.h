@@ -14,17 +14,18 @@
 template < class T >
 class CThreadSafeList:public CEasyList<T>
 {
-protected:	
+protected:
 	CEasyCriticalSection	m_EasyCriticalSection;
 public:
-	CThreadSafeList(void)
-		:m_EasyCriticalSection()
+	CThreadSafeList(LPCTSTR Tag = _T("CThreadSafeList"))
+		:CEasyList<T>(Tag)
+		,m_EasyCriticalSection()
 	{
-		
-	}	
+
+	}
 	virtual ~CThreadSafeList(void)
 	{
-		
+
 	}
 
 	void Clear()
@@ -37,7 +38,7 @@ public:
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CEasyList<T>::GetObject(Pos);
-	}	
+	}
 
 	T* GetNext(LPVOID& Pos)
 	{
@@ -60,7 +61,7 @@ public:
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CEasyList<T>::MoveAfterTo(Pos,Target);
 	}
-	
+
 	LPVOID InsertAfter(LPVOID Pos=NULL)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
@@ -85,16 +86,16 @@ public:
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CEasyList<T>::InsertSorted(Object);
-	}	
+	}
 
-	
-	
+
+
 	BOOL DeleteObject(LPVOID Pos)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CEasyList<T>::DeleteObject(Pos);
-	}	
-	
+	}
+
 	LPVOID PushFront()
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
@@ -133,6 +134,6 @@ public:
 	LPVOID Find(const T& Object)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
-		return CEasyList<T>::Find(Object);		
+		return CEasyList<T>::Find(Object);
 	}
 };

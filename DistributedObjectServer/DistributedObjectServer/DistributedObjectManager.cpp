@@ -5,6 +5,7 @@ CDistributedObjectManager::CDistributedObjectManager(void)
 {
 	FUNCTION_BEGIN;
 	m_pDOSObjectManager=NULL;
+	m_ObjectPool.SetTag(_T("CDistributedObjectManager"));
 	FUNCTION_END;
 }
 

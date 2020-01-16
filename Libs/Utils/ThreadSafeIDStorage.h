@@ -18,9 +18,15 @@ class CThreadSafeIDStorage:public CIDStorage<T,StorageMode>
 protected:
 	CEasyCriticalSection		m_EasyCriticalSection;
 public:
-	CThreadSafeIDStorage()
+	CThreadSafeIDStorage(LPCTSTR Tag = _T("CThreadSafeIDStorage"))
+		:CIDStorage<T, StorageMode>(Tag)
 	{
 		
+	}
+	CThreadSafeIDStorage(UINT Size, UINT GrowSize = 0, UINT GrowLimit = 0, LPCTSTR Tag = _T("CThreadSafeIDStorage"))
+		:CIDStorage<T, StorageMode>(Size, GrowSize, GrowLimit, Tag)
+	{
+
 	}
 	~CThreadSafeIDStorage()
 	{

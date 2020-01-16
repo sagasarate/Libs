@@ -2,8 +2,7 @@
 
 class CDOSObjectProxyServiceCustom :
 	public CBaseDOSObjectProxyService,
-	public IDOSObjectProxyServiceOperator,
-	public CNameObject
+	public IDOSObjectProxyServiceOperator
 {
 protected:
 	CLIENT_PROXY_CONFIG										m_Config;
@@ -16,17 +15,14 @@ public:
 	CDOSObjectProxyServiceCustom();
 	~CDOSObjectProxyServiceCustom();
 
-	
-	virtual void Release();
+
 	virtual void Destory();
 	virtual BYTE GetProxyType();
-	virtual void SetID(UINT ID);
-	virtual UINT GetID();
 	virtual bool StartService();
 	virtual void StopService();
 	virtual bool PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket);
-	
-	
+
+
 	virtual UINT GetConnectionCount();
 	virtual float GetCPUUsedRate();
 	virtual float GetCycleTime();
@@ -45,7 +41,7 @@ public:
 	virtual bool SendMessagePacket(CDOSMessagePacket * pPacket);
 
 
-	BOOL Init(CDOSServer * pServer, CLIENT_PROXY_PLUGIN_INFO& PluginInfo);	
+	BOOL Init(CDOSServer * pServer, CLIENT_PROXY_PLUGIN_INFO& PluginInfo);
 
 
 

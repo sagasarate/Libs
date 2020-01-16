@@ -7,13 +7,15 @@
 
 
 
-#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
-#define new new( __FILE__, __LINE__ )
-#endif
+//#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
+//#define new new( __FILE__, __LINE__ )
+//#endif
 
 
 
 CLuaScriptPool::CLuaScriptPool(void)
+	:m_LuaScriptPool(_T("CLuaScriptPool"))
+	, m_LuaCFunList(_T("CLuaScriptPool"))
 {
 	m_LuaStackSize = 32;
 	m_ThreadStartSize = 0;

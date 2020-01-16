@@ -16,7 +16,7 @@ CESBolanStack::CESBolanStack(int InitBuffSize,int GrowSize)
 {
 	m_GrowSize=GrowSize;
 
-	m_BolanBuff=new ES_BOLAN[InitBuffSize];
+	m_BolanBuff = MONITORED_NEW_ARRAY(_T("CESBolanStack"), ES_BOLAN, InitBuffSize);
 	m_BolanBuffSize=InitBuffSize;
 	m_BolanCount=0;
 }
@@ -25,7 +25,7 @@ CESBolanStack::~CESBolanStack()
 {
 	if(m_BolanBuff)
 	{
-		delete[] m_BolanBuff;
+		SAFE_DELETE_ARRAY(m_BolanBuff);
 		m_BolanBuff=0;
 		m_BolanBuffSize=0;
 		m_BolanCount=0;
@@ -34,11 +34,11 @@ CESBolanStack::~CESBolanStack()
 
 void CESBolanStack::Grow()
 {
-	ES_BOLAN * NewBuff=new ES_BOLAN[m_BolanBuffSize+m_GrowSize];
+	ES_BOLAN * NewBuff = MONITORED_NEW_ARRAY(_T("CESBolanStack"), ES_BOLAN, m_BolanBuffSize + m_GrowSize);
 	for(UINT i=0;i<m_BolanBuffSize;i++)
 		NewBuff[i]=m_BolanBuff[i];
 	//memcpy(NewBuff,m_BolanBuff,sizeof(CBolan)*m_BolanBuffSize);
-	delete[] m_BolanBuff;
+	SAFE_DELETE_ARRAY(m_BolanBuff);
 	m_BolanBuff=NewBuff;
 	m_BolanBuffSize+=m_GrowSize;
 }
@@ -56,8 +56,8 @@ int  CESBolanStack::PushScript(LPCTSTR ExpStr,CESVariableList* pVariableList,CES
 	bool IsInStr;
 	LastLine=1;
 
-	CEasyBuffer Buffer(((UINT)_tcslen(ExpStr)+1)*sizeof(TCHAR));
-	CEasyBuffer TempBuffer(((UINT)_tcslen(ExpStr)+1)*sizeof(TCHAR));
+	CEasyBuffer Buffer(((UINT)_tcslen(ExpStr) + 1) * sizeof(TCHAR), _T("CESBolanStack"));
+	CEasyBuffer TempBuffer(((UINT)_tcslen(ExpStr) + 1) * sizeof(TCHAR), _T("CESBolanStack"));
 
 	TCHAR * ExpBuff=(TCHAR *)Buffer.GetBuffer();
 	TCHAR * TempBuff=(TCHAR *)TempBuffer.GetBuffer();

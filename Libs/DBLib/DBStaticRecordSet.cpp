@@ -15,11 +15,14 @@
 namespace DBLib
 {
 
-IMPLEMENT_CLASS_INFO(CDBStaticRecordSet,IDBRecordSet);
+IMPLEMENT_CLASS_INFO_STATIC(CDBStaticRecordSet,IDBRecordSet);
 
 CDBStaticRecordSet::CDBStaticRecordSet(void):IDBRecordSet()
 {
 	m_CurRow=0;
+	m_pColumnInfos.SetTag(_T("CDBStaticRecordSet"));
+	m_Records.SetTag(_T("CDBStaticRecordSet"));
+	m_Params.SetTag(_T("CDBStaticRecordSet"));
 }
 
 CDBStaticRecordSet::~CDBStaticRecordSet(void)

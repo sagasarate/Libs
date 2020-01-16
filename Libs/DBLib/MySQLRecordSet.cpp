@@ -15,13 +15,15 @@
 namespace DBLib
 {
 
-IMPLEMENT_CLASS_INFO(CMySQLRecordSet,IDBRecordSet);
+IMPLEMENT_CLASS_INFO_STATIC(CMySQLRecordSet,IDBRecordSet);
 
 CMySQLRecordSet::CMySQLRecordSet(void)
 {
 	m_pDBConnection=NULL;
 	m_hResults=NULL;
 	m_CurRow=0;
+	m_pColumnInfos.SetTag(_T("CMySQLRecordSet"));
+	m_RowBuffer.SetTag(_T("CMySQLRecordSet"));
 }
 
 CMySQLRecordSet::~CMySQLRecordSet(void)

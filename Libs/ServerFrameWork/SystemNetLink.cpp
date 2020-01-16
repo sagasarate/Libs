@@ -31,7 +31,7 @@ void CSystemNetLink::SendMsg(WORD Msg,LPCVOID pData,int DataLen)
 
 
 
-	CEasyBuffer	SendBuffer(s_SendBuffer,65536);
+	CEasyBuffer	SendBuffer(s_SendBuffer, 65536, _T("CSystemNetLink"));;
 	SMSG_HEADER MsgHeader;
 
 	MsgHeader.MsgID=Msg;
@@ -87,7 +87,7 @@ void CSystemNetLink::OnData(const BYTE * pData, UINT DataSize)
 		break;
 	case SC_MSG_GET_SERVER_STATUS_FORMAT_INFO:
 		{
-			CEasyArray<SERVER_STATUS_FORMAT_INFO> ServerStatusFormatList;
+			CEasyArray<SERVER_STATUS_FORMAT_INFO> ServerStatusFormatList(_T("CSystemControlPipe"));
 			m_pServer->GetAllServerStatusFormat(ServerStatusFormatList);
 
 			CSmartStruct Packet(SERVER_STATUS_FORMAT_INFO_SIZE*(UINT)ServerStatusFormatList.GetCount());

@@ -80,7 +80,7 @@ public:
 	{
 		Destory();
 		m_DataLen = Value.m_DataLen;
-		m_pData = new BYTE[m_DataLen];
+		m_pData = MONITORED_NEW_ARRAY(_T("CLuaGrid"), BYTE, m_DataLen);
 		m_IsSelfData = true;
 		memcpy(m_pData, Value.m_pData, m_DataLen);
 	}
@@ -89,7 +89,7 @@ public:
 	{
 		Destory();
 		m_DataLen = Col*Row*sizeof(LuaValue) + sizeof(WORD) * 2;
-		m_pData = new BYTE[m_DataLen];
+		m_pData = MONITORED_NEW_ARRAY(_T("CLuaGrid"), BYTE, m_DataLen);
 		m_IsSelfData = true;
 		ZeroMemory(m_pData, m_DataLen);
 		*((WORD *)m_pData) = Col;

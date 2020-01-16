@@ -20,7 +20,7 @@ CNetPUDPService::CNetPUDPService()
 	m_pServer=NULL;	
 	m_ParallelRecvCount=0;	
 	m_pIOCPEventRouter=NULL;	
-	
+	m_OverLappedObjectPool.SetTag(_T("CNetPUDPService"));
 	
 }
 

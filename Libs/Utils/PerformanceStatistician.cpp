@@ -48,7 +48,7 @@ CPerformanceStatistician::~CPerformanceStatistician(void)
 void CPerformanceStatistician::PrintPerformanceStat(int LogChannel)
 {
 
-	CEasyArray<PERFORMANCE_INFO> PerformanceList;
+	CEasyArray<PERFORMANCE_INFO> PerformanceList(_T("CPerformanceStatistician"));
 	CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,_T("性能统计开始:"));
 	for(int i=0;i<MAX_PERFORMANCE_FUNCTION_NUM;i++)
 	{
@@ -86,7 +86,7 @@ void CPerformanceStatistician::PrintPerformanceStat(int LogChannel)
 
 void CPerformanceStatistician::PrintPerformanceStatUnit(int LogChannel)
 {
-	CEasyArray<PERFORMANCE_INFO> PerformanceList;
+	CEasyArray<PERFORMANCE_INFO> PerformanceList(_T("CPerformanceStatistician"));
 	CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,_T("性能统计开始(单位):"));
 	for(int i=0;i<MAX_PERFORMANCE_FUNCTION_NUM;i++)
 	{

@@ -39,7 +39,7 @@ class CMySQLDatabase :
 {
 protected:
 
-	DECLARE_CLASS_INFO(CMySQLDatabase)
+	DECLARE_CLASS_INFO_STATIC(CMySQLDatabase)
 public:
 	CMySQLDatabase(void);
 	virtual ~CMySQLDatabase(void);

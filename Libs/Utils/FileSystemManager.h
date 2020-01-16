@@ -20,8 +20,9 @@ enum FILE_CHANNELS
 	FILE_CHANNEL_MAX,
 };
 
+extern TCHAR FILE_SYSTEM_MANAGER_INSTANCE[];
 
-class CFileSystemManager:public CStaticObject<CFileSystemManager>
+class CFileSystemManager:public CStaticObject2<CFileSystemManager, FILE_SYSTEM_MANAGER_INSTANCE>
 {
 protected:
 	IFileObjectCreator *		m_FileObjectCreators[FILE_CHANNEL_MAX];

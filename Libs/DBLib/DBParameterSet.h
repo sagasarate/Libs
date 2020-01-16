@@ -25,10 +25,10 @@ protected:
 		CDBValue		ParamValue;
 	};
 
-	CEasyArray<PARAM_DATA>			m_Params;
+	CEasyArray<PARAM_DATA>		m_Params;
 	CDBValue					m_EmptyValue;
 
-	DECLARE_CLASS_INFO(CDBParameterSet)
+	DECLARE_CLASS_INFO_STATIC(CDBParameterSet)
 public:
 	CDBParameterSet(void);
 	virtual ~CDBParameterSet(void);

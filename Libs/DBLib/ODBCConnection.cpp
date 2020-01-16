@@ -50,7 +50,7 @@
 namespace DBLib
 {
 
-IMPLEMENT_CLASS_INFO(CODBCConnection,IDBConnection);
+IMPLEMENT_CLASS_INFO_STATIC(CODBCConnection,IDBConnection);
 
 CODBCConnection::CODBCConnection(void):IDBConnection()
 {
@@ -101,16 +101,16 @@ IDBRecordSet * CODBCConnection::CreateRecordSet(int RecordSetType)
 	{
 	case DB_RS_TYPE_STATIC:		
 	case DB_RS_TYPE_GENERAL_STATIC:
-		return new CDBStaticRecordSet();
+		return MONITORED_NEW(_T("CODBCConnection"), CDBStaticRecordSet);
 	case DB_RS_TYPE_DYNAMIC:
-		return new CODBCRecordSet();
+		return MONITORED_NEW(_T("CODBCConnection"), CODBCRecordSet);
 	}
 	return NULL;
 }
 
 IDBParameterSet * CODBCConnection::CreateParameterSet(int RecordSetType)
 {
-	return new CDBParameterSet();
+	return MONITORED_NEW(_T("CODBCConnection"), CDBParameterSet);
 }
 
 
@@ -319,8 +319,8 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 	if(ColNum<=0)
 		return DBERR_NO_RECORDS;
 
-	CEasyArray<DB_COLUMN_INFO> ColInfos;
-	CEasyArray<int> BindTypes;	
+	CEasyArray<DB_COLUMN_INFO> ColInfos(_T("CODBCConnection"));
+	CEasyArray<int> BindTypes(_T("CODBCConnection"));
 	UINT RecordLineLen=0;	
 
 	ColInfos.Resize(ColNum);
@@ -376,9 +376,9 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 	
 	
 	//绑定结果集列
-	CEasyBuffer RecordLineBuffer;
+	CEasyBuffer RecordLineBuffer(_T("CODBCConnection"));
 	RecordLineBuffer.Create(RecordLineLen);
-	CEasyArray<SQLLEN> FieldSize;
+	CEasyArray<SQLLEN> FieldSize(_T("CODBCConnection"));
 	FieldSize.Resize(ColNum);
 	char * pFieldBuffer=(char *)RecordLineBuffer.GetFreeBuffer();	
 	for(UINT i=0;i<ColNum;i++)
@@ -500,6 +500,11 @@ int CODBCConnection::TranslateString(LPCSTR szSource,int SrcLen,LPTSTR szTarget,
 			szTarget[i]=szSource[i];
 	}	
 	return Len;
+}
+
+void CODBCConnection::Reset()
+{
+
 }
 
 void CODBCConnection::ProcessMessagesODBC(SQLSMALLINT plm_handle_type,SQLHANDLE plm_handle,char *logstring,int ConnInd)
@@ -926,7 +931,7 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 		return DBERR_PARAMCOUNTFAIL;
 	}
 
-	CEasyBuffer ParamDataLenBuffer;
+	CEasyBuffer ParamDataLenBuffer(_T("CODBCConnection"));
 
 	if(ParamNum>0)
 	{

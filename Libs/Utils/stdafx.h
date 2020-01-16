@@ -37,7 +37,7 @@
 
 //#include <afx.h>
 //
-//#define USE_CRT_DETAIL_NEW
+#define USE_CRT_DETAIL_NEW
 
 #endif
 
@@ -47,7 +47,7 @@
 
 
 //#define USE_USER_NEW
-
+//#define USE_MONITORED_NEW
 
 // TODO: 在此处引用程序要求的附加头文件
 #include "Utils.h"

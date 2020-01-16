@@ -6,7 +6,7 @@
 		<Option platforms="Unix;" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="加解密/MD5/;加解密/;加解密/AES/;加解密/Base64/;加解密/DES/;文件系统/缺省实现/LinuxAPI实现/;LZMA/;文件系统/配置文件/;SmartStruct/;Log/缺省实现/;文件系统/管理器/;时间相关/;USO资源管理/;线程安全存储/;简单脚本/;atomic_ops/;线程/守护线程/;对象基类/;线程/;文件系统/目录搜索/;内存泄露检测/;预编译/;LZW/;文件系统/接口/;对象存储模板/;LZO/;操作系统相关/;字符串/;文件系统/缺省实现/STD实现/;快速内存池/;文件系统/StringFile/;头文件/;性能计数器/;字符串/字符串工具/;数据结构/数据存储/;线程/线程安全/;聪明指针/;CSV文件/;Log/管理器/;XML/;路径管理/;小工具函数/;Log/接口/;ID/;数据结构/;加解密/SHA1/;加解密/TEA/;加解密/URLEncode/;内码转换/;文件系统/工具/;进程/;加解密/Base32/;命名管道/;" />
+		<Option virtualFolders="加解密/MD5/;加解密/;加解密/AES/;加解密/Base64/;加解密/DES/;文件系统/缺省实现/LinuxAPI实现/;LZMA/;文件系统/配置文件/;SmartStruct/;Log/缺省实现/;文件系统/管理器/;时间相关/;USO资源管理/;线程安全存储/;简单脚本/;atomic_ops/;线程/守护线程/;对象基类/;线程/;文件系统/目录搜索/;内存泄露检测/;预编译/;LZW/;文件系统/接口/;对象存储模板/;LZO/;操作系统相关/;字符串/;文件系统/缺省实现/STD实现/;快速内存池/;文件系统/StringFile/;头文件/;性能计数器/;字符串/字符串工具/;数据结构/数据存储/;线程/线程安全/;聪明指针/;CSV文件/;Log/管理器/;XML/;路径管理/;小工具函数/;Log/接口/;ID/;数据结构/;加解密/SHA1/;加解密/TEA/;加解密/URLEncode/;内码转换/;文件系统/工具/;进程/;加解密/Base32/;命名管道/;StackTrace/;" />
 		<Build>
 			<Target title="Debug">
 				<Option platforms="Unix;" />
@@ -38,6 +38,20 @@
 					<Add option="-g" />
 					<Add option="-W" />
 					<Add option="-fPIC" />
+				</Compiler>
+			</Target>
+			<Target title="MemMonitoredRelease">
+				<Option output="../Bin/Utils" prefix_auto="0" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="release" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-W" />
+					<Add option="-fPIC" />
+					<Add option="-DUSE_MONITORED_NEW" />
 				</Compiler>
 			</Target>
 		</Build>
@@ -548,6 +562,9 @@
 		<Unit filename="ToolsAll.h">
 			<Option virtualFolder="小工具函数/" />
 		</Unit>
+		<Unit filename="ToolsLinux.cpp">
+			<Option virtualFolder="小工具函数/" />
+		</Unit>
 		<Unit filename="ToolsLinux.h">
 			<Option virtualFolder="小工具函数/" />
 		</Unit>
@@ -638,6 +655,33 @@
 		</Unit>
 		<Unit filename="pugxml.h">
 			<Option virtualFolder="XML/" />
+		</Unit>
+		<Unit filename="stacktrace/stacktrace.cc">
+			<Option virtualFolder="StackTrace/" />
+		</Unit>
+		<Unit filename="stacktrace/stacktrace.h">
+			<Option virtualFolder="StackTrace/" />
+		</Unit>
+		<Unit filename="stacktrace/stacktrace_arm-inl.h">
+			<Option virtualFolder="StackTrace/" />
+		</Unit>
+		<Unit filename="stacktrace/stacktrace_config.h">
+			<Option virtualFolder="StackTrace/" />
+		</Unit>
+		<Unit filename="stacktrace/stacktrace_generic-inl.h">
+			<Option virtualFolder="StackTrace/" />
+		</Unit>
+		<Unit filename="stacktrace/stacktrace_libunwind-inl.h">
+			<Option virtualFolder="StackTrace/" />
+		</Unit>
+		<Unit filename="stacktrace/stacktrace_powerpc-inl.h">
+			<Option virtualFolder="StackTrace/" />
+		</Unit>
+		<Unit filename="stacktrace/stacktrace_win32-inl.h">
+			<Option virtualFolder="StackTrace/" />
+		</Unit>
+		<Unit filename="stacktrace/stacktrace_x86-inl.h">
+			<Option virtualFolder="StackTrace/" />
 		</Unit>
 		<Unit filename="stdafx.cpp">
 			<Option virtualFolder="预编译/" />

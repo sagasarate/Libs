@@ -1,12 +1,12 @@
 ﻿#include "stdafx.h"
 
-const CEasyString DEFULT_HEADER_STRING="Time,Tag,";
+const LPCTSTR DEFULT_HEADER_STRING=_T("Time,Tag,");
 
 CCSVFileLogPrinter::CCSVFileLogPrinter(void)
 {
 }
 CCSVFileLogPrinter::CCSVFileLogPrinter(int Level, LPCTSTR LogName, LPCTSTR HeaderStr, int FileLogBufferLen)
-	:CAsyncFileLogPrinter(Level, LogName, FileLogBufferLen, _T("csv"), HeaderStr ? DEFULT_HEADER_STRING + HeaderStr : _T(""))
+	:CAsyncFileLogPrinter(Level, LogName, FileLogBufferLen, _T("csv"), HeaderStr ? CEasyString(DEFULT_HEADER_STRING) + HeaderStr : _T(""))
 {
 	
 }

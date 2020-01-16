@@ -3,6 +3,9 @@
 
 
 CTRConnection::CTRConnection()
+	:m_AssembleBuffer(_T("CTRConnection"))
+	, m_SendBuffer(_T("CTRConnection"))
+	, m_MetaDataBuffer(_T("CTRConnection"))
 {
 	m_pParent = NULL;
 	m_SearchID = 0;

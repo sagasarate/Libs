@@ -3,7 +3,7 @@
 
 
 class CDOSConfig :
-	public CStaticObject<CDOSConfig>
+	public CStaticObject4<CDOSConfig>
 {
 public:
 	

@@ -20,13 +20,22 @@ protected:
 	volatile UINT				m_BufferHead;
 	volatile UINT				m_BufferTail;
 	bool						m_IsSelfBuffer;
-
+	LPCTSTR						m_Tag;
 	DECLARE_CLASS_INFO_STATIC(CCycleBuffer);
 public:
-	CCycleBuffer(void);
-	CCycleBuffer(UINT Size);
-	CCycleBuffer(LPVOID pBuff, UINT Size);
+	CCycleBuffer(LPCTSTR Tag = _T("CCycleBuffer"));
+	CCycleBuffer(UINT Size, LPCTSTR Tag = _T("CCycleBuffer"));
+	CCycleBuffer(LPVOID pBuff, UINT Size, LPCTSTR Tag = _T("CCycleBuffer"));
 	virtual ~CCycleBuffer(void);
+
+	LPCTSTR GetTag()
+	{
+		return m_Tag;
+	}
+	void SetTag(LPCTSTR Tag)
+	{
+		m_Tag = Tag;
+	}
 
 	BOOL Create(UINT Size);
 	BOOL Create(LPVOID pBuff, UINT Size);

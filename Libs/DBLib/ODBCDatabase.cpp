@@ -15,7 +15,7 @@
 namespace DBLib
 {
 
-IMPLEMENT_CLASS_INFO(CODBCDatabase,IDatabase);
+IMPLEMENT_CLASS_INFO_STATIC(CODBCDatabase,IDatabase);
 
 CODBCDatabase::CODBCDatabase(void):IDatabase()
 {
@@ -43,7 +43,7 @@ int CODBCDatabase::Init()
 
 IDBConnection * CODBCDatabase::CreateConnection()
 {
-	CODBCConnection * pConnection=new CODBCConnection();	
+	CODBCConnection * pConnection = MONITORED_NEW(_T("CODBCDatabase"), CODBCConnection);
 	if(pConnection->Init(this)==DBERR_SUCCEED)
 		return pConnection;
 	pConnection->Release();	

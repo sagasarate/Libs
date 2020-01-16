@@ -22,6 +22,11 @@ IMPLEMENT_CLASS_INFO(CUSOResourceManager,CNameObject);
 
 CUSOResourceManager::CUSOResourceManager():CNameObject()
 {
+	m_ObjectCreateFilterList.SetTag(_T("CUSOResourceManager"));
+	m_Resources.SetTag(_T("CUSOResourceManager"));
+	m_Objects.SetTag(_T("CUSOResourceManager"));
+	m_ObjectCreateInfoByName.SetTag(_T("CUSOResourceManager"));
+	m_ObjectCreateInfoByType.SetTag(_T("CUSOResourceManager"));
 }
 
 
@@ -434,7 +439,7 @@ bool CUSOResourceManager::ReadResourceBlock(IFileAccessor * pFile,USO_BLOCK_HEAD
 		return false;
 	while(ReadSize<BlockHead.Size&&(!pFile->IsEOF()))
 	{
-		CSmartStruct ObjectPacket;
+		CSmartStruct ObjectPacket(_T("CUSOResourceManager"));
 		BYTE Type;
 		if(pFile->Read(&Type,sizeof(BYTE))!=sizeof(BYTE))
 			return false;
@@ -495,7 +500,7 @@ bool CUSOResourceManager::ReadObjectBlock(IFileAccessor * pFile,USO_BLOCK_HEAD& 
 		return false;
 	while(ReadSize<BlockHead.Size&&(!pFile->IsEOF()))
 	{
-		CSmartStruct ObjectPacket;
+		CSmartStruct ObjectPacket(_T("CUSOResourceManager"));
 		BYTE Type;
 		if(pFile->Read(&Type,sizeof(BYTE))!=sizeof(BYTE))
 			return false;
@@ -556,7 +561,7 @@ bool CUSOResourceManager::WriteResourceBlock(IFileAccessor * pFile,CNameObject *
 	{
 		UINT ObjectSize=pObject->GetSmartStructSize(0);
 
-		CSmartStruct Packet(ObjectSize);
+		CSmartStruct Packet(ObjectSize, _T("CUSOResourceManager"));
 		if(!pObject->ToSmartStruct(Packet,this,0))
 			return false;
 		UINT WriteSize=(UINT)pFile->Write(Packet.GetData(),Packet.GetDataLen());
@@ -574,7 +579,7 @@ bool CUSOResourceManager::WriteResourceBlock(IFileAccessor * pFile,CNameObject *
 			{
 				UINT ObjectSize=(*ppResource)->GetSmartStructSize(0);
 
-				CSmartStruct Packet(ObjectSize);
+				CSmartStruct Packet(ObjectSize, _T("CUSOResourceManager"));
 				if(!(*ppResource)->ToSmartStruct(Packet,this,0))
 					return false;
 				UINT WriteSize=(UINT)pFile->Write(Packet.GetData(),Packet.GetDataLen());
@@ -609,7 +614,7 @@ bool CUSOResourceManager::WriteObjectBlock(IFileAccessor * pFile,CNameObject * p
 	{
 		UINT ObjectSize=pObject->GetSmartStructSize(0);
 
-		CSmartStruct Packet(ObjectSize);
+		CSmartStruct Packet(ObjectSize, _T("CUSOResourceManager"));
 		if(!pObject->ToSmartStruct(Packet,this,0))
 			return false;
 		UINT WriteSize=(UINT)pFile->Write(Packet.GetData(),Packet.GetDataLen());
@@ -622,7 +627,7 @@ bool CUSOResourceManager::WriteObjectBlock(IFileAccessor * pFile,CNameObject * p
 		{
 			UINT ObjectSize=m_Objects[i]->GetSmartStructSize(0);
 
-			CSmartStruct Packet(ObjectSize);
+			CSmartStruct Packet(ObjectSize, _T("CUSOResourceManager"));
 			if(!m_Objects[i]->ToSmartStruct(Packet,this,0))
 				return false;
 			UINT WriteSize=(UINT)pFile->Write(Packet.GetData(),Packet.GetDataLen());

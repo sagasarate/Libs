@@ -63,7 +63,7 @@ CServerApp::~CServerApp(void)
 
 BOOL CServerApp::OnStartUp()
 {
-	InitSignals();
+	InitSignals();	
 	return TRUE;
 }
 void CServerApp::OnShutDown()
@@ -120,6 +120,15 @@ int CServerApp::Run()
 		}
 		OnShutDown();
 	}
+
+	CSystemConfig::ReleaseInstance();
+	CPerformanceStatistician::ReleaseInstance();
+	CLogManager::ReleaseInstance();
+	CFileSystemManager::ReleaseInstance();
+#ifdef USE_MONITORED_NEW
+	CMemoryAllocatee::GetInstance()->ReportLeakStat();
+	CMemoryAllocatee::ReleaseInstance();
+#endif
 	return 0;
 }
 
@@ -208,7 +217,7 @@ void CServerApp::OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * p
 	CGuardThread::Enable(false);
 
 	if(pSigInfo)
-		PrintImportantLog("开始处理信号%d在线程%u的0x%p", SignalNum, pthread_self(), pSigInfo->si_ptr);
+		PrintImportantLog("开始处理信号%d在线程%u的0x%p", SignalNum, pthread_self(), pSigInfo->si_addr);
 	else
 		PrintImportantLog("开始处理信号%d在线程%u", SignalNum, pthread_self());
 	size_t CallStackSize = backtrace(CallStacks, MAX_STACK_LAYERS);
@@ -243,16 +252,29 @@ void CServerApp::OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * p
 
 		if (m_ExceptionLogFile.Open(ExceptionFileName, IFileAccessor::modeCreateAlways | IFileAccessor::modeWrite | IFileAccessor::osWriteThrough))
 		{
-			PrintExceptionLog("SignalCode:%d", SignalNum);
+			PrintExceptionLog("SignalCode:%d at 0x%p", SignalNum, pSigInfo->si_addr);
 			//输出原始地址
 			for (size_t i = 0; i < CallStackSize; i++)
 			{
-				PrintExceptionLog("%d:RawAddress:%p", i, CallStacks[i]);
+				
 
 				Dl_info DLInfo;
 				if (dladdr(CallStacks[i], &DLInfo))
 				{
-					PrintExceptionLog("BaseAddress:%p at %s", DLInfo.dli_fbase, DLInfo.dli_fname);
+					if ((UINT64)DLInfo.dli_fbase == 0x400000)
+					{
+						PrintExceptionLog("%d:RawAddress:%p,ModuleAddress:%p,ModuleBase:%p at %s",
+							i, CallStacks[i], CallStacks[i], DLInfo.dli_fbase, DLInfo.dli_fname);
+					}
+					else
+					{
+						PrintExceptionLog("%d:RawAddress:%p,ModuleAddress:%p,ModuleBase:%p at %s",
+							i, CallStacks[i], (void *)((char *)CallStacks[i] - (char *)DLInfo.dli_fbase), DLInfo.dli_fbase, DLInfo.dli_fname);
+					}					
+				}
+				else
+				{
+					PrintExceptionLog("%d:RawAddress:%p", i, CallStacks[i]);
 				}
 				PrintExceptionLog("-------------------------------------------------------\r\n");
 			}
@@ -265,7 +287,7 @@ void CServerApp::OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * p
 				Dl_info DLInfo;
 				if (dladdr(CallStacks[i], &DLInfo))
 				{
-					PrintExceptionLog("BaseAddress:%p at %s", DLInfo.dli_fbase, DLInfo.dli_fname);
+					PrintExceptionLog("ModuleBase:%p at %s", DLInfo.dli_fbase, DLInfo.dli_fname);
 					if ((UINT64)DLInfo.dli_fbase == 0x400000)
 						OutputExceptionAddress(DLInfo.dli_fname, CallStacks[i]);
 					else
@@ -292,57 +314,17 @@ void CServerApp::OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * p
 
 bool CServerApp::OutputExceptionAddress(const char * ModulaName, void * Address)
 {
-	char * argv[5];
 	char Buff[1024];
-
-	argv[0] = (char *)"addr2line";
-	argv[1] = (char *)"-e";
-	argv[2] = (char *)ModulaName;
-	sprintf_s(Buff, 128, "%p", Address);
-	argv[3] = Buff;
-	argv[4] = NULL;
-
-	PrintImportantLog("调用addr2line解析%s的地址%s", ModulaName, Buff);
-
-	pid_t pid = fork();
-	if (pid > 0)
+	if (Addr2Line(ModulaName, Address, m_Pipe, Buff, 1024))
 	{
-		int Status = -1;
-		if (waitpid(-1, &Status, 0) != -1)
-		{
-			int ExitCode = WEXITSTATUS(Status);
-			PrintImportantLog("调用addressline结果%d", ExitCode);
-			size_t ReadSize = read(m_Pipe[0], Buff, 1000);
-			if (ReadSize != -1)
-			{
-				Buff[ReadSize] = 0;
-				PrintExceptionLog("%s:%s", ModulaName, Buff);
-			}
-			else
-			{
-				PrintImportantLog("读取管道%d失败%d", m_Pipe[0], errno);
-			}
-			return ExitCode == 0;
-		}
-		else
-		{
-			PrintImportantLog("等待子进程%d结束失败%d", pid, errno);
-		}
-	}
-	else if (pid == 0)
-	{
-		PrintImportantLog("调用addr2line");
-		dup2(m_Pipe[1], STDOUT_FILENO);
-		dup2(m_Pipe[1], STDERR_FILENO);
-		execvp(argv[0], argv);
-		PrintImportantLog("调用addr2line失败%d", errno);
-		exit(2);
+		PrintExceptionLog("%s:%s", ModulaName, Buff);
+		return true;
 	}
 	else
 	{
-		PrintImportantLog("新建进程失败%d", errno);
+		PrintExceptionLog("Parser Error");
+		return false;
 	}
-	return false;
 }
 
 void CServerApp::PrintExceptionLog(const char * Format, ...)

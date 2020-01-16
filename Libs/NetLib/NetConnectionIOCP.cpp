@@ -25,6 +25,8 @@ CNetConnection::CNetConnection(void)
 	m_WantClose=false;
 	m_CurAddressFamily = AF_INET;
 	m_pIOCPEventRouter=NULL;
+	m_OverLappedObjectPool.SetTag(_T("CNetConnection"));
+	m_RecvDataQueue.SetTag(_T("CNetConnection"));
 }
 
 CNetConnection::~CNetConnection(void)

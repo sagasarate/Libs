@@ -412,3 +412,5 @@ inline CEasyStringA LocalToUTF8(LPCTSTR szStr, size_t StrLen = 0)
 	OutStr.TrimBuffer();
 	return OutStr;
 }
+
+extern UINT WalkCallStack(void * pFrame, LPVOID * AddressList, UINT MaxStep);

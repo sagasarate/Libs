@@ -3,6 +3,7 @@
 
 
 CNamedPipe::CNamedPipe()
+	:m_RecvBuffer(_T("CNamedPipe"))
 {
 	m_hPipe = INVALID_HANDLE_VALUE;
 	m_PipeStatus = PIPE_STATUS_DISCONNECTED;

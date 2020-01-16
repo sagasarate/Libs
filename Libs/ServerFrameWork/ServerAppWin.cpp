@@ -97,9 +97,19 @@ void CServerApp::Run(DWORD argc, LPTSTR * argv)
 
 	OnShutDown();
 	
-	SAFE_DELETE(m_pMainWnd);
-	ReportStatus(SERVICE_STOPPED);	
+	delete m_pMainWnd;
 
+	ReportStatus(SERVICE_STOPPED);		
+
+
+	CSystemConfig::ReleaseInstance();
+	CPerformanceStatistician::ReleaseInstance();	
+	CLogManager::ReleaseInstance();
+	CFileSystemManager::ReleaseInstance();
+#ifdef USE_MONITORED_NEW
+	CMemoryAllocatee::GetInstance()->ReportLeakStat();
+	CMemoryAllocatee::ReleaseInstance();
+#endif
 }
 
 void CServerApp::Stop()

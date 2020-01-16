@@ -248,12 +248,12 @@ inline static bool strcatgrow(TCHAR** lhs,const TCHAR* rhs)
 {
 	if(!*lhs) //Null, so first allocate.
 	{
-		*lhs = (TCHAR*) malloc(1UL*sizeof(TCHAR));
+		*lhs = (TCHAR*)MONITORED_MALLOC(_T("pugxml"), 1UL*sizeof(TCHAR));
 		**lhs = 0; //Zero-terminate.
 	}
 	size_t ulhs = _tcslen(*lhs);
 	size_t urhs = _tcslen(rhs);
-	TCHAR* temp = (TCHAR*) realloc(*lhs,(ulhs+urhs+1UL)*sizeof(TCHAR));
+	TCHAR* temp = (TCHAR*)MONITORED_REALLOC(_T("pugxml"), *lhs, (ulhs + urhs + 1UL) * sizeof(TCHAR));
 	if(!temp) return false; //Realloc failed.
 	memcpy(temp+ulhs,rhs,urhs*sizeof(TCHAR)); //Concatenate.
 	temp[ulhs+urhs] = 0; //Terminate it.
@@ -326,7 +326,7 @@ inline static bool strcatgrown_impl(TCHAR** lhs,const TCHAR* rhs,unsigned int& l
 {
 	if(!*lhs) //Null, allocate and copy.
 	{
-		*lhs = (TCHAR*) malloc((rsize+1)*sizeof(TCHAR));
+		*lhs = (TCHAR*)MONITORED_MALLOC(_T("pugxml"), (rsize+1)*sizeof(TCHAR));
 		if(!*lhs)
 		{
 			lsize = 0;
@@ -338,7 +338,7 @@ inline static bool strcatgrown_impl(TCHAR** lhs,const TCHAR* rhs,unsigned int& l
 	}
 	else //Reallocate. NF I don't think this is right for MBCS, nor is code in 'StrCatGrow()'.
 	{
-		TCHAR* temp = (TCHAR*) realloc(*lhs,(lsize + rsize + 1)*sizeof(TCHAR));
+		TCHAR* temp = (TCHAR*)MONITORED_REALLOC(_T("pugxml"), *lhs,(lsize + rsize + 1)*sizeof(TCHAR));
 		if(!temp) return false; //Realloc failed.
 		memcpy(temp+lsize,rhs,rsize*sizeof(TCHAR)); //Concatenate.
 		lsize += rsize; //Set new length.
@@ -416,7 +416,7 @@ inline static bool strwnorm(TCHAR** s)
 	const TCHAR* temp = *s;
 	while(0 != *temp++); //Find the terminating null.
 	int n = (int)(temp-*s-1);
-	TCHAR* norm = (TCHAR*)malloc(sizeof(TCHAR)*(n+1)); //Allocate a temporary normalization buffer.
+	TCHAR* norm = (TCHAR*)MONITORED_MALLOC(_T("pugxml"), sizeof(TCHAR)*(n+1)); //Allocate a temporary normalization buffer.
 	if(!norm) return false; //Allocation failed.
 	memset(norm,0,sizeof(TCHAR)*(n+1)); //Zero it.
 	int j = 1;
@@ -438,7 +438,7 @@ inline static bool strwnorm(TCHAR** s)
 		_tcsncpy(*s,norm,j); //So, copy it back to input.
 		(*s)[j] = 0; //Zero-terminate.
 	}
-	free(norm); //Don't need this anymore.
+	MONITORED_FREE(norm); //Don't need this anymore.
 	--n; //Start from the last string TCHAR.
 	for(i=n; (i > -1) && (*s)[i] > 0 && (*s)[i] < _T('!'); --i); //Find the first non-whitespace from the end.
 	if(i<n) (*s)[i+1] = 0; //Truncate it.
@@ -483,7 +483,7 @@ inline static bool strcpyinsitu
 	else //Destination is too small.
 #endif
 	{
-		if(*dest && !*insitu) free(*dest); //If destination is not in-situ, then free it.
+		if(*dest && !*insitu) MONITORED_FREE(*dest); //If destination is not in-situ, then free it.
 		*dest = NULL; //Mark destination as NULL, forcing 'StrCatGrow' to 'malloc.
 #ifdef PUGOPT_NONSEG
 		if(strcatgrown(dest,src,destlen)) //Allocate & copy source to destination
@@ -618,7 +618,7 @@ inline int strcmpwild(const TCHAR* src,const TCHAR* dst)
 //<returns>Pointer to new xml_attribute_struct structure.</returns>
 inline static xml_attribute_struct* new_attribute(void)
 {
-	xml_attribute_struct* p = (xml_attribute_struct*)malloc(sizeof(xml_attribute_struct)); //Allocate one attribute.
+	xml_attribute_struct* p = (xml_attribute_struct*)MONITORED_MALLOC(_T("pugxml"), sizeof(xml_attribute_struct)); //Allocate one attribute.
 	if(p) //If allocation succeeded.
 	{
 		p->name = p->value = 0; //No name or value.
@@ -636,7 +636,7 @@ inline static xml_attribute_struct* new_attribute(void)
 //<returns>Pointer to new xml_node_struct structure.</returns>
 inline static xml_node_struct* new_node(xml_node_type type = node_element)
 {
-	xml_node_struct* p = (xml_node_struct*)malloc(sizeof(xml_node_struct)); //Allocate one node.
+	xml_node_struct* p = (xml_node_struct*)MONITORED_MALLOC(_T("pugxml"), sizeof(xml_node_struct)); //Allocate one node.
 	if(p) //If allocation succeeded.
 	{
 		p->name = p->value = 0; //No name or data.
@@ -654,7 +654,7 @@ inline static xml_node_struct* new_node(xml_node_type type = node_element)
 			type != node_include	&&
 			type != node_comment
 		)
-			p->attribute = (xml_attribute_struct**)malloc(sizeof(xml_attribute_struct*)); //Allocate one attribute.
+			p->attribute = (xml_attribute_struct**)MONITORED_MALLOC(_T("pugxml"), sizeof(xml_attribute_struct*)); //Allocate one attribute.
 		else p->attribute = NULL;
 		p->attribute_space = (p->attribute) ? 1 : 0;
 		if
@@ -663,7 +663,7 @@ inline static xml_node_struct* new_node(xml_node_type type = node_element)
 			type == node_doctype ||
 			type == node_document
 		)
-			p->child = (xml_node_struct**)malloc(sizeof(xml_node_struct*)); //Allocate one child.
+			p->child = (xml_node_struct**)MONITORED_MALLOC(_T("pugxml"), sizeof(xml_node_struct*)); //Allocate one child.
 		else p->child = NULL;
 		p->child_space = (p->child) ? 1 : 0;
 #ifdef PUGOPT_NODE_FLAGS
@@ -690,7 +690,7 @@ inline static xml_node_struct* append_node( xml_node_struct* parent, const int g
 
 	if(parent->children == parent->child_space) //Out of pointer space.
 	{
-		xml_node_struct** t = (xml_node_struct**)realloc(parent->child,sizeof(xml_node_struct*)*(parent->child_space+grow)); //Grow pointer space.
+		xml_node_struct** t = (xml_node_struct**)MONITORED_REALLOC(_T("pugxml"), parent->child,sizeof(xml_node_struct*)*(parent->child_space+grow)); //Grow pointer space.
 		if(t) //Reallocation succeeded.
 		{
 			parent->child = t;
@@ -722,7 +722,7 @@ inline static xml_attribute_struct* append_attribute(xml_node_struct* node,int g
 	if(!a) return NULL;
 	if(node->attributes == node->attribute_space) //Out of space, so grow.
 	{
-		xml_attribute_struct** t = (xml_attribute_struct**)realloc(node->attribute,sizeof(xml_node_struct*)*(node->attribute_space+grow));
+		xml_attribute_struct** t = (xml_attribute_struct**)MONITORED_REALLOC(_T("pugxml"), node->attribute,sizeof(xml_node_struct*)*(node->attribute_space+grow));
 		if(t)
 		{
 			node->attribute = t;
@@ -768,17 +768,17 @@ LOC_STEP_INTO:
 					for(register unsigned int i=0; i<n; ++i)
 					{
 						if(t->attribute[i]->name && !t->attribute[i]->name_insitu)
-							free(t->attribute[i]->name);
+							MONITORED_FREE(t->attribute[i]->name);
 						if(t->attribute[i]->value && !t->attribute[i]->value_insitu)
-							free(t->attribute[i]->value);
-						free(t->attribute[i]);
+							MONITORED_FREE(t->attribute[i]->value);
+						MONITORED_FREE(t->attribute[i]);
 					}
 				}
-				if(t->attribute) free(t->attribute); //Free attribute pointer space.
-				if(t->child) free(t->child); //Free child pointer space.
-				if(t->name && !t->name_insitu) free(t->name);
-				if(t->value && !t->value_insitu) free(t->value);
-				free(t); //Free the child node.
+				if(t->attribute) MONITORED_FREE(t->attribute); //Free attribute pointer space.
+				if(t->child) MONITORED_FREE(t->child); //Free child pointer space.
+				if(t->name && !t->name_insitu) MONITORED_FREE(t->name);
+				if(t->value && !t->value_insitu) MONITORED_FREE(t->value);
+				MONITORED_FREE(t); //Free the child node.
 			}
 		}
 		cursor = cursor->parent; //Step out.
@@ -791,17 +791,17 @@ LOC_STEP_INTO:
 		for(register unsigned int i=0; i<n; ++i)
 		{
 			if(cursor->attribute[i]->name && !cursor->attribute[i]->name_insitu)
-				free(cursor->attribute[i]->name);
+				MONITORED_FREE(cursor->attribute[i]->name);
 			if(cursor->attribute[i]->value && !cursor->attribute[i]->value_insitu)
-				free(cursor->attribute[i]->value);
-			free(cursor->attribute[i]);
+				MONITORED_FREE(cursor->attribute[i]->value);
+			MONITORED_FREE(cursor->attribute[i]);
 		}
 	}
-	if(cursor->attribute) free(cursor->attribute); //Free attribute pointer space.
-	if(cursor->child) free(cursor->child); //Free child pointer space.
-	if(cursor->name && !cursor->name_insitu) free(cursor->name); //Free name & data.
-	if(cursor->value && !cursor->value_insitu) free(cursor->value);
-	free(cursor); //Free the root itself.
+	if(cursor->attribute) MONITORED_FREE(cursor->attribute); //Free attribute pointer space.
+	if(cursor->child) MONITORED_FREE(cursor->child); //Free child pointer space.
+	if(cursor->name && !cursor->name_insitu) MONITORED_FREE(cursor->name); //Free name & data.
+	if(cursor->value && !cursor->value_insitu) MONITORED_FREE(cursor->value);
+	MONITORED_FREE(cursor); //Free the root itself.
 }
 
 //<summary>Recursively free a tree.</summary>
@@ -816,19 +816,19 @@ inline static void free_node_recursive(xml_node_struct* root)
 		for(i=0; i<n; i++)
 		{
 			if(root->attribute[i]->name && !root->attribute[i]->name_insitu)
-				free(root->attribute[i]->name);
+				MONITORED_FREE(root->attribute[i]->name);
 			if(root->attribute[i]->value && !root->attribute[i]->value_insitu)
-				free(root->attribute[i]->value);
-			free(root->attribute[i]);
+				MONITORED_FREE(root->attribute[i]->value);
+			MONITORED_FREE(root->attribute[i]);
 		}
-		free(root->attribute);
+		MONITORED_FREE(root->attribute);
 		n = root->children;
 		for(i=0; i<n; i++)
 			free_node_recursive(root->child[i]);
-		free(root->child);
-		if(root->name && !root->name_insitu) free(root->name);
-		if(root->value && !root->value_insitu) free(root->value);
-		free(root);
+		MONITORED_FREE(root->child);
+		if(root->name && !root->name_insitu) MONITORED_FREE(root->name);
+		if(root->value && !root->value_insitu) MONITORED_FREE(root->value);
+		MONITORED_FREE(root);
 	}
 }
 
@@ -898,10 +898,10 @@ public:
 			_data(NULL),
 			_grow(grow)
 		{
-			_data = (void**)malloc(sizeof(void*)*_grow);
+			_data = (void**)MONITORED_MALLOC(_T("pugxml"), sizeof(void*)*_grow);
 			_room = (_data) ? _grow : 0;
 		}
-		~pointer_array(){ if(_data) free(_data); }
+		~pointer_array(){ if(_data) MONITORED_FREE(_data); }
 public:
 	bool empty() const { return (_size == 0); } //True if there is no data in the array.
 	void remove_all(){ _size = 0; } //Remove all data elements from the array.
@@ -909,7 +909,7 @@ public:
 	{
 		if(_data)
 		{
-			_data = (void**)realloc(_data,sizeof(void*)*_grow); //Reallocate to first growth increment.
+			_data = (void**)MONITORED_REALLOC(_T("pugxml"), _data,sizeof(void*)*_grow); //Reallocate to first growth increment.
 			_room = _grow; //Mark it as such.
 			_size = 0; //Mark array as empty.
 		}
@@ -933,7 +933,7 @@ public:
 			}
 			else //Not enough room.
 			{
-				void** temp = (void**)realloc(_data,sizeof(void*)*(_size+_grow)); //Grow the array.
+				void** temp = (void**)MONITORED_REALLOC(_T("pugxml"), _data,sizeof(void*)*(_size+_grow)); //Grow the array.
 				if(temp) //Reallocation succeeded.
 				{
 					_room += _grow; //Increment available space.
@@ -967,11 +967,11 @@ public:
 			_stac(0) ,
 			_size(0)
 		{
-			_stac = (TCHAR*)malloc(sizeof(TCHAR)); //Allocate.
+			_stac = (TCHAR*)MONITORED_MALLOC(_T("pugxml"), sizeof(TCHAR)); //Allocate.
 			*_stac = 0; //Zero-terminate.
 		}
 		//Destructor.
-		virtual ~indent_stack(){ if(_stac) free(_stac); }
+		virtual ~indent_stack(){ if(_stac) MONITORED_FREE(_stac); }
 //Stack Operators
 public:
 	//<summary>Grow indent string by one indent character.</summary>
@@ -981,7 +981,7 @@ public:
 		if(_inch && _stac)
 		{
 			_size++;
-			_stac = (TCHAR*)realloc(_stac,sizeof(TCHAR)*(_size+1));
+			_stac = (TCHAR*)MONITORED_REALLOC(_T("pugxml"), _stac,sizeof(TCHAR)*(_size+1));
 			_stac[_size-1] = _inch;
 			_stac[_size] = 0;
 		}
@@ -992,7 +992,7 @@ public:
 		if(_inch && _stac && _size > 0)
 		{
 			_size--;
-			_stac = (TCHAR*)realloc(_stac,sizeof(TCHAR)*(_size+1));
+			_stac = (TCHAR*)MONITORED_REALLOC(_T("pugxml"), _stac,sizeof(TCHAR)*(_size+1));
 			_stac[_size] = 0;
 		}
 	}
@@ -1790,9 +1790,9 @@ template <typename TYPE> class forward_class
 protected:
 	TYPE* _obj; //The class, internal.
 public:
-	forward_class() : _obj(NULL) { _obj = new TYPE(); } //Default constructor.
-	forward_class(const TYPE& r) : _obj(NULL) { _obj = new TYPE(r); } //Copy constructor.
-	virtual ~forward_class(){ if(_obj) delete _obj; } //Destructor.
+	forward_class() : _obj(NULL) { _obj = MONITORED_NEW(_T("pugxml"), TYPE); } //Default constructor.
+	forward_class(const TYPE& r) : _obj(NULL) { _obj = MONITORED_NEW(_T("pugxml"), TYPE, r); } //Copy constructor.
+	virtual ~forward_class(){ if(_obj) MONITORED_DELETE(_obj); } //Destructor.
 public:
 	TYPE& operator* (){ return *_obj; }	//Dereference to the class.
 	TYPE* operator->(){ return _obj; }	//Class member selection.
@@ -2189,7 +2189,7 @@ public:
 		xml_attribute_struct* attr = mapto_attribute_ptr(name);
 		if(!attr)
         {
-            xml_attribute_struct* def_attr = new xml_attribute_struct;  // rem: dtor will delete def_attr.
+			xml_attribute_struct* def_attr = MONITORED_NEW(_T("pugxml"), xml_attribute_struct);  // rem: dtor will delete def_attr.
 
                 // We rely on 'def' being around for the life of the returned xml_attribute.
                 // For typical use of: int Val = (int)some_node.getattribute( "someattr", "-1" );
@@ -2932,15 +2932,15 @@ public:
 #endif
 			strcatgrow(&temp,delimiter); //Append delimiter.
 			strcatgrow(&temp,path); //Append current path.
-			free(path); //Free the old path.
+			MONITORED_FREE(path); //Free the old path.
 			path = temp; //Set path as new string.
 		}
 		temp = NULL;
 		strcatgrow(&temp,delimiter); //Prepend final delimiter.
 		strcatgrow(&temp,path); //Append current path.
-		free(path); //Free the old path.
+		MONITORED_FREE(path); //Free the old path.
 		CEasyString returns = temp; //Set path as new string.
-		free(temp);
+		MONITORED_FREE(temp);
 		return returns; //Return the path;
 	}
 
@@ -3039,11 +3039,11 @@ public:
 NEXT_ELEM:;
 			if(found.type_document()) //Can't move up any higher, so fail.
 			{
-				free(temp); //Got to free this.
+				MONITORED_FREE(temp); //Got to free this.
 				return xml_node(); //Return null node.
 			}
 		}
-		free(temp); //Got to free this.
+		MONITORED_FREE(temp); //Got to free this.
 		return found; //Return the matching node.
 	}
 
@@ -3136,9 +3136,9 @@ public:
 			for(unsigned int j=i; j<n; ++j)
 				_root->attribute[j] = _root->attribute[j+1];
 			_root->attribute[n] = NULL;
-			if(!temp->name_insitu) free(temp->name);
-			if(!temp->value_insitu) free(temp->value);
-			free(temp);
+			if(!temp->name_insitu) MONITORED_FREE(temp->name);
+			if(!temp->value_insitu) MONITORED_FREE(temp->value);
+			MONITORED_FREE(temp);
 			--_root->attributes;
 			return true;
 		}

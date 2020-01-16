@@ -17,6 +17,7 @@ struct LuaValue
 	CEasyBuffer				ObjectData;
 
 	LuaValue()
+		:ObjectData(_T("LuaValue"))
 	{
 		Clear();
 	}

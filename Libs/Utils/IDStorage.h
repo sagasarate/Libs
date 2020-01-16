@@ -42,7 +42,7 @@ protected:
 		{
 			return &Object;
 		}
-		void NewObject()
+		void NewObject(LPCTSTR Tag)
 		{
 
 		}
@@ -86,10 +86,10 @@ protected:
 		{
 			return pObject;
 		}
-		void NewObject()
+		void NewObject(LPCTSTR Tag)
 		{
-			if(pObject==NULL)
-				pObject=new OBJECT_TYPE;
+			if (pObject == NULL)
+				pObject = MONITORED_NEW(Tag, OBJECT_TYPE);
 		}
 		void DeleteObject()
 		{
@@ -132,10 +132,10 @@ protected:
 		{
 			return pObject;
 		}
-		void NewObject()
+		void NewObject(LPCTSTR Tag)
 		{
-			if(pObject==NULL)
-				pObject=new OBJECT_TYPE;
+			if (pObject == NULL)
+				pObject = MONITORED_NEW(Tag, OBJECT_TYPE);
 		}
 		void DeleteObject()
 		{
@@ -166,11 +166,12 @@ protected:
 	UINT								m_UsedObjectCount;
 	UINT								m_GrowSize;
 	UINT								m_GrowLimit;
+	LPCTSTR								m_Tag;
 public:
 	typedef list_iterator<CIDStorage, T> iterator;
 	typedef const_list_iterator<CIDStorage, T> const_iterator;
 public:
-	CIDStorage()
+	CIDStorage(LPCTSTR Tag = _T("CIDStorage"))
 	{
 		m_pFreeListHead=NULL;
 		m_pFreeListTail=NULL;
@@ -180,8 +181,9 @@ public:
 		m_UsedObjectCount = 0;
 		m_GrowSize=0;
 		m_GrowLimit=0;
+		m_Tag = Tag;
 	}
-	CIDStorage(UINT Size, UINT GrowSize = 0, UINT GrowLimit = 0)
+	CIDStorage(UINT Size, UINT GrowSize = 0, UINT GrowLimit = 0, LPCTSTR Tag = _T("CIDStorage"))
 	{
 		m_pFreeListHead = NULL;
 		m_pFreeListTail = NULL;
@@ -191,14 +193,24 @@ public:
 		m_UsedObjectCount = 0;
 		m_GrowSize = 0;
 		m_GrowLimit = 0;
+		m_Tag = Tag;
 		Create(Size, GrowSize, GrowLimit);
 	}
 	~CIDStorage()
 	{
 		Destory();
 	}
+	LPCTSTR GetTag()
+	{
+		return m_Tag;
+	}
+	void SetTag(LPCTSTR Tag)
+	{
+		m_Tag = Tag;
+	}
 	bool Create(UINT Size,UINT GrowSize=0,UINT GrowLimit=0)
 	{		
+		m_ObjectBuffPages.SetTag(GetTag());
 		Destory();
 		if(Size)
 		{
@@ -210,6 +222,7 @@ public:
 	}
 	bool Create(const STORAGE_POOL_SETTING& PoolSetting)
 	{
+		m_ObjectBuffPages.SetTag(GetTag());
 		return Create(PoolSetting.StartSize, PoolSetting.GrowSize, PoolSetting.GrowLimit);
 	}
 	UINT GetBufferSize() const
@@ -725,6 +738,57 @@ public:
 	{
 		return const_iterator(this, NULL);
 	}
+	LPVOID GetFreeObjectPosByID(UINT ID)
+	{
+		if (ID == 0)
+			return NULL;
+		if (m_ObjectBuffPages.GetCount())
+		{
+			ID--;
+			const OBJECT_BUFF_PAGE_INFO& FirstPage = m_ObjectBuffPages[0];
+			if (ID < FirstPage.BufferSize)
+			{
+				if (FirstPage.pObjectBuffer[ID].IsFree)
+					return &(FirstPage.pObjectBuffer[ID]);
+			}
+			else
+			{
+				ID -= FirstPage.BufferSize;
+				UINT PageIndex = 1 + ID / m_GrowSize;
+				UINT Index = ID % m_GrowSize;
+				if (PageIndex < m_ObjectBuffPages.GetCount())
+				{
+					const OBJECT_BUFF_PAGE_INFO& Page = m_ObjectBuffPages[PageIndex];
+					if (Index < Page.BufferSize)
+					{
+						if (Page.pObjectBuffer[Index].IsFree)
+							return &(Page.pObjectBuffer[Index]);
+					}
+				}
+			}
+		}
+		return NULL;
+	}
+	T* GetFreeObject(LPVOID Pos)
+	{
+		StorageNode * pNode = (StorageNode *)Pos;
+		if (pNode)
+		{
+			if (pNode->IsFree)
+				return pNode->GetObjectPointer();
+		}
+
+		return NULL;
+	}
+	void ReleaseFreeObject(LPVOID Pos)
+	{
+		StorageNode * pNode = (StorageNode *)Pos;
+		if (pNode)
+		{
+			if (pNode->IsFree)
+				return pNode->FinalReleaseObject();
+		}
+	}
 protected:
 	bool CreateBufferPage(UINT Size)
 	{
@@ -732,10 +796,10 @@ protected:
 		{
 			if(m_ObjectBuffPages.GetCount()>=m_GrowLimit)
 				return false;
-		}
+		}		
 		OBJECT_BUFF_PAGE_INFO PageInfo;
 		PageInfo.BufferSize=Size;		
-		PageInfo.pObjectBuffer=new StorageNode[Size];
+		PageInfo.pObjectBuffer = MONITORED_NEW_ARRAY(GetTag(), StorageNode, Size);
 		for (UINT i = 0; i < Size; i++)
 		{
 			PageInfo.pObjectBuffer[i].IsUsed = false;
@@ -828,7 +892,7 @@ protected:
 				pNode->IsUsed = true;
 				m_UsedObjectCount++;
 			}			
-			pNode->NewObject();
+			pNode->NewObject(GetTag());
 			m_ObjectCount++;
 			return pNode;
 		}
@@ -912,5 +976,4 @@ protected:
 	}
 
 	
-
 };

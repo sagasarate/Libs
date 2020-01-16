@@ -190,6 +190,9 @@
     <Filter Include="字符串\关键字过滤">
       <UniqueIdentifier>{a25b6d2a-3349-4b94-9926-dd5693837656}</UniqueIdentifier>
     </Filter>
+    <Filter Include="StackTrace">
+      <UniqueIdentifier>{30deeace-54d3-4a75-805e-35119de6becc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EasyTime.h">
@@ -747,6 +750,33 @@
     <ClInclude Include="ListIterator.h">
       <Filter>对象存储模版</Filter>
     </ClInclude>
+    <ClInclude Include="StaticMapLite.h">
+      <Filter>对象存储模版</Filter>
+    </ClInclude>
+    <ClInclude Include="stacktrace\stacktrace.h">
+      <Filter>StackTrace</Filter>
+    </ClInclude>
+    <ClInclude Include="stacktrace\stacktrace_arm-inl.h">
+      <Filter>StackTrace</Filter>
+    </ClInclude>
+    <ClInclude Include="stacktrace\stacktrace_config.h">
+      <Filter>StackTrace</Filter>
+    </ClInclude>
+    <ClInclude Include="stacktrace\stacktrace_generic-inl.h">
+      <Filter>StackTrace</Filter>
+    </ClInclude>
+    <ClInclude Include="stacktrace\stacktrace_libunwind-inl.h">
+      <Filter>StackTrace</Filter>
+    </ClInclude>
+    <ClInclude Include="stacktrace\stacktrace_powerpc-inl.h">
+      <Filter>StackTrace</Filter>
+    </ClInclude>
+    <ClInclude Include="stacktrace\stacktrace_win32-inl.h">
+      <Filter>StackTrace</Filter>
+    </ClInclude>
+    <ClInclude Include="stacktrace\stacktrace_x86-inl.h">
+      <Filter>StackTrace</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EasyTimerEx.cpp">
@@ -1003,6 +1033,15 @@
     </ClCompile>
     <ClCompile Include="SHA256.cpp">
       <Filter>加解密\SHA1</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolsLinux.cpp">
+      <Filter>小工具函数</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolsAll.cpp">
+      <Filter>小工具函数</Filter>
+    </ClCompile>
+    <ClCompile Include="stacktrace\stacktrace.cc">
+      <Filter>StackTrace</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

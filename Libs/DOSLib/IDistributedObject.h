@@ -40,6 +40,7 @@
 #define START_DOS_MSG_MAP(ClassName)	\
 	void ClassName::InitDOSMsgMap()\
 	{\
+		m_MsgFnMap.SetTag(_T(#ClassName));\
 		m_MsgFnMap.Create(64,16384);
 
 #define DOS_MSG_MAP(MsgHandlerClassName) \
@@ -88,6 +89,7 @@
 #define START_DOS_MSG_MAP_CLIENT(ClassName)	\
 	void ClassName::InitDOSMsgMap()\
 	{\
+		m_MsgFnMap.SetTag(_T(#ClassName));\
 		m_MsgFnMap.Create(64,16384);
 
 

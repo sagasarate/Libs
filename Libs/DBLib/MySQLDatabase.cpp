@@ -15,7 +15,7 @@
 namespace DBLib
 {
 
-IMPLEMENT_CLASS_INFO(CMySQLDatabase,IDatabase);
+IMPLEMENT_CLASS_INFO_STATIC(CMySQLDatabase,IDatabase);
 
 CMySQLDatabase::CMySQLDatabase(void):IDatabase()
 {
@@ -30,7 +30,7 @@ CMySQLDatabase::~CMySQLDatabase(void)
 
 IDBConnection * CMySQLDatabase::CreateConnection()
 {
-	CMySQLConnection * pConnection=new CMySQLConnection();
+	CMySQLConnection * pConnection = MONITORED_NEW(_T("CMySQLDatabase"), CMySQLConnection);
 	if(pConnection->Init(this)==DBERR_SUCCEED)
 		return pConnection;
 	pConnection->Release();

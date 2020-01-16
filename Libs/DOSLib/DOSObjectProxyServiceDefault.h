@@ -11,14 +11,19 @@
 /****************************************************************************/
 #pragma once
 
-class CBaseDOSObjectProxyService
+class CBaseDOSObjectProxyService:
+	public CNameObject
 {
 public:
-	virtual void Destory() = 0;
-	virtual void Release() = 0;
 	virtual BYTE GetProxyType() = 0;
-	virtual void SetID(UINT ID) = 0;
-	virtual UINT GetID() = 0;
+	virtual void SetID(UINT ID)
+	{
+		CNameObject::SetID(ID);
+	}
+	virtual UINT GetID()
+	{
+		return CNameObject::GetID();
+	}
 
 	virtual bool StartService() = 0;
 	virtual void StopService() = 0;
@@ -44,7 +49,9 @@ protected:
 		int						MsgMapType;
 		CEasyArray<OBJECT_ID>	ObjectIDList;
 		MSG_MAP_INFO()
+			:ObjectIDList(_T("MSG_MAP_INFO"))
 		{
+			ObjectIDList.SetTag(_T("CDOSObjectProxyServiceDefault"));
 			ObjectIDList.Create(16, 16);
 			MsgMapType = GLOBAL_MSG_MAP_TYPE_OVERLAP;
 		}
@@ -56,28 +63,29 @@ protected:
 		CIPAddress	IP;
 	};
 
-	CLIENT_PROXY_CONFIG											m_Config;
-	CCycleQueue<CDOSMessagePacket *>							m_MsgQueue;
+	CLIENT_PROXY_CONFIG												m_Config;
+	CCycleQueue<CDOSMessagePacket *>								m_MsgQueue;
 
-	CStaticMap<MSG_ID_TYPE, MSG_MAP_INFO>						m_MessageMap;
-	OBJECT_ID													m_UnhandleMsgReceiverID;
-	CEasyCriticalSection										m_EasyCriticalSection;
+	CStaticMap<MSG_ID_TYPE, MSG_MAP_INFO>							m_MessageMap;
+	OBJECT_ID														m_UnhandleMsgReceiverID;
+	CEasyCriticalSection											m_EasyCriticalSection;
 
-	CThreadPerformanceCounter									m_ThreadPerformanceCounter;
-	CGuardThread												m_GuardThread;
+	CThreadPerformanceCounter										m_ThreadPerformanceCounter;
+	CGuardThread													m_GuardThread;
 
 
-	CIDStorage<CDOSObjectProxyConnectionDefault>				m_ConnectionPool;
-	CThreadSafeIDStorage<CDOSObjectProxyConnectionDefault *>	m_DestoryConnectionList;
-	CEasyArray<CDOSObjectProxyConnectionGroup>					m_ConnectionGroups;
-	CEasyBuffer													m_CompressBuffer;
-	char														m_LZOCompressWorkMemory[LZO1X_1_MEM_COMPRESS];
+	CIDStorage<CDOSObjectProxyConnectionDefault, EDSM_NEW_ONCE>		m_ConnectionPool;
+	UINT															m_FreeObjectCheckPtr;
+	CThreadSafeIDStorage<CDOSObjectProxyConnectionDefault *>		m_DestoryConnectionList;
+	CEasyArray<CDOSObjectProxyConnectionGroup>						m_ConnectionGroups;
+	CEasyBuffer														m_CompressBuffer;
+	char															m_LZOCompressWorkMemory[LZO1X_1_MEM_COMPRESS];
 
-	CHashMap<CIPAddress, IP_INFO>								m_IPBlackList;
-	CHashMap<CIPAddress, IP_INFO>								m_RecvProtectedIPList;
-	CEasyArray<IP_INFO>											m_PrepareIPBlackList;
-	CEasyCriticalSection										m_BlackListCriticalSection;
-	CEasyTimer													m_BlackListUpdateTimer;
+	CHashMap<CIPAddress, IP_INFO>									m_IPBlackList;
+	CHashMap<CIPAddress, IP_INFO>									m_RecvProtectedIPList;
+	CEasyArray<IP_INFO>												m_PrepareIPBlackList;
+	CEasyCriticalSection											m_BlackListCriticalSection;
+	CEasyTimer														m_BlackListUpdateTimer;
 
 public:
 	CDOSObjectProxyServiceDefault(void);
@@ -142,7 +150,7 @@ protected:
 	bool DoUnregisterGlobalMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);
 	void ClearMsgMapByRouterID(UINT RouterID);
 	bool CheckEncryptConfig();
-	
+	int CheckFreeObject();
 };
 
 

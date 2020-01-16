@@ -6,6 +6,8 @@ CDOSObjectProxyConnectionGroup::CDOSObjectProxyConnectionGroup()
 {
 	m_pService = NULL;
 	m_Index = 0;
+	m_ConnectionPool.SetTag(_T("CDOSObjectProxyConnectionGroup"));
+	m_CompressBuffer.SetTag(_T("CDOSObjectProxyConnectionGroup"));
 }
 
 

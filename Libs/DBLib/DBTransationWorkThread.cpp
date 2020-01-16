@@ -21,6 +21,8 @@ CDBTransationWorkThread::CDBTransationWorkThread(CDBTransationManager * pManager
 	m_pManager=pManager;
 	m_pDatabase = NULL;
 	m_pConnection = NULL;
+	m_TransQueue.SetTag(_T("CDBTransationWorkThread"));
+	m_FinishTransQueue.SetTag(_T("CDBTransationWorkThread"));
 }
 
 CDBTransationWorkThread::~CDBTransationWorkThread(void)

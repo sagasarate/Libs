@@ -27,58 +27,70 @@ protected:
 	LENGTH_TYPE		m_DataLen;
 	bool			m_IsSelfData;
 	bool			m_AllowChange;
-
+	LPCTSTR			m_Tag;
 public:	
 	enum
 	{
 		HEAD_SIZE=(sizeof(BYTE)+sizeof(LENGTH_TYPE)),
 		INVALID_MEMBER_ID=((ID_TYPE)-1),
 	};
-	CSmartStructBase(void)
+	CSmartStructBase(LPCTSTR Tag = _T("CSmartStructBase"))
 	{
-		m_pData=NULL;
-		m_DataLen=0;
-		m_IsSelfData=true;
-		m_AllowChange=true;
+		m_pData = NULL;
+		m_DataLen = 0;
+		m_IsSelfData = true;
+		m_AllowChange = true;
+		m_Tag = Tag;
 	}
-	CSmartStructBase(int BufferLen)
+	CSmartStructBase(int BufferLen, LPCTSTR Tag = _T("CSmartStructBase"))
 	{
 		m_pData=NULL;
 		m_DataLen=0;
 		m_IsSelfData=true;
 		m_AllowChange=true;
+		m_Tag = Tag;
 		Create(BufferLen);
 	}
-	CSmartStructBase(LPVOID pData,LENGTH_TYPE DataLen,bool IsEmpty)
+	CSmartStructBase(LPVOID pData,LENGTH_TYPE DataLen,bool IsEmpty, LPCTSTR Tag = _T("CSmartStructBase"))
 	{
 		m_pData=NULL;
 		m_DataLen=0;
 		m_IsSelfData=true;
 		m_AllowChange=true;
+		m_Tag = Tag;
 		Attach(pData,DataLen,IsEmpty);
 	}
-	CSmartStructBase(const CSmartStructBase& Struct)
+	CSmartStructBase(const CSmartStructBase& Struct, LPCTSTR Tag = _T("CSmartStructBase"))
 	{
 		m_pData=NULL;
 		m_DataLen=0;
 		m_IsSelfData=true;
 		m_AllowChange=true;
+		m_Tag = Tag;
 		Attach(Struct.GetData(),Struct.GetBufferLen(),false);
 	}
-	CSmartStructBase(const CSmartValue& Value)
+	CSmartStructBase(const CSmartValue& Value, LPCTSTR Tag = _T("CSmartStructBase"))
 	{
 		m_pData=NULL;
 		m_DataLen=0;
 		m_IsSelfData=true;
 		m_AllowChange=true;
+		m_Tag = Tag;
 		Attach(Value.GetData(),Value.GetDataLen(),false);
 	}
-
+	LPCTSTR GetTag()
+	{
+		return m_Tag;
+	}
+	void SetTag(LPCTSTR Tag)
+	{
+		m_Tag = Tag;
+	}
 	bool Create(LENGTH_TYPE BufferLen)
 	{
 		Destory();
 		m_DataLen=sizeof(BYTE)+sizeof(LENGTH_TYPE)+BufferLen;
-		m_pData=new BYTE[m_DataLen];
+		m_pData = MONITORED_NEW_ARRAY(GetTag(), BYTE, m_DataLen);
 		ZeroMemory(m_pData,m_DataLen);
 		*m_pData=CSmartValue::VT_STRUCT;
 		*((LENGTH_TYPE *)(m_pData+1))=0;		
@@ -97,7 +109,7 @@ public:
 			m_IsSelfData=true;
 			m_AllowChange=false;
 			m_DataLen=Value.m_DataLen;
-			m_pData=new BYTE[m_DataLen];
+			m_pData= MONITORED_NEW_ARRAY(GetTag(), BYTE, m_DataLen);
 			memcpy(m_pData,Value.GetData(),Value.GetDataLen());
 		}
 		return true;

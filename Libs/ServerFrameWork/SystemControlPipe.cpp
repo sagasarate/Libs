@@ -6,6 +6,8 @@ CSystemControlPipe::CSystemControlPipe()
 {
 	m_pServer = NULL;
 	m_IsLinkLog = false;
+	m_AssembleBuffer.SetTag(_T("CSystemControlPipe"));
+	m_SendBuffer.SetTag(_T("CSystemControlPipe"));
 }
 
 
@@ -149,7 +151,7 @@ void CSystemControlPipe::OnMsg(CSmartStruct& MsgPacket)
 		break;
 	case SC_MSG_GET_SERVER_STATUS_FORMAT_INFO:
 		{
-			CEasyArray<SERVER_STATUS_FORMAT_INFO> ServerStatusFormatList;
+			CEasyArray<SERVER_STATUS_FORMAT_INFO> ServerStatusFormatList(_T("CSystemControlPipe"));
 			m_pServer->GetAllServerStatusFormat(ServerStatusFormatList);
 
 			m_SendBuffer.Clear();

@@ -46,7 +46,7 @@ class CODBCDatabase :
 protected:
 	SQLHENV							m_hEnv;	
 
-	DECLARE_CLASS_INFO(CODBCDatabase)
+	DECLARE_CLASS_INFO_STATIC(CODBCDatabase)
 public:
 	CODBCDatabase(void);
 	virtual ~CODBCDatabase(void);

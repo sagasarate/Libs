@@ -25,6 +25,7 @@
 
   <System>
     <LogConfig LogLevel="1" />
+    <GuardThread Enable="true" KeepAliveTime="20000" KeepAliveCount="2"/>
   </System>
 
   <SystemLink ServerID="6-0-0-1">

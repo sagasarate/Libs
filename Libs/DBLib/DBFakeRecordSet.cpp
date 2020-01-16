@@ -18,6 +18,7 @@ namespace DBLib
 
 CDBFakeRecordSet::CDBFakeRecordSet(void)
 {
+	m_DataBuffer.SetTag(_T("CDBFakeRecordSet"));
 }
 
 CDBFakeRecordSet::~CDBFakeRecordSet(void)
@@ -53,7 +54,7 @@ int CDBFakeRecordSet::GetRecordSetDataEx(int& Pos,LPVOID pBuffer,int& BufferSize
 {
 	int ColNum=0;
 	UINT PeekPtr=0;
-	CEasyBuffer OutputBuffer(pBuffer,BufferSize);
+	CEasyBuffer OutputBuffer(pBuffer, BufferSize, _T("CDBFakeRecordSet"));
 
 	m_DataBuffer.Peek(PeekPtr,&ColNum,sizeof(int));
 	if(ColNum<=0)

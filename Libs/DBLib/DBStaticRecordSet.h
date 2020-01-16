@@ -29,7 +29,7 @@ protected:
 	int								m_CurRow;
 	CDBValue						m_EmptyValue;
 
-	DECLARE_CLASS_INFO(CDBStaticRecordSet)
+	DECLARE_CLASS_INFO_STATIC(CDBStaticRecordSet)
 public:
 	CDBStaticRecordSet(void);
 	virtual ~CDBStaticRecordSet(void);

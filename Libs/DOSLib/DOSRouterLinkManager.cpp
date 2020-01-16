@@ -84,7 +84,7 @@ int CDOSRouterLinkManager::Update(int ProcessPacketLimit)
 
 CEasyNetLink * CDOSRouterLinkManager::OnCreateLink(UINT ID)
 {
-	return new CDOSRouterLink();
+	return MONITORED_NEW(_T("CDOSRouterLinkManager"), CDOSRouterLink);
 }
 
 void CDOSRouterLinkManager::OnLinkStart(CEasyNetLink * pConnection)

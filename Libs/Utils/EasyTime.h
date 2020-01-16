@@ -657,5 +657,29 @@ public:
 	{
 		return time(NULL);
 	}
+
+	static int GetTimeZone()
+	{
+#ifdef WIN32
+		TIME_ZONE_INFORMATION TimeZoneInfo;
+		if (GetTimeZoneInformation(&TimeZoneInfo) != TIME_ZONE_ID_INVALID)
+		{
+			return -TimeZoneInfo.Bias * 60;
+		}
+		return 0;
+#else
+		tzset();
+		return -timezone;
+#endif
+		//time_t t1, t2;     
+		//struct tm *tm_local, *tm_utc; 	
+		//t1 = time(NULL);
+		//t2 = t1;	
+		//tm_local = localtime(&t1);	
+		//t1 = mktime(tm_local);	
+		//tm_utc = gmtime(&t2);	
+		//t2 = mktime(tm_utc);
+		//return (t1 - t2);
+	}
 };
 

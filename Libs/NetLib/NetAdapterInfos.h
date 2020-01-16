@@ -12,6 +12,11 @@ public:
 		float						SendFlux;
 		UINT64						RecvBytes;
 		float						RecvFlux;
+		NET_ADAPTER_INFO()
+			:IPAddressList(_T("NET_ADAPTER_INFO"))
+		{
+
+		}
 	};
 protected:
 	CEasyArray<NET_ADAPTER_INFO>	m_NetAdapterInfoList;

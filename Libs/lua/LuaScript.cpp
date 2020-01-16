@@ -2,6 +2,7 @@
 
 UINT CLuaScript::m_LogChannel = 0;
 CLuaScript::CLuaScript()
+	:m_LuaThreadPool(_T("CLuaScript"))
 {
 	m_NeedReload = false;
 	m_IsLoadFromFile = false;

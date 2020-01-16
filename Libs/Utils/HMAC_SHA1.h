@@ -31,18 +31,18 @@ class CHMAC_SHA1 : public CSHA1
 		} ;
 
 		CHMAC_SHA1()
-			:szReport(new char[HMAC_BUF_LEN]),
-             AppendBuf1(new char[HMAC_BUF_LEN]),
-             AppendBuf2(new char[HMAC_BUF_LEN]),
-             SHA1_Key(new char[HMAC_BUF_LEN])
+			:szReport(MONITORED_NEW_ARRAY(_T("CHMAC_SHA1"), char, HMAC_BUF_LEN)),
+			AppendBuf1(MONITORED_NEW_ARRAY(_T("CHMAC_SHA1"), char, HMAC_BUF_LEN)),
+			AppendBuf2(MONITORED_NEW_ARRAY(_T("CHMAC_SHA1"), char, HMAC_BUF_LEN)),
+			SHA1_Key(MONITORED_NEW_ARRAY(_T("CHMAC_SHA1"), char, HMAC_BUF_LEN))
 		{}
 
         ~CHMAC_SHA1()
         {
-            delete[] szReport ;
-            delete[] AppendBuf1 ;
-            delete[] AppendBuf2 ;
-            delete[] SHA1_Key ;
+			MONITORED_DELETE_ARRAY(szReport);
+			MONITORED_DELETE_ARRAY(AppendBuf1);
+			MONITORED_DELETE_ARRAY(AppendBuf2);
+			MONITORED_DELETE_ARRAY(SHA1_Key);
         }
 
 		void HMAC_SHA1(BYTE *text, size_t text_len, BYTE *key, size_t key_len, BYTE *digest);

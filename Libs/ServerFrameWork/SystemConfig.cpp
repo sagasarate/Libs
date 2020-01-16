@@ -119,6 +119,29 @@ bool CSystemConfig::LoadConfig(LPCTSTR ConfigFileName)
 						m_ControlPipeAssembleBufferSize = ControlPipe.attribute("AssembleBufferSize");
 				}
 
+				xml_node MallocConfig = Config;
+				if (MallocConfig.moveto_child("MallocConfig"))
+				{
+					if (MallocConfig.has_attribute("TrimThreshold"))
+					{
+						m_MallocConfig.bSetTrimThreshold = true;
+						m_MallocConfig.TrimThreshold = MallocConfig.attribute("TrimThreshold");
+					}
+						
+
+					if (MallocConfig.has_attribute("MMapThreshold"))
+					{
+						m_MallocConfig.bSetMMapThreshold = true;
+						m_MallocConfig.MMapThreshold = MallocConfig.attribute("MMapThreshold");
+					}
+						
+					if (MallocConfig.has_attribute("MMapMax"))
+					{
+						m_MallocConfig.bSetMMapMax = true;
+						m_MallocConfig.MMapMax = MallocConfig.attribute("MMapMax");
+					}
+				}
+
 				PrintImportantLog("系统配置已载入");
 				PrintImportantLog("主线程处理限制:%u", m_MainThreadProcessLimit);
 				PrintImportantLog("UDP控制接口:%s:%u", m_UDPControlAddress.GetIPString(), m_UDPControlAddress.GetPort());
@@ -133,7 +156,12 @@ bool CSystemConfig::LoadConfig(LPCTSTR ConfigFileName)
 				PrintImportantLog("是否与加载模块符号:%s", m_PreLoadModuleSym ? "是" : "否");
 				PrintImportantLog("是否输出符号加载日志:%s", m_LogModuleSymStatus ? "是" : "否");
 				PrintImportantLog("异常时是否输出完整内存镜像:%s", m_MakeFullDump ? "是" : "否");
-
+				if (m_MallocConfig.bSetTrimThreshold)
+					PrintImportantLog("设置GLIBC内存堆收缩门槛:%d", m_MallocConfig.TrimThreshold);
+				if (m_MallocConfig.bSetMMapThreshold)
+					PrintImportantLog("设置GLIBC内存堆分配门槛:%d", m_MallocConfig.MMapThreshold);
+				if (m_MallocConfig.bSetMMapMax)
+					PrintImportantLog("设置GLIBC内存堆最大大小:%d", m_MallocConfig.MMapMax);
 			}
 			else
 			{

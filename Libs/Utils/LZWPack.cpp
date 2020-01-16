@@ -69,9 +69,9 @@ int CLZWPack::PackAlloc()
 	BufferFree();
 	size=1<<m_MaxCodeLength;
 	m_CodeBufferSize=size;
-	m_pCTlink=(CODE_TYPE *)malloc(size*sizeof(CODE_TYPE));
-	m_pCTfirst=(BYTE *)malloc(size);
-	m_pCTnext=(CODE_TYPE *)malloc(size*sizeof(CODE_TYPE));
+	m_pCTlink=(CODE_TYPE *)MONITORED_MALLOC(_T("CLZWPack"), size*sizeof(CODE_TYPE));
+	m_pCTfirst=(BYTE *)MONITORED_MALLOC(_T("CLZWPack"), size);
+	m_pCTnext=(CODE_TYPE *)MONITORED_MALLOC(_T("CLZWPack"), size*sizeof(CODE_TYPE));
 	if(m_pCTlink==NULL||m_pCTfirst==NULL||m_pCTnext==NULL)
 		return 1;
 	return 0;
@@ -83,10 +83,10 @@ int CLZWPack::UnpackAlloc()
 	BufferFree();
 	size=1<<m_MaxCodeLength;
 	m_CodeBufferSize=size;
-	m_pCTlink=(CODE_TYPE *)malloc(size*sizeof(CODE_TYPE));	
-	m_pCTfirst=(BYTE *)malloc(size);
-	m_pCTlast=(BYTE *)malloc(size);
-	m_pOStack=(BYTE *)malloc(size);
+	m_pCTlink=(CODE_TYPE *)MONITORED_MALLOC(_T("CLZWPack"), size*sizeof(CODE_TYPE));
+	m_pCTfirst=(BYTE *)MONITORED_MALLOC(_T("CLZWPack"), size);
+	m_pCTlast=(BYTE *)MONITORED_MALLOC(_T("CLZWPack"), size);
+	m_pOStack=(BYTE *)MONITORED_MALLOC(_T("CLZWPack"), size);
 	if(m_pCTlink==NULL||m_pCTfirst==NULL||m_pCTlast==NULL||m_pOStack==NULL)
 		return 1;
 	ZeroMemory(m_pCTlink,size*sizeof(CODE_TYPE));
@@ -97,11 +97,11 @@ int CLZWPack::UnpackAlloc()
 }
 void CLZWPack::BufferFree()
 {
-	if(m_pCTlink!=NULL) free(m_pCTlink);
-	if(m_pCTfirst!=NULL) free(m_pCTfirst);
-	if(m_pCTlast!=NULL) free(m_pCTlast);
-	if(m_pOStack!=NULL) free(m_pOStack);
-	if(m_pCTnext!=NULL) free(m_pCTnext);
+	if(m_pCTlink!=NULL) MONITORED_FREE(m_pCTlink);
+	if(m_pCTfirst!=NULL) MONITORED_FREE(m_pCTfirst);
+	if(m_pCTlast!=NULL) MONITORED_FREE(m_pCTlast);
+	if(m_pOStack!=NULL) MONITORED_FREE(m_pOStack);
+	if(m_pCTnext!=NULL) MONITORED_FREE(m_pCTnext);
 	m_pCTlink=NULL;
 	m_pCTfirst=NULL;
 	m_pCTlast=NULL;
@@ -153,7 +153,7 @@ void CLZWPack::SetMaxCodeLength(WORD length)
 
 int CLZWPack::StartPack(LPCTSTR FileName,WORD StartBits,WORD MaxBits)
 {
-	IFileAccessor * pFileAccessor=new CStandardFileAccessor();
+	IFileAccessor * pFileAccessor = MONITORED_NEW(_T("CLZWPack"), CStandardFileAccessor);
 	
 	if(!pFileAccessor->Open(FileName,IFileAccessor::modeWrite|IFileAccessor::shareShareRead|IFileAccessor::modeCreateAlways))
 	{
@@ -216,7 +216,7 @@ int CLZWPack::StartPack(void * pData,DWORD DataSize,WORD StartBits,WORD MaxBits)
 
 int CLZWPack::StartUnpack(LPCTSTR FileName)
 {
-	IFileAccessor * pFileAccessor=new CStandardFileAccessor();
+	IFileAccessor * pFileAccessor = MONITORED_NEW(_T("CLZWPack"), CStandardFileAccessor);
 
 	if(!pFileAccessor->Open(FileName,IFileAccessor::modeRead|IFileAccessor::shareShareRead|IFileAccessor::modeOpen))
 	{

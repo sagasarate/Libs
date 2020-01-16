@@ -1,26 +1,19 @@
 ﻿#include "stdafx.h"
 
-CStaticMap<UINT, FN_SET_META_CLASS> * CSetMetaClassFNRegister::m_pSetMetaClassFNMap = NULL;
+CStaticMapLite<UINT, FN_SET_META_CLASS> CSetMetaClassFNRegister::m_SetMetaClassFNMap;
 
 CSetMetaClassFNRegister::CSetMetaClassFNRegister(UINT ClassID, FN_SET_META_CLASS pFN)
 {	
 	m_ClassID = ClassID;
-	if (m_pSetMetaClassFNMap == NULL)
+	if (m_SetMetaClassFNMap.GetBufferSize() == 0)
 	{
-		m_pSetMetaClassFNMap = new CStaticMap<UINT, FN_SET_META_CLASS>(64, 64, 64);
+		m_SetMetaClassFNMap.Create(64, 64, 64);
 	}
-	m_pSetMetaClassFNMap->Insert(ClassID, pFN);
+	m_SetMetaClassFNMap.Insert(ClassID, pFN);
 }
 CSetMetaClassFNRegister::~CSetMetaClassFNRegister()
 {
-	if (m_pSetMetaClassFNMap)
-	{
-		m_pSetMetaClassFNMap->Delete(m_ClassID);
-		if (m_pSetMetaClassFNMap->GetObjectCount() == 0)
-		{
-			SAFE_DELETE(m_pSetMetaClassFNMap);
-		}
-	}
+	m_SetMetaClassFNMap.Delete(m_ClassID);
 }
 
 IMPLEMENT_STATIC_META_CLASS(CLuaBaseStaticMetaClass)

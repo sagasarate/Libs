@@ -96,7 +96,7 @@ protected:
 public:
 	CESFunctionList()
 	{
-
+		m_Map.SetTag(_T("CESFunctionList"));
 	}
 	~CESFunctionList()
 	{

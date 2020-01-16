@@ -20,6 +20,11 @@ IMPLEMENT_CLASS_INFO_STATIC(CEasyNetLinkManager,CNameObject);
 CEasyNetLinkManager::CEasyNetLinkManager(void)
 {
 	m_pServer=NULL;
+	m_LinkMap.SetTag(_T("CEasyNetLinkManager"));
+	m_LinkList.SetTag(_T("CEasyNetLinkManager"));
+	m_ServiceMap.SetTag(_T("CEasyNetLinkManager"));
+	m_ServiceList.SetTag(_T("CEasyNetLinkManager"));
+	m_LinkIDPool.SetTag(_T("CEasyNetLinkManager"));
 	m_LinkMap.Create(128, 128, 128);
 	m_ServiceMap.Create(64, 64, 64);
 }
@@ -365,7 +370,7 @@ int CEasyNetLinkManager::Update(int ProcessPacketLimit)
 
 CEasyNetLinkService * CEasyNetLinkManager::OnCreateService(UINT ID)
 {
-	return new CEasyNetLinkService();
+	return MONITORED_NEW(_T("CEasyNetLinkManager"), CEasyNetLinkService);
 }
 
 CEasyNetLink * CEasyNetLinkManager::GetLink(UINT ID)
@@ -418,7 +423,7 @@ CEasyNetLink * CEasyNetLinkManager::GetLinkByIndex(UINT Index)
 
 CEasyNetLink * CEasyNetLinkManager::CreateAcceptLink()
 {
-	CEasyNetTempLink * pLink = new CEasyNetTempLink();
+	CEasyNetTempLink * pLink = MONITORED_NEW(_T("CEasyNetLinkManager"), CEasyNetTempLink);
 	if (pLink)
 	{
 		pLink->SetStatus(ENL_LINK_ACCEPTING);

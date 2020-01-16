@@ -52,8 +52,9 @@ protected:
 	StorageNode		* m_pFront;
 	StorageNode		* m_pBack;
 	UINT			m_ObjectCount;	
+	LPCTSTR			m_Tag;
 public:
-	CEasyMap()
+	CEasyMap(LPCTSTR Tag = _T("CEasyMap"))
 	{
 		
 		m_pObjectListHead=NULL;
@@ -61,12 +62,21 @@ public:
 		m_pTreeRoot=NULL;
 		m_pFront=NULL;
 		m_pBack=NULL;
-		m_ObjectCount=0;		
+		m_ObjectCount=0;	
+		m_Tag = Tag;
 	}
 	~CEasyMap()
 	{
 		Clear();
-	}		
+	}	
+	LPCTSTR GetTag()
+	{
+		return m_Tag;
+	}
+	void SetTag(LPCTSTR Tag)
+	{
+		m_Tag = Tag;
+	}
 	void Clear()
 	{
 		while(m_pObjectListHead)
@@ -693,12 +703,12 @@ protected:
 			pNode->pBack->pFront=pNode->pFront;			
 		}	
 
-		delete pNode;		
+		MONITORED_DELETE(pNode);
 		m_ObjectCount--;
 	}
 	StorageNode * NewNode(const KEY& Key)
 	{
-		StorageNode * pNode=new StorageNode();
+		StorageNode * pNode= MONITORED_NEW(GetTag(), StorageNode);
 		pNode->Key=Key;
 		
 		if(m_pObjectListTail)

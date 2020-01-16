@@ -5,6 +5,8 @@
 
 
 CNamedPipe::CNamedPipe()
+	:m_RecvBuffer(_T("CNamedPipe"))
+	, m_SendBuffer(_T("CNamedPipe"))
 {
 	m_fdRead = INVALID_HANDLE_VALUE;
 	m_fdWrite = INVALID_HANDLE_VALUE;

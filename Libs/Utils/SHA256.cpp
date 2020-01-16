@@ -41,7 +41,7 @@ LPCTSTR CSHA256::SHA256(const BYTE * pData, size_t DataLen, LPTSTR pOutBuff)
 		0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
 	};
 	l = DataLen + ((DataLen % 64 >= 56) ? (128 - DataLen % 64) : (64 - DataLen % 64));
-	if (!(pp = (char*)malloc(l))) 
+	if (!(pp = (char*)MONITORED_MALLOC(_T("SHA256"), l)))
 		return 0;
 	for (i = 0; i < DataLen; pp[i + 3 - 2 * (i % 4)] = pData[i], i++);
 	for (pp[i + 3 - 2 * (i % 4)] = 128, i++; i < l; pp[i + 3 - 2 * (i % 4)] = 0, i++);
@@ -58,7 +58,7 @@ LPCTSTR CSHA256::SHA256(const BYTE * pData, size_t DataLen, LPTSTR pOutBuff)
 		}
 		H0 += A, H1 += B, H2 += C, H3 += D, H4 += E, H5 += F, H6 += G, H7 += H;
 	}
-	free(pp - l);
+	MONITORED_FREE(pp - l);
 	_stprintf_s(pOutBuff, 65, _T("%08X%08X%08X%08X%08X%08X%08X%08X"), H0, H1, H2, H3, H4, H5, H6, H7);
 	return pOutBuff;
 }

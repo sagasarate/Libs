@@ -11,6 +11,7 @@
 /****************************************************************************/
 #pragma once
 
+class IFileAccessor;
 
 class CGuardThread :
 	public CEasyThread
@@ -21,8 +22,7 @@ protected:
 	UINT					m_LostAliveCount;
 	UINT					m_MaxLostAliveCount;
 	UINT					m_TargetThreadID;
-	LPCTSTR					m_RecentSourceFileName;
-	int						m_RecentSourceLine;
+	HANDLE					m_TargetThreadHandle;
 	CEasyCriticalSection	m_EasyCriticalSection;
 
 	static volatile bool	m_Enable;
@@ -37,9 +37,10 @@ public:
 		m_KeepAliveTime=Time;
 		m_MaxLostAliveCount=MaxLostAliveCount;
 	}
-	void SetTargetThreadID(UINT ThreadID)
+	void SetTargetThread(CEasyThread * pThread)
 	{
-		m_TargetThreadID=ThreadID;
+		m_TargetThreadID = pThread->GetThreadID();
+		m_TargetThreadHandle = pThread->GetThreadHandle();
 	}
 
 	void MakeKeepAlive()
@@ -49,16 +50,12 @@ public:
 		m_LostAliveCount=0;
 	}
 
-	void ReportRecentFunction(LPCTSTR SourceFileName,int Line)
-	{
-		m_RecentSourceFileName=SourceFileName;
-		m_RecentSourceLine=Line;
-	}
-
 	static void Enable(bool Enable);
 
 protected:
 	virtual BOOL OnStart();
 	virtual BOOL OnRun();
 	virtual void OnTerminate();
+	void PrintDumpLog(IFileAccessor * pLogFile, LPCTSTR Format, ...);
+	void DumpThreadCallStack();
 };

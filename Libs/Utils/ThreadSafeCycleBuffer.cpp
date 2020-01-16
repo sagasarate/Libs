@@ -14,7 +14,7 @@
 
 IMPLEMENT_CLASS_INFO_STATIC(CThreadSafeCycleBuffer,CNameObject);
 
-CThreadSafeCycleBuffer::CThreadSafeCycleBuffer(void):CNameObject()
+CThreadSafeCycleBuffer::CThreadSafeCycleBuffer(LPCTSTR Tag):CNameObject()
 {
 	m_pBuffer=NULL;
 	m_BufferSize=0;
@@ -23,9 +23,10 @@ CThreadSafeCycleBuffer::CThreadSafeCycleBuffer(void):CNameObject()
 	m_IsSelfBuffer=true;
 	m_IsLockFront=true;
 	m_IsLockBack=true;
+	m_Tag = Tag;
 }
 
-CThreadSafeCycleBuffer::CThreadSafeCycleBuffer(UINT Size):CNameObject()
+CThreadSafeCycleBuffer::CThreadSafeCycleBuffer(UINT Size, LPCTSTR Tag):CNameObject()
 {
 	m_pBuffer=NULL;
 	m_BufferSize=0;
@@ -34,10 +35,11 @@ CThreadSafeCycleBuffer::CThreadSafeCycleBuffer(UINT Size):CNameObject()
 	m_IsSelfBuffer=true;
 	m_IsLockFront=true;
 	m_IsLockBack=true;
+	m_Tag = Tag;
 	Create(Size);
 }
 
-CThreadSafeCycleBuffer::CThreadSafeCycleBuffer(LPVOID pBuff,UINT Size):CNameObject()
+CThreadSafeCycleBuffer::CThreadSafeCycleBuffer(LPVOID pBuff,UINT Size, LPCTSTR Tag):CNameObject()
 {
 	m_pBuffer=NULL;
 	m_BufferSize=0;
@@ -46,6 +48,7 @@ CThreadSafeCycleBuffer::CThreadSafeCycleBuffer(LPVOID pBuff,UINT Size):CNameObje
 	m_IsSelfBuffer=true;
 	m_IsLockFront=true;
 	m_IsLockBack=true;
+	m_Tag = Tag;
 	Create(pBuff,Size);
 }
 
@@ -68,7 +71,7 @@ BOOL CThreadSafeCycleBuffer::Create(UINT Size)
 		BackLock.Lock(m_BackLock);
 	}
 	m_BufferSize = Size + 1;
-	m_pBuffer = new BYTE[m_BufferSize];
+	m_pBuffer = MONITORED_NEW_ARRAY(GetTag(), BYTE, m_BufferSize);
 	m_BufferHead=0;
 	m_BufferTail=0;
 	m_IsSelfBuffer=true;
@@ -172,7 +175,7 @@ void CThreadSafeCycleBuffer::CloneFrom(const CThreadSafeCycleBuffer& TargetBuffe
 	if (TargetBuffer.m_pBuffer&&TargetBuffer.m_BufferSize)
 	{
 		m_BufferSize = TargetBuffer.m_BufferSize;
-		m_pBuffer = new BYTE[m_BufferSize];
+		m_pBuffer = MONITORED_NEW_ARRAY(GetTag(), BYTE, m_BufferSize);
 		m_IsSelfBuffer = true;
 		memcpy(m_pBuffer, TargetBuffer.m_pBuffer, m_BufferSize);
 	}	

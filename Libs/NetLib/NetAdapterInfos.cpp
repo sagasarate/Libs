@@ -3,6 +3,9 @@
 
 
 CNetAdapterInfos::CNetAdapterInfos()
+	:m_NetAdapterInfoList(_T("CNetAdapterInfos"))
+	, m_WorkBuffer1(_T("CNetAdapterInfos"))
+	, m_WorkBuffer2(_T("CNetAdapterInfos"))
 {
 	m_RecentUpdateTime = 0;
 	m_NetInfoFile = NULL;

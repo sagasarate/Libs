@@ -63,7 +63,7 @@ public:
 	virtual LPCSTR GetLastDatabaseErrorString()=0;
 	virtual LPCSTR GetLastSQL() = 0;
 	virtual int TranslateString(LPCSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen)=0;
-
+	virtual void Reset() = 0;
 };
 
 class IDBRecordSet

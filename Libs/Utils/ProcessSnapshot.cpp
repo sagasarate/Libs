@@ -9,6 +9,7 @@ CProcessSnapshot::CProcessSnapshot()
 	m_CPUCount = 1;
 	m_CPUUsedRate = NAN;
 	m_SnapshotCount = 0;
+	m_ProcessList.SetTag(_T("CProcessSnapshot"));
 
 #ifdef WIN32
 	SYSTEM_INFO SysInfo;
@@ -18,6 +19,7 @@ CProcessSnapshot::CProcessSnapshot()
 	m_CPUFreq = sysconf(_SC_CLK_TCK);
 	m_PageSize = sysconf(_SC_PAGE_SIZE);
 	m_SystemInfoFile = NULL;
+	m_ProcessInfoFileList.SetTag(_T("CProcessSnapshot"));
 #endif
 }
 
@@ -79,7 +81,7 @@ bool CProcessSnapshot::Snapshot()
 		return false;
 	}
 
-	CEasyArray<DWORD> ProcessIDList;
+	CEasyArray<DWORD> ProcessIDList(_T("CProcessSnapshot"));
 
 	UINT BlockCount = 1;
 	DWORD ReturnSize;
@@ -98,7 +100,7 @@ bool CProcessSnapshot::Snapshot()
 		}
 	} while (ProcessCount >= ProcessIDList.GetCount());
 
-	CEasyArray<PROCESS_INFO> ProcessList;
+	CEasyArray<PROCESS_INFO> ProcessList(_T("CProcessSnapshot"));
 	ProcessList.Reserve(ProcessCount);
 	for (UINT i = 0; i < ProcessCount; i++)
 	{
@@ -221,7 +223,7 @@ bool CProcessSnapshot::Snapshot()
 
 	CFileSearcher FileSearcher;
 
-	CEasyArray<PROCESS_INFO> ProcessList;
+	CEasyArray<PROCESS_INFO> ProcessList(_T("CProcessSnapshot"));
 	ProcessList.Create(32,32);
 	FileSearcher.FindFirst("/proc/*");
 	while (FileSearcher.FindNext())

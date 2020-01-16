@@ -24,12 +24,14 @@ protected:
 	StorageNode *	m_pObjectListHead;
 	StorageNode *	m_pObjectListTail;
 	UINT			m_ObjectCount;
+	LPCTSTR			m_Tag;
 public:
-	CEasyList()
+	CEasyList(LPCTSTR Tag = _T("CEasyList"))
 	{
 		m_pObjectListHead=NULL;
 		m_pObjectListTail=NULL;
 		m_ObjectCount=0;
+		m_Tag = Tag;
 	}
 	~CEasyList()
 	{
@@ -41,11 +43,19 @@ public:
 		{
 			StorageNode * pNode=m_pObjectListHead;
 			m_pObjectListHead=m_pObjectListHead->pNext;
-			delete pNode;
+			MONITORED_DELETE(pNode);
 		}
 		m_pObjectListHead=NULL;
 		m_pObjectListTail=NULL;
 		m_ObjectCount=0;
+	}
+	LPCTSTR GetTag()
+	{
+		return m_Tag;
+	}
+	void SetTag(LPCTSTR Tag)
+	{
+		m_Tag = Tag;
 	}
 	UINT GetObjectCount()
 	{
@@ -112,14 +122,14 @@ public:
 
 	LPVOID InsertAfter(LPVOID Pos=NULL)
 	{
-		StorageNode * pNode=new StorageNode;
+		StorageNode * pNode = MONITORED_NEW(GetTag(), StorageNode);
 		InsertNodeAfter(pNode,Pos);
 		return pNode;
 	}	
 
 	LPVOID InsertAfter(const T& Object,LPVOID Pos=NULL)
 	{
-		StorageNode * pNode=new StorageNode;		
+		StorageNode * pNode = MONITORED_NEW(GetTag(), StorageNode);
 		pNode->Object=Object;
 		InsertNodeAfter(pNode,Pos);
 		return pNode;
@@ -127,20 +137,20 @@ public:
 	
 	LPVOID InsertBefore(LPVOID Pos=NULL)
 	{
-		StorageNode * pNode=new StorageNode;		
+		StorageNode * pNode=MONITORED_NEW(GetTag(), StorageNode);
 		InsertNodeBefore(pNode,Pos);
 		return pNode;
 	}
 	LPVOID InsertBefore(const T& Object,LPVOID Pos=NULL)
 	{
-		StorageNode * pNode=new StorageNode;
+		StorageNode * pNode=MONITORED_NEW(GetTag(), StorageNode);
 		pNode->Object=Object;
 		InsertNodeBefore(pNode,Pos);
 		return pNode;
 	}
 	LPVOID InsertSorted(const T& Object)
 	{
-		StorageNode * pNode=new StorageNode;
+		StorageNode * pNode=MONITORED_NEW(GetTag(), StorageNode);
 		if(pNode)
 		{	
 			pNode->Object=Object;
@@ -169,7 +179,7 @@ public:
 		{
 			StorageNode * pNode=(StorageNode *)Pos;
 			Pick(pNode);
-			delete pNode;
+			MONITORED_DELETE(pNode);
 			return TRUE;
 		}
 		return FALSE;
@@ -177,7 +187,7 @@ public:
 	
 	LPVOID PushFront()
 	{
-		StorageNode * pNode=new StorageNode;
+		StorageNode * pNode=MONITORED_NEW(GetTag(), StorageNode);
 		if(pNode)
 		{				
 			InsertNodeBefore(pNode,m_pObjectListHead);			
@@ -199,7 +209,7 @@ public:
 
 	LPVOID PushBack()
 	{
-		StorageNode * pNode=new StorageNode;
+		StorageNode * pNode=MONITORED_NEW(GetTag(), StorageNode);
 		if(pNode)
 		{				
 			InsertNodeAfter(pNode,m_pObjectListTail);			

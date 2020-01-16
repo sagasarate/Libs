@@ -18,7 +18,7 @@ LuaValue& LuaValue::operator=(const CLuaTable& Value)
 	Clear();
 	Type = LUA_TTABLE;
 	if (TableValue == NULL)
-		TableValue = new CLuaTable();
+		TableValue = MONITORED_NEW(_T("LuaValue"), CLuaTable);
 	*TableValue = Value;
 	return *this;
 }
@@ -32,7 +32,7 @@ LuaValue& LuaValue::operator=(const LuaValue& Value)
 	ObjectValue = Value.ObjectValue;
 	if (Value.TableValue != NULL)
 	{
-		TableValue = new CLuaTable();
+		TableValue = MONITORED_NEW(_T("LuaValue"), CLuaTable);
 		*TableValue = *Value.TableValue;
 	}
 
@@ -96,7 +96,7 @@ bool LuaValue::ParsePacket(const CSmartValue& Packet)
 		break;
 	case CSmartValue::VT_STRUCT:
 		Type = LUA_TTABLE;
-		TableValue = new CLuaTable();
+		TableValue = MONITORED_NEW(_T("LuaValue"), CLuaTable);
 		return TableValue->ParsePacket(CSmartStruct(Packet));
 		break;
 	case CSmartValue::VT_BOOL:
@@ -197,7 +197,7 @@ bool LuaValue::GetValueFromLuaState(LuaValue& Value, lua_State * pLuaState, int 
 		Value.StrValue = lua_tostring(pLuaState, Index);
 		return true;
 	case LUA_TTABLE:
-		Value.TableValue = new CLuaTable();
+		Value.TableValue = MONITORED_NEW(_T("LuaValue"), CLuaTable);
 		Value.TableValue->GetFromLuaState(pLuaState, Index);
 	case LUA_TINTEGER:
 		Value.i64Value = lua_tointeger(pLuaState, Index);

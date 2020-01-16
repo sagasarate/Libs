@@ -23,6 +23,7 @@ CEasyNetLinkService::CEasyNetLinkService(void)
 	m_MaxPacketSize=0;
 	m_DataCompressType = CEasyNetLinkManager::DATA_COMPRESS_TYPE_NONE;
 	m_MinCompressSize = CEasyNetLinkManager::DEFAULT_MIN_COMPRESS_SIZE;
+	m_IPList.SetTag(_T("CEasyNetLinkService"));
 }
 
 CEasyNetLinkService::~CEasyNetLinkService(void)

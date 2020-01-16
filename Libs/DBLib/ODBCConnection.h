@@ -30,7 +30,7 @@ protected:
 	int						m_LastErrorCode;
 	CEasyString				m_LastSQL;
 	
-	DECLARE_CLASS_INFO(CODBCConnection)
+	DECLARE_CLASS_INFO_STATIC(CODBCConnection)
 public:
 	CODBCConnection(void);
 	virtual ~CODBCConnection(void);
@@ -57,6 +57,7 @@ public:
 	virtual LPCSTR GetLastDatabaseErrorString();
 	virtual LPCSTR GetLastSQL();
 	virtual int TranslateString(LPCSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen);
+	virtual void Reset();
 	
 	void ProcessMessagesODBC(SQLSMALLINT plm_handle_type,SQLHANDLE plm_handle,char *logstring,int ConnInd);
 	static int ODBCCTypeTODBLibType(int Type,UINT64& Size);

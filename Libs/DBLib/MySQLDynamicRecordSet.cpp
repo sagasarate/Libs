@@ -14,7 +14,7 @@
 namespace DBLib
 {
 
-IMPLEMENT_CLASS_INFO(CMySQLDynamicRecordSet,IDBRecordSet);
+IMPLEMENT_CLASS_INFO_STATIC(CMySQLDynamicRecordSet,IDBRecordSet);
 
 CMySQLDynamicRecordSet::CMySQLDynamicRecordSet(bool CacheAllData)
 {
@@ -24,6 +24,10 @@ CMySQLDynamicRecordSet::CMySQLDynamicRecordSet(bool CacheAllData)
 	m_IsEOF=true;
 	m_CacheAllData=CacheAllData;
 	m_BlobMaxProcessSize = 0;
+	m_pColumnInfos.SetTag(_T("CMySQLDynamicRecordSet"));
+	m_RowBuffer.SetTag(_T("CMySQLDynamicRecordSet"));
+	m_FetchBuffer.SetTag(_T("CMySQLDynamicRecordSet"));
+	m_FetchDataBuffer.SetTag(_T("CMySQLDynamicRecordSet"));
 }
 
 CMySQLDynamicRecordSet::~CMySQLDynamicRecordSet(void)

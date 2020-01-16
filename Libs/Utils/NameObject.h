@@ -90,6 +90,8 @@ struct CLASS_INFO
 	}
 };
 
+typedef CStaticMapLite<CEasyString, CLASS_INFO *> CLASS_INFO_MAP;
+
 class CClassInfoRegister
 {
 public:
@@ -119,7 +121,7 @@ public:\
 	CClassInfoRegister	ClassName::m_##ClassName##ClassInfoRegister(_T(#ClassName),&m_##ClassName##ClassInfo);\
 	CNameObject * ClassName::CreateObject()\
 	{\
-		return (ParentClassName *) new ClassName();\
+		return (ParentClassName *) MONITORED_NEW(_T(#ClassName), ClassName);\
 	}\
 	CLASS_INFO& ClassName::GetThisClassInfo()\
 	{\
@@ -160,8 +162,7 @@ protected:
 	CEasyString		m_Name;
 
 	static CLASS_INFO	m_CNameObjectClassInfo;
-	static CEasyMap<CEasyString,CLASS_INFO *> * m_pAllClassInfo;
-	static int m_AllClassCount;
+	static CLASS_INFO_MAP m_AllClassInfo;
 	static CClassInfoRegister m_CNameObjectClassInfoRegister;
 
 	friend class CClassInfoRegister;
@@ -256,13 +257,8 @@ inline LPCTSTR CNameObject::GetClassName()
 	return GetClassInfo().ClassName;
 }
 
-inline bool CNameObject::Initialize()
-{
-	return true;
-}
-inline void CNameObject::Destory()
-{
-}
+
+
 inline UINT CNameObject::AddUseRef()
 {
 	return AtomicInc(&m_UseRef);
@@ -275,11 +271,7 @@ inline UINT CNameObject::GetUseRef()
 {
 	return m_UseRef;
 }
-inline void CNameObject::Release()
-{
-	if(DecUseRef()<=0)
-		delete this;
-}
+
 
 inline void CNameObject::SetName(LPCTSTR Name)
 {

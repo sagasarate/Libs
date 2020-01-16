@@ -8,7 +8,7 @@
 #define CHAT_UDP_UPDATE_LIMIT		16
 
 class CDOSMainThread :
-	public CDOSServerThread,public CStaticObject<CDOSMainThread>
+	public CDOSServerThread,public CStaticObject4<CDOSMainThread>
 {
 protected:		
 	enum STATUS

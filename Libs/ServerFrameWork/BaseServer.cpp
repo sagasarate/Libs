@@ -2,6 +2,11 @@
 
 CBaseServer::CBaseServer()
 {
+	m_LogBuffer.SetTag(_T("CBaseServer"));
+	m_CommandPool.SetTag(_T("CBaseServer"));
+	m_ServerStatus.SetTag(_T("CBaseServer"));
+	m_ServerStatusFormatInfoList.SetTag(_T("CBaseServer"));
+
 	m_LogBuffer.Create(DEFAULT_CONSOLE_LOG_BUFF_LEN);
 	m_LogBuffer.SetLockMode(false, true);
 	m_ConsoleLogLevel = 0;

@@ -45,6 +45,7 @@
 #include "atomic_ops/include/atomic_ops.h"
 #include <utime.h>
 #include <dlfcn.h>
+#include <signal.h>
 
 #define __forceinline inline
 
@@ -62,7 +63,9 @@
 #define INFINITE		0xffffffff
 #define __int64			long long
 
-
+#define SIG_THREAD_SUSPEND			SIGRTMIN
+#define SIG_THREAD_RESUME			(SIGRTMIN+1)
+#define SIG_THREAD_GET_CALL_STACK	(SIGRTMIN+2)
 
 typedef signed char			INT8;
 typedef unsigned char		UINT8;

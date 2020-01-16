@@ -21,6 +21,9 @@ CDOSClient::CDOSClient(void)
 	m_RecentPingDelay = 0;
 
 	m_MsgCompressType=MSG_COMPRESS_LZO;
+	m_AssembleBuffer.SetTag(_T("CDOSClient"));
+	m_SendBuffer.SetTag(_T("CDOSClient"));
+	m_MsgFnMap.SetTag(_T("CDOSClient"));
 }
 
 CDOSClient::~CDOSClient(void)

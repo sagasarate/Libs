@@ -41,6 +41,7 @@ CServerConsoleDlg::CServerConsoleDlg(CWnd* pParent /*=NULL*/)
 	, m_UCPSend(_T(""))
 	, m_WorkStatus(_T(""))
 {
+	m_ServerStatus.SetTag(_T("CServerConsoleDlg"));
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON_TRAY);
 	m_pServer=NULL;
 }
@@ -259,9 +260,9 @@ void CServerConsoleDlg::OnTimer(UINT_PTR nIDEvent)
 	if (nIDEvent == PANEL_TIMER_ID&&IsWindowVisible() && m_pServer)
 	{
 		UINT Size=m_pServer->GetAllServerStatus((BYTE *)m_ServerStatus.GetBuffer(),m_ServerStatus.GetBufferSize());
-		CSmartStruct StatusPacket(m_ServerStatus.GetBuffer(),Size,false);
+		CSmartStruct StatusPacket(m_ServerStatus.GetBuffer(), Size, false, _T("CServerConsoleDlg"));
 
-		CEasyArray<SERVER_STATUS_FORMAT_INFO> FormatInfoList;
+		CEasyArray<SERVER_STATUS_FORMAT_INFO> FormatInfoList(_T("CServerConsoleDlg"));
 		m_pServer->GetAllServerStatusFormat(FormatInfoList);
 
 		UpdateData(true);		

@@ -36,6 +36,7 @@ protected:
 	CESThread									m_ESThread;
 	CEasyScriptExecutor							m_ScriptExecutor;
 	CEasyArray<CDistributedObjectOperator *>	m_ConsoleCommandReceiverList;
+	CGuardThread								m_GuardThread;
 
 	CSystemNetLinkManager *						m_pSysNetLinkManager;
 	CSystemControlPort *						m_pUDPSystemControlPort;
@@ -98,5 +99,4 @@ protected:
 	int RebuildUDPControlPort(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount);
 	int SFSetConsoleLogLevel(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount);
 	int SFVerfyMemPool(CESThread * pESThread,ES_BOLAN* pResult,ES_BOLAN* pParams,int ParamCount);
-	
 };

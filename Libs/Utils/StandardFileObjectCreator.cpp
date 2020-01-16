@@ -24,6 +24,6 @@ CStandardFileObjectCreator::~CStandardFileObjectCreator(void)
 
 IFileAccessor * CStandardFileObjectCreator::CreateFileAccessor()
 {
-	return new CStandardFileAccessor();
+	return MONITORED_NEW(_T("CStandardFileObjectCreator"), CStandardFileAccessor);
 }
 

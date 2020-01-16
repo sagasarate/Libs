@@ -23,6 +23,7 @@ CDBTransationManager::CDBTransationManager(void)
 	m_RealExecTime=0;
 	m_AvgExecTime=0;
 	m_ExecTimesPerSec=0;
+	m_WorkThreads.SetTag(_T("CDBTransationManager"));
 }
 
 CDBTransationManager::~CDBTransationManager(void)
@@ -51,7 +52,7 @@ bool CDBTransationManager::Init(IDatabase * pDatabase,LPCSTR szConnectStr,int Th
 
 	for(int i=0;i<ThreadCount;i++)
 	{		
-		CDBTransationWorkThread * pThread=new CDBTransationWorkThread(this);
+		CDBTransationWorkThread * pThread = MONITORED_NEW(_T("CDBTransationManager"), CDBTransationWorkThread, this);
 		if (!pThread->Init(pDatabase, szConnectStr, QueueSize))
 		{
 			SAFE_RELEASE(pThread);

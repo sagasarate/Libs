@@ -19,6 +19,8 @@ CDOSMainApp::CDOSMainApp()
 	// TODO: 在此处添加构造代码，
 	// 将所有重要的初始化放置在 InitInstance 中
 	m_IsConfigLoaded=false;
+
+	//_CrtSetBreakAlloc(12656);
 }
 
 
@@ -76,6 +78,11 @@ BOOL CDOSMainApp::OnStartUp()
 	CServerApp::OnStartUp();
 
 	PrintImportantLog("DistributedObjectServer Start");
+#ifdef USE_MONITORED_NEW
+	CMemoryAllocatee::GetInstance()->SetLogDir(CFileTools::GetModulePath(NULL) + _T("/Log/"));
+#endif
+
+
 	CPerformanceStatistician::GetInstance()->ResetPerformanceStat();
 
 
@@ -132,8 +139,8 @@ void CDOSMainApp::OnShutDown()
 	CDOSMainThread::GetInstance()->ShutDown(MAX_SERVER_TERMINATE_WAIT_TIME);
 	PrintImportantLog("服务完成关闭");
 
-	CLogManager::ReleaseInstance();
-	CPerformanceStatistician::ReleaseInstance();
+	CDOSConfig::ReleaseInstance();
+	CDOSMainThread::ReleaseInstance();	
 }
 
 void CDOSMainApp::OnSetServiceName()

@@ -124,6 +124,8 @@
 #define USE_CRT_DETAIL_NEW
 #endif
 
+//#define USE_MONITORED_NEW
+
 #include "../../Libs/Utils/Utils.h"
 #include "../../Libs/NetLib/NetLib.h"
 #include "../../Libs/ServerFrameWork/ServerFrameWork.h"
@@ -243,6 +245,7 @@ struct PLUGIN_INFO
 	PLUGIN_TYPE					PluginType;
 	CEasyString					PluginName;
 	PLUGIN_LOAD_TYPE			LoadType;
+	bool						CanUnload;
 	CEasyString					PrjDir;
 	CEasyArray<CEasyString>		SourceDirs;
 	CEasyString					MainClassNameSpace;
@@ -266,7 +269,7 @@ struct PLUGIN_INFO
 	{
 		PluginType = PLUGIN_TYPE_NATIVE;
 		LoadType = PLUGIN_LOAD_TYPE_ASSEMBLY;
-
+		CanUnload = false;
 
 		ID = 0;
 		PluginStatus = PLUGIN_STATUS_NONE;

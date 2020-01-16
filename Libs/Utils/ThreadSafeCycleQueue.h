@@ -10,8 +10,8 @@ protected:
 	bool						m_IsLockFront;
 	bool						m_IsLockBack;
 public:
-	CThreadSafeCycleQueue()
-		:CCycleQueue<T>()
+	CThreadSafeCycleQueue(LPCTSTR Tag = _T("CThreadSafeCycleQueue"))
+		:CCycleQueue<T>(Tag)
 	{
 		m_IsLockFront = true;
 		m_IsLockBack = true;

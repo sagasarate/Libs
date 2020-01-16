@@ -21,6 +21,7 @@ public:
 	CSettingFile(int FileChannel=0)
 	{
 		m_FileChannel=FileChannel;
+		m_SettingStrings.SetTag(_T("CSettingFile"));
 	}
 	bool LoadFromFile(LPCTSTR FileName)
 	{
@@ -35,7 +36,7 @@ public:
 			return false;	
 		}
 		int FileSize=(int)pFile->GetSize();	
-		BYTE * Str=new BYTE[FileSize+2];
+		BYTE * Str = MONITORED_NEW_ARRAY(_T("CSettingFile"), BYTE, FileSize + 2);
 		pFile->Read(Str,FileSize);
 		pFile->Release();
 		Str[FileSize]=0;
@@ -50,9 +51,9 @@ public:
 		if(!IsUnicode)
 		{
 			size_t DestLen=AnsiToUnicode((char *)Str,FileSize,NULL,0);
-			WCHAR * pNewStr=new WCHAR[DestLen+1];
+			WCHAR * pNewStr = MONITORED_NEW_ARRAY(_T("CSettingFile"), WCHAR, DestLen + 1);
 			DestLen=AnsiToUnicode((char *)Str,FileSize,pNewStr,DestLen);
-			delete[] Str;
+			SAFE_DELETE_ARRAY(Str);
 			Str=(BYTE *)pNewStr;
 		}
 		
@@ -60,14 +61,14 @@ public:
 		if(IsUnicode)
 		{
 			size_t DestLen=UnicodeToAnsi((WCHAR *)Str,FileSize/sizeof(WCHAR),NULL,0);
-			char * pNewStr=new char[DestLen+1];
+			char * pNewStr = MONITORED_NEW_ARRAY(_T("CSettingFile"), char, DestLen + 1);
 			DestLen=UnicodeToAnsi((WCHAR *)Str,FileSize/sizeof(WCHAR),pNewStr,DestLen);
-			delete[] Str;
+			SAFE_DELETE_ARRAY(Str);
 			Str=(BYTE *)pNewStr;
 		}
 #endif
 		bool ret=Load((LPCTSTR)Str);
-		delete[] Str;
+		SAFE_DELETE_ARRAY(Str);
 		return ret;		
 	}
 
@@ -76,7 +77,7 @@ public:
 		TCHAR * Source;
 		TCHAR * Line;
 		size_t Len=_tcslen(SettingString)+1;
-		TCHAR * pBuff=new TCHAR[Len];
+		TCHAR * pBuff = MONITORED_NEW_ARRAY(_T("CSettingFile"), TCHAR, Len);
 		Source=pBuff;
 		_tcscpy_s(Source,Len,SettingString);
 		m_SettingStrings.Clear();
@@ -114,7 +115,7 @@ public:
 			if(!temp.IsEmpty())
 				m_SettingStrings.Add(temp);
 		}
-		delete[] pBuff;
+		SAFE_DELETE_ARRAY(pBuff);
 		return true;
 	}
 

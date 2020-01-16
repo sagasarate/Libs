@@ -22,6 +22,8 @@ CNetServer::CNetServer(void):CBaseNetServer()
 	m_EventRouterPoolGrowSize=DEFAULT_EVENT_ROUTER_POOL_GROW_SIZE;
 	m_EventRouterPoolGrowLimit=DEFAULT_EVENT_ROUTER_POOL_GROW_LIMIT;
 	m_EpollWordThreadCount = DEFAULT_WORK_THREAD_COUNT;
+	m_EventRouterPool.SetTag(_T("CNetServer"));
+	m_EpollThreadList.SetTag(_T("CNetServer"));
 }
 
 CNetServer::~CNetServer(void)
@@ -237,21 +239,28 @@ bool CNetServer::BindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter
 
 bool CNetServer::UnbindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter)
 {
-	if (pEpollEventRouter->GetEpollThread())
+	if(pEpollEventRouter)
 	{
-		if (pEpollEventRouter->GetEpollThread()->UnbindSocket(Socket))
+		if (pEpollEventRouter->GetEpollThread())
 		{
-			pEpollEventRouter->SetEpollThread(NULL);
-			return true;
+			if (pEpollEventRouter->GetEpollThread()->UnbindSocket(Socket))
+			{
+				pEpollEventRouter->SetEpollThread(NULL);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 		else
 		{
+			PrintNetLog("(%d)EpollEventRouter没有设置EpollThread,无法解绑Epoll事件！", GetID());
 			return false;
 		}
 	}
 	else
 	{
-		PrintNetLog( "(%d)EpollEventRouter没有设置EpollThread,无法解绑Epoll事件！", GetID());
 		return false;
 	}
 }

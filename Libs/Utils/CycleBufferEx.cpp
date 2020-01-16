@@ -14,7 +14,7 @@
 
 IMPLEMENT_CLASS_INFO_STATIC(CCycleBufferEx,CNameObject);
 
-CCycleBufferEx::CCycleBufferEx(void):CNameObject()
+CCycleBufferEx::CCycleBufferEx(LPCTSTR Tag):CNameObject()
 {
 	m_pBuffer=NULL;
 	m_BufferSize=0;
@@ -22,9 +22,10 @@ CCycleBufferEx::CCycleBufferEx(void):CNameObject()
 	m_BufferHead=0;
 	m_BufferTail=0;
 	m_IsSelfBuffer=true;
+	m_Tag = Tag;
 }
 
-CCycleBufferEx::CCycleBufferEx(UINT Size,UINT SmoothSize):CNameObject()
+CCycleBufferEx::CCycleBufferEx(UINT Size,UINT SmoothSize, LPCTSTR Tag):CNameObject()
 {
 	m_pBuffer=NULL;
 	m_BufferSize=0;
@@ -32,10 +33,11 @@ CCycleBufferEx::CCycleBufferEx(UINT Size,UINT SmoothSize):CNameObject()
 	m_BufferHead=0;
 	m_BufferTail=0;
 	m_IsSelfBuffer=true;
+	m_Tag = Tag;
 	Create(Size,SmoothSize);
 }
 
-CCycleBufferEx::CCycleBufferEx(LPVOID pBuff,UINT Size,UINT SmoothSize):CNameObject()
+CCycleBufferEx::CCycleBufferEx(LPVOID pBuff,UINT Size,UINT SmoothSize, LPCTSTR Tag):CNameObject()
 {
 	m_pBuffer=NULL;
 	m_BufferSize=0;
@@ -43,6 +45,7 @@ CCycleBufferEx::CCycleBufferEx(LPVOID pBuff,UINT Size,UINT SmoothSize):CNameObje
 	m_BufferHead=0;
 	m_BufferTail=0;
 	m_IsSelfBuffer=true;
+	m_Tag = Tag;
 	Create(pBuff,Size,SmoothSize);
 }
 
@@ -58,7 +61,7 @@ BOOL CCycleBufferEx::Create(UINT Size,UINT SmoothSize)
 	{
 		return FALSE;
 	}
-	m_pBuffer=new BYTE[Size];
+	m_pBuffer = MONITORED_NEW_ARRAY(GetTag(), BYTE, Size);
 	m_BufferSize=Size-SmoothSize;
 	m_SmoothSize=SmoothSize;
 	m_BufferHead=0;

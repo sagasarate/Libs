@@ -24,13 +24,22 @@ protected:
 	CEasyCriticalSection		m_BackLock;
 	bool						m_IsLockFront;
 	bool						m_IsLockBack;
-
+	LPCTSTR						m_Tag;
 	DECLARE_CLASS_INFO_STATIC(CThreadSafeCycleBuffer);
 public:
-	CThreadSafeCycleBuffer(void);
-	CThreadSafeCycleBuffer(UINT Size);
-	CThreadSafeCycleBuffer(LPVOID pBuff,UINT Size);
+	CThreadSafeCycleBuffer(LPCTSTR Tag = _T("CThreadSafeCycleBuffer"));
+	CThreadSafeCycleBuffer(UINT Size, LPCTSTR Tag = _T("CThreadSafeCycleBuffer"));
+	CThreadSafeCycleBuffer(LPVOID pBuff, UINT Size, LPCTSTR Tag = _T("CThreadSafeCycleBuffer"));
 	virtual ~CThreadSafeCycleBuffer(void);
+
+	LPCTSTR GetTag()
+	{
+		return m_Tag;
+	}
+	void SetTag(LPCTSTR Tag)
+	{
+		m_Tag = Tag;
+	}
 
 	BOOL Create(UINT Size);
 	BOOL Create(LPVOID pBuff,UINT Size);

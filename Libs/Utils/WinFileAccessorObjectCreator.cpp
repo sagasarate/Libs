@@ -24,5 +24,5 @@ CWinFileAccessorObjectCreator::~CWinFileAccessorObjectCreator(void)
 
 IFileAccessor * CWinFileAccessorObjectCreator::CreateFileAccessor()
 {
-	return new CWinFileAccessor();
+	return MONITORED_NEW(_T("CWinFileAccessorObjectCreator"), CWinFileAccessor);
 }

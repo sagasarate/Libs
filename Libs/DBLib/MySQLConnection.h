@@ -32,7 +32,7 @@ protected:
 	bool				m_UseSTMTMode;
 	CEasyString			m_LastSQL;
 
-	DECLARE_CLASS_INFO(CMySQLConnection)
+	DECLARE_CLASS_INFO_STATIC(CMySQLConnection)
 public:
 	CMySQLConnection(void);
 	virtual ~CMySQLConnection(void);
@@ -60,6 +60,8 @@ public:
 	virtual LPCSTR GetLastSQL();
 
 	virtual int TranslateString(LPCSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen);
+
+	virtual void Reset();
 
 	static int DBLibTypeToMySQLType(int Type,UINT& Size,UINT& DitigalSize);
 	static int MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize);

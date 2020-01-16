@@ -15,11 +15,11 @@
 namespace DBLib
 {
 
-IMPLEMENT_CLASS_INFO(CDBParameterSet,IDBParameterSet);
+IMPLEMENT_CLASS_INFO_STATIC(CDBParameterSet,IDBParameterSet);
 
 CDBParameterSet::CDBParameterSet(void)
 {
-
+	m_Params.SetTag(_T("CDBParameterSet"));
 }
 
 CDBParameterSet::~CDBParameterSet(void)

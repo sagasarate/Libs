@@ -4,10 +4,14 @@
 
 CTimerQueue::CTimerQueue()
 {
+	m_TimerQueue.SetTag(_T("CTimerQueue"));
+	m_Tree.SetTag(_T("CTimerQueue"));
 }
 
 CTimerQueue::CTimerQueue(UINT Size, UINT GrowSize, UINT GrowLimit)
 {
+	m_TimerQueue.SetTag(_T("CTimerQueue"));
+	m_Tree.SetTag(_T("CTimerQueue"));
 	Create(Size, GrowSize, GrowLimit);
 }
 

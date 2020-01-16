@@ -23,9 +23,9 @@ protected:
 
 	DECLARE_CLASS_INFO_STATIC(CThreadSafeCycleBufferEx);
 public:
-	CThreadSafeCycleBufferEx(void);
-	CThreadSafeCycleBufferEx(UINT Size,UINT SmoothSize);
-	CThreadSafeCycleBufferEx(LPVOID pBuff,UINT Size,UINT SmoothSize);
+	CThreadSafeCycleBufferEx(LPCTSTR Tag = _T("CThreadSafeCycleBufferEx"));
+	CThreadSafeCycleBufferEx(UINT Size, UINT SmoothSize, LPCTSTR Tag = _T("CThreadSafeCycleBufferEx"));
+	CThreadSafeCycleBufferEx(LPVOID pBuff, UINT Size, UINT SmoothSize, LPCTSTR Tag = _T("CThreadSafeCycleBufferEx"));
 	virtual ~CThreadSafeCycleBufferEx(void);
 
 	BOOL Create(UINT Size,UINT SmoothSize);
