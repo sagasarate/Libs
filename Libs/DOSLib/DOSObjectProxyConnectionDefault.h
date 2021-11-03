@@ -50,30 +50,35 @@ protected:
 
 	CEasyBuffer									m_AssembleBuffer;
 	CEasyBuffer *								m_pCompressBuffer;
+	CEasyBuffer *								m_pEncyptBuffer;
 	char *										m_pLZOCompressWorkBuffer;
 
 	UINT										m_RecvCount;
 	UINT										m_RecvFlow;
 	CEasyTimer									m_RecvProtectCheckTimer;
+	UINT										m_TotalMsgSendCount;
+	UINT										m_TotalMsgRecvCount;
 
 	UINT										m_ReleaseTime;
+
+	volatile UINT64								m_BroadcastGroupID;
 
 public:
 	CDOSObjectProxyConnectionDefault(void);
 	virtual ~CDOSObjectProxyConnectionDefault(void);
 
 	virtual void Destory();
-	virtual bool PushMessage(CDOSMessagePacket * pPacket);
+	bool PushMessage(CDOSMessagePacket * pPacket);
 
 
 
 	bool Init(CDOSObjectProxyServiceDefault * pService, const CLIENT_PROXY_CONFIG& Config, UINT ID);
 
 
-	virtual void OnRecvData(const BYTE * pData, UINT DataSize);
-	virtual void OnConnection(bool IsSucceed);
-	virtual void OnDisconnection();
-	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
+	virtual void OnRecvData(const BYTE * pData, UINT DataSize) override;
+	virtual void OnConnection(bool IsSucceed) override;
+	virtual void OnDisconnection() override;
+	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT) override;
 
 	void QueryDisconnect(UINT Delay);
 
@@ -90,6 +95,10 @@ public:
 		m_pCompressBuffer = pCompressBuffer;
 		m_pLZOCompressWorkBuffer = pLZOCompressWorkBuffer;
 	}
+	void SetEncyptBuffer(CEasyBuffer * pEncyptBuffer)
+	{
+		m_pEncyptBuffer = pEncyptBuffer;
+	}
 	void SetGroup(CDOSObjectProxyConnectionGroup * pGroup)
 	{
 		m_pGroup = pGroup;
@@ -98,24 +107,59 @@ public:
 	{
 		return m_ReleaseTime;
 	}
+	void SetBroadcastGroupID(UINT64 GroupID)
+	{
+		m_BroadcastGroupID = GroupID;
+	}
+	UINT64 GetBroadcastGroupID()
+	{
+		return m_BroadcastGroupID;
+	}
 protected:
 
 	CDOSServer * GetServer();
 	void OnClientMsg(CDOSSimpleMessage * pMessage);
 	void OnClientSystemMsg(CDOSSimpleMessage * pMessage);
 
-	bool OnMessage(const CDOSMessagePacket * pPacket);
+	bool OnMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, const void * pData, MSG_LEN_TYPE DataLen);
 	bool OnSystemMessage(const CDOSMessagePacket * pPacket);
 	
 	bool SendDisconnectNotify();
 	void SendKeepAliveMsg();
+	void SendProtocolOption();
 
 	bool DoRegisterMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);
 	bool DoUnregisterMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);
 	void ClearMsgMapByRouterID(UINT RouterID);
 
 	const void * CompressMsg(const void * pData, MSG_LEN_TYPE& DataLen);
-	bool EncyptMsg(const void * pData, MSG_LEN_TYPE& DataLen, LPCVOID& pOut);
-	MSG_LEN_TYPE DecyptMsg(void * pData, MSG_LEN_TYPE DataLen);
+	const void * EncyptMsg(const void * pData, MSG_LEN_TYPE& DataLen, WORD& CRC, UINT MsgSequence);
+	void * DecyptMsg(void * pData, MSG_LEN_TYPE& DataLen, WORD CRC, UINT MsgSequence);
+	WORD MakeCRC(const void * pData, UINT DataLen, const void * pKey, UINT KeyLen, UINT MsgSequence);
+	void LogConnection(LPCTSTR szFunction, LPCTSTR Format, ...);
+	void LogDebugConnection(LPCTSTR szFunction, LPCTSTR Format, ...);
 };
 
+inline void CDOSObjectProxyConnectionDefault::LogConnection(LPCTSTR szFunction, LPCTSTR Format, ...)
+{
+	va_list vl;
+
+	TCHAR Tag[256];
+	_stprintf_s(Tag, 256, _T("%s(%u)"), szFunction, GetID());
+
+	va_start(vl, Format);
+	CLogManager::GetInstance()->PrintLogVL(LOG_DOS_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
+	va_end(vl);
+}
+
+inline void CDOSObjectProxyConnectionDefault::LogDebugConnection(LPCTSTR szFunction, LPCTSTR Format, ...)
+{
+	va_list vl;
+
+	TCHAR Tag[256];
+	_stprintf_s(Tag, 256, _T("%s(%u)"), szFunction, GetID());
+
+	va_start(vl, Format);
+	CLogManager::GetInstance()->PrintLogVL(LOG_DOS_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, Tag, Format, vl);
+	va_end(vl);
+}

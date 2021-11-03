@@ -104,7 +104,7 @@ struct LuaValue
 		*this = Value;
 	}
 
-	operator bool()
+	operator bool() const
 	{
 		switch (Type)
 		{
@@ -118,7 +118,7 @@ struct LuaValue
 		return false;
 	}
 
-	operator char()
+	operator char() const
 	{
 		switch (Type)
 		{
@@ -132,7 +132,7 @@ struct LuaValue
 		return 0;
 	}
 
-	operator unsigned char()
+	operator unsigned char() const
 	{
 		switch (Type)
 		{
@@ -146,7 +146,7 @@ struct LuaValue
 		return 0;
 	}
 
-	operator short()
+	operator short() const
 	{
 		switch (Type)
 		{
@@ -160,7 +160,7 @@ struct LuaValue
 		return 0;
 	}
 
-	operator unsigned short()
+	operator unsigned short() const
 	{
 		switch (Type)
 		{
@@ -174,7 +174,7 @@ struct LuaValue
 		return 0;
 	}
 
-	operator int()
+	operator int() const
 	{
 		switch (Type)
 		{
@@ -188,7 +188,7 @@ struct LuaValue
 		return 0;
 	}
 
-	operator unsigned int()
+	operator unsigned int() const
 	{
 		switch (Type)
 		{
@@ -202,7 +202,7 @@ struct LuaValue
 		return 0;
 	}
 
-	operator __int64()
+	operator __int64() const
 	{
 		switch (Type)
 		{
@@ -216,7 +216,7 @@ struct LuaValue
 		return 0;
 	}
 
-	operator unsigned __int64()
+	operator unsigned __int64() const
 	{
 		switch (Type)
 		{
@@ -230,7 +230,7 @@ struct LuaValue
 		return 0;
 	}
 
-	operator float()
+	operator float() const
 	{
 		switch (Type)
 		{
@@ -244,7 +244,7 @@ struct LuaValue
 		return 0;
 	}
 
-	operator double()
+	operator double() const
 	{
 		switch (Type)
 		{
@@ -258,17 +258,17 @@ struct LuaValue
 		return 0;
 	}
 
-	operator const char * ()
+	operator const char * () const
 	{
 		return StrValue;
 	}
 
-	operator const CEasyString ()
+	operator const CEasyString () const
 	{
 		return StrValue;
 	}
 
-	operator CLuaBaseMetaClass *()
+	operator CLuaBaseMetaClass *() const
 	{
 		return ObjectValue;
 	}
@@ -383,6 +383,11 @@ struct LuaValue
 
 	bool MakePacket(CSmartStruct& Packet, WORD MemberID) const;
 	bool ParsePacket(const CSmartValue& Packet);
+
+	bool IsNil() const
+	{
+		return Type == LUA_TNIL;
+	}
 
 	static bool PushValueToLuaState(const LuaValue& Value, lua_State * pLuaState);
 	static bool GetValueFromLuaState(LuaValue& Value, lua_State * pLuaState, int Index);

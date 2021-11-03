@@ -2,20 +2,6 @@
 
 IMPLEMENT_STATIC_META_CLASS(CLuaGrid)
 
-void CLuaGrid::SetMetaClass(lua_State * pLuaState)  const
-{
-	luaL_getmetatable(pLuaState, m_ClassName);
-	if (lua_isnil(pLuaState, -1))
-	{
-		lua_pop(pLuaState, 1);
-		StartRegisterMetaClass(pLuaState);
-		RegisterMemberFunctions(pLuaState);
-		EndRegisterMetaClass(pLuaState);
-		luaL_getmetatable(pLuaState, m_ClassName);
-	}
-	lua_setmetatable(pLuaState, -2);
-}
-
 
 void CLuaGrid::RegisterMemberFunctions(lua_State * pLuaState) const
 {

@@ -175,9 +175,9 @@ bool CNetService::StartListen(const CIPAddress& Address)
 	}
 
 
-	if(!GetServer()->BindSocket(m_Socket.GetSocket(),m_pEpollEventRouter))
+	if (!GetServer()->BindSocket(m_Socket.GetSocket(), m_pEpollEventRouter, false))
 	{
-		PrintNetLog("(%d)Service绑定Socket失败！",GetID());
+		PrintNetLog("(%d)Service绑定Socket失败！", GetID());
 		return false;
 	}
 

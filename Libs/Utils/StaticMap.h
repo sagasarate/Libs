@@ -924,6 +924,7 @@ public:
 	}
 	BOOL MoveSorted(LPVOID Pos)
 	{
+		//从小到大排列
 		StorageNode * pNode = (StorageNode *)Pos;
 		if (pNode)
 		{
@@ -962,6 +963,136 @@ public:
 	const_iterator end() const
 	{
 		return const_iterator(this, NULL);
+	}
+	LPVOID GetFreeObjectPosByID(UINT ID)
+	{
+		if (ID == 0)
+			return NULL;
+		if (m_ObjectBuffPages.GetCount())
+		{
+			ID--;
+			const OBJECT_BUFF_PAGE_INFO& FirstPage = m_ObjectBuffPages[0];
+			if (ID < FirstPage.BufferSize)
+			{
+				if (FirstPage.pObjectBuffer[ID].IsFree)
+					return &(FirstPage.pObjectBuffer[ID]);
+			}
+			else
+			{
+				ID -= FirstPage.BufferSize;
+				UINT PageIndex = 1 + ID / m_GrowSize;
+				UINT Index = ID % m_GrowSize;
+				if (PageIndex < m_ObjectBuffPages.GetCount())
+				{
+					const OBJECT_BUFF_PAGE_INFO& Page = m_ObjectBuffPages[PageIndex];
+					if (Index < Page.BufferSize)
+					{
+						if (Page.pObjectBuffer[Index].IsFree)
+							return &(Page.pObjectBuffer[Index]);
+					}
+				}
+			}
+		}
+		return NULL;
+	}
+	T* GetFreeObject(LPVOID Pos)
+	{
+		StorageNode * pNode = (StorageNode *)Pos;
+		if (pNode)
+		{
+			if (pNode->IsFree)
+				return pNode->GetObjectPointer();
+		}
+
+		return NULL;
+	}
+	LPVOID GetFirstFreeObjectPos() const
+	{
+		return m_pFreeListHead;
+	}
+
+	LPVOID GetLastFreeObjectPos() const
+	{
+		return m_pFreeListTail;
+	}
+	T * GetNextFreeObject(LPVOID& Pos)
+	{
+		if (Pos)
+		{
+			StorageNode * pNode = (StorageNode *)Pos;
+			if (pNode->IsFree)
+			{
+				Pos = pNode->pNext;
+				return pNode->GetObjectPointer();
+			}
+			else
+			{
+				Pos = NULL;
+			}
+		}
+		return NULL;
+	}
+
+	T * GetPrevFreeObject(LPVOID& Pos)
+	{
+		if (Pos)
+		{
+			StorageNode * pNode = (StorageNode *)Pos;
+			if (pNode->IsFree)
+			{
+				Pos = pNode->pPrev;
+				return pNode->GetObjectPointer();
+			}
+			else
+			{
+				Pos = NULL;
+			}
+		}
+		return NULL;
+	}
+	const T * GetNextFreeObject(LPVOID& Pos) const
+	{
+		if (Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			if (pNode->IsFree)
+			{
+				Pos = pNode->pNext;
+				return pNode->GetObjectPointer();
+			}
+			else
+			{
+				Pos = NULL;
+			}
+		}
+		return NULL;
+	}
+
+	const T * GetPrevFreeObject(LPVOID& Pos) const
+	{
+		if (Pos)
+		{
+			const StorageNode * pNode = (const StorageNode *)Pos;
+			if (pNode->IsFree)
+			{
+				Pos = pNode->pPrev;
+				return pNode->GetObjectPointer();
+			}
+			else
+			{
+				Pos = NULL;
+			}
+		}
+		return NULL;
+	}
+	void ReleaseFreeObject(LPVOID Pos)
+	{
+		StorageNode * pNode = (StorageNode *)Pos;
+		if (pNode)
+		{
+			if (pNode->IsFree)
+				return pNode->FinalReleaseObject();
+		}
 	}
 	//void PrintTree(CDC * pDC,int StartX,int StartY,int Dis)
 	//{

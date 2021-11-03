@@ -58,6 +58,7 @@ public:
 	virtual LPCSTR GetLastSQL();
 	virtual int TranslateString(LPCSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen);
 	virtual void Reset();
+	virtual int SelectDefaultDatabase(LPCTSTR szDBName);
 	
 	void ProcessMessagesODBC(SQLSMALLINT plm_handle_type,SQLHANDLE plm_handle,char *logstring,int ConnInd);
 	static int ODBCCTypeTODBLibType(int Type,UINT64& Size);

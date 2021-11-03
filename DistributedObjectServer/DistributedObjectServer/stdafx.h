@@ -94,6 +94,8 @@
 #define MONO_CLASS_METHOD_NAME_DO_UPDATE					"Update"
 #define MONO_CLASS_METHOD_NAME_DO_ONEXCEPTION				"OnException"
 #define MONO_CLASS_METHOD_NAME_DO_ONCONSOLECOMMAND			"OnConsoleCommand"
+#define MONO_CLASS_METHOD_NAME_DO_ONTIMER					"OnTimer"
+#define MONO_CLASS_METHOD_NAME_DO_ONTIMERRELEASE			"OnTimerRelease"
 
 #define MONO_CLASS_METHOD_PARAM_DO_INITIALIZE				1
 #define MONO_CLASS_METHOD_PARAM_DO_DESTORY					0
@@ -108,6 +110,8 @@
 #define MONO_CLASS_METHOD_PARAM_DO_UPDATE					1
 #define MONO_CLASS_METHOD_PARAM_DO_ONEXCEPTION				1
 #define MONO_CLASS_METHOD_PARAM_DO_ONCONSOLECOMMAND			1
+#define MONO_CLASS_METHOD_PARAM_DO_ONTIMER					2
+#define MONO_CLASS_METHOD_PARAM_DO_ONTIMERRELEASE			2
 
 
 #define MONO_CLASS_METHOD_NAME_OBJECT_ID_CTOR			".ctor"
@@ -329,6 +333,8 @@ struct MONO_CLASS_INFO_DO
 	MonoMethod *		pUpdateMethod;
 	MonoMethod *		pOnExceptionMethod;
 	MonoMethod *		pOnConsoleCommandMethod;
+	MonoMethod *		pOnTimerMethod;
+	MonoMethod *		pOnTimerReleaseMethod;
 	MONO_CLASS_INFO_DO()
 	{
 		pClass = NULL;
@@ -345,6 +351,8 @@ struct MONO_CLASS_INFO_DO
 		pUpdateMethod = NULL;
 		pOnExceptionMethod = NULL;
 		pOnConsoleCommandMethod = NULL;
+		pOnTimerMethod = NULL;
+		pOnTimerReleaseMethod = NULL;
 	}
 //	bool IsValid()
 //	{

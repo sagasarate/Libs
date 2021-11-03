@@ -28,31 +28,36 @@ BEGIN_MESSAGE_MAP(CPropertyGrid, CListCtrl)
 	ON_NOTIFY_REFLECT_EX(NM_CLICK, &CPropertyGrid::OnNMClick)
 END_MESSAGE_MAP()
 
-BOOL CPropertyGrid::Create(const RECT& Rect,CWnd * pParentWnd)
+BOOL CPropertyGrid::Create(const RECT& Rect,CWnd * pParentWnd, UINT NameColWidth, UINT ValueColWidth)
 {	
 	if(CListCtrl::Create(WS_CHILD|LVS_REPORT,Rect,pParentWnd,123324))
 	{
-		SetExtendedStyle(LVS_EX_GRIDLINES|LVS_EX_FULLROWSELECT);
-		InsertColumn(0,_T("属性"),LVCFMT_LEFT,80);
-		InsertColumn(1,_T("值"),LVCFMT_LEFT,100);
-
-
-
-		CFont * pFont=GetFont();
-
-		LOGFONT LogFont;
-		pFont->GetLogFont(&LogFont);
-
-		HFONT hFont=CreateFontIndirect(&LogFont);
-
-
-	
-
-		m_Inputer.Create(this,CFont::FromHandle(hFont));
-
-		return TRUE;
+		return Init(NameColWidth, ValueColWidth);
 	}
 	return FALSE;
+}
+
+BOOL CPropertyGrid::Init(UINT NameColWidth, UINT ValueColWidth)
+{
+	SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
+	InsertColumn(0, _T("属性"), LVCFMT_LEFT, NameColWidth);
+	InsertColumn(1, _T("值"), LVCFMT_LEFT, ValueColWidth);
+
+
+
+	CFont * pFont = GetFont();
+
+	LOGFONT LogFont;
+	pFont->GetLogFont(&LogFont);
+
+	HFONT hFont = CreateFontIndirect(&LogFont);
+
+
+
+
+	m_Inputer.Create(this, CFont::FromHandle(hFont));
+
+	return TRUE;
 }
 
 void CPropertyGrid::Clear()

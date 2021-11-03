@@ -11,6 +11,11 @@
 /****************************************************************************/
 #include "stdafx.h"
 
+#undef  PrintNetLog
+#define PrintNetLog(_Format, ...)	PrintConnectionLogWithTag(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)
+#undef  PrintNetDebugLog
+#define PrintNetDebugLog(_Format, ...)	PrintConnectionDebugLogWithTag(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)
+
 IMPLEMENT_CLASS_INFO_STATIC(CNetConnection,CBaseNetConnection);
 
 
@@ -289,10 +294,10 @@ bool CNetConnection::StartWork()
 		return false;
 	}
 
-	if(!GetServer()->BindSocket(m_Socket.GetSocket(),m_pEpollEventRouter))
+	if (!GetServer()->BindSocket(m_Socket.GetSocket(), m_pEpollEventRouter, false))
 	{
 		OnConnection(false);
-		PrintNetLog("(%d)Connection绑定Epoll失败！",GetID());
+		PrintNetLog("(%d)Connection绑定Epoll失败！", GetID());
 		m_Socket.Close();
 		return false;
 	}

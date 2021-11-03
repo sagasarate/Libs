@@ -33,8 +33,8 @@ class CLogManager :
 	public CStaticObject2<CLogManager,LOG_MANAGER_INSTANCE>
 {
 protected:
-	CStaticMap<UINT,ILogPrinter *>		m_LogChannels;
-	CEasyArray<CAsyncLogWorkThread>		m_WorkThreadList;
+	CThreadSafeStaticMap<UINT,ILogPrinter *>		m_LogChannels;
+	CEasyArray<CAsyncLogWorkThread>					m_WorkThreadList;
 
 	DECLARE_CLASS_INFO_STATIC(CLogManager);
 public:

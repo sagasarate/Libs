@@ -49,12 +49,12 @@
                  RecvFreqProtect="0" RecvFlowProtect="0" RecvProtectCheckInterval="10" ProtectCountToAddBlackList="10" ProtectBlockTime="600"
                  EnableBlackList="false" InitBlackList="" BlackListPoolStartSize="256" BlackListPoolGrowLimit="32"
                  MsgCompressType="lzo" MinMsgCompressSize="1024" 
-                 MsgEnCryptType="none" SecretKey="1234567890"
-                 GlobalMsgMapSize="128" MsgMapSize="1024" MaxMsgSize="40960" MaxSendMsgSize="10485760"
+                 MsgEnCryptType="none" MsgEnCryptMode="0" SecretKey="1234567890"
+                 GlobalMsgMapSize="128" MsgMapSize="1024" MaxMsgSize="40960" MinMsgSize="5" DumpMsg="false" MaxMsgDumpSize="1024"
                  PluginName="WebSocketProxy" PluginModuleFileName="" ConfigDir="" LogDir=""
                  EnableGuardThread="true" GuardThreadKeepAliveTime="20000" GuardThreadKeepAliveCount="5" />
     <!--ProxyType：代理类型，必须唯一，所有的客户端代理不能有相同的代理类型
-      ProxyMode：代理模式，0=使用内置缺省客户端代理，1=使用客户端代理插件
+      ProxyMode：代理模式，0=使用内置缺省客户端代理，1=使用内置无缓冲客户端代理，2=使用客户端代理插件
       ListenIP/ListenPort：侦听地址
       ConnectionGroupCount：连接组数量，0=不分组，>1=使用多个线程来分组管理连接，以提高效率
       ConnectionPoolStartSize/ConnectionPoolGrowSize/ConnectionPoolGrowLimit：连接对象池设置，限制了最大连接数
@@ -78,11 +78,14 @@
       MsgCompressType：数据包压缩格式，lzo代表使用lzo格式压缩，其他不压缩
       MinMsgCompressSize：最小压缩的数据包大小，小于这个大小的数据包不压缩
       MsgEnCryptType：数据包加密格式，可选择DES,AES和TEA
+      MsgEnCryptMode：数据包加密模式，0=可选，1=强制
       SecretKey：加密所使用的密钥，密钥长度，DES为8字符，AES为16/24/32字符，TEA为16字符
       GlobalMsgMapSize：全局消息映射表大小，用于决定将消息发送至那个对象
       MsgMapSize：消息映射表大小，用于决定将消息发送至那个对象
       MaxMsgSize：接收的消息最大大小
-      MaxSendMsgSize：发送的消息最大大小
+      MinMsgSize：接收的消息最小大小，系统消息除外
+      DumpMsg：是否开启消息Dump
+      MaxMsgDumpSize：消息Dump的最大大小
       PluginName：客户端代理插件名
       PluginModuleFileName：客户端代理插件DLL文件路径
       ConfigDir：传递给客户端代理插件的配置文件目录
@@ -98,11 +101,13 @@
     内存池是分层设置,每一层的block都是上一层的2倍大，但每层的总大小是一样的
     BlockSize=第一层的block大小，LevelSize=每一层的总大小，LevelCount=层数-->
 
-  <Object GroupCount="1" ObjectPoolStartSize="512" ObjectPoolGrowSize="512" ObjectPoolGrowLimit="512" MsgQueueSize="4096"
+  <Object GroupCount="1" MaxObjectGroupCount="256" ObjectPoolStartSize="512" ObjectPoolGrowSize="512" ObjectPoolGrowLimit="512" MsgQueueSize="4096"
           AliveCheckTime="5000" AliveTestTime="200000" KeepAliveCount="5" StatObjectCPUCost="true" UseRealGroupLoadWeight="false"
-          EnableGuardThread="true" GuardThreadKeepAliveTime="20000" GuardThreadKeepAliveCount="5" />
+          EnableGuardThread="true" GuardThreadKeepAliveTime="20000" GuardThreadKeepAliveCount="5" 
+          TimerQueueStartSize="128" TimerQueueGrowSize="128" TimerQueueGrowLimit="32"/>
   <!--Object块是对象及对象组的设置
     GroupCount：是对象组数量，每个组是一个线程，对象会按权重分配到各个组去运行
+    MaxObjectGroupCount：对象组数量最大数量
     ObjectPoolStartSize/ObjectPoolGrowSize/ObjectPoolGrowLimit：每个组的对象池大小的设置
     MsgQueueSize：每个对象的消息队列大小
     AliveCheckTime：关注对象的检测间隔，单位毫秒
@@ -113,6 +118,7 @@
     EnableGuardThread：是否启用守护线程
     GuardThreadKeepAliveTime：守护线程死锁检测间隔
     GuardThreadKeepAliveCount：守护线程死锁超时次数
+    TimerQueueStartSize/TimerQueueGrowSize/TimerQueueGrowLimit：计时器对象池大小的设置
     -->
 
   <Mono Enable="true" LibraryDir="lib" RunDir="./" CompilerPath="build/mcs" CreateProj="false" ConfigFilePath="" EnableDebug="false"
@@ -170,11 +176,11 @@
   <System>
     <MainThread ProcessLimit="64"/>
     <LogConfig LogLevel="3" ConsoleLogLevel="3" LogCacheSize="655360" LogServerObjectUse="false" PreLoadModuleSym="false" 
-               MakeFullDump="false" LogModuleSymStatus="false"/>
+               MakeFullDump="false" LogModuleSymStatus="false" BackupDelay="5" BackupDir="Backup"/>
     <UDPControlAddress IP="0" Port="8900"/>
     <GuardThread Enable="true" KeepAliveTime="20000" KeepAliveCount="5"/>
     <ControlPipe Name="DOSS" AssembleBufferSize="8192" />
-    <MallocConfig TrimThreshold="131072" MMapThreshold="131072" MMapMax="33554432" />
+    <MallocConfig TrimThreshold="131072" MMapThreshold="131072" MMapMax="33554432" TrimInterval="300000"/>
   </System>
 
 

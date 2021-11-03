@@ -16,7 +16,7 @@
 
 //typedef unsigned long ulong;
 
-inline BOOL PrintDBLogWithTag(LPCTSTR Tag, LPCSTR Format, ...)
+inline BOOL PrintDBLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl, Format);
@@ -25,7 +25,7 @@ inline BOOL PrintDBLogWithTag(LPCTSTR Tag, LPCSTR Format, ...)
 	return ret;
 }
 
-inline BOOL PrintDBDebugLogWithTag(LPCTSTR Tag, LPCSTR Format, ...)
+inline BOOL PrintDBDebugLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl, Format);

@@ -3,85 +3,98 @@
 
 
 
-bool CLuaThread::Init(CLuaScript * pLuaScript, UINT ScriptID, int StackSize)
+bool CLuaThread::Init(CBaseLuaVM * pLuaVM, int StackSize)
 {
-	m_pLuaScript = pLuaScript;
-	m_ScriptID = ScriptID;
-	m_pLuaThread = lua_newthread(m_pLuaScript->GetLuaState());
+	m_pLuaVM = pLuaVM;
+	lua_getglobal(m_pLuaVM->GetLuaState(), "THREAD_POOL");
+	lua_pushinteger(m_pLuaVM->GetLuaState(), GetID());
+	m_pLuaThread = lua_newthread(m_pLuaVM->GetLuaState());
+	lua_settable(m_pLuaVM->GetLuaState(), -3);
+	lua_pop(m_pLuaVM->GetLuaState(), 1);
 	lua_checkstack(m_pLuaThread, StackSize);
 	return true;
 }
-//void CLuaThread::Destory()
-//{
-//	if (m_IsInExec)
-//	{
-//		LogLua(_T("Release In Exec"));
-//	}	
-//	m_pLuaScript = NULL;
-//	m_ScriptID = 0;
-//	m_Param1 = NULL;
-//	m_Param2 = NULL;
-//	m_pHostObject = NULL;
-//	m_pLuaThread = NULL;
-//	m_ThreadType = 0;
-//	m_IsInExec = false;
-//	m_IsNeedYield = false;
-//	m_LastLuaStatus = LUA_OK;
-//	m_YieldType = LUA_YIELD_TYPE_NONE;
-//	m_YeildReturnCount = 0;
-//	m_pTimeManager = NULL;
-//	m_SleepTime = 0;
-//	m_SleepPastTime = 0;
-//}
-void CLuaThread::Release()
+void CLuaThread::Destory()
 {
 	if (m_IsInExec)
 	{
 		LogLua(_T("Release In Exec"));
-		ClearYield();
 	}
-	else if (m_pLuaScript)
+	if (m_pLuaVM)
 	{
-		ClearYield();
-		if (m_pLuaThread)
-		{
-			lua_reset_state(m_pLuaThread);
-		}
-		m_pLuaScript->DeleteScriptThread(this);
+		lua_getglobal(m_pLuaVM->GetLuaState(), "THREAD_POOL");
+		lua_pushinteger(m_pLuaVM->GetLuaState(), GetID());
+		lua_pushnil(m_pLuaVM->GetLuaState());
+		lua_settable(m_pLuaVM->GetLuaState(), -3);
+		lua_pop(m_pLuaVM->GetLuaState(), 1);
+		m_pLuaVM->DeleteScriptThread(this);
 	}
+	m_pLuaVM = NULL;
+	m_Param1 = NULL;
+	m_Param2 = NULL;
+	m_pHostObject = NULL;
+	m_pLuaThread = NULL;
+	m_ThreadType = 0;
+	m_IsInExec = false;
+	m_IsNeedYield = false;
+	m_LastLuaStatus = LUA_OK;
+	m_YieldType = LUA_YIELD_TYPE_NONE;
+	m_YieldReturnCount = 0;
+	m_pTimeManager = NULL;
+	m_SleepTime = 0;
+	m_SleepPastTime = 0;
 }
+//void CLuaThread::Release()
+//{
+//	if (m_IsInExec)
+//	{
+//		LogLua(_T("Release In Exec"));
+//		ClearYield();
+//	}
+//	else if (m_pLuaVM)
+//	{
+//		ClearYield();
+//		if (m_pLuaThread)
+//		{
+//			lua_reset_state(m_pLuaThread);			
+//		}
+//		m_pLuaVM->DeleteScriptThread(this);
+//	}
+//}
 bool CLuaThread::PushPacketValue(const CSmartValue& Value)
 {
 	if (m_pLuaThread == NULL)
 		return false;
 	switch (Value.GetType())
 	{
-	case CSmartValue::VT_CHAR:
+	case CSmartValue::VT_NULL:
 		lua_pushnil(m_pLuaThread);
 		return true;
+	case CSmartValue::VT_CHAR:
 	case CSmartValue::VT_UCHAR:
 	case CSmartValue::VT_SHORT:
 	case CSmartValue::VT_USHORT:
 	case CSmartValue::VT_INT:
-	case CSmartValue::VT_UINT:
-	case CSmartValue::VT_FLOAT:
-	case CSmartValue::VT_DOUBLE:
-		PushValue((double)Value);
-		return true;
+	case CSmartValue::VT_UINT:	
 	case CSmartValue::VT_UBIGINT:
 	case CSmartValue::VT_BIGINT:
-		PushValue((INT64)Value);
+		PushInteger(Value);
 		return true;
-	case CSmartValue::VT_STRING:
-		PushValue((LPCSTR)Value);
+	case CSmartValue::VT_FLOAT:
+	case CSmartValue::VT_DOUBLE:
+		PushNumber(Value);
 		return true;
-	case CSmartValue::VT_USTRING:
-		PushValue((LPCWSTR)Value);
+	case CSmartValue::VT_STRING_UTF8:
+	case CSmartValue::VT_STRING_ANSI:
+		PushString((LPCSTR)Value);
+		return true;
+	case CSmartValue::VT_STRING_UCS16:
+		PushString((LPCWSTR)Value);
 		return true;
 	case CSmartValue::VT_STRUCT:
 		return PushTablePacket(Value);
 	case CSmartValue::VT_BOOL:
-		PushValue((bool)Value);
+		PushBoolean(Value);
 		return true;
 	}
 	return false;
@@ -133,7 +146,16 @@ bool CLuaThread::PushTablePacket(const CSmartStruct& Packet)
 bool CLuaThread::Prepare(CBaseScriptHost * pObject, LPCSTR szFunctionName)
 {
 	if (m_pLuaThread == NULL)
+	{
+		LogLua(_T("线程未初始化"));
 		return false;
+	}		
+
+	if (szFunctionName == NULL)
+	{
+		LogLua(_T("函数名为NULL"));
+		return false;
+	}		
 
 	m_pHostObject = pObject;
 	lua_pushlightuserdata(m_pLuaThread, (void*)pObject);
@@ -143,7 +165,7 @@ bool CLuaThread::Prepare(CBaseScriptHost * pObject, LPCSTR szFunctionName)
 	if (!lua_isfunction(m_pLuaThread, -1))
 	{
 		lua_pop(m_pLuaThread, 3);
-		LogLua(_T("CLuaScriptPool::InitLuaThread:Lua函数%s未找到"),szFunctionName);
+		LogLua(_T("Lua函数%s未找到"),szFunctionName);
 		return false;
 	}
 
@@ -179,7 +201,9 @@ int CLuaThread::DoCall(int ParamCount)
 					LogLua(_T("脚本执行出错:%s"), lua_tolstring(m_pLuaThread, -1, NULL));
 				else
 					LogLua(_T("脚本执行出错"));
-
+				luaL_traceback(m_pLuaThread, m_pLuaThread, NULL, 0);
+				LogLua(_T("%s"), lua_tolstring(m_pLuaThread, -1, NULL));
+				lua_pop(m_pLuaThread, 1);
 			}
 		}
 		else
@@ -209,13 +233,13 @@ LPCSTR CLuaThread::GetErrorStringA()
 	return "";
 }
 
-bool CLuaThread::PackResult(CSmartStruct& Packet)
+bool CLuaThread::PackResult(CSmartStruct& Packet, int SkillCount)
 {
 	if (m_pLuaThread == NULL)
 		return false;
 	if (m_LastLuaStatus == LUA_OK)
 	{
-		int Count = lua_gettop(m_pLuaThread) - 2;
+		int Count = lua_gettop(m_pLuaThread) - SkillCount;
 		if (Count>0)
 		{
 			for (WORD Index = 3; Index < Count + 3; Index++)
@@ -223,7 +247,7 @@ bool CLuaThread::PackResult(CSmartStruct& Packet)
 				switch (GetLuaObjectType(m_pLuaThread, Index))
 				{
 				case LUA_TNIL:
-					Packet.AddMember(Index, (char)0);
+					Packet.AddMemberNull(Index);
 					break;
 				case LUA_TBOOLEAN:
 					Packet.AddMember(Index, lua_toboolean(m_pLuaThread, Index));
@@ -273,7 +297,7 @@ bool CLuaThread::PackTable(CSmartStruct& Packet, int Index)
 		switch (GetLuaObjectType(m_pLuaThread, -2))
 		{
 		case LUA_TNIL:
-			Packet.AddMember(SSID_LUA_VALUE_TABLE_KEY, (char)0);
+			Packet.AddMemberNull(SSID_LUA_VALUE_TABLE_KEY);
 			break;
 		case LUA_TBOOLEAN:
 			Packet.AddMember(SSID_LUA_VALUE_TABLE_KEY, lua_toboolean(m_pLuaThread, -2));
@@ -296,7 +320,7 @@ bool CLuaThread::PackTable(CSmartStruct& Packet, int Index)
 		switch (GetLuaObjectType(m_pLuaThread, -1))
 		{
 		case LUA_TNIL:
-			Packet.AddMember(SSID_LUA_VALUE_TABLE_VALUE, (char)0);
+			Packet.AddMemberNull(SSID_LUA_VALUE_TABLE_VALUE);
 			break;
 		case LUA_TBOOLEAN:
 			Packet.AddMember(SSID_LUA_VALUE_TABLE_VALUE, lua_toboolean(m_pLuaThread, -1));

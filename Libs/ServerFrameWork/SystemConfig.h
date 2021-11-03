@@ -22,6 +22,8 @@ class CSystemConfig :
 		int		MMapThreshold;
 		bool	bSetMMapMax;
 		int		MMapMax;
+		bool	TrimMemory;
+		UINT	TrimInterval;
 
 		MALLOC_CONFIG()
 		{
@@ -31,6 +33,8 @@ class CSystemConfig :
 			MMapThreshold = 1024 * 128;
 			bSetMMapMax = false;
 			MMapMax = 1024 * 1024 * 64;
+			TrimMemory = false;
+			TrimInterval = 30 * 1000;
 		}
 	};
 protected:
@@ -42,6 +46,8 @@ protected:
 	UINT			m_LogLevel;
 	UINT			m_ConsoleLogLevel;
 	UINT			m_LogCacheSize;
+	UINT			m_LogBackupDelay;
+	CEasyString		m_LogBackupDir;
 	bool			m_EnableGuardThread;
 	UINT			m_GuardThreadKeepAliveTime;
 	UINT			m_GuardThreadKeepAliveCount;
@@ -98,6 +104,14 @@ public:
 	UINT GetConsoleLogLevel()
 	{
 		return m_ConsoleLogLevel;
+	}
+	UINT GetLogBackupDelay()
+	{
+		return m_LogBackupDelay;
+	}
+	LPCTSTR GetLogBackupDir()
+	{
+		return m_LogBackupDir;
 	}
 	bool GetEnableGuardThread()
 	{

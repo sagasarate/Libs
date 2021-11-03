@@ -11,7 +11,7 @@ CLuaBaseMetaClass::~CLuaBaseMetaClass()
 {
 }
 
-void CLuaBaseMetaClass::SetMetaClass(lua_State * pLuaState)
+void CLuaBaseMetaClass::SetMetaClass(lua_State * pLuaState) const
 {
 	luaL_getmetatable(pLuaState, GetMetaClassName());
 	if (lua_isnil(pLuaState, -1))
@@ -23,10 +23,12 @@ void CLuaBaseMetaClass::SetMetaClass(lua_State * pLuaState)
 	lua_setmetatable(pLuaState, -2);
 }
 
-void CLuaBaseMetaClass::RegisterMetaClass(lua_State * pLuaState)
+void CLuaBaseMetaClass::RegisterMetaClass(lua_State * pLuaState) const
 {
 	luaL_newmetatable(pLuaState, GetMetaClassName());
-	//RegisterMetaStaticFunction(pLuaState, "__gc", &CLuaBaseMetaClass::DoGarbageCollect);
+	lua_pushstring(pLuaState, "__gc");
+	lua_pushcclosure(pLuaState, &CLuaBaseMetaClass::DoGarbageCollect, 0);
+	lua_settable(pLuaState, -3);
 	lua_pushstring(pLuaState, "__index");
 	lua_newtable(pLuaState);
 	RegisterMemberFunctions(pLuaState);
@@ -36,7 +38,7 @@ void CLuaBaseMetaClass::RegisterMetaClass(lua_State * pLuaState)
 
 
 
-void CLuaBaseMetaClass::RegisterMemberFunctions(lua_State * pLuaState)
+void CLuaBaseMetaClass::RegisterMemberFunctions(lua_State * pLuaState) const
 {
 	lua_pushstring(pLuaState, "_ClassID");
 	lua_pushnumber(pLuaState, GetMetaClassID());
@@ -46,16 +48,16 @@ void CLuaBaseMetaClass::RegisterMemberFunctions(lua_State * pLuaState)
 	
 }
 
-const char * CLuaBaseMetaClass::GetMetaClassName()
-{
-	return "CLuaBaseMetaClass";
-}
-int CLuaBaseMetaClass::GetMetaClassID()
-{
-	return CLuaBaseMetaClass::CLASS_ID;
-}
+//const char * CLuaBaseMetaClass::GetMetaClassName()
+//{
+//	return "CLuaBaseMetaClass";
+//}
+//int CLuaBaseMetaClass::GetMetaClassID()
+//{
+//	return CLuaBaseMetaClass::CLASS_ID;
+//}
 
-void CLuaBaseMetaClass::CheckAPI(lua_State * pLuaState, CEasyArray<CEasyStringA>& Functions)
+void CLuaBaseMetaClass::CheckAPI(lua_State * pLuaState, CEasyArray<CEasyStringA>& Functions) const
 {
 	
 	luaL_getmetatable(pLuaState, GetMetaClassName());
@@ -114,18 +116,50 @@ void CLuaBaseMetaClass::CheckAPI(lua_State * pLuaState, CEasyArray<CEasyStringA>
 	lua_pop(pLuaState, 1);
 }
 
-void CLuaBaseMetaClass::OnGarbageCollect(CLuaThread * pThreadInfo)
+void CLuaBaseMetaClass::OnGarbageCollect()
 {
 
 }
 
-void CLuaBaseMetaClass::DoGarbageCollect(CLuaThread * pThreadInfo, CLuaBaseMetaClass * pObject)
+int CLuaBaseMetaClass::DoGarbageCollect(lua_State* L)
 {
-	if (pObject)
-		pObject->OnGarbageCollect(pThreadInfo);
+	if (lua_type(L, 1) == LUA_TUSERDATA)
+	{
+		UINT Len = (UINT)lua_rawlen(L, 1);
+		BYTE * pBuff = (BYTE *)lua_touserdata(L, 1);
+		if (GetLuaObjectType(L, 1) >= CLuaBaseMetaClass::CLASS_ID)
+		{
+			if (pBuff&&Len >= sizeof(CLuaBaseMetaClass *))
+			{
+				CLuaBaseMetaClass * pObject = dynamic_cast<CLuaBaseMetaClass *>(*((CLuaBaseMetaClass **)pBuff));
+
+				if (pObject)
+				{
+					pObject->OnGarbageCollect();
+				}
+				else
+				{
+					LogLua("对象不是CLuaBaseMetaClass");
+				}
+			}
+			else
+			{
+				LogLua("userdata大小不符");
+			}
+		}
+		else
+		{
+			LogLua("对象类型不符");
+		}
+	}
+	else
+	{
+		LogLua("对象不是userdata");
+	}
+	return 0;
 }
 
-void CLuaBaseMetaClass::RegisterMetaCFun(lua_State * pLuaState, const char* funcName, lua_CFunction function, void* func, unsigned int sizeofFunc)
+void CLuaBaseMetaClass::RegisterMetaCFun(lua_State * pLuaState, const char* funcName, lua_CFunction function, void* func, unsigned int sizeofFunc) const
 {
 	lua_pushstring(pLuaState, funcName);
 

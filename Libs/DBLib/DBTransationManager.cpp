@@ -53,7 +53,7 @@ bool CDBTransationManager::Init(IDatabase * pDatabase,LPCSTR szConnectStr,int Th
 	for(int i=0;i<ThreadCount;i++)
 	{		
 		CDBTransationWorkThread * pThread = MONITORED_NEW(_T("CDBTransationManager"), CDBTransationWorkThread, this);
-		if (!pThread->Init(pDatabase, szConnectStr, QueueSize))
+		if (!pThread->Init(pDatabase, szConnectStr, (Flag&DBTM_FLAG_ADD_TRANS_MULTI_THREAD) != 0, QueueSize))
 		{
 			SAFE_RELEASE(pThread);
 			return false;

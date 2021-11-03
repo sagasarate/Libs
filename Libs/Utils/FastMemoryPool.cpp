@@ -11,20 +11,40 @@
 /****************************************************************************/
 #include "stdafx.h"
 
-IMPLEMENT_CLASS_INFO_STATIC(CFastMemoryPool,CNameObject);
-
-CFastMemoryPool::CFastMemoryPool(void):CNameObject()
+static void DumpBinData(const BYTE * pData, UINT DataLen, UINT MaxDumpSize)
 {
-	m_pBlockLevels=NULL;
-	m_BlockLevelCount=0;
-	m_BlockSize=0;
-	m_LevelSize=0;
-	m_BufferSize=0;
-	m_pBuffer=NULL;
-	m_AllocCount=0;
-	m_FreeCount=0;
-	m_SystemAllocCount=0;
-	m_SystemFreeCount=0;
+	PrintImportantLog(_T("DumpDataLen=%u"), DataLen);
+	if (DataLen > MaxDumpSize)
+		DataLen = MaxDumpSize;
+	for (UINT i = 0; i < DataLen; i += 8)
+	{
+		PrintImportantLog(_T("%02X %02X %02X %02X %02X %02X %02X %02X"),
+			((i < DataLen) ? pData[i] : 0),
+			((i + 1 < DataLen) ? pData[i + 1] : 0),
+			((i + 2 < DataLen) ? pData[i + 2] : 0),
+			((i + 3 < DataLen) ? pData[i + 3] : 0),
+			((i + 4 < DataLen) ? pData[i + 4] : 0),
+			((i + 5 < DataLen) ? pData[i + 5] : 0),
+			((i + 6 < DataLen) ? pData[i + 6] : 0),
+			((i + 7 < DataLen) ? pData[i + 7] : 0)
+		);
+	}
+}
+
+IMPLEMENT_CLASS_INFO_STATIC(CFastMemoryPool, CNameObject)
+
+CFastMemoryPool::CFastMemoryPool(void) :CNameObject()
+{
+	m_pBlockLevels = NULL;
+	m_BlockLevelCount = 0;
+	m_BlockSize = 0;
+	m_LevelSize = 0;
+	m_BufferSize = 0;
+	m_pBuffer = NULL;
+	m_AllocCount = 0;
+	m_FreeCount = 0;
+	m_SystemAllocCount = 0;
+	m_SystemFreeCount = 0;
 }
 
 CFastMemoryPool::~CFastMemoryPool(void)
@@ -32,122 +52,127 @@ CFastMemoryPool::~CFastMemoryPool(void)
 	Destory();
 }
 
-BOOL CFastMemoryPool::Create(UINT BlockSize,UINT LevelSize,UINT MaxLevel,bool IsThreadLock)
+BOOL CFastMemoryPool::Create(UINT BlockSize, UINT LevelSize, UINT MaxLevel, bool IsThreadLock)
 {
 	Destory();
 
-	m_BlockSize=BlockSize;
-	m_LevelSize=LevelSize;
-	m_IsThreadLock=IsThreadLock;
+	m_BlockSize = BlockSize;
+	m_LevelSize = LevelSize;
+	m_IsThreadLock = IsThreadLock;
 
-	UINT NodeAditionSize=sizeof(BlockNode)+sizeof(UINT);
+	UINT NodeAditionSize = sizeof(BlockNode) + sizeof(UINT);
 
 	//计算最多可划分多少个级别
-	UINT Block=BlockSize;
-	m_BlockLevelCount=0;
-	while(Block+NodeAditionSize<LevelSize&&MaxLevel)
+	UINT Block = BlockSize;
+	m_BlockLevelCount = 0;
+	while (Block + NodeAditionSize < LevelSize&&MaxLevel)
 	{
 		m_BlockLevelCount++;
-		Block=Block<<1;
+		Block = Block << 1;
 		MaxLevel--;
 	}
 
-	m_BufferSize=m_LevelSize*m_BlockLevelCount;
-	m_pBuffer = MONITORED_NEW_ARRAY(_T("CFastMemoryPool"), char, m_BufferSize);
+	m_BufferSize = m_LevelSize * m_BlockLevelCount;
+	m_pBuffer = MONITORED_NEW_ARRAY(_T("CFastMemoryPool"), BYTE, m_BufferSize);
 	m_pBlockLevels = MONITORED_NEW_ARRAY(_T("CFastMemoryPool"), BlockList, m_BlockLevelCount);
 
-	for(UINT i=0;i<m_BlockLevelCount;i++)
+	PrintImportantLog(_T("内存池已初始化,开始地址0x%p,结束地址0x%p,总大小%u,层大小%u,层数%u"),
+		m_pBuffer, m_pBuffer + m_BufferSize, m_BufferSize, m_LevelSize, m_BlockLevelCount);
+
+	for (UINT i = 0; i < m_BlockLevelCount; i++)
 	{
-		char * pLevelBuffer=m_pBuffer+i*m_LevelSize;
-		m_pBlockLevels[i].AvailableSize=m_BlockSize<<i;
-		m_pBlockLevels[i].BlockSize=m_pBlockLevels[i].AvailableSize+NodeAditionSize;
-		m_pBlockLevels[i].BlockCount=m_LevelSize/m_pBlockLevels[i].BlockSize;
-		m_pBlockLevels[i].UsedCount=0;
-		m_pBlockLevels[i].pBlocks=(BlockNode *)pLevelBuffer;
-		m_pBlockLevels[i].pFreeList=m_pBlockLevels[i].pBlocks;
+		BYTE * pLevelBuffer = m_pBuffer + i * m_LevelSize;
+		m_pBlockLevels[i].AvailableSize = m_BlockSize << i;
+		m_pBlockLevels[i].BlockSize = m_pBlockLevels[i].AvailableSize + NodeAditionSize;
+		m_pBlockLevels[i].BlockCount = m_LevelSize / m_pBlockLevels[i].BlockSize;
+		m_pBlockLevels[i].UsedCount = 0;
+		m_pBlockLevels[i].pBlocks = (BlockNode *)pLevelBuffer;
+		m_pBlockLevels[i].pFreeList = m_pBlockLevels[i].pBlocks;
 
-		for(UINT j=0;j<m_pBlockLevels[i].BlockCount;j++)
+		PrintImportantLog(_T("第%u层:地址范围0x%p-0x%p,总大小%u,总块数%u,块大小%u,可用块大小%u"),
+			i, pLevelBuffer, pLevelBuffer + m_LevelSize - 1, m_LevelSize, m_pBlockLevels[i].BlockCount, m_pBlockLevels[i].BlockSize, m_pBlockLevels[i].AvailableSize);
+
+		for (UINT j = 0; j < m_pBlockLevels[i].BlockCount; j++)
 		{
-			BlockNode * pBlocks=(BlockNode *)((char *)m_pBlockLevels[i].pBlocks+j*m_pBlockLevels[i].BlockSize);
-			BlockNode * pPrevBlocks=(BlockNode *)((char *)m_pBlockLevels[i].pBlocks+(j-1)*m_pBlockLevels[i].BlockSize);
-			BlockNode * pNextBlocks=(BlockNode *)((char *)m_pBlockLevels[i].pBlocks+(j+1)*m_pBlockLevels[i].BlockSize);
+			BlockNode * pBlocks = (BlockNode *)((char *)m_pBlockLevels[i].pBlocks + j * m_pBlockLevels[i].BlockSize);
+			BlockNode * pPrevBlocks = (BlockNode *)((char *)m_pBlockLevels[i].pBlocks + (j - 1)*m_pBlockLevels[i].BlockSize);
+			BlockNode * pNextBlocks = (BlockNode *)((char *)m_pBlockLevels[i].pBlocks + (j + 1)*m_pBlockLevels[i].BlockSize);
 
-			pBlocks->pBlockList=m_pBlockLevels+i;
-			pBlocks->AllocSize=0;
-			pBlocks->Flag=BF_FREE;
-#ifdef LOG_MEM_CALL_STACK
-			pBlocks->RecentCallInfo=0;
-			ZeroMemory(pBlocks->CallInfo,sizeof(pBlocks->CallInfo));
-#endif
-			if(j==0)
+			pBlocks->pBlockList = m_pBlockLevels + i;
+			pBlocks->AllocSize = 0;
+			pBlocks->Flag = BF_FREE;
+
+			if (j == 0)
 			{
-				pBlocks->pPrev=NULL;
+				pBlocks->pPrev = NULL;
 			}
 			else
 			{
-				pBlocks->pPrev=pPrevBlocks;
+				pBlocks->pPrev = pPrevBlocks;
 			}
-			if(j==m_pBlockLevels[i].BlockCount-1)
+			if (j == m_pBlockLevels[i].BlockCount - 1)
 			{
-				pBlocks->pNext=NULL;
+				pBlocks->pNext = NULL;
 			}
 			else
 			{
-				pBlocks->pNext=pNextBlocks;
+				pBlocks->pNext = pNextBlocks;
 			}
 
 		}
 	}
+
+	
 	return TRUE;
 }
 
 void CFastMemoryPool::Destory()
 {
 #ifdef _DEBUG
-	for(UINT i=0;i<m_BlockLevelCount;i++)
+	for (UINT i = 0; i < m_BlockLevelCount; i++)
 	{
-		if(m_pBlockLevels[i].UsedCount)
-			PrintImportantLog(_T("还有%d个内存块未释放！"),m_pBlockLevels[i].UsedCount);
+		if (m_pBlockLevels[i].UsedCount)
+			PrintImportantLog(_T("还有%d个内存块未释放！"), m_pBlockLevels[i].UsedCount);
 	}
 #endif
 	SAFE_DELETE_ARRAY(m_pBlockLevels);
 	SAFE_DELETE_ARRAY(m_pBuffer);
-	m_BlockLevelCount=0;
-	m_BlockSize=0;
-	m_LevelSize=0;
-	m_BufferSize=0;
+	m_BlockLevelCount = 0;
+	m_BlockSize = 0;
+	m_LevelSize = 0;
+	m_BufferSize = 0;
 }
 
 void CFastMemoryPool::Clear()
 {
-	for(UINT i=0;i<m_BlockLevelCount;i++)
+	for (UINT i = 0; i < m_BlockLevelCount; i++)
 	{
-		m_pBlockLevels[i].UsedCount=0;
-		m_pBlockLevels[i].pFreeList=m_pBlockLevels[i].pBlocks;
+		m_pBlockLevels[i].UsedCount = 0;
+		m_pBlockLevels[i].pFreeList = m_pBlockLevels[i].pBlocks;
 
-		for(UINT j=0;j<m_pBlockLevels[i].BlockCount;j++)
+		for (UINT j = 0; j < m_pBlockLevels[i].BlockCount; j++)
 		{
-			BlockNode * pBlocks=(BlockNode *)((char *)m_pBlockLevels[i].pBlocks+j*m_pBlockLevels[i].BlockSize);
-			BlockNode * pPrevBlocks=(BlockNode *)((char *)m_pBlockLevels[i].pBlocks+(j-1)*m_pBlockLevels[i].BlockSize);
-			BlockNode * pNextBlocks=(BlockNode *)((char *)m_pBlockLevels[i].pBlocks+(j+1)*m_pBlockLevels[i].BlockSize);
+			BlockNode * pBlocks = (BlockNode *)((char *)m_pBlockLevels[i].pBlocks + j * m_pBlockLevels[i].BlockSize);
+			BlockNode * pPrevBlocks = (BlockNode *)((char *)m_pBlockLevels[i].pBlocks + (j - 1)*m_pBlockLevels[i].BlockSize);
+			BlockNode * pNextBlocks = (BlockNode *)((char *)m_pBlockLevels[i].pBlocks + (j + 1)*m_pBlockLevels[i].BlockSize);
 
-			pBlocks->Flag=BF_FREE;
+			pBlocks->Flag = BF_FREE;
 
-			if(j==0)
+			if (j == 0)
 			{
-				pBlocks->pPrev=NULL;
+				pBlocks->pPrev = NULL;
 			}
 			else
 			{
-				pBlocks->pPrev=pPrevBlocks;
+				pBlocks->pPrev = pPrevBlocks;
 			}
-			if(j==m_pBlockLevels[i].BlockCount-1)
+			if (j == m_pBlockLevels[i].BlockCount - 1)
 			{
-				pBlocks->pNext=NULL;
+				pBlocks->pNext = NULL;
 			}
 			else
 			{
-				pBlocks->pNext=pNextBlocks;
+				pBlocks->pNext = pNextBlocks;
 			}
 		}
 	}
@@ -156,43 +181,33 @@ void CFastMemoryPool::Clear()
 void CFastMemoryPool::Verfy(int LogChannel)
 {
 	CAutoLockEx ThreadLock;
-	if(m_IsThreadLock)
+	if (m_IsThreadLock)
 		ThreadLock.Lock(m_EasyCriticalSection);
 
-	CLogManager::GetInstance()->PrintLog(LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, 0, _T("开始内存池校验：PoolAlloc=%u/%u,SystemAlloc=%u/%u"), 
+	CLogManager::GetInstance()->PrintLog(LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, 0, _T("开始内存池校验：PoolAlloc=%u/%u,SystemAlloc=%u/%u"),
 		m_AllocCount, m_FreeCount, m_SystemAllocCount, m_SystemFreeCount);
-	for(UINT i=0;i<m_BlockLevelCount;i++)
+	for (UINT i = 0; i < m_BlockLevelCount; i++)
 	{
-		for(UINT j=0;j<m_pBlockLevels[i].BlockCount;j++)
+		for (UINT j = 0; j < m_pBlockLevels[i].BlockCount; j++)
 		{
-			BlockNode * pNode=(BlockNode *)((char *)m_pBlockLevels[i].pBlocks+j*m_pBlockLevels[i].BlockSize);
+			BlockNode * pNode = (BlockNode *)((char *)m_pBlockLevels[i].pBlocks + j * m_pBlockLevels[i].BlockSize);
 			BYTE * pData = (BYTE *)pNode + sizeof(BlockNode);
 
-			if(pNode->Flag==BF_USED)
+			if ((pNode->Flag == BF_USED) || (pNode->Flag != BF_FREE))
 			{
-				if(*((UINT *)(((BYTE *)pNode)+sizeof(BlockNode)+pNode->AllocSize))!=BF_TAIL)
+				PrintImportantLog(_T("内存块%p头部已被破坏"), pNode);
+				DumpBlock(pNode);
+				assert(false);
+			}
+			if (pNode->Flag == BF_USED)
+			{
+				if (*((UINT *)(((BYTE *)pNode) + sizeof(BlockNode) + pNode->AllocSize)) != BF_TAIL)
 				{
 					PrintImportantLog(_T("内存块%p尾部已被破坏"), pNode);
+					DumpBlock(pNode);
 					assert(false);
 				}
 			}
-			else if(pNode->Flag!=BF_FREE)
-			{
-				PrintImportantLog(_T("内存块%p头部已被破坏"), pNode);
-				assert(false);
-
-			}
-			if(pNode->Flag==BF_USED)
-			{
-				CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,
-					_T("AllocedMem:%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,")
-					_T("%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X"),
-					pData[0],pData[1],pData[2],pData[3],pData[4],pData[5],pData[6],pData[7],
-					pData[8],pData[9],pData[10],pData[11],pData[12],pData[13],pData[14],pData[15],
-					pData[16],pData[17],pData[18],pData[19],pData[20],pData[21],pData[22],pData[23],
-					pData[24],pData[25],pData[26],pData[27],pData[28],pData[29],pData[30],pData[31]);
-			}
-
 		}
 	}
 	CLogManager::GetInstance()->PrintLog(LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, 0, _T("内存池校验结束"));
@@ -200,18 +215,18 @@ void CFastMemoryPool::Verfy(int LogChannel)
 
 LPVOID CFastMemoryPool::Alloc(UINT Size)
 {
-	if(m_pBuffer&&Size)
+	if (m_pBuffer&&Size)
 	{
-		UINT Level=0;
-		for(;Level<m_BlockLevelCount;Level++)
+		UINT Level = 0;
+		for (; Level < m_BlockLevelCount; Level++)
 		{
-			if(m_pBlockLevels[Level].AvailableSize>=Size)
+			if (m_pBlockLevels[Level].AvailableSize >= Size)
 				break;
 		}
-		if(Level<m_BlockLevelCount)
+		if (Level < m_BlockLevelCount)
 		{
-			LPVOID pMem=AllocBlock(m_pBlockLevels+Level,Size);
-			if(pMem)
+			LPVOID pMem = AllocBlock(m_pBlockLevels + Level, Size);
+			if (pMem)
 			{
 				AtomicInc(&m_AllocCount);
 				return pMem;
@@ -227,14 +242,14 @@ LPVOID CFastMemoryPool::Alloc(UINT Size)
 
 BOOL CFastMemoryPool::Free(LPVOID pMem)
 {
-	if(pMem)
+	if (pMem)
 	{
 		if (m_pBuffer)
 		{
-			if ((UINT)((char *)pMem - m_pBuffer) < m_BufferSize)
+			if (((size_t)(((BYTE *)pMem) - m_pBuffer)) < m_BufferSize)
 			{
 				AtomicInc(&m_FreeCount);
-				return FreeBlock((BlockNode *)((char *)pMem - sizeof(BlockNode)));
+				return FreeBlock((BlockNode *)(((BYTE *)pMem) - sizeof(BlockNode)));
 			}
 			AtomicInc(&m_SystemFreeCount);
 			MONITORED_DELETE_ARRAY((char *)pMem);
@@ -250,51 +265,37 @@ BOOL CFastMemoryPool::Free(LPVOID pMem)
 	}
 }
 
-#ifdef LOG_MEM_CALL_STACK
-void CFastMemoryPool::LogMemUse(LPVOID pMem,int RefCount)
-{
-	if(m_pBuffer)
-	{
-		if((UINT)((char *)pMem-m_pBuffer)<m_BufferSize)
-		{
-			BlockNode * pNode=(BlockNode *)((char *)pMem-sizeof(BlockNode));
 
-			pNode->CallInfo[pNode->RecentCallInfo].StackDepth=CExceptionParser::GetInstance()->GetCallStack((DWORD64 *)pNode->CallInfo[pNode->RecentCallInfo].CallStack,MAX_CALL_STACK);
-			pNode->CallInfo[pNode->RecentCallInfo].RefCount=RefCount;
-			pNode->RecentCallInfo++;
-			if(pNode->RecentCallInfo>=MAX_CALL_INFO)
-				pNode->RecentCallInfo=0;
 
-		}
-	}
-}
-#endif
-
-LPVOID CFastMemoryPool::AllocBlock(BlockList * pBlockList,UINT AllocSize)
+LPVOID CFastMemoryPool::AllocBlock(BlockList * pBlockList, UINT AllocSize)
 {
 	CAutoLockEx ThreadLock;
-	if(m_IsThreadLock)
+	if (m_IsThreadLock)
 		ThreadLock.Lock(m_EasyCriticalSection);
 
-	if(pBlockList)
+	if (pBlockList)
 	{
-		if(pBlockList->pFreeList)
+		if (AllocSize <= pBlockList->AvailableSize)
 		{
-			volatile BlockNode * pNode;
+			if (pBlockList->pFreeList)
+			{
+				volatile BlockNode * pNode;
 
-			pNode=pBlockList->pFreeList;
-			pBlockList->pFreeList=pNode->pNext;
-			if(pBlockList->pFreeList)
-				pBlockList->pFreeList->pPrev=NULL;
-			pNode->Flag=BF_USED;
-			pNode->AllocSize=AllocSize;
-			*((UINT *)(((BYTE *)pNode)+sizeof(BlockNode)+pNode->AllocSize))=BF_TAIL;
-			pBlockList->UsedCount++;
-//#ifdef _DEBUG
-//			memset((BYTE *)pNode + sizeof(BlockNode), 0xCD, pNode->AllocSize);
-//#endif
+				pNode = pBlockList->pFreeList;
+				pBlockList->pFreeList = pNode->pNext;
+				if (pBlockList->pFreeList)
+					pBlockList->pFreeList->pPrev = NULL;
+				pNode->Flag = BF_USED;
+				*((UINT *)(((BYTE *)pNode) + sizeof(BlockNode) + AllocSize)) = BF_TAIL;
+				pNode->AllocSize = AllocSize;
+				pBlockList->UsedCount++;
 
-			return (char *)pNode+sizeof(BlockNode);
+				return (char *)pNode + sizeof(BlockNode);
+			}
+		}
+		else
+		{
+			PrintImportantLog(_T("错误，请求分配大小%u大于块大小%u"), AllocSize, pBlockList->AvailableSize);
 		}
 	}
 	return NULL;
@@ -303,44 +304,40 @@ LPVOID CFastMemoryPool::AllocBlock(BlockList * pBlockList,UINT AllocSize)
 BOOL CFastMemoryPool::FreeBlock(BlockNode * pNode)
 {
 	CAutoLockEx ThreadLock;
-	if(m_IsThreadLock)
+	if (m_IsThreadLock)
 		ThreadLock.Lock(m_EasyCriticalSection);
 
-	if(pNode)
+	if (pNode)
 	{
-		if(pNode->Flag!=BF_USED)
+		if (pNode->Flag != BF_USED)
 		{
 			PrintImportantLog(_T("内存块头部已被破坏[0x%X],大小%u"), pNode->Flag, pNode->AllocSize);
 			DumpBlock(pNode);
-#ifdef LOG_MEM_CALL_STACK
-			PrintCallStackLog(pNode);
-#endif
 			assert(false);
 
 		}
-		if(*((UINT *)(((BYTE *)pNode)+sizeof(BlockNode)+pNode->AllocSize))!=BF_TAIL)
+		BlockList * pBlockList = pNode->pBlockList;
+
+		if (*((UINT *)(((BYTE *)pNode) + sizeof(BlockNode) + pNode->AllocSize)) != BF_TAIL)
 		{
 			PrintImportantLog(_T("内存块尾部已被破坏,大小%u"), pNode->AllocSize);
 			DumpBlock(pNode);
-#ifdef LOG_MEM_CALL_STACK
-			PrintCallStackLog(pNode);
-#endif
 			assert(false);
 		}
-		BlockList * pBlockList=pNode->pBlockList;
+		
 
-		pNode->AllocSize=0;
-		pNode->Flag=BF_FREE;
-		pNode->pPrev=NULL;
-		pNode->pNext=pBlockList->pFreeList;
-		if(pBlockList->pFreeList)
-			pBlockList->pFreeList->pPrev=pNode;
-		pBlockList->pFreeList=pNode;
+		pNode->AllocSize = 0;
+		pNode->Flag = BF_FREE;
+		pNode->pPrev = NULL;
+		pNode->pNext = pBlockList->pFreeList;
+		if (pBlockList->pFreeList)
+			pBlockList->pFreeList->pPrev = pNode;
+		pBlockList->pFreeList = pNode;
 		pBlockList->UsedCount--;
 
-//#ifdef _DEBUG
-//		memset((BYTE *)pNode + sizeof(BlockNode), 0xFE, pBlockList->AvailableSize);
-//#endif
+		//#ifdef _DEBUG
+		//		memset((BYTE *)pNode + sizeof(BlockNode), 0xFE, pBlockList->AvailableSize);
+		//#endif
 		return TRUE;
 
 	}
@@ -349,54 +346,36 @@ BOOL CFastMemoryPool::FreeBlock(BlockNode * pNode)
 
 void CFastMemoryPool::DumpBlock(BlockNode * pNode)
 {
-	BlockList * pBlockList = pNode->pBlockList;
-	BYTE * pBlockData = (BYTE *)pNode;
-	if (m_BlockSize >= 32)
+	for (UINT i = 0; i < m_BlockLevelCount; i++)
 	{
-		PrintImportantLog(_T("%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,")
-						  _T("%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X"),
-			pBlockData[0], pBlockData[1], pBlockData[2], pBlockData[3],
-			pBlockData[4], pBlockData[5], pBlockData[6], pBlockData[7],
-			pBlockData[8], pBlockData[9], pBlockData[10], pBlockData[11],
-			pBlockData[12], pBlockData[13], pBlockData[14], pBlockData[15],
-			pBlockData[16], pBlockData[17], pBlockData[18], pBlockData[19],
-			pBlockData[20], pBlockData[21], pBlockData[22], pBlockData[23],
-			pBlockData[24], pBlockData[25], pBlockData[26], pBlockData[27],
-			pBlockData[28], pBlockData[29], pBlockData[30], pBlockData[31]);
-		PrintImportantLog(_T("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c")
-						  _T("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c"),
-			pBlockData[0], pBlockData[1], pBlockData[2], pBlockData[3],
-			pBlockData[4], pBlockData[5], pBlockData[6], pBlockData[7],
-			pBlockData[8], pBlockData[9], pBlockData[10], pBlockData[11],
-			pBlockData[12], pBlockData[13], pBlockData[14], pBlockData[15],
-			pBlockData[16], pBlockData[17], pBlockData[18], pBlockData[19],
-			pBlockData[20], pBlockData[21], pBlockData[22], pBlockData[23],
-			pBlockData[24], pBlockData[25], pBlockData[26], pBlockData[27],
-			pBlockData[28], pBlockData[29], pBlockData[30], pBlockData[31]);
-	}
-	else
-	{
-		PrintImportantLog(_T("内存块太小，无法Dump"));
-	}
-}
-
-#ifdef LOG_MEM_CALL_STACK
-void CFastMemoryPool::PrintCallStackLog(BlockNode * pNode)
-{
-	PrintImportantLog(_T("当前记录号:%u"),pNode->RecentCallInfo);
-	CExceptionParser::ADDRESS_INFO AddressInfo;
-	CExceptionParser::GetInstance()->SymInit();
-	for(UINT j=0;j<MAX_CALL_INFO;j++)
-	{
-		PrintImportantLog(_T("记录号"),j);
-		for(UINT i=0;i<pNode->CallInfo[j].StackDepth;i++)
+		BlockList * pLevel = m_pBlockLevels + i;
+		if ((((BYTE *)pNode) >= ((BYTE *)pLevel->pBlocks)) && (((BYTE *)pNode) < ((BYTE *)pLevel->pBlocks) + pLevel->BlockSize*pLevel->BlockCount))
 		{
-			CExceptionParser::GetInstance()->GetAddressInfo(pNode->CallInfo[j].CallStack[i],&AddressInfo);
-			PrintImportantLog(_T("%ll08X,%s:%d"),AddressInfo.Address,AddressInfo.CppFileName,AddressInfo.LineNumber);
+			UINT BlockIndex = (((BYTE *)pNode) - ((BYTE *)pLevel->pBlocks)) / pLevel->BlockSize;
+			PrintImportantLog(_T("块0x%p位于第%u层的第%u块,层开始地址0x%p,块大小%u,总块数%u"),
+				pNode, i, BlockIndex, pLevel->pBlocks, pLevel->BlockSize, pLevel->BlockCount);
+			PrintImportantLog(_T("出错块%u:"), BlockIndex);
+			DumpBinData((BYTE *)pNode, pLevel->BlockSize, 1024);
+			if (BlockIndex)
+			{
+				PrintImportantLog(_T("前一块%u:"), BlockIndex-1);
+				BYTE * pPrev = ((BYTE *)pNode) - pLevel->BlockSize;
+				DumpBinData(pPrev, pLevel->BlockSize, 1024);
+			}
+			if (BlockIndex < pLevel->BlockCount - 1)
+			{
+				PrintImportantLog(_T("后一块%u:"), BlockIndex + 1);
+				BYTE * pNext = ((BYTE *)pNode) + pLevel->BlockSize;
+				DumpBinData(pNext, pLevel->BlockSize, 1024);
+			}
+			return;
 		}
 	}
+	PrintImportantLog(_T("未能找到出错内存块0x%p的位置"), pNode);
+	DumpBinData((BYTE *)pNode, pNode->AllocSize + sizeof(BlockNode) + sizeof(UINT) * 2, 1024);
 }
-#endif
+
+
 
 
 void CFastMemoryPool::DoStat()

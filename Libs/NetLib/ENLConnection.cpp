@@ -16,8 +16,7 @@
 #define KEEP_ALIVE_TIME			(10*1000)
 #define MAX_KEEP_ALIVE_COUNT	6
 
-
-IMPLEMENT_CLASS_INFO_STATIC(CENLConnection, CNetConnection);
+static char s_LZOCompressWorkMemory[LZO1X_1_MEM_COMPRESS];
 
 CENLConnection::CENLConnection()
 {
@@ -27,6 +26,11 @@ CENLConnection::CENLConnection()
 	m_KeepAliveCount = 0;
 	m_ActiveType = ENL_ACTIVE_TYPE_PASSIVE;
 	m_AssembleBuffer.SetTag(_T("CENLConnection"));
+
+	m_MaxPacketSize = 0;
+	m_DataCompressType = CEasyNetLinkManager::DATA_COMPRESS_TYPE_NONE;
+	m_MinCompressSize = CEasyNetLinkManager::DEFAULT_MIN_COMPRESS_SIZE;
+	m_CompressBuffer.SetTag(_T("CENLConnection"));
 }
 
 
@@ -35,7 +39,18 @@ CENLConnection::~CENLConnection()
 	Destory();
 }
 
-bool CENLConnection::Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent, const CIPAddress& ConnectionAddress, UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize)
+void CENLConnection::Release()
+{
+	CNetConnection::Release();
+}
+
+UINT CENLConnection::AddUseRef()
+{
+	return CNetConnection::AddUseRef();
+}
+
+bool CENLConnection::Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent, const CIPAddress& ConnectionAddress, 
+	UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
 {
 	m_pManager = pManager;
 	m_pParent = pParent;
@@ -43,9 +58,20 @@ bool CENLConnection::Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent
 	m_ActiveType = ENL_ACTIVE_TYPE_PROACTIVE;
 	SetServer(m_pManager->GetServer());
 	m_ConnectionAddress = ConnectionAddress;
-	if (MaxPacketSize + NET_DATA_BLOCK_SIZE > m_AssembleBuffer.GetBufferSize())
+
+	m_MaxPacketSize = MaxPacketSize;
+	if (m_MaxPacketSize + NET_DATA_BLOCK_SIZE > m_AssembleBuffer.GetBufferSize())
 	{
-		m_AssembleBuffer.Create(MaxPacketSize + NET_DATA_BLOCK_SIZE);
+		m_AssembleBuffer.Create(m_MaxPacketSize + NET_DATA_BLOCK_SIZE);
+	}
+	if (DataCompressType < CEasyNetLinkManager::DATA_COMPRESS_TYPE_MAX)
+	{
+		m_DataCompressType = DataCompressType;
+		m_MinCompressSize = MinCompressSize;
+		if (m_DataCompressType != CEasyNetLinkManager::DATA_COMPRESS_TYPE_NONE&&m_CompressBuffer.GetBufferSize() < m_MaxPacketSize)
+		{
+			m_CompressBuffer.Create(m_MaxPacketSize);
+		}
 	}
 
 	if (Create(RecvQueueSize, SendQueueSize))
@@ -54,16 +80,27 @@ bool CENLConnection::Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent
 		return false;
 }
 
-bool CENLConnection::Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent, UINT MaxPacketSize)
+bool CENLConnection::Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent, UINT MaxPacketSize, 
+	CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
 {
 	m_pManager = pManager;
 	m_pParent = pParent;
 	m_Status = STATUS_ACCEPTING;
 	m_ActiveType = ENL_ACTIVE_TYPE_PASSIVE;
 	SetServer(m_pManager->GetServer());
-	if(MaxPacketSize + NET_DATA_BLOCK_SIZE > m_AssembleBuffer.GetBufferSize())
+	m_MaxPacketSize = MaxPacketSize;
+	if(m_MaxPacketSize + NET_DATA_BLOCK_SIZE > m_AssembleBuffer.GetBufferSize())
 	{
-		m_AssembleBuffer.Create(MaxPacketSize + NET_DATA_BLOCK_SIZE);
+		m_AssembleBuffer.Create(m_MaxPacketSize + NET_DATA_BLOCK_SIZE);
+	}	
+	if (DataCompressType < CEasyNetLinkManager::DATA_COMPRESS_TYPE_MAX)
+	{
+		m_DataCompressType = DataCompressType;
+		m_MinCompressSize = MinCompressSize;
+		if (m_DataCompressType != CEasyNetLinkManager::DATA_COMPRESS_TYPE_NONE&&m_CompressBuffer.GetBufferSize() < m_MaxPacketSize)
+		{
+			m_CompressBuffer.Create(m_MaxPacketSize);
+		}
 	}
 	return true;
 }
@@ -119,7 +156,7 @@ void CENLConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 
 	if (!m_AssembleBuffer.PushBack(pData, DataSize))
 	{
-		PrintNetLog( _T("CENLConnection::OnRecvData 拼包缓冲区溢出,连接断开"));
+		PrintNetLog( _T("拼包缓冲区溢出,连接断开"));
 		Disconnect();
 		return;
 	}
@@ -130,7 +167,7 @@ void CENLConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 		UINT MsgSize = pMsg->Header.Size;
 		if (MsgSize < sizeof(EASY_NET_LINK_MSG_HEAD))
 		{
-			PrintNetLog( _T("CENLConnection::OnRecvData 收到大小非法的消息,连接断开"));
+			PrintNetLog( _T("收到大小非法的消息,连接断开"));
 			Disconnect();
 			return;
 		}
@@ -144,7 +181,7 @@ void CENLConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 				{
 					if (!m_pManager->AcceptLink(pInfo->ID, m_pParent))
 					{
-						PrintNetLog( _T("CENLConnection::OnRecvData 非法连接[%s][%s:%u]被拒绝"),
+						PrintNetLog( _T("非法连接[%s][%s:%u]被拒绝"),
 							CClassifiedID(pInfo->ID).ToStr(),
 							GetRemoteAddress().GetIPString(),
 							GetRemoteAddress().GetPort());
@@ -153,7 +190,7 @@ void CENLConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 					else
 					{
 						m_Status = STATUS_ACCEPTED;
-						PrintNetLog( _T("CENLConnection::OnRecvData 连接[%s][%s:%u]建立"),
+						PrintNetLog( _T("连接[%s][%s:%u]建立"),
 							CClassifiedID(pInfo->ID).ToStr(),
 							GetRemoteAddress().GetIPString(),
 							GetRemoteAddress().GetPort());
@@ -161,7 +198,7 @@ void CENLConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 				}
 				else
 				{
-					PrintNetLog( _T("CENLConnection::OnRecvData 连接[%s][%s:%u]建立时没有设置管理器，被关闭"),
+					PrintNetLog( _T("连接[%s][%s:%u]建立时没有设置管理器，被关闭"),
 						CClassifiedID(pInfo->ID).ToStr(),
 						GetRemoteAddress().GetIPString(),
 						GetRemoteAddress().GetPort());
@@ -183,13 +220,24 @@ void CENLConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 		case EASY_NET_LINK_MSG_USER_DATA:
 			if (MsgSize >= sizeof(EASY_NET_LINK_MSG_HEAD))
 			{
-				m_pParent->OnData((BYTE *)pMsg->Data, pMsg->Header.Size - sizeof(EASY_NET_LINK_MSG_HEAD), false);
+				m_pParent->OnData((BYTE *)pMsg->Data, pMsg->Header.Size - sizeof(EASY_NET_LINK_MSG_HEAD));
 			}
 			break;
 		case EASY_NET_LINK_MSG_COMPRESSED_USER_DATA:
 			if (MsgSize >= sizeof(EASY_NET_LINK_MSG_HEAD))
 			{
-				m_pParent->OnData((BYTE *)pMsg->Data, pMsg->Header.Size - sizeof(EASY_NET_LINK_MSG_HEAD), true);
+				lzo_uint OutLen = m_CompressBuffer.GetBufferSize();
+				int Result = lzo1x_decompress_safe(pData, DataSize, (BYTE *)m_CompressBuffer.GetBuffer(), &OutLen, s_LZOCompressWorkMemory);
+				if (Result == LZO_E_OK)
+				{
+					m_pParent->OnData((BYTE *)m_CompressBuffer.GetBuffer(), (UINT)OutLen);
+				}
+				else
+				{
+					PrintNetLog(_T("lzo解压数据失败(%d)"),
+						Result);
+					Disconnect();
+				}
 			}
 			break;
 		default:
@@ -267,4 +315,63 @@ void CENLConnection::SendLinkMsg(DWORD MsgID, LPCVOID pData, UINT DataSize)
 	{
 		Send(pData, DataSize);
 	}
+}
+
+bool CENLConnection::SendData(LPCVOID pData, UINT DataSize)
+{
+	if (pData&&DataSize > 0)
+	{
+		EASY_NET_LINK_MSG_HEAD MsgHeader;
+		MsgHeader.Size = sizeof(EASY_NET_LINK_MSG_HEAD) + DataSize;
+		MsgHeader.MsgID = EASY_NET_LINK_MSG_COMPRESSED_USER_DATA;
+		if (m_DataCompressType == CEasyNetLinkManager::DATA_COMPRESS_TYPE_LZO && DataSize >= m_MinCompressSize)
+		{
+			lzo_uint OutLen = m_CompressBuffer.GetBufferSize();
+			int Result = lzo1x_1_compress((BYTE *)pData, DataSize,
+				(BYTE *)m_CompressBuffer.GetBuffer(), &OutLen,
+				s_LZOCompressWorkMemory);
+
+			if (Result == LZO_E_OK)
+			{
+				MsgHeader.MsgID = EASY_NET_LINK_MSG_COMPRESSED_USER_DATA;
+				pData = m_CompressBuffer.GetBuffer();
+				DataSize = OutLen;
+			}
+			else
+			{
+				PrintNetLog(_T("lzo压缩数据失败(%d)，将直接发送"), Result);
+			}
+		}
+			
+		if (Send(&MsgHeader, sizeof(MsgHeader)))
+		{
+			if (pData&&DataSize)
+			{
+				return Send(pData, DataSize);
+			}
+			return true;
+		}
+	}
+	else
+	{
+		PrintNetLog(_T("CEasyNetLinkConnection::SendData 发送的数据大小不合法"));
+	}
+	return false;
+}
+
+void CENLConnection::Disconnect()
+{
+	CNetConnection::Disconnect();
+}
+bool CENLConnection::IsDisconnected()
+{
+	return CNetConnection::IsDisconnected();
+}
+bool CENLConnection::IsConnected()
+{
+	return CNetConnection::IsDisconnected();
+}
+CBaseNetConnection * CENLConnection::GetBaseConnection()
+{
+	return dynamic_cast<CBaseNetConnection *>(this);
 }

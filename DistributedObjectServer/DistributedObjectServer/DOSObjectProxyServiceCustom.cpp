@@ -138,11 +138,11 @@ bool CDOSObjectProxyServiceCustom::SendMessageMulti(OBJECT_ID * pReceiverIDList,
 	pNewPacket->GetMessage().SetDataLength(DataSize);
 	pNewPacket->GetMessage().SetMsgFlag(MsgFlag);
 	if (pData)
-		memcpy(pNewPacket->GetMessage().GetDataBuffer(), pData, DataSize);
+		pNewPacket->GetMessage().PutMsgData(0, pData, DataSize);
 	pNewPacket->SetTargetIDs(ReceiverCount, pReceiverIDList);
 	if (!IsSorted)
 	{
-		qsort(pNewPacket->GetTargetIDs(), ReceiverCount, sizeof(OBJECT_ID), OBJECT_ID::Compare);
+		pNewPacket->SortTargetIDs();
 	}
 
 	pNewPacket->MakePacketLength();

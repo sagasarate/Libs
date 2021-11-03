@@ -45,6 +45,7 @@ protected:
 	
 
 	CEasyTimer									m_CountTimer;
+	CEasyTimer									m_MallocTimer;
 
 	CThreadPerformanceCounter					m_ThreadPerformanceCounter;
 

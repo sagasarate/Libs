@@ -27,14 +27,11 @@ class CEasyNetLink :
 {
 protected:
 	CEasyNetLinkManager*						m_pManager;
-	CENLConnection *							m_pConnection;
-	UINT										m_MaxPacketSize;
-	CEasyNetLinkManager::DATA_COMPRESS_TYPE		m_DataCompressType;
-	UINT										m_MinCompressSize;
+	CENLBaseConnection *						m_pConnection;
 	UINT										m_Status;
 	UINT										m_ReportID;	
 	bool										m_NeedReallocConnectionID;	
-	CEasyBuffer									m_CompressBuffer;
+	
 	
 
 
@@ -59,22 +56,20 @@ public:
 
 	UINT GetReportID();
 
-	void OnData(const BYTE * pData, UINT DataSize, bool IsCompressed);
-
 	virtual void OnLinkStart();
 	virtual void OnLinkEnd();
 	virtual void OnData(const BYTE * pData, UINT DataSize) = 0;
 
-	void SendData(LPCVOID pData, UINT DataSize);
+	virtual bool SendData(LPCVOID pData, UINT DataSize);
 	
 
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 	
 
-	void EnableReallocConnectionID(BOOL Enable);
+	//void EnableReallocConnectionID(BOOL Enable);
 	bool NeedReallocConnectionID();
 
-	CENLConnection * GetConnection();
+	CBaseNetConnection * GetConnection();
 
 	void Disconnect();
 	bool IsDisconnected();
@@ -82,6 +77,10 @@ public:
 	ENL_ACTIVE_TYPE GetActiveType();
 
 	void PrintInfo(UINT LogChannel);
+protected:
+	virtual CENLBaseConnection * NewConnection(UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
+	virtual CENLBaseConnection * NewConnection(const CIPAddress& ConnectionAddress, UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize,
+		CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
 };
 
 
@@ -110,9 +109,9 @@ inline bool CEasyNetLink::NeedReallocConnectionID()
 	return m_NeedReallocConnectionID;
 }
 
-inline CENLConnection * CEasyNetLink::GetConnection()
+inline CBaseNetConnection * CEasyNetLink::GetConnection()
 {
-	return m_pConnection;
+	return m_pConnection->GetBaseConnection();
 }
 
 inline void CEasyNetLink::Disconnect()

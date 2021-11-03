@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 class CLuaThread;
-class CLuaScript;
+class CBaseLuaVM;
 
 
 class CLuaThread
@@ -15,8 +15,7 @@ public:
 	};
 protected:
 	UINT				m_ID;
-	CLuaScript *		m_pLuaScript;	
-	UINT				m_ScriptID;
+	CBaseLuaVM *		m_pLuaVM;
 	void *				m_Param1;
 	void *				m_Param2;
 	CBaseScriptHost *	m_pHostObject;
@@ -36,8 +35,7 @@ public:
 	CLuaThread()
 	{
 		m_ID = 0;
-		m_pLuaScript = NULL;
-		m_ScriptID = 0;
+		m_pLuaVM = NULL;
 		m_Param1 = NULL;
 		m_Param2 = NULL;
 		m_pHostObject = NULL;
@@ -60,9 +58,9 @@ public:
 	{
 		return m_pLuaThread != NULL;
 	}
-	bool Init(CLuaScript * pLuaScript, UINT ScriptID, int StackSize);
-	//void Destory();
-	void Release();
+	bool Init(CBaseLuaVM * pLuaVM, int StackSize);
+	void Destory();
+	//void Release();
 	void SetID(UINT ID)
 	{
 		m_ID = ID;
@@ -75,9 +73,9 @@ public:
 	{
 		return m_pHostObject;
 	}
-	CLuaScript * GetLuaScript()
+	CBaseLuaVM * GetLuaVM()
 	{
-		return m_pLuaScript;
+		return m_pLuaVM;
 	}
 	int GetLastLuaStatus()
 	{
@@ -157,9 +155,17 @@ public:
 	{
 		lua_pushnil (m_pLuaThread);
 	}
+	void PushBoolean(bool Value)
+	{
+		lua_pushboolean(m_pLuaThread, Value ? 1 : 0);
+	}
 	void PushNumber(lua_Number Value)
 	{
 		lua_pushnumber(m_pLuaThread, Value);
+	}
+	void PushInteger(lua_Integer Value)
+	{
+		lua_pushinteger(m_pLuaThread, Value);
 	}
 	void PushString(LPCSTR Value)
 	{
@@ -223,7 +229,7 @@ public:
 	{
 		return GetLuaObjectType(m_pLuaThread, Index);
 	}
-	bool PackResult(CSmartStruct& Packet);
+	bool PackResult(CSmartStruct& Packet, int SkillCount);
 	bool PackTable(CSmartStruct& Packet, int Index);
 	template<typename T>
 	T PopValue();

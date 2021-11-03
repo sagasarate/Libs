@@ -507,6 +507,11 @@ void CODBCConnection::Reset()
 
 }
 
+int CODBCConnection::SelectDefaultDatabase(LPCTSTR szDBName)
+{
+	return DBERR_NOT_IMPLEMENT;
+}
+
 void CODBCConnection::ProcessMessagesODBC(SQLSMALLINT plm_handle_type,SQLHANDLE plm_handle,char *logstring,int ConnInd)
 {
 	RETCODE		plm_retcode = SQL_SUCCESS;

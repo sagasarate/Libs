@@ -21,6 +21,7 @@ CDOSObjectProxyServiceDefault::CDOSObjectProxyServiceDefault(void)
 	m_DestoryConnectionList.SetTag(_T("CDOSObjectProxyServiceDefault"));
 	m_ConnectionGroups.SetTag(_T("CDOSObjectProxyServiceDefault"));
 	m_CompressBuffer.SetTag(_T("CDOSObjectProxyServiceDefault"));
+	m_EncyptBuffer.SetTag(_T("CDOSObjectProxyServiceDefault"));
 	m_IPBlackList.SetTag(_T("CDOSObjectProxyServiceDefault"));
 	m_RecvProtectedIPList.SetTag(_T("CDOSObjectProxyServiceDefault"));
 	m_PrepareIPBlackList.SetTag(_T("CDOSObjectProxyServiceDefault"));
@@ -110,10 +111,10 @@ bool CDOSObjectProxyServiceDefault::PushMessage(OBJECT_ID ObjectID, CDOSMessageP
 		}
 		else
 		{
-			PrintDOSDebugLog(_T("将[0x%llX]发出的消息[%X]递送到代理对象[%llX]时代理对象不存在"),
-				pPacket->GetMessage().GetSenderID(),
-				pPacket->GetMessage().GetMsgID(),
-				ObjectID);
+			//PrintDOSDebugLog(_T("将[0x%llX]发出的消息[%X]递送到代理对象[%llX]时代理对象不存在"),
+			//	pPacket->GetMessage().GetSenderID(),
+			//	pPacket->GetMessage().GetMsgID(),
+			//	ObjectID);
 			return false;
 		}
 	}
@@ -274,12 +275,37 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 
 	if (m_Config.MsgCompressType == MSG_COMPRESS_LZO)
 	{
-		if (m_CompressBuffer.GetBufferSize() < m_Config.MaxSendMsgSize)
+		UINT CompressBufferSize = m_Config.SendBufferSize*NET_DATA_BLOCK_SIZE;
+		if (m_CompressBuffer.GetBufferSize() < CompressBufferSize)
 		{
-			if (!m_CompressBuffer.Create(m_Config.MaxSendMsgSize))
+			if (m_CompressBuffer.Create(CompressBufferSize))
+			{
+				PrintDOSLog(_T("已创建%u大小的压缩缓冲"),
+					CompressBufferSize);
+			}
+			else
 			{
 				PrintDOSLog( _T("创建%u大小的压缩缓冲失败！"),
-					m_Config.MaxSendMsgSize);
+					CompressBufferSize);
+				return FALSE;
+			}
+		}
+	}
+
+	if (m_Config.MsgEnCryptType != MSG_ENCRYPT_NONE)
+	{
+		UINT EncyptBufferSize = m_Config.RecvBufferSize*NET_DATA_BLOCK_SIZE;
+		if (m_EncyptBuffer.GetBufferSize() < EncyptBufferSize)
+		{
+			if (m_EncyptBuffer.Create(EncyptBufferSize))
+			{
+				PrintDOSLog(_T("已创建%u大小的解密缓冲"),
+					EncyptBufferSize);
+			}
+			else
+			{
+				PrintDOSLog(_T("创建%u大小的解密缓冲失败！"),
+					EncyptBufferSize);
 				return FALSE;
 			}
 		}
@@ -327,6 +353,20 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 			m_ConnectionGroups[i].Start();
 			PrintDOSDebugLog(_T("连接组线程[%u]已启动"), m_ConnectionGroups[i].GetThreadID());
 		}
+	}
+
+	if (m_GroupBroadcastMap.Create(m_Config.ConnectionPoolSetting))
+	{
+		PrintDOSDebugLog(_T("代理服务[%u]创建(%u,%u,%u)大小的分组广播映射成功！"),
+			GetID(),
+			m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
+	}
+	else
+	{
+		PrintDOSLog(_T("代理服务[%u]创建(%u,%u,%u)大小的分组广播映射失败！"),
+			GetID(),
+			m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
+		return FALSE;
 	}
 
 	if (m_Config.EnableGuardThread)
@@ -408,7 +448,7 @@ int CDOSObjectProxyServiceDefault::Update(int ProcessPacketLimit)
 	{
 		//PrintDOSDebugLog(_T("发送了消息[%u]"),pPacket->GetMessage().GetMsgID());
 		if (pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
-			OnSystemMsg(&(pPacket->GetMessage()));
+			OnSystemMsg(pPacket);
 		else
 			OnMsg(&(pPacket->GetMessage()));
 
@@ -476,7 +516,7 @@ int CDOSObjectProxyServiceDefault::Update(int ProcessPacketLimit)
 		{
 			m_BlackListUpdateTimer.SaveTime();
 
-			UINT CurTime = time(NULL);
+			UINT CurTime = (UINT)time(NULL);
 			void * Pos = m_IPBlackList.GetFirstObjectPos();
 			while (Pos)
 			{
@@ -518,6 +558,8 @@ CBaseNetConnection * CDOSObjectProxyServiceDefault::CreateConnection(CIPAddress&
 
 bool CDOSObjectProxyServiceDefault::DeleteConnection(CBaseNetConnection * pConnection)
 {
+	RemoveConnectionFromBroadcastGroup((CDOSObjectProxyConnectionDefault *)pConnection);
+
 	pConnection->Destory();
 
 	if (m_ConnectionPool.DeleteObject(pConnection->GetID()))
@@ -569,6 +611,7 @@ void CDOSObjectProxyServiceDefault::AcceptConnection(CDOSObjectProxyConnectionDe
 	else
 	{
 		pConnection->SetCompressBuffer(&m_CompressBuffer, m_LZOCompressWorkMemory);
+		pConnection->SetEncyptBuffer(&m_EncyptBuffer);
 	}
 }
 void CDOSObjectProxyServiceDefault::QueryDestoryConnection(CDOSObjectProxyConnectionDefault * pConnection)
@@ -652,21 +695,22 @@ void CDOSObjectProxyServiceDefault::OnMsg(CDOSMessage * pMessage)
 	PrintDOSLog( _T("收到非系统消息0x%llX"), pMessage->GetMsgID());
 }
 
-void CDOSObjectProxyServiceDefault::OnSystemMsg(CDOSMessage * pMessage)
+void CDOSObjectProxyServiceDefault::OnSystemMsg(CDOSMessagePacket * pPacket)
 {
+	CDOSMessage * pMessage = &pPacket->GetMessage();
 	switch (pMessage->GetMsgID())
 	{
 	case DSM_PROXY_REGISTER_GLOBAL_MSG_MAP:
 		if (pMessage->GetDataLength() >= sizeof(UINT)*2)
 		{
-			UINT * pData = (UINT *)(pMessage->GetDataBuffer());
+			const UINT * pData = (const UINT *)(pMessage->GetMsgData());
 			DoRegisterGlobalMsgMap((MSG_ID_TYPE)(pData[0]), (int)(pData[1]), pMessage->GetSenderID());
 		}
 		break;
 	case DSM_PROXY_UNREGISTER_GLOBAL_MSG_MAP:
 		if (pMessage->GetDataLength() >= sizeof(MSG_ID_TYPE))
 		{
-			MSG_ID_TYPE MsgID = *((MSG_ID_TYPE *)(pMessage->GetDataBuffer()));
+			MSG_ID_TYPE MsgID = *((const MSG_ID_TYPE *)(pMessage->GetMsgData()));
 			DoUnregisterGlobalMsgMap(MsgID, pMessage->GetSenderID());
 		}
 		break;
@@ -679,6 +723,47 @@ void CDOSObjectProxyServiceDefault::OnSystemMsg(CDOSMessage * pMessage)
 				Lock.Lock(m_EasyCriticalSection);
 			}
 			m_UnhandleMsgReceiverID = pMessage->GetSenderID();
+		}
+		break;
+	case DSM_PROXY_SET_BROADCAST_GROUP:
+		if (pMessage->GetDataLength() >= sizeof(BROADCAST_GROUP_SET_INFO))
+		{
+			const BROADCAST_GROUP_SET_INFO * pInfo = (const BROADCAST_GROUP_SET_INFO *)(pMessage->GetMsgData());
+			BYTE ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(pInfo->ProxyObjectID.GroupIndex);
+			if (ProxyType == m_Config.ProxyType)
+			{
+				CDOSObjectProxyConnectionDefault * pProxyConnection = GetConnection(pInfo->ProxyObjectID.ObjectIndex);
+				if (pProxyConnection)
+				{
+					AddConnectionToBroadcastGroup(pProxyConnection, pInfo->GroupID);
+				}
+				else
+				{
+					PrintDOSLog(_T("对象0x%llX不存在"), pInfo->ProxyObjectID);
+				}
+			}
+			else
+			{
+				PrintDOSLog(_T("对象0x%llX不属于本服务"), pInfo->ProxyObjectID);
+			}
+		}
+		break;
+	case DSM_PROXY_GROUP_BROADCAST:
+		if (pMessage->GetDataLength() >= sizeof(GROUP_BROADCAST_INFO))
+		{
+			const GROUP_BROADCAST_INFO * pInfo = (const GROUP_BROADCAST_INFO *)(pMessage->GetMsgData());
+			CEasyArray <CDOSObjectProxyConnectionDefault *> * pList = m_GroupBroadcastMap.Find(pInfo->GroupID);
+			if (pList)
+			{
+				for (CDOSObjectProxyConnectionDefault * pConnection : *pList)
+				{
+					pConnection->PushMessage(pPacket);
+				}
+			}
+			else
+			{
+				PrintDOSLog(_T("广播组0x%llX不存在"), pInfo->GroupID);
+			}
 		}
 		break;
 	case DSM_ROUTE_LINK_LOST:
@@ -729,7 +814,7 @@ bool CDOSObjectProxyServiceDefault::DoRegisterGlobalMsgMap(MSG_ID_TYPE MsgID, in
 					qsort(pMapInfo->ObjectIDList.GetBuffer(), pMapInfo->ObjectIDList.GetCount(), sizeof(OBJECT_ID), OBJECT_ID::Compare);
 			}
 		}
-		PrintDOSLog(_T("0x%llX注册了全局代理消息映射[0x%X,%d]！"), ObjectID.ID, MsgID, MapType);
+		//PrintDOSLog(_T("0x%llX注册了全局代理消息映射[0x%X,%d]！"), ObjectID.ID, MsgID, MapType);
 		return true;
 	}
 	else
@@ -769,7 +854,7 @@ bool CDOSObjectProxyServiceDefault::DoUnregisterGlobalMsgMap(MSG_ID_TYPE MsgID, 
 				m_MessageMap.Delete(MsgID);
 			}
 		}
-		PrintDOSLog(_T("0x%llX注销了全局代理消息映射[0x%X]！"), ObjectID.ID, MsgID);
+		//PrintDOSLog(_T("0x%llX注销了全局代理消息映射[0x%X]！"), ObjectID.ID, MsgID);
 		return true;
 	}
 	return false;
@@ -862,7 +947,7 @@ bool CDOSObjectProxyServiceDefault::AddBlackList(CIPAddress IP, UINT Duration)
 		if (IPInfo.IP == IP)
 		{
 			if (Duration)
-				IPInfo.ExpireTime = time(NULL) + Duration;
+				IPInfo.ExpireTime = (UINT)time(NULL) + Duration;
 			else
 				IPInfo.ExpireTime = 0;
 			IsExist = true;
@@ -874,7 +959,7 @@ bool CDOSObjectProxyServiceDefault::AddBlackList(CIPAddress IP, UINT Duration)
 		IP_INFO * pIPInfo = m_PrepareIPBlackList.AddEmpty();
 		pIPInfo->IP = IP;
 		if (Duration)
-			pIPInfo->ExpireTime = time(NULL) + Duration;
+			pIPInfo->ExpireTime = (UINT)time(NULL) + Duration;
 		else
 			pIPInfo->ExpireTime = 0;
 	}
@@ -917,7 +1002,7 @@ bool CDOSObjectProxyServiceDefault::OnRecvProtected(CIPAddress IP)
 int CDOSObjectProxyServiceDefault::CheckFreeObject()
 {
 	int ProcessCount = 0;
-	UINT CurTime = time(NULL);
+	UINT CurTime = (UINT)time(NULL);
 	for (UINT i = 0; i < CONNECTION_FREE_CHECK_BATCH; i++)
 	{
 		LPVOID Pos = m_ConnectionPool.GetFreeObjectPosByID(m_FreeObjectCheckPtr);
@@ -944,4 +1029,58 @@ int CDOSObjectProxyServiceDefault::CheckFreeObject()
 		PrintDOSDebugLog(_T("已彻底释放%d个连接"), ProcessCount);
 	}
 	return ProcessCount;
+}
+
+bool CDOSObjectProxyServiceDefault::AddConnectionToBroadcastGroup(CDOSObjectProxyConnectionDefault * pConnection, UINT64 GroupID)
+{
+	if (GroupID)
+	{
+		if (pConnection->GetBroadcastGroupID())
+		{
+			RemoveConnectionFromBroadcastGroup(pConnection);
+		}			
+		CEasyArray < CDOSObjectProxyConnectionDefault *> * pList = NULL;
+		m_GroupBroadcastMap.New(GroupID, &pList);
+		if (pList)
+		{
+			AddUnique(*pList, pConnection);
+			pConnection->SetBroadcastGroupID(GroupID);
+			return true;
+		}
+		else
+		{
+			PrintDOSLog(_T("无法分配广播组%u/%u"), m_GroupBroadcastMap.GetObjectCount(), m_GroupBroadcastMap.GetBufferSize());
+		}
+	}
+	else
+	{
+		return RemoveConnectionFromBroadcastGroup(pConnection);
+	}
+	return false;
+}
+bool CDOSObjectProxyServiceDefault::RemoveConnectionFromBroadcastGroup(CDOSObjectProxyConnectionDefault * pConnection)
+{
+	if (pConnection&&pConnection->GetBroadcastGroupID())
+	{
+		CEasyArray <CDOSObjectProxyConnectionDefault *> * pList = m_GroupBroadcastMap.Find(pConnection->GetBroadcastGroupID());
+		if (pList)
+		{
+			if(RemoveFromList(*pList, pConnection))
+			{
+				pConnection->SetBroadcastGroupID(0);
+				return true;
+			}
+		}
+		PrintDOSLog(_T("未能通过ID退出广播组"));
+		for (CEasyArray <CDOSObjectProxyConnectionDefault *>& List : m_GroupBroadcastMap)
+		{
+			if (RemoveFromList(List, pConnection))
+			{
+				pConnection->SetBroadcastGroupID(0);
+				return true;
+			}
+		}
+		PrintDOSLog(_T("退出广播组失败"));
+	}
+	return false;
 }

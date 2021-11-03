@@ -12,6 +12,40 @@
 #include "stdafx.h"
 
 
+static void DumpBinData(const BYTE * pData, UINT DataLen, UINT MaxDumpSize)
+{
+	static UINT Index = 0;
+
+	PrintDOSLog(_T("(%u)DumpBinData=%u"), Index, DataLen);
+	AtomicInc(&Index);
+	if (DataLen > MaxDumpSize)
+		DataLen = MaxDumpSize;
+	for (UINT i = 0; i < DataLen; i += 8)
+	{
+		PrintDOSLog(_T("%02X %02X %02X %02X %02X %02X %02X %02X"),
+			((i < DataLen) ? pData[i] : 0),
+			((i + 1 < DataLen) ? pData[i + 1] : 0),
+			((i + 2 < DataLen) ? pData[i + 2] : 0),
+			((i + 3 < DataLen) ? pData[i + 3] : 0),
+			((i + 4 < DataLen) ? pData[i + 4] : 0),
+			((i + 5 < DataLen) ? pData[i + 5] : 0),
+			((i + 6 < DataLen) ? pData[i + 6] : 0),
+			((i + 7 < DataLen) ? pData[i + 7] : 0)
+		);
+	}
+}
+
+#undef  PrintDOSLog
+#undef  PrintDOSDebugLog
+
+#ifdef WIN32
+#define PrintDOSLog(_Format, ...)	LogConnection(_T(__FUNCTION__), _Format, ##__VA_ARGS__)
+#define PrintDOSDebugLog(_Format, ...)	LogDebugConnection(_T(__FUNCTION__), _Format, ##__VA_ARGS__)
+#else
+#define PrintDOSLog(_Format, ...)	LogConnection(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)
+#define PrintDOSDebugLog(_Format, ...)	LogDebugConnection(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)
+#endif
+
 
 
 CDOSObjectProxyConnectionDefault::CDOSObjectProxyConnectionDefault(void)
@@ -21,10 +55,14 @@ CDOSObjectProxyConnectionDefault::CDOSObjectProxyConnectionDefault(void)
 	m_pGroup = NULL;
 	m_Status = STATUS_NONE;
 	m_pCompressBuffer = NULL;
+	m_pEncyptBuffer = NULL;
 	m_pLZOCompressWorkBuffer = NULL;
 	m_RecvCount = 0;
 	m_RecvFlow = 0;
 	m_ReleaseTime = 0;
+	m_TotalMsgSendCount = 0;
+	m_TotalMsgRecvCount = 0;
+	m_BroadcastGroupID = 0;
 	m_MsgQueue.SetTag(_T("CDOSObjectProxyConnectionDefault"));
 	m_MessageMap.SetTag(_T("CDOSObjectProxyConnectionDefault"));
 	m_AssembleBuffer.SetTag(_T("CDOSObjectProxyConnectionDefault"));
@@ -37,6 +75,7 @@ CDOSObjectProxyConnectionDefault::~CDOSObjectProxyConnectionDefault(void)
 void CDOSObjectProxyConnectionDefault::Destory()
 {
 	m_pCompressBuffer = NULL;
+	m_pEncyptBuffer = NULL;
 	m_pLZOCompressWorkBuffer = NULL;
 	CNetConnection::Close();
 	CDOSMessagePacket * pPacket;
@@ -47,8 +86,10 @@ void CDOSObjectProxyConnectionDefault::Destory()
 			PrintDOSLog(_T("释放消息内存块失败！"));
 		}
 	}
+	m_MessageMap.Clear();
+	m_AssembleBuffer.SetUsedSize(0);
 	m_Status = STATUS_DESTORYED;
-	m_ReleaseTime = time(NULL);
+	m_ReleaseTime = (UINT)time(NULL);
 }
 
 
@@ -135,6 +176,9 @@ bool CDOSObjectProxyConnectionDefault::Init(CDOSObjectProxyServiceDefault * pSer
 	m_NeedDelayClose = false;
 
 	m_RecvProtectCheckTimer.SaveTime();
+	m_TotalMsgSendCount = 0;
+	m_TotalMsgRecvCount = 0;
+	m_BroadcastGroupID = 0;
 
 	if (m_AssembleBuffer.GetBufferSize() < m_Config.MaxMsgSize * 2)
 	{
@@ -144,6 +188,10 @@ bool CDOSObjectProxyConnectionDefault::Init(CDOSObjectProxyServiceDefault * pSer
 				m_Config.MaxMsgSize * 2);
 			return false;
 		}
+	}
+	else
+	{
+		m_AssembleBuffer.SetUsedSize(0);
 	}
 	m_Status = STATUS_INITED;
 	return true;
@@ -157,7 +205,7 @@ void CDOSObjectProxyConnectionDefault::OnRecvData(const BYTE * pData, UINT DataS
 	UINT PeekPos = 0;
 	if (!m_AssembleBuffer.PushBack(pData, DataSize))
 	{
-		PrintDOSLog(_T("对象代理(%d)拼包缓冲溢出(%u/%u)，连接断开！"), GetID(), m_AssembleBuffer.GetUsedSize(), m_AssembleBuffer.GetBufferSize());
+		PrintDOSLog(_T("对象代理拼包缓冲溢出(%u/%u)，连接断开！"), m_AssembleBuffer.GetUsedSize(), m_AssembleBuffer.GetBufferSize());
 		Disconnect();		
 	}
 	else
@@ -169,7 +217,7 @@ void CDOSObjectProxyConnectionDefault::OnRecvData(const BYTE * pData, UINT DataS
 				if (PacketSize < CDOSSimpleMessage::GetMsgHeaderLength())
 				{
 					Disconnect();
-					PrintDOSLog( _T("对象代理(%d)收到非法包，连接断开！"), GetID());
+					PrintDOSLog( _T("对象代理收到非法包，连接断开！"));
 				}
 				CDOSSimpleMessage * pMsg = (CDOSSimpleMessage *)m_AssembleBuffer.GetBuffer();
 				if (pMsg->GetMsgFlag() & DOS_MESSAGE_FLAG_SYSTEM_MESSAGE)
@@ -203,6 +251,8 @@ void CDOSObjectProxyConnectionDefault::OnConnection(bool IsSucceed)
 		PrintDOSDebugLog(_T("收到代理对象的连接！IP=%s"), GetRemoteAddress().GetIPString());		
 		m_Status = STATUS_CONNECTED;
 		m_pService->AcceptConnection(this);
+
+		SendProtocolOption();
 	}
 	else
 	{
@@ -213,7 +263,8 @@ void CDOSObjectProxyConnectionDefault::OnConnection(bool IsSucceed)
 }
 void CDOSObjectProxyConnectionDefault::OnDisconnection()
 {
-	PrintDOSDebugLog( _T("对象代理(%d)的连接断开！IP=%s"), GetID(), GetRemoteAddress().GetIPString());
+	PrintDOSDebugLog(_T("对象代理的连接断开！IP=%s,MsgRecv=%u,MsgSend=%u"),
+		GetRemoteAddress().GetIPString(), m_TotalMsgRecvCount, m_TotalMsgSendCount);
 	SendDisconnectNotify();
 
 	CDOSMessagePacket * pPacket;
@@ -225,7 +276,10 @@ void CDOSObjectProxyConnectionDefault::OnDisconnection()
 		}
 	}
 	m_MessageMap.Clear();
+	m_AssembleBuffer.SetUsedSize(0);
 	m_UnacceptConnectionKeepTimer.SaveTime();
+	m_TotalMsgSendCount = 0;
+	m_TotalMsgRecvCount = 0;
 	m_Status = STATUS_DISCONNECTED;
 }
 
@@ -246,7 +300,7 @@ int CDOSObjectProxyConnectionDefault::Update(int ProcessPacketLimit)
 		}			
 		else
 		{
-			if (!OnMessage(pPacket))
+			if (!OnMessage(pPacket->GetMessage().GetMsgID(), pPacket->GetMessage().GetMsgFlag(), pPacket->GetMessage().GetMsgData(), pPacket->GetMessage().GetDataLength()))
 			{
 				PrintDOSLog(_T("处理消息失败！"));
 				Disconnect();
@@ -274,7 +328,7 @@ int CDOSObjectProxyConnectionDefault::Update(int ProcessPacketLimit)
 		}
 		if (m_KeepAliveCount >= m_MaxKeepAliveCount)
 		{
-			PrintDOSLog( _T("KeepAlive超时！"));
+			PrintDOSLog(_T("KeepAlive超时！BuffLeft=%u"), m_AssembleBuffer.GetUsedSize());
 			m_KeepAliveCount = 0;
 			Disconnect();
 		}
@@ -352,42 +406,58 @@ void CDOSObjectProxyConnectionDefault::OnClientMsg(CDOSSimpleMessage * pMessage)
 {
 	if (!m_NeedDelayClose)
 	{
+		m_TotalMsgRecvCount++;
 		int PacketSize = CDOSMessagePacket::CaculatePacketLength(pMessage->GetDataLength(), 1);
+
+		WORD MsgFlag = pMessage->GetMsgFlag();
+		MSG_LEN_TYPE DataLen = pMessage->GetDataLength();
+		LPCVOID pData = pMessage->GetMsgData();
+		if (DataLen < m_Config.MinMsgSize)
+		{
+			PrintDOSLog(_T("消息大小%u小于最小大小%u"), DataLen, m_Config.MinMsgSize);
+			Disconnect();
+			return;
+		}
+		else if (MsgFlag & DOS_MESSAGE_FLAG_ENCRYPT)
+		{
+			if (m_Config.DumpMsg)
+			{
+				PrintDOSLog(_T("Msg:0x%X,CRC=0x%X,MsgCount=%d"), pMessage->GetMsgID(), pMessage->GetCRC(), m_TotalMsgRecvCount);
+				DumpBinData((const BYTE *)pData, DataLen, m_Config.MaxMsgDumpSize);
+			}
+
+			MsgFlag &= ~DOS_MESSAGE_FLAG_ENCRYPT;
+			pData = DecyptMsg((LPVOID)pData, DataLen, pMessage->GetCRC(), m_TotalMsgRecvCount);
+			if (pData == NULL)
+			{
+				Disconnect();
+				return;
+			}
+			if (m_Config.DumpMsg)
+				DumpBinData((const BYTE *)pData, DataLen, m_Config.MaxMsgDumpSize);
+
+		}
+		else
+		{
+			if (m_Config.MsgEnCryptMode == MSG_ENCRYPT_MODE_FORCE)
+			{
+				PrintDOSLog(_T("消息未加密"));
+				Disconnect();
+				return;
+			}
+		}
 
 		OBJECT_ID * pObjectID = m_MessageMap.Find(pMessage->GetMsgID());
 		if (pObjectID)
 		{
-			WORD MsgFlag = pMessage->GetMsgFlag();
-			MSG_LEN_TYPE DataLen = pMessage->GetDataLength();
-			LPVOID pData = pMessage->GetDataBuffer();
-			if (MsgFlag & DOS_MESSAGE_FLAG_ENCRYPT)
-			{
-				MsgFlag &= ~DOS_MESSAGE_FLAG_ENCRYPT;
-				if (!DecyptMsg(pData, DataLen))
-				{
-					Disconnect();
-					return;
-				}
-			}
+			
 			GetServer()->GetRouter()->RouterMessage(m_ObjectID, *pObjectID,
 				pMessage->GetMsgID(), MsgFlag, pData, DataLen);
 		}
 		else
 		{
 			if (m_pService->HaveGlobalMsgMap(pMessage->GetMsgID()))
-			{
-				WORD MsgFlag = pMessage->GetMsgFlag();
-				MSG_LEN_TYPE DataLen = pMessage->GetDataLength();
-				LPVOID pData = pMessage->GetDataBuffer();
-				if (MsgFlag & DOS_MESSAGE_FLAG_ENCRYPT)
-				{
-					MsgFlag &= ~DOS_MESSAGE_FLAG_ENCRYPT;
-					if (!DecyptMsg(pData, DataLen))
-					{
-						Disconnect();
-						return;
-					}
-				}
+			{				
 				m_pService->SendGlobalMapMessage(m_ObjectID, pMessage->GetMsgID(), MsgFlag, pData, DataLen);
 			}
 			else
@@ -409,7 +479,7 @@ void CDOSObjectProxyConnectionDefault::OnClientSystemMsg(CDOSSimpleMessage * pMe
 			Send(pMessage, pMessage->GetMsgLength());
 			if (pMessage->GetDataLength() >= sizeof(PING_DATA))
 			{
-				PING_DATA * pPingData = (PING_DATA *)pMessage->GetDataBuffer();
+				const PING_DATA * pPingData = (const PING_DATA *)pMessage->GetMsgData();
 				m_RecentPingDelay = pPingData->RecentDelay;
 			}
 		}
@@ -419,60 +489,51 @@ void CDOSObjectProxyConnectionDefault::OnClientSystemMsg(CDOSSimpleMessage * pMe
 		{
 			if (pMessage->GetDataLength() >= sizeof(PING_DATA))
 			{
-				PING_DATA * pPingData = (PING_DATA *)pMessage->GetDataBuffer();
+				const PING_DATA * pPingData = (const PING_DATA *)pMessage->GetMsgData();
 				m_RecentPingDelay = GetTimeToTime(pPingData->Time, CEasyTimer::GetTime());
 			}
 		}		
 		break;
 	default:
-		PrintDOSDebugLog( _T("对象代理连接(%d)收到未知系统消息0x%X"), GetID(), pMessage->GetMsgID());
+		PrintDOSDebugLog( _T("对象代理连接收到未知系统消息0x%X"), pMessage->GetMsgID());
 	}
 }
 
-inline bool CDOSObjectProxyConnectionDefault::OnMessage(const CDOSMessagePacket * pPacket)
+inline bool CDOSObjectProxyConnectionDefault::OnMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, const void * pData, MSG_LEN_TYPE DataLen)
 {
-	bool NeedSaveHead = pPacket->GetRefCount() > 1;
+	m_TotalMsgSendCount++;
 
 	CDOSSimpleMessage::DOS_SIMPLE_MESSAGE_HEAD MsgHeader;
 
-	pPacket->GetMessage().MakeSimpleMessageHeader(MsgHeader);
-	LPCVOID pMsgData = pPacket->GetMessage().GetDataBuffer();
-	MSG_LEN_TYPE MsgDataLen = pPacket->GetMessage().GetDataLength();
-
-	if (MsgDataLen > m_Config.MaxSendMsgSize)
-	{
-		PrintDOSLog(_T("(%d)消息0x%X过大(%u)无法发送"), GetID(), pPacket->GetMessage().GetMsgID(), MsgDataLen);
-		return false;
-	}
+	MsgHeader.MsgID = MsgID;
+	MsgHeader.MsgFlag = MsgFlag;
 	
-	//压缩
-	LPCVOID pNewData = CompressMsg(pMsgData, MsgDataLen);
-	if (pNewData == NULL)
+	
+	if ((m_Config.MsgCompressType != MSG_COMPRESS_NONE) && ((MsgFlag&DOS_MESSAGE_FLAG_NO_COMPRESS) == 0))
 	{
-		PrintDOSLog(_T("(%d)消息0x%X压缩失败"), GetID(), pPacket->GetMessage().GetMsgID());
-		return false;
+		//压缩
+		LPCVOID pNewData = CompressMsg(pData, DataLen);
+		if (pNewData == NULL)
+		{
+			PrintDOSLog(_T("消息0x%X压缩失败"), MsgID);
+			return false;
+		}
+		if (pNewData != pData)
+		{
+			MsgHeader.MsgFlag |= DOS_MESSAGE_FLAG_COMPRESSED;
+			pData = pNewData;
+		}
 	}
-	if (pNewData != pMsgData)
-	{
-		MsgHeader.MsgFlag |= DOS_MESSAGE_FLAG_COMPRESSED;
-		MsgHeader.MsgLen = sizeof(MsgHeader) + MsgDataLen;
-		pMsgData = pNewData;
-	}
-	//加密
-	if (EncyptMsg(pMsgData, MsgDataLen, pNewData))
-	{
-		MsgHeader.MsgFlag |= DOS_MESSAGE_FLAG_ENCRYPT;
-		MsgHeader.MsgLen = sizeof(MsgHeader) + MsgDataLen;
-		pMsgData = pNewData;
-	}
+
+	MsgHeader.MsgLen = sizeof(MsgHeader) + DataLen;
 
 	LPCVOID DataBuffers[2];
 	UINT DataSizes[2];
 
 	DataBuffers[0] = &MsgHeader;
 	DataSizes[0] = sizeof(MsgHeader);
-	DataBuffers[1] = pMsgData;
-	DataSizes[1] = MsgDataLen;
+	DataBuffers[1] = pData;
+	DataSizes[1] = DataLen;
 
 	return SendMulti(DataBuffers, DataSizes, 2);
 }
@@ -485,7 +546,7 @@ bool CDOSObjectProxyConnectionDefault::OnSystemMessage(const CDOSMessagePacket *
 		if (pPacket->GetMessage().GetDataLength() >= sizeof(MSG_ID_TYPE))
 		{
 			int Count = (pPacket->GetMessage().GetDataLength()) / sizeof(MSG_ID_TYPE);
-			MSG_ID_TYPE * pMsgIDs = (MSG_ID_TYPE *)(pPacket->GetMessage().GetDataBuffer());
+			const MSG_ID_TYPE * pMsgIDs = (const MSG_ID_TYPE *)(pPacket->GetMessage().GetMsgData());
 			for (int i = 0; i < Count; i++)
 			{
 				DoRegisterMsgMap(pMsgIDs[i], pPacket->GetMessage().GetSenderID());
@@ -496,7 +557,7 @@ bool CDOSObjectProxyConnectionDefault::OnSystemMessage(const CDOSMessagePacket *
 		if (pPacket->GetMessage().GetDataLength() >= sizeof(MSG_ID_TYPE))
 		{
 			int Count = (pPacket->GetMessage().GetDataLength()) / sizeof(MSG_ID_TYPE);
-			MSG_ID_TYPE * pMsgIDs = (MSG_ID_TYPE *)(pPacket->GetMessage().GetDataBuffer());
+			const MSG_ID_TYPE * pMsgIDs = (const MSG_ID_TYPE *)(pPacket->GetMessage().GetMsgData());
 			for (int i = 0; i < Count; i++)
 			{
 				DoUnregisterMsgMap(pMsgIDs[i], pPacket->GetMessage().GetSenderID());
@@ -506,9 +567,9 @@ bool CDOSObjectProxyConnectionDefault::OnSystemMessage(const CDOSMessagePacket *
 	case DSM_PROXY_DISCONNECT:
 		if (pPacket->GetMessage().GetDataLength() >= sizeof(UINT))
 		{
-			UINT Delay = *((UINT *)(pPacket->GetMessage().GetDataBuffer()));
+			UINT Delay = *((const UINT *)(pPacket->GetMessage().GetMsgData()));
 			QueryDisconnect(Delay);
-			PrintDOSDebugLog( _T("0x%llX请求在%uMS后断开连接！"), pPacket->GetMessage().GetSenderID().ID, Delay);
+			PrintDOSDebugLog( _T("0x%llX请求在%uMS后断开连接%s！"), pPacket->GetMessage().GetSenderID().ID, Delay,GetRemoteAddress().GetIPString());
 		}
 		return true;
 	case DSM_PROXY_GET_IP:
@@ -523,6 +584,18 @@ bool CDOSObjectProxyConnectionDefault::OnSystemMessage(const CDOSMessagePacket *
 
 			GetServer()->GetRouter()->RouterMessage(m_ObjectID, pPacket->GetMessage().GetSenderID(),
 				DSM_PROXY_IP_REPORT, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, Buff, Len);
+		}
+		return true;
+	case DSM_PROXY_GROUP_BROADCAST:
+		if (pPacket->GetMessage().GetDataLength() >= sizeof(GROUP_BROADCAST_INFO))
+		{
+			const BYTE * pData = (const BYTE *)pPacket->GetMessage().GetMsgData();
+			MSG_LEN_TYPE DataLen = pPacket->GetMessage().GetDataLength();
+			GROUP_BROADCAST_INFO * pInfo = (GROUP_BROADCAST_INFO *)pData;
+			pData += sizeof(GROUP_BROADCAST_INFO);
+			DataLen -= sizeof(GROUP_BROADCAST_INFO);
+
+			OnMessage(pInfo->MsgID, pInfo->MsgFlag, pData, DataLen);
 		}
 		return true;
 	case DSM_ROUTE_LINK_LOST:
@@ -559,22 +632,14 @@ bool CDOSObjectProxyConnectionDefault::SendDisconnectNotify()
 		pNewPacket->GetMessage().SetMsgID(DSM_PROXY_DISCONNECT);
 		pNewPacket->GetMessage().SetMsgFlag(DOS_MESSAGE_FLAG_SYSTEM_MESSAGE);
 		pNewPacket->GetMessage().SetSenderID(m_ObjectID);
-		OBJECT_ID * pTargetObjectIDs = pNewPacket->GetTargetIDs();
-
+		pNewPacket->SetTargetIDCount(0);
 		void * Pos = m_MessageMap.GetFirstObjectPos();
 		while (Pos)
 		{
 			MSG_ID_TYPE MsgID;
 			OBJECT_ID * pTargetObjectID = m_MessageMap.GetNextObject(Pos, MsgID);
 			pNewPacket->AddTargetID(*pTargetObjectID);
-		}
-
-		UINT RealTargetIDCount = DistinctObjectID(pTargetObjectIDs, MsgMapCount);
-		for (UINT i = 0; i < RealTargetIDCount; i++)
-		{
-			PrintDOSDebugLog(_T("向[0x%llX]发送代理对象断线通知"), pTargetObjectIDs[i]);
-		}
-		pNewPacket->SetTargetIDs(RealTargetIDCount, NULL);
+		}		
 		pNewPacket->MakePacketLength();
 
 		bool Ret = GetServer()->GetRouter()->RouterMessage(pNewPacket) != FALSE;
@@ -589,19 +654,36 @@ bool CDOSObjectProxyConnectionDefault::SendDisconnectNotify()
 
 void CDOSObjectProxyConnectionDefault::SendKeepAliveMsg()
 {
-	char * Buffer[sizeof(CDOSSimpleMessage::DOS_SIMPLE_MESSAGE_HEAD) + sizeof(PING_DATA)];
+	BYTE Buffer[sizeof(CDOSSimpleMessage::DOS_SIMPLE_MESSAGE_HEAD) + sizeof(PING_DATA)];
 	CDOSSimpleMessage * pKeepAliveMsg = (CDOSSimpleMessage *)Buffer;
 	pKeepAliveMsg->Init();
 	pKeepAliveMsg->SetMsgID(DSM_PROXY_KEEP_ALIVE_PING);
 	pKeepAliveMsg->SetMsgFlag(DOS_MESSAGE_FLAG_SYSTEM_MESSAGE);
 	pKeepAliveMsg->SetDataLength(sizeof(PING_DATA));
-	PING_DATA * pPingData = (PING_DATA *)pKeepAliveMsg->GetDataBuffer();
+	PING_DATA * pPingData = (PING_DATA *)pKeepAliveMsg->GetMsgData();
 	pPingData->Time = CEasyTimer::GetTime();
 	pPingData->RecentDelay = m_RecentPingDelay;
 	
 	Send(pKeepAliveMsg, pKeepAliveMsg->GetMsgLength());
 }
 
+void CDOSObjectProxyConnectionDefault::SendProtocolOption()
+{
+	BYTE Buffer[sizeof(CDOSSimpleMessage::DOS_SIMPLE_MESSAGE_HEAD) + sizeof(PROTOCOL_OPTION)];
+	CDOSSimpleMessage * pMsg = (CDOSSimpleMessage *)Buffer;
+	pMsg->Init();
+	pMsg->SetMsgID(DSM_PROTOCOL_OPTION);
+	pMsg->SetMsgFlag(DOS_MESSAGE_FLAG_SYSTEM_MESSAGE);
+	pMsg->SetDataLength(sizeof(PROTOCOL_OPTION));
+	PROTOCOL_OPTION * pData = (PROTOCOL_OPTION *)pMsg->GetMsgData();
+	pData->Flag = 0;
+	if (m_Config.MsgEnCryptType != MSG_ENCRYPT_NONE)
+		pData->Flag |= PROTOCOL_OPTION_FLAG_UP_MSG_USE_ENCRYPT;
+
+	Send(pMsg, pMsg->GetMsgLength());
+
+	PrintDOSDebugLog(_T("已发送协议配置0x%X"), pData->Flag);
+}
 
 bool CDOSObjectProxyConnectionDefault::DoRegisterMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID)
 {
@@ -637,7 +719,7 @@ bool CDOSObjectProxyConnectionDefault::DoUnregisterMsgMap(MSG_ID_TYPE MsgID, OBJ
 	}
 	else
 	{
-		PrintDOSDebugLog( _T("0x%llX注销代理[0x%X]消息映射[0x%X],未找到映射记录！"), ObjectID.ID, GetID(), MsgID);
+		//PrintDOSDebugLog( _T("0x%llX注销代理[0x%llX]消息映射[0x%X],未找到映射记录！"), ObjectID.ID, GetID(), MsgID);
 		return false;
 	}
 }
@@ -659,7 +741,7 @@ void CDOSObjectProxyConnectionDefault::ClearMsgMapByRouterID(UINT RouterID)
 	}
 	if (m_MessageMap.GetObjectCount() <= 0)
 	{
-		PrintDOSDebugLog( _T("代理[0x%X]已经没有任何消息映射，连接断开！"), GetID());
+		PrintDOSDebugLog( _T("代理已经没有任何消息映射，连接断开！"));
 		Disconnect();
 	}
 }
@@ -668,8 +750,7 @@ void CDOSObjectProxyConnectionDefault::ClearMsgMapByRouterID(UINT RouterID)
 
 const void * CDOSObjectProxyConnectionDefault::CompressMsg(const void * pData, MSG_LEN_TYPE& DataLen)
 {
-	if (m_Config.MsgCompressType != MSG_COMPRESS_NONE&&
-		m_Config.MinMsgCompressSize&&
+	if (m_Config.MinMsgCompressSize&&
 		m_pCompressBuffer&&m_pLZOCompressWorkBuffer&&
 		DataLen >= m_Config.MinMsgCompressSize)
 	{
@@ -678,21 +759,25 @@ const void * CDOSObjectProxyConnectionDefault::CompressMsg(const void * pData, M
 		{
 		case MSG_COMPRESS_LZO:
 			{
-				if (m_pCompressBuffer->GetBufferSize() < DataLen)
+				if (m_pCompressBuffer->GetBufferSize() < DataLen + sizeof(UINT))
 				{
 					PrintDOSLog(_T("数据过大(%u)，超过压缩缓冲大小(%u)！"),
 						DataLen, m_pCompressBuffer->GetBufferSize());
 					return NULL;
 				}
 
-				lzo_uint OutLen = m_pCompressBuffer->GetBufferSize();
+				
+				BYTE * pOutBuffer = (BYTE *)m_pCompressBuffer->GetBuffer();
+				*((UINT *)pOutBuffer) = DataLen;
+				pOutBuffer += sizeof(UINT);
+				lzo_uint OutLen = m_pCompressBuffer->GetBufferSize() - sizeof(UINT);
 				int Result = lzo1x_1_compress((const BYTE *)pData, DataLen,
-					(BYTE *)m_pCompressBuffer->GetBuffer(), &OutLen,
+					pOutBuffer, &OutLen,
 					m_pLZOCompressWorkBuffer);
 
 				if(Result==LZO_E_OK)
 				{
-					DataLen = (MSG_LEN_TYPE)OutLen;
+					DataLen = (MSG_LEN_TYPE)OutLen + sizeof(UINT);
 					pData = m_pCompressBuffer->GetBuffer();
 				}
 				else
@@ -757,29 +842,33 @@ const void * CDOSObjectProxyConnectionDefault::CompressMsg(const void * pData, M
 	return pData;
 }
 
-bool CDOSObjectProxyConnectionDefault::EncyptMsg(const void * pData, MSG_LEN_TYPE& DataLen, LPCVOID& pOut)
+const void * CDOSObjectProxyConnectionDefault::EncyptMsg(const void * pData, MSG_LEN_TYPE& DataLen, WORD& CRC, UINT MsgSequence)
 {
-	if (m_Config.MsgEnCryptType != MSG_ENCRYPT_NONE && m_Config.SecretKey.GetLength() && m_pCompressBuffer)
+	CRC = 0;
+	if (m_Config.MsgEnCryptType != MSG_ENCRYPT_NONE && m_Config.SecretKey.GetLength() && m_pEncyptBuffer)
 	{
+		CRC = MakeCRC(pData, DataLen, m_Config.SecretKey.GetBuffer(), (UINT)m_Config.SecretKey.GetLength(), MsgSequence);
+
+		if (m_pEncyptBuffer->GetBufferSize() < DataLen)
+		{
+			PrintDOSLog(_T("数据过大(%u)，超过加密缓冲大小(%u)！"),
+				DataLen, m_pEncyptBuffer->GetBufferSize());
+			return NULL;
+		}
 
 		switch (m_Config.MsgEnCryptType)
 		{
+		case MSG_ENCRYPT_CHECK_SUM:
+			return pData;
+			break;
 		case MSG_ENCRYPT_DES:
 			{
-				if (m_pCompressBuffer->GetBufferSize() < DataLen)
-				{
-					PrintDOSLog(_T("数据过大(%u)，超过压缩缓冲大小(%u)！"),
-						DataLen, m_pCompressBuffer->GetBufferSize());
-					return false;
-				}
-				
-				size_t OutLen = m_pCompressBuffer->GetBufferSize();
+				size_t OutLen = m_pEncyptBuffer->GetBufferSize();
 				if (CCryptTools::DESEncryptECB((const BYTE *)m_Config.SecretKey.GetBuffer(), m_Config.SecretKey.GetLength(),
-					(const BYTE *)pData, DataLen, (BYTE *)m_pCompressBuffer->GetBuffer(), OutLen))
+					(const BYTE *)pData, DataLen, (BYTE *)m_pEncyptBuffer->GetBuffer(), OutLen))
 				{
 					DataLen = (MSG_LEN_TYPE)OutLen;
-					pOut = m_pCompressBuffer->GetBuffer();
-					return true;
+					return m_pEncyptBuffer->GetBuffer();
 				}
 				else
 				{
@@ -788,20 +877,13 @@ bool CDOSObjectProxyConnectionDefault::EncyptMsg(const void * pData, MSG_LEN_TYP
 			}			
 			break;
 		case MSG_ENCRYPT_AES:
-			{
-				if (m_pCompressBuffer->GetBufferSize() < DataLen)
-				{
-					PrintDOSLog(_T("数据过大(%u)，超过压缩缓冲大小(%u)！"),
-						DataLen, m_pCompressBuffer->GetBufferSize());
-					return false;
-				}
-				size_t OutLen = m_pCompressBuffer->GetBufferSize();
+			{				
+				size_t OutLen = m_pEncyptBuffer->GetBufferSize();
 				if (CCryptTools::AESEncryptECB((const BYTE *)m_Config.SecretKey.GetBuffer(), m_Config.SecretKey.GetLength(),
-					(const BYTE *)pData, DataLen, (BYTE *)m_pCompressBuffer->GetBuffer(), OutLen))
+					(const BYTE *)pData, DataLen, (BYTE *)m_pEncyptBuffer->GetBuffer(), OutLen))
 				{
 					DataLen = (MSG_LEN_TYPE)OutLen;
-					pOut = m_pCompressBuffer->GetBuffer();
-					return true;
+					return m_pEncyptBuffer->GetBuffer();
 				}
 				else
 				{
@@ -810,20 +892,13 @@ bool CDOSObjectProxyConnectionDefault::EncyptMsg(const void * pData, MSG_LEN_TYP
 			}
 			break;
 		case MSG_ENCRYPT_TEA:
-			{
-				if (m_pCompressBuffer->GetBufferSize() < DataLen)
-				{
-					PrintDOSLog(_T("数据过大(%u)，超过压缩缓冲大小(%u)！"),
-						DataLen, m_pCompressBuffer->GetBufferSize());
-					return false;
-				}
-				size_t OutLen = m_pCompressBuffer->GetBufferSize();
+			{				
+				size_t OutLen = m_pEncyptBuffer->GetBufferSize();
 				if (CCryptTools::TEAEncryptECB((const BYTE *)m_Config.SecretKey.GetBuffer(), m_Config.SecretKey.GetLength(), DEFAULT_TEA_CYCLE,
-					(const BYTE *)pData, DataLen, (BYTE *)m_pCompressBuffer->GetBuffer(), OutLen))
+					(const BYTE *)pData, DataLen, (BYTE *)m_pEncyptBuffer->GetBuffer(), OutLen))
 				{
 					DataLen = (MSG_LEN_TYPE)OutLen;
-					pOut = m_pCompressBuffer->GetBuffer();
-					return true;
+					return m_pEncyptBuffer->GetBuffer();
 				}
 				else
 				{
@@ -831,25 +906,56 @@ bool CDOSObjectProxyConnectionDefault::EncyptMsg(const void * pData, MSG_LEN_TYP
 				}
 			}
 			break;
+		default:
+			PrintDOSLog(_T("未知加密方式"));
 		}
 	}
 
-	return false;
+	return NULL;
 }
 
-MSG_LEN_TYPE CDOSObjectProxyConnectionDefault::DecyptMsg(void * pData, MSG_LEN_TYPE DataLen)
+void * CDOSObjectProxyConnectionDefault::DecyptMsg(void * pData, MSG_LEN_TYPE& DataLen, WORD CRC, UINT MsgSequence)
 {
-	if (m_Config.MsgEnCryptType != MSG_ENCRYPT_NONE && m_Config.SecretKey.GetLength())
+	if (m_Config.MsgEnCryptType != MSG_ENCRYPT_NONE && m_Config.SecretKey.GetLength() && m_pEncyptBuffer)
 	{
+		if (m_pEncyptBuffer->GetBufferSize() < DataLen)
+		{
+			PrintDOSLog(_T("数据过大(%u)，超过加密缓冲大小(%u)！"),
+				DataLen, m_pEncyptBuffer->GetBufferSize());
+			return NULL;
+		}
+
 		switch (m_Config.MsgEnCryptType)
 		{
+		case MSG_ENCRYPT_CHECK_SUM:
+			{
+				WORD TargetCRC = MakeCRC(pData, (UINT)DataLen, m_Config.SecretKey.GetBuffer(), (UINT)m_Config.SecretKey.GetLength(), MsgSequence);
+				if (TargetCRC == CRC)
+				{
+					return pData;
+				}
+				else
+				{
+					PrintDOSLog(_T("CHECK_SUM:CRC校验失败"));
+				}
+			}
+			break;
 		case MSG_ENCRYPT_DES:
-			{			
+			{
 				size_t OutLen = DataLen;
 				if (CCryptTools::DESDecryptECB((const BYTE *)m_Config.SecretKey.GetBuffer(), m_Config.SecretKey.GetLength(),
-					(BYTE *)pData, DataLen, (BYTE *)pData, OutLen))
-				{
-					return (MSG_LEN_TYPE)OutLen;
+					(BYTE *)pData, DataLen, (BYTE *)m_pEncyptBuffer->GetBuffer(), OutLen))
+				{					
+					WORD TargetCRC = MakeCRC(m_pEncyptBuffer->GetBuffer(), (UINT)OutLen, m_Config.SecretKey.GetBuffer(), (UINT)m_Config.SecretKey.GetLength(), MsgSequence);
+					if (TargetCRC == CRC)
+					{
+						DataLen = (UINT)OutLen;
+						return m_pEncyptBuffer->GetBuffer();
+					}
+					else
+					{
+						PrintDOSLog(_T("DES:CRC校验失败"));
+					}
 				}
 				else
 				{
@@ -861,9 +967,18 @@ MSG_LEN_TYPE CDOSObjectProxyConnectionDefault::DecyptMsg(void * pData, MSG_LEN_T
 			{
 				size_t OutLen = DataLen;
 				if (CCryptTools::AESDecryptECB((const BYTE *)m_Config.SecretKey.GetBuffer(), m_Config.SecretKey.GetLength(),
-					(BYTE *)pData, DataLen, (BYTE *)pData, OutLen))
-				{
-					return (MSG_LEN_TYPE)OutLen;
+					(BYTE *)pData, DataLen, (BYTE *)m_pEncyptBuffer->GetBuffer(), OutLen))
+				{					
+					WORD TargetCRC = MakeCRC(m_pEncyptBuffer->GetBuffer(), (UINT)OutLen, m_Config.SecretKey.GetBuffer(), (UINT)m_Config.SecretKey.GetLength(), MsgSequence);
+					if (TargetCRC == CRC)
+					{
+						DataLen = (UINT)OutLen;
+						return m_pEncyptBuffer->GetBuffer();
+					}
+					else
+					{
+						PrintDOSLog(_T("AES:CRC校验失败"));
+					}
 				}
 				else
 				{
@@ -875,9 +990,20 @@ MSG_LEN_TYPE CDOSObjectProxyConnectionDefault::DecyptMsg(void * pData, MSG_LEN_T
 			{
 				size_t OutLen = DataLen;
 				if (CCryptTools::TEADecryptECB((const BYTE *)m_Config.SecretKey.GetBuffer(), m_Config.SecretKey.GetLength(), DEFAULT_TEA_CYCLE,
-					(BYTE *)pData, DataLen, (BYTE *)pData, OutLen))
+					(BYTE *)pData, DataLen, (BYTE *)m_pEncyptBuffer->GetBuffer(), OutLen))
 				{
-					return (MSG_LEN_TYPE)OutLen;
+					WORD TargetCRC = MakeCRC(m_pEncyptBuffer->GetBuffer(), (UINT)OutLen, m_Config.SecretKey.GetBuffer(), (UINT)m_Config.SecretKey.GetLength(), MsgSequence);
+					if (TargetCRC == CRC)
+					{
+						DataLen = (UINT)OutLen;
+						return m_pEncyptBuffer->GetBuffer();
+					}
+					else
+					{
+						PrintDOSLog(_T("TEA:CRC校验失败"));
+						if (m_Config.DumpMsg)
+							DumpBinData((const BYTE *)m_pEncyptBuffer->GetBuffer(), OutLen, m_Config.MaxMsgDumpSize);
+					}
 				}
 				else
 				{
@@ -885,8 +1011,22 @@ MSG_LEN_TYPE CDOSObjectProxyConnectionDefault::DecyptMsg(void * pData, MSG_LEN_T
 				}
 			}
 			break;
+		default:
+			PrintDOSLog(_T("未知加密方式"));
 		}
 	}
 
-	return 0;
+	return NULL;
+}
+
+WORD CDOSObjectProxyConnectionDefault::MakeCRC(const void * pData, UINT DataLen, const void * pKey, UINT KeyLen, UINT MsgSequence)
+{
+	CCRCMaker CRCMaker;
+	CRCMaker.CRC16_Fast_Init();
+	if (pData)
+		CRCMaker.CRC16_Fast_Append((const BYTE *)pData, DataLen);
+	if(pKey)
+		CRCMaker.CRC16_Fast_Append((const BYTE *)pKey, KeyLen);
+	CRCMaker.CRC16_Fast_Append((const BYTE *)&MsgSequence, sizeof(UINT));
+	return CRCMaker.CRC16_Fast_Final();
 }

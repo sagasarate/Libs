@@ -12,7 +12,7 @@
 #include "stdafx.h"
 
 
-static char s_LZOCompressWorkMemory[LZO1X_1_MEM_COMPRESS];
+
 
 LPCTSTR g_szLinkStatus[ENL_LINK_MAX]={_T("None"),_T("Accepting"),_T("Accepted")};
 
@@ -22,13 +22,11 @@ CEasyNetLink::CEasyNetLink(void)
 {
 	m_pManager=NULL;
 	m_pConnection = NULL;
-	m_MaxPacketSize = 0;
-	m_DataCompressType = CEasyNetLinkManager::DATA_COMPRESS_TYPE_NONE;
-	m_MinCompressSize = CEasyNetLinkManager::DEFAULT_MIN_COMPRESS_SIZE;
+	
 	m_Status=ENL_LINK_NONE;
 	m_ReportID=0;
 	m_NeedReallocConnectionID = false;
-	m_CompressBuffer.SetTag(_T("CEasyNetLink"));
+	
 }
 
 CEasyNetLink::~CEasyNetLink(void)
@@ -37,8 +35,8 @@ CEasyNetLink::~CEasyNetLink(void)
 	{
 		PrintNetLog( _T("[%s]连接[%s:%u]释放"),
 			CClassifiedID(GetReportID()).ToStr(),
-			m_pConnection->GetRemoteAddress().GetIPString(),
-			m_pConnection->GetRemoteAddress().GetPort());
+			m_pConnection->GetBaseConnection()->GetRemoteAddress().GetIPString(),
+			m_pConnection->GetBaseConnection()->GetRemoteAddress().GetPort());
 	}
 	SAFE_RELEASE(m_pConnection);
 }
@@ -49,53 +47,27 @@ bool CEasyNetLink::Init(CEasyNetLinkManager * pManager, const CIPAddress& Connec
 	SAFE_RELEASE(m_pConnection);
 	m_pManager = pManager;
 	m_ReportID = ReportID;
-	m_MaxPacketSize = MaxPacketSize;
-	if (DataCompressType < CEasyNetLinkManager::DATA_COMPRESS_TYPE_MAX)
-	{
-		m_DataCompressType = DataCompressType;
-		m_MinCompressSize = MinCompressSize;
-		if (m_DataCompressType != CEasyNetLinkManager::DATA_COMPRESS_TYPE_NONE&&m_CompressBuffer.GetBufferSize() < m_MaxPacketSize)
-		{
-			m_CompressBuffer.Create(m_MaxPacketSize);
-		}
-	}
 	
-	m_pConnection = MONITORED_NEW(_T("CEasyNetLink"), CENLConnection);
-	if (m_pConnection->Init(m_pManager, this, ConnectionAddress, RecvQueueSize, SendQueueSize, MaxPacketSize))
-	{
+	m_pConnection = NewConnection(ConnectionAddress, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize);
+	if (m_pConnection)
 		return true;
-	}
 	else
-	{
-		return false;
-	}
+		return false;	
 }
 
-bool CEasyNetLink::Init(CEasyNetLinkManager * pManager, UINT ReportID, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool NeedReallocConnectionID)
+bool CEasyNetLink::Init(CEasyNetLinkManager * pManager, UINT ReportID, UINT MaxPacketSize, 
+	CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool NeedReallocConnectionID)
 {
 	SAFE_RELEASE(m_pConnection);
 	m_pManager = pManager;
-	m_ReportID = ReportID;
-	m_MaxPacketSize = MaxPacketSize;
-	if (DataCompressType < CEasyNetLinkManager::DATA_COMPRESS_TYPE_MAX)
-	{
-		m_DataCompressType = DataCompressType;
-		m_MinCompressSize = MinCompressSize;
-		if (m_DataCompressType != CEasyNetLinkManager::DATA_COMPRESS_TYPE_NONE&&m_CompressBuffer.GetBufferSize()<m_MaxPacketSize)
-		{
-			m_CompressBuffer.Create(m_MaxPacketSize);
-		}
-	}
+	m_ReportID = ReportID;	
 	m_NeedReallocConnectionID = NeedReallocConnectionID;
-	m_pConnection = MONITORED_NEW(_T("CEasyNetLink"), CENLConnection);
-	if (m_pConnection->Init(m_pManager, this, MaxPacketSize))
-	{
+	
+	m_pConnection = NewConnection(MaxPacketSize, DataCompressType, MinCompressSize);
+	if (m_pConnection)
 		return true;
-	}
 	else
-	{
 		return false;
-	}
 }
 
 bool CEasyNetLink::Init(CEasyNetLink * pLink)
@@ -104,13 +76,6 @@ bool CEasyNetLink::Init(CEasyNetLink * pLink)
 	m_pManager = pLink->m_pManager;
 	m_ReportID = pLink->m_ReportID;	
 	m_NeedReallocConnectionID = pLink->m_NeedReallocConnectionID;
-	m_MaxPacketSize = pLink->m_MaxPacketSize;
-	m_DataCompressType = pLink->m_DataCompressType;
-	m_MinCompressSize = pLink->m_MinCompressSize;	
-	if (m_DataCompressType != CEasyNetLinkManager::DATA_COMPRESS_TYPE_NONE&&m_CompressBuffer.GetBufferSize() < m_MaxPacketSize)
-	{
-		m_CompressBuffer.Create(m_MaxPacketSize);
-	}
 	m_pConnection = pLink->m_pConnection;
 	m_pConnection->AddUseRef();
 	m_pConnection->SetParent(this);
@@ -118,28 +83,7 @@ bool CEasyNetLink::Init(CEasyNetLink * pLink)
 	
 }
 
-void CEasyNetLink::OnData(const BYTE * pData, UINT DataSize, bool IsCompressed)
-{
-	if (IsCompressed)
-	{
-		lzo_uint OutLen = m_CompressBuffer.GetBufferSize();
-		int Result = lzo1x_decompress_safe(pData, DataSize, (BYTE *)m_CompressBuffer.GetBuffer(), &OutLen, s_LZOCompressWorkMemory);
-		if (Result == LZO_E_OK)
-		{
-			OnData((BYTE *)m_CompressBuffer.GetBuffer(), (UINT)OutLen);
-		}
-		else
-		{
-			PrintNetLog( _T("lzo解压数据失败(%d)"),
-				Result);
-			Disconnect();
-		}
-	}
-	else
-	{
-		OnData(pData, DataSize);
-	}
-}
+
 
 void CEasyNetLink::OnLinkStart()
 {
@@ -149,45 +93,17 @@ void CEasyNetLink::OnLinkEnd()
 {
 }
 
-void CEasyNetLink::SendData(LPCVOID pData, UINT DataSize)
+bool CEasyNetLink::SendData(LPCVOID pData, UINT DataSize)
 {
-	if (pData&&DataSize>0)
+	if (m_pConnection)
 	{
-		if (m_pConnection)
-		{
-			if (m_DataCompressType == CEasyNetLinkManager::DATA_COMPRESS_TYPE_LZO && DataSize >= m_MinCompressSize)
-			{
-				lzo_uint OutLen = m_CompressBuffer.GetBufferSize();
-				int Result = lzo1x_1_compress((BYTE *)pData, DataSize,
-					(BYTE *)m_CompressBuffer.GetBuffer(), &OutLen,
-					s_LZOCompressWorkMemory);
-
-				if (Result == LZO_E_OK)
-				{
-					m_pConnection->SendLinkMsg(EASY_NET_LINK_MSG_COMPRESSED_USER_DATA, m_CompressBuffer.GetBuffer(), (UINT)OutLen);
-				}
-				else
-				{
-					PrintNetLog( _T("lzo压缩数据失败(%d)，将直接发送"),
-						Result);
-					m_pConnection->SendLinkMsg(EASY_NET_LINK_MSG_USER_DATA, pData, DataSize);
-				}
-			}
-			else
-			{
-				m_pConnection->SendLinkMsg(EASY_NET_LINK_MSG_USER_DATA, pData, DataSize);
-			}			
-		}
-		else
-		{
-			PrintNetLog( _T("CEasyNetLinkConnection::SendData 连接未初始化"));
-		}
-			
+		return m_pConnection->SendData(pData, DataSize);
 	}
 	else
 	{
-		PrintNetLog(_T("CEasyNetLinkConnection::SendData 发送的数据大小不合法"));
+		PrintNetLog(_T("CEasyNetLinkConnection::SendData 连接未初始化"));
 	}
+	return false;
 }
 
 int CEasyNetLink::Update(int ProcessPacketLimit)
@@ -211,9 +127,30 @@ void CEasyNetLink::PrintInfo(UINT LogChannel)
 		CLogManager::GetInstance()->PrintLog(LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, 0,
 			_T("LinkID=[%s] RemoteAddress=%s:%u %s %s"),
 			CClassifiedID(GetID()).ToStr(),
-			m_pConnection->GetRemoteAddress().GetIPString(),
-			m_pConnection->GetRemoteAddress().GetPort(),
+			m_pConnection->GetBaseConnection()->GetRemoteAddress().GetIPString(),
+			m_pConnection->GetBaseConnection()->GetRemoteAddress().GetPort(),
 			m_pConnection->IsConnected() ? _T("Connected") : _T("Disconnected"),
 			g_szLinkStatus[m_Status]);
 	}
+}
+
+CENLBaseConnection * CEasyNetLink::NewConnection(UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
+{
+	CENLConnection * pConnection = MONITORED_NEW(_T("CEasyNetLink"), CENLConnection);
+	if (pConnection->Init(m_pManager, this, MaxPacketSize, DataCompressType, MinCompressSize))
+	{
+		return pConnection;
+	}
+	return NULL;
+}
+
+CENLBaseConnection * CEasyNetLink::NewConnection(const CIPAddress& ConnectionAddress, UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize,
+	CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
+{
+	CENLConnection * pConnection = MONITORED_NEW(_T("CEasyNetLink"), CENLConnection);
+	if (pConnection->Init(m_pManager, this, ConnectionAddress, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize))
+	{
+		return pConnection;
+	}
+	return NULL;
 }

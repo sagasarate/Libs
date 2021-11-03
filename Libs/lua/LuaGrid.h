@@ -13,16 +13,12 @@ public:
 	static const int CLASS_ID = 10001;
 	CLuaGrid()
 	{
-		m_ClassID = CLASS_ID;
-		m_ClassName = "CLuaGrid";
 		m_pData = NULL;
 		m_DataLen = 0;
 		m_IsSelfData = false;
 	}
 	CLuaGrid(void * pData,UINT DataLen)
 	{
-		m_ClassID = CLASS_ID;
-		m_ClassName = "CLuaGrid";
 		m_pData = NULL;
 		m_DataLen = 0;
 		m_IsSelfData = false;
@@ -30,8 +26,6 @@ public:
 	}
 	CLuaGrid(void * pData, UINT DataLen, UINT Col, UINT Row)
 	{
-		m_ClassID = CLASS_ID;
-		m_ClassName = "CLuaGrid";
 		m_pData = NULL;
 		m_DataLen = 0;
 		m_IsSelfData = false;
@@ -39,8 +33,6 @@ public:
 	}
 	CLuaGrid(UINT Col,UINT Row)
 	{
-		m_ClassID = CLASS_ID;
-		m_ClassName = "CLuaGrid";
 		m_pData = NULL;
 		m_DataLen = 0;
 		m_IsSelfData = false;
@@ -48,14 +40,12 @@ public:
 	}
 	CLuaGrid(const CLuaGrid& Value)
 	{
-		m_ClassID = CLASS_ID;
-		m_ClassName = "CLuaGrid";
 		m_pData = NULL;
 		m_DataLen = 0;
 		m_IsSelfData = false;
 		*this = Value;
 	}
-	~CLuaGrid()
+	virtual ~CLuaGrid()
 	{
 		Destory();
 	}
@@ -85,6 +75,15 @@ public:
 		memcpy(m_pData, Value.m_pData, m_DataLen);
 	}
 
+	void CloneFromWidthDataBuffer(const CLuaGrid& Value, BYTE * pDataBuffer)
+	{
+		Destory();
+		m_DataLen = Value.m_DataLen;
+		m_pData = pDataBuffer;
+		m_IsSelfData = false;
+		memcpy(m_pData, Value.m_pData, m_DataLen);
+	}
+
 	void Create(UINT Col, UINT Row)
 	{
 		Destory();
@@ -95,8 +94,19 @@ public:
 		*((WORD *)m_pData) = Col;
 		*(((WORD *)m_pData) + 1) = Row;
 	}
-
-	bool Attach(void * pData, UINT DataLen)
+	virtual const char * GetMetaClassName() const override
+	{
+		return _T("CLuaGrid");
+	}
+	virtual int GetMetaClassID() const override
+	{
+		return CLuaGrid::CLASS_ID;
+	}
+	virtual size_t GetMetaClassSize() const override
+	{
+		return sizeof(CLuaGrid);
+	}	
+	virtual bool Attach(void * pData, UINT DataLen) override
 	{
 		Destory();
 		m_pData = (BYTE *)pData;
@@ -124,7 +134,7 @@ public:
 		}
 	}
 
-	void Destory()
+	virtual void Destory()
 	{
 		if (m_IsSelfData)
 		{
@@ -178,20 +188,21 @@ public:
 		return EmptyValue;
 	}
 
-	const BYTE * GetData() const
+	virtual const BYTE * GetData() const override
 	{
 		return m_pData;
 	}
-	UINT GetDataLen() const
+	virtual BYTE * GetData() override
+	{
+		return m_pData;
+	}
+	virtual UINT GetDataLen() const override
 	{
 		return m_DataLen;
 	}
-	void SetMetaClass(lua_State * pLuaState) const;
 protected:
-	void RegisterMemberFunctions(lua_State * pLuaState) const;
+	virtual void RegisterMemberFunctions(lua_State * pLuaState) const;
 protected:
-
-	
 	WORD LuaGetMaxCol(CLuaThread * pThreadInfo);
 	WORD LuaGetMaxRow(CLuaThread * pThreadInfo);
 	void LuaSetValue(CLuaThread * pThreadInfo, UINT Col, UINT Row, LuaValue Value);
@@ -200,12 +211,21 @@ protected:
 
 namespace LuaWrap
 {
-	inline void Push(lua_State* L, const CLuaGrid value)
+	inline void Push(lua_State* L, const CLuaGrid& value)
 	{
-		if (value.GetData() && value.GetDataLen())
+		UINT ClassSize = (UINT)value.GetMetaClassSize();
+		UINT DataSize = value.GetDataLen();
+		if (value.GetData() && ClassSize && DataSize)
 		{
-			void * pBuff = lua_newuserdata(L, value.GetDataLen());
-			memcpy(pBuff, value.GetData(), value.GetDataLen());
+			BYTE * pBuff = (BYTE *)lua_newuserdata(L, ClassSize + DataSize);
+#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
+#undef new
+#endif
+			::new(pBuff) CLuaGrid();
+#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
+#define new NEWNEW
+#endif
+			((CLuaGrid *)pBuff)->CloneFromWidthDataBuffer(value, pBuff + ClassSize);
 			value.SetMetaClass(L);
 		}
 		else
@@ -215,26 +235,35 @@ namespace LuaWrap
 	}
 	inline bool	Match(TypeWrapper<CLuaGrid >, lua_State* L, int idx)
 	{
-		return lua_type(L, idx) == LUA_TUSERDATA;
+		return GetLuaObjectType(L, idx) == CLuaGrid::CLASS_ID;
 	}
 	inline CLuaGrid Get(TypeWrapper<CLuaGrid>, lua_State* L, int idx)
 	{
-		CLuaGrid LuaGrid;
+		CLuaGrid Object;
 
 		UINT Len = (UINT)lua_rawlen(L, idx);
-		void * pBuff = lua_touserdata(L, idx);
+		BYTE * pBuff = (BYTE *)lua_touserdata(L, idx);
 		if (pBuff&&Len)
-			LuaGrid.Attach(pBuff, Len);
-
-		return LuaGrid;
+		{
+			UINT ClassSize = (UINT)Object.GetMetaClassSize();
+			Object.Attach(pBuff + ClassSize, Len - ClassSize);
+		}
+		return Object;
+	}
+	inline bool	Match(TypeWrapper<CLuaGrid&>, lua_State* L, int idx)
+	{
+		return GetLuaObjectType(L, idx) == CLuaGrid::CLASS_ID;
+	}
+	inline CLuaGrid Get(TypeWrapper<CLuaGrid&>, lua_State* L, int idx)
+	{
+		BYTE * pBuff = (BYTE *)lua_touserdata(L, idx);
+		return *((CLuaGrid *)pBuff);
 	}
 }
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
-#undef LUA_WRAP_RETURN_FETCH_OPERATION
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE CLuaGrid
-#define LUA_WRAP_RETURN_FETCH_OPERATION CLuaGrid Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"

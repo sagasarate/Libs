@@ -39,6 +39,10 @@ protected:
 	CButton					m_Button;
 
 	int						m_Type;
+	bool					m_IsOpenFile;
+	CString					m_DefaultFileName;
+	CString					m_DefaultFileExt;
+	CString					m_FileExtPattern;
 	CPropertyConfigDialog *	m_FuctionDialog;
 
 

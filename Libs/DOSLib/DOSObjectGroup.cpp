@@ -81,7 +81,17 @@ bool CDOSObjectGroup::Initialize(CDOSObjectManager * pManager, UINT Index, OBJEC
 			m_Config.ObjectPoolSetting.StartSize, m_Config.ObjectPoolSetting.GrowSize, m_Config.ObjectPoolSetting.GrowLimit);
 		return false;
 	}
-
+	if (m_TimerQueue.Create(m_Config.TimerQueueSetting))
+	{
+		PrintDOSDebugLog(_T("创建[%u,%u,%u]大小的计时器队列成功"),
+			m_Config.TimerQueueSetting.StartSize, m_Config.TimerQueueSetting.GrowSize, m_Config.TimerQueueSetting.GrowLimit);
+	}
+	else
+	{
+		PrintDOSLog(_T("创建[%u,%u,%u]大小的计时器队列失败"),
+			m_Config.TimerQueueSetting.StartSize, m_Config.TimerQueueSetting.GrowSize, m_Config.TimerQueueSetting.GrowLimit);
+		return false;
+	}
 
 
 	m_ObjectCountStatMap.Create(128,32,32);
@@ -236,7 +246,7 @@ BOOL CDOSObjectGroup::OnRun()
 					}
 				}
 			}
-
+			ProcessCount += ProcessTimer();
 			ProcessCount += ProcessObjectUnregister();
 		}
 		break;
@@ -443,6 +453,17 @@ int CDOSObjectGroup::ProcessObjectUnregister(int ProcessLimit)
 		DOS_OBJECT_INFO * pObjectInfo=m_ObjectPool.GetObject(UnregisterObjectID.ObjectIndex);
 		if(pObjectInfo)
 		{
+			void * Pos = m_TimerQueue.GetFirstTimerPos();
+			while (Pos)
+			{
+				TIMER_DATA TimerData;
+				UINT ID = m_TimerQueue.GetNextTimer(Pos, &TimerData);
+				if (TimerData.ObjectID == pObjectInfo->ObjectID)
+				{
+					pObjectInfo->pObject->OnTimerRelease(ID, TimerData.Param);
+					break;
+				}
+			}
 			OnObjectUnregister(UnregisterObjectID, pObjectInfo->Weight);
 			m_Weight-=pObjectInfo->Weight;
 			pObjectInfo->pObject->Destory();
@@ -458,6 +479,39 @@ int CDOSObjectGroup::ProcessObjectUnregister(int ProcessLimit)
 		if(ProcessLimit<=0)
 			break;
 	}
+	FUNCTION_END;
+	return 0;
+}
+
+int CDOSObjectGroup::ProcessTimer(int ProcessLimit)
+{
+	FUNCTION_BEGIN;
+	int ProcessCount = 0;
+	UINT TimerID;
+	TIMER_DATA TimerData;
+	bool IsRepeat = false;
+	while (TimerID = m_TimerQueue.UpdateTimer(&TimerData, &IsRepeat))
+	{
+		DOS_OBJECT_INFO * pObjectInfo = m_ObjectPool.GetObject(TimerData.ObjectID.ObjectIndex);
+		if (pObjectInfo)
+		{
+			pObjectInfo->pObject->OnTimer(TimerID, TimerData.Param);
+			if (!IsRepeat)
+			{
+				pObjectInfo->pObject->OnTimerRelease(TimerID, TimerData.Param);
+			}
+		}
+		else
+		{
+			m_TimerQueue.DeleteTimer(TimerID, NULL);
+			PrintDOSLog(_T("对象[0x%llX]无法找到"), TimerData.ObjectID);
+		}
+		ProcessCount++;
+		ProcessLimit--;
+		if (ProcessLimit <= 0)
+			break;
+	}
+	return ProcessCount;
 	FUNCTION_END;
 	return 0;
 }

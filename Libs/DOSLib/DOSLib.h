@@ -27,11 +27,20 @@
 #include "DOSObjectProxyConnectionDefault.h"
 #include "DOSObjectProxyConnectionGroup.h"
 #include "DOSObjectProxyServiceDefault.h"
+#ifndef WIN32
+#include "DOSObjectProxyConnectionNoBuff.h"
+#include "DOSObjectProxyConnectionGroupNoBuff.h"
+#include "DOSObjectProxyServiceNoBuff.h"
+#endif
+
 //#include "DOSProxyConnection.h"
 //#include "DOSObjectProxyService.h"
 #include "DOSProxyManager.h"
 
 #include "DOSRouterLinkManager.h"
+#ifndef WIN32
+#include "ENLConnectionNoBuff.h"
+#endif
 #include "DOSRouterLink.h"
 #include "DOSRouter.h"
 

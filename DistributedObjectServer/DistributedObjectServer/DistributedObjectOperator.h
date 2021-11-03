@@ -36,6 +36,7 @@ public:
 	virtual int GetGroupIndex() override;
 	virtual BOOL SendMessage(OBJECT_ID ReceiverID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) override;
 	virtual BOOL SendMessageMulti(OBJECT_ID * pReceiverIDList, UINT ReceiverCount, bool IsSorted, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) override;
+	virtual BOOL BroadcastMessageToProxyObjectByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize) override;
 
 	virtual CDOSMessagePacket * NewMessagePacket(UINT DataSize, UINT ReceiverCount) override;
 	virtual BOOL ReleaseMessagePacket(CDOSMessagePacket * pPacket) override;
@@ -60,31 +61,38 @@ public:
 
 	virtual BOOL QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param) override;
 	virtual void ShutDown(UINT PluginID) override;
-	virtual bool RegisterCommandReceiver() override;
-	virtual bool UnregisterCommandReceiver() override;
-	bool OnConsoleCommand(LPCTSTR szCommand);
+	virtual BOOL RegisterCommandReceiver() override;
+	virtual BOOL UnregisterCommandReceiver() override;
+	BOOL OnConsoleCommand(LPCTSTR szCommand);
 
 	virtual BOOL RegisterLogger(UINT LogChannel, LPCTSTR FileName) override;
 	virtual BOOL RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader) override;
 
 	virtual void SetServerWorkStatus(BYTE WorkStatus) override;
 
+	virtual UINT AddTimer(UINT TimeOut, UINT64 Param, bool IsRepeat) override;
+	virtual BOOL DeleteTimer(UINT ID) override;
+
+	virtual BOOL SetBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID) override;
+
 protected:
 	BOOL OnPreTranslateMessage(CDOSMessage * pMessage);
-	virtual BOOL OnMessage(CDOSMessage * pMessage);
-	virtual BOOL OnSystemMessage(CDOSMessage * pMessage);
-	virtual void OnConcernedObjectLost(OBJECT_ID ObjectID);
-	virtual void OnFindObject(OBJECT_ID CallerID);
-	virtual void OnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize);
-	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString);
-	virtual void OnShutDown(BYTE Level, UINT Param);
-	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
+	virtual BOOL OnMessage(CDOSMessage * pMessage) override;
+	virtual BOOL OnSystemMessage(CDOSMessage * pMessage) override;
+	virtual void OnConcernedObjectLost(OBJECT_ID ObjectID) override;
+	virtual void OnFindObject(OBJECT_ID CallerID) override;
+	virtual void OnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize) override;
+	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString) override;
+	virtual void OnShutDown(BYTE Level, UINT Param) override;
+	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT) override;
+	virtual void OnTimer(UINT ID, UINT64 Param) override;
+	virtual void OnTimerRelease(UINT ID, UINT64 Param) override;
 
 	bool CallCSInitialize();
 	void CallCSDestory();
-	BOOL CallCSOnPreTranslateMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, OBJECT_ID SenderID, BYTE * pData, UINT DataSize);
-	BOOL CallCSOnMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, OBJECT_ID SenderID, BYTE * pData, UINT DataSize);
-	BOOL CallCSOnSystemMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, OBJECT_ID SenderID, BYTE * pData, UINT DataSize);
+	BOOL CallCSOnPreTranslateMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, OBJECT_ID SenderID, const BYTE * pData, UINT DataSize);
+	BOOL CallCSOnMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, OBJECT_ID SenderID, const BYTE * pData, UINT DataSize);
+	BOOL CallCSOnSystemMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, OBJECT_ID SenderID, const BYTE * pData, UINT DataSize);
 	void CallCSOnConcernedObjectLost(OBJECT_ID ObjectID);
 	BOOL CallCSOnFindObject(OBJECT_ID CallerID);
 	void CallCSOnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize);
@@ -93,6 +101,8 @@ protected:
 	int CallCSUpdate(int ProcessPacketLimit);
 	void CallCSOnException(MonoObject * pPostException);
 	bool CallOnConsoleCommand(LPCTSTR szCommand);
+	void CallCSOnTimer(UINT ID, UINT64 Param);
+	void CallCSOnTimerRelease(UINT ID, UINT64 Param);
 
 	static bool DoRegisterLogger(UINT LogChannel, LPCTSTR FileName);
 	static bool DoRegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader);
@@ -103,6 +113,7 @@ public:
 	static int InternalCallGetGroupIndex(CDistributedObjectOperator * pOperator);
 	static bool InternalCallSendMessage(CDistributedObjectOperator * pOperator, OBJECT_ID ReceiverID, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen);
 	static bool InternalCallSendMessageMulti(CDistributedObjectOperator * pOperator, MonoArray * ReceiverIDList, bool IsSorted, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen);
+	static bool InternalCallBroadcastMessageToProxyObjectByGroup(CDistributedObjectOperator * pOperator, WORD RouterID, BYTE ProxyType, UINT64 GroupID, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen);
 	static bool InternalCallRegisterMsgMap(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, MonoArray * MsgIDList);
 	static bool InternalCallUnregisterMsgMap(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, MonoArray * MsgIDList);
 	static bool InternalCallRegisterGlobalMsgMap(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType, UINT MsgID, int MapType);
@@ -124,6 +135,9 @@ public:
 	static bool InternalCallRegisterCommandReceiver(CDistributedObjectOperator * pOperator);
 	static bool InternalCallUnregisterCommandReceiver(CDistributedObjectOperator * pOperator);
 	static void InternalCallSetServerWorkStatus(CDistributedObjectOperator * pOperator, BYTE WorkStatus);
+	static UINT InternalCallAddTimer(CDistributedObjectOperator * pOperator, UINT TimeOut, MonoObject * pParam, bool IsRepeat);
+	static bool InternalCallDeleteTimer(CDistributedObjectOperator * pOperator, UINT ID);
+	static bool InternalCallSetBroadcastGroup(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, UINT64 GroupID);
 };
 
 inline UINT CDistributedObjectOperator::GetPoolID()

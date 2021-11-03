@@ -218,7 +218,8 @@ public:
 	CPropertyGrid();
 	virtual ~CPropertyGrid();
 
-	BOOL Create(const RECT& Rect,CWnd * pParentWnd);
+	BOOL Create(const RECT& Rect, CWnd * pParentWnd, UINT NameColWidth = 80, UINT ValueColWidth = 100);
+	BOOL Init(UINT NameColWidth = 80, UINT ValueColWidth = 100);
 
 	void Clear();
 

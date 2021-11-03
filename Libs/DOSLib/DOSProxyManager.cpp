@@ -35,7 +35,7 @@ bool CDOSProxyManager::Initialize(CDOSServer * pServer)
 	//检查设置有效性
 	for (int i = (int)ProxyConfigs.GetCount() - 1; i >= 0; i--)
 	{
-		if (ProxyConfigs[i].ProxyMode == CLIENT_PROXY_MODE_DEFAULT)
+		if (ProxyConfigs[i].ProxyMode < CLIENT_PROXY_MODE_CUSTOM)
 		{
 			if (ProxyConfigs[i].ProxyType >= BROAD_CAST_PROXY_TYPE)
 			{
@@ -74,25 +74,55 @@ bool CDOSProxyManager::Initialize(CDOSServer * pServer)
 	{
 		for (UINT i = 0; i < ProxyConfigs.GetCount(); i++)
 		{
-			CDOSObjectProxyServiceDefault * pProxyServiceList = MONITORED_NEW(_T("CDOSProxyManager"), CDOSObjectProxyServiceDefault);
-			pProxyServiceList->SetID(i + 1);
-			if (pProxyServiceList->Init(m_pServer, ProxyConfigs[i]))
+			if (ProxyConfigs[i].ProxyMode == CLIENT_PROXY_MODE_NO_BUFF)
 			{
-				if (pProxyServiceList->StartService())
+#ifndef WIN32
+				CDOSObjectProxyServiceNoBuff * pProxyServiceList = MONITORED_NEW(_T("CDOSProxyManager"), CDOSObjectProxyServiceNoBuff);
+				pProxyServiceList->SetID(i + 1);
+				if (pProxyServiceList->Init(m_pServer, ProxyConfigs[i]))
 				{
-					m_ProxyServiceList.Add(pProxyServiceList);
-					m_ProxyServiceMap[pProxyServiceList->GetProxyType()] = pProxyServiceList;
+					if (pProxyServiceList->StartService())
+					{
+						m_ProxyServiceList.Add(pProxyServiceList);
+						m_ProxyServiceMap[pProxyServiceList->GetProxyType()] = pProxyServiceList;
+					}
+					else
+					{
+						PrintDOSLog(_T("代理%d无法启动"), pProxyServiceList->GetProxyType());
+						SAFE_DELETE(pProxyServiceList);
+					}
+
 				}
 				else
 				{
-					PrintDOSLog( _T("代理%d无法启动"), pProxyServiceList->GetProxyType());
 					SAFE_DELETE(pProxyServiceList);
 				}
-				
+#else
+				PrintDOSLog(_T("windows不支持无缓冲模式"));
+#endif
 			}
 			else
 			{
-				SAFE_DELETE(pProxyServiceList);
+				CDOSObjectProxyServiceDefault * pProxyServiceList = MONITORED_NEW(_T("CDOSProxyManager"), CDOSObjectProxyServiceDefault);
+				pProxyServiceList->SetID(i + 1);
+				if (pProxyServiceList->Init(m_pServer, ProxyConfigs[i]))
+				{
+					if (pProxyServiceList->StartService())
+					{
+						m_ProxyServiceList.Add(pProxyServiceList);
+						m_ProxyServiceMap[pProxyServiceList->GetProxyType()] = pProxyServiceList;
+					}
+					else
+					{
+						PrintDOSLog(_T("代理%d无法启动"), pProxyServiceList->GetProxyType());
+						SAFE_DELETE(pProxyServiceList);
+					}
+
+				}
+				else
+				{
+					SAFE_DELETE(pProxyServiceList);
+				}
 			}
 		}
 	}

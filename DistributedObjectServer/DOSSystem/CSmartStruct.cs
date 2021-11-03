@@ -349,9 +349,20 @@ namespace DOSSystem
             {
                 CSmartValue SmartValue = new CSmartValue();
 
-                
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_STRING))                
-                //if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_USTRING))
+                bool Ret = false;
+                switch (CSmartValue.INTERNAL_STRING_CODE_PAGE)
+                {
+                    case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_ANSI:
+                        Ret = SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_STRING_ANSI);
+                        break;
+                    case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_UTF8:
+                        Ret = SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_STRING_UTF8);
+                        break;
+                    case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16:
+                        Ret = SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_STRING_UCS16);
+                        break;
+                }
+                if (Ret)                
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -366,7 +377,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_STRING))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_BINARY))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -603,18 +614,35 @@ namespace DOSSystem
         {
             return sizeof(ushort) + sizeof(byte) + sizeof(uint) + StructSize;
         }
-        public static uint GetStringMemberSize(uint StrLen)
+        //public static uint GetStringMemberSize(uint StrLen)
+        //{
+        //    return sizeof(ushort) + sizeof(byte) + sizeof(uint) + sizeof(char) * (StrLen + 1);
+        //}
+        public static uint GetStringMemberSize(string Str)
         {
-            return sizeof(ushort) + sizeof(byte) + sizeof(uint) + sizeof(char) * (StrLen + 1);
-        }
-        public static uint GetStringMemberSizeUTF8(string Str)
-        {
-            uint StrLen = 0;
-            if (!string.IsNullOrEmpty(Str))
+            uint DataLen = 1;
+            switch (CSmartValue.INTERNAL_STRING_CODE_PAGE)
             {
-                StrLen = (uint)Encoding.UTF8.GetByteCount(Str);
-            }            
-            return sizeof(ushort) + sizeof(byte) + sizeof(uint) + StrLen + 1;
+                case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_ANSI:
+                    if (!string.IsNullOrEmpty(Str))
+                    {
+                        DataLen = (uint)Encoding.Default.GetByteCount(Str) + 1;
+                    }
+                    break;
+                case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_UTF8:
+                    if (!string.IsNullOrEmpty(Str))
+                    {
+                        DataLen = (uint)Encoding.UTF8.GetByteCount(Str) + 1;
+                    }
+                    break;
+                case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16:
+                    if (!string.IsNullOrEmpty(Str))
+                    {
+                        DataLen = (uint)Encoding.Unicode.GetByteCount(Str) + sizeof(char);
+                    }
+                    break;
+            }
+            return sizeof(ushort) + sizeof(byte) + sizeof(uint) + DataLen;
         }
     }
 }

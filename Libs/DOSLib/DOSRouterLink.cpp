@@ -47,13 +47,78 @@ void CDOSRouterLink::OnData(const BYTE * pData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
 	CDOSMessagePacket * pNewPacket = GetRouter()->GetServer()->NewMessagePacket(DataSize);
-	if(pNewPacket)
+	if (pNewPacket)
 	{
-		memcpy(pNewPacket->GetPacketBuffer(), pData, DataSize);
+		pNewPacket->CloneFrom(pData, DataSize);
 		GetRouter()->RouterMessage(pNewPacket);
 		GetRouter()->GetServer()->ReleaseMessagePacket(pNewPacket);
 	}
 	else
 		PrintDOSLog(_T("分配消息内存块失败！"));
 	FUNCTION_END;
+}
+
+void CDOSRouterLink::OnMsgPacket(CDOSMessagePacket * pPacket)
+{
+	GetRouter()->RouterMessage(pPacket);
+}
+bool CDOSRouterLink::SendPacket(CDOSMessagePacket * pPacket)
+{
+#ifndef WIN32
+	if (m_pManager->UseNoBuffConnection())
+	{
+		return ((CENLConnectionNoBuff *)m_pConnection)->SendPacket(pPacket);
+	}
+	else
+#endif
+	{
+		return SendData(pPacket->GetPacketData(), pPacket->GetPacketLength());
+	}
+}
+
+CENLBaseConnection * CDOSRouterLink::NewConnection(UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
+{
+#ifndef WIN32
+	if(m_pManager->UseNoBuffConnection())
+	{
+		CENLConnectionNoBuff * pConnection = MONITORED_NEW(_T("CDOSRouterLink"), CENLConnectionNoBuff);
+		if (pConnection->Init((CDOSRouterLinkManager *)m_pManager, this, MaxPacketSize, DataCompressType, MinCompressSize))
+		{
+			return pConnection;
+		}
+	}
+	else
+#endif
+	{
+		CENLConnection * pConnection = MONITORED_NEW(_T("CDOSRouterLink"), CENLConnection);
+		if (pConnection->Init(m_pManager, this, MaxPacketSize, DataCompressType, MinCompressSize))
+		{
+			return pConnection;
+		}
+	}
+	return NULL;
+}
+
+CENLBaseConnection * CDOSRouterLink::NewConnection(const CIPAddress& ConnectionAddress, UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize,
+	CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
+{
+#ifndef WIN32
+	if (m_pManager->UseNoBuffConnection())
+	{
+		CENLConnectionNoBuff * pConnection = MONITORED_NEW(_T("CDOSRouterLink"), CENLConnectionNoBuff);
+		if (pConnection->Init((CDOSRouterLinkManager *)m_pManager, this, ConnectionAddress, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize))
+		{
+			return pConnection;
+		}
+	}
+	else
+#endif
+	{
+		CENLConnection * pConnection = MONITORED_NEW(_T("CDOSRouterLink"), CENLConnection);
+		if (pConnection->Init(m_pManager, this, ConnectionAddress, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize))
+		{
+			return pConnection;
+		}
+	}
+	return NULL;
 }

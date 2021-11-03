@@ -30,12 +30,12 @@ namespace LuaWrap
 	};	
 
 	inline void Push(lua_State* L, bool value)				{ lua_pushboolean(L, value); }
-	inline void Push(lua_State* L, char value)				{ lua_pushnumber(L, value); }
-	inline void Push(lua_State* L, unsigned char value)		{ lua_pushnumber(L, value); }
-	inline void Push(lua_State* L, short value)				{ lua_pushnumber(L, value); }
-	inline void Push(lua_State* L, unsigned short value)	{ lua_pushnumber(L, value); }
-	inline void Push(lua_State* L, int value)				{ lua_pushnumber(L, value); }
-	inline void Push(lua_State* L, unsigned int value)		{ lua_pushnumber(L, value); }
+	inline void Push(lua_State* L, char value)				{ lua_pushinteger(L, value); }
+	inline void Push(lua_State* L, unsigned char value)		{ lua_pushinteger(L, value); }
+	inline void Push(lua_State* L, short value)				{ lua_pushinteger(L, value); }
+	inline void Push(lua_State* L, unsigned short value)	{ lua_pushinteger(L, value); }
+	inline void Push(lua_State* L, int value)				{ lua_pushinteger(L, value); }
+	inline void Push(lua_State* L, unsigned int value)		{ lua_pushinteger(L, value); }
 	//inline void Push(lua_State* L, long value)				{ lua_pushnumber(L, value); }
 	//inline void Push(lua_State* L, unsigned long value)		{ lua_pushnumber(L, value); }
 	inline void Push(lua_State* L, __int64 value)			{ lua_pushinteger(L, value); }
@@ -76,7 +76,7 @@ namespace LuaWrap
 	}
 	inline void Push(lua_State* L, CLuaBaseMetaClass * pObject);
 	
-	inline void Push(lua_State* L, const CLuaGrid value);
+	inline void Push(lua_State* L, const CLuaGrid& value);
 
 	inline bool	Match(TypeWrapper<bool>, lua_State* L, int idx)
 	{

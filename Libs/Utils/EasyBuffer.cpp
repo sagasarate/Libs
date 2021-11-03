@@ -12,8 +12,6 @@
 #include "stdafx.h"
 
 
-IMPLEMENT_CLASS_INFO_STATIC(CEasyBuffer,CNameObject);
-
 CEasyBuffer::CEasyBuffer(LPCTSTR Tag)
 {
 	m_pBuffer=NULL;

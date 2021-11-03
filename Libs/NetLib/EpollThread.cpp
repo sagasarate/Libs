@@ -40,7 +40,7 @@ bool CEpollThread::Init(CNetServer * pServer)
 	return true;
 }
 
-bool CEpollThread::BindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter)
+bool CEpollThread::BindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter, bool UseLTMode)
 {
 	if (m_hEpoll == INVALID_HANDLE_VALUE)
 	{
@@ -59,7 +59,10 @@ bool CEpollThread::BindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRout
 	Param64.LowPart = (DWORD)pEpollEventRouter->GetID();
 	Param64.HighPart = (DWORD)(pEpollEventRouter->GetSessionID());
 	EpollEvent.data.u64 = Param64.QuadPart;
-	EpollEvent.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP | EPOLLET;
+	if (UseLTMode)
+		EpollEvent.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;
+	else
+		EpollEvent.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP | EPOLLET;
 	if (epoll_ctl(m_hEpoll, EPOLL_CTL_ADD, Socket, &EpollEvent) == 0)
 	{
 		AtomicInc(&m_BindSocketCount);

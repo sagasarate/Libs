@@ -964,6 +964,7 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 			LogFileName.Format("%s/Plugin.%s", (LPCTSTR)PluginInfo.LogDir, (LPCTSTR)CFileTools::GetPathFileName(PluginInfo.PluginName));
 			pLog = MONITORED_NEW(_T("CDOSMainThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
 				CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+			pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 			CLogManager::GetInstance()->AddChannel(PluginInfo.LogChannel, pLog);
 			SAFE_RELEASE(pLog);
 
@@ -971,6 +972,22 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 			{
 				PluginInfo.PluginStatus = PLUGIN_STATUS_RUNNING;
 				Log("插件装载成功%s", (LPCTSTR)PluginInfo.ModuleFileName);
+#ifdef WIN32
+				MEMORY_BASIC_INFORMATION mbi;
+				ZeroMemory(&mbi, sizeof(mbi));
+				if (VirtualQuery((void *)PluginInfo.pInitFN, &mbi, sizeof(mbi)))
+				{
+					TCHAR ModuleName[MAX_PATH];
+					GetModuleFileName((HINSTANCE)mbi.AllocationBase, ModuleName, MAX_PATH);
+					Log("插件模块信息:BaseAddress=0x%llX,ModuleName=%s", mbi.AllocationBase, ModuleName);
+				}
+#else
+				Dl_info DLInfo;
+				if (dladdr((void *)PluginInfo.pInitFN, &DLInfo))
+				{
+					Log("插件模块信息:BaseAddress=%p,ModuleName=%s", DLInfo.dli_fbase, DLInfo.dli_fname);
+				}
+#endif
 				return true;
 			}
 			else
@@ -1135,6 +1152,7 @@ bool CDOSMainThread::LoadCSharpPlugin(PLUGIN_INFO& PluginInfo)
 									LogFileName.Format("%s/Plugin.%s", (LPCTSTR)PluginInfo.LogDir, (LPCTSTR)CFileTools::GetPathFileName(PluginInfo.PluginName));
 									pLog = MONITORED_NEW(_T("CDOSMainThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
 										CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+									pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 									CLogManager::GetInstance()->AddChannel(PluginInfo.LogChannel, pLog);
 									SAFE_RELEASE(pLog);
 
@@ -1555,6 +1573,8 @@ void CDOSMainThread::RegisterMonoFunctions()
 		(void *)CDistributedObjectOperator::InternalCallSendMessage);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSendMessageMulti(intptr,DOSSystem.OBJECT_ID[],bool,uint,uint16,byte[],int,int)",
 		(void *)CDistributedObjectOperator::InternalCallSendMessageMulti);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallBroadcastMessageToProxyObjectByGroup(intptr,ushort,byte,ulong,uint,uint16,byte[],int,int)",
+		(void *)CDistributedObjectOperator::InternalCallBroadcastMessageToProxyObjectByGroup);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallRegisterMsgMap(intptr,DOSSystem.OBJECT_ID,uint[])",
 		(void *)CDistributedObjectOperator::InternalCallRegisterMsgMap);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallUnregisterMsgMap(intptr,DOSSystem.OBJECT_ID,uint[])",
@@ -1597,6 +1617,12 @@ void CDOSMainThread::RegisterMonoFunctions()
 		(void *)CDistributedObjectOperator::InternalCallUnregisterCommandReceiver);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSetServerWorkStatus(intptr,byte)",
 		(void *)CDistributedObjectOperator::InternalCallSetServerWorkStatus);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallAddTimer(intptr,uint,object,bool)",
+		(void *)CDistributedObjectOperator::InternalCallAddTimer);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallDeleteTimer(intptr,uint)",
+		(void *)CDistributedObjectOperator::InternalCallDeleteTimer);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSetBroadcastGroup(intptr,DOSSystem.OBJECT_ID,ulong)",
+		(void *)CDistributedObjectOperator::InternalCallSetBroadcastGroup);
 
 	FUNCTION_END;
 }

@@ -86,7 +86,7 @@ inline int OBJECT_ID::Compare(const void * Value1,const void * Value2)
 #define BROAD_CAST_GROUP_INDEX		(0xFFFF)
 #define BROAD_CAST_OBJECT_INDEX		(0xFFFF)
 #define BROAD_CAST_PROXY_TYPE		(0xFF)
-#define MAKE_PROXY_GROUP_INDEX(ProxyType) ((ProxyType&0xFF)|0xFF00)
+#define MAKE_PROXY_GROUP_INDEX(ProxyType) (BYTE)((ProxyType&0xFF)|0xFF00)
 #define GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(GroupIndex) (GroupIndex&0xFF)
 
 enum DOS_OBJECT_TYPE
@@ -118,6 +118,7 @@ public:
 		MSG_LEN_TYPE	MsgLen;
 		MSG_ID_TYPE		MsgID;	
 		WORD			MsgFlag;
+		WORD			CRC;
 	};	
 protected:
 	DOS_SIMPLE_MESSAGE_HEAD	m_MsgHeader;
@@ -125,9 +126,10 @@ protected:
 public:
 	void Init()
 	{
-		m_MsgHeader.MsgLen=sizeof(DOS_SIMPLE_MESSAGE_HEAD);
-		m_MsgHeader.MsgID=0;		
-		m_MsgHeader.MsgFlag=0;
+		m_MsgHeader.MsgLen = sizeof(DOS_SIMPLE_MESSAGE_HEAD);
+		m_MsgHeader.MsgID = 0;
+		m_MsgHeader.MsgFlag = 0;
+		m_MsgHeader.CRC = 0;
 	}
 	DOS_SIMPLE_MESSAGE_HEAD& GetMsgHeader() 
 	{
@@ -165,13 +167,34 @@ public:
 	{
 		return m_MsgHeader.MsgFlag;
 	}
-	void * GetDataBuffer()
+	void SetCRC(WORD CRC)
+	{
+		m_MsgHeader.CRC = CRC;
+	}
+	WORD GetCRC() const 
+	{
+		return m_MsgHeader.CRC;
+	}
+	//void * GetMsgData()
+	//{
+	//	return m_DataBuffer;
+	//}
+	const void * GetMsgData() const
 	{
 		return m_DataBuffer;
 	}
-	const void * GetDataBuffer() const
+	bool PutMsgData(MSG_LEN_TYPE Pos, LPCVOID pData, MSG_LEN_TYPE DataLen)
 	{
-		return m_DataBuffer;
+		if (Pos + DataLen <= GetDataLength())
+		{
+			memcpy(m_DataBuffer + Pos, pData, DataLen);
+			return true;
+		}
+		else
+		{
+			assert(false);
+			return false;
+		}
 	}
 	CSmartStruct GetDataPacket()
 	{
@@ -210,7 +233,7 @@ public:
 			};
 			struct  
 			{
-				OBJECT_ID_BASE									Reserve;
+				BYTE											Reserve[6];
 				CDOSSimpleMessage::DOS_SIMPLE_MESSAGE_HEAD		SimpleMsgHeader;
 			};
 		};
@@ -258,7 +281,7 @@ public:
 	{
 		return m_MsgHeader.MsgFlag;
 	}
-	void SetData(LPVOID pData,MSG_LEN_TYPE Length)
+	void SetData(LPCVOID pData,MSG_LEN_TYPE Length)
 	{
 		SetDataLength(Length);
 		memcpy(m_DataBuffer,pData,Length);
@@ -275,13 +298,26 @@ public:
 	{
 		return m_MsgHeader.SenderID;
 	}
-	void * GetDataBuffer()
+	//void * GetMsgData()
+	//{
+	//	return m_DataBuffer;
+	//}
+	const void * GetMsgData() const
 	{
 		return m_DataBuffer;
 	}
-	const void * GetDataBuffer() const
+	bool PutMsgData(MSG_LEN_TYPE Pos, LPCVOID pData, MSG_LEN_TYPE DataLen)
 	{
-		return m_DataBuffer;
+		if (Pos + DataLen <= GetDataLength())
+		{
+			memcpy(m_DataBuffer + Pos, pData, DataLen);
+			return true;
+		}
+		else
+		{
+			assert(false);
+			return false;
+		}
 	}
 	CSmartStruct GetDataPacket()
 	{
@@ -301,9 +337,12 @@ public:
 	}
 	CDOSSimpleMessage * MakeSimpleMessage()
 	{
-		m_MsgHeader.SimpleMsgHeader.MsgFlag=m_MsgHeader.MsgFlag;
-		m_MsgHeader.SimpleMsgHeader.MsgID=m_MsgHeader.MsgID;
-		m_MsgHeader.SimpleMsgHeader.MsgLen=CDOSSimpleMessage::GetMsgHeaderLength()+GetDataLength();		
+		WORD MsgFlag = m_MsgHeader.MsgFlag;
+		MSG_ID_TYPE MsgID = m_MsgHeader.MsgID;
+		MSG_LEN_TYPE MsgLen = CDOSSimpleMessage::GetMsgHeaderLength() + GetDataLength();
+		m_MsgHeader.SimpleMsgHeader.MsgFlag=MsgFlag;
+		m_MsgHeader.SimpleMsgHeader.MsgID=MsgID;
+		m_MsgHeader.SimpleMsgHeader.MsgLen = MsgLen;
 		return (CDOSSimpleMessage *)(&m_MsgHeader.SimpleMsgHeader);
 	}
 	void MakeSimpleMessageHeader(CDOSSimpleMessage::DOS_SIMPLE_MESSAGE_HEAD& MsgHeader) const
@@ -382,32 +421,119 @@ public:
 	{
 		return m_PacketLen;
 	}
-	void * GetPacketBuffer()
+	//void * GetPacketData()
+	//{
+	//	return &m_PacketLen;
+	//}
+	const void * GetPacketData() const
 	{
 		return &m_PacketLen;
+	}
+	bool CloneFrom(LPCVOID pPacket, MSG_LEN_TYPE PacketLen)
+	{
+		MSG_LEN_TYPE SrcPacketLen = *((MSG_LEN_TYPE *)pPacket);
+		if (SrcPacketLen == PacketLen)
+		{
+			if (PacketLen <= GetAllocSize())
+			{
+				memcpy((void *)GetPacketData(), pPacket, PacketLen);
+				return true;
+			}
+			else
+			{
+				assert(false);
+				return false;
+			}
+		}
+		else
+		{
+			assert(false);
+			return false;
+		}
+	}
+	bool SetTargetIDs(ID_LIST_COUNT_TYPE TargetCount,OBJECT_ID * pTargetIDs)
+	{
+		MSG_LEN_TYPE PacketLen = sizeof(MSG_LEN_TYPE) + m_Message.GetMsgLength() + sizeof(ID_LIST_COUNT_TYPE) + sizeof(OBJECT_ID)*TargetCount;
+		if (PacketLen <= GetAllocSize())
+		{
+			SetTargetIDCount(TargetCount);
+			if (pTargetIDs)
+				memcpy(GetTargetIDPtr(), pTargetIDs, sizeof(OBJECT_ID)*TargetCount);
+			return true;
+		}
+		else
+		{
+			assert(false);
+			return false;
+		}		
 	}	
-	const void * GetPacketBuffer() const
+	ID_LIST_COUNT_TYPE GetTargetIDCount()
 	{
-		return &m_PacketLen;
+		ID_LIST_COUNT_TYPE Count = *((ID_LIST_COUNT_TYPE *)((BYTE *)GetPacketData() + sizeof(MSG_LEN_TYPE) + m_Message.GetMsgLength()));
+		MSG_LEN_TYPE PacketLen = sizeof(MSG_LEN_TYPE) + m_Message.GetMsgLength() + sizeof(ID_LIST_COUNT_TYPE) + sizeof(OBJECT_ID)*Count;
+		if (PacketLen > m_PacketLen)
+		{
+			assert(false);
+		}
+		return Count;
 	}
-	void SetTargetIDs(ID_LIST_COUNT_TYPE TargetCount,OBJECT_ID * pTargetIDs)
+	void SetTargetIDCount(ID_LIST_COUNT_TYPE Count)
 	{
-		GetTargetIDCount()=TargetCount;
-		if(pTargetIDs)
-			memcpy(GetTargetIDs(),pTargetIDs,sizeof(OBJECT_ID)*TargetCount);
+		MSG_LEN_TYPE PacketLen = sizeof(MSG_LEN_TYPE) + m_Message.GetMsgLength() + sizeof(ID_LIST_COUNT_TYPE) + sizeof(OBJECT_ID)*Count;
+		if (PacketLen <= GetAllocSize())
+		{
+			*((ID_LIST_COUNT_TYPE *)((BYTE *)GetPacketData() + sizeof(MSG_LEN_TYPE) + m_Message.GetMsgLength())) = Count;
+		}
+		else
+		{
+			assert(false);
+		}
 	}
-	ID_LIST_COUNT_TYPE& GetTargetIDCount()
+	const OBJECT_ID * GetTargetIDs() const
 	{
-		return *((ID_LIST_COUNT_TYPE *)((BYTE *)GetPacketBuffer()+sizeof(MSG_LEN_TYPE)+m_Message.GetMsgLength()));
+		return (OBJECT_ID *)((BYTE *)GetPacketData()+sizeof(MSG_LEN_TYPE)+m_Message.GetMsgLength()+sizeof(ID_LIST_COUNT_TYPE));
 	}
-	OBJECT_ID * GetTargetIDs()
+	OBJECT_ID * GetTargetIDPtr()
 	{
-		return (OBJECT_ID *)((BYTE *)GetPacketBuffer()+sizeof(MSG_LEN_TYPE)+m_Message.GetMsgLength()+sizeof(ID_LIST_COUNT_TYPE));
+		return (OBJECT_ID *)((BYTE *)GetPacketData() + sizeof(MSG_LEN_TYPE) + m_Message.GetMsgLength() + sizeof(ID_LIST_COUNT_TYPE));
 	}
-	void AddTargetID(OBJECT_ID TargetID)
+	bool AddTargetID(const OBJECT_ID& TargetID)
 	{
-		GetTargetIDs()[GetTargetIDCount()]=TargetID;
-		GetTargetIDCount()++;
+		MSG_LEN_TYPE PacketLen = sizeof(MSG_LEN_TYPE) + m_Message.GetMsgLength() + sizeof(ID_LIST_COUNT_TYPE) + sizeof(OBJECT_ID)*(GetTargetIDCount() + 1);
+		if (PacketLen <= GetAllocSize())
+		{
+			if(!IsTargetIDExist(TargetID))
+			{
+				GetTargetIDPtr()[GetTargetIDCount()] = TargetID;
+				SetTargetIDCount(GetTargetIDCount() + 1);
+			}
+			return true;
+		}
+		else
+		{
+			assert(false);
+			return false;
+		}
+	}
+	bool SortTargetIDs()
+	{
+		if (GetTargetIDCount() > 1)
+		{
+			qsort(GetTargetIDPtr(), GetTargetIDCount(), sizeof(OBJECT_ID), OBJECT_ID::Compare);
+			return true;
+		}
+		return false;
+	}
+	bool IsTargetIDExist(const OBJECT_ID& TargetID)
+	{
+		ID_LIST_COUNT_TYPE Count = GetTargetIDCount();
+		const OBJECT_ID * pObjectID = GetTargetIDs();
+		for (UINT i = 0; i < Count; i++)
+		{
+			if (pObjectID[i] == TargetID)
+				return true;
+		}
+		return false;
 	}
 	void MakePacketLength()
 	{
@@ -417,6 +543,11 @@ public:
 	{
 		return m_PacketLen<=m_AllocSize;
 	}
+	bool VerfyPacketLen()
+	{
+		MSG_LEN_TYPE PacketLen = sizeof(MSG_LEN_TYPE) + m_Message.GetMsgLength() + sizeof(ID_LIST_COUNT_TYPE) + sizeof(OBJECT_ID)*GetTargetIDCount();
+		return PacketLen == GetPacketLength();
+	}
 	static MSG_LEN_TYPE CaculatePacketLength(MSG_LEN_TYPE DataLength,ID_LIST_COUNT_TYPE TargetIDCount)
 	{
 		return sizeof(MSG_LEN_TYPE)+CDOSMessage::CaculateMsgLength(DataLength)+sizeof(ID_LIST_COUNT_TYPE)+sizeof(OBJECT_ID)*TargetIDCount;
@@ -425,6 +556,8 @@ public:
 	{
 		return sizeof(UINT)+sizeof(UINT)+sizeof(UINT)+PacketLength;
 	}
+
+	
 };
 
 struct PING_DATA
@@ -437,6 +570,24 @@ struct SHUTDOWN_INFO
 {
 	BYTE	Level;
 	UINT	Param;
+};
+
+struct PROTOCOL_OPTION
+{
+	UINT	Flag;
+};
+
+struct BROADCAST_GROUP_SET_INFO
+{
+	OBJECT_ID	ProxyObjectID;
+	UINT64		GroupID;
+};
+
+struct GROUP_BROADCAST_INFO
+{
+	UINT64			GroupID;
+	MSG_ID_TYPE		MsgID;
+	WORD			MsgFlag;
 };
 
 #pragma pack(pop)
@@ -459,11 +610,15 @@ enum DOS_SYSTEM_MESSAGE
 	DSM_PROXY_GET_IP,
 	DSM_PROXY_IP_REPORT,
 	DSM_PROXY_SET_UNHANDLE_MSG_RECEIVER,
+	DSM_PROXY_SET_BROADCAST_GROUP,
+	DSM_PROXY_GROUP_BROADCAST,
 	DSM_ROUTE_LINK_LOST=100,
+	DSM_ROUTE_LINK_START,
 	DSM_OBJECT_ALIVE_TEST=200,	
 	DSM_OBJECT_FIND,
 	DSM_OBJECT_REPORT,
 	DSM_SYSTEM_SHUTDOWN,	
+	DSM_PROTOCOL_OPTION,	
 	DSM_MAX,
 };
 
@@ -473,6 +628,7 @@ enum DOS_MESSAGE_FLAG
 	DOS_MESSAGE_FLAG_COMPRESSED=(1<<1),
 	DOS_MESSAGE_FLAG_CAN_CACHE = (1 << 2),
 	DOS_MESSAGE_FLAG_ENCRYPT = (1 << 3),
+	DOS_MESSAGE_FLAG_NO_COMPRESS = (1 << 4),
 };
 
 enum GLOBAL_MSG_MAP_TYPE
@@ -480,6 +636,11 @@ enum GLOBAL_MSG_MAP_TYPE
 	GLOBAL_MSG_MAP_TYPE_OVERLAP,
 	GLOBAL_MSG_MAP_TYPE_RANDOM,
 	GLOBAL_MSG_MAP_TYPE_BROADCAST,
+};
+
+enum PROTOCOL_OPTION_FLAG
+{
+	PROTOCOL_OPTION_FLAG_UP_MSG_USE_ENCRYPT = 1,
 };
 
 

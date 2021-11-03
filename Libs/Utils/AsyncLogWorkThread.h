@@ -12,8 +12,8 @@ public:
 
 	virtual BOOL OnRun();
 
-	bool AddLogPrinter(ILogPrinter * pLogPrinter);
-	bool RemoveLogPrinter(ILogPrinter * pLogPrinter);
+	virtual bool AddLogPrinter(ILogPrinter * pLogPrinter);
+	virtual bool RemoveLogPrinter(ILogPrinter * pLogPrinter);
 	UINT GetLogPrinterCount()
 	{
 		return (UINT)m_LogPrinterList.GetCount();

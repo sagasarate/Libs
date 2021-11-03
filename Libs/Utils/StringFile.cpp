@@ -125,9 +125,9 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 	{
 		if (m_SaveCodePage == CP_UTF8)
 		{
-			m_iDataSize = MultiByteToWideChar(CP_UTF8, 0, (char *)Buffer.GetBuffer(), FileSize, NULL, 0);
+			m_iDataSize = UTF8ToUnicode((char *)Buffer.GetBuffer(), FileSize, NULL, 0);
 			m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
-			MultiByteToWideChar(CP_UTF8, 0, (char *)Buffer.GetBuffer(), FileSize, m_pData, m_iDataSize);
+			UTF8ToUnicode((char *)Buffer.GetBuffer(), FileSize, m_pData, m_iDataSize);
 		}
 		else if (m_SaveCodePage == CP_UNICODE)
 		{
@@ -150,9 +150,9 @@ BOOL CStringFile::LoadFile( IFileAccessor * pFile ,bool bSplitLine)
 	}
 	else if(BomHeader==BMT_UTF_8)
 	{
-		m_iDataSize=MultiByteToWideChar(CP_UTF8,0,(char *)Buffer.GetBuffer()+3,FileSize-3,NULL,0);
+		m_iDataSize= UTF8ToUnicode((char *)Buffer.GetBuffer()+3,FileSize-3,NULL,0);
 		m_pData = MONITORED_NEW_ARRAY(_T("CStringFile"), TCHAR, m_iDataSize + 1);
-		MultiByteToWideChar(CP_UTF8,0,(char *)Buffer.GetBuffer()+3,FileSize-3,m_pData,m_iDataSize);
+		UTF8ToUnicode((char *)Buffer.GetBuffer() + 3, FileSize - 3, m_pData, m_iDataSize);
 	}
 	else
 	{

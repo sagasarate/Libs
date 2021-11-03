@@ -193,6 +193,9 @@
     <Filter Include="StackTrace">
       <UniqueIdentifier>{30deeace-54d3-4a75-805e-35119de6becc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="加解密\CRC">
+      <UniqueIdentifier>{62ee101f-f33d-4655-9090-509b05d4fcd5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EasyTime.h">
@@ -777,6 +780,9 @@
     <ClInclude Include="stacktrace\stacktrace_x86-inl.h">
       <Filter>StackTrace</Filter>
     </ClInclude>
+    <ClInclude Include="CCRCMaker.h">
+      <Filter>加解密\CRC</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EasyTimerEx.cpp">
@@ -1042,6 +1048,9 @@
     </ClCompile>
     <ClCompile Include="stacktrace\stacktrace.cc">
       <Filter>StackTrace</Filter>
+    </ClCompile>
+    <ClCompile Include="CCRCMaker.cpp">
+      <Filter>加解密\CRC</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

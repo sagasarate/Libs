@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="DistributedObjectServer">
-		<Project filename="../../../../../../mnt/hgfs/MyPrj/DistributedObjectServer/DistributedObjectServer/DistributedObjectServer.cbp">
-			<Depends filename="../../../../../../mnt/hgfs/MyPrj/Libs/DOSLib/DOSLib.cbp" />
-			<Depends filename="../../../../../../mnt/hgfs/MyPrj/Libs/Utils/Utils.cbp" />
-			<Depends filename="../../../../../../mnt/hgfs/MyPrj/Libs/NetLib/NetLib.cbp" />
-			<Depends filename="../../../../../../mnt/hgfs/MyPrj/Libs/ServerFrameWork/ServerFrameWork.cbp" />
+		<Project filename="DistributedObjectServer/DistributedObjectServer.cbp">
+			<Depends filename="../Libs/DOSLib/DOSLib.cbp" />
+			<Depends filename="../Libs/Utils/Utils.cbp" />
+			<Depends filename="../Libs/NetLib/NetLib.cbp" />
+			<Depends filename="../Libs/ServerFrameWork/ServerFrameWork.cbp" />
 		</Project>
-		<Project filename="../../../../../../mnt/hgfs/MyPrj/Libs/DOSLib/DOSLib.cbp" />
-		<Project filename="../../../../../../mnt/hgfs/MyPrj/Libs/Utils/Utils.cbp" />
-		<Project filename="../../../../../../mnt/hgfs/MyPrj/Libs/NetLib/NetLib.cbp" />
-		<Project filename="../../../../../../mnt/hgfs/MyPrj/Libs/ServerFrameWork/ServerFrameWork.cbp" />
+		<Project filename="../Libs/DOSLib/DOSLib.cbp" />
+		<Project filename="../Libs/Utils/Utils.cbp" />
+		<Project filename="../Libs/NetLib/NetLib.cbp" />
+		<Project filename="../Libs/ServerFrameWork/ServerFrameWork.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

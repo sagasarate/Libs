@@ -39,14 +39,10 @@ protected:
 	struct BlockNode
 	{	
 		UINT					Flag;
+		UINT					AllocSize;
 		BlockList *				pBlockList;
 		volatile BlockNode *	pPrev;
-		volatile BlockNode *	pNext;
-		UINT					AllocSize;	
-#ifdef LOG_MEM_CALL_STACK
-		CALL_INFO				CallInfo[MAX_CALL_INFO];
-#endif
-		UINT					RecentCallInfo;
+		volatile BlockNode *	pNext;		
 	};
 	struct BlockList
 	{	
@@ -59,18 +55,18 @@ protected:
 	};
 	
 
-	BlockList *		m_pBlockLevels;
-	UINT			m_BlockSize;
-	UINT			m_LevelSize;
-	UINT			m_BlockLevelCount;
-	char *			m_pBuffer;	
-	UINT			m_BufferSize;
-	bool			m_IsThreadLock;
+	BlockList *			m_pBlockLevels;
+	UINT				m_BlockSize;
+	UINT				m_LevelSize;
+	UINT				m_BlockLevelCount;
+	BYTE *				m_pBuffer;
+	size_t				m_BufferSize;
+	bool				m_IsThreadLock;
 
-	volatile UINT	m_AllocCount;
-	volatile UINT	m_FreeCount;
-	volatile UINT	m_SystemAllocCount;
-	volatile UINT	m_SystemFreeCount;
+	volatile UINT		m_AllocCount;
+	volatile UINT		m_FreeCount;
+	volatile UINT		m_SystemAllocCount;
+	volatile UINT		m_SystemFreeCount;
 
 
 	CEasyCriticalSection	m_EasyCriticalSection;	
@@ -87,20 +83,10 @@ public:
 
 	LPVOID Alloc(UINT Size);
 	BOOL Free(LPVOID pMem);
-#ifdef LOG_MEM_CALL_STACK
-	void LogMemUse(LPVOID pMem,int RefCount);
-#else
-	void LogMemUse(LPVOID pMem,int RefCount)
-	{
 
-	}
-#endif
 protected:
 	LPVOID AllocBlock(BlockList * pBlockList,UINT AllocSize);
 	BOOL FreeBlock(BlockNode * pNode);
-#ifdef LOG_MEM_CALL_STACK
-	void PrintCallStackLog(BlockNode * pNode);
-#endif
 	void DumpBlock(BlockNode * pNode);
 public:
 	UINT GetAllocCount();

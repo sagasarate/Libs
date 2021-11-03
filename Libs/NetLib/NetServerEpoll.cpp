@@ -187,7 +187,7 @@ bool CNetServer::DeleteEventRouter(CEpollEventRouter * pEventRouter)
 }
 
 
-bool CNetServer::BindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter)
+bool CNetServer::BindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter, bool UseLTMode)
 {
 	CEpollThread * pEpollThread = NULL;
 	int BindCout = 0;
@@ -215,7 +215,7 @@ bool CNetServer::BindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter
 
 	if (pEpollThread)
 	{
-		if (pEpollThread->BindSocket(Socket, pEpollEventRouter))
+		if (pEpollThread->BindSocket(Socket, pEpollEventRouter, UseLTMode))
 		{
 			pEpollEventRouter->SetEpollThread(pEpollThread);
 			return true;

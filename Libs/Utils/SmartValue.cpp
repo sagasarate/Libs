@@ -11,7 +11,17 @@
 /****************************************************************************/
 #include "stdafx.h"
 
-bool CSmartValue::AUTO_CONVERT_WSTR_TO_UTF8 = false;
+#ifdef WIN32
+#ifdef UNICODE
+CEasyString::STRING_CODE_PAGE CSmartValue::INTERNAL_STRING_CODE_PAGE = CEasyString::STRING_CODE_PAGE_UCS16;
+#else
+CEasyString::STRING_CODE_PAGE CSmartValue::INTERNAL_STRING_CODE_PAGE = CEasyString::STRING_CODE_PAGE_ANSI;
+#endif
+#else
+CEasyString::STRING_CODE_PAGE CSmartValue::INTERNAL_STRING_CODE_PAGE = CEasyString::STRING_CODE_PAGE_UTF8;
+#endif
+
+BYTE CSmartValue::NULL_DATA = VT_NULL;
 
 int CSmartValue::GetTypeFromData(LPCVOID pData, UINT DataSize)
 {

@@ -23,13 +23,13 @@ class CDBTransationWorkThread :
 	public CEasyThread
 {
 protected:
-	CDBTransationManager *					m_pManager;
-	IDatabase *								m_pDatabase;
-	IDBConnection *							m_pConnection;
-	CEasyStringA							m_ConnectString;
-	CCycleQueue<CDBTransaction *>			m_TransQueue;
-	CCycleQueue<CDBTransaction *>			m_FinishTransQueue;
-	CEasyTimer								m_ConnectionTestTimer;
+	CDBTransationManager *						m_pManager;
+	IDatabase *									m_pDatabase;
+	IDBConnection *								m_pConnection;
+	CEasyStringA								m_ConnectString;
+	CThreadSafeCycleQueue<CDBTransaction *>		m_TransQueue;
+	CThreadSafeCycleQueue<CDBTransaction *>		m_FinishTransQueue;
+	CEasyTimer									m_ConnectionTestTimer;
 
 	DECLARE_CLASS_INFO_STATIC(CDBTransationWorkThread)
 public:
@@ -38,7 +38,7 @@ public:
 
 	void Destory();
 
-	bool Init(IDatabase * pDatabase, LPCSTR ConnectStr, int QueueSize = DEFAULT_TRANS_QUEUE);
+	bool Init(IDatabase * pDatabase, LPCSTR ConnectStr, bool MultiThreadAdd, int QueueSize = DEFAULT_TRANS_QUEUE);
 	bool AddTransaction(CDBTransaction * pDBTansaction);
 	CDBTransaction *PopFinishTransaction();
 

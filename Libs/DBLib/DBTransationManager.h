@@ -25,7 +25,8 @@ class CDBTransationManager
 public:
 	enum FLAG
 	{
-		DBTM_FLAG_LOG_PERFORMANCE=1,
+		DBTM_FLAG_LOG_PERFORMANCE = 1,
+		DBTM_FLAG_ADD_TRANS_MULTI_THREAD = (1 << 1),
 	};
 protected:
 	CEasyArray<CDBTransationWorkThread *>	m_WorkThreads;

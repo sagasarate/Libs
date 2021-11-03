@@ -13,6 +13,9 @@
     <Filter Include="MetaClass">
       <UniqueIdentifier>{c4262b3e-9ef8-4f36-97fa-f53c775e5804}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Lib">
+      <UniqueIdentifier>{a39eaa6d-d27b-4a21-acb9-277215f19a5e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LuaScriptPool.cpp">
@@ -132,14 +135,41 @@
     <ClCompile Include="src\lzio.c">
       <Filter>Lua</Filter>
     </ClCompile>
-    <ClCompile Include="LuaGrid.cpp">
-      <Filter>LuaWrap</Filter>
-    </ClCompile>
     <ClCompile Include="LuaBaseStaticMetaClass.cpp">
       <Filter>MetaClass</Filter>
     </ClCompile>
     <ClCompile Include="LuaValue.cpp">
       <Filter>LuaWrap</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaVM.cpp">
+      <Filter>LuaWrap</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseLuaVM.cpp">
+      <Filter>LuaWrap</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaByteArray.cpp">
+      <Filter>MetaClass</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaGrid.cpp">
+      <Filter>MetaClass</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaSmartStruct.cpp">
+      <Filter>MetaClass</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaSmartValue.cpp">
+      <Filter>MetaClass</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaLibCommon.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaLibSmartStruct.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseLuaLib.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaJsonValue.cpp">
+      <Filter>MetaClass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -251,9 +281,6 @@
     <ClInclude Include="src\lzio.h">
       <Filter>Lua</Filter>
     </ClInclude>
-    <ClInclude Include="LuaGrid.h">
-      <Filter>LuaWrap</Filter>
-    </ClInclude>
     <ClInclude Include="LuaBaseStaticMetaClass.h">
       <Filter>MetaClass</Filter>
     </ClInclude>
@@ -262,6 +289,36 @@
     </ClInclude>
     <ClInclude Include="LuaWrapBase.h">
       <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaVM.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseLuaVM.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaByteArray.h">
+      <Filter>MetaClass</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaGrid.h">
+      <Filter>MetaClass</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaSmartStruct.h">
+      <Filter>MetaClass</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaSmartValue.h">
+      <Filter>MetaClass</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaLibCommon.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaLibSmartStruct.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseLuaLib.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaJsonValue.h">
+      <Filter>MetaClass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

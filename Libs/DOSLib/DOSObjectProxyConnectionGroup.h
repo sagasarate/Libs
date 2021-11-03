@@ -13,6 +13,7 @@ protected:
 	CEasyCriticalSection										m_EasyCriticalSection;
 	CThreadPerformanceCounter									m_ThreadPerformanceCounter;
 	CEasyBuffer													m_CompressBuffer;
+	CEasyBuffer													m_EncyptBuffer;
 	char														m_LZOCompressWorkMemory[LZO1X_1_MEM_COMPRESS];
 
 public:

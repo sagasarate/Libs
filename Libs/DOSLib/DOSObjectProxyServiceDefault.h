@@ -63,29 +63,32 @@ protected:
 		CIPAddress	IP;
 	};
 
-	CLIENT_PROXY_CONFIG												m_Config;
-	CCycleQueue<CDOSMessagePacket *>								m_MsgQueue;
+	CLIENT_PROXY_CONFIG													m_Config;
+	CCycleQueue<CDOSMessagePacket *>									m_MsgQueue;
 
-	CStaticMap<MSG_ID_TYPE, MSG_MAP_INFO>							m_MessageMap;
-	OBJECT_ID														m_UnhandleMsgReceiverID;
-	CEasyCriticalSection											m_EasyCriticalSection;
+	CStaticMap<MSG_ID_TYPE, MSG_MAP_INFO>								m_MessageMap;
+	OBJECT_ID															m_UnhandleMsgReceiverID;
+	CEasyCriticalSection												m_EasyCriticalSection;
 
-	CThreadPerformanceCounter										m_ThreadPerformanceCounter;
-	CGuardThread													m_GuardThread;
+	CThreadPerformanceCounter											m_ThreadPerformanceCounter;
+	CGuardThread														m_GuardThread;
 
 
-	CIDStorage<CDOSObjectProxyConnectionDefault, EDSM_NEW_ONCE>		m_ConnectionPool;
-	UINT															m_FreeObjectCheckPtr;
-	CThreadSafeIDStorage<CDOSObjectProxyConnectionDefault *>		m_DestoryConnectionList;
-	CEasyArray<CDOSObjectProxyConnectionGroup>						m_ConnectionGroups;
-	CEasyBuffer														m_CompressBuffer;
-	char															m_LZOCompressWorkMemory[LZO1X_1_MEM_COMPRESS];
+	CIDStorage<CDOSObjectProxyConnectionDefault, EDSM_NEW_ONCE>			m_ConnectionPool;
+	UINT																m_FreeObjectCheckPtr;
+	CThreadSafeIDStorage<CDOSObjectProxyConnectionDefault *>			m_DestoryConnectionList;
+	CEasyArray<CDOSObjectProxyConnectionGroup>							m_ConnectionGroups;
+	CEasyBuffer															m_CompressBuffer;
+	CEasyBuffer															m_EncyptBuffer;
+	char																m_LZOCompressWorkMemory[LZO1X_1_MEM_COMPRESS];
 
-	CHashMap<CIPAddress, IP_INFO>									m_IPBlackList;
-	CHashMap<CIPAddress, IP_INFO>									m_RecvProtectedIPList;
-	CEasyArray<IP_INFO>												m_PrepareIPBlackList;
-	CEasyCriticalSection											m_BlackListCriticalSection;
-	CEasyTimer														m_BlackListUpdateTimer;
+	CHashMap<CIPAddress, IP_INFO>										m_IPBlackList;
+	CHashMap<CIPAddress, IP_INFO>										m_RecvProtectedIPList;
+	CEasyArray<IP_INFO>													m_PrepareIPBlackList;
+	CEasyCriticalSection												m_BlackListCriticalSection;
+	CEasyTimer															m_BlackListUpdateTimer;
+
+	CStaticMap<UINT64, CEasyArray<CDOSObjectProxyConnectionDefault *> >	m_GroupBroadcastMap;
 
 public:
 	CDOSObjectProxyServiceDefault(void);
@@ -145,12 +148,14 @@ public:
 	bool OnRecvProtected(CIPAddress IP);
 protected:
 	void OnMsg(CDOSMessage * pMessage);
-	void OnSystemMsg(CDOSMessage * pMessage);
+	void OnSystemMsg(CDOSMessagePacket * pPacket);
 	bool DoRegisterGlobalMsgMap(MSG_ID_TYPE MsgID, int MapType, OBJECT_ID ObjectID);
 	bool DoUnregisterGlobalMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);
 	void ClearMsgMapByRouterID(UINT RouterID);
 	bool CheckEncryptConfig();
 	int CheckFreeObject();
+	bool AddConnectionToBroadcastGroup(CDOSObjectProxyConnectionDefault * pConnection, UINT64 GroupID);
+	bool RemoveConnectionFromBroadcastGroup(CDOSObjectProxyConnectionDefault * pConnection);
 };
 
 

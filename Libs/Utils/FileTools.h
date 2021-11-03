@@ -516,5 +516,17 @@ public:
 		return false;
 	}
 #endif
+
+#ifdef WIN32
+	inline static bool MoveFile(LPCTSTR SrcPath, LPCTSTR TargetPath)
+	{
+		return ::MoveFile(SrcPath, TargetPath) != FALSE;
+	}
+#else
+	inline static bool MoveFile(LPCTSTR SrcPath, LPCTSTR TargetPath)
+	{
+		return rename(SrcPath, TargetPath) == 0;
+	}
+#endif
 };
 

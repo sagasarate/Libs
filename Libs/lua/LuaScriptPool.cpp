@@ -179,7 +179,7 @@ void CLuaScriptPool::ReloadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent)
 
 void CLuaScriptPool::AddCFunction(const char* funcName, lua_CFunction function, void* func, unsigned int sizeofFunc)
 {
-	CLuaScript::LUA_CFUN_INFO Info;
+	LUA_CFUN_INFO Info;
 	Info.FunName=funcName;
 	Info.pLuaCFun=function;
 	memcpy(Info.FunAddr,func,sizeofFunc);

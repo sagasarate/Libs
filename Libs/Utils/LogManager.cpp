@@ -16,7 +16,8 @@ IMPLEMENT_CLASS_INFO_STATIC(CLogManager,CNameObject);
 
 TCHAR LOG_MANAGER_INSTANCE[]=_T("LogManagerInstance");
 
-CLogManager::CLogManager(void):CNameObject()
+CLogManager::CLogManager(void)
+	:CNameObject()
 {
 	m_LogChannels.SetTag(_T("CLogManager"));
 	m_WorkThreadList.SetTag(_T("CLogManager"));

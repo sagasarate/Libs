@@ -664,9 +664,16 @@ void CExceptionParser::InvalidParameterHandler(const WCHAR * expression,const WC
 	char szFunction[1024];
 	char szFile[MAX_PATH];
 
-	UnicodeToAnsi(expression,wcslen(expression),szExpression,1024);
-	UnicodeToAnsi(function,wcslen(function),szFunction,1024);
-	UnicodeToAnsi(file,wcslen(file),szFile,1024);
+	szExpression[0] = 0;
+	szFunction[0] = 0;
+	szFile[0] = 0;
+
+	if (expression)
+		UnicodeToAnsi(expression, wcslen(expression), szExpression, 1024);
+	if (function)
+		UnicodeToAnsi(function, wcslen(function), szFunction, 1024);
+	if (file)
+		UnicodeToAnsi(file, wcslen(file), szFile, 1024);
 
 	szExpression[1023]=0;
 	szFunction[1023]=0;
@@ -771,4 +778,19 @@ void CExceptionParser::EnumModuleSymStatus(HANDLE hProcess)
 		PrintImportantLog( _T("枚举模块失败%d"), GetLastError());
 	}
 	PrintImportantLog( _T("枚举模块符号加载状态完毕"));
+}
+
+void LogCallStack(int LogChannel)
+{
+	DWORD64 AddressBuff[10];
+	ZeroMemory(AddressBuff, sizeof(AddressBuff));
+	CExceptionParser::GetInstance()->GetCallStack(AddressBuff, 10);
+	for (int i = 0; i < 10; i++)
+	{
+		CExceptionParser::ADDRESS_INFO AddressInfo;
+		if (CExceptionParser::GetInstance()->GetAddressInfo(AddressBuff[i], &AddressInfo))
+		{
+			CLogManager::GetInstance()->PrintLog(LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, 0, _T("%ll08X,%s:%d"), AddressInfo.Address, AddressInfo.CppFileName, AddressInfo.LineNumber);
+		}
+	}
 }

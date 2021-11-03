@@ -1,12 +1,12 @@
 ﻿#include "StdAfx.h"
 
-const char *CBase64::bstr =
-"ABCDEFGHIJKLMNOPQ"
-"RSTUVWXYZabcdefgh"
-"ijklmnopqrstuvwxy"
-"z0123456789+/";
+const TCHAR * CBase64::bstr =
+	_T("ABCDEFGHIJKLMNOPQ")
+	_T("RSTUVWXYZabcdefgh")
+	_T("ijklmnopqrstuvwxy")
+	_T("z0123456789+/");
 
-const char CBase64::rstr[] = {
+const TCHAR CBase64::rstr[] = {
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, 
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, 
 	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  62,   0,   0,   0,  63, 
@@ -19,42 +19,42 @@ const char CBase64::rstr[] = {
 
 
 
-bool CBase64::Encode(const CEasyStringA& InData, CEasyStringA& OutData, bool AddCRLF)
+bool CBase64::Encode(const CEasyString& InData, CEasyString& OutData, bool AddCRLF)
 {
 	OutData.Resize(GetEncodeLen(InData.GetLength()));
 	OutData.SetLength(OutData.GetBufferSize()-1);
 	size_t OutLen=OutData.GetLength();
-	return Encode(InData.GetBuffer(), InData.GetLength(), (char *)OutData.GetBuffer(),OutLen, AddCRLF);
+	return Encode(InData.GetBuffer(), InData.GetLength(), (TCHAR *)OutData.GetBuffer(),OutLen, AddCRLF);
 }
 
-bool CBase64::Encode(LPCVOID pInData,size_t DataLen,CEasyStringA& OutData, bool AddCRLF)
+bool CBase64::Encode(LPCVOID pInData,size_t DataLen,CEasyString& OutData, bool AddCRLF)
 {
 	OutData.Resize(GetEncodeLen(DataLen));
 	OutData.SetLength(OutData.GetBufferSize()-1);
 	size_t OutLen=OutData.GetLength();
-	return Encode(pInData, DataLen, (char *)OutData.GetBuffer(), OutLen,AddCRLF);
+	return Encode(pInData, DataLen, (TCHAR *)OutData.GetBuffer(), OutLen,AddCRLF);
 }
 
-CEasyStringA CBase64::Encode(const CEasyStringA& InData, bool AddCRLF)
+CEasyString CBase64::Encode(const CEasyString& InData, bool AddCRLF)
 {
-	CEasyStringA OutData;
+	CEasyString OutData;
 	OutData.Resize(GetEncodeLen(InData.GetLength()));
 	OutData.SetLength(OutData.GetBufferSize()-1);
 	size_t OutLen=OutData.GetBufferSize();
-	Encode(InData.GetBuffer(), InData.GetLength(), (char *)OutData.GetBuffer(),OutLen, AddCRLF);
+	Encode(InData.GetBuffer(), InData.GetLength(), (TCHAR *)OutData.GetBuffer(),OutLen, AddCRLF);
 	return OutData;
 }
-CEasyStringA CBase64::Encode(LPCVOID pInData,size_t DataLen,bool AddCRLF)
+CEasyString CBase64::Encode(LPCVOID pInData,size_t DataLen,bool AddCRLF)
 {
-	CEasyStringA OutData;	
+	CEasyString OutData;	
 	OutData.Resize(GetEncodeLen(DataLen));
 	OutData.SetLength(OutData.GetBufferSize()-1);
 	size_t OutLen=OutData.GetLength();
-	Encode(pInData, DataLen, (char *)OutData.GetBuffer(),OutLen, AddCRLF);
+	Encode(pInData, DataLen, (TCHAR *)OutData.GetBuffer(),OutLen, AddCRLF);
 	return OutData;
 }
 
-bool CBase64::Encode(LPCVOID pInData,size_t DataLen,char * pOutBuff, size_t& OutLen, bool AddCRLF)
+bool CBase64::Encode(LPCVOID pInData,size_t DataLen,TCHAR * pOutBuff, size_t& OutLen, bool AddCRLF)
 {
 	size_t i = 0;
 	size_t o = 0;
@@ -102,7 +102,7 @@ bool CBase64::Encode(LPCVOID pInData,size_t DataLen,char * pOutBuff, size_t& Out
 	return true;
 }
 
-bool CBase64::Decode(const CEasyStringA& InData,CEasyBuffer& OutData)
+bool CBase64::Decode(const CEasyString& InData,CEasyBuffer& OutData)
 {
 	OutData.Create((UINT)GetDecodeLen(InData, InData.GetLength()));
 	size_t OutLen=OutData.GetBufferSize();
@@ -111,12 +111,12 @@ bool CBase64::Decode(const CEasyStringA& InData,CEasyBuffer& OutData)
 	return Ret;
 }
 
-bool CBase64::Decode(const CEasyStringA& InData,BYTE * pOutData, size_t& OutLen)
+bool CBase64::Decode(const CEasyString& InData,BYTE * pOutData, size_t& OutLen)
 {
 	return Decode(InData,InData.GetLength(),pOutData,OutLen);
 }
 
-bool  CBase64::Decode(LPCSTR szInData,size_t InLen, CEasyBuffer& OutData)
+bool  CBase64::Decode(LPCTSTR szInData,size_t InLen, CEasyBuffer& OutData)
 {
 	OutData.Create((UINT)GetDecodeLen(szInData, InLen));
 	size_t OutLen=OutData.GetBufferSize();
@@ -125,7 +125,7 @@ bool  CBase64::Decode(LPCSTR szInData,size_t InLen, CEasyBuffer& OutData)
 	return Ret;
 }
 
-bool CBase64::Decode(LPCSTR szInData,size_t InLen, BYTE * pOutData, size_t& OutLen)
+bool CBase64::Decode(LPCTSTR szInData,size_t InLen, BYTE * pOutData, size_t& OutLen)
 {
 	size_t i = 0;
 	size_t l = InLen;

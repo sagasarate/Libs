@@ -27,16 +27,6 @@
 
 
 
-#define RELEASE_STR_BUFF(pBuffer) \
-	if(pBuffer != EMPTY_STR)\
-	{\
-		SAFE_DELETE_ARRAY(pBuffer);\
-	}\
-	else\
-	{\
-		pBuffer = NULL;\
-	}\
-
 inline int strncpy_0(char *strDest,size_t DestSize, const char *strSource, size_t count)
 {
 	if(strDest&&strSource)
@@ -209,6 +199,7 @@ inline T * StringTrimRightT(T * pStr,T TrimChar)
 	while(pStrTail!=pStr&&(*pStrTail==TrimChar))
 	{
 		*pStrTail=0;
+		pStrTail--;
 	}
 	return pStr;
 }
@@ -246,6 +237,7 @@ inline T * StringTrimT(T * pStr,T TrimChar)
 	while(pStrTail!=pStr&&(*pStrTail==TrimChar))
 	{
 		*pStrTail=0;
+		pStrTail--;
 	}
 	return pStr;
 }
@@ -273,70 +265,65 @@ public:
 	{
 		ERROR_CHAR_POS=-1,
 	};
+	enum STRING_CODE_PAGE
+	{
+		STRING_CODE_PAGE_AUTO,
+		STRING_CODE_PAGE_ANSI,
+		STRING_CODE_PAGE_UTF8,
+		STRING_CODE_PAGE_UCS16,
+	};
 	static T ZERO_CHAR;
 	static T * EMPTY_STR;
+	static STRING_CODE_PAGE SYSTEM_STRING_CODE_PAGE;
 protected:
 	T*			m_pBuffer;
 	SIZE_TYPE	m_BufferSize;
 	SIZE_TYPE	m_StringLength;
 	UINT		m_HashCode;
-
-	static int	m_DefaultCodePage;	
 public:
-
-	static void SetDefaultCodePage(int CodePage)
-	{
-		m_DefaultCodePage = CodePage;
-	}
-
-	static int GetDefaultCodePage()
-	{
-		return m_DefaultCodePage;
-	}
-
 	CEasyStringT()
 	{
 		m_pBuffer = CEasyStringT<T>::EMPTY_STR;
-		m_BufferSize=1;
+		m_BufferSize=0;
 		m_StringLength=0;
 		m_HashCode = 0;
 	}
-	CEasyStringT(const char * pStr)
-	{
-		m_pBuffer = EMPTY_STR;		
-		m_BufferSize=1;
-		m_StringLength=0;
-		m_HashCode = 0;
-		SetString(pStr,GetStrLen(pStr));
-	}
-	CEasyStringT(const WCHAR * pStr)
+	CEasyStringT(const char * pStr, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO)
 	{
 		m_pBuffer = EMPTY_STR;
-		m_BufferSize=1;
-		m_StringLength=0;
+		m_BufferSize = 0;
+		m_StringLength = 0;
 		m_HashCode = 0;
-		SetString(pStr,GetStrLen(pStr));
+		SetString(pStr, GetStrLen(pStr), CodePage);
 	}
-	CEasyStringT(const char * pStr,SIZE_TYPE Size)
+	CEasyStringT(const WCHAR * pStr, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO)
 	{
 		m_pBuffer = EMPTY_STR;
-		m_BufferSize=1;
+		m_BufferSize=0;
 		m_StringLength=0;
 		m_HashCode = 0;
-		SetString(pStr,Size);
+		SetString(pStr,GetStrLen(pStr), CodePage);
 	}
-	CEasyStringT(const WCHAR * pStr,SIZE_TYPE Size)
+	CEasyStringT(const char * pStr,SIZE_TYPE Size, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO)
 	{
 		m_pBuffer = EMPTY_STR;
-		m_BufferSize=1;
+		m_BufferSize=0;
 		m_StringLength=0;
 		m_HashCode = 0;
-		SetString(pStr,Size);
+		SetString(pStr,Size, CodePage);
 	}
+	CEasyStringT(const WCHAR * pStr,SIZE_TYPE Size, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO)
+	{
+		m_pBuffer = EMPTY_STR;
+		m_BufferSize=0;
+		m_StringLength=0;
+		m_HashCode = 0;
+		SetString(pStr,Size, CodePage);
+	}	
 	CEasyStringT(const char Char)
 	{
 		m_pBuffer = EMPTY_STR;
-		m_BufferSize=1;
+		m_BufferSize=0;
 		m_StringLength=0;
 		m_HashCode = 0;
 		SetString(&Char,1);
@@ -344,7 +331,7 @@ public:
 	CEasyStringT(const WCHAR Char)
 	{
 		m_pBuffer = EMPTY_STR;
-		m_BufferSize=1;
+		m_BufferSize=0;
 		m_StringLength=0;
 		m_HashCode = 0;
 		SetString(&Char,1);
@@ -352,20 +339,29 @@ public:
 	CEasyStringT(const CEasyStringT<char>& Str)
 	{
 		m_pBuffer = EMPTY_STR;
-		m_BufferSize=1;
+		m_BufferSize=0;
 		m_StringLength=0;
 		SetString(Str.GetBuffer(),Str.GetLength());
 	}
 	CEasyStringT(const CEasyStringT<WCHAR>& Str)
 	{
 		m_pBuffer = EMPTY_STR;
-		m_BufferSize=1;
+		m_BufferSize=0;
 		m_StringLength=0;
 		SetString(Str.GetBuffer(),Str.GetLength());
 	}
 	~CEasyStringT()
 	{
-		RELEASE_STR_BUFF(m_pBuffer);
+		ReleaseBuffer();
+	}
+	void ReleaseBuffer()
+	{
+		if (m_pBuffer&&m_BufferSize)
+		{
+			MONITORED_DELETE_ARRAY(m_pBuffer);
+		}
+		m_pBuffer = EMPTY_STR;
+		m_BufferSize = 0;
 	}
 	void Clear()
 	{
@@ -390,23 +386,39 @@ public:
 			memcpy(pNewBuffer,m_pBuffer,sizeof(T)*NewStringLen);
 		}
 		pNewBuffer[NewStringLen]=0;
-		pNewBuffer[Size]=0;
-		m_BufferSize=Size+1;
+		pNewBuffer[Size]=0;		
 		m_StringLength=NewStringLen;
-		RELEASE_STR_BUFF(m_pBuffer);
+		ReleaseBuffer();		
 		m_pBuffer=pNewBuffer;
+		m_BufferSize = Size + 1;
 		m_HashCode = 0;
+	}
+	bool MakeSelfBuffer()
+	{
+		if (m_pBuffer && (m_pBuffer != EMPTY_STR) && (m_BufferSize == 0) && m_StringLength)
+		{
+			m_BufferSize = m_StringLength + 1;
+			T * pNewBuffer = MONITORED_NEW_ARRAY(_T("CEasyStringT"), T, m_BufferSize);
+			memcpy(pNewBuffer, m_pBuffer, sizeof(T)*m_StringLength);
+			pNewBuffer[m_StringLength] = 0;
+			m_pBuffer = pNewBuffer;
+			return true;
+		}
+		return false;
 	}
 	void TrimBuffer(SIZE_TYPE Size=0)
 	{
+		if (m_pBuffer == EMPTY_STR)
+			return;
+		MakeSelfBuffer();
 		if(Size<=0)
 		{
-			Size=m_BufferSize-1;
-			for(SIZE_TYPE i=0;i<m_BufferSize;i++)
+			Size = m_BufferSize - 1;
+			for (SIZE_TYPE i = 0; i < m_BufferSize; i++)
 			{
-				if(m_pBuffer[i]==0)
+				if (m_pBuffer[i] == 0)
 				{
-					Size=i;
+					Size = i;
 					break;
 				}
 			}
@@ -427,20 +439,24 @@ public:
 		}
 		return m_HashCode;
 	}
-	void SetString(const char * pStr,SIZE_TYPE Size);
-	void SetString(const WCHAR * pStr,SIZE_TYPE Size);
-	void AppendString(const char * pStr,SIZE_TYPE Size);
-	void AppendString(const WCHAR * pStr,SIZE_TYPE Size);
+	void SetStringRef(const char * pStr, SIZE_TYPE Size, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
+	void SetStringRef(const WCHAR * pStr, SIZE_TYPE Size, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
+	void SetString(const char * pStr, SIZE_TYPE Size, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
+	void SetString(const WCHAR * pStr,SIZE_TYPE Size, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
+	void AppendString(const char * pStr,SIZE_TYPE Size, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
+	void AppendString(const WCHAR * pStr,SIZE_TYPE Size, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
+	SIZE_TYPE GetStringBytes(BYTE * pBuffer, SIZE_TYPE BufferSize, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO) const;
 	SIZE_TYPE GetLength() const
 	{
 		return m_StringLength;
 	}
 	void SetLength(SIZE_TYPE Len)
 	{
-		if(Len<m_BufferSize)
+		if (Len < m_BufferSize)
 		{
-			m_StringLength=Len;
-			m_pBuffer[m_StringLength]=0;
+			MakeSelfBuffer();
+			m_StringLength = Len;
+			m_pBuffer[m_StringLength] = 0;
 		}
 	}
 	SIZE_TYPE GetBufferSize() const
@@ -757,6 +773,7 @@ public:
 	{
 		if(OldChar!=NewChar)
 		{
+			MakeSelfBuffer();
 			for(SIZE_TYPE i=0;i<m_StringLength;i++)
 			{
 				if(m_pBuffer[i]==OldChar)
@@ -768,7 +785,7 @@ public:
 	void Replace(const T * pOldStr,const T * pNewStr)
 	{
 		if(CompareString(pOldStr,pNewStr)!=0)
-		{
+		{			
 			int StartPos=0;
 			int ReplaceCount=0;
 			int ReplaceSrcLen=(int)GetStrLen(pOldStr);
@@ -785,8 +802,10 @@ public:
 
 
 			SIZE_TYPE NewStrLen=(int)m_StringLength+ReplaceCount*(ReplaceDestLen-ReplaceSrcLen);
-			if(NewStrLen>=m_BufferSize)
+			if (NewStrLen >= m_BufferSize)
 				Resize(NewStrLen);
+			else
+				MakeSelfBuffer();
 
 			if(NewStrLen>=m_StringLength)
 			{
@@ -838,8 +857,10 @@ public:
 		{
 			SIZE_TYPE ReplaceDestLen=GetStrLen(pNewStr);
 			SIZE_TYPE NewStrLen=m_StringLength+ReplaceDestLen-Len;
-			if(NewStrLen>=m_BufferSize)
+			if (NewStrLen >= m_BufferSize)
 				Resize(NewStrLen);
+			else
+				MakeSelfBuffer();
 
 			memmove(m_pBuffer + Start + ReplaceDestLen, m_pBuffer + Start + Len, (m_StringLength - Start - Len)*sizeof(T));
 			memmove(m_pBuffer + Start, pNewStr, ReplaceDestLen*sizeof(T));
@@ -854,8 +875,10 @@ public:
 		if(Start+Len<=m_StringLength&&Len)
 		{
 			SIZE_TYPE NewStrLen=m_StringLength+NewLen-Len;
-			if(NewStrLen>=m_BufferSize)
+			if (NewStrLen >= m_BufferSize)
 				Resize(NewStrLen);
+			else
+				MakeSelfBuffer();
 
 			memmove(m_pBuffer+Start+NewLen,m_pBuffer+Start+Len,(m_StringLength-Start-Len)*sizeof(T));
 			while(NewLen)
@@ -872,6 +895,7 @@ public:
 	{
 		if(StartPos<m_StringLength)
 		{
+			MakeSelfBuffer();
 			if(StartPos+Len>m_StringLength)
 				Len=m_StringLength-StartPos;
 			memmove(m_pBuffer+StartPos,m_pBuffer+StartPos+Len,(m_StringLength-StartPos-Len)*sizeof(T));
@@ -906,19 +930,32 @@ public:
 	}
 	void Insert(SIZE_TYPE Pos,const T * pStr,SIZE_TYPE StrLen=0)
 	{
-
 		if(Pos<=m_StringLength)
 		{
 			if(StrLen==0)
 				StrLen=GetStrLen(pStr);
 			SIZE_TYPE NewStrLen=m_StringLength+StrLen;
-			if(NewStrLen>=m_BufferSize)
+			if (NewStrLen >= m_BufferSize)
 				Resize(NewStrLen);
+			else
+				MakeSelfBuffer();
 			memmove(m_pBuffer+Pos+StrLen,m_pBuffer+Pos,(m_StringLength-Pos)*sizeof(T));
 			memmove(m_pBuffer+Pos,pStr,StrLen*sizeof(T));
 			m_StringLength+=StrLen;
 			m_pBuffer[m_StringLength]=0;
 			m_HashCode = 0;
+		}
+	}
+	static int GetSystemCodePageID()
+	{
+		switch (SYSTEM_STRING_CODE_PAGE)
+		{
+		case STRING_CODE_PAGE_UTF8:
+			return CP_UTF8;
+		case STRING_CODE_PAGE_UCS16:
+			return CP_UNICODE;
+		default:
+			return CP_ACP;
 		}
 	}
 protected:
@@ -939,25 +976,86 @@ protected:
 };
 
 template<typename T>
-int	CEasyStringT<T>::m_DefaultCodePage = CP_ACP;
-
-template<typename T>
 T CEasyStringT<T>::ZERO_CHAR = 0;
 
 template<typename T>
 T * CEasyStringT<T>::EMPTY_STR = &CEasyStringT<T>::ZERO_CHAR;
 
 
+template<typename T>
+#ifdef WIN32
+#ifdef UNICODE
+typename CEasyStringT<T>::STRING_CODE_PAGE CEasyStringT<T>::SYSTEM_STRING_CODE_PAGE = CEasyStringT<T>::STRING_CODE_PAGE_UCS16;
+#else
+typename CEasyStringT<T>::STRING_CODE_PAGE CEasyStringT<T>::SYSTEM_STRING_CODE_PAGE = CEasyStringT<T>::STRING_CODE_PAGE_ANSI;
+#endif
+#else
+typename CEasyStringT<T>::STRING_CODE_PAGE CEasyStringT<T>::SYSTEM_STRING_CODE_PAGE = CEasyStringT<T>::STRING_CODE_PAGE_UTF8;
+#endif
+
+
 
 template<>
-inline void CEasyStringT<char>::SetString(const char * pStr,SIZE_TYPE Size)
+inline void CEasyStringT<char>::SetString(const char * pStr,SIZE_TYPE Size, STRING_CODE_PAGE CodePage)
 {
-	if(Size>0)
+	if (pStr && (Size > 0))
 	{
-		if(Size+1>m_BufferSize)
-			Resize(Size,false);
-		if(pStr)
-			memmove(m_pBuffer,pStr,Size);
+		if ((CodePage == STRING_CODE_PAGE_AUTO) || (CodePage == SYSTEM_STRING_CODE_PAGE))
+		{
+			if (Size + 1 > m_BufferSize)
+				Resize(Size, false);
+			else
+				MakeSelfBuffer();
+			memmove(m_pBuffer, pStr, Size);
+			m_pBuffer[Size] = 0;
+			m_StringLength = Size;
+			m_HashCode = 0;
+		}
+		else if (CodePage == STRING_CODE_PAGE_ANSI)
+		{
+			SIZE_TYPE DestSize = AnsiToUTF8(pStr, Size, NULL, 0);
+			if (DestSize + 1 > m_BufferSize)
+				Resize(DestSize, false);
+			else
+				MakeSelfBuffer();
+			AnsiToUTF8(pStr, Size, m_pBuffer, DestSize);
+			m_pBuffer[DestSize] = 0;
+			m_StringLength = DestSize;
+			m_HashCode = 0;
+		}
+		else if (CodePage == STRING_CODE_PAGE_UTF8)
+		{
+			SIZE_TYPE DestSize = UTF8ToAnsi(pStr, Size, NULL, 0);
+			if (DestSize + 1 > m_BufferSize)
+				Resize(DestSize, false);
+			else
+				MakeSelfBuffer();
+			UTF8ToAnsi(pStr, Size, m_pBuffer, DestSize);
+			m_pBuffer[DestSize] = 0;
+			m_StringLength = DestSize;
+			m_HashCode = 0;
+		}
+		else
+		{
+			Clear();
+		}
+	}
+	else
+	{
+		Clear();
+	}
+}
+
+template<>
+inline void CEasyStringT<WCHAR>::SetString(const WCHAR * pStr,SIZE_TYPE Size, STRING_CODE_PAGE CodePage)
+{
+	if (pStr && (Size > 0))
+	{
+		if (Size + 1 > m_BufferSize)
+			Resize(Size, false);
+		else
+			MakeSelfBuffer();
+		memmove(m_pBuffer,pStr,sizeof(WCHAR)*Size);
 		m_pBuffer[Size]=0;
 		m_StringLength=Size;
 		m_HashCode = 0;
@@ -969,40 +1067,23 @@ inline void CEasyStringT<char>::SetString(const char * pStr,SIZE_TYPE Size)
 }
 
 template<>
-inline void CEasyStringT<WCHAR>::SetString(const WCHAR * pStr,SIZE_TYPE Size)
+inline void CEasyStringT<char>::SetString(const WCHAR * pStr,SIZE_TYPE Size, STRING_CODE_PAGE CodePage)
 {
-	if(Size>0)
-	{
-		if(Size+1>m_BufferSize)
-			Resize(Size,false);
-		if(pStr)
-			memmove(m_pBuffer,pStr,sizeof(WCHAR)*Size);
-		m_pBuffer[Size]=0;
-		m_StringLength=Size;
-		m_HashCode = 0;
-	}
-	else
-	{
-		Clear();
-	}
-}
-
-template<>
-inline void CEasyStringT<char>::SetString(const WCHAR * pStr,SIZE_TYPE Size)
-{
-	if(pStr&&Size>0)
+	if (pStr && (Size > 0))
 	{
 		SIZE_TYPE AnsiSize;
-		if (m_DefaultCodePage == CP_UTF8)
+		if (SYSTEM_STRING_CODE_PAGE == STRING_CODE_PAGE_UTF8)
 			AnsiSize = UnicodeToUTF8(pStr, Size, NULL, 0);
 		else
 			AnsiSize=UnicodeToAnsi(pStr,Size,NULL,0);
 
-		if(AnsiSize>=m_BufferSize)
-			Resize(AnsiSize,false);
+		if (AnsiSize >= m_BufferSize)
+			Resize(AnsiSize, false);
+		else
+			MakeSelfBuffer();
 		if (pStr)
 		{
-			if (m_DefaultCodePage==CP_UTF8)
+			if (SYSTEM_STRING_CODE_PAGE == STRING_CODE_PAGE_UTF8)
 				UnicodeToUTF8(pStr, Size, m_pBuffer, AnsiSize);
 			else
 				UnicodeToAnsi(pStr, Size, m_pBuffer, AnsiSize);
@@ -1019,20 +1100,22 @@ inline void CEasyStringT<char>::SetString(const WCHAR * pStr,SIZE_TYPE Size)
 }
 
 template<>
-inline void CEasyStringT<WCHAR>::SetString(const char * pStr,SIZE_TYPE Size)
+inline void CEasyStringT<WCHAR>::SetString(const char * pStr,SIZE_TYPE Size, STRING_CODE_PAGE CodePage)
 {
-	if(pStr&&Size>0)
+	if (pStr && (Size > 0))
 	{
 		SIZE_TYPE UnicodeSize;
-		if (m_DefaultCodePage == CP_UTF8)
+		if (CodePage == STRING_CODE_PAGE_UTF8)
 			UnicodeSize = UTF8ToUnicode(pStr, Size, NULL, 0);
 		else
 			UnicodeSize=AnsiToUnicode(pStr,Size,NULL,0);
-		if(UnicodeSize>=m_BufferSize)
-			Resize(UnicodeSize,false);
+		if (UnicodeSize >= m_BufferSize)
+			Resize(UnicodeSize, false);
+		else
+			MakeSelfBuffer();
 		if (pStr)
 		{
-			if (m_DefaultCodePage == CP_UTF8)
+			if (CodePage == STRING_CODE_PAGE_UTF8)
 				UTF8ToUnicode(pStr, Size, m_pBuffer, UnicodeSize);
 			else
 				AnsiToUnicode(pStr, Size, m_pBuffer, UnicodeSize);
@@ -1048,14 +1131,104 @@ inline void CEasyStringT<WCHAR>::SetString(const char * pStr,SIZE_TYPE Size)
 }
 
 template<>
-inline void CEasyStringT<char>::AppendString(const char * pStr,SIZE_TYPE Size)
+inline void CEasyStringT<char>::SetStringRef(const char * pStr, SIZE_TYPE Size, STRING_CODE_PAGE CodePage)
 {
-	if(Size>0)
+	if (pStr && (Size > 0))
 	{
-		if(m_StringLength+Size>=m_BufferSize)
-			Resize(m_StringLength+Size);
-		if(pStr)
-			memmove(m_pBuffer+m_StringLength,pStr,Size);
+		if ((CodePage == STRING_CODE_PAGE_AUTO) || (CodePage == SYSTEM_STRING_CODE_PAGE))
+		{
+			ReleaseBuffer();
+			m_pBuffer = (char *)pStr;
+			m_BufferSize = 0;
+			m_StringLength = Size;
+			m_HashCode = 0;
+		}
+		else
+		{
+			SetString(pStr, Size, CodePage);
+		}
+	}
+	else
+	{
+		Clear();
+	}
+}
+
+template<>
+inline void CEasyStringT<WCHAR>::SetStringRef(const char * pStr, SIZE_TYPE Size, STRING_CODE_PAGE CodePage)
+{
+	SetString(pStr, Size, CodePage);
+}
+
+template<>
+inline void CEasyStringT<char>::SetStringRef(const WCHAR * pStr, SIZE_TYPE Size, STRING_CODE_PAGE CodePage)
+{
+	SetString(pStr, Size, CodePage);
+}
+
+template<>
+inline void CEasyStringT<WCHAR>::SetStringRef(const WCHAR * pStr, SIZE_TYPE Size, STRING_CODE_PAGE CodePage)
+{
+	ReleaseBuffer();
+	m_pBuffer = (WCHAR *)pStr;
+	m_BufferSize = 0;
+	m_StringLength = Size;
+	m_HashCode = 0;
+}
+
+template<>
+inline void CEasyStringT<char>::AppendString(const char * pStr,SIZE_TYPE Size, STRING_CODE_PAGE CodePage)
+{
+	if (pStr && (Size > 0))
+	{
+		if ((CodePage == STRING_CODE_PAGE_AUTO) || (CodePage == SYSTEM_STRING_CODE_PAGE))
+		{
+			if (m_StringLength + Size + 1 >= m_BufferSize)
+				Resize(m_StringLength + Size);
+			else
+				MakeSelfBuffer();
+			memmove(m_pBuffer + m_StringLength, pStr, Size);
+			m_pBuffer[m_StringLength + Size] = 0;
+			m_StringLength += Size;
+			m_HashCode = 0;
+		}
+		else if (CodePage == STRING_CODE_PAGE_ANSI)
+		{
+			SIZE_TYPE DestSize = AnsiToUTF8(pStr, Size, NULL, 0);
+			if (DestSize + m_StringLength + 1 > m_BufferSize)
+				Resize(DestSize + m_StringLength);
+			else
+				MakeSelfBuffer();
+			AnsiToUTF8(pStr + m_StringLength, Size, m_pBuffer, DestSize);
+			m_pBuffer[m_StringLength + DestSize] = 0;
+			m_StringLength += DestSize;
+			m_HashCode = 0;
+		}
+		else if (CodePage == STRING_CODE_PAGE_UTF8)
+		{
+			SIZE_TYPE DestSize = UTF8ToAnsi(pStr, Size, NULL, 0);
+			if (DestSize + m_StringLength + 1 > m_BufferSize)
+				Resize(DestSize + m_StringLength);
+			else
+				MakeSelfBuffer();
+			UTF8ToAnsi(pStr + m_StringLength, Size, m_pBuffer, DestSize);
+			m_pBuffer[m_StringLength + DestSize] = 0;
+			m_StringLength += DestSize;
+			m_HashCode = 0;
+		}
+	}
+}
+
+template<>
+inline void CEasyStringT<WCHAR>::AppendString(const WCHAR * pStr,SIZE_TYPE Size, STRING_CODE_PAGE CodePage)
+{
+	if (pStr && (Size > 0))
+	{
+		if (m_StringLength + Size >= m_BufferSize)
+			Resize(m_StringLength + Size);		
+		else
+			MakeSelfBuffer();
+		memmove(m_pBuffer+m_StringLength,pStr,sizeof(WCHAR)*Size);
 		m_pBuffer[m_StringLength+Size]=0;
 		m_StringLength+=Size;
 		m_HashCode = 0;
@@ -1063,36 +1236,23 @@ inline void CEasyStringT<char>::AppendString(const char * pStr,SIZE_TYPE Size)
 }
 
 template<>
-inline void CEasyStringT<WCHAR>::AppendString(const WCHAR * pStr,SIZE_TYPE Size)
+inline void CEasyStringT<char>::AppendString(const WCHAR * pStr,SIZE_TYPE Size, STRING_CODE_PAGE CodePage)
 {
-	if(Size>0)
-	{
-		if(m_StringLength+Size>=m_BufferSize)
-			Resize(m_StringLength+Size);
-		if(pStr)
-			memmove(m_pBuffer+m_StringLength,pStr,sizeof(WCHAR)*Size);
-		m_pBuffer[m_StringLength+Size]=0;
-		m_StringLength+=Size;
-		m_HashCode = 0;
-	}
-}
-
-template<>
-inline void CEasyStringT<char>::AppendString(const WCHAR * pStr,SIZE_TYPE Size)
-{
-	if(Size>0)
+	if (pStr && (Size > 0))
 	{
 		SIZE_TYPE AnsiSize;
-		if (m_DefaultCodePage == CP_UTF8)
+		if (SYSTEM_STRING_CODE_PAGE == STRING_CODE_PAGE_UTF8)
 			AnsiSize = UnicodeToUTF8(pStr, Size, NULL, 0);
 		else
 			AnsiSize = UnicodeToAnsi(pStr, Size, NULL, 0);
-		if(m_StringLength+AnsiSize>=m_BufferSize)
-			Resize(m_StringLength+AnsiSize);
+		if (m_StringLength + AnsiSize >= m_BufferSize)
+			Resize(m_StringLength + AnsiSize);
+		else
+			MakeSelfBuffer();
 
 		if (pStr)
 		{
-			if (m_DefaultCodePage == CP_UTF8)
+			if (SYSTEM_STRING_CODE_PAGE == STRING_CODE_PAGE_UTF8)
 				UnicodeToUTF8(pStr, Size, m_pBuffer + m_StringLength, AnsiSize);
 			else
 				UnicodeToAnsi(pStr, Size, m_pBuffer + m_StringLength, AnsiSize);
@@ -1106,21 +1266,23 @@ inline void CEasyStringT<char>::AppendString(const WCHAR * pStr,SIZE_TYPE Size)
 
 
 template<>
-inline void CEasyStringT<WCHAR>::AppendString(const char * pStr,SIZE_TYPE Size)
+inline void CEasyStringT<WCHAR>::AppendString(const char * pStr,SIZE_TYPE Size, STRING_CODE_PAGE CodePage)
 {
-	if(pStr&&Size>0)
+	if (pStr && (Size > 0))
 	{
 		SIZE_TYPE UnicodeSize;
-		if (m_DefaultCodePage == CP_UTF8)
+		if (CodePage == STRING_CODE_PAGE_UTF8)
 			UnicodeSize = UTF8ToUnicode(pStr, Size, NULL, 0);
 		else
 			UnicodeSize=AnsiToUnicode(pStr,Size,NULL,0);
-		if(m_StringLength+UnicodeSize>=m_BufferSize)
-			Resize(m_StringLength+UnicodeSize);
+		if (m_StringLength + UnicodeSize >= m_BufferSize)
+			Resize(m_StringLength + UnicodeSize);
+		else
+			MakeSelfBuffer();
 
 		if (pStr)
 		{
-			if (m_DefaultCodePage == CP_UTF8)
+			if (CodePage == STRING_CODE_PAGE_UTF8)
 				UTF8ToUnicode(pStr, Size, m_pBuffer + m_StringLength, UnicodeSize);
 			else
 				AnsiToUnicode(pStr, Size, m_pBuffer + m_StringLength, UnicodeSize);
@@ -1130,20 +1292,137 @@ inline void CEasyStringT<WCHAR>::AppendString(const char * pStr,SIZE_TYPE Size)
 		m_HashCode = 0;
 	}
 }
+template<>
+inline CEasyStringT<char>::SIZE_TYPE CEasyStringT<char>::GetStringBytes(BYTE * pBuffer, SIZE_TYPE BufferSize, STRING_CODE_PAGE CodePage) const
+{
+	if ((CodePage == STRING_CODE_PAGE_AUTO) || (CodePage == SYSTEM_STRING_CODE_PAGE))
+	{
+		if (pBuffer)
+		{
+			SIZE_TYPE CopySize = (BufferSize < m_StringLength) ? BufferSize : m_StringLength;
+			memcpy(pBuffer, m_pBuffer, CopySize);
+			return CopySize;
+		}
+		else
+		{
+			return m_StringLength;
+		}
+	}
+	else if (CodePage == STRING_CODE_PAGE_ANSI)
+	{
+		SIZE_TYPE DestSize = UTF8ToAnsi(m_pBuffer, m_StringLength, NULL, 0);
+		if (pBuffer)
+		{
+			SIZE_TYPE CopySize = (BufferSize < DestSize) ? BufferSize : DestSize;
+			CopySize = UTF8ToAnsi(m_pBuffer, m_StringLength, (char *)pBuffer, CopySize);
+			return CopySize;
+		}
+		else
+		{
+			return DestSize;
+		}
+	}
+	else if (CodePage == STRING_CODE_PAGE_UTF8)
+	{
+		SIZE_TYPE DestSize = AnsiToUTF8(m_pBuffer, m_StringLength, NULL, 0);
+		if (pBuffer)
+		{
+			SIZE_TYPE CopySize = (BufferSize < DestSize) ? BufferSize : DestSize;
+			CopySize = AnsiToUTF8(m_pBuffer, m_StringLength, (char *)pBuffer, CopySize);
+			return CopySize;
+		}
+		else
+		{
+			return DestSize;
+		}
+	}
+	else if (CodePage == STRING_CODE_PAGE_UCS16)
+	{
+		SIZE_TYPE DestSize;
+		if (SYSTEM_STRING_CODE_PAGE == STRING_CODE_PAGE_ANSI)
+			DestSize = AnsiToUnicode(m_pBuffer, m_StringLength, NULL, 0) * sizeof(WCHAR);
+		else
+			DestSize = UTF8ToUnicode(m_pBuffer, m_StringLength, NULL, 0) * sizeof(WCHAR);
+		if (pBuffer)
+		{
+			BufferSize = ((SIZE_TYPE)(BufferSize / (sizeof(WCHAR)))) * sizeof(WCHAR);
+			SIZE_TYPE CopySize = (BufferSize < DestSize) ? BufferSize : DestSize;
+			if (SYSTEM_STRING_CODE_PAGE == STRING_CODE_PAGE_ANSI)
+				CopySize = AnsiToUnicode(m_pBuffer, m_StringLength, (WCHAR *)pBuffer, DestSize / sizeof(WCHAR));
+			else
+				CopySize = UTF8ToUnicode(m_pBuffer, m_StringLength, (WCHAR *)pBuffer, DestSize / sizeof(WCHAR));
+			return CopySize;
+		}
+		else
+		{
+			return DestSize;
+		}
+	}
+	return 0;
+}
+
+template<>
+inline CEasyStringT<WCHAR>::SIZE_TYPE CEasyStringT<WCHAR>::GetStringBytes(BYTE * pBuffer, SIZE_TYPE BufferSize, STRING_CODE_PAGE CodePage) const
+{
+	if ((CodePage == STRING_CODE_PAGE_AUTO) || (CodePage == SYSTEM_STRING_CODE_PAGE))
+	{
+		if (pBuffer)
+		{
+			BufferSize = (SIZE_TYPE)(BufferSize / (sizeof(WCHAR)));
+			SIZE_TYPE CopySize = ((BufferSize < m_StringLength) ? BufferSize : m_StringLength) * sizeof(WCHAR);
+			memcpy(pBuffer, m_pBuffer, CopySize);
+			return CopySize;
+		}
+		else
+		{
+			return m_StringLength * sizeof(WCHAR);
+		}
+	}
+	else if (CodePage == STRING_CODE_PAGE_ANSI)
+	{
+		SIZE_TYPE DestSize = UnicodeToAnsi(m_pBuffer, m_StringLength, NULL, 0);
+		if (pBuffer)
+		{
+			SIZE_TYPE CopySize = (BufferSize < DestSize) ? BufferSize : DestSize;
+			CopySize = UnicodeToAnsi(m_pBuffer, m_StringLength, (char *)pBuffer, CopySize);
+			return CopySize;
+		}
+		else
+		{
+			return DestSize;
+		}
+	}
+	else if (CodePage == STRING_CODE_PAGE_UTF8)
+	{
+		SIZE_TYPE DestSize = UnicodeToUTF8(m_pBuffer, m_StringLength, NULL, 0);
+		if (pBuffer)
+		{
+			SIZE_TYPE CopySize = (BufferSize < DestSize) ? BufferSize : DestSize;
+			CopySize = UnicodeToUTF8(m_pBuffer, m_StringLength, (char *)pBuffer, CopySize);
+			return CopySize;
+		}
+		else
+		{
+			return DestSize;
+		}
+	}
+	return 0;
+}
 
 template<>
 inline void CEasyStringT<char>::FormatVL(const char * pFormat,va_list vl)
 {
 	va_list vl2;
 	va_copy(vl2, vl);
-	SIZE_TYPE Len=_vscprintf(pFormat,vl2);
+	SIZE_TYPE Len = _vscprintf(pFormat, vl2);
 	va_end(vl2);
-	m_BufferSize = Len + 1;
-	char * pNewBuffer = MONITORED_NEW_ARRAY(_T("CEasyStringT"), char, m_BufferSize);
-	vsprintf_s(pNewBuffer, m_BufferSize, pFormat, vl);
+	
+	char * pNewBuffer = MONITORED_NEW_ARRAY(_T("CEasyStringT"), char, Len + 1);
+	vsprintf_s(pNewBuffer, Len + 1, pFormat, vl);
 	m_StringLength=Len;
-	RELEASE_STR_BUFF(m_pBuffer);
+	ReleaseBuffer();	
 	m_pBuffer = pNewBuffer;
+	m_BufferSize = Len + 1;
 	m_HashCode = 0;
 }
 
@@ -1152,14 +1431,15 @@ inline void CEasyStringT<WCHAR>::FormatVL(const WCHAR * pFormat,va_list vl)
 {
 	va_list vl2;
 	va_copy(vl2, vl);
-	SIZE_TYPE Len=_vscwprintf(pFormat,vl);
+	SIZE_TYPE Len = _vscwprintf(pFormat, vl);
 	va_end(vl2);
-	m_BufferSize = Len + 1;
-	WCHAR * pNewBuffer = MONITORED_NEW_ARRAY(_T("CEasyStringT"), WCHAR, m_BufferSize);
-	vswprintf_s(pNewBuffer, m_BufferSize, pFormat, vl);
+	
+	WCHAR * pNewBuffer = MONITORED_NEW_ARRAY(_T("CEasyStringT"), WCHAR, Len + 1);
+	vswprintf_s(pNewBuffer, Len + 1, pFormat, vl);
 	m_StringLength=Len;
-	RELEASE_STR_BUFF(m_pBuffer);
+	ReleaseBuffer();
 	m_pBuffer = pNewBuffer;
+	m_BufferSize = Len + 1;
 	m_HashCode = 0;
 }
 
@@ -1186,29 +1466,45 @@ inline void CEasyStringT<WCHAR>::Format(const WCHAR * pFormat,...)
 template<>
 inline void CEasyStringT<char>::MakeUpper()
 {
-	_strupr_s(m_pBuffer,m_BufferSize);
-	m_HashCode = 0;
+	MakeSelfBuffer();
+	if(m_BufferSize)
+	{
+		_strupr_s(m_pBuffer, m_BufferSize);
+		m_HashCode = 0;
+	}
 }
 
 template<>
 inline void CEasyStringT<WCHAR>::MakeUpper()
 {
-	_wcsupr_s(m_pBuffer,m_BufferSize);
-	m_HashCode = 0;
+	MakeSelfBuffer();
+	if (m_BufferSize)
+	{
+		_wcsupr_s(m_pBuffer, m_BufferSize);
+		m_HashCode = 0;
+	}
 }
 
 template<>
 inline void CEasyStringT<char>::MakeLower()
 {
-	_strlwr_s(m_pBuffer,m_BufferSize);
-	m_HashCode = 0;
+	MakeSelfBuffer();
+	if (m_BufferSize)
+	{
+		_strlwr_s(m_pBuffer, m_BufferSize);
+		m_HashCode = 0;
+	}
 }
 
 template<>
 inline void CEasyStringT<WCHAR>::MakeLower()
 {
-	_wcslwr_s(m_pBuffer,m_BufferSize);
-	m_HashCode = 0;
+	MakeSelfBuffer();
+	if (m_BufferSize)
+	{
+		_wcslwr_s(m_pBuffer, m_BufferSize);
+		m_HashCode = 0;
+	}
 }
 
 template<>
@@ -1312,6 +1608,15 @@ template<>
 inline int CEasyStringT<WCHAR>::ReverseFind(char DestChar, bool IgnoreCase) const
 {
 	return ReverseFind((WCHAR)DestChar);
+}
+
+template <typename T>
+inline const CEasyStringT<T> MakeConstString(const T * pStr)
+{
+	CEasyStringT<T> Str;
+
+	Str.SetStringConst(pStr);
+	return Str;
 }
 
 typedef CEasyStringT<WCHAR> CEasyStringW;

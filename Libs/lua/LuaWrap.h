@@ -31,12 +31,24 @@ T CLuaThread::GetValue(int Index)
 	return T();
 }
 
+//#include "../../Libs/rapidjson/document.h"
+//#include "../../Libs/rapidjson/stringbuffer.h"
+//#include "../../Libs/rapidjson/prettywriter.h"
+
 #include "LuaCallWraps.h"
 
 #include "LuaBaseMetaClass.h"
 #include "LuaBaseStaticMetaClass.h"
 
 #include "LuaGrid.h"
+#include "LuaByteArray.h"
+#include "LuaSmartValue.h"
+#include "LuaSmartStruct.h"
+//#include "LuaJsonValue.h"
+
+#include "BaseLuaLib.h"
+#include "LuaLibCommon.h"
+#include "LuaLibSmartStruct.h"
 
 #include "LuaScriptPool.h"
 

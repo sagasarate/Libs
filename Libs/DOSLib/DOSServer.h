@@ -81,7 +81,7 @@ inline CDOSMessagePacket * CDOSServer::NewMessagePacket(UINT Size)
 	if (m_ServerConfig.MemoryPoolConfig.Enable)
 		pPacket = (CDOSMessagePacket *)m_MemoryPool.Alloc(PacketLen);
 	else
-		pPacket = (CDOSMessagePacket *)malloc(PacketLen);
+		pPacket = (CDOSMessagePacket *)MONITORED_MALLOC(_T("DOSMessage"), PacketLen);
 	if(pPacket)
 	{
 		pPacket->Init();	
@@ -117,7 +117,7 @@ inline BOOL CDOSServer::ReleaseMessagePacket(CDOSMessagePacket * pPacket)
 		}
 		else
 		{
-			free(pPacket);
+			MONITORED_FREE(pPacket);
 			return TRUE;
 		}
 	}

@@ -12,8 +12,7 @@
 #pragma once
 
 
-class CEasyBuffer :
-	public CNameObject
+class CEasyBuffer 
 {
 protected:
 	BYTE *		m_pBuffer;
@@ -21,7 +20,6 @@ protected:
 	UINT		m_UsedSize;
 	bool		m_IsSelfBuffer;
 	LPCTSTR		m_Tag;
-	DECLARE_CLASS_INFO_STATIC(CEasyBuffer);
 public:
 	CEasyBuffer(LPCTSTR Tag = _T("CEasyBuffer"));
 	CEasyBuffer(UINT Size, LPCTSTR Tag = _T("CEasyBuffer"));
@@ -41,6 +39,8 @@ public:
 	BOOL Create(UINT Size);
 	BOOL Create(LPVOID pBuff,UINT Size);
 	void Destory();
+
+	void Clear();
 
 	UINT GetBufferSize() const;
 	UINT GetUsedSize() const;
@@ -65,7 +65,10 @@ public:
 
 
 };
-
+inline void CEasyBuffer::Clear()
+{
+	m_UsedSize = 0;
+}
 inline UINT CEasyBuffer::GetBufferSize() const
 {
 	return m_BufferSize;

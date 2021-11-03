@@ -100,10 +100,10 @@ public:
 			if(Find)
 				Find[0]=0;
 			CEasyString temp=Line;
-			StringTrim(temp,' ');
-			StringTrim(temp,LineDelimiter);
-			StringTrim(temp,'\r');
-			StringTrim(temp,'\n');
+			temp = StringTrim(temp, ' ');
+			temp = StringTrim(temp, LineDelimiter);
+			temp = StringTrim(temp, '\r');
+			temp = StringTrim(temp, '\n');
 			if (temp.GetLength() >= 2)
 			{
 				//对于用引号包起的字串，去掉引号

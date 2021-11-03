@@ -27,6 +27,8 @@ CSystemConfig::CSystemConfig(void)
 #endif
 	m_ConsoleLogLevel=m_LogLevel;
 	m_LogCacheSize = 65536;
+	m_LogBackupDelay = 7;
+	m_LogBackupDir = _T("OldLog");
 	m_EnableGuardThread = false;
 	m_GuardThreadKeepAliveTime=20*1000;
 	m_GuardThreadKeepAliveCount=5;
@@ -93,6 +95,12 @@ bool CSystemConfig::LoadConfig(LPCTSTR ConfigFileName)
 
 					if (LogConfig.has_attribute("LogCacheSize"))
 						m_LogCacheSize = LogConfig.attribute("LogCacheSize");
+
+					if (LogConfig.has_attribute("BackupDelay"))
+						m_LogBackupDelay = LogConfig.attribute("BackupDelay");
+
+					if (LogConfig.has_attribute("BackupDir"))
+						m_LogBackupDir = LogConfig.attribute("BackupDir").getvalue();
 					
 				}
 
@@ -140,6 +148,12 @@ bool CSystemConfig::LoadConfig(LPCTSTR ConfigFileName)
 						m_MallocConfig.bSetMMapMax = true;
 						m_MallocConfig.MMapMax = MallocConfig.attribute("MMapMax");
 					}
+
+					if (MallocConfig.has_attribute("TrimInterval"))
+					{
+						m_MallocConfig.TrimMemory = true;
+						m_MallocConfig.TrimInterval = MallocConfig.attribute("TrimInterval");
+					}
 				}
 
 				PrintImportantLog("系统配置已载入");
@@ -162,6 +176,8 @@ bool CSystemConfig::LoadConfig(LPCTSTR ConfigFileName)
 					PrintImportantLog("设置GLIBC内存堆分配门槛:%d", m_MallocConfig.MMapThreshold);
 				if (m_MallocConfig.bSetMMapMax)
 					PrintImportantLog("设置GLIBC内存堆最大大小:%d", m_MallocConfig.MMapMax);
+				if (m_MallocConfig.TrimMemory)
+					PrintImportantLog("整理内存间隔:%d", m_MallocConfig.TrimInterval);
 			}
 			else
 			{

@@ -29,6 +29,12 @@ protected:
 	CHashMap<MSG_ID_TYPE,DOS_MSG_HANDLE_INFO>	m_MsgFnMap;
 
 	int											m_MsgCompressType;
+	int											m_MsgEnCryptType;
+	CEasyStringA								m_SecretKey;
+	CEasyBuffer									m_EncyptBuffer;
+	UINT										m_TotalMsgSendCount;
+
+	bool										m_DumpMsg;
 
 	DECLARE_CLASS_INFO_STATIC(CDOSClient);
 public:
@@ -41,12 +47,15 @@ public:
 	void Close();
 
 	void SetMsgCompressType(int Type);
+	void SetMsgEncyptType(int Type, LPCTSTR SecretKey);
+	void EnableMsgDump(bool Enable);
 
 	virtual UINT GetRouterID() override;
 	virtual OBJECT_ID GetObjectID() override;
 	virtual int GetGroupIndex() override;
 	virtual BOOL SendMessage(OBJECT_ID ReceiverID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) override;
 	virtual BOOL SendMessageMulti(OBJECT_ID * pReceiverIDList, UINT ReceiverCount, bool IsSorted, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) override;
+	virtual BOOL BroadcastMessageToProxyObjectByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize) override;
 
 	virtual CDOSMessagePacket * NewMessagePacket(UINT DataSize, UINT ReceiverCount) override;
 	virtual BOOL ReleaseMessagePacket(CDOSMessagePacket * pPacket) override;
@@ -71,12 +80,16 @@ public:
 
 	virtual BOOL QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param) override;
 	virtual void ShutDown(UINT PluginID) override;
-	virtual bool RegisterCommandReceiver() override;
-	virtual bool UnregisterCommandReceiver() override;
+	virtual BOOL RegisterCommandReceiver() override;
+	virtual BOOL UnregisterCommandReceiver() override;
 	virtual BOOL RegisterLogger(UINT LogChannel, LPCTSTR FileName) override;
 	virtual BOOL RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader) override;
 
 	virtual void SetServerWorkStatus(BYTE WorkStatus) override;
+	virtual UINT AddTimer(UINT TimeOut, UINT64 Param, bool IsRepeat) override;
+	virtual BOOL DeleteTimer(UINT ID) override;
+
+	virtual BOOL SetBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID) override;
 protected:
 	virtual void OnRecvData(const BYTE * pData, UINT DataSize) override;
 	virtual BOOL OnDOSMessage(CDOSSimpleMessage * pMessage);
@@ -85,10 +98,22 @@ protected:
 	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT) override;
 
 	void SendKeepAlivePing();
-
+	const void * EncyptMsg(const void * pData, MSG_LEN_TYPE& DataLen, WORD& CRC, UINT MsgSequence);
+	void * DecyptMsg(void * pData, MSG_LEN_TYPE& DataLen, WORD CRC, UINT MsgSequence);
+	WORD MakeCRC(const void * pData, UINT DataLen, const void * pKey, UINT KeyLen, UINT MsgSequence);
 };
 
 inline void CDOSClient::SetMsgCompressType(int Type)
 {
 	m_MsgCompressType=Type;
+}
+
+inline void CDOSClient::SetMsgEncyptType(int Type, LPCTSTR SecretKey)
+{
+	m_MsgEnCryptType = Type;
+	m_SecretKey = SecretKey;
+}
+inline void CDOSClient::EnableMsgDump(bool Enable)
+{
+	m_DumpMsg = Enable;
 }

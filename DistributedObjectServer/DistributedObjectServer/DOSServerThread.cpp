@@ -98,6 +98,7 @@ BOOL CDOSServerThread::OnStart()
 	LogFileName.Format("%s/Log/%s",(LPCTSTR)ModulePath,g_ProgramName);
 	pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+	pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 	CLogManager::GetInstance()->AddChannel(SERVER_LOG_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
@@ -109,6 +110,7 @@ BOOL CDOSServerThread::OnStart()
 	LogFileName.Format("%s/Log/DOSLib",(LPCTSTR)ModulePath);
 	pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+	pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 	CLogManager::GetInstance()->AddChannel(LOG_DOS_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
@@ -117,6 +119,7 @@ BOOL CDOSServerThread::OnStart()
 		LogFileName.Format("%s/Log/DOSObjectStat", (LPCTSTR)ModulePath);
 		pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 			CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+		pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 		CLogManager::GetInstance()->AddChannel(LOG_DOS_OBJECT_STATE_CHANNEL, pLog);
 		SAFE_RELEASE(pLog);
 	}
@@ -126,6 +129,7 @@ BOOL CDOSServerThread::OnStart()
 		LogFileName.Format("%s/Log/DOSMsgStat", (LPCTSTR)ModulePath);
 		pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 			CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+		pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 		CLogManager::GetInstance()->AddChannel(LOG_DOS_MSG_STATE_CHANNEL, pLog);
 		SAFE_RELEASE(pLog);
 	}
@@ -135,6 +139,7 @@ BOOL CDOSServerThread::OnStart()
 		LogFileName.Format("%s/Log/DOSMemStat", (LPCTSTR)ModulePath);
 		pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 			CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+		pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 		CLogManager::GetInstance()->AddChannel(LOG_DOS_MEM_STATE_CHANNEL, pLog);
 		SAFE_RELEASE(pLog);
 	}
@@ -143,18 +148,21 @@ BOOL CDOSServerThread::OnStart()
 	LogFileName.Format("%s/Log/NetLib",(LPCTSTR)ModulePath);
 	pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+	pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 	CLogManager::GetInstance()->AddChannel(LOG_NET_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
 	LogFileName.Format("%s/Log/DBLib",(LPCTSTR)ModulePath);
 	pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+	pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 	CLogManager::GetInstance()->AddChannel(LOG_DB_ERROR_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
 	LogFileName.Format("%s/Log/Mono", (LPCTSTR)ModulePath);
 	pLog = MONITORED_NEW(_T("CDOSServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+	pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 	CLogManager::GetInstance()->AddChannel(LOG_MONO_CHANNEL, pLog);
 	SAFE_RELEASE(pLog);
 
@@ -323,6 +331,7 @@ BOOL CDOSServerThread::OnStart()
 
 	LogFileName.Format("%s/Log/%s.Status",(LPCTSTR)ModulePath,g_ProgramName);
 	CCSVFileLogPrinter * pCSVLog = MONITORED_NEW(_T("CDOSServerThread"), CCSVFileLogPrinter, CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSVLogHeader, CSystemConfig::GetInstance()->GetLogCacheSize());
+	pCSVLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 	CLogManager::GetInstance()->AddChannel(SERVER_STATUS_LOG_CHANNEL,pCSVLog);
 	SAFE_RELEASE(pCSVLog);
 
@@ -392,6 +401,18 @@ int CDOSServerThread::Update(int ProcessPacketLimit)
 		Process += m_pUDPSystemControlPort->Update(ProcessPacketLimit);
 	if (m_pSystemControlPipe)
 		Process += m_pSystemControlPipe->Update(ProcessPacketLimit);
+
+#ifndef WIN32
+	if (CSystemConfig::GetInstance()->GetMallocConfig().TrimMemory)
+	{
+		if (m_MallocTimer.IsTimeOut())
+		{
+			m_MallocTimer.SetTimeOut(CSystemConfig::GetInstance()->GetMallocConfig().TrimInterval);
+			malloc_trim(0);
+			Log("已执行内存整理");
+		}
+	}
+#endif
 	return Process;
 	FUNCTION_END;
 	return 0;

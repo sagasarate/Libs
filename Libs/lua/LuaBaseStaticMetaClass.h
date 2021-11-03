@@ -31,35 +31,40 @@ protected:\
 class CLuaBaseStaticMetaClass
 {
 protected:
-	int				m_ClassID;
-	const char *	m_ClassName;
-
 	DECLARE_STATIC_META_CLASS(CLuaBaseStaticMetaClass)
 public:
 	static const int CLASS_ID = 10000;
 	CLuaBaseStaticMetaClass()
 	{
-		m_ClassID = CLASS_ID;
-		m_ClassName = "CLuaBaseStaticMetaClass";
 	}
-	~CLuaBaseStaticMetaClass()
+	CLuaBaseStaticMetaClass(const CLuaBaseStaticMetaClass& MetaClass)
+	{
+	}
+	virtual ~CLuaBaseStaticMetaClass()
+	{
+	}
+
+	virtual void Destory()
 	{
 
 	}
 
-	bool Attach(void * pData, UINT DataLen)
-	{
-		return false;
-	}
+	virtual const char * GetMetaClassName() const = 0;
+	virtual int GetMetaClassID() const = 0;
+	virtual size_t GetMetaClassSize() const = 0;
+
+	virtual bool Attach(void * pData, UINT DataLen) = 0;
+	virtual UINT GetDataLen() const = 0;
+
+	virtual const BYTE * GetData() const = 0;
+	virtual BYTE * GetData() = 0;
 
 
 	static bool SetMetaClassByObject(lua_State * pLuaState, CLuaBaseStaticMetaClass * pObject);
 	void SetMetaClass(lua_State * pLuaState) const;
 protected:
-	void StartRegisterMetaClass(lua_State * pLuaState) const;
-	void EndRegisterMetaClass(lua_State * pLuaState) const;
-
-	void RegisterMemberFunctions(lua_State * pLuaState) const;	
+	virtual void RegisterMetaClass(lua_State * pLuaState) const;
+	virtual void RegisterMemberFunctions(lua_State * pLuaState) const;	
 
 	template <typename Callee, typename Func>
 	inline void RegisterMetaFunction(lua_State * pLuaState, const char* funcName, Func func) const
@@ -75,10 +80,25 @@ protected:
 		RegisterMetaCFun(pLuaState, StringA, LuaWrap::DirectCallStaticMetaClassMemberDispatcherHelper<Callee, Func, 1>::DirectCallMemberDispatcher, &func, sizeof(func));
 	}
 
+	template <typename Func>
+	inline void RegisterMetaStaticFunction(lua_State * pLuaState, const char* funcName, Func func) const
+	{
+		RegisterMetaCFun(pLuaState, funcName, LuaWrap::DirectCallFunctionDispatchHelper<Func, 1>::DirectCallFunctionDispatcher, &func, sizeof(func));
+	}
+
+	template <typename Func>
+	inline void RegisterMetaStaticFunction(lua_State * pLuaState, const wchar_t* funcName, Func func) const
+	{
+		CEasyStringA StringA;
+		StringA = funcName;
+		RegisterMetaCFun(pLuaState, StringA, LuaWrap::DirectCallFunctionDispatchHelper<Func, 1>::DirectCallFunctionDispatcher, &func, sizeof(func));
+	}
+
 	void RegisterMetaCFun(lua_State * pLuaState, const char* funcName, lua_CFunction function, void* func, unsigned int sizeofFunc) const;
 
 protected:
 
 	const char * LuaGetClassName(CLuaThread * pThreadInfo);
+	static int DoGarbageCollect(lua_State* L);
 };
 

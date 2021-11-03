@@ -104,7 +104,7 @@ bool CDOSRouterLinkManager::SendMessage(UINT RouterID, CDOSMessagePacket * pPack
 	CDOSRouterLink * pRouterLink = dynamic_cast<CDOSRouterLink *>(GetLink(RouterID));
 	if (pRouterLink)
 	{
-		pRouterLink->SendData(pPacket->GetPacketBuffer(), pPacket->GetPacketLength());
+		pRouterLink->SendPacket(pPacket);
 		return true;
 	}
 	else
@@ -118,16 +118,20 @@ UINT CDOSRouterLinkManager::BroadcastMessage(CDOSMessagePacket * pPacket)
 {
 	CAutoLock Lock(m_EasyCriticalSection);
 
+	if (GetLinkCount() > 1)
+		pPacket->IncRefCount();
 	UINT Count = 0;
 	for (UINT i = 0; i < GetLinkCount(); i++)
 	{
 		CDOSRouterLink * pRouterLink = dynamic_cast<CDOSRouterLink *>(GetLinkByIndex(i));
 		if (pRouterLink)
 		{
-			pRouterLink->SendData(pPacket->GetPacketBuffer(), pPacket->GetPacketLength());
+			pRouterLink->SendPacket(pPacket);
 			Count++;
 		}
 	}
+	if (GetLinkCount() > 1)
+		pPacket->DecRefCount();
 	return Count;
 }
 

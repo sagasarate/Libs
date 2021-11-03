@@ -42,11 +42,11 @@ public:
 
 	virtual CDBValue& GetParam(int Index);
 	
-
-	virtual bool AddParam(DB_PARAM_INFO& ParamInfo,const CDBValue& Value);
+	virtual bool AddParam(DB_PARAM_INFO& ParamInfo, LPCVOID pData, size_t DataLen);
+	virtual bool AddParam(DB_PARAM_INFO& ParamInfo, const CDBValue& Value);
 	virtual bool AddParam(DB_PARAM_INFO& ParamInfo);
-	virtual bool SetParam(int Index,DB_PARAM_INFO& ParamInfo,const CDBValue& Value);
-	virtual bool SetParam(int Index,DB_PARAM_INFO& ParamInfo);
+	virtual bool SetParam(int Index, DB_PARAM_INFO& ParamInfo, const CDBValue& Value);
+	virtual bool SetParam(int Index, DB_PARAM_INFO& ParamInfo);
 	
 };
 

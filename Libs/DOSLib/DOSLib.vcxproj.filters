@@ -43,6 +43,9 @@
     <Filter Include="对象代理服务\缺省实现">
       <UniqueIdentifier>{8e1181f3-21f4-43bd-a050-e51a5cb1cf9a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="对象代理服务\缺省实现\无网络层缓冲版本">
+      <UniqueIdentifier>{bb4f5420-f0a4-49b2-a027-1570a19b5447}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -85,6 +88,18 @@
       <Filter>对象代理服务\缺省实现</Filter>
     </ClCompile>
     <ClCompile Include="DOSRouterLinkManager.cpp">
+      <Filter>路由服务</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSObjectProxyConnectionGroupNoBuff.cpp">
+      <Filter>对象代理服务\缺省实现\无网络层缓冲版本</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSObjectProxyServiceNoBuff.cpp">
+      <Filter>对象代理服务\缺省实现\无网络层缓冲版本</Filter>
+    </ClCompile>
+    <ClCompile Include="DOSObjectProxyConnectionNoBuff.cpp">
+      <Filter>对象代理服务\缺省实现\无网络层缓冲版本</Filter>
+    </ClCompile>
+    <ClCompile Include="ENLConnectionNoBuff.cpp">
       <Filter>路由服务</Filter>
     </ClCompile>
   </ItemGroup>
@@ -141,6 +156,18 @@
       <Filter>对象代理服务\缺省实现</Filter>
     </ClInclude>
     <ClInclude Include="DOSRouterLinkManager.h">
+      <Filter>路由服务</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSObjectProxyConnectionGroupNoBuff.h">
+      <Filter>对象代理服务\缺省实现\无网络层缓冲版本</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSObjectProxyServiceNoBuff.h">
+      <Filter>对象代理服务\缺省实现\无网络层缓冲版本</Filter>
+    </ClInclude>
+    <ClInclude Include="DOSObjectProxyConnectionNoBuff.h">
+      <Filter>对象代理服务\缺省实现\无网络层缓冲版本</Filter>
+    </ClInclude>
+    <ClInclude Include="ENLConnectionNoBuff.h">
       <Filter>路由服务</Filter>
     </ClInclude>
   </ItemGroup>

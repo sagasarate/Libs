@@ -113,19 +113,6 @@ protected:
 };
 
 
-inline void LogCallStack(int LogChannel)
-{
-	DWORD64 AddressBuff[10];
-	ZeroMemory(AddressBuff,sizeof(AddressBuff));
-	CExceptionParser::GetInstance()->GetCallStack(AddressBuff,10);
-	for(int i=0;i<10;i++)
-	{
-		CExceptionParser::ADDRESS_INFO AddressInfo;
-		if(CExceptionParser::GetInstance()->GetAddressInfo(AddressBuff[i],&AddressInfo))
-		{
-			CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,_T("%ll08X,%s:%d"),AddressInfo.Address,AddressInfo.CppFileName,AddressInfo.LineNumber);
-		}
-	}
-}
+extern void LogCallStack(int LogChannel);
 
 #define ASSERT_AND_LOG(Express) if(!(Express)){LogCallStack(LOG_IMPORTANT_CHANNEL);assert(false);}

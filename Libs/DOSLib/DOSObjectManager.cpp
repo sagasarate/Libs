@@ -17,6 +17,7 @@ CDOSObjectManager::CDOSObjectManager(void)
 {
 	FUNCTION_BEGIN;
 	m_pServer=NULL;
+	m_GroupCount = 0;
 	m_ObjectGroups.SetTag(_T("CDOSObjectManager"));
 	FUNCTION_END;
 }
@@ -36,13 +37,22 @@ bool CDOSObjectManager::Initialize()
 		PrintDOSLog(_T("没有初始化服务器，对象管理器无法初始化！"));
 		return false;
 	}
-	if(m_pServer->GetConfig().ObjectConfig.ObjectGroupCount<=0)
+	DOS_OBJECT_CONFIG& Config = m_pServer->GetConfig().ObjectConfig;
+	if (Config.ObjectGroupCount > Config.MaxObjectGroupCount)
+	{
+		Config.ObjectGroupCount = Config.MaxObjectGroupCount;
+		PrintDOSLog(_T("异常对象组数量大于最大对象组数量"));
+	}		
+	if (Config.ObjectGroupCount <= 0)
 	{
 		PrintDOSLog(_T("服务器没有正确配置对象组数量，对象管理器无法初始化！"));
 		return false;
 	}
-	m_ObjectGroups.Resize(m_pServer->GetConfig().ObjectConfig.ObjectGroupCount);
-	for (UINT i = 0; i<m_pServer->GetConfig().ObjectConfig.ObjectGroupCount; i++)
+	CAutoLock Lock(m_GroupListLock);
+
+	m_ObjectGroups.Resize(Config.MaxObjectGroupCount);
+	m_GroupCount = Config.ObjectGroupCount;
+	for (UINT i = 0; i< m_GroupCount; i++)
 	{
 		CDOSObjectGroup * pGroup = MONITORED_NEW(_T("CDOSProxyManager"), CDOSObjectGroup);
 		m_ObjectGroups[i]=pGroup;
@@ -69,21 +79,23 @@ bool CDOSObjectManager::Initialize()
 void CDOSObjectManager::Destory()
 {
 	FUNCTION_BEGIN;
-	for(int i=0;i<(int)m_ObjectGroups.GetCount();i++)
+	for (UINT i = 0; i < m_ObjectGroups.GetCount(); i++)
 	{
-		m_ObjectGroups[i]->SafeTerminate();
+		if (m_ObjectGroups[i])
+			m_ObjectGroups[i]->SafeTerminate();
 	}
-	for(int i=0;i<(int)m_ObjectGroups.GetCount();i++)
+	for (UINT i = 0; i < m_ObjectGroups.GetCount(); i++)
 	{
 		SAFE_RELEASE(m_ObjectGroups[i]);
 	}
+	m_GroupCount = 0;
 	m_ObjectGroups.Clear();
 	FUNCTION_END;
 }
 
 void CDOSObjectManager::SuspendAllGroup()
 {
-	for (UINT i = 0; i < m_ObjectGroups.GetCount(); i++)
+	for (UINT i = 0; i < m_GroupCount; i++)
 	{
 		m_ObjectGroups[i]->Suspend();
 	}
@@ -101,7 +113,7 @@ bool CDOSObjectManager::WaitForSuspend(UINT TimeOut)
 		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 
 		bool IsAllSuspended = true;
-		for (UINT i = 0; i < m_ObjectGroups.GetCount(); i++)
+		for (UINT i = 0; i < m_GroupCount; i++)
 		{
 			if (m_ObjectGroups[i]->IsWorking())
 			{
@@ -146,25 +158,35 @@ BOOL CDOSObjectManager::RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterI
 	CDOSObjectGroup * pGroup = NULL;
 	if (ObjectRegisterInfo.Flag&DOS_OBJECT_REGISTER_FLAG_USE_PRIVATE_OBJECT_GROUP)
 	{
-		//创建一个私有对象组
-		pGroup = MONITORED_NEW(_T("CDOSProxyManager"), CDOSObjectGroup);
-		if(pGroup->Initialize(this, m_ObjectGroups.GetCount(), OBJECT_GROUP_TYPE_PRIVATE))
+		if (m_GroupCount < m_ObjectGroups.GetCount())
 		{
-			if (pGroup->Start())
+			//创建一个私有对象组
+			CAutoLock Lock(m_GroupListLock);
+			pGroup = MONITORED_NEW(_T("CDOSProxyManager"), CDOSObjectGroup);
+			if (pGroup->Initialize(this, m_GroupCount, OBJECT_GROUP_TYPE_PRIVATE))
 			{
-				m_ObjectGroups.Add(pGroup);
+				if (pGroup->Start())
+				{
+					m_ObjectGroups[m_GroupCount] = pGroup;
+					m_GroupCount++;
+				}
+				else
+				{
+					PrintDOSLog(_T("无法启动私有对象组！"));
+					SAFE_DELETE(pGroup);
+					return FALSE;
+				}
 			}
 			else
 			{
-				PrintDOSLog(_T("无法启动私有对象组！"));
+				PrintDOSLog(_T("无法初始化私有对象组！"));
 				SAFE_DELETE(pGroup);
 				return FALSE;
 			}
 		}
 		else
 		{
-			PrintDOSLog(_T("无法初始化私有对象组！"));
-			SAFE_DELETE(pGroup);
+			PrintDOSLog(_T("对象组数量已经达到最大！"));
 			return FALSE;
 		}
 	}
@@ -202,10 +224,10 @@ BOOL CDOSObjectManager::UnregisterObject(OBJECT_ID ObjectID)
 	FUNCTION_BEGIN;
 
 
-	UINT GroupIndex=ObjectID.GroupIndex;
-	if(GroupIndex>=m_ObjectGroups.GetCount())
+	UINT GroupIndex = ObjectID.GroupIndex;
+	if (GroupIndex >= m_GroupCount)
 	{
-		PrintDOSLog(_T("对象所在组%u无效"),GroupIndex);
+		PrintDOSLog(_T("对象所在组%u无效"), GroupIndex);
 		return FALSE;
 	}
 
@@ -231,26 +253,26 @@ BOOL CDOSObjectManager::UnregisterObject(OBJECT_ID ObjectID)
 
 }
 
-BOOL CDOSObjectManager::PushMessage(OBJECT_ID ObjectID,CDOSMessagePacket * pPacket)
+BOOL CDOSObjectManager::PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket)
 {
 	FUNCTION_BEGIN;
-	UINT GroupIndex=ObjectID.GroupIndex;
-	if(GroupIndex==BROAD_CAST_GROUP_INDEX)
+	UINT GroupIndex = ObjectID.GroupIndex;
+	if (GroupIndex == BROAD_CAST_GROUP_INDEX)
 	{
-		for(UINT i=0;i<m_ObjectGroups.GetCount();i++)
+		for (UINT i = 0; i < m_GroupCount; i++)
 		{
-			m_ObjectGroups[i]->PushMessage(ObjectID,pPacket);
+			m_ObjectGroups[i]->PushMessage(ObjectID, pPacket);
 		}
 		return TRUE;
 	}
 	else
 	{
-		if(GroupIndex>=m_ObjectGroups.GetCount())
+		if (GroupIndex >= m_GroupCount)
 		{
-			PrintDOSLog(_T("对象所在组%u无效"),GroupIndex);
+			PrintDOSLog(_T("对象所在组%u无效"), GroupIndex);
 			return FALSE;
 		}
-		return m_ObjectGroups[GroupIndex]->PushMessage(ObjectID,pPacket);
+		return m_ObjectGroups[GroupIndex]->PushMessage(ObjectID, pPacket);
 	}
 
 	FUNCTION_END;
@@ -261,20 +283,20 @@ BOOL CDOSObjectManager::PushMessage(OBJECT_ID ObjectID,CDOSMessagePacket * pPack
 CDOSObjectGroup * CDOSObjectManager::SelectGroup(int GroupIndex)
 {
 	FUNCTION_BEGIN;
-	if(GroupIndex>=0&&(UINT)GroupIndex<m_ObjectGroups.GetCount())
+	if (GroupIndex >= 0 && (UINT)GroupIndex < m_GroupCount)
 	{
 		return m_ObjectGroups[GroupIndex];
 	}
 	else
 	{
-		int Weight=0x7fffffff;
-		CDOSObjectGroup * pGroup=NULL;
-		for(UINT i=0;i<m_ObjectGroups.GetCount();i++)
+		int Weight = 0x7fffffff;
+		CDOSObjectGroup * pGroup = NULL;
+		for (UINT i = 0; i < m_GroupCount; i++)
 		{
-			if ((m_ObjectGroups[i]->GetType() == OBJECT_GROUP_TYPE_NORMAL) && (m_ObjectGroups[i]->GetWeight()<Weight))
+			if ((m_ObjectGroups[i]->GetType() == OBJECT_GROUP_TYPE_NORMAL) && (m_ObjectGroups[i]->GetWeight() < Weight))
 			{
-				Weight=m_ObjectGroups[i]->GetWeight();
-				pGroup=m_ObjectGroups[i];
+				Weight = m_ObjectGroups[i]->GetWeight();
+				pGroup = m_ObjectGroups[i];
 			}
 		}
 		return pGroup;
@@ -287,16 +309,16 @@ CDOSObjectGroup * CDOSObjectManager::SelectGroup(int GroupIndex)
 void CDOSObjectManager::PrintGroupInfo(UINT LogChannel)
 {
 	FUNCTION_BEGIN;
-	for(UINT i=0;i<m_ObjectGroups.GetCount();i++)
+	for (UINT i = 0; i < m_GroupCount; i++)
 	{
 
-		CLogManager::GetInstance()->PrintLog(LogChannel,ILogPrinter::LOG_LEVEL_NORMAL,0,
+		CLogManager::GetInstance()->PrintLog(LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, 0,
 			_T("对象组[%u](%d):对象数[%u],权重[%u],CPU占用率[%0.2f%%],循环次数[%u],循环时间[%gMS],单循环CPU时间[%lluNS]"),
 			i,
 			m_ObjectGroups[i]->GetType(),
 			m_ObjectGroups[i]->GetObjectCount(),
 			m_ObjectGroups[i]->GetWeight(),
-			m_ObjectGroups[i]->GetCPUUsedRate()*100,
+			m_ObjectGroups[i]->GetCPUUsedRate() * 100,
 			m_ObjectGroups[i]->GetCycleCount(),
 			m_ObjectGroups[i]->GetCycleTime(),
 			m_ObjectGroups[i]->GetCPUUsedTime());

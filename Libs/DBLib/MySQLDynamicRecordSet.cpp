@@ -63,7 +63,7 @@ int CMySQLDynamicRecordSet::Init(CMySQLConnection * pDBConnection,MYSQL_STMT_HAN
 		m_pColumnInfos[i].Type=DBType;
 		m_pColumnInfos[i].Size=Size;
 		m_pColumnInfos[i].DigitSize=DigitalSize;
-		FetchBufferLen += CMySQLConnection::GetMySQLTypeBinLength(pFields[i].type, pFields[i].length, pFields[i].decimals, m_BlobMaxProcessSize) + sizeof(ULONG) + sizeof(my_bool);
+		FetchBufferLen += CMySQLConnection::GetMySQLTypeBinLength(pFields[i].type, pFields[i].length, pFields[i].decimals, (UINT)m_BlobMaxProcessSize) + sizeof(ULONG) + sizeof(my_bool);
 	}
 	m_FetchDataBuffer.Create(FetchBufferLen);
 	for(int i=0;i<ColNum;i++)
@@ -71,7 +71,7 @@ int CMySQLDynamicRecordSet::Init(CMySQLConnection * pDBConnection,MYSQL_STMT_HAN
 		m_FetchBuffer[i].buffer_type=pFields[i].type;
 		m_FetchBuffer[i].is_unsigned=(pFields[i].flags&UNSIGNED_FLAG)?1:0;
 		m_FetchBuffer[i].buffer=(char *)m_FetchDataBuffer.GetFreeBuffer();
-		m_FetchBuffer[i].buffer_length = CMySQLConnection::GetMySQLTypeBinLength(pFields[i].type, pFields[i].length, pFields[i].decimals, m_BlobMaxProcessSize);
+		m_FetchBuffer[i].buffer_length = CMySQLConnection::GetMySQLTypeBinLength(pFields[i].type, pFields[i].length, pFields[i].decimals, (UINT)m_BlobMaxProcessSize);
 		m_FetchDataBuffer.PushBack(NULL,m_FetchBuffer[i].buffer_length);
 
 		m_FetchBuffer[i].length=(ULONG *)m_FetchDataBuffer.GetFreeBuffer();

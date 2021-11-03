@@ -63,6 +63,8 @@ public:
 
 	virtual void Reset();
 
+	virtual int SelectDefaultDatabase(LPCTSTR szDBName);
+
 	static int DBLibTypeToMySQLType(int Type,UINT& Size,UINT& DitigalSize);
 	static int MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize);
 	static UINT GetMySQLTypeBinLength(int Type, UINT Size, UINT DitigalSize, UINT BlobMaxProcessSize);

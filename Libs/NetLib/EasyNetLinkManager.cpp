@@ -27,6 +27,7 @@ CEasyNetLinkManager::CEasyNetLinkManager(void)
 	m_LinkIDPool.SetTag(_T("CEasyNetLinkManager"));
 	m_LinkMap.Create(128, 128, 128);
 	m_ServiceMap.Create(64, 64, 64);
+	m_UseNoBuffConnection = false;
 }
 
 CEasyNetLinkManager::~CEasyNetLinkManager(void)
@@ -38,7 +39,7 @@ CEasyNetLinkManager::~CEasyNetLinkManager(void)
 bool CEasyNetLinkManager::Init(CNetServer * pServer, LPCTSTR ConfigFileName)
 {
 	ENL_CONFIG ConfigData;
-	if (!LoadConfig(ConfigFileName, ConfigData))
+	if (!LoadConfig(ConfigFileName, ConfigData, 0))
 		return false;
 
 	return Init(pServer, ConfigData);
@@ -47,7 +48,7 @@ bool CEasyNetLinkManager::Init(CNetServer * pServer, LPCTSTR ConfigFileName)
 bool CEasyNetLinkManager::Init(CNetServer * pServer, xml_node& Config)
 {
 	ENL_CONFIG ConfigData;
-	if (!LoadConfig(Config, ConfigData))
+	if (!LoadConfig(Config, ConfigData, 0))
 		return false;
 
 	return Init(pServer, ConfigData);
@@ -61,6 +62,7 @@ bool CEasyNetLinkManager::Init(CNetServer * pServer, const ENL_CONFIG& Config)
 
 	if (Config.ServerID == 0)
 	{
+		PrintNetLog(_T("ServerID不能为0"));
 		return false;
 	}
 	
@@ -72,6 +74,7 @@ bool CEasyNetLinkManager::Init(CNetServer * pServer, const ENL_CONFIG& Config)
 		return false;
 	}
 	
+	m_UseNoBuffConnection = Config.UseNoBuffConnection;
 
 	for (UINT i = 0; i < Config.ServiceConfig.ServiceList.GetCount(); i++)
 	{
@@ -117,7 +120,7 @@ bool CEasyNetLinkManager::Init(CNetServer * pServer)
 		return false;
 	return true;
 }
-bool CEasyNetLinkManager::LoadConfig(LPCTSTR ConfigFileName, ENL_CONFIG& Config)
+bool CEasyNetLinkManager::LoadConfig(LPCTSTR ConfigFileName, ENL_CONFIG& Config, UINT DefaultServerID)
 {
 	xml_parser Parser;
 
@@ -129,23 +132,28 @@ bool CEasyNetLinkManager::LoadConfig(LPCTSTR ConfigFileName, ENL_CONFIG& Config)
 	if (!Root.moveto_child(_T("EasyLink")))
 		return false;
 
-	return LoadConfig(Root, Config);
+	return LoadConfig(Root, Config, DefaultServerID);
 }
-bool CEasyNetLinkManager::LoadConfig(xml_node& XmlRoot, ENL_CONFIG& Config)
+bool CEasyNetLinkManager::LoadConfig(xml_node& XmlRoot, ENL_CONFIG& Config, UINT DefaultServerID)
 {
-	if (!XmlRoot.has_attribute(_T("ServerID")))
+	if (XmlRoot.has_attribute(_T("ServerID")))
 	{
-		return false;
+		Config.ServerID = CClassifiedID::StrToID(XmlRoot.attribute(_T("ServerID")).getvalue());
 	}
-
-	
-	Config.ServerID = CClassifiedID::StrToID(XmlRoot.attribute(_T("ServerID")).getvalue());
+	else
+	{
+		Config.ServerID = DefaultServerID;
+	}
 
 	if (XmlRoot.has_attribute(_T("ReallocIDRange")))
 	{
 		Config.ReallocIDRange = XmlRoot.attribute(_T("ReallocIDRange"));
 	}
 	
+	if (XmlRoot.has_attribute(_T("UseNoBuffConnection")))
+	{
+		Config.UseNoBuffConnection = XmlRoot.attribute(_T("UseNoBuffConnection"));
+	}
 
 	for (UINT i = 0; i < XmlRoot.children(); i++)
 	{
@@ -338,7 +346,7 @@ bool CEasyNetLinkManager::AddLink(UINT ReportID, const CIPAddress& ConnectionAdd
 	{
 		if (pLink->Init(this, ConnectionAddress, ReportID, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize))
 		{
-			PrintNetLog( _T("CEasyNetLinkManager::AddLink 创建Connection[%s][%s:%u],接收队列长度=%u,发送队列长度=%u,最大数据包大小=%u,压缩类型=%d,最小压缩大小=%u"),
+			PrintNetLog(_T("CEasyNetLinkManager::AddLink 创建Connection[%s][%s:%u],接收队列长度=%u,发送队列长度=%u,最大数据包大小=%u,压缩类型=%d,最小压缩大小=%u"),
 				CClassifiedID(ReportID).ToStr(),
 				ConnectionAddress.GetIPString(),
 				ConnectionAddress.GetPort(),

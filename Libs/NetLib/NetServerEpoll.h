@@ -54,7 +54,7 @@ public:
 	bool DeleteEventRouter(CEpollEventRouter * pEventRouter);
 
 
-	bool BindSocket(SOCKET Socket,CEpollEventRouter * pEpollEventRouter);	
+	bool BindSocket(SOCKET Socket,CEpollEventRouter * pEpollEventRouter, bool UseLTMode);
 	//bool ModifySendEvent(SOCKET Socket, CEpollEventRouter * pEpollEventRouter, bool IsSet);
 	bool UnbindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter);
 

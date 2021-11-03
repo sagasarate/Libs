@@ -91,6 +91,8 @@ namespace DOSSystem
         DOS_MESSAGE_FLAG_SYSTEM_MESSAGE = 1,
         DOS_MESSAGE_FLAG_COMPRESSED = (1 << 1),
         DOS_MESSAGE_FLAG_CAN_CACHE = (1 << 2),
+        DOS_MESSAGE_FLAG_ENCRYPT = (1 << 3),
+        DOS_MESSAGE_FLAG_NO_COMPRESS = (1 << 4),
     };
 
     enum BROAD_CAST_IDS

@@ -47,10 +47,22 @@ struct LUA_EMPTY_VALUE
 
 };
 
+struct LUA_CUSTOM_RETURN
+{
+	UINT ReturnCount;
+};
+
+struct LUA_CFUN_INFO
+{
+	CEasyString		FunName;
+	lua_CFunction	pLuaCFun;
+	BYTE			FunAddr[16];
+	UINT			FunSize;
+};
 
 template<class T> struct TypeWrapper {};
 
-
+typedef lua_State * LPLUA_STATE;
 
 class CBaseScriptHost :
 	public CNameObject
@@ -107,23 +119,36 @@ inline int GetLuaObjectType(lua_State* L, int idx)
 #include "LuaTypeWraps.h"
 
 #include "LuaThread.h"
+#include "BaseLuaVM.h"
 #include "LuaScript.h"
+#include "LuaVM.h"
 
 
-inline void LogLua(LPCTSTR Format, ...)
+extern UINT g_LuaLogChannel;
+
+inline void LogLuaWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 
 	va_start(vl, Format);
-	CLogManager::GetInstance()->PrintLogVL(CLuaScript::m_LogChannel, ILogPrinter::LOG_LEVEL_NORMAL, 0, Format, vl);
+	CLogManager::GetInstance()->PrintLogVL(g_LuaLogChannel, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
 	va_end(vl);
 }
 
-inline void LogLuaDebug(LPCTSTR Format, ...)
+inline void LogLuaDebugWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 
 	va_start(vl, Format);
-	CLogManager::GetInstance()->PrintLogVL(CLuaScript::m_LogChannel, ILogPrinter::LOG_LEVEL_DEBUG, 0, Format, vl);
+	CLogManager::GetInstance()->PrintLogVL(g_LuaLogChannel, ILogPrinter::LOG_LEVEL_DEBUG, Tag, Format, vl);
 	va_end(vl);
 }
+
+
+#ifdef WIN32
+#define LogLua(_Format, ...)	LogLuaWithTag(__FUNCTION__, _Format, ##__VA_ARGS__)
+#define LogLuaDebug(_Format, ...)	LogLuaDebugWithTag(__FUNCTION__, _Format, ##__VA_ARGS__)
+#else
+#define LogLua(_Format, ...)	LogLuaWithTag(__PRETTY_FUNCTION__, _Format, ##__VA_ARGS__)
+#define LogLuaDebug(_Format, ...)	LogLuaDebugWithTag(__PRETTY_FUNCTION__, _Format, ##__VA_ARGS__)
+#endif

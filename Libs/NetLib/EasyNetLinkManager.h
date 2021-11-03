@@ -105,12 +105,14 @@ public:
 	{
 		UINT					ServerID;
 		UINT					ReallocIDRange;
+		bool					UseNoBuffConnection;
 		ENL_SERVICE_CONFIG		ServiceConfig;
 		ENL_CONNECTION_CONFIG	ConnectionConfig;
 		ENL_CONFIG()
 		{
 			ServerID = 0;
 			ReallocIDRange = 2048;
+			UseNoBuffConnection = false;
 		}
 	};
 
@@ -127,6 +129,7 @@ protected:
 
 	CIDStorage<int>								m_LinkIDPool;
 	
+	bool										m_UseNoBuffConnection;
 
 	DECLARE_CLASS_INFO_STATIC(CEasyNetLinkManager);
 public:
@@ -137,8 +140,8 @@ public:
 	bool Init(CNetServer * pServer, xml_node& Config);
 	bool Init(CNetServer * pServer, const ENL_CONFIG& Config);
 	bool Init(CNetServer * pServer);
-	static bool LoadConfig(LPCTSTR ConfigFileName, ENL_CONFIG& Config);
-	static bool LoadConfig(xml_node& XmlRoot, ENL_CONFIG& Config);
+	static bool LoadConfig(LPCTSTR ConfigFileName, ENL_CONFIG& Config, UINT DefaultServerID);
+	static bool LoadConfig(xml_node& XmlRoot, ENL_CONFIG& Config, UINT DefaultServerID);
 	virtual void Destory();
 
 	CEasyNetLinkService * AddService(UINT ID, UINT ReportID, const CIPAddress& ListenAddress,
@@ -178,10 +181,17 @@ public:
 
 	CNetServer * GetServer();
 
+	bool UseNoBuffConnection();
+
 	void PrintLinkInfo(UINT LogChannel);
 };
 
 inline CNetServer * CEasyNetLinkManager::GetServer()
 {
 	return m_pServer;
+}
+
+inline bool CEasyNetLinkManager::UseNoBuffConnection()
+{
+	return m_UseNoBuffConnection;
 }

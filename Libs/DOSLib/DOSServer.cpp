@@ -34,20 +34,7 @@ void CDOSServer::SetConfig(const DOS_CONFIG& Config)
 {
 	m_ServerConfig = Config;
 
-	if (m_ServerConfig.RouterConfig.RouterID == 0)
-	{
-		CEasyArray<CIPAddress> AddressList(_T("CDOSServer"));
-		CIPAddress::FetchAllHostAddress(AddressList);
-
-		for (size_t i = 0; i < AddressList.GetCount(); i++)
-		{
-			if (AddressList[i].IsIPv4() && !AddressList[i].IsLoopbackAddress())
-			{
-				UINT IP = AddressList[i].GetIPv4();
-				m_ServerConfig.RouterConfig.RouterID = IP & 0xFFFF;
-			}
-		}		
-	}
+	
 	if (m_ServerConfig.ObjectConfig.ObjectPoolSetting.MaxSize() >= 0xFFFF)
 	{
 		PrintDOSLog(_T("DOS对象池的最大大小必须小于65535！"));

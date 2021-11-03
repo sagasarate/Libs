@@ -63,12 +63,27 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 				if (Router.has_attribute("GuardThreadKeepAliveCount"))
 					m_DOSConfig.RouterConfig.GuardThreadKeepAliveCount = Router.attribute("GuardThreadKeepAliveCount");
 
+				if (m_DOSConfig.RouterConfig.RouterID == 0)
+				{
+					//自动获取IP后两位作为RouterID
+					CEasyArray<CIPAddress> AddressList(_T("CDOSServer"));
+					CIPAddress::FetchAllHostAddress(AddressList);
+
+					for (size_t i = 0; i < AddressList.GetCount(); i++)
+					{
+						if (AddressList[i].IsIPv4() && !AddressList[i].IsLoopbackAddress())
+						{
+							UINT IP = AddressList[i].GetIPv4();
+							m_DOSConfig.RouterConfig.RouterID = IP & 0xFFFF;
+						}
+					}
+				}
 			}
 
 			xml_node RouterLink = Config;
 			if (RouterLink.moveto_child("RouterLink"))
 			{
-				CEasyNetLinkManager::LoadConfig(RouterLink, m_DOSConfig.RouterConfig.RouterLinkConfig);
+				CEasyNetLinkManager::LoadConfig(RouterLink, m_DOSConfig.RouterConfig.RouterLinkConfig, m_DOSConfig.RouterConfig.RouterID);
 			}
 
 			xml_node ClientProxys=Config;
@@ -132,6 +147,12 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 					m_DOSConfig.ObjectConfig.GuardThreadKeepAliveTime = Object.attribute("GuardThreadKeepAliveTime");
 				if (Object.has_attribute("GuardThreadKeepAliveCount"))
 					m_DOSConfig.ObjectConfig.GuardThreadKeepAliveCount = Object.attribute("GuardThreadKeepAliveCount");
+				if (Object.has_attribute("TimerQueueStartSize"))
+					m_DOSConfig.ObjectConfig.TimerQueueSetting.StartSize = Object.attribute("TimerQueueStartSize");
+				if (Object.has_attribute("TimerQueueGrowSize"))
+					m_DOSConfig.ObjectConfig.TimerQueueSetting.GrowSize = Object.attribute("TimerQueueGrowSize");
+				if (Object.has_attribute("TimerQueueGrowLimit"))
+					m_DOSConfig.ObjectConfig.TimerQueueSetting.GrowLimit = Object.attribute("TimerQueueGrowLimit");
 
 				m_DOSConfig.ObjectConfig.pDOSGroupInitFN = CDOSMainThread::DosGroupInitFn;
 				m_DOSConfig.ObjectConfig.pDOSGroupDestoryFN = CDOSMainThread::DosGroupDestoryFn;
@@ -344,6 +365,7 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 	if (XMLContent.has_attribute("MsgCompressType"))
 	{
 		CEasyString TypeStr = XMLContent.attribute("MsgCompressType").getvalue();
+		TypeStr.MakeLower();
 		if (TypeStr.CompareNoCase("lzo") == 0)
 			Config.MsgCompressType = MSG_COMPRESS_LZO;
 		else if (TypeStr.CompareNoCase("zip_fast") == 0)
@@ -363,15 +385,21 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 	if (XMLContent.has_attribute("MsgEnCryptType"))
 	{
 		CEasyString TypeStr = XMLContent.attribute("MsgEnCryptType").getvalue();
-		if (TypeStr.CompareNoCase("DES") == 0)
+		TypeStr.MakeLower();
+		if (TypeStr.CompareNoCase("crc") == 0)
+			Config.MsgEnCryptType = MSG_ENCRYPT_CHECK_SUM;
+		else if (TypeStr.CompareNoCase("des") == 0)
 			Config.MsgEnCryptType = MSG_ENCRYPT_DES;
-		else if (TypeStr.CompareNoCase("AES") == 0)
-			Config.MsgCompressType = MSG_ENCRYPT_AES;
-		else if (TypeStr.CompareNoCase("TEA") == 0)
-			Config.MsgCompressType = MSG_ENCRYPT_TEA;
+		else if (TypeStr.CompareNoCase("aes") == 0)
+			Config.MsgEnCryptType = MSG_ENCRYPT_AES;
+		else if (TypeStr.CompareNoCase("tea") == 0)
+			Config.MsgEnCryptType = MSG_ENCRYPT_TEA;
 		else
-			Config.MsgCompressType = MSG_COMPRESS_NONE;
+			Config.MsgEnCryptType = MSG_COMPRESS_NONE;
 	}
+	
+	if (XMLContent.has_attribute("MsgEnCryptMode"))
+		Config.MsgEnCryptMode = XMLContent.attribute("MsgEnCryptMode");
 
 	if (XMLContent.has_attribute("SecretKey"))
 		Config.SecretKey = XMLContent.attribute("SecretKey").getvalue();
@@ -385,8 +413,14 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 	if (XMLContent.has_attribute("MaxMsgSize"))
 		Config.MaxMsgSize = (UINT)XMLContent.attribute("MaxMsgSize");
 
-	if (XMLContent.has_attribute("MaxSendMsgSize"))
-		Config.MaxSendMsgSize = (UINT)XMLContent.attribute("MaxSendMsgSize");
+	if (XMLContent.has_attribute("MinMsgSize"))
+		Config.MinMsgSize = (UINT)XMLContent.attribute("MinMsgSize");
+
+	if (XMLContent.has_attribute("DumpMsg"))
+		Config.DumpMsg = (bool)XMLContent.attribute("DumpMsg");
+
+	if (XMLContent.has_attribute("MaxMsgDumpSize"))
+		Config.MaxMsgDumpSize = XMLContent.attribute("MaxMsgDumpSize");
 
 	if (XMLContent.has_attribute("PluginName"))
 	{

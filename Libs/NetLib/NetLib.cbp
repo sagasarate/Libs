@@ -75,6 +75,9 @@
 		<Unit filename="ClassifiedID.h">
 			<Option virtualFolder="工具/" />
 		</Unit>
+		<Unit filename="ENLBaseConnection.h">
+			<Option virtualFolder="工具组建/EasyNetLink/" />
+		</Unit>
 		<Unit filename="ENLConnection.cpp">
 			<Option virtualFolder="工具组建/EasyNetLink/" />
 		</Unit>
@@ -145,6 +148,12 @@
 			<Option virtualFolder="服务器组件/Epoll/Epoll连接/" />
 		</Unit>
 		<Unit filename="NetConnectionEpoll.h">
+			<Option virtualFolder="服务器组件/Epoll/Epoll连接/" />
+		</Unit>
+		<Unit filename="NetConnectionNoBuffEpoll.cpp">
+			<Option virtualFolder="服务器组件/Epoll/Epoll连接/" />
+		</Unit>
+		<Unit filename="NetConnectionNoBuffEpoll.h">
 			<Option virtualFolder="服务器组件/Epoll/Epoll连接/" />
 		</Unit>
 		<Unit filename="NetLib.h">

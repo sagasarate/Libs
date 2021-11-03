@@ -18,6 +18,8 @@ CAsyncFileLogPrinter::CAsyncFileLogPrinter()
 	m_RecentLogTime.FetchLocalTime();
 	m_pLogFile = NULL;
 	m_LogDataBuffer.SetTag(_T("CAsyncFileLogPrinter"));
+	m_LogBackupDir = _T("OldLog");
+	m_LogBackupDelay = 0;
 }
 
 CAsyncFileLogPrinter::CAsyncFileLogPrinter(int Level, LPCTSTR LogName, int FileLogBufferLen, LPCTSTR FileExt, LPCTSTR HeaderStr)
@@ -32,6 +34,8 @@ CAsyncFileLogPrinter::CAsyncFileLogPrinter(int Level, LPCTSTR LogName, int FileL
 	m_RecentLogTime.FetchLocalTime();
 	m_pLogFile = NULL;
 	m_LogDataBuffer.SetTag(_T("CAsyncFileLogPrinter"));
+	m_LogBackupDir = _T("OldLog");
+	m_LogBackupDelay = 0;
 	if (m_LogDataBuffer.Create(FileLogBufferLen))
 	{
 		m_LogDataBuffer.SetLockMode(false, true);
@@ -102,6 +106,7 @@ bool CAsyncFileLogPrinter::ResetLog()
 			
 	}
 
+	DoLogBackup();
 	return true;
 }
 
@@ -234,5 +239,66 @@ bool CAsyncFileLogPrinter::PushLog(LPCTSTR LogData)
 	{
 		PrintImportantLog(_T("将日志压入缓冲失败%u/%u[%s]"), m_LogDataBuffer.GetUsedSize(), m_LogDataBuffer.GetBufferSize(), (LPCTSTR)m_LogName);
 		return false;
+	}
+}
+
+void CAsyncFileLogPrinter::DoLogBackup()
+{
+	if (m_LogBackupDelay)
+	{
+		CEasyString FilePartten;
+
+		FilePartten.Format(_T("%s*.*"), (LPCTSTR)m_LogName);
+		FilePartten = CFileTools::MakeModuleFullPath(NULL, FilePartten);
+
+		if (CFileTools::IsAbsolutePath(m_LogBackupDir))
+		{
+			CFileTools::CreateDirEx(m_LogBackupDir);
+		}
+		else
+		{
+			CEasyString TargetDir;
+			TargetDir.Format(_T("%s%c%s"),
+				(LPCTSTR)CFileTools::GetPathDirectory(m_LogName), DIR_SLASH, (LPCTSTR)m_LogBackupDir);
+			TargetDir = CFileTools::MakeModuleFullPath(NULL, TargetDir);
+			CFileTools::CreateDirEx(TargetDir);
+		}
+
+		CFileSearcher FileSearcher;
+
+		time_t CurTime = time(NULL);
+
+		FileSearcher.FindFirst(FilePartten);
+		while (FileSearcher.FindNext())
+		{
+			time_t FileTime = FileSearcher.GetLastAccessTime();
+
+			if (FileTime + m_LogBackupDelay * 24 * 60 * 60 < CurTime)
+			{
+				CEasyString TargetPath;
+
+				if (CFileTools::IsAbsolutePath(m_LogBackupDir))
+				{
+					TargetPath.Format(_T("%s%c%s"),
+						(LPCTSTR)m_LogBackupDir,
+						DIR_SLASH, (LPCTSTR)CFileTools::GetPathFileNameExt(FileSearcher.GetFilePath()));
+				}
+				else
+				{
+					TargetPath.Format(_T("%s%c%s%c%s"),
+						(LPCTSTR)FileSearcher.GetFileDirect(), DIR_SLASH, (LPCTSTR)m_LogBackupDir,
+						DIR_SLASH, (LPCTSTR)CFileTools::GetPathFileNameExt(FileSearcher.GetFilePath()));
+				}
+
+				if (CFileTools::MoveFile(FileSearcher.GetFilePath(), TargetPath))
+				{
+					PrintImportantLog(_T("移动文件成功，%s->%s"), (LPCTSTR)FileSearcher.GetFilePath(), (LPCTSTR)TargetPath);
+				}
+				else
+				{
+					PrintImportantLog(_T("移动文件失败，%s->%s"), (LPCTSTR)FileSearcher.GetFilePath(), (LPCTSTR)TargetPath);
+				}
+			}
+		}
 	}
 }

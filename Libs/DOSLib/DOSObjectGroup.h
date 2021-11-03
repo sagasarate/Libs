@@ -42,6 +42,11 @@ protected:
 		volatile UINT64		COTestCost;
 		volatile UINT64		UpdateCost;
 	};
+	struct TIMER_DATA
+	{
+		OBJECT_ID	ObjectID;
+		UINT64		Param;
+	};
 	CDOSObjectManager *								m_pManager;
 	UINT											m_Index;
 	OBJECT_GROUP_TYPE								m_Type;
@@ -66,6 +71,7 @@ protected:
 	CEasyCriticalSection							m_EasyCriticalSection;
 
 	CGuardThread									m_GuardThread;
+	CTimerQueue<TIMER_DATA>							m_TimerQueue;
 
 	DECLARE_CLASS_INFO_STATIC(CDOSObjectGroup);
 public:
@@ -103,9 +109,13 @@ public:
 	BOOL PushMessage(OBJECT_ID ObjectID,CDOSMessagePacket * pPacket);
 
 	void PrintObjectStat(UINT LogChannel);
+
+	UINT AddTimer(OBJECT_ID ObjectID, UINT TimeOut, UINT64 Param, bool IsRepeat);
+	BOOL DeleteTimer(UINT ID);
 protected:
 	int ProcessObjectRegister(int ProcessLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 	int ProcessObjectUnregister(int ProcessLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
+	int ProcessTimer(int ProcessLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 
 	void OnObjectRegister(OBJECT_ID ObjectID, LPCSTR szObjectTypeName, int Weight);
 	void OnObjectUnregister(OBJECT_ID ObjectID, int Weight);
@@ -177,4 +187,30 @@ inline bool CDOSObjectGroup::Resume()
 inline bool CDOSObjectGroup::IsWorking()
 {
 	return m_Status == STATUS_WORKING;
+}
+
+inline UINT CDOSObjectGroup::AddTimer(OBJECT_ID ObjectID, UINT TimeOut, UINT64 Param, bool IsRepeat)
+{
+	TIMER_DATA TimerData;
+	TimerData.ObjectID = ObjectID;
+	TimerData.Param = Param;
+	return m_TimerQueue.AddTimer(TimeOut, TimerData, IsRepeat);
+}
+inline BOOL CDOSObjectGroup::DeleteTimer(UINT ID)
+{
+	TIMER_DATA TimerData;
+	if (m_TimerQueue.DeleteTimer(ID, &TimerData))
+	{
+		DOS_OBJECT_INFO * pObjectInfo = m_ObjectPool.GetObject(TimerData.ObjectID.ObjectIndex);
+		if (pObjectInfo)
+		{
+			pObjectInfo->pObject->OnTimerRelease(ID, TimerData.Param);
+		}
+		else
+		{
+			PrintDOSLog(_T("对象[0x%llX]无法找到"), TimerData.ObjectID);
+		}
+		return TRUE;
+	}
+	return FALSE;
 }

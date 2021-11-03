@@ -162,6 +162,7 @@ struct STORAGE_POOL_SETTING
 #include "StringSplitter.h"
 #include "WordFilter.h"
 
+#include "EasyBuffer.h"
 #include "SmartValue.h"
 #include "SmartStruct.h"
 
@@ -182,20 +183,10 @@ struct STORAGE_POOL_SETTING
 #endif
 #include "GuardThread.h"
 
-#include "ILogPrinter.h"
-#include "AsyncLogWorkThread.h"
-#include "LogManager.h"
 
-#include "FileInfo.h"
-#include "FileTools.h"
 
-#ifdef WIN32
-#include "ToolsWin.h"
-#else
-#include "ToolsLinux.h"
-#endif
 
-#include "ToolsAll.h"
+
 
 #include "LZMA/LzmaLib.h"
 #include "LZO/minilzo.h"
@@ -205,8 +196,7 @@ struct STORAGE_POOL_SETTING
 
 
 
-#include "VSOutputLogPrinter.h"
-#include "FileLogPrinter.h"
+
 
 #ifdef WIN32
 
@@ -215,11 +205,34 @@ struct STORAGE_POOL_SETTING
 #endif
 
 
+
+#ifdef WIN32
+#include "ToolsWin.h"
+#else
+#include "ToolsLinux.h"
+#endif
+
+#include "ToolsAll.h"
+
+
+
+
+#include "GrowBuffer.h"
+#include "CycleBuffer.h"
+#include "CycleBufferEx.h"
+#include "ThreadSafeList.h"
+#include "ThreadSafeIDStorage.h"
+#include "ThreadSafeCycleBuffer.h"
+#include "ThreadSafeCycleBufferEx.h"
+#include "ThreadSafeCycleQueue.h"
+#include "ThreadSafeStaticMap.h"
+
+
 #include "PerformanceStatistician.h"
 #include "AutoPerformanceCounter.h"
 #include "ThreadPerformanceCounter.h"
 
-
+#include "FileInfo.h"
 
 #include "IFileAccessor.h"
 #include "IFileObjectCreator.h"
@@ -240,6 +253,17 @@ struct STORAGE_POOL_SETTING
 
 #include "FilePathManager.h"
 
+#include "ILogPrinter.h"
+#include "AsyncLogWorkThread.h"
+
+#include "VSOutputLogPrinter.h"
+#include "FileLogPrinter.h"
+#include "AsyncFileLogPrinter.h"
+#include "CSVFileLogPrinter.h"
+#include "LogManager.h"
+
+
+#include "FileTools.h"
 
 #include "SettingFile.h"
 #include "StringFile.h"
@@ -288,16 +312,7 @@ using namespace pug;
 
 
 
-#include "EasyBuffer.h"
-#include "GrowBuffer.h"
-#include "CycleBuffer.h"
-#include "CycleBufferEx.h"
-#include "ThreadSafeList.h"
-#include "ThreadSafeIDStorage.h"
-#include "ThreadSafeCycleBuffer.h"
-#include "ThreadSafeCycleBufferEx.h"
-#include "ThreadSafeCycleQueue.h"
-#include "ThreadSafeStaticMap.h"
+
 #include "FastMemoryPool.h"
 
 #include "EasyScriptTypes.h"
@@ -313,8 +328,7 @@ using namespace pug;
 #include "Gif.h"
 #endif
 
-#include "AsyncFileLogPrinter.h"
-#include "CSVFileLogPrinter.h"
+
 
 #include "HashMD5.h"
 #include "Base64.h"
@@ -326,6 +340,7 @@ using namespace pug;
 #include "TEA.h"
 #include "Crypto/aes.h"
 #include "Crypto/des.h"
+#include "CCRCMaker.h"
 #include "CryptTools.h"
 
 #include "ProcessSnapshot.h"

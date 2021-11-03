@@ -9,26 +9,26 @@ public:
 	CLuaBaseMetaClass();	
 	virtual ~CLuaBaseMetaClass();
 
-	void SetMetaClass(lua_State * pLuaState);
-	virtual const char * GetMetaClassName();
-	virtual int GetMetaClassID();
-	virtual size_t GetMetaClassSize() = 0;
-	void CheckAPI(lua_State * pLuaState, CEasyArray<CEasyStringA>& Functions);
+	void SetMetaClass(lua_State * pLuaState) const;
+	virtual const char * GetMetaClassName() const = 0;
+	virtual int GetMetaClassID() const = 0;
+	virtual size_t GetMetaClassSize() const = 0;
+	void CheckAPI(lua_State * pLuaState, CEasyArray<CEasyStringA>& Functions) const;
 protected:
 	
-	void RegisterMetaClass(lua_State * pLuaState);	
-	virtual void RegisterMemberFunctions(lua_State * pLuaState);	
-	virtual void OnGarbageCollect(CLuaThread * pThreadInfo);
-	static void DoGarbageCollect(CLuaThread * pThreadInfo, CLuaBaseMetaClass * pObject);
+	void RegisterMetaClass(lua_State * pLuaState) const;
+	virtual void RegisterMemberFunctions(lua_State * pLuaState) const;
+	virtual void OnGarbageCollect();
+	static int DoGarbageCollect(lua_State* L);
 
 	template <typename Callee, typename Func>
-	inline void RegisterMetaFunction(lua_State * pLuaState, const char* funcName, Func func)
+	inline void RegisterMetaFunction(lua_State * pLuaState, const char* funcName, Func func) const
 	{
 		RegisterMetaCFun(pLuaState, funcName, LuaWrap::DirectCallMetaClassMemberDispatcherHelper<Callee, Func, 1>::DirectCallMemberDispatcher, &func, sizeof(func));
 	}
 
 	template <typename Callee, typename Func>
-	inline void RegisterMetaFunction(lua_State * pLuaState, const wchar_t* funcName, Func func)
+	inline void RegisterMetaFunction(lua_State * pLuaState, const wchar_t* funcName, Func func) const
 	{
 		CEasyStringA StringA;
 		StringA = funcName;
@@ -36,26 +36,28 @@ protected:
 	}
 
 	template <typename Func>
-	inline void RegisterMetaStaticFunction(lua_State * pLuaState, const char* funcName, Func func)
+	inline void RegisterMetaStaticFunction(lua_State * pLuaState, const char* funcName, Func func) const
 	{
 		RegisterMetaCFun(pLuaState, funcName, LuaWrap::DirectCallFunctionDispatchHelper<Func, 1>::DirectCallFunctionDispatcher, &func, sizeof(func));
 	}
 
 	template <typename Func>
-	inline void RegisterMetaStaticFunction(lua_State * pLuaState, const wchar_t* funcName, Func func)
+	inline void RegisterMetaStaticFunction(lua_State * pLuaState, const wchar_t* funcName, Func func) const
 	{
 		CEasyStringA StringA;
 		StringA = funcName;
 		RegisterMetaCFun(pLuaState, StringA, LuaWrap::DirectCallFunctionDispatchHelper<Func, 1>::DirectCallFunctionDispatcher, &func, sizeof(func));
 	}
 
-	void RegisterMetaCFun(lua_State * pLuaState, const char* funcName, lua_CFunction function, void* func, unsigned int sizeofFunc);
+	void RegisterMetaCFun(lua_State * pLuaState, const char* funcName, lua_CFunction function, void* func, unsigned int sizeofFunc) const;
 
 protected:
 
 	const char * LuaGetClassName(CLuaThread * pThreadInfo);
 	
 };
+
+typedef CLuaBaseMetaClass * LPLUABASEMETACLASS;
 
 namespace LuaWrap
 {
@@ -100,12 +102,10 @@ namespace LuaWrap
 }
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
-#undef LUA_WRAP_RETURN_FETCH_OPERATION
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 
 
 #define LUA_WRAP_CALL_RETURN_TYPE CLuaBaseMetaClass *
-#define LUA_WRAP_RETURN_FETCH_OPERATION CLuaBaseMetaClass * Ret=
-#define LUA_WRAP_RETURN_PUSH_OPERATION Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"

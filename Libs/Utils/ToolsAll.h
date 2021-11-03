@@ -11,7 +11,7 @@
 /****************************************************************************/
 #pragma once
 
-#define CP_UNICODE		1200
+
 #define IS_TYPE_OF(pObject,Type)	((dynamic_cast<Type *>(pObject))!=NULL)
 
 enum BOM_HEADER_TYPE
@@ -53,8 +53,8 @@ inline void Swap(FLOAT& v1,FLOAT& v2)
 }
 
 
-
-inline int Saturate(int Value, int Min, int Max)
+template<typename T>
+inline T Saturate(T Value, T Min, T Max)
 {
 	if (Value<Min)
 		return Min;
@@ -63,14 +63,7 @@ inline int Saturate(int Value, int Min, int Max)
 	return Value;
 }
 
-inline float Saturate(float Value, float Min, float Max)
-{
-	if (Value<Min)
-		return Min;
-	if (Value>Max)
-		return Max;
-	return Value;
-}
+
 
 
 inline int GetRand(int Min,int Max)
@@ -103,17 +96,57 @@ inline float GetRandGaussf(float Min,float Max)
 	return Saturate((float)(mu + ((rand() % 2) ? -1.0 : 1.0)*sigma*pow(-log(0.99999f*((double)rand() / RAND_MAX)), 0.5)),Min,Max);
 }
 
-
-inline CEasyString FormatSplitNumber(ULONG64 Number)
+inline CEasyString FormatSplitNumber(UINT Number)
 {
 	CEasyString Str;
 
-	Str.Format(_T("%I64u"),Number);
+	Str.Format(_T("%u"), Number);
+	int i = (int)Str.GetLength() - 3;
+	while (i > 0)
+	{
+		Str.Insert(i, ',');
+		i -= 3;
+	}
+	return Str;
+}
+
+inline CEasyString FormatSplitNumber(int Number)
+{
+	CEasyString Str;
+
+	Str.Format(_T("%d"), Number);
+	int i = (int)Str.GetLength() - 3;
+	while (i > 0)
+	{
+		Str.Insert(i, ',');
+		i -= 3;
+	}
+	return Str;
+}
+inline CEasyString FormatSplitNumber(UINT64 Number)
+{
+	CEasyString Str;
+
+	Str.Format(_T("%llu"),Number);
 	int i=(int)Str.GetLength()-3;
 	while(i>0)
 	{
 		Str.Insert(i,',');
 		i-=3;
+	}
+	return Str;
+}
+
+inline CEasyString FormatSplitNumber(INT64 Number)
+{
+	CEasyString Str;
+
+	Str.Format(_T("%lld"), Number);
+	int i = (int)Str.GetLength() - 3;
+	while (i > 0)
+	{
+		Str.Insert(i, ',');
+		i -= 3;
 	}
 	return Str;
 }
@@ -177,7 +210,14 @@ inline CEasyString FormatNumberWordsFloat(float Number,bool IsTiny=false)
 		return temp+_T(" Byte");
 }
 
+inline CEasyString FormatTimeStr(UINT Time)
+{
+	CEasyString TimeStr;
 
+	TimeStr.Format(_T("%u:%02u:%02u"), Time / 3600, (Time % 3600) / 60, Time % 60);
+
+	return TimeStr;
+}
 
 inline UINT GetBomHeader(LPVOID pData, UINT DataLen)
 {

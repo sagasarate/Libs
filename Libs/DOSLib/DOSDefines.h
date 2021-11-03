@@ -34,14 +34,22 @@ enum MSG_COMPRESS_TYPE
 enum MSG_ENCRYPT_TYPE
 {
 	MSG_ENCRYPT_NONE,
+	MSG_ENCRYPT_CHECK_SUM,
 	MSG_ENCRYPT_DES,
 	MSG_ENCRYPT_AES,
 	MSG_ENCRYPT_TEA
 };
 
+enum MSG_ENCRYPT_MODE
+{
+	MSG_ENCRYPT_MODE_OPTIONAL,
+	MSG_ENCRYPT_MODE_FORCE,
+};
+
 enum CLIENT_PROXY_MODE
 {
 	CLIENT_PROXY_MODE_DEFAULT,
+	CLIENT_PROXY_MODE_NO_BUFF,
 	CLIENT_PROXY_MODE_CUSTOM,
 };
 
@@ -81,12 +89,15 @@ struct CLIENT_PROXY_CONFIG
 	UINT										MsgCompressType;
 	UINT										MinMsgCompressSize;
 	UINT										MsgEnCryptType;
-	CEasyString									SecretKey;
+	UINT										MsgEnCryptMode;
+	CEasyStringA								SecretKey;
 
 	UINT										GlobalMsgMapSize;
 	UINT										MsgMapSize;
 	UINT										MaxMsgSize;
-	UINT										MaxSendMsgSize;
+	UINT										MinMsgSize;
+	bool										DumpMsg;
+	UINT										MaxMsgDumpSize;
 
 	bool										EnableGuardThread;
 	UINT										GuardThreadKeepAliveTime;
@@ -107,7 +118,9 @@ struct CLIENT_PROXY_CONFIG
 		GlobalMsgMapSize = 512;
 		MsgMapSize = 512;
 		MaxMsgSize = 4096;
-		MaxSendMsgSize = 10 * 1024 * 1204;
+		MinMsgSize = 0;
+		DumpMsg = false;
+		MaxMsgDumpSize = 1024;
 		AcceptQueueSize = DEFAULT_SERVER_ACCEPT_QUEUE;
 		ParallelAcceptCount = DEFAULT_PARALLEL_ACCEPT;
 		RecvBufferSize = DEFAULT_SERVER_RECV_DATA_QUEUE;
@@ -115,6 +128,7 @@ struct CLIENT_PROXY_CONFIG
 		MsgCompressType = MSG_COMPRESS_NONE;
 		MinMsgCompressSize = 0;
 		MsgEnCryptType = MSG_ENCRYPT_NONE;
+		MsgEnCryptMode = MSG_ENCRYPT_MODE_OPTIONAL;
 		UnacceptConnectionKeepTime = 30 * 1000;
 		UseServerInitiativeKeepAlive = false;
 		KeepAliveTime = 30000;
@@ -159,6 +173,7 @@ struct DOS_ROUTER_CONFIG
 struct DOS_OBJECT_CONFIG
 {
 	UINT										ObjectGroupCount;
+	UINT										MaxObjectGroupCount;
 	STORAGE_POOL_SETTING						ObjectPoolSetting;
 	UINT										MaxObjectMsgQueue;
 	UINT										ObjectAliveTestTime;
@@ -171,10 +186,12 @@ struct DOS_OBJECT_CONFIG
 	bool										EnableGuardThread;
 	UINT										GuardThreadKeepAliveTime;
 	UINT										GuardThreadKeepAliveCount;
+	STORAGE_POOL_SETTING						TimerQueueSetting;
 
 	DOS_OBJECT_CONFIG()
 	{
 		ObjectGroupCount = 8;
+		MaxObjectGroupCount = 256;
 		ObjectPoolSetting.StartSize = 128;
 		ObjectPoolSetting.GrowSize = 128;
 		ObjectPoolSetting.GrowLimit = 32;

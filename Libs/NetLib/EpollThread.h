@@ -28,7 +28,7 @@ public:
 
 	bool Init(CNetServer * pServer);
 
-	bool BindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter);
+	bool BindSocket(SOCKET Socket, CEpollEventRouter * pEpollEventRouter, bool UseLTMode);
 	//bool ModifySendEvent(SOCKET Socket, CEpollEventRouter * pEpollEventRouter, bool IsSet);
 	bool UnbindSocket(SOCKET Socket);
 

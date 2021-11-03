@@ -37,7 +37,7 @@
 
 //#include <afx.h>
 //
-#define USE_CRT_DETAIL_NEW
+//#define USE_CRT_DETAIL_NEW
 
 #endif
 

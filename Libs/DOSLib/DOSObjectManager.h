@@ -22,6 +22,8 @@ class CDOSObjectManager :
 protected:
 	CDOSServer *						m_pServer;	
 	CEasyArray<CDOSObjectGroup *>		m_ObjectGroups;	
+	volatile UINT						m_GroupCount;
+	CEasyCriticalSection				m_GroupListLock;
 
 	DECLARE_CLASS_INFO_STATIC(CDOSObjectManager);
 public:
@@ -65,19 +67,19 @@ inline CDOSServer * CDOSObjectManager::GetServer()
 inline UINT CDOSObjectManager::GetObejctCount()
 {
 	UINT Count=0;
-	for(UINT i=0;i<m_ObjectGroups.GetCount();i++)
+	for (UINT i = 0; i < m_GroupCount; i++)
 	{
-		Count+=m_ObjectGroups[i]->GetObjectCount();
+		Count += m_ObjectGroups[i]->GetObjectCount();
 	}
 	return Count;
 }
 inline UINT CDOSObjectManager::GetGroupCount()
 {
-	return (UINT)m_ObjectGroups.GetCount();
+	return m_GroupCount;
 }
 inline CDOSObjectGroup * CDOSObjectManager::GetGroup(UINT Index)
 {
-	if(Index<m_ObjectGroups.GetCount())
+	if (Index < m_GroupCount)
 		return m_ObjectGroups[Index];
 	return NULL;
 }

@@ -44,7 +44,7 @@ bool LuaValue::MakePacket(CSmartStruct& Packet, WORD MemberID) const
 	switch (Type)
 	{
 	case LUA_TNIL:
-		return Packet.AddMember(MemberID, (char)0);
+		return Packet.AddMemberNull(MemberID);
 	case LUA_TBOOLEAN:
 		return Packet.AddMember(MemberID, bValue);
 	case LUA_TNUMBER:
@@ -68,9 +68,10 @@ bool LuaValue::ParsePacket(const CSmartValue& Packet)
 {
 	switch (Packet.GetType())
 	{
-	case CSmartValue::VT_CHAR:
+	case CSmartValue::VT_NULL:
 		Type = LUA_TNIL;
 		break;
+	case CSmartValue::VT_CHAR:
 	case CSmartValue::VT_UCHAR:
 	case CSmartValue::VT_SHORT:
 	case CSmartValue::VT_USHORT:
@@ -86,14 +87,11 @@ bool LuaValue::ParsePacket(const CSmartValue& Packet)
 		Type = LUA_TINTEGER;
 		i64Value = (INT64)Packet;
 		break;
-	case CSmartValue::VT_STRING:
+	case CSmartValue::VT_STRING_UTF8:
+	case CSmartValue::VT_STRING_ANSI:
+	case CSmartValue::VT_STRING_UCS16:
 		Type = LUA_TSTRING;
-		StrValue = (LPCSTR)Packet;
-		break;
-	case CSmartValue::VT_USTRING:
-		Type = LUA_TSTRING;
-		StrValue = (LPCWSTR)Packet;
-		break;
+		Packet.GetString(StrValue);		
 	case CSmartValue::VT_STRUCT:
 		Type = LUA_TTABLE;
 		TableValue = MONITORED_NEW(_T("LuaValue"), CLuaTable);

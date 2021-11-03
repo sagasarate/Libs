@@ -18,7 +18,7 @@ void CWordFilter::Clear()
 	m_WordTree.Char = 0;
 	m_WordTree.NextCharMap.Clear();
 }
-bool CWordFilter::AddWord(LPCTSTR szWord)
+bool CWordFilter::AddWord(LPCTSTR szWord, UINT WordTypeMask)
 {
 	if (szWord)
 	{
@@ -39,17 +39,17 @@ bool CWordFilter::AddWord(LPCTSTR szWord)
 				}
 				pRoot = pNext;
 			}
-			pRoot->HavwWord = true;
+			pRoot->WordTypeMask = WordTypeMask;
 		}
 		return true;
 	}
 	return false;
 }
 
-bool CWordFilter::Check(LPCTSTR szText, size_t Start, size_t Len)
+int CWordFilter::Check(LPCTSTR szText, UINT WordTypeMask, size_t Start, size_t Len)
 {
 	if (m_WordTree.NextCharMap.GetObjectCount() == 0)
-		return false;
+		return -1;
 	if (Len == 0)
 		Len = _tcslen(szText);
 	for (size_t i = Start;i < Len;i++)
@@ -64,12 +64,12 @@ bool CWordFilter::Check(LPCTSTR szText, size_t Start, size_t Len)
 			pNode = pNode->NextCharMap.Find(Char);
 			if(pNode)
 			{
-				if (pNode->HavwWord)
-					return true;
+				if (pNode->WordTypeMask & WordTypeMask)
+					return i;
 			}
 			Pos++;
 			
 		} while (pNode);
 	}
-	return false;
+	return -1;
 }

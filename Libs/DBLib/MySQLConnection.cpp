@@ -266,6 +266,19 @@ void CMySQLConnection::Reset()
 		mysql_reset_connection(m_MySQLHandle);
 }
 
+int CMySQLConnection::SelectDefaultDatabase(LPCTSTR szDBName)
+{
+	if (mysql_select_db(m_MySQLHandle, szDBName) == 0)
+	{
+		return DBERR_SUCCEED;
+	}
+	else
+	{
+		ProcessErrorMsg(NULL, "设置缺省数据库失败\r\n");
+		return DBERR_UNKNOW_ERROR;
+	}
+}
+
 void CMySQLConnection::ProcessErrorMsg(MYSQL_STMT_HANDLE hStmt,LPCSTR Msg)
 {
 	if(hStmt)

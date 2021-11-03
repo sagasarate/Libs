@@ -58,7 +58,7 @@ public:
 
 	bool Send(LPCVOID pData, UINT Size);
 	bool SendMulti(LPCVOID * pDataBuffers, const UINT * pDataSizes, UINT BufferCount);
-	
+	UINT GetSendBufferFreeSize();
 
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 
@@ -98,4 +98,10 @@ inline void CNetConnection::EnableSafeDisconnect(bool Enable)
 inline bool CNetConnection::Send(LPCVOID pData, UINT Size)
 {
 	return SendMulti(&pData, &Size, 1);
+}
+inline UINT CNetConnection::GetSendBufferFreeSize()
+{
+	CAutoLockEx Lock(m_SendLock);
+
+	return m_SendQueue.GetFreeSize();
 }

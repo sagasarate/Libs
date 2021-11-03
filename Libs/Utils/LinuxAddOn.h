@@ -42,7 +42,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <uuid/uuid.h>
-#include "atomic_ops/include/atomic_ops.h"
+//#include "atomic_ops/include/atomic_ops.h"
 #include <utime.h>
 #include <dlfcn.h>
 #include <signal.h>
@@ -101,6 +101,8 @@ typedef WCHAR * LPWSTR;
 typedef const WCHAR * LPCWSTR;
 typedef void * LPVOID;
 typedef const void * LPCVOID;
+typedef BYTE * LPBYTE;
+typedef const BYTE * LPCBYTE;
 typedef void * HMODULE;
 typedef void * HANDLE;
 typedef int INT_PTR, *PINT_PTR;
@@ -556,32 +558,110 @@ inline UINT GetCurProcessID()
 
 inline unsigned int AtomicInc(volatile unsigned int * pVal)
 {
-	return AO_int_fetch_and_add1_read(pVal)+1;
+	//return AO_int_fetch_and_add1_read(pVal)+1;
+	return __sync_add_and_fetch(pVal, 1);
 }
-
-
 
 inline unsigned int AtomicDec(volatile unsigned int * pVal)
 {
-	return AO_int_fetch_and_sub1_read(pVal)-1;
+	//return AO_int_fetch_and_sub1_read(pVal)-1;
+	return __sync_sub_and_fetch(pVal, 1);
 }
 
 
-inline unsigned int AtomicAdd(volatile unsigned int * pVal,int AddVal)
+inline unsigned int AtomicAdd(volatile unsigned int * pVal, unsigned int AddVal)
 {
-	return AO_int_fetch_and_add(pVal,AddVal)+AddVal;
+	//return AO_int_fetch_and_add(pVal,AddVal)+AddVal;
+	return __sync_add_and_fetch(pVal, AddVal);
 }
 
-inline unsigned int AtomicSub(volatile unsigned int * pVal,int SubVal)
+inline unsigned int AtomicSub(volatile unsigned int * pVal, unsigned int SubVal)
 {
-	return AO_int_fetch_and_add(pVal,-SubVal)-SubVal;
+	//return AO_int_fetch_and_add(pVal,-SubVal)-SubVal;
+	return __sync_sub_and_fetch(pVal, SubVal);
 }
 
+inline unsigned int AtomicOr(volatile unsigned int * pVal, unsigned int AddVal)
+{
+	//return AO_int_fetch_and_add(pVal,AddVal)+AddVal;
+	return __sync_or_and_fetch(pVal, AddVal);
+}
 
-//inline int AtomicCompareAndSet(volatile unsigned int * pVal,unsigned int CompValue,unsigned int NewVal)
+inline unsigned int AtomicAnd(volatile unsigned int * pVal, unsigned int AddVal)
+{
+	//return AO_int_fetch_and_add(pVal,AddVal)+AddVal;
+	return __sync_and_and_fetch(pVal, AddVal);
+}
+
+inline unsigned int AtomicXor(volatile unsigned int * pVal, unsigned int AddVal)
+{
+	//return AO_int_fetch_and_add(pVal,AddVal)+AddVal;
+	return __sync_xor_and_fetch(pVal, AddVal);
+}
+inline bool AtomicCompareAndSet(volatile unsigned int * pVal, unsigned int CompValue, unsigned int NewVal)
+{
+	return __sync_bool_compare_and_swap(pVal, CompValue, NewVal);
+}
+//inline unsigned int AtomicNand(volatile unsigned int * pVal, int AddVal)
 //{
-//	return AO_int_compare_and_swap_full(pVal,CompValue,NewVal);
+//	//return AO_int_fetch_and_add(pVal,AddVal)+AddVal;
+//	return __sync_nand_and_fetch(pVal, AddVal);
 //}
+
+#ifdef __x86_64__
+inline unsigned int AtomicInc(volatile unsigned long long * pVal)
+{
+	//return AO_int_fetch_and_add1_read(pVal)+1;
+	return __sync_add_and_fetch(pVal, 1);
+}
+
+inline unsigned int AtomicDec(volatile unsigned long long * pVal)
+{
+	//return AO_int_fetch_and_sub1_read(pVal)-1;
+	return __sync_sub_and_fetch(pVal, 1);
+}
+
+
+inline unsigned int AtomicAdd(volatile unsigned long long * pVal, unsigned long long AddVal)
+{
+	//return AO_int_fetch_and_add(pVal,AddVal)+AddVal;
+	return __sync_add_and_fetch(pVal, AddVal);
+}
+
+inline unsigned int AtomicSub(volatile unsigned long long * pVal, unsigned long long SubVal)
+{
+	//return AO_int_fetch_and_add(pVal,-SubVal)-SubVal;
+	return __sync_sub_and_fetch(pVal, SubVal);
+}
+
+inline unsigned int AtomicOr(volatile unsigned long long * pVal, unsigned long long AddVal)
+{
+	//return AO_int_fetch_and_add(pVal,AddVal)+AddVal;
+	return __sync_or_and_fetch(pVal, AddVal);
+}
+
+inline unsigned int AtomicAnd(volatile unsigned long long * pVal, unsigned long long AddVal)
+{
+	//return AO_int_fetch_and_add(pVal,AddVal)+AddVal;
+	return __sync_and_and_fetch(pVal, AddVal);
+}
+
+inline unsigned int AtomicXor(volatile unsigned long long * pVal, unsigned long long AddVal)
+{
+	//return AO_int_fetch_and_add(pVal,AddVal)+AddVal;
+	return __sync_xor_and_fetch(pVal, AddVal);
+}
+
+inline bool AtomicCompareAndSet(volatile unsigned __int64 * pVal, unsigned __int64 CompValue, unsigned __int64 NewVal)
+{
+	return __sync_bool_compare_and_swap(pVal, CompValue, NewVal);
+}
+//inline unsigned int AtomicNand(volatile unsigned long long * pVal, long long AddVal)
+//{
+//	//return AO_int_fetch_and_add(pVal,AddVal)+AddVal;
+//	return __sync_nand_and_fetch(pVal, AddVal);
+//}
+#endif
 
 
 

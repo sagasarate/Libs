@@ -80,7 +80,7 @@ public:
 		}
 	}
 
-	bool PushBack(T * pValue)
+	bool PushBack(const T * pValue)
 	{
 		if (GetUsedSize() < GetBufferSize())
 		{

@@ -92,7 +92,7 @@ void CGuardThread::DumpThreadCallStack()
 	void * CallStacks[20];
 	int CallStackSize = CEasyThread::GetCallStack(m_TargetThreadHandle, CallStacks, 20);
 
-	PrintImportantLog("输出调用栈大小:%d", CallStackSize);
+	PrintImportantLog("call stack size:%d", CallStackSize);
 	char ExceptionFileName[MAX_PATH];
 	char ExeFilePath[MAX_PATH];
 

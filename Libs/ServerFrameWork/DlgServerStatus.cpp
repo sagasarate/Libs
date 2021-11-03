@@ -149,12 +149,10 @@ void CDlgServerStatus::FlushStatus(CSmartStruct& ServerStatus, CEasyArray<SERVER
 			else
 				ValueStr.Format("%g",(double)Value);
 			break;
-		case CSmartValue::VT_STRING:
-			ValueStr=(LPCTSTR)Value;
-			break;
-		case CSmartValue::VT_USTRING:
-			ValueStr=(LPCWSTR)Value;
-			break;
+		case CSmartValue::VT_STRING_UTF8:
+		case CSmartValue::VT_STRING_ANSI:
+		case CSmartValue::VT_STRING_UCS16:
+			Value.GetString(ValueStr);
 		default:
 			ValueStr="未知格式数据";
 		}

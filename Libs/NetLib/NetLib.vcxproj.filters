@@ -171,6 +171,12 @@
     <ClInclude Include="NetAdapterInfos.h">
       <Filter>工具\网卡信息</Filter>
     </ClInclude>
+    <ClInclude Include="NetConnectionNoBuffEpoll.h">
+      <Filter>服务器组件\Epoll\Epoll连接</Filter>
+    </ClInclude>
+    <ClInclude Include="ENLBaseConnection.h">
+      <Filter>服务器组件\工具组件\EasyNetLink</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -262,6 +268,9 @@
     </ClCompile>
     <ClCompile Include="NetAdapterInfos.cpp">
       <Filter>工具\网卡信息</Filter>
+    </ClCompile>
+    <ClCompile Include="NetConnectionNoBuffEpoll.cpp">
+      <Filter>服务器组件\Epoll\Epoll连接</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

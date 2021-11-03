@@ -7,13 +7,9 @@ namespace DOSSystem
 {
     public struct CSmartValue
     {
-        byte[]      m_pData;
-        uint        m_StartIndex;
-        uint        m_DataLen;
-
         public enum SMART_VALUE_TYPE
         {
-            VT_UNKNOWN,
+            VT_NULL,
             VT_CHAR,
             VT_UCHAR,
             VT_SHORT,
@@ -24,48 +20,58 @@ namespace DOSSystem
             VT_UBIGINT,
             VT_FLOAT,
             VT_DOUBLE,
-            VT_STRING,
-            VT_USTRING,
+            VT_STRING_UTF8,
+            VT_STRING_UCS16,
             VT_STRUCT,
-            VT_STRING_TINY,
-            VT_USTRING_TINY,
-            VT_STRUCT_TINY,
+            VT_STRING_ANSI,
+            VT_BINARY,
+            VT_RESERVE2,
             VT_BOOL,
+            VT_UNKNOWN,
         };
 
-//         public CSmartValue()
-// 	    {	
-// 		    m_pData=null;
-//             m_StartIndex=0;
-// 		    m_DataLen=0;
-// 	    }
-       
+        public enum STRING_CODE_PAGE
+        {
+            STRING_CODE_PAGE_ANSI,
+            STRING_CODE_PAGE_UTF8,
+            STRING_CODE_PAGE_UCS16,
+        };
+
+        static byte[] NULL_DATA = { (byte)SMART_VALUE_TYPE.VT_NULL };
+        public static STRING_CODE_PAGE INTERNAL_STRING_CODE_PAGE = STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16;
+
+        byte[] m_pData;
+        uint m_StartIndex;
+        uint m_DataLen;
+
+        public static CSmartValue NULL = new CSmartValue { m_pData = NULL_DATA, m_StartIndex = 0, m_DataLen = (uint)NULL_DATA.Length };
+
         public CSmartValue(byte[] pData, uint StartIndex, uint DataLen, SMART_VALUE_TYPE ClearType)
 	    {
-		    m_pData=null;
+            m_pData = NULL_DATA;
             m_StartIndex = 0;
-		    m_DataLen=0;
+            m_DataLen = (uint)NULL_DATA.Length;
             Attach(pData,StartIndex,DataLen,ClearType);
 	    }
 
         public CSmartValue(SMART_VALUE_TYPE Type, uint Len)
 	    {
-            m_pData = null;
+            m_pData = NULL_DATA;
             m_StartIndex = 0;
-            m_DataLen = 0;
-		    Create(Type,Len);
+            m_DataLen = (uint)NULL_DATA.Length;
+            Create(Type,Len);
 	    }
-
-//         ~CSmartValue()
-// 	    {
-// 		    Destory();
-// 	    }
 
         public bool Create(SMART_VALUE_TYPE Type, uint Len)
 	    {
 		    Destory();
 		    switch(Type)
 		    {
+            case SMART_VALUE_TYPE.VT_NULL:
+                m_pData = NULL_DATA;
+                m_StartIndex = 0;
+                m_DataLen = (uint)NULL_DATA.Length;
+                break;
             case SMART_VALUE_TYPE.VT_CHAR:
             case SMART_VALUE_TYPE.VT_UCHAR:
 			    m_DataLen=sizeof(byte)+sizeof(byte);
@@ -100,36 +106,23 @@ namespace DOSSystem
 			    m_pData=new byte[m_DataLen];
                 m_pData[0] = (byte)Type;
 			    break;
-            case SMART_VALUE_TYPE.VT_STRING:
-			    m_DataLen=sizeof(byte)*(Len+1)+sizeof(byte)+sizeof(uint);
+            case SMART_VALUE_TYPE.VT_STRING_UTF8:
+            case SMART_VALUE_TYPE.VT_STRING_ANSI:
+                m_DataLen =sizeof(byte)*(Len+1)+sizeof(byte)+sizeof(uint);
 			    m_pData=new byte[m_DataLen];
                 m_pData[0] = (byte)Type;
 			    break;
-            case SMART_VALUE_TYPE.VT_USTRING:
-			    m_DataLen=sizeof(char)*(Len/sizeof(char)+1)+sizeof(byte)+sizeof(uint);
+            case SMART_VALUE_TYPE.VT_STRING_UCS16:
+			    m_DataLen=sizeof(char)*(Len+1)+sizeof(byte)+sizeof(uint);
 			    m_pData=new byte[m_DataLen];
                 m_pData[0] = (byte)Type;
 			    break;
             case SMART_VALUE_TYPE.VT_STRUCT:
+            case SMART_VALUE_TYPE.VT_BINARY:
                 m_DataLen = Len + sizeof(byte) + sizeof(uint);
                 m_pData = new byte[m_DataLen];
                 m_pData[0] = (byte)Type;
-                break;
-            case SMART_VALUE_TYPE.VT_STRING_TINY:
-			    m_DataLen=sizeof(byte)*(Len+1)+sizeof(byte)+sizeof(ushort);
-			    m_pData=new byte[m_DataLen];
-                m_pData[0] = (byte)Type;
-			    break;
-            case SMART_VALUE_TYPE.VT_USTRING_TINY:
-			    m_DataLen=sizeof(char)*(Len/sizeof(char)+1)+sizeof(byte)+sizeof(ushort);
-			    m_pData=new byte[m_DataLen];
-                m_pData[0] = (byte)Type;
-			    break;
-            case SMART_VALUE_TYPE.VT_STRUCT_TINY:
-                m_DataLen = Len + sizeof(byte) + sizeof(uint);
-                m_pData = new byte[m_DataLen];
-                m_pData[0] = (byte)Type;
-                break;
+                break;           
             case SMART_VALUE_TYPE.VT_BOOL:
                 m_DataLen = sizeof(byte) + sizeof(byte);
 			    m_pData=new byte[m_DataLen];
@@ -149,16 +142,19 @@ namespace DOSSystem
             m_StartIndex = StartIndex;
 
             SMART_VALUE_TYPE DataType = ClearType;
-		    uint BinaryDataLen=0;
+		    uint RealDataLen=0;
 
             if (ClearType == SMART_VALUE_TYPE.VT_UNKNOWN)
 		    {
 			    DataType=GetValueType();
-			    BinaryDataLen=GetLength();			
+			    RealDataLen=GetLength();			
 		    }		
 
 		    switch(DataType)
 		    {
+            case SMART_VALUE_TYPE.VT_NULL:
+                m_DataLen = (uint)NULL_DATA.Length;
+                break;
             case SMART_VALUE_TYPE.VT_CHAR:
             case SMART_VALUE_TYPE.VT_UCHAR:
 			    m_DataLen=sizeof(byte)+sizeof(byte);
@@ -181,24 +177,17 @@ namespace DOSSystem
             case SMART_VALUE_TYPE.VT_DOUBLE:
 			    m_DataLen=sizeof(double)+sizeof(byte);
 			    break;
-            case SMART_VALUE_TYPE.VT_STRING:
-			    m_DataLen=BinaryDataLen+sizeof(byte)+sizeof(uint)+sizeof(byte);
+            case SMART_VALUE_TYPE.VT_STRING_UTF8:
+            case SMART_VALUE_TYPE.VT_STRING_ANSI:
+                m_DataLen =RealDataLen+sizeof(byte)+sizeof(uint)+sizeof(byte);
 			    break;
-            case SMART_VALUE_TYPE.VT_USTRING:
-			    m_DataLen=BinaryDataLen+sizeof(byte)+sizeof(uint)+sizeof(char);
+            case SMART_VALUE_TYPE.VT_STRING_UCS16:
+                m_DataLen = RealDataLen * sizeof(char) + sizeof(byte) + sizeof(uint) + sizeof(char);
 			    break;
             case SMART_VALUE_TYPE.VT_STRUCT:
-			    m_DataLen=BinaryDataLen+sizeof(byte)+sizeof(uint);
-			    break;
-            case SMART_VALUE_TYPE.VT_STRING_TINY:
-			    m_DataLen=BinaryDataLen+sizeof(byte)+sizeof(ushort)+sizeof(byte);
-			    break;
-            case SMART_VALUE_TYPE.VT_USTRING_TINY:
-			    m_DataLen=BinaryDataLen+sizeof(byte)+sizeof(ushort)+sizeof(char);
-			    break;
-            case SMART_VALUE_TYPE.VT_STRUCT_TINY:
-			    m_DataLen=BinaryDataLen+sizeof(byte)+sizeof(ushort);
-			    break;
+            case SMART_VALUE_TYPE.VT_BINARY:
+                m_DataLen =RealDataLen+sizeof(byte)+sizeof(uint);
+			    break;            
             case SMART_VALUE_TYPE.VT_BOOL:
                 m_DataLen = sizeof(byte) + sizeof(byte);
 			    break;
@@ -218,26 +207,23 @@ namespace DOSSystem
 		    {
 			    switch(DataType)
 			    {
-                case SMART_VALUE_TYPE.VT_STRING:
-                    m_pData[m_StartIndex + BinaryDataLen + sizeof(byte) + sizeof(uint)] = 0;
+                case SMART_VALUE_TYPE.VT_STRING_UTF8:
+                case SMART_VALUE_TYPE.VT_STRING_ANSI:
+                    m_pData[m_StartIndex + RealDataLen + sizeof(byte) + sizeof(uint)] = 0;
 				    break;
-                case SMART_VALUE_TYPE.VT_USTRING:
-                    m_pData[m_StartIndex + BinaryDataLen + sizeof(byte) + sizeof(uint)] = 0;
-                    m_pData[m_StartIndex + BinaryDataLen + sizeof(byte) + sizeof(uint) + 1] = 0;
-				    break;
-                case SMART_VALUE_TYPE.VT_STRING_TINY:
-                    m_pData[m_StartIndex + BinaryDataLen + sizeof(byte) + sizeof(ushort)] = 0;
-				    break;
-                case SMART_VALUE_TYPE.VT_USTRING_TINY:
-                    m_pData[m_StartIndex + BinaryDataLen + sizeof(byte) + sizeof(ushort)] = 0;
-                    m_pData[m_StartIndex + BinaryDataLen + sizeof(byte) + sizeof(ushort) + 1] = 0;
-				    break;
+                case SMART_VALUE_TYPE.VT_STRING_UCS16:
+                    m_pData[m_StartIndex + RealDataLen*sizeof(char) + sizeof(byte) + sizeof(uint)] = 0;
+                    m_pData[m_StartIndex + RealDataLen * sizeof(char) + sizeof(byte) + sizeof(uint) + 1] = 0;
+				    break;               
 			    }
 		    }
 		    else
 		    {
 			    switch(ClearType)
 			    {
+                case SMART_VALUE_TYPE.VT_NULL:
+                    m_pData[m_StartIndex] = (byte)ClearType;
+                    break;
                 case SMART_VALUE_TYPE.VT_CHAR:
                 case SMART_VALUE_TYPE.VT_UCHAR:
                     m_pData[m_StartIndex] = (byte)ClearType;
@@ -266,47 +252,35 @@ namespace DOSSystem
                     m_pData[m_StartIndex] = (byte)ClearType;
                     Array.Clear(m_pData, (int)m_StartIndex + sizeof(byte), sizeof(double));
 				    break;
-                case SMART_VALUE_TYPE.VT_STRING:
+                case SMART_VALUE_TYPE.VT_STRING_UTF8:
+                case SMART_VALUE_TYPE.VT_STRING_ANSI:
                     m_pData[m_StartIndex] = (byte)ClearType;
                     Array.Clear(m_pData, (int)m_StartIndex + sizeof(byte), sizeof(uint) + sizeof(byte));
 				    break;
-                case SMART_VALUE_TYPE.VT_USTRING:
+                case SMART_VALUE_TYPE.VT_STRING_UCS16:
                     m_pData[m_StartIndex] = (byte)ClearType;
                     Array.Clear(m_pData, (int)m_StartIndex + sizeof(byte), sizeof(uint) + sizeof(char));
 				    break;
                 case SMART_VALUE_TYPE.VT_STRUCT:
+                case SMART_VALUE_TYPE.VT_BINARY:
                     m_pData[m_StartIndex] = (byte)ClearType;
                     Array.Clear(m_pData, (int)m_StartIndex + sizeof(byte), sizeof(uint));
-                    break;
-                case SMART_VALUE_TYPE.VT_STRING_TINY:
-                    m_pData[m_StartIndex] = (byte)ClearType;
-                    Array.Clear(m_pData, (int)m_StartIndex + sizeof(byte), sizeof(ushort) + sizeof(byte));
-				    break;
-                case SMART_VALUE_TYPE.VT_USTRING_TINY:
-                    m_pData[m_StartIndex] = (byte)ClearType;
-                    Array.Clear(m_pData, (int)m_StartIndex + sizeof(byte), sizeof(ushort) + sizeof(char));
-				    break;
-                case SMART_VALUE_TYPE.VT_STRUCT_TINY:
-                    m_pData[m_StartIndex] = (byte)ClearType;
-                    Array.Clear(m_pData, (int)m_StartIndex + sizeof(byte), sizeof(ushort));
-                    break;
+                    break;              
                 case SMART_VALUE_TYPE.VT_BOOL:
                     m_pData[m_StartIndex] = (byte)ClearType;
                     Array.Clear(m_pData, (int)m_StartIndex + sizeof(byte), sizeof(byte));
 				    break;
 			    }
 		    }
-
-
 		    return true;
 	    }
 
         public void Destory()
 	    {
-			m_pData=null;
-            m_StartIndex=0;
-		    m_DataLen=0;
-	    }
+            m_pData = NULL_DATA;
+            m_StartIndex = 0;
+            m_DataLen = (uint)NULL_DATA.Length;
+        }
 
         public SMART_VALUE_TYPE GetValueType()
 	    {
@@ -318,6 +292,8 @@ namespace DOSSystem
 	    {
 		    switch(GetValueType())
 		    {
+            case SMART_VALUE_TYPE.VT_NULL:
+                return 0;
             case SMART_VALUE_TYPE.VT_CHAR:
             case SMART_VALUE_TYPE.VT_UCHAR:
 			    return sizeof(byte);
@@ -334,14 +310,12 @@ namespace DOSSystem
 			    return sizeof(float);
             case SMART_VALUE_TYPE.VT_DOUBLE:
 			    return sizeof(double);
-            case SMART_VALUE_TYPE.VT_STRING:
-            case SMART_VALUE_TYPE.VT_USTRING:
+            case SMART_VALUE_TYPE.VT_STRING_UTF8:
+            case SMART_VALUE_TYPE.VT_STRING_ANSI:
+            case SMART_VALUE_TYPE.VT_STRING_UCS16:
             case SMART_VALUE_TYPE.VT_STRUCT:
+            case SMART_VALUE_TYPE.VT_BINARY:
                 return BitConverter.ToUInt32(m_pData, (int)m_StartIndex + sizeof(byte));
-            case SMART_VALUE_TYPE.VT_STRING_TINY:
-            case SMART_VALUE_TYPE.VT_USTRING_TINY:
-            case SMART_VALUE_TYPE.VT_STRUCT_TINY:
-                return BitConverter.ToUInt16(m_pData, (int)m_StartIndex + sizeof(byte));
             case SMART_VALUE_TYPE.VT_BOOL:
                 return sizeof(byte);
 		    }
@@ -351,15 +325,12 @@ namespace DOSSystem
         {
             switch (GetValueType())
             {
-                case SMART_VALUE_TYPE.VT_STRING:
-                case SMART_VALUE_TYPE.VT_USTRING:
+                case SMART_VALUE_TYPE.VT_STRING_UTF8:
+                case SMART_VALUE_TYPE.VT_STRING_ANSI:
+                case SMART_VALUE_TYPE.VT_STRING_UCS16:
                 case SMART_VALUE_TYPE.VT_STRUCT:
+                case SMART_VALUE_TYPE.VT_BINARY:
                     Array.Copy(BitConverter.GetBytes(Len), 0, m_pData, m_StartIndex + sizeof(byte), sizeof(uint));
-                    break;
-                case SMART_VALUE_TYPE.VT_STRING_TINY:
-                case SMART_VALUE_TYPE.VT_USTRING_TINY:
-                case SMART_VALUE_TYPE.VT_STRUCT_TINY:
-                    Array.Copy(BitConverter.GetBytes((ushort)Len), 0, m_pData, m_StartIndex + sizeof(byte), sizeof(ushort));
                     break;
             }
         }
@@ -367,6 +338,8 @@ namespace DOSSystem
 	    {		
 		    switch(GetValueType())
 		    {
+            case SMART_VALUE_TYPE.VT_NULL:
+                return sizeof(byte);
             case SMART_VALUE_TYPE.VT_CHAR:
             case SMART_VALUE_TYPE.VT_UCHAR:
 			    return sizeof(byte)+sizeof(byte);
@@ -383,18 +356,14 @@ namespace DOSSystem
 			    return sizeof(float)+sizeof(byte);
             case SMART_VALUE_TYPE.VT_DOUBLE:
 			    return sizeof(double)+sizeof(byte);
-            case SMART_VALUE_TYPE.VT_STRING:
+            case SMART_VALUE_TYPE.VT_STRING_UTF8:
+            case SMART_VALUE_TYPE.VT_STRING_ANSI:
                 return BitConverter.ToUInt32(m_pData, (int)m_StartIndex + sizeof(byte)) + sizeof(byte) + sizeof(uint) + sizeof(byte);
-            case SMART_VALUE_TYPE.VT_USTRING:
-                return BitConverter.ToUInt32(m_pData, (int)m_StartIndex + sizeof(byte)) + sizeof(byte) + sizeof(uint) + sizeof(char);
+            case SMART_VALUE_TYPE.VT_STRING_UCS16:
+                return BitConverter.ToUInt32(m_pData, (int)m_StartIndex + sizeof(byte)) * sizeof(char) + sizeof(byte) + sizeof(uint) + sizeof(char);
             case SMART_VALUE_TYPE.VT_STRUCT:
-                return BitConverter.ToUInt32(m_pData, (int)m_StartIndex + sizeof(byte)) + sizeof(byte) + sizeof(uint);
-            case SMART_VALUE_TYPE.VT_STRING_TINY:
-                return (uint)BitConverter.ToUInt16(m_pData, (int)m_StartIndex + sizeof(byte)) + sizeof(byte) + sizeof(ushort) + sizeof(byte);
-            case SMART_VALUE_TYPE.VT_USTRING_TINY:
-                return (uint)BitConverter.ToUInt16(m_pData, (int)m_StartIndex + sizeof(byte)) + sizeof(byte) + sizeof(ushort) + sizeof(char);
-            case SMART_VALUE_TYPE.VT_STRUCT_TINY:
-                return (uint)BitConverter.ToUInt16(m_pData, (int)m_StartIndex + sizeof(byte)) + sizeof(byte) + sizeof(ushort);
+            case SMART_VALUE_TYPE.VT_BINARY:
+                return BitConverter.ToUInt32(m_pData, (int)m_StartIndex + sizeof(byte)) + sizeof(byte) + sizeof(uint);            
             case SMART_VALUE_TYPE.VT_BOOL:
                 return sizeof(byte) + sizeof(byte);
 		    }
@@ -733,31 +702,13 @@ namespace DOSSystem
         public static implicit operator byte[](CSmartValue Value)
 	    {
 		    switch(Value.GetValueType())
-		    {	
-		    case SMART_VALUE_TYPE.VT_STRING:
+		    {
+            case SMART_VALUE_TYPE.VT_BINARY:
                 {
 			        byte[] Temp=new byte[Value.GetLength()];
                     Array.Copy(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte) + sizeof(uint), Temp, 0, Value.GetLength());
     			    return Temp;
-			    }
-		    case SMART_VALUE_TYPE.VT_STRING_TINY:
-                {
-                    byte[] Temp = new byte[Value.GetLength()];
-                    Array.Copy(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte) + sizeof(ushort), Temp, 0, Value.GetLength());
-                    return Temp;
-                }
-            case SMART_VALUE_TYPE.VT_USTRING:
-                {
-                    byte[] Temp = new byte[Value.GetLength()];
-                    Array.Copy(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte) + sizeof(uint), Temp, 0, Value.GetLength());
-                    return Temp;
-                }
-            case SMART_VALUE_TYPE.VT_USTRING_TINY:
-                {
-                    byte[] Temp = new byte[Value.GetLength()];
-                    Array.Copy(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte) + sizeof(ushort), Temp, 0, Value.GetLength());
-                    return Temp;
-                }
+			    }		                         
 		    }		
 		    return null;
 	    }
@@ -766,26 +717,21 @@ namespace DOSSystem
         {            
             switch (Value.GetValueType())
             {
-                case SMART_VALUE_TYPE.VT_STRING:
+                case SMART_VALUE_TYPE.VT_STRING_ANSI:
+                    {
+                        string Temp = Encoding.Default.GetString(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte) + sizeof(uint), (int)Value.GetLength());
+                        return Temp;
+                    }
+                case SMART_VALUE_TYPE.VT_STRING_UTF8:
                     {
                         string Temp = Encoding.UTF8.GetString(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte) + sizeof(uint), (int)Value.GetLength());
                         return Temp;
-                    }
-                case SMART_VALUE_TYPE.VT_STRING_TINY:
+                    }               
+                case SMART_VALUE_TYPE.VT_STRING_UCS16:
                     {
-                        string Temp = Encoding.UTF8.GetString(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte) + sizeof(ushort), (int)Value.GetLength());
+                        string Temp = Encoding.Unicode.GetString(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte) + sizeof(uint), (int)Value.GetLength() * sizeof(char));
                         return Temp;
-                    }
-                case SMART_VALUE_TYPE.VT_USTRING:
-                    {
-                        string Temp = Encoding.Unicode.GetString(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte) + sizeof(uint), (int)Value.GetLength());
-                        return Temp;
-                    }
-                case SMART_VALUE_TYPE.VT_USTRING_TINY:
-                    {
-                        string Temp = Encoding.Unicode.GetString(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte) + sizeof(ushort), (int)Value.GetLength());
-                        return Temp;
-                    }
+                    }                
             }
             return null;
         }
@@ -879,25 +825,34 @@ namespace DOSSystem
         }
         public static explicit operator CSmartValue(string Value)
         {
-
-            byte[] Temp = Encoding.UTF8.GetBytes(Value);
-
-            CSmartValue SmartValue = new CSmartValue();
-            SmartValue.Create(SMART_VALUE_TYPE.VT_STRING, (uint)Temp.Length);
-            SmartValue.SetValue(Temp);
+            CSmartValue SmartValue = NULL;
+            switch (INTERNAL_STRING_CODE_PAGE)
+            {
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_ANSI:
+                    {
+                        SmartValue.Create(SMART_VALUE_TYPE.VT_STRING_ANSI, (uint)Value.Length);
+                        SmartValue.SetValue(Value);                        
+                    }
+                    break;
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_UTF8:
+                    {
+                        SmartValue.Create(SMART_VALUE_TYPE.VT_STRING_UTF8, (uint)Value.Length);
+                        SmartValue.SetValue(Value);                        
+                    }
+                    break;
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16:
+                    {
+                        SmartValue.Create(SMART_VALUE_TYPE.VT_STRING_UCS16, (uint)Value.Length);
+                        SmartValue.SetValue(Value);
+                    }
+                    break;
+            }
             return SmartValue;
-
-            //byte[] Temp = Encoding.Unicode.GetBytes(Value);
-
-            //CSmartValue SmartValue = new CSmartValue();
-            //SmartValue.Create(SMART_VALUE_TYPE.VT_USTRING, (uint)Temp.Length);
-            //SmartValue.SetValue(Temp);
-            //return SmartValue;
         }
         public static explicit operator CSmartValue(byte[] Value)
         {
             CSmartValue SmartValue = new CSmartValue();
-            SmartValue.Create(SMART_VALUE_TYPE.VT_STRING, (uint)Value.Length);
+            SmartValue.Create(SMART_VALUE_TYPE.VT_BINARY, (uint)Value.Length);
             SmartValue.SetValue(Value);
             return SmartValue;
         }
@@ -962,9 +917,20 @@ namespace DOSSystem
             {
                 switch (GetValueType())
                 {
-                    case SMART_VALUE_TYPE.VT_STRING:
+                    case SMART_VALUE_TYPE.VT_STRING_ANSI:
                         {
-                            //内部统一使用UTF8
+                            byte[] Temp = Encoding.Default.GetBytes(Value);
+
+                            int MaxLen = (int)m_DataLen - sizeof(byte) - sizeof(uint) - sizeof(byte);
+                            if (Temp.Length < MaxLen)
+                                MaxLen = Temp.Length;
+                            Array.Copy(Temp, 0, m_pData, m_StartIndex + sizeof(byte) + sizeof(uint), MaxLen);
+                            m_pData[m_StartIndex + sizeof(byte) + sizeof(uint) + MaxLen] = 0;
+                            SetLength((uint)MaxLen);
+                        }
+                        break;
+                    case SMART_VALUE_TYPE.VT_STRING_UTF8:
+                        {                            
                             byte[] Temp = Encoding.UTF8.GetBytes(Value);
 
                             int MaxLen = (int)m_DataLen - sizeof(byte) - sizeof(uint) - sizeof(byte);
@@ -975,20 +941,8 @@ namespace DOSSystem
                             SetLength((uint)MaxLen);
                         }
                         break;
-                    case SMART_VALUE_TYPE.VT_STRING_TINY:
-                        {
-                            //内部统一使用UTF8
-                            byte[] Temp = Encoding.UTF8.GetBytes(Value);
-
-                            int MaxLen = (int)m_DataLen - sizeof(byte) - sizeof(ushort) - sizeof(byte);
-                            if (Temp.Length < MaxLen)
-                                MaxLen = Temp.Length;
-                            Array.Copy(Temp, 0, m_pData, m_StartIndex + sizeof(byte) + sizeof(ushort), MaxLen);
-                            m_pData[m_StartIndex + sizeof(byte) + sizeof(uint) + MaxLen] = 0;
-                            SetLength((uint)MaxLen);
-                        }
-                        break;
-                    case SMART_VALUE_TYPE.VT_USTRING:
+                    
+                    case SMART_VALUE_TYPE.VT_STRING_UCS16:
                         {
                             int MaxLen = (int)m_DataLen - sizeof(byte) - sizeof(uint) - sizeof(char);
                             if (Value.Length * sizeof(char) < MaxLen)
@@ -996,20 +950,9 @@ namespace DOSSystem
                             Array.Copy(Encoding.Unicode.GetBytes(Value), 0, m_pData, m_StartIndex + sizeof(byte) + sizeof(uint), MaxLen);
                             m_pData[m_StartIndex + sizeof(byte) + sizeof(uint) + MaxLen] = 0;
                             m_pData[m_StartIndex + sizeof(byte) + sizeof(uint) + MaxLen + 1] = 0;
-                            SetLength((uint)MaxLen);
+                            SetLength((uint)MaxLen/ sizeof(char));
                         }
-                        break;
-                    case SMART_VALUE_TYPE.VT_USTRING_TINY:
-                        {
-                            int MaxLen = (int)m_DataLen - sizeof(byte) - sizeof(ushort) - sizeof(char);
-                            if (Value.Length * sizeof(char) < MaxLen)
-                                MaxLen = Value.Length * sizeof(char);
-                            Array.Copy(Encoding.Unicode.GetBytes(Value), 0, m_pData, m_StartIndex + sizeof(byte) + sizeof(ushort), MaxLen);
-                            m_pData[m_StartIndex + sizeof(byte) + sizeof(uint) + MaxLen] = 0;
-                            m_pData[m_StartIndex + sizeof(byte) + sizeof(uint) + MaxLen + 1] = 0;
-                            SetLength((uint)MaxLen);
-                        }
-                        break;
+                        break;                   
                     default:
                         return false;
                 }
@@ -1023,26 +966,15 @@ namespace DOSSystem
             {
                 switch (GetValueType())
                 {
-                    case SMART_VALUE_TYPE.VT_STRING:
+                    case SMART_VALUE_TYPE.VT_BINARY:
                         {
-                            int MaxLen = (int)m_DataLen - sizeof(byte) - sizeof(uint) - sizeof(byte);
+                            int MaxLen = (int)m_DataLen - sizeof(byte) - sizeof(uint);
                             if (Value.Length < MaxLen)
                                 MaxLen = Value.Length;
                             Array.Copy(Value, 0, m_pData, m_StartIndex + sizeof(byte) + sizeof(uint), MaxLen);
                             SetLength((uint)MaxLen);
                         }
-                        break;
-                    case SMART_VALUE_TYPE.VT_STRING_TINY:
-                        {
-                            int MaxLen = (int)m_DataLen - sizeof(byte) - sizeof(ushort) - sizeof(byte);
-                            if (Value.Length < MaxLen)
-                                MaxLen = Value.Length;
-                            Array.Copy(Value, 0, m_pData, m_StartIndex + sizeof(byte) + sizeof(ushort), MaxLen);
-                            SetLength((uint)MaxLen);
-                        }
-                        break;
-                    default:
-                        return false;
+                        break;                    
                 }
                 return true;
             }
@@ -1081,6 +1013,11 @@ namespace DOSSystem
                 return true;
             }
             return false;
+        }
+
+        public bool IsNull()
+        {
+            return GetValueType() == SMART_VALUE_TYPE.VT_NULL;
         }
     }
 }

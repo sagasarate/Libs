@@ -11,16 +11,11 @@
 /****************************************************************************/
 #pragma once
 
-enum ENL_ACTIVE_TYPE
-{
-	ENL_ACTIVE_TYPE_PASSIVE,
-	ENL_ACTIVE_TYPE_PROACTIVE,
-};
 
-class CEasyNetLink;
 
 class CENLConnection :
-	public CNetConnection
+	public CENLBaseConnection,
+	public CNetConnection	
 {
 protected:
 	enum STATUS
@@ -29,46 +24,44 @@ protected:
 		STATUS_ACCEPTED,
 	};
 	CEasyNetLinkManager *						m_pManager;
-	CEasyNetLink *								m_pParent;
 	STATUS										m_Status;
 	CIPAddress									m_ConnectionAddress;
 	CEasyBuffer									m_AssembleBuffer;
 	CEasyTimer									m_KeepAliveTimer;
 	int											m_KeepAliveCount;
 	CEasyTimer									m_ReconnectTimer;
-	ENL_ACTIVE_TYPE								m_ActiveType;
 
+	UINT										m_MaxPacketSize;
+	CEasyNetLinkManager::DATA_COMPRESS_TYPE		m_DataCompressType;
+	UINT										m_MinCompressSize;
+	CEasyBuffer									m_CompressBuffer;
 
-	DECLARE_CLASS_INFO_STATIC(CENLConnection);
 public:
 	CENLConnection();
 	~CENLConnection();
 
-	bool Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent, const CIPAddress& ConnectionAddress, UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize);
-	bool Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent, UINT MaxPacketSize);
-	void SetParent(CEasyNetLink * pParent);
-	CEasyNetLink * GetParent();
+	virtual void Release() override;
+	virtual UINT AddUseRef() override;
 
-	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
-	virtual void OnRecvData(const BYTE * pData, UINT DataSize);
-	virtual void OnConnection(bool IsSucceed);
-	virtual void OnDisconnection();
+	bool Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent, const CIPAddress& ConnectionAddress, 
+		UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
+	bool Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent, UINT MaxPacketSize, 
+		CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
+	
 
+	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT) override;
+	virtual void OnRecvData(const BYTE * pData, UINT DataSize) override;
+	virtual void OnConnection(bool IsSucceed) override;
+	virtual void OnDisconnection() override;
+
+	virtual bool SendData(LPCVOID pData, UINT DataSize) override;
+
+	virtual void Disconnect() override;
+	virtual bool IsDisconnected() override;
+	virtual bool IsConnected() override;
+	virtual CBaseNetConnection * GetBaseConnection() override;
+
+protected:
 	void SendLinkMsg(DWORD MsgID, LPCVOID pData = NULL, UINT DataSize = 0);
-
-	ENL_ACTIVE_TYPE GetActiveType();
 };
 
-inline void CENLConnection::SetParent(CEasyNetLink * pParent)
-{
-	m_pParent = pParent;
-}
-inline CEasyNetLink * CENLConnection::GetParent()
-{
-	return m_pParent;
-}
-
-inline ENL_ACTIVE_TYPE CENLConnection::GetActiveType()
-{
-	return m_ActiveType;
-}

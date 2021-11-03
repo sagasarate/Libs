@@ -45,7 +45,7 @@ void CDBTransationWorkThread::Destory()
 	SAFE_RELEASE(m_pConnection);
 }
 
-bool CDBTransationWorkThread::Init(IDatabase * pDatabase, LPCSTR ConnectStr, int QueueSize)
+bool CDBTransationWorkThread::Init(IDatabase * pDatabase, LPCSTR ConnectStr, bool MultiThreadAdd, int QueueSize)
 {
 	if (pDatabase == NULL)
 		return false;
@@ -57,6 +57,13 @@ bool CDBTransationWorkThread::Init(IDatabase * pDatabase, LPCSTR ConnectStr, int
 	m_TransQueue.Create(QueueSize);
 	m_FinishTransQueue.Create(QueueSize);
 	m_ConnectionTestTimer.SaveTime();
+
+	if (MultiThreadAdd)
+		m_TransQueue.SetLockMode(false, true);
+	else
+		m_TransQueue.SetLockMode(false, false);
+
+	m_FinishTransQueue.SetLockMode(false, false);
 
 	PrintDBLog("工作线程队列长度%d", QueueSize);
 

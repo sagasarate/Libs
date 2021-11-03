@@ -8,6 +8,7 @@ CDOSObjectProxyConnectionGroup::CDOSObjectProxyConnectionGroup()
 	m_Index = 0;
 	m_ConnectionPool.SetTag(_T("CDOSObjectProxyConnectionGroup"));
 	m_CompressBuffer.SetTag(_T("CDOSObjectProxyConnectionGroup"));
+	m_EncyptBuffer.SetTag(_T("CDOSObjectProxyConnectionGroup"));
 }
 
 
@@ -22,12 +23,37 @@ bool CDOSObjectProxyConnectionGroup::Init(CDOSObjectProxyServiceDefault * pServi
 	m_Index = Index;
 	if (m_Config.MsgCompressType == MSG_COMPRESS_LZO)
 	{
-		if (m_CompressBuffer.GetBufferSize() < m_Config.MaxSendMsgSize)
+		UINT CompressBufferSize = m_Config.SendBufferSize*NET_DATA_BLOCK_SIZE;
+		if (m_CompressBuffer.GetBufferSize() < CompressBufferSize)
 		{
-			if (!m_CompressBuffer.Create(m_Config.MaxSendMsgSize))
+			if (m_CompressBuffer.Create(CompressBufferSize))
+			{
+				PrintDOSLog(_T("已创建%u大小的压缩缓冲"),
+					CompressBufferSize);
+			}
+			else
 			{
 				PrintDOSLog(_T("创建%u大小的压缩缓冲失败！"),
-					m_Config.MaxSendMsgSize);
+					CompressBufferSize);
+				return FALSE;
+			}
+		}
+	}
+
+	if (m_Config.MsgEnCryptType != MSG_ENCRYPT_NONE)
+	{
+		UINT EncyptBufferSize = m_Config.RecvBufferSize*NET_DATA_BLOCK_SIZE;
+		if (m_EncyptBuffer.GetBufferSize() < EncyptBufferSize)
+		{
+			if (m_EncyptBuffer.Create(EncyptBufferSize))
+			{
+				PrintDOSLog(_T("已创建%u大小的解密缓冲"),
+					EncyptBufferSize);
+			}
+			else
+			{
+				PrintDOSLog(_T("创建%u大小的解密缓冲失败！"),
+					EncyptBufferSize);
 				return FALSE;
 			}
 		}
@@ -50,6 +76,7 @@ bool CDOSObjectProxyConnectionGroup::AddConnection(CDOSObjectProxyConnectionDefa
 	if (m_ConnectionPool.PushBack(pConnection))
 	{
 		pConnection->SetCompressBuffer(&m_CompressBuffer, m_LZOCompressWorkMemory);
+		pConnection->SetEncyptBuffer(&m_EncyptBuffer);
 		pConnection->SetGroup(this);		
 		return true;
 	}

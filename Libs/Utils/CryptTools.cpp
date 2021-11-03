@@ -27,24 +27,34 @@ bool CCryptTools::DESEncryptECB(const BYTE * pKey, size_t KeyLen, const BYTE * p
 		return false;
 	}
 
+	size_t BlockCount = (DataLen / DES_BLOCK_SIZE) + 1;
+
+	if (pOutBuffer == NULL)
+	{
+		OutLen = BlockCount * DES_BLOCK_SIZE;
+		return true;
+	}
+
+	if (OutLen < BlockCount*DES_BLOCK_SIZE)
+	{
+		return false;
+	}
+	OutLen = BlockCount * DES_BLOCK_SIZE;
+
 
 	BYTE WorkBuffer[DES_BLOCK_SIZE];
 	struct des_ctx CTX;
 	des_setkey(&CTX, pKey, (UINT)KeyLen);
 
-	size_t BlockCount = DataLen / DES_BLOCK_SIZE + 1;
-	if (OutLen < BlockCount*DES_BLOCK_SIZE)
-	{
-		return false;
-	}
-	OutLen = BlockCount*DES_BLOCK_SIZE;
+	
 
 	while (BlockCount)
 	{
-		if (DataLen < DES_BLOCK_SIZE)
+		if (BlockCount == 1)
 		{
-			//不够一块，需要填充
-			memcpy(WorkBuffer, pData, DataLen);
+			//最后一块，需要填充
+			if (DataLen)
+				memcpy(WorkBuffer, pData, DataLen);
 			BYTE Padding = (BYTE)(DES_BLOCK_SIZE - DataLen);
 			for (BYTE i = 0; i < Padding; i++)
 			{
@@ -96,7 +106,7 @@ bool CCryptTools::DESDecryptECB(const BYTE * pKey, size_t KeyLen, const BYTE * p
 		{
 			//最后一块，去除填充
 			BYTE Padding = pOutBuffer[DES_BLOCK_SIZE - 1];
-			if (Padding < DES_BLOCK_SIZE)
+			if (Padding <= DES_BLOCK_SIZE)
 			{
 				bool HavingPadding = true;
 				for (BYTE i = 0; i < Padding; i++)
@@ -145,25 +155,35 @@ bool CCryptTools::AESEncryptECB(const BYTE * pKey, size_t KeyLen, const BYTE * p
 		return false;
 	}
 
+	size_t BlockCount = (DataLen / AES_BLOCK_SIZE) + 1;
+
+	if (pOutBuffer == NULL)
+	{
+		OutLen = BlockCount * AES_BLOCK_SIZE;
+		return true;
+	}
+
+	if (OutLen < BlockCount*AES_BLOCK_SIZE)
+	{
+		return false;
+	}
+
+	OutLen = BlockCount * AES_BLOCK_SIZE;
 
 	BYTE WorkBuffer[AES_BLOCK_SIZE];
 	struct crypto_aes_ctx CTX;
 	crypto_aes_expand_key(&CTX, pKey, (UINT)KeyLen);
 
 
-	size_t BlockCount = DataLen / AES_BLOCK_SIZE + 1;
-	if (OutLen < BlockCount*AES_BLOCK_SIZE)
-	{
-		return false;
-	}
-	OutLen = BlockCount*AES_BLOCK_SIZE;
+	
 
 	while (BlockCount)
 	{
-		if (DataLen < AES_BLOCK_SIZE)
+		if (BlockCount == 1)
 		{
-			//不够一块，需要填充
-			memcpy(WorkBuffer, pData, DataLen);
+			//最后一块，需要填充
+			if (DataLen)
+				memcpy(WorkBuffer, pData, DataLen);
 			BYTE Padding = (BYTE)(AES_BLOCK_SIZE - DataLen);
 			for (BYTE i = 0; i < Padding; i++)
 			{
@@ -222,7 +242,7 @@ bool CCryptTools::AESDecryptECB(const BYTE * pKey, size_t KeyLen, const BYTE * p
 		{
 			//最后一块，去除填充
 			BYTE Padding = pOutBuffer[AES_BLOCK_SIZE - 1];
-			if (Padding < AES_BLOCK_SIZE)
+			if (Padding <= AES_BLOCK_SIZE)
 			{
 				bool HavingPadding = true;
 				for (BYTE i = 0; i < Padding; i++)
@@ -262,10 +282,17 @@ bool CCryptTools::TEAEncryptECB(const BYTE * pKey, size_t KeyLen, UINT Cycle, co
 		return false;
 	}
 
+	
 
-	BYTE WorkBuffer[TEA_BLOCK_SIZE];
+	size_t BlockCount = (DataLen / TEA_BLOCK_SIZE) + 1;
 
-	size_t BlockCount = DataLen / TEA_BLOCK_SIZE + 1;
+	if (pOutBuffer == NULL)
+	{
+		OutLen = BlockCount * TEA_BLOCK_SIZE;
+		return true;
+	}
+
+
 	if (OutLen < BlockCount*TEA_BLOCK_SIZE)
 	{
 		return false;
@@ -274,15 +301,15 @@ bool CCryptTools::TEAEncryptECB(const BYTE * pKey, size_t KeyLen, UINT Cycle, co
 
 	while (BlockCount)
 	{
-		
-		if (DataLen < TEA_BLOCK_SIZE)
+		if (BlockCount == 1)
 		{
-			//不够一块，需要填充
-			memmove(pOutBuffer, pData, DataLen);
+			//最后一块，需要填充
+			if (DataLen)
+				memmove(pOutBuffer, pData, DataLen);
 			BYTE Padding = (BYTE)(TEA_BLOCK_SIZE - DataLen);
 			for (BYTE i = 0; i < Padding; i++)
 			{
-				WorkBuffer[DataLen + i] = Padding;
+				pOutBuffer[DataLen + i] = Padding;
 			}
 			tea_encrypt((UINT *)pOutBuffer, (UINT *)pKey, Cycle);
 			pData += DataLen;
@@ -330,7 +357,7 @@ bool CCryptTools::TEADecryptECB(const BYTE * pKey, size_t KeyLen, UINT Cycle, co
 		{
 			//最后一块，去除填充
 			BYTE Padding = pOutBuffer[TEA_BLOCK_SIZE - 1];
-			if (Padding < TEA_BLOCK_SIZE)
+			if (Padding <= TEA_BLOCK_SIZE)
 			{
 				bool HavingPadding = true;
 				for (BYTE i = 0; i < Padding; i++)

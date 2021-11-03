@@ -155,8 +155,8 @@ bool CNameObject::FromSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pRe
 
  UINT CNameObject::GetSmartStructSize(UINT Param)
 {
-	return CSmartStruct::GetStringMemberSize((UINT)_tcslen(GetClassInfo().ClassName)) +
-		CSmartStruct::GetStringMemberSize((UINT)m_Name.GetLength()) +
+	return CSmartStruct::GetStringMemberSize(GetClassInfo().ClassName) +
+		CSmartStruct::GetStringMemberSize(m_Name) +
 		CSmartStruct::GetFixMemberSize(sizeof(m_ID)) +
 		CSmartStruct::GetFixMemberSize(sizeof(m_StorageID));
 }

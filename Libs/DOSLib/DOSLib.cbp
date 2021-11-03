@@ -6,7 +6,7 @@
 		<Option platforms="Unix;" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="头文件/;客户端组件/;对象代理服务/;对象和对象管理/;服务器/;消息协议/;路由服务/;预编译/;对象和对象管理/对象基类/;对象和对象管理/对象插件接口/;对象和对象管理/对象管理器/;对象和对象管理/对象组/;对象代理服务/基础类/;对象代理服务/缺省实现/;" />
+		<Option virtualFolders="头文件/;客户端组件/;对象代理服务/;对象和对象管理/;服务器/;消息协议/;路由服务/;预编译/;对象和对象管理/对象基类/;对象和对象管理/对象插件接口/;对象和对象管理/对象管理器/;对象和对象管理/对象组/;对象代理服务/基础类/;对象代理服务/缺省实现/;对象代理服务/缺省实现/无网络层缓冲版本/;" />
 		<Build>
 			<Target title="Debug">
 				<Option platforms="Unix;" />
@@ -106,11 +106,29 @@
 		<Unit filename="DOSObjectProxyConnectionGroup.h">
 			<Option virtualFolder="对象代理服务/缺省实现/" />
 		</Unit>
+		<Unit filename="DOSObjectProxyConnectionGroupNoBuff.cpp">
+			<Option virtualFolder="对象代理服务/缺省实现/无网络层缓冲版本/" />
+		</Unit>
+		<Unit filename="DOSObjectProxyConnectionGroupNoBuff.h">
+			<Option virtualFolder="对象代理服务/缺省实现/无网络层缓冲版本/" />
+		</Unit>
+		<Unit filename="DOSObjectProxyConnectionNoBuff.cpp">
+			<Option virtualFolder="对象代理服务/缺省实现/无网络层缓冲版本/" />
+		</Unit>
+		<Unit filename="DOSObjectProxyConnectionNoBuff.h">
+			<Option virtualFolder="对象代理服务/缺省实现/无网络层缓冲版本/" />
+		</Unit>
 		<Unit filename="DOSObjectProxyServiceDefault.cpp">
 			<Option virtualFolder="对象代理服务/缺省实现/" />
 		</Unit>
 		<Unit filename="DOSObjectProxyServiceDefault.h">
 			<Option virtualFolder="对象代理服务/缺省实现/" />
+		</Unit>
+		<Unit filename="DOSObjectProxyServiceNoBuff.cpp">
+			<Option virtualFolder="对象代理服务/缺省实现/无网络层缓冲版本/" />
+		</Unit>
+		<Unit filename="DOSObjectProxyServiceNoBuff.h">
+			<Option virtualFolder="对象代理服务/缺省实现/无网络层缓冲版本/" />
 		</Unit>
 		<Unit filename="DOSProxyManager.cpp">
 			<Option virtualFolder="对象代理服务/" />
@@ -141,6 +159,12 @@
 		</Unit>
 		<Unit filename="DOSServer.h">
 			<Option virtualFolder="服务器/" />
+		</Unit>
+		<Unit filename="ENLConnectionNoBuff.cpp">
+			<Option virtualFolder="路由服务/" />
+		</Unit>
+		<Unit filename="ENLConnectionNoBuff.h">
+			<Option virtualFolder="路由服务/" />
 		</Unit>
 		<Unit filename="IDOSObjectProxy.h">
 			<Option virtualFolder="对象代理服务/基础类/" />

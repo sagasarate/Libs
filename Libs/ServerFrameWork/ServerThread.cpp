@@ -100,6 +100,7 @@ BOOL CServerThread::OnStart()
 		mallopt(M_MMAP_MAX, CSystemConfig::GetInstance()->GetMallocConfig().MMapMax);
 		PrintImportantLog("Set M_MMAP_MAX=%d", CSystemConfig::GetInstance()->GetMallocConfig().MMapMax);
 	}
+	m_MallocTimer.SetTimeOut(CSystemConfig::GetInstance()->GetMallocConfig().TrimInterval);
 #endif
 
 	CEasyString LogFileName;
@@ -112,6 +113,7 @@ BOOL CServerThread::OnStart()
 	LogFileName.Format("%s/Log/%s",(LPCTSTR)ModulePath,g_ProgramName);
 	pLog = MONITORED_NEW(_T("CServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+	pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 	CLogManager::GetInstance()->AddChannel(SERVER_LOG_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
@@ -121,6 +123,7 @@ BOOL CServerThread::OnStart()
 	CCSVFileLogPrinter * pCSVLog = MONITORED_NEW(_T("CServerThread"), CCSVFileLogPrinter, CSystemConfig::GetInstance()->GetLogLevel(), LogFileName,
 		"CycleTime,CPUUsed,TCPRecvFlow,TCPSendFlow,UDPRecvFlow,UDPSendFlow,"
 		"TCPRecvCount,TCPSendCount,UDPRecvCount=,UDPSendCount,ClientCount", CSystemConfig::GetInstance()->GetLogCacheSize());
+	pCSVLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 	CLogManager::GetInstance()->AddChannel(SERVER_STATUS_LOG_CHANNEL,pCSVLog);
 	SAFE_RELEASE(pCSVLog);
 
@@ -129,12 +132,14 @@ BOOL CServerThread::OnStart()
 	LogFileName.Format("%s/Log/%s.NetLib",(LPCTSTR)ModulePath,g_ProgramName);
 	pLog = MONITORED_NEW(_T("CServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+	pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 	CLogManager::GetInstance()->AddChannel(LOG_NET_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
 	LogFileName.Format("%s/Log/%s.DBLib",(LPCTSTR)ModulePath,g_ProgramName);
 	pLog = MONITORED_NEW(_T("CServerThread"), CServerLogPrinter, this, CServerLogPrinter::LOM_FILE,
 		CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+	pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
 	CLogManager::GetInstance()->AddChannel(LOG_DB_ERROR_CHANNEL,pLog);
 	SAFE_RELEASE(pLog);
 
@@ -306,6 +311,19 @@ int CServerThread::Update(int ProcessPacketLimit)
 		Process += m_pUDPSystemControlPort->Update(ProcessPacketLimit);
 	if (m_pSystemControlPipe)
 		Process += m_pSystemControlPipe->Update(ProcessPacketLimit);
+
+
+#ifndef WIN32
+	if (CSystemConfig::GetInstance()->GetMallocConfig().TrimMemory)
+	{
+		if (m_MallocTimer.IsTimeOut())
+		{
+			m_MallocTimer.SetTimeOut(CSystemConfig::GetInstance()->GetMallocConfig().TrimInterval);
+			malloc_trim(0);
+			Log("已执行内存整理");
+		}
+	}
+#endif
 	return Process;
 	FUNCTION_END;
 	return 0;

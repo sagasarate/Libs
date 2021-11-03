@@ -36,7 +36,11 @@ public:
 
 	
 	void OnMsgPacket(CDOSMessagePacket * pPacket);
-
+	bool SendPacket(CDOSMessagePacket * pPacket);
+protected:
+	virtual CENLBaseConnection * NewConnection(UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
+	virtual CENLBaseConnection * NewConnection(const CIPAddress& ConnectionAddress, UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize,
+		CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
 };
 
 

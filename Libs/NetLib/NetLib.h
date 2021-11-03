@@ -172,11 +172,13 @@ inline BOOL PrintNetDebugLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
 #include "NetServerEpoll.h"
 #include "NetServiceEpoll.h"
 #include "NetConnectionEpoll.h"
+#include "NetConnectionNoBuffEpoll.h"
 
 #endif
 
 #include "EasyNetLinkManager.h"
 #include "EasyNetLinkService.h"
+#include "ENLBaseConnection.h"
 #include "ENLConnection.h"
 #include "EasyNetLink.h"
 #include "EasyNetTempLink.h"

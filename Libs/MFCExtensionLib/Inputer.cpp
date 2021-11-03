@@ -24,6 +24,10 @@ IMPLEMENT_DYNAMIC(CInputer, CWnd)
 CInputer::CInputer()
 {
 	m_Type=0;
+	m_IsOpenFile = true;
+	m_DefaultFileName = _T("*.*");
+	m_DefaultFileExt = _T("*.*");
+	m_FileExtPattern = _T("All File(*.*)|*.*||");
 	m_FuctionDialog=NULL;
 }
 
@@ -128,20 +132,18 @@ void CInputer::StartInput(int Type,CString& Define,CString& DefaultValue,CProper
 			m_ComboBox.MoveWindow(&Rect);			
 
 			m_ComboBox.ResetContent();
-			CSettingFile SettingStr;
-			SettingStr.Load((LPCTSTR)Define);
-			int Count=SettingStr.GetInteger(_T("Define"),_T("ItemCount"),0);
-			for(int i=0;i<Count;i++)
+			CStringSplitter Splitter(Define,';');
+			for (UINT i = 0; i < Splitter.GetCount(); i++)
 			{
-				TCHAR key[20];
-				_stprintf_s(key,20,_T("Item%02d"),i);
-
-				CString Item=SettingStr.GetString(_T("Define"),key,_T(""));
-				m_ComboBox.InsertString(i,Item);
-				if(Item==DefaultValue)
-					m_ComboBox.SetCurSel(i);
-				
+				if (_tcslen(Splitter[i]) > 0)
+				{
+					m_ComboBox.InsertString(i, Splitter[i]);
+					if (DefaultValue == Splitter[i])
+						m_ComboBox.SetCurSel(i);
+				}
 			}
+			Rect.bottom = Rect.top + 20 * Splitter.GetCount() + 50;
+			m_ComboBox.MoveWindow(&Rect);
 			m_ComboBox.ShowWindow(SW_SHOW);
 			m_ComboBox.SetFocus();
 		}
@@ -191,7 +193,44 @@ void CInputer::StartInput(int Type,CString& Define,CString& DefaultValue,CProper
 			ScreenToClient(&Rect);
 			m_Button.MoveWindow(&Rect);
 			m_Button.ShowWindow(SW_SHOW);
-			
+			if (Define == _T("Save"))
+				m_IsOpenFile = false;
+			CStringSplitter Splitter(Define, ';');
+			if (Splitter.GetCount() >= 1)
+			{
+				if(_tcscmp(Splitter[0], _T("Save"))==0)
+					m_IsOpenFile = false;
+				else
+					m_IsOpenFile = true;
+			}
+			else
+			{
+				m_IsOpenFile = true;
+			}
+			if (Splitter.GetCount() >= 2)
+			{
+				m_DefaultFileExt = Splitter[1];
+			}
+			else
+			{
+				m_DefaultFileExt = _T("*.*");
+			}
+			if (Splitter.GetCount() >= 3)
+			{
+				m_DefaultFileName = Splitter[2];
+			}
+			else
+			{
+				m_DefaultFileName = _T("*.*");
+			}
+			if (Splitter.GetCount() >= 4)
+			{
+				m_FileExtPattern = Splitter[3];
+			}
+			else
+			{
+				m_FileExtPattern = _T("All File(*.*)|*.*||");
+			}
 		}
 		break;
 	case PROT_CUSTOM:
@@ -307,7 +346,7 @@ void CInputer::OnBnClicked()
 		break;
 	case PROT_PATH:
 		{
-			CFileDialog dlg(false);
+			CFileDialog dlg(m_IsOpenFile, m_DefaultFileExt, m_DefaultFileName, OFN_OVERWRITEPROMPT, m_FileExtPattern);
 
 			if(dlg.DoModal()==IDOK)
 			{

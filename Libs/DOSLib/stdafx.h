@@ -42,6 +42,8 @@
 
 #endif
 
+//#define DUMP_MSG_DATA
+
 //#define USE_MONITORED_NEW
 
 #include "../Utils/Utils.h"

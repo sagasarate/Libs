@@ -9,7 +9,7 @@ protected:
 	
 
 	CStaticMap<CEasyString,CLuaScript>			m_LuaScriptPool;
-	CEasyArray<CLuaScript::LUA_CFUN_INFO>		m_LuaCFunList;
+	CEasyArray<LUA_CFUN_INFO>					m_LuaCFunList;
 	CEasyTimer									m_UpdateTimer;
 	UINT										m_LuaStackSize;
 	UINT										m_ThreadStartSize;

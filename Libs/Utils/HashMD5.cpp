@@ -78,6 +78,8 @@ void CHashMD5::Init()
 }
 void CHashMD5::AddData(const BYTE * inBuf, size_t inLen)
 {
+	if ((inBuf == NULL) || (inLen == 0))
+		return;
 	UINT4 in[16];
 	int mdi;
 	unsigned int i, ii;

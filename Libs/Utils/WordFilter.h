@@ -5,12 +5,12 @@ protected:
 	struct CHAR_NODE
 	{
 		TCHAR						Char;
-		bool						HavwWord;
+		UINT						WordTypeMask;
 		CEasyMap<TCHAR, CHAR_NODE>	NextCharMap;
 		CHAR_NODE()
 		{
 			Char = 0;
-			HavwWord = false;
+			WordTypeMask = 0;
 		}
 	};
 
@@ -20,8 +20,8 @@ public:
 	~CWordFilter();
 
 	void Clear();
-	bool AddWord(LPCTSTR szWord);
-	bool Check(LPCTSTR szText, size_t Start = 0, size_t Len = 0);
+	bool AddWord(LPCTSTR szWord, UINT WordTypeMask);
+	int Check(LPCTSTR szText, UINT WordTypeMask, size_t Start = 0, size_t Len = 0);
 
 	
 

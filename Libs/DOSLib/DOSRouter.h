@@ -77,10 +77,10 @@ public:
 	void ResetStatData();
 protected:
 	int DoMessageRoute(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);	
-	BOOL IsSameRouter(OBJECT_ID * pReceiverIDs,int Count);
-	int GetGroupCount(OBJECT_ID * pReceiverIDs,int Count);	
+	BOOL IsSameRouter(const OBJECT_ID * pReceiverIDs,int Count);
+	int GetGroupCount(const OBJECT_ID * pReceiverIDs,int Count);
 
-	BOOL DispatchMessage(CDOSMessagePacket * pPacket,OBJECT_ID * pReceiverIDs,int Count);
+	BOOL DispatchMessage(CDOSMessagePacket * pPacket, const OBJECT_ID * pReceiverIDs,int Count);
 };
 
 inline CDOSServer * CDOSRouter::GetServer()

@@ -54,7 +54,7 @@ public:
 
 	bool Send(LPCVOID pData, UINT Size);
 	bool SendMulti(LPCVOID * pDataBuffers, const UINT * pDataSizes, UINT BufferCount);
-	
+	UINT GetSendBufferFreeSize();
 
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 	
@@ -88,4 +88,10 @@ inline CNetServer* CNetConnection::GetServer()
 inline bool CNetConnection::Send(LPCVOID pData, UINT Size)
 {
 	return SendMulti(&pData, &Size, 1);
+}
+inline UINT CNetConnection::GetSendBufferFreeSize()
+{
+	CAutoLock Lock(m_OverLappedObjectPoolLock);
+
+	return m_OverLappedObjectPool.GetUsedSize()*NET_DATA_BLOCK_SIZE;
 }
