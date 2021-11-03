@@ -1,4 +1,6 @@
 # EasyGameLibs
+2021-11-3：增加了定时器队列，并在DOS框架中增加了定时器功能，DOS的客户端代理缺省实现增加了消息组播的支持
+
 2016-6-11：这次提交增加和修改的部分如下 网络库增加了对IPv6的支持，CIPAddress类有较大变化，以适应IPv6的加入 
     CNetConnection的OnRecvData函数参数有所变化 
     增加了一个DHT网络的实验性组件CDHTService，目前可以完成通过HashInfo下载种子的功能，不过性能还有问题，有待优化 
