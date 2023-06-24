@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DVector3.h                                             */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ25ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DVector3.h                                             */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ25æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -28,21 +28,21 @@ public:
 
 	void SetValue(FLOAT vx, FLOAT vy, FLOAT vz);
 
-	//±ê×¼»¯
+	//æ ‡å‡†åŒ–
 	void Normalize();
 	CD3DVector3 GetNormalize() const;
 
-	//³¤¶È
+	//é•¿åº¦
 	FLOAT Length() const;
 	FLOAT LengthSq() const;
 
-	//µã»ı
+	//ç‚¹ç§¯
 	FLOAT Dot(const D3DXVECTOR3& V2) const;
 
-	//²æ»ı
+	//å‰ç§¯
 	CD3DVector3 Cross(const D3DXVECTOR3& V2) const;
 
-	//¾ØÕó±ä»»
+	//çŸ©é˜µå˜æ¢
 	CD3DVector3 operator*(const D3DXMATRIX& Mat) const;
 	void operator*=(const D3DXMATRIX& Mat);
 
@@ -66,7 +66,7 @@ public:
 
 	bool IsValid() const;
 
-	//²åÖµ
+	//æ’å€¼
 	static CD3DVector3 Lerp(const D3DXVECTOR3& v1,const D3DXVECTOR3& v2,FLOAT s);
 };
 

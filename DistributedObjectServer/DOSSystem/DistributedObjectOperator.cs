@@ -48,11 +48,14 @@ namespace DOSSystem
         {
             return InternalCallSendMessageMulti(m_ObjectHandle, ReceiverIDList, IsSorted, MsgID, MsgFlag, Data, StartIndex, DataLen);
         }
-        public bool BroadcastMessageToProxyObjectByGroup(ushort RouterID, byte ProxyType, ulong GroupID, uint MsgID, ushort MsgFlag, byte[] Data, int StartIndex, int DataLen)
+        public bool BroadcastMessageToProxyByMask(ushort RouterID, byte ProxyType, ulong Mask, uint MsgID, ushort MsgFlag, byte[] Data, int StartIndex, int DataLen)
         {
-            return InternalCallBroadcastMessageToProxyObjectByGroup(m_ObjectHandle, RouterID, ProxyType, GroupID, MsgID, MsgFlag, Data, StartIndex, DataLen);
+            return InternalCallBroadcastMessageToProxyByMask(m_ObjectHandle, RouterID, ProxyType, Mask, MsgID, MsgFlag, Data, StartIndex, DataLen);
         }
-
+        public bool BroadcastMessageToProxyByGroup(ushort RouterID, byte ProxyType, ulong GroupID, uint MsgID, ushort MsgFlag, byte[] Data, int StartIndex, int DataLen)
+        {
+            return InternalCallBroadcastMessageToProxyByGroup(m_ObjectHandle, RouterID, ProxyType, GroupID, MsgID, MsgFlag, Data, StartIndex, DataLen);
+        }
         public bool RegisterMsgMap(OBJECT_ID ProxyObjectID, uint[] MsgIDList)
         {
             return InternalCallRegisterMsgMap(m_ObjectHandle, ProxyObjectID, MsgIDList);
@@ -84,9 +87,9 @@ namespace DOSSystem
             return InternalCallDeleteConcernedObject(m_ObjectHandle, ObjectID);
         }
 
-        public bool FindObject(uint ObjectType)
+        public bool FindObject(uint ObjectType, bool OnlyLocal)
         {
-            return InternalCallFindObject(m_ObjectHandle, ObjectType);
+            return InternalCallFindObject(m_ObjectHandle, ObjectType, OnlyLocal);
         }
         public bool ReportObject(OBJECT_ID TargetID, byte[] Data, int StartIndex, int DataLen)
         {
@@ -146,7 +149,7 @@ namespace DOSSystem
         {
             InternalCallSetServerWorkStatus(m_ObjectHandle, WorkStatus);
         }
-        public uint AddTimer(uint TimeOut, object Param, bool IsRepeat)
+        public uint AddTimer(ulong TimeOut, object Param, bool IsRepeat)
         {
             return InternalCallAddTimer(m_ObjectHandle, TimeOut, Param, IsRepeat);
         }
@@ -154,11 +157,26 @@ namespace DOSSystem
         {
             return InternalCallDeleteTimer(m_ObjectHandle, ID);
         }
-        public bool SetBroadcastGroup(OBJECT_ID ProxyObjectID, ulong GroupID)
+        public bool SetBroadcastMask(OBJECT_ID ProxyObjectID, ulong Mask)
         {
-            return InternalCallSetBroadcastGroup(m_ObjectHandle, ProxyObjectID, GroupID);
+            return InternalCallSetBroadcastMask(m_ObjectHandle, ProxyObjectID, Mask);
         }
-
+        public bool AddBroadcastMask(OBJECT_ID ProxyObjectID, ulong Mask)
+        {
+            return InternalCallAddBroadcastMask(m_ObjectHandle, ProxyObjectID, Mask);
+        }
+        public bool RemoveBroadcastMask(OBJECT_ID ProxyObjectID, ulong Mask)
+        {
+            return InternalCallRemoveBroadcastMask(m_ObjectHandle, ProxyObjectID, Mask);
+        }
+        public bool AddBroadcastGroup(OBJECT_ID ProxyObjectID, ulong GroupID)
+        {
+            return InternalCallAddBroadcastGroup(m_ObjectHandle, ProxyObjectID, GroupID);
+        }
+        public bool RemoveBroadcastGroup(OBJECT_ID ProxyObjectID, ulong GroupID)
+        {
+            return InternalCallRemoveBroadcastGroup(m_ObjectHandle, ProxyObjectID, GroupID);
+        }
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static uint InternalCallGetRouterID();
 
@@ -174,7 +192,9 @@ namespace DOSSystem
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static bool InternalCallSendMessageMulti(IntPtr ObjectHandle, OBJECT_ID[] ReceiverIDList, bool IsSorted, uint MsgID, ushort MsgFlag, byte[] Data, int StartIndex, int DataLen);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static bool InternalCallBroadcastMessageToProxyObjectByGroup(IntPtr ObjectHandle, ushort RouterID, byte ProxyType, ulong GroupID, uint MsgID, ushort MsgFlag, byte[] Data, int StartIndex, int DataLen);
+        extern static bool InternalCallBroadcastMessageToProxyByMask(IntPtr ObjectHandle, ushort RouterID, byte ProxyType, ulong Mask, uint MsgID, ushort MsgFlag, byte[] Data, int StartIndex, int DataLen);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static bool InternalCallBroadcastMessageToProxyByGroup(IntPtr ObjectHandle, ushort RouterID, byte ProxyType, ulong GroupID, uint MsgID, ushort MsgFlag, byte[] Data, int StartIndex, int DataLen);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static bool InternalCallRegisterMsgMap(IntPtr ObjectHandle, OBJECT_ID ProxyObjectID, uint[] MsgIDList);
@@ -193,7 +213,7 @@ namespace DOSSystem
         extern static bool InternalCallDeleteConcernedObject(IntPtr ObjectHandle, OBJECT_ID ObjectID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static bool InternalCallFindObject(IntPtr ObjectHandle, uint ObjectType);
+        extern static bool InternalCallFindObject(IntPtr ObjectHandle, uint ObjectType, bool OnlyLocal);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static bool InternalCallReportObject(IntPtr ObjectHandle, OBJECT_ID TargetID, byte[] Data, int StartIndex, int DataLen);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -224,11 +244,19 @@ namespace DOSSystem
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static bool InternalCallSetServerWorkStatus(IntPtr ObjectHandle, byte WorkStatus);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static uint InternalCallAddTimer(IntPtr ObjectHandle, uint TimeOut, object Param, bool IsRepea);
+        extern static uint InternalCallAddTimer(IntPtr ObjectHandle, ulong TimeOut, object Param, bool IsRepea);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static bool InternalCallDeleteTimer(IntPtr ObjectHandle, uint ID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static bool InternalCallSetBroadcastGroup(IntPtr ObjectHandle, OBJECT_ID ProxyObjectID, ulong GroupID);
+        extern static bool InternalCallSetBroadcastMask(IntPtr ObjectHandle, OBJECT_ID ProxyObjectID, ulong Mask);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static bool InternalCallAddBroadcastMask(IntPtr ObjectHandle, OBJECT_ID ProxyObjectID, ulong Mask);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static bool InternalCallRemoveBroadcastMask(IntPtr ObjectHandle, OBJECT_ID ProxyObjectID, ulong Mask);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static bool InternalCallAddBroadcastGroup(IntPtr ObjectHandle, OBJECT_ID ProxyObjectID, ulong GroupID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static bool InternalCallRemoveBroadcastGroup(IntPtr ObjectHandle, OBJECT_ID ProxyObjectID, ulong GroupID);
 
     };
 
@@ -289,7 +317,7 @@ namespace DOSSystem
             return false;
         }
 
-        public void OnTimer(uint ID, object Param)
+        public void OnTimer(uint ID, object Param, bool IsRepeat)
         {
 
         }

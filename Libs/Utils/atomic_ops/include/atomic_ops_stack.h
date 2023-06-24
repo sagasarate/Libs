@@ -1,4 +1,4 @@
-/*
+﻿/*
  * The implementation of the routines described here is covered by the GPL.
  * This header file is covered by the following license:
  */

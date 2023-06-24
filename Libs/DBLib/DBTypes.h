@@ -224,7 +224,7 @@ typedef struct tagDB_COLUMN_INFO
 	char	Name[MAX_COLUMN_NAME];
 	short	Type;	
 	short	DigitSize;
-	UINT64	Size;
+	size_t	Size;
 }DB_COLUMN_INFO;
 
 
@@ -232,7 +232,7 @@ typedef struct tagDB_PARAM_INFO
 {	
 	short	Type;	
 	short	DigitSize;
-	UINT64	Size;
+	size_t	Size;
 	short	ParamType;
 	bool	IsNull;	
 }DB_PARAM_INFO;

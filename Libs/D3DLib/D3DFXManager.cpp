@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DFXManager.cpp                                         */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DFXManager.cpp                                         */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -37,7 +37,7 @@ CD3DFXManager::~CD3DFXManager(void)
 		CEasyString Key;
 		FX_INFO * pFXInfo=m_FXStorage.GetNextObject(Pos,Key);
 		if(m_DelayReleaseTime==0)
-			PrintD3DLog(_T("FX<%s>Î´ÊÍ·Å£¡"), (LPCTSTR)pFXInfo->pFX->GetName());
+			PrintD3DLog(_T("FX<%s>æœªé‡Šæ”¾ï¼"), (LPCTSTR)pFXInfo->pFX->GetName());
 		SAFE_RELEASE(pFXInfo->pFX);
 	}
 	m_FXStorage.Destory();
@@ -92,7 +92,7 @@ bool CD3DFXManager::AddFX(CD3DFX * pFX,LPCTSTR Name)
 	}
 	else
 	{
-		PrintD3DLog(_T("½«FX¼ÓÈëFX¹ÜÀíÆ÷Ê§°Ü(%u,%u)"),
+		PrintD3DLog(_T("å°†FXåŠ å…¥FXç®¡ç†å™¨å¤±è´¥(%u,%u)"),
 			m_FXStorage.GetObjectCount(),m_FXStorage.GetBufferSize());
 		return false;
 	}
@@ -106,7 +106,7 @@ bool CD3DFXManager::DeleteFX(UINT ID)
 	}
 	else
 	{
-		PrintD3DLog(_T("CD3DFXManager::DeleteFX:FX[%u]Î´ÕÒµ½"),
+		PrintD3DLog(_T("CD3DFXManager::DeleteFX:FX[%u]æœªæ‰¾åˆ°"),
 			ID);
 		return false;
 	}		
@@ -124,7 +124,7 @@ bool CD3DFXManager::DeleteFX(LPCTSTR Name)
 	}
 	else
 	{
-		PrintD3DLog(_T("CD3DFXManager::DeleteFX:FX[%s]Î´ÕÒµ½"),
+		PrintD3DLog(_T("CD3DFXManager::DeleteFX:FX[%s]æœªæ‰¾åˆ°"),
 			Name);
 		return false;
 	}
@@ -223,7 +223,7 @@ int CD3DFXManager::Update(FLOAT Time)
 				{
 					if(pFXInfo->ReleaseTimer.IsTimeOut(m_DelayReleaseTime))
 					{
-						//PrintD3DDebugLog("CD3DFXManager::Update:ÒÑÑÓÊ±É¾³ıFX:%s",pFXInfo->pFX->GetName());
+						//PrintD3DDebugLog("CD3DFXManager::Update:å·²å»¶æ—¶åˆ é™¤FX:%s",pFXInfo->pFX->GetName());
 						SAFE_RELEASE(pFXInfo->pFX);						
 					}
 				}

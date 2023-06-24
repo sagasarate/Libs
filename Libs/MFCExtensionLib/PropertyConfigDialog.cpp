@@ -1,15 +1,15 @@
+ï»¿/****************************************************************************/
+/*                                                                          */
+/*      æ–‡ä»¶å:    PropertyConfigDialog.cpp                                 */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
+/*                                                                          */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
+/*                                                                          */
 /****************************************************************************/
-/*                                                                          */
-/*      ÎÄ¼şÃû:    PropertyConfigDialog.cpp                                 */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
-/*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
-/*                                                                          */
-/****************************************************************************/
-// PropertyConfigDialog.cpp : ÊµÏÖÎÄ¼ş
+// PropertyConfigDialog.cpp : å®ç°æ–‡ä»¶
 //
 
 #include "stdafx.h"
@@ -17,7 +17,7 @@
 
 namespace PropertyGrid
 {
-// CPropertyConfigDialog ¶Ô»°¿ò
+// CPropertyConfigDialog å¯¹è¯æ¡†
 
 IMPLEMENT_DYNAMIC(CPropertyConfigDialog, CDialog)
 CPropertyConfigDialog::CPropertyConfigDialog(UINT nIDTemplate, CWnd* pParentWnd)
@@ -40,5 +40,5 @@ BEGIN_MESSAGE_MAP(CPropertyConfigDialog, CDialog)
 END_MESSAGE_MAP()
 
 
-// CPropertyConfigDialog ÏûÏ¢´¦Àí³ÌĞò
+// CPropertyConfigDialog æ¶ˆæ¯å¤„ç†ç¨‹åº
 }

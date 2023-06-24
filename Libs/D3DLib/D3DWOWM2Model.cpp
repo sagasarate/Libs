@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DWOWM2Model.cpp                                        */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DWOWM2Model.cpp                                        */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -595,7 +595,7 @@ UINT CD3DWOWM2Model::GetSmartStructSize(UINT Param)
 
 void CD3DWOWM2Model::OnPrepareRender(CD3DBaseRender * pRender,CD3DFX * pFX,CEasyArray<CD3DLight *>& LightList,CD3DCamera * pCamera)
 {
-	////ÉèÖÃµÆ¹â
+	////è®¾ç½®ç¯å…‰
 	//if(LightList.GetCount())
 	//{		
 	//	D3DLIGHT9	Light;
@@ -633,7 +633,7 @@ void CD3DWOWM2Model::OnPrepareRender(CD3DBaseRender * pRender,CD3DFX * pFX,CEasy
 	//	}
 
 	//}
-	////ÉèÖÃÎí
+	////è®¾ç½®é›¾
 	//CD3DSceneRender * pRender=(CD3DSceneRender *)GetRender();
 	//if(pRender)
 	//{
@@ -662,7 +662,7 @@ void CD3DWOWM2Model::OnPrepareRender(CD3DBaseRender * pRender,CD3DFX * pFX,CEasy
 	//		BoneNum=m_BoneMatListR.GetCount();
 	//	if((!m_UseSoftSkinMesh)&&BoneNum)
 	//	{
-	//		//ÉèÖÃ¹Ç÷À¾ØÕó
+	//		//è®¾ç½®éª¨éª¼çŸ©é˜µ
 	//		pFX->SetMatrixArray("BoneMatrixArray",&(m_BoneMatListR[0]),BoneNum);
 	//	}
 	//}
@@ -673,14 +673,14 @@ void CD3DWOWM2Model::OnPrepareRender(CD3DBaseRender * pRender,CD3DFX * pFX,CEasy
 	//		BoneNum=m_BoneMatList.GetCount();
 	//	if((!m_UseSoftSkinMesh)&&BoneNum)
 	//	{
-	//		//ÉèÖÃ¹Ç÷À¾ØÕó
+	//		//è®¾ç½®éª¨éª¼çŸ©é˜µ
 	//		pFX->SetMatrixArray("BoneMatrixArray",&(m_BoneMatList[0]),BoneNum);
 	//	}
 	//}
 }
 void CD3DWOWM2Model::OnPrepareRenderSubMesh(CD3DBaseRender * pRender,CD3DFX * pFX,CD3DSubMesh * pSubMesh,CD3DSubMeshMaterial * pMaterial,CEasyArray<CD3DLight *>& LightList,CD3DCamera * pCamera)
 {
-	////ÉèÖÃ²ÄÖÊ
+	////è®¾ç½®æè´¨
 	//D3DMATERIAL9 * pD3DMaterial=&(pMaterial->GetMaterial());			
 	//pFX->SetColor("MaterialAmbient",pD3DMaterial->Ambient);
 	//pFX->SetColor("MaterialDiffuse",pD3DMaterial->Diffuse);
@@ -688,7 +688,7 @@ void CD3DWOWM2Model::OnPrepareRenderSubMesh(CD3DBaseRender * pRender,CD3DFX * pF
 	//pFX->SetColor("MaterialEmissive",pD3DMaterial->Emissive);
 	//pFX->SetFloat("MaterialPower",pD3DMaterial->Power);
 
-	////ÉèÖÃÎÆÀí
+	////è®¾ç½®çº¹ç†
 	//for(UINT i=0;i<pMaterial->GetTextureLayerCount();i++)
 	//{
 	//	char szTexName[64];
@@ -702,7 +702,7 @@ void CD3DWOWM2Model::OnPrepareRenderSubMesh(CD3DBaseRender * pRender,CD3DFX * pF
 	//}
 
 
-	//ÉèÖÃÈ«¾ÖÉ«
+	//è®¾ç½®å…¨å±€è‰²
 	
 	if(pSubMesh->IsSelected())			
 	{
@@ -791,7 +791,7 @@ bool CD3DWOWM2Model::CanDoSubMeshViewCull()
 void CD3DWOWM2Model::Update(FLOAT Time)
 {
 
-	//¸üĞÂÊÀ½ç¾ØÕó	
+	//æ›´æ–°ä¸–ç•ŒçŸ©é˜µ	
 
 	m_UpdateCount++;
 	if(GetParent())
@@ -1010,7 +1010,7 @@ void CD3DWOWM2Model::Update(FLOAT Time)
 
 		if(m_pModelResource->HasMaterialAni())
 		{
-			//ÉèÖÃÑÕÉ«¶¯»­ºÍÎÆÀí¶¯»­
+			//è®¾ç½®é¢œè‰²åŠ¨ç”»å’Œçº¹ç†åŠ¨ç”»
 			for(int i=0;i<GetSubMeshCount();i++)		
 			{			
 				CD3DSubMesh * pSubMesh=GetSubMesh(i);
@@ -1059,7 +1059,7 @@ void CD3DWOWM2Model::Update(FLOAT Time)
 		}
 	}
 		
-	//¸üĞÂ×Ó¶ÔÏó
+	//æ›´æ–°å­å¯¹è±¡
 	
 	if(m_ChildList.GetCount())
 	{

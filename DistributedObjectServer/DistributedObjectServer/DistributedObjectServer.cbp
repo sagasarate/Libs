@@ -6,7 +6,7 @@
 		<Option platforms="Unix;" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="主程序/;主线程/;主配置/;服务器线程/;逻辑对象插件/;预编译/;客户端代理插件/;" />
+		<Option virtualFolders="主程序/;主线程/;主配置/;服务器线程/;逻辑对象插件/;预编译/;客户端代理插件/" />
 		<Build>
 			<Target title="Debug">
 				<Option platforms="Unix;" />
@@ -70,15 +70,15 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-std=c++11" />
+			<Add option="-std=c++14" />
 			<Add option="-fvisibility=hidden" />
 		</Compiler>
 		<Linker>
-			<Add option="-static-libgcc" />
 			<Add option="-static-libstdc++" />
+			<Add option="-static-libgcc" />
 			<Add option="-rdynamic" />
 			<Add option="-Wl,-Bstatic -luuid -Wl,-Bdynamic" />
-			<Add library="../../Libs/MonoWrapper/lib/x64/CentOS6.5/libmonosgen-2.0.a" />
+			<Add library="../../Libs/MonoWrapper/lib/x64/Ubuntu14.04LTS/libmonosgen-2.0.a" />
 			<Add library="pthread" />
 			<Add library="rt" />
 			<Add library="dl" />
@@ -133,10 +133,6 @@
 			<Option weight="0" />
 			<Option virtualFolder="预编译/" />
 		</Unit>
-		<Extensions>
-			<code_completion />
-			<debugger />
-			<envvars />
-		</Extensions>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

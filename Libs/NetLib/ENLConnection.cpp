@@ -323,7 +323,7 @@ bool CENLConnection::SendData(LPCVOID pData, UINT DataSize)
 	{
 		EASY_NET_LINK_MSG_HEAD MsgHeader;
 		MsgHeader.Size = sizeof(EASY_NET_LINK_MSG_HEAD) + DataSize;
-		MsgHeader.MsgID = EASY_NET_LINK_MSG_COMPRESSED_USER_DATA;
+		MsgHeader.MsgID = EASY_NET_LINK_MSG_USER_DATA;
 		if (m_DataCompressType == CEasyNetLinkManager::DATA_COMPRESS_TYPE_LZO && DataSize >= m_MinCompressSize)
 		{
 			lzo_uint OutLen = m_CompressBuffer.GetBufferSize();

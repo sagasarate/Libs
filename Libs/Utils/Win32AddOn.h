@@ -88,6 +88,7 @@
 #include <Psapi.h>
 #include <shlwapi.h>
 #include <shellapi.h>
+#include <comutil.h>
 
 #pragma comment(lib,"Psapi.lib")
 #pragma comment(lib,"Dbghelp.lib")

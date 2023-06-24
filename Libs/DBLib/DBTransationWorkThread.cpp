@@ -23,6 +23,7 @@ CDBTransationWorkThread::CDBTransationWorkThread(CDBTransationManager * pManager
 	m_pConnection = NULL;
 	m_TransQueue.SetTag(_T("CDBTransationWorkThread"));
 	m_FinishTransQueue.SetTag(_T("CDBTransationWorkThread"));
+	m_IsBusy = false;
 }
 
 CDBTransationWorkThread::~CDBTransationWorkThread(void)
@@ -111,16 +112,17 @@ BOOL CDBTransationWorkThread::OnStart()
 }
 BOOL CDBTransationWorkThread::OnRun()
 {
-	CDBTransaction * pDBTansaction=NULL;
+	CDBTransaction* pDBTansaction = NULL;
 	//LPVOID Pos=m_TransQueue.GetFirstObjectPos();
+	m_IsBusy = true;
 	m_TransQueue.PopFront(&pDBTansaction);
-	if(pDBTansaction)
+	if (pDBTansaction)
 	{
-		DWORD ExecTime=CEasyTimer::GetTime();
-		bool Ret=pDBTansaction->OnExecute(m_pConnection);
-		ExecTime=GetTimeToTime(ExecTime,CEasyTimer::GetTime());
+		DWORD ExecTime = CEasyTimer::GetTime();
+		bool Ret = pDBTansaction->OnExecute(m_pConnection);
+		ExecTime = CEasyTimer::GetTimeToTime(ExecTime, CEasyTimer::GetTime());
 		m_pManager->AddExecTime(ExecTime);
-		if(Ret)
+		if (Ret)
 		{
 			m_pConnection->Commit();
 		}
@@ -135,15 +137,18 @@ BOOL CDBTransationWorkThread::OnRun()
 			PrintDBLog("完成队列已满(%u,%u)", m_FinishTransQueue.GetUsedSize(), m_FinishTransQueue.GetBufferSize());
 		}
 		//m_TransQueue.PopFront(pDBTansaction);
+		m_IsBusy = false;
 	}
 	else
 	{
+		m_IsBusy = false;
 		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
-	if(m_ConnectionTestTimer.IsTimeOut(CONNECTION_TEST_TIME))
+	if (m_ConnectionTestTimer.IsTimeOut(CONNECTION_TEST_TIME))
 	{
-		if(!m_pConnection->IsConnected())
+		if (!m_pConnection->IsConnected())
 		{
+			m_IsBusy = true;
 			PrintDBLog("连接已断开，重新连接");
 			m_pConnection->Disconnect();
 			if (m_pConnection->Connect(m_ConnectString) == DBERR_SUCCEED)
@@ -154,6 +159,7 @@ BOOL CDBTransationWorkThread::OnRun()
 			{
 				PrintDBLog("[%u]数据库无法连接", GetID());
 			}
+			m_IsBusy = false;
 		}
 		m_ConnectionTestTimer.SaveTime();
 	}

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * mono-config.h
  *
  * Author: Paolo Molaro (lupus@ximian.com)

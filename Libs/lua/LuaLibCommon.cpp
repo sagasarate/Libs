@@ -1,20 +1,17 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
-#include "../../Libs/rapidjson/document.h"
-#include "../../Libs/rapidjson/stringbuffer.h"
-#include "../../Libs/rapidjson/prettywriter.h"
-#include "../../Libs/rapidjson/writer.h"
+
 
 CLuaLibCommon::CLuaLibCommon()
 {
-	RegisterFunction<CLuaLibCommon>("Log", &CLuaLibCommon::LuaLog);
-	RegisterFunction<CLuaLibCommon>("LogDebug", &CLuaLibCommon::LuaLogDebug);
-	RegisterFunction<CLuaLibCommon>("LogWithStack", &CLuaLibCommon::LuaLogWithStack);
-	RegisterFunction<CLuaLibCommon>("NewByteArray", &CLuaLibCommon::LuaNewByteArray);
-	RegisterFunction<CLuaLibCommon>("NewGrid", &CLuaLibCommon::LuaNewGrid);
-	RegisterFunction<CLuaLibCommon>("TableToJsonStr", &CLuaLibCommon::LuaTableToJsonStr);
-	RegisterFunction<CLuaLibCommon>("TableToJsonStrPretty", &CLuaLibCommon::LuaTableToJsonStrPretty);
-	RegisterFunction<CLuaLibCommon>("JsonStrToTable", &CLuaLibCommon::LuaJsonStrToTable);
+	RegisterFunction(_T("Log"), &CLuaLibCommon::LuaLog);
+	RegisterFunction(_T("LogDebug"), &CLuaLibCommon::LuaLogDebug);
+	RegisterFunction(_T("LogWithStack"), &CLuaLibCommon::LuaLogWithStack);
+	RegisterFunction(_T("GetCurTime"), &CLuaLibCommon::LuaGetCurTime);
+	RegisterFunction(_T("TableToJsonStr"), &CLuaLibCommon::LuaTableToJsonStr);
+	RegisterFunction(_T("JsonStrToTable"), &CLuaLibCommon::LuaJsonStrToTable);
+	RegisterFunction(_T("Dump"), &CLuaLibCommon::LuaDump);
+	RegisterFunction(_T("RegisterNewThreadCallback"), &CLuaLibCommon::LuaRegisterNewThreadCallback);
 }
 
 
@@ -23,301 +20,114 @@ CLuaLibCommon::~CLuaLibCommon()
 	
 }
 
-bool TableToJson(lua_State * pLuaState, int Index, rapidjson::Value& JsonObject, rapidjson::Document::AllocatorType &Alloc)
-{
-	if (!lua_istable(pLuaState, Index))
-	{
-		return false;
-	}
-	lua_pushnil(pLuaState);  /* µÚÒ»¸ö key */
-	if (Index < 0)
-		Index--;
-	int Next = lua_next(pLuaState, Index);
-	if (lua_isinteger(pLuaState, -2))
-	{
-		JsonObject.SetArray();
-		while (Next != 0)
-		{
-			/* ÓÃÒ»ÏÂ 'key' £¨ÔÚË÷Òý -2 ´¦£© ºÍ 'value' £¨ÔÚË÷Òý -1 ´¦£© */
-			int Type = GetLuaObjectType(pLuaState, -1);
-			switch (Type)
-			{
-			case LUA_TNIL:
-				JsonObject.PushBack(rapidjson::Value(rapidjson::kNullType), Alloc);
-				break;
-			case LUA_TBOOLEAN:
-				JsonObject.PushBack((lua_toboolean(pLuaState, -1) != 0), Alloc);
-				break;
-			case LUA_TNUMBER:
-				JsonObject.PushBack(lua_tonumber(pLuaState, -1), Alloc);
-				break;
-			case LUA_TSTRING:
-				JsonObject.PushBack(rapidjson::Value(lua_tostring(pLuaState, -1), Alloc), Alloc);
-				break;
-			case LUA_TTABLE:
-			{
-				rapidjson::Value SubObject;
-				TableToJson(pLuaState, -1, SubObject, Alloc);
-				JsonObject.PushBack(SubObject, Alloc);
-			}
-			break;
-			case LUA_TINTEGER:
-				JsonObject.PushBack(lua_tointeger(pLuaState, -1), Alloc);
-				break;
-			}
-			lua_pop(pLuaState, 1);
 
-			Next = lua_next(pLuaState, Index);
+
+void CLuaLibCommon::LuaLog(CLuaThread * pLuaThread, LUA_EMPTY_VALUE)
+{
+	int ParamCount = lua_gettop(pLuaThread->GetLuaState());
+
+	if (lua_getglobal(pLuaThread->GetLuaState(), "string") == LUA_TTABLE)
+	{
+		pLuaThread->PushString("format");
+		if (lua_gettable(pLuaThread->GetLuaState(), -2) == LUA_TFUNCTION)
+		{
+			lua_insert(pLuaThread->GetLuaState(), 2);
+			pLuaThread->Pop(1);
+			lua_pcall(pLuaThread->GetLuaState(), ParamCount - 1, 1, NULL);
+			LogLuaStr(pLuaThread->GetLuaState(), -1, NULL, false);
+		}
+		else
+		{
+			LogLuaStr(pLuaThread->GetLuaState(), 2, NULL, false);
 		}
 	}
 	else
 	{
-		JsonObject.SetObject();
-		while (Next != 0)
-		{
-			/* ÓÃÒ»ÏÂ 'key' £¨ÔÚË÷Òý -2 ´¦£© ºÍ 'value' £¨ÔÚË÷Òý -1 ´¦£© */
-#ifdef UNICODE
-			CEasyStringW Key = lua_tostring(pLuaState, -2);
-#else
-			LPCTSTR Key = lua_tostring(pLuaState, -2);
-#endif
-			int Type = GetLuaObjectType(pLuaState, -1);
-			switch (Type)
-			{
-			case LUA_TNIL:
-				JsonObject.AddMember(rapidjson::Value((LPCTSTR)Key, Alloc), rapidjson::Value(rapidjson::kNullType), Alloc);
-				break;
-			case LUA_TBOOLEAN:
-				JsonObject.AddMember(rapidjson::Value((LPCTSTR)Key, Alloc), (lua_toboolean(pLuaState, -1) != 0), Alloc);
-				break;
-			case LUA_TNUMBER:
-				JsonObject.AddMember(rapidjson::Value((LPCTSTR)Key, Alloc), lua_tonumber(pLuaState, -1), Alloc);
-				break;
-			case LUA_TSTRING:
-				JsonObject.AddMember(rapidjson::Value((LPCTSTR)Key, Alloc), rapidjson::Value(lua_tostring(pLuaState, -1), Alloc), Alloc);
-				break;
-			case LUA_TTABLE:
-			{
-				rapidjson::Value SubObject;
-				TableToJson(pLuaState, -1, SubObject, Alloc);
-				JsonObject.AddMember(rapidjson::Value((LPCTSTR)Key, Alloc), SubObject, Alloc);
-			}
-			break;
-			case LUA_TINTEGER:
-				JsonObject.AddMember(rapidjson::Value((LPCTSTR)Key, Alloc), lua_tointeger(pLuaState, -1), Alloc);
-				break;
-			}
-			lua_pop(pLuaState, 1);
-
-			Next = lua_next(pLuaState, Index);
-		}
-	}
-	
-	return true;
+		LogLuaStr(pLuaThread->GetLuaState(), 2, NULL, false);
+	}	
 }
-
-void JsonToTable(CLuaThread * pLuaThread, rapidjson::Value& JsonObject)
+void CLuaLibCommon::LuaLogDebug(CLuaThread * pLuaThread, LUA_EMPTY_VALUE)
 {
-	lua_newtable(pLuaThread->GetLuaState());
-	if (JsonObject.IsArray())
+	int ParamCount = lua_gettop(pLuaThread->GetLuaState());
+
+	if (lua_getglobal(pLuaThread->GetLuaState(), "string") == LUA_TTABLE)
 	{
-		for (size_t i = 0; i < JsonObject.Size(); i++)
+		pLuaThread->PushString("format");
+		if (lua_gettable(pLuaThread->GetLuaState(), -2) == LUA_TFUNCTION)
 		{
-			rapidjson::Value& Element = JsonObject[(rapidjson::SizeType)i];
-
-			pLuaThread->PushValue(i + 1);
-
-			if (Element.IsBool())
-			{
-				pLuaThread->PushValue(Element.GetBool());
-			}
-			else if (Element.IsInt())
-			{
-				pLuaThread->PushValue(Element.GetInt());
-			}
-			else if (Element.IsUint())
-			{
-				pLuaThread->PushValue(Element.GetInt());
-			}
-			else if (Element.IsInt64())
-			{
-				pLuaThread->PushValue(Element.GetInt());
-			}
-			else if (Element.IsUint64())
-			{
-				pLuaThread->PushValue(Element.GetInt());
-			}
-			else if (Element.IsDouble())
-			{
-				pLuaThread->PushValue(Element.GetInt());
-			}
-			else if (Element.IsString())
-			{
-				pLuaThread->PushValue(Element.GetInt());
-			}
-			else
-			{
-				JsonToTable(pLuaThread, Element);
-			}
-			lua_settable(pLuaThread->GetLuaState(), -3);
+			lua_insert(pLuaThread->GetLuaState(), 2);
+			pLuaThread->Pop(1);
+			lua_pcall(pLuaThread->GetLuaState(), ParamCount - 1, 1, NULL);
+			LogLuaStrDebug(pLuaThread->GetLuaState(), -1, NULL, false);
+		}
+		else
+		{
+			LogLuaStrDebug(pLuaThread->GetLuaState(), 2, NULL, false);
 		}
 	}
 	else
 	{
-		for (rapidjson::Value::MemberIterator Itr = JsonObject.MemberBegin(); Itr != JsonObject.MemberEnd(); Itr++)
-		{
-			pLuaThread->PushString(Itr->name.GetString());
-			if (Itr->value.IsBool())
-			{
-				pLuaThread->PushValue(Itr->value.GetBool());
-			}
-			else if (Itr->value.IsInt())
-			{
-				pLuaThread->PushValue(Itr->value.GetInt());
-			}
-			else if (Itr->value.IsUint())
-			{
-				pLuaThread->PushValue(Itr->value.GetUint());
-			}
-			else if (Itr->value.IsInt64())
-			{
-				pLuaThread->PushValue(Itr->value.GetInt64());
-			}
-			else if (Itr->value.IsUint64())
-			{
-				pLuaThread->PushValue(Itr->value.GetUint64());
-			}
-			else if (Itr->value.IsDouble())
-			{
-				pLuaThread->PushValue(Itr->value.GetDouble());
-			}
-			else if (Itr->value.IsString())
-			{
-				pLuaThread->PushValue(Itr->value.GetString());
-			}
-			else
-			{
-				JsonToTable(pLuaThread, Itr->value);
-			}
-			lua_settable(pLuaThread->GetLuaState(), -3);
-		}
+		LogLuaStrDebug(pLuaThread->GetLuaState(), 2, NULL, false);
 	}
 }
-
-void CLuaLibCommon::LuaLog(CLuaThread * pLuaThread, LPCTSTR Text)
-{
-	LogLua(_T("%s"), Text);
-}
-void CLuaLibCommon::LuaLogDebug(CLuaThread * pLuaThread, LPCTSTR Text)
-{
-	LogLuaDebug(_T("%s"), Text);
-}
-void CLuaLibCommon::LuaLogWithStack(CLuaThread * pLuaThread, int Deepth, LPCTSTR Text)
+void CLuaLibCommon::LuaLogWithStack(CLuaThread * pLuaThread, LUA_EMPTY_VALUE)
 {	
-	LogLua(_T("%s"), Text);
-	luaL_traceback(pLuaThread->GetLuaState(), pLuaThread->GetLuaState(), NULL, 0);
-	LogLua(_T("%s"), lua_tolstring(pLuaThread->GetLuaState(), -1, NULL));
-	lua_pop(pLuaThread->GetLuaState(), 1);
-}
-LUA_EMPTY_VALUE CLuaLibCommon::LuaNewByteArray(CLuaThread * pLuaThread, UINT Size)
-{
-	UINT ClassSize = sizeof(CLuaByteArray);
-	if (Size)
+	int ParamCount = lua_gettop(pLuaThread->GetLuaState());
+
+	if (lua_getglobal(pLuaThread->GetLuaState(), "string") == LUA_TTABLE)
 	{
-		BYTE * pBuff = (BYTE *)lua_newuserdata(pLuaThread->GetLuaState(), ClassSize + Size);
-#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
-#undef new
-#endif
-		::new(pBuff) CLuaByteArray();
-#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
-#define new NEWNEW
-#endif
-		((CLuaByteArray *)pBuff)->Attach(pBuff + ClassSize, Size);
-		((CLuaByteArray *)pBuff)->SetMetaClass(pLuaThread->GetLuaState());
+		pLuaThread->PushString("format");
+		if (lua_gettable(pLuaThread->GetLuaState(), -2) == LUA_TFUNCTION)
+		{
+			lua_insert(pLuaThread->GetLuaState(), 2);
+			pLuaThread->Pop(1);
+			lua_pcall(pLuaThread->GetLuaState(), ParamCount - 1, 1, NULL);
+			LogLuaStr(pLuaThread->GetLuaState(), -1, NULL, true);
+		}
+		else
+		{
+			LogLuaStr(pLuaThread->GetLuaState(), 2, NULL, true);
+		}
 	}
 	else
 	{
-		lua_pushnil(pLuaThread->GetLuaState());
+		LogLuaStr(pLuaThread->GetLuaState(), 2, NULL, true);
 	}
-	return LUA_EMPTY_VALUE();
 }
-LUA_EMPTY_VALUE CLuaLibCommon::LuaNewGrid(CLuaThread * pLuaThread, UINT Col, UINT Row)
+UINT CLuaLibCommon::LuaGetCurTime(CLuaThread* pLuaThread)
 {
-	UINT ClassSize = sizeof(CLuaGrid);
-	UINT Size = Col * Row * sizeof(LuaValue) + sizeof(WORD) * 2;;
-	if (Size)
-	{
-		BYTE * pBuff = (BYTE *)lua_newuserdata(pLuaThread->GetLuaState(), ClassSize + Size);
-#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
-#undef new
-#endif
-		::new(pBuff) CLuaGrid();
-#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
-#define new NEWNEW
-#endif
-		((CLuaGrid *)pBuff)->Attach(pBuff + ClassSize, Size, Col, Row);
-		((CLuaGrid *)pBuff)->SetMetaClass(pLuaThread->GetLuaState());
-	}
+	return (UINT)time(NULL);
+}
+
+LUA_EMPTY_VALUE CLuaLibCommon::LuaTableToJsonStr(CLuaThread * pLuaThread, LUA_EMPTY_VALUE, bool IsPretty)
+{
+	CEasyString JsonStr;
+	if (pLuaThread->GetJson(JsonStr, 1, IsPretty))
+		pLuaThread->PushString(JsonStr);
 	else
-	{
-		lua_pushnil(pLuaThread->GetLuaState());
-	}
-	return LUA_EMPTY_VALUE();
-}
-
-LUA_EMPTY_VALUE CLuaLibCommon::LuaTableToJsonStr(CLuaThread * pLuaThread, LUA_EMPTY_VALUE)
-{
-	rapidjson::Document Root;
-	rapidjson::Document::AllocatorType &Alloc = Root.GetAllocator();
-
-	TableToJson(pLuaThread->GetLuaState(), -1, Root, Alloc);
-
-#ifdef UNICODE
-	rapidjson::GenericStringBuffer<rapidjson::UTF16<> > buffer;
-	rapidjson::Writer<rapidjson::GenericStringBuffer<rapidjson::UTF16<> >, rapidjson::UTF16<>, rapidjson::UTF16<> > writer(buffer);
-#else
-	rapidjson::GenericStringBuffer<rapidjson::UTF8<> > buffer;
-	rapidjson::Writer<rapidjson::GenericStringBuffer<rapidjson::UTF8<> >, rapidjson::UTF8<>, rapidjson::UTF8<> > writer(buffer);
-#endif
-
-	Root.Accept(writer);
-
-	pLuaThread->PushString(buffer.GetString());
-	return LUA_EMPTY_VALUE();
-}
-
-LUA_EMPTY_VALUE CLuaLibCommon::LuaTableToJsonStrPretty(CLuaThread * pLuaThread, LUA_EMPTY_VALUE)
-{
-	rapidjson::Document Root;
-	rapidjson::Document::AllocatorType &Alloc = Root.GetAllocator();
-
-	TableToJson(pLuaThread->GetLuaState(), -1, Root, Alloc);
-
-#ifdef UNICODE
-	rapidjson::GenericStringBuffer<rapidjson::UTF16<> > buffer;
-	rapidjson::PrettyWriter<rapidjson::GenericStringBuffer<rapidjson::UTF16<> >, rapidjson::UTF16<>, rapidjson::UTF16<> > writer(buffer);
-#else
-	rapidjson::GenericStringBuffer<rapidjson::UTF8<> > buffer;
-	rapidjson::PrettyWriter<rapidjson::GenericStringBuffer<rapidjson::UTF8<> >, rapidjson::UTF8<>, rapidjson::UTF8<> > writer(buffer);
-#endif
-
-	Root.Accept(writer);
-
-	pLuaThread->PushString(buffer.GetString());
+		pLuaThread->PushNil();
 	return LUA_EMPTY_VALUE();
 }
 
 LUA_EMPTY_VALUE CLuaLibCommon::LuaJsonStrToTable(CLuaThread * pLuaThread, LPCTSTR JsonStr)
 {
-	rapidjson::Document Root;
-	Root.Parse(JsonStr);
-	if (!Root.HasParseError())
-	{
-		JsonToTable(pLuaThread, Root);
-	}
-	else
-	{
-		pLuaThread->PushNil();
-	}
+	pLuaThread->PushJson(JsonStr);
 	return LUA_EMPTY_VALUE();
+}
+
+LUA_EMPTY_VALUE CLuaLibCommon::LuaDump(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
+{
+	CStringBuilder Str;
+	CBaseLuaVM::DumpLuaValue(pLuaThread->GetLuaState(), 1, Str, _T(""), false, 0);
+	pLuaThread->PushString(Str.GetStr());
+	return LUA_EMPTY_VALUE();
+}
+
+bool CLuaLibCommon::LuaRegisterNewThreadCallback(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
+{
+	if (lua_isfunction(pLuaThread->GetLuaState(), 1))
+	{
+
+	}
+	return pLuaThread->GetLuaVM()->AddNewThreadCallback(pLuaThread->GetLuaState(), 1);
 }

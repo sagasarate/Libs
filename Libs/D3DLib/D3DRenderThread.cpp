@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+ï»¿#include "StdAfx.h"
 
 
 namespace D3DLib{
@@ -29,7 +29,7 @@ BOOL CD3DRenderThread::OnStart()
 {
 	if(!CD3DDevice::IsUseMultiThreadRender())
 	{
-		PrintD3DLog(_T("Î´²ÉÓÃ¶àÏß³ÌÄ£Ê½´´½¨Éè±¸,äÖÈ¾Ïß³ÌÎŞ·¨ÆôÓÃ"));
+		PrintD3DLog(_T("æœªé‡‡ç”¨å¤šçº¿ç¨‹æ¨¡å¼åˆ›å»ºè®¾å¤‡,æ¸²æŸ“çº¿ç¨‹æ— æ³•å¯ç”¨"));
 		return FALSE;
 	}
 	m_FrameCountTimer.SaveTime();

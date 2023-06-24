@@ -16,6 +16,7 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 	FUNCTION_BEGIN;
 	xml_parser Parser;
 
+	PrintImportantLog("开始载入配置文件%s", FileName);
 	if(Parser.parse_file(FileName,pug::parse_trim_attribute))
 	{
 		xml_node Config=Parser.document();
@@ -66,17 +67,21 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 				if (m_DOSConfig.RouterConfig.RouterID == 0)
 				{
 					//自动获取IP后两位作为RouterID
+					PrintImportantLog("未设置RouterID，根据本地IP生成RouterID");
 					CEasyArray<CIPAddress> AddressList(_T("CDOSServer"));
 					CIPAddress::FetchAllHostAddress(AddressList);
 
 					for (size_t i = 0; i < AddressList.GetCount(); i++)
 					{
+						PrintImportantLog("IP=%s", AddressList[i].GetIPString());
 						if (AddressList[i].IsIPv4() && !AddressList[i].IsLoopbackAddress())
 						{
 							UINT IP = AddressList[i].GetIPv4();
 							m_DOSConfig.RouterConfig.RouterID = IP & 0xFFFF;
+							break;
 						}
 					}
+					PrintImportantLog("已生成RouterID=%u", m_DOSConfig.RouterConfig.RouterID);
 				}
 			}
 
@@ -97,10 +102,10 @@ bool CDOSConfig::LoadConfig(LPCTSTR FileName)
 						CLIENT_PROXY_PLUGIN_INFO ProxyConfig;
 						if (ReadProxyConfig(ClientProxy, ProxyConfig))
 						{
-							if (ProxyConfig.ProxyMode == CLIENT_PROXY_MODE_DEFAULT)
-								m_DOSConfig.ClientProxyConfigs.Add(ProxyConfig);
-							else
+							if (ProxyConfig.ProxyMode == CLIENT_PROXY_MODE_CUSTOM)
 								m_ProxyPluginList.Add(ProxyConfig);
+							else
+								m_DOSConfig.ClientProxyConfigs.Add(ProxyConfig);
 						}
 					}
 				}
@@ -279,6 +284,9 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 	if (XMLContent.has_attribute("ProxyMode"))
 		Config.ProxyMode = (CLIENT_PROXY_MODE)((int)XMLContent.attribute("ProxyMode"));
 
+	if (XMLContent.has_attribute("ProxyMsgQueueSize"))
+		Config.ProxyMsgQueueSize = (UINT)XMLContent.attribute("ProxyMsgQueueSize");
+
 	if (XMLContent.has_attribute("ListenIP"))
 		Config.ListenAddress.SetIP(XMLContent.attribute("ListenIP").getvalue());
 
@@ -359,8 +367,20 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 	if (XMLContent.has_attribute("BlackListPoolStartSize"))
 		Config.BlackListPoolSetting.StartSize = XMLContent.attribute("BlackListPoolStartSize");
 
+	if (XMLContent.has_attribute("BlackListPoolGrowSize"))
+		Config.BlackListPoolSetting.GrowSize = XMLContent.attribute("BlackListPoolGrowSize");
+
 	if (XMLContent.has_attribute("BlackListPoolGrowLimit"))
 		Config.BlackListPoolSetting.GrowLimit = XMLContent.attribute("BlackListPoolGrowLimit");
+
+	if (XMLContent.has_attribute("BroadcastGroupPoolStartSize"))
+		Config.BroadcastGroupPoolSetting.StartSize = XMLContent.attribute("BroadcastGroupPoolStartSize");
+
+	if (XMLContent.has_attribute("BroadcastGroupPoolGrowSize"))
+		Config.BroadcastGroupPoolSetting.GrowSize = XMLContent.attribute("BroadcastGroupPoolGrowSize");
+
+	if (XMLContent.has_attribute("BroadcastGroupPoolGrowLimit"))
+		Config.BroadcastGroupPoolSetting.GrowLimit = XMLContent.attribute("BroadcastGroupPoolGrowLimit");
 
 	if (XMLContent.has_attribute("MsgCompressType"))
 	{

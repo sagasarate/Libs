@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DObjectResourceManager.cpp                             */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DObjectResourceManager.cpp                             */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -31,7 +31,7 @@ CD3DObjectResourceManager::~CD3DObjectResourceManager(void)
 	{
 		CEasyString Key;
 		CD3DObjectResource * pResource=*(m_ObjectStorage.GetNextObject(Pos,Key));
-		PrintD3DLog(_T("¶ÔÏó×ÊÔ´<%s>Î´ÊÍ·Å£¡"), (LPCTSTR)pResource->GetName());
+		PrintD3DLog(_T("å¯¹è±¡èµ„æº<%s>æœªé‡Šæ”¾ï¼"), (LPCTSTR)pResource->GetName());
 
 	}
 	m_ObjectStorage.Destory();
@@ -51,7 +51,7 @@ bool CD3DObjectResourceManager::AddResource(CD3DObjectResource * pResource,LPCTS
 	}
 	else
 	{
-		PrintD3DLog(_T("½«×ÊÔ´Ìí¼Óµ½¶ÔÏó×ÊÔ´¹ÜÀíÆ÷Ê§°Ü(%u,%u)"),
+		PrintD3DLog(_T("å°†èµ„æºæ·»åŠ åˆ°å¯¹è±¡èµ„æºç®¡ç†å™¨å¤±è´¥(%u,%u)"),
 			m_ObjectStorage.GetObjectCount(),m_ObjectStorage.GetBufferSize());
 		return false;
 	}
@@ -67,7 +67,7 @@ CD3DObjectResource * CD3DObjectResourceManager::DeleteResource(UINT ID)
 	}
 	else
 	{
-		PrintD3DLog(_T("CD3DObjectResourceManager::DeleteResource:×ÊÔ´[%u]Î´ÕÒµ½"),
+		PrintD3DLog(_T("CD3DObjectResourceManager::DeleteResource:èµ„æº[%u]æœªæ‰¾åˆ°"),
 			ID);
 	}
 	return NULL;
@@ -85,7 +85,7 @@ CD3DObjectResource * CD3DObjectResourceManager::DeleteResource(LPCTSTR ResourceN
 	}
 	else
 	{
-		PrintD3DLog(_T("CD3DObjectResourceManager::DeleteResource:×ÊÔ´[%s]Î´ÕÒµ½"),
+		PrintD3DLog(_T("CD3DObjectResourceManager::DeleteResource:èµ„æº[%s]æœªæ‰¾åˆ°"),
 			ResourceName);
 	}
 	return NULL;

@@ -12,29 +12,17 @@
 #pragma once
 
 class CBaseDOSObjectProxyService:
-	public CNameObject
+	public IDOSObjectProxyService
 {
 public:
+	virtual ~CBaseDOSObjectProxyService()
+	{
+
+	}
 	virtual BYTE GetProxyType() = 0;
-	virtual void SetID(UINT ID)
-	{
-		CNameObject::SetID(ID);
-	}
-	virtual UINT GetID()
-	{
-		return CNameObject::GetID();
-	}
-
+	virtual void SetID(UINT ID) = 0;
+	virtual UINT GetID() = 0;
 	virtual bool StartService() = 0;
-	virtual void StopService() = 0;
-	virtual bool PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket) = 0;
-
-	virtual UINT GetConnectionCount(){ return 0; }
-	virtual float GetCPUUsedRate(){ return 0; }
-	virtual float GetCycleTime(){ return 0; }
-	virtual UINT GetGroupCount(){ return 0; }
-	virtual float GetGroupCPUUsedRate(UINT Index){ return 0; }
-	virtual float GetGroupCycleTime(UINT Index){ return 0; }
 };
 
 
@@ -64,7 +52,7 @@ protected:
 	};
 
 	CLIENT_PROXY_CONFIG													m_Config;
-	CCycleQueue<CDOSMessagePacket *>									m_MsgQueue;
+	CCycleQueue<DISPATCHED_MSG>											m_MsgQueue;
 
 	CStaticMap<MSG_ID_TYPE, MSG_MAP_INFO>								m_MessageMap;
 	OBJECT_ID															m_UnhandleMsgReceiverID;
@@ -88,43 +76,47 @@ protected:
 	CEasyCriticalSection												m_BlackListCriticalSection;
 	CEasyTimer															m_BlackListUpdateTimer;
 
-	CStaticMap<UINT64, CEasyArray<CDOSObjectProxyConnectionDefault *> >	m_GroupBroadcastMap;
-
 public:
 	CDOSObjectProxyServiceDefault(void);
 	virtual ~CDOSObjectProxyServiceDefault(void);
 	
-	virtual void Release();
-	virtual void Destory();
-	virtual BYTE GetProxyType();
-	virtual void SetID(UINT ID);
-	virtual UINT GetID();
-	virtual bool StartService();
-	virtual void StopService();
-	virtual bool PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket);
+	virtual void Release() override;
+	virtual void Destory() override;
+	virtual UINT AddUseRef() override;
+	virtual UINT GetUseRef();
+	virtual BYTE GetProxyType() override;
+	virtual void SetID(UINT ID) override;
+	virtual UINT GetID() override;
+	virtual bool StartService() override;
+	virtual bool StartService(IDOSObjectProxyServiceOperator* pOperator) override;
+	virtual void StopService() override;
+	virtual bool PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket) override;
 	
-	virtual UINT GetConnectionCount();
-	virtual float GetCPUUsedRate();
-	virtual float GetCycleTime();
-	virtual UINT GetGroupCount();
-	virtual float GetGroupCPUUsedRate(UINT Index);
-	virtual float GetGroupCycleTime(UINT Index);
-
+	virtual UINT GetConnectionCount() override;
+	virtual float GetCPUUsedRate() override;
+	virtual float GetCycleTime() override;
+	virtual UINT GetMsgQueueLen() override;
+	virtual UINT GetGroupCount() override;
+	virtual float GetGroupCPUUsedRate(UINT Index) override;
+	virtual float GetGroupCycleTime(UINT Index) override;
+	virtual UINT GetGroupMsgQueueLen(UINT Index) override;
 
 
 	bool Init(CDOSServer * pServer, CLIENT_PROXY_CONFIG& Config);
 	
 
 
-	virtual BOOL OnStart();
-	virtual BOOL OnRun();
-	virtual void OnTerminate();
+	virtual BOOL OnStart() override;
+	virtual BOOL OnRun() override;
+	virtual void OnTerminate() override;
 
-	virtual void OnClose();
-	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
-	virtual CBaseNetConnection * CreateConnection(CIPAddress& RemoteAddress);
-	virtual bool DeleteConnection(CBaseNetConnection * pConnection);	
-	CDOSObjectProxyConnectionDefault * GetConnection(UINT ID);
+	virtual void OnClose() override;
+	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT) override;
+	virtual CBaseNetConnection * CreateConnection(CIPAddress& RemoteAddress) override;
+	virtual bool DeleteConnection(CBaseNetConnection * pConnection) override;
+	virtual CDOSObjectProxyConnectionDefault* GetConnection(UINT ID);
+	virtual LPVOID GetFirstConnectionPos();
+	virtual CDOSObjectProxyConnectionDefault* GetNextConnection(LPVOID& Pos);
 
 	void AcceptConnection(CDOSObjectProxyConnectionDefault * pConnection);
 	void QueryDestoryConnection(CDOSObjectProxyConnectionDefault * pConnection);
@@ -147,20 +139,15 @@ public:
 	bool AddBlackList(CIPAddress IP, UINT Duration);
 	bool OnRecvProtected(CIPAddress IP);
 protected:
+	void ProcessMsg(DISPATCHED_MSG& Msg);
 	void OnMsg(CDOSMessage * pMessage);
 	void OnSystemMsg(CDOSMessagePacket * pPacket);
 	bool DoRegisterGlobalMsgMap(MSG_ID_TYPE MsgID, int MapType, OBJECT_ID ObjectID);
 	bool DoUnregisterGlobalMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);
 	void ClearMsgMapByRouterID(UINT RouterID);
 	bool CheckEncryptConfig();
-	int CheckFreeObject();
-	bool AddConnectionToBroadcastGroup(CDOSObjectProxyConnectionDefault * pConnection, UINT64 GroupID);
-	bool RemoveConnectionFromBroadcastGroup(CDOSObjectProxyConnectionDefault * pConnection);
+	virtual int CheckFreeObject();
 };
 
 
 
-inline CDOSObjectProxyConnectionDefault * CDOSObjectProxyServiceDefault::GetConnection(UINT ID)
-{
-	return m_ConnectionPool.GetObject(ID);
-}

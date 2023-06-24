@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CD3DBuildInFXIncludeParser :
 	public ID3DXInclude

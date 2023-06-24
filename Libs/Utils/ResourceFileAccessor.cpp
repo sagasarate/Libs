@@ -11,14 +11,15 @@
 /****************************************************************************/
 #include "StdAfx.h"
 
-IMPLEMENT_CLASS_INFO_STATIC(CResourceFileAccessor,IFileAccessor);
+IMPLEMENT_CLASS_INFO_STATIC(CResourceFileAccessor, IFileAccessor);
 
 CResourceFileAccessor::CResourceFileAccessor(void)
 {
-	m_hResource=NULL;
-	m_hResourceData=NULL;
-	m_ResourceDataSize=0;
-	m_ReadPtr=0;
+	m_hResource = NULL;
+	m_hResourceData = NULL;
+	m_ResourceDataSize = 0;
+	m_ReadPtr = 0;
+	m_HaveError = false;
 }
 
 CResourceFileAccessor::~CResourceFileAccessor(void)
@@ -27,45 +28,47 @@ CResourceFileAccessor::~CResourceFileAccessor(void)
 }
 
 
-BOOL CResourceFileAccessor::Open(LPCTSTR FileName,int OpenMode)
+bool CResourceFileAccessor::Open(LPCTSTR FileName, int OpenMode)
 {
 	CSettingFile ResourceInfo;
 
 	Close();
 
-	if(!ResourceInfo.Load(FileName,';'))
+	m_HaveError = true;
+	if (!ResourceInfo.Load(FileName, ';'))
 	{
-		return FALSE;
+		return false;
 	}
 
-	HMODULE hModule=(HMODULE)ResourceInfo.GetInteger64(NULL,_T("Module"),0);
-	LPCTSTR Type=ResourceInfo.GetString(NULL,_T("Type"),_T(""));
-	LPCTSTR Name=ResourceInfo.GetString(NULL,_T("Name"),_T(""));
-	UINT ID=ResourceInfo.GetInteger(NULL,_T("ID"),0);
-	
-	if(ID)
+	HMODULE hModule = (HMODULE)ResourceInfo.GetInteger64(NULL, _T("Module"), 0);
+	LPCTSTR Type = ResourceInfo.GetString(NULL, _T("Type"), _T(""));
+	LPCTSTR Name = ResourceInfo.GetString(NULL, _T("Name"), _T(""));
+	UINT ID = ResourceInfo.GetInteger(NULL, _T("ID"), 0);
+
+	if (ID)
 	{
-		m_hResource=FindResource(hModule,MAKEINTRESOURCE(ID),Type);		
+		m_hResource = FindResource(hModule, MAKEINTRESOURCE(ID), Type);
 	}
 	else
-		m_hResource=FindResource(hModule,Name,Type);
-	if(m_hResource==NULL)
-		return FALSE;
+		m_hResource = FindResource(hModule, Name, Type);
+	if (m_hResource == NULL)
+		return false;
 
-	m_hResourceData=LoadResource(hModule,m_hResource);
-	if(m_hResourceData==NULL)
-		return FALSE;
+	m_hResourceData = LoadResource(hModule, m_hResource);
+	if (m_hResourceData == NULL)
+		return false;
 
-	m_ResourceDataSize=SizeofResource(hModule,m_hResource);
-	return TRUE;
+	m_ResourceDataSize = SizeofResource(hModule, m_hResource);
+	m_HaveError = false;
+	return true;
 }
 
 void CResourceFileAccessor::Close()
-{	
-	m_hResource=NULL;	
-	m_hResourceData=NULL;
-	m_ResourceDataSize=0;
-	m_ReadPtr=0;
+{
+	m_hResource = NULL;
+	m_hResourceData = NULL;
+	m_ResourceDataSize = 0;
+	m_ReadPtr = 0;
 }
 
 ULONG64 CResourceFileAccessor::GetSize()
@@ -73,54 +76,56 @@ ULONG64 CResourceFileAccessor::GetSize()
 	return m_ResourceDataSize;
 }
 
-ULONG64 CResourceFileAccessor::Read(LPVOID pBuff,ULONG64 Size)
+ULONG64 CResourceFileAccessor::Read(LPVOID pBuff, ULONG64 Size)
 {
-	char * pData=(char *)LockResource(m_hResourceData);
-	if(pData)
+	m_HaveError = false;
+	char* pData = (char*)LockResource(m_hResourceData);
+	if (pData)
 	{
-		UINT ReadSize=(UINT)Size;
-		if((UINT)m_ReadPtr+ReadSize>m_ResourceDataSize)
-			ReadSize=(UINT)((LONG64)m_ResourceDataSize-m_ReadPtr);
-		memcpy(pBuff,pData+(UINT)m_ReadPtr,ReadSize);
-		m_ReadPtr+=ReadSize;
+		UINT ReadSize = (UINT)Size;
+		if ((UINT)m_ReadPtr + ReadSize > m_ResourceDataSize)
+			ReadSize = (UINT)((LONG64)m_ResourceDataSize - m_ReadPtr);
+		memcpy(pBuff, pData + (UINT)m_ReadPtr, ReadSize);
+		m_ReadPtr += ReadSize;
 		return ReadSize;
 	}
+	m_HaveError = true;
 	return 0;
 }
 
-ULONG64 CResourceFileAccessor::Write(LPCVOID pBuff,ULONG64 Size)
+ULONG64 CResourceFileAccessor::Write(LPCVOID pBuff, ULONG64 Size)
 {
 	return 0;
 }
 
 
-BOOL CResourceFileAccessor::IsEOF()
+bool CResourceFileAccessor::IsEOF()
 {
-	if(m_ReadPtr>=(LONG64)m_ResourceDataSize)
-		return TRUE;
+	if (m_ReadPtr >= (LONG64)m_ResourceDataSize)
+		return true;
 	else
-		return FALSE;
+		return false;
 }
 
-BOOL CResourceFileAccessor::Seek(LONG64 Offset,int SeekMode)
+bool CResourceFileAccessor::Seek(LONG64 Offset, int SeekMode)
 {
-	switch(SeekMode)
-	{	
+	switch (SeekMode)
+	{
 	case seekBegin:
-		m_ReadPtr=Offset;
+		m_ReadPtr = Offset;
 		break;
 	case seekCurrent:
-		m_ReadPtr+=Offset;
+		m_ReadPtr += Offset;
 		break;
 	case seekEnd:
-		m_ReadPtr=(LONG64)m_ResourceDataSize-Offset;
+		m_ReadPtr = (LONG64)m_ResourceDataSize - Offset;
 		break;
 	}
-	if(m_ReadPtr<0)
-		m_ReadPtr=0;
-	if(m_ReadPtr>=(LONG64)m_ResourceDataSize)
-		m_ReadPtr=(LONG64)m_ResourceDataSize;
-	return TRUE;
+	if (m_ReadPtr < 0)
+		m_ReadPtr = 0;
+	if (m_ReadPtr >= (LONG64)m_ResourceDataSize)
+		m_ReadPtr = (LONG64)m_ResourceDataSize;
+	return true;
 }
 
 ULONG64 CResourceFileAccessor::GetCurPos()
@@ -128,29 +133,29 @@ ULONG64 CResourceFileAccessor::GetCurPos()
 	return m_ReadPtr;
 }
 
-BOOL CResourceFileAccessor::SetCreateTime(const CEasyTime& Time)
+bool CResourceFileAccessor::SetCreateTime(const CEasyTime& Time)
 {
-	return FALSE;
+	return false;
 }
-BOOL CResourceFileAccessor::GetCreateTime(CEasyTime& Time)
+bool CResourceFileAccessor::GetCreateTime(CEasyTime& Time)
 {
-	return FALSE;
-}
-
-BOOL CResourceFileAccessor::SetLastAccessTime(const CEasyTime& Time)
-{
-	return FALSE;
-}
-BOOL CResourceFileAccessor::GetLastAccessTime(CEasyTime& Time)
-{
-	return FALSE;
+	return false;
 }
 
-BOOL CResourceFileAccessor::SetLastWriteTime(const CEasyTime& Time)
+bool CResourceFileAccessor::SetLastAccessTime(const CEasyTime& Time)
 {
-	return FALSE;
+	return false;
 }
-BOOL CResourceFileAccessor::GetLastWriteTime(CEasyTime& Time)
+bool CResourceFileAccessor::GetLastAccessTime(CEasyTime& Time)
 {
-	return FALSE;
+	return false;
+}
+
+bool CResourceFileAccessor::SetLastWriteTime(const CEasyTime& Time)
+{
+	return false;
+}
+bool CResourceFileAccessor::GetLastWriteTime(CEasyTime& Time)
+{
+	return false;
 }

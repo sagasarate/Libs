@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    D3DWOWADTModelResource.cpp                               */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DWOWADTModelResource.cpp                               */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -228,7 +228,7 @@ bool CD3DWOWADTModelResource::LoadTerrain(LPCTSTR ModelFileName)
 		return false;
 	if(!pFile->Open(ModelFileName,IFileAccessor::modeRead))
 	{
-		PrintD3DLog(_T("ÎÄ¼þ%s´ò¿ªÊ§°Ü"),ModelFileName);
+		PrintD3DLog(_T("æ–‡ä»¶%sæ‰“å¼€å¤±è´¥"),ModelFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -802,7 +802,7 @@ bool CD3DWOWADTModelResource::LoadObjectsInfo(LPCTSTR ModelFileName,bool BeLoadO
 		return false;
 	if(!pFile->Open(ModelFileName,IFileAccessor::modeRead))
 	{
-		PrintD3DLog(_T("ÎÄ¼þ%s´ò¿ªÊ§°Ü"),ModelFileName);
+		PrintD3DLog(_T("æ–‡ä»¶%sæ‰“å¼€å¤±è´¥"),ModelFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -868,7 +868,7 @@ bool CD3DWOWADTModelResource::LoadObjectsInfo(LPCTSTR ModelFileName,bool BeLoadO
 					pResource=new CD3DWOWM2ModelResource(m_pManager);
 					if(pResource->LoadFromFile(ObjectFileName))
 					{
-						//PrintD3DLog("¼ÓÔØÁË[%s]",(LPCTSTR)ObjectFileName);
+						//PrintD3DLog("åŠ è½½äº†[%s]",(LPCTSTR)ObjectFileName);
 						if(!m_pManager->AddResource(pResource,ObjectFileName))
 						{
 							pResource->Release();
@@ -877,7 +877,7 @@ bool CD3DWOWADTModelResource::LoadObjectsInfo(LPCTSTR ModelFileName,bool BeLoadO
 					}
 					else
 					{
-						PrintD3DLog(_T("¼ÓÔØM2ÎÄ¼þ%sÊ§°Ü"),(LPCTSTR)ObjectFileName);
+						PrintD3DLog(_T("åŠ è½½M2æ–‡ä»¶%så¤±è´¥"),(LPCTSTR)ObjectFileName);
 						pResource->Release();
 						pResource=NULL;
 					}						
@@ -928,7 +928,7 @@ bool CD3DWOWADTModelResource::LoadObjectsInfo(LPCTSTR ModelFileName,bool BeLoadO
 				pResource=new CD3DWOWWMOModelResource(m_pManager);
 				if(pResource->LoadFromFile(FileName))
 				{
-					//PrintD3DLog("¼ÓÔØÁË[%s]",(LPCTSTR)FileName);
+					//PrintD3DLog("åŠ è½½äº†[%s]",(LPCTSTR)FileName);
 					if(!m_pManager->AddResource(pResource,FileName))
 					{
 						pResource->Release();
@@ -937,7 +937,7 @@ bool CD3DWOWADTModelResource::LoadObjectsInfo(LPCTSTR ModelFileName,bool BeLoadO
 				}
 				else
 				{
-					PrintD3DLog(_T("¼ÓÔØWMOÎÄ¼þ%sÊ§°Ü"),(LPCTSTR)FileName);
+					PrintD3DLog(_T("åŠ è½½WMOæ–‡ä»¶%så¤±è´¥"),(LPCTSTR)FileName);
 					pResource->Release();
 					pResource=NULL;
 				}						
@@ -965,7 +965,7 @@ bool CD3DWOWADTModelResource::LoadTextureInfo(LPCTSTR ModelFileName,bool IsBigAl
 		return false;
 	if(!pFile->Open(ModelFileName,IFileAccessor::modeRead))
 	{
-		PrintD3DLog(_T("ÎÄ¼þ%s´ò¿ªÊ§°Ü"),ModelFileName);
+		PrintD3DLog(_T("æ–‡ä»¶%sæ‰“å¼€å¤±è´¥"),ModelFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -1475,7 +1475,7 @@ CD3DTexture * CD3DWOWADTModelResource::CreateAlphaMap(int DataType,LPBYTE pData,
 	{
 	case ADT_UNCOMPRESS_2048:
 		{	
-			//PrintD3DLog("4Î»AlphaMap");
+			//PrintD3DLog("4ä½AlphaMap");
 			//if(DataSize>=2048)
 			{
 				D3DLOCKED_RECT LockedRect;
@@ -1516,7 +1516,7 @@ CD3DTexture * CD3DWOWADTModelResource::CreateAlphaMap(int DataType,LPBYTE pData,
 		break;
 	case ADT_UNCOMPRESS_4096:
 		{
-			//PrintD3DLog("8Î»AlphaMap");
+			//PrintD3DLog("8ä½AlphaMap");
 			//if(DataSize>=4096)
 			{
 				D3DLOCKED_RECT LockedRect;
@@ -1539,7 +1539,7 @@ CD3DTexture * CD3DWOWADTModelResource::CreateAlphaMap(int DataType,LPBYTE pData,
 		break;
 	case ADT_COMPRESS:
 		{
-			//PrintD3DLog("Ñ¹Ëõ¸ñÊ½AlphaMap");
+			//PrintD3DLog("åŽ‹ç¼©æ ¼å¼AlphaMap");
 			D3DLOCKED_RECT LockedRect;
 			if(pAlphaMap->LockBits(0,&LockedRect,NULL,0))
 			{

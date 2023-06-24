@@ -77,7 +77,8 @@ public:
 
 	BOOL SendMessage(OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag=0,LPCVOID pData=0,UINT DataSize=0);
 	BOOL SendMessageMulti(OBJECT_ID * pReceiverIDList,UINT ReceiverCount,bool IsSorted,MSG_ID_TYPE MsgID,WORD MsgFlag=0,LPCVOID pData=0,UINT DataSize=0);
-	BOOL BroadcastMessageToProxyObjectByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0);
+	BOOL BroadcastMessageToProxyByMask(WORD RouterID, BYTE ProxyType, UINT64 Mask, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0);
+	BOOL BroadcastMessageToProxyByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0);
 
 	CDOSMessagePacket * NewMessagePacket(UINT DataSize,UINT ReceiverCount);
 	BOOL ReleaseMessagePacket(CDOSMessagePacket * pPacket);
@@ -92,17 +93,21 @@ public:
 	BOOL AddConcernedObject(OBJECT_ID ObjectID,bool NeedTest);
 	BOOL DeleteConcernedObject(OBJECT_ID ObjectID);
 
-	BOOL FindObject(UINT ObjectType);
+	BOOL FindObject(UINT ObjectType, bool OnlyLocal);
 	BOOL ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize);
 	BOOL CloseProxyObject(OBJECT_ID ProxyObjectID,UINT Delay);
 	BOOL RequestProxyObjectIP(OBJECT_ID ProxyObjectID);
 	BOOL QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param);
 
-	UINT AddTimer(UINT TimeOut, UINT64 Param, bool IsRepeat);
+	UINT AddTimer(UINT64 TimeOut, UINT64 Param, bool IsRepeat);
 	BOOL DeleteTimer(UINT ID);
 	
 
-	BOOL SetBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID);
+	BOOL SetBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask);
+	BOOL AddBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask);
+	BOOL RemoveBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask);
+	BOOL AddBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID);
+	BOOL RemoveBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID);
 protected:
 	virtual BOOL OnMessage(CDOSMessage * pMessage);
 	virtual BOOL OnSystemMessage(CDOSMessage * pMessage);
@@ -116,7 +121,7 @@ protected:
 	virtual void OnAliveTest(OBJECT_ID SenderID,BYTE IsEcho);
 	virtual void OnRouteLinkLost(UINT RouteID);
 	virtual void OnShutDown(BYTE Level, UINT Param);
-	virtual void OnTimer(UINT ID, UINT64 Param);
+	virtual void OnTimer(UINT ID, UINT64 Param, bool IsRepeat);
 	virtual void OnTimerRelease(UINT ID, UINT64 Param);
 
 	int ProcessMessage(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT);

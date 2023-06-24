@@ -1,4 +1,4 @@
-#ifndef __MONO_DEBUG_HELPERS_H__
+﻿#ifndef __MONO_DEBUG_HELPERS_H__
 #define __MONO_DEBUG_HELPERS_H__
 
 #include "class.h"

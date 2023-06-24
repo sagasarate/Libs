@@ -175,6 +175,8 @@ BOOL CDOSObjectGroup::OnStart()
 		m_GuardThread.SetTargetThread(this);
 		m_GuardThread.SetKeepAliveTime(m_Config.GuardThreadKeepAliveTime, m_Config.GuardThreadKeepAliveCount);
 		m_GuardThread.Start();
+		PrintDOSLog(_T("对象组[%d]守护线程已启动，KeepAliveTime=%u,KeepAliveCount=%u"),
+			m_Index, m_Config.GuardThreadKeepAliveTime, m_Config.GuardThreadKeepAliveCount);
 	}
 
 	m_Status = STATUS_WORKING;
@@ -495,7 +497,7 @@ int CDOSObjectGroup::ProcessTimer(int ProcessLimit)
 		DOS_OBJECT_INFO * pObjectInfo = m_ObjectPool.GetObject(TimerData.ObjectID.ObjectIndex);
 		if (pObjectInfo)
 		{
-			pObjectInfo->pObject->OnTimer(TimerID, TimerData.Param);
+			pObjectInfo->pObject->OnTimer(TimerID, TimerData.Param, IsRepeat);
 			if (!IsRepeat)
 			{
 				pObjectInfo->pObject->OnTimerRelease(TimerID, TimerData.Param);

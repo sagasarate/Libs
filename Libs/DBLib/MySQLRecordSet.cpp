@@ -288,7 +288,7 @@ int CMySQLRecordSet::FetchRow()
 	{
 		for(int j=0;j<ColNum;j++)
 		{
-			UINT Size=ValueLen[j];
+			size_t Size=ValueLen[j];
 			UINT DigitalSize=m_pColumnInfos[j].DigitSize;
 			int DBType=CMySQLConnection::MySQLTypeToDBLibType(m_pColumnInfos[j].Type,Size,DigitalSize);
 			if(RowData[j])

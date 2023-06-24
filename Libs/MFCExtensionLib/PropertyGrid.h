@@ -1,4 +1,4 @@
-#pragma once
+Ôªø#pragma once
 
 
 // CPropertyGrid
@@ -70,7 +70,7 @@ public:
 	}
 	CPropertyValue(bool val)
 	{
-		val?m_Value=_T(" «"):m_Value=_T("∑Ò");
+		val?m_Value=_T("ÊòØ"):m_Value=_T("Âê¶");
 	}
 
 	CString& GetString()
@@ -115,7 +115,7 @@ public:
 	}
 	operator bool()
 	{
-		return m_Value==_T(" «");
+		return m_Value==_T("ÊòØ");
 	}
 	CPropertyValue& operator=(const CString& val)
 	{
@@ -165,7 +165,7 @@ public:
 	}
 	CPropertyValue& operator=(const bool val)
 	{
-		val?m_Value=_T(" «"):m_Value=_T("∑Ò");
+		val?m_Value=_T("ÊòØ"):m_Value=_T("Âê¶");
 		return *this;
 	}
 

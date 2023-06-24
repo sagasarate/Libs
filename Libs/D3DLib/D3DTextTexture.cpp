@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DTextTexture.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ25ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DTextTexture.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ25æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -160,7 +160,7 @@ bool CD3DTextTexture::SetFont(const LOGFONT* pLogFont)
 
 void CD3DTextTexture::SetColor(D3DCOLOR Color)
 {
-	//ÉèÖÃ×ÖÌåÑÕÉ«
+	//è®¾ç½®å­—ä½“é¢œè‰²
 	if(m_Color!=Color)
 	{
 		m_Color=Color;
@@ -172,7 +172,7 @@ void CD3DTextTexture::SetColor(D3DCOLOR Color)
 
 void CD3DTextTexture::SetText(LPCTSTR szText,int StrLen)
 {
-	//ÉèÖÃÎÄ×ÖÄÚÈİ
+	//è®¾ç½®æ–‡å­—å†…å®¹
 	CEasyStringW NewText;
 	if(StrLen<=0)
 		NewText=szText;
@@ -188,7 +188,7 @@ void CD3DTextTexture::SetText(LPCTSTR szText,int StrLen)
 
 void CD3DTextTexture::SetTextW(LPCWSTR szText,int StrLen)
 {
-	//ÉèÖÃÎÄ×ÖÄÚÈİ
+	//è®¾ç½®æ–‡å­—å†…å®¹
 	if(StrLen<=0)
 	{
 		if(m_Text!=szText)
@@ -210,7 +210,7 @@ void CD3DTextTexture::SetTextW(LPCWSTR szText,int StrLen)
 
 void CD3DTextTexture::SetAlign(DWORD dwAlign)
 {
-	//ÉèÖÃ¶ÔÆëÄ£Ê½
+	//è®¾ç½®å¯¹é½æ¨¡å¼
 	if(m_Align!=dwAlign)
 	{
 		m_Align=dwAlign;
@@ -220,7 +220,7 @@ void CD3DTextTexture::SetAlign(DWORD dwAlign)
 }
 void CD3DTextTexture::SetShadowMode(DWORD ShadowMode)
 {
-	//ÉèÖÃÒõÓ°Ä£Ê½£¬0=ÎŞÒõÓ°£¬1=ËÄ·½ÏòÒõÓ°£¬2=°Ë·½ÏòÒõÓ°
+	//è®¾ç½®é˜´å½±æ¨¡å¼ï¼Œ0=æ— é˜´å½±ï¼Œ1=å››æ–¹å‘é˜´å½±ï¼Œ2=å…«æ–¹å‘é˜´å½±
 	if(m_ShadowMode!=ShadowMode)
 	{
 		m_ShadowMode=ShadowMode;
@@ -230,7 +230,7 @@ void CD3DTextTexture::SetShadowMode(DWORD ShadowMode)
 }
 void CD3DTextTexture::SetShadowColor(D3DCOLOR ShadowColor)
 {
-	//ÉèÖÃÒõÓ°ÑÕÉ«
+	//è®¾ç½®é˜´å½±é¢œè‰²
 	if(m_ShadowColor!=ShadowColor)
 	{
 		m_ShadowColor=ShadowColor;
@@ -240,7 +240,7 @@ void CD3DTextTexture::SetShadowColor(D3DCOLOR ShadowColor)
 }
 void CD3DTextTexture::SetShadowWidth(int Width)
 {
-	//ÉèÖÃÒõÓ°¿í¶È
+	//è®¾ç½®é˜´å½±å®½åº¦
 	if(m_ShadowWidth!=Width)
 	{
 		m_ShadowWidth=Width;
@@ -251,7 +251,7 @@ void CD3DTextTexture::SetShadowWidth(int Width)
 
 void CD3DTextTexture::SetBKColor(D3DCOLOR Color)
 {	
-	//ÉèÖÃ±³¾°É«
+	//è®¾ç½®èƒŒæ™¯è‰²
 	if(m_BKColor!=Color)
 	{
 		m_BKColor=Color;
@@ -416,7 +416,7 @@ UINT CD3DTextTexture::GetSmartStructSize(UINT Param)
 
 void CD3DTextTexture::UpdateTexture()
 {
-	//ÕâÀï½«ÎÄ×ÖäÖÈ¾µ½ÎÆÀí
+	//è¿™é‡Œå°†æ–‡å­—æ¸²æŸ“åˆ°çº¹ç†
 	if(!m_AllowUpdate)
 		return;
 	

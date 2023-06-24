@@ -5,7 +5,7 @@
 		<Option title="Lua" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="Lua/;LuaWrap/;MetaClass/;预编译/;" />
+		<Option virtualFolders="Lua/;LuaWrap/;MetaClass/;预编译/;LuaSocket/" />
 		<Build>
 			<Target title="Debug">
 				<Option output="../Bin/LuaD" prefix_auto="0" extension_auto="1" />
@@ -28,13 +28,25 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-std=c++11" />
-			<Add option="-W" />
 			<Add option="-fPIC" />
+			<Add option="-std=c++14" />
+			<Add option="-W" />
 			<Add option="-DLUA_COMPAT_BITLIB" />
 			<Add option="-DLUA_COMPAT_APIINTCASTS" />
 			<Add option="-DLUA_USE_POSIX" />
 		</Compiler>
+		<Unit filename="BaseLuaLib.cpp">
+			<Option virtualFolder="LuaWrap/" />
+		</Unit>
+		<Unit filename="BaseLuaLib.h">
+			<Option virtualFolder="LuaWrap/" />
+		</Unit>
+		<Unit filename="BaseLuaVM.cpp">
+			<Option virtualFolder="LuaWrap/" />
+		</Unit>
+		<Unit filename="BaseLuaVM.h">
+			<Option virtualFolder="LuaWrap/" />
+		</Unit>
 		<Unit filename="LuaBaseMetaClass.cpp">
 			<Option virtualFolder="MetaClass/" />
 			<Option target="Debug" />
@@ -53,23 +65,14 @@
 			<Option target="Release Win32" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="LuaBaseStaticMetaClass.cpp">
+		<Unit filename="LuaByteArray.cpp">
 			<Option virtualFolder="MetaClass/" />
-			<Option target="Debug" />
-			<Option target="DebugUnicode Win32" />
-			<Option target="DebugUnicode x64" />
-			<Option target="Debug Win32" />
-			<Option target="Release Win32" />
-			<Option target="Release" />
 		</Unit>
-		<Unit filename="LuaBaseStaticMetaClass.h">
+		<Unit filename="LuaByteArray.h">
 			<Option virtualFolder="MetaClass/" />
-			<Option target="Debug" />
-			<Option target="DebugUnicode Win32" />
-			<Option target="DebugUnicode x64" />
-			<Option target="Debug Win32" />
-			<Option target="Release Win32" />
-			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaCallWrapDefines.h">
+			<Option virtualFolder="LuaWrap/" />
 		</Unit>
 		<Unit filename="LuaCallWrapTemplate.h">
 			<Option virtualFolder="LuaWrap/" />
@@ -106,6 +109,15 @@
 			<Option target="Debug Win32" />
 			<Option target="Release Win32" />
 			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaLibCommon.cpp">
+			<Option virtualFolder="LuaWrap/" />
+		</Unit>
+		<Unit filename="LuaLibCommon.h">
+			<Option virtualFolder="LuaWrap/" />
+		</Unit>
+		<Unit filename="LuaLoader.h">
+			<Option virtualFolder="LuaWrap/" />
 		</Unit>
 		<Unit filename="LuaPlusCD.h">
 			<Option virtualFolder="LuaWrap/" />
@@ -152,6 +164,24 @@
 			<Option target="Release Win32" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="LuaSmartArray.cpp">
+			<Option virtualFolder="MetaClass/" />
+		</Unit>
+		<Unit filename="LuaSmartArray.h">
+			<Option virtualFolder="MetaClass/" />
+		</Unit>
+		<Unit filename="LuaSmartStruct.cpp">
+			<Option virtualFolder="MetaClass/" />
+		</Unit>
+		<Unit filename="LuaSmartStruct.h">
+			<Option virtualFolder="MetaClass/" />
+		</Unit>
+		<Unit filename="LuaSmartValue.cpp">
+			<Option virtualFolder="MetaClass/" />
+		</Unit>
+		<Unit filename="LuaSmartValue.h">
+			<Option virtualFolder="MetaClass/" />
+		</Unit>
 		<Unit filename="LuaTable.cpp">
 			<Option virtualFolder="LuaWrap/" />
 			<Option target="Debug" />
@@ -197,6 +227,12 @@
 			<Option target="Release Win32" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="LuaVM.cpp">
+			<Option virtualFolder="LuaWrap/" />
+		</Unit>
+		<Unit filename="LuaVM.h">
+			<Option virtualFolder="LuaWrap/" />
+		</Unit>
 		<Unit filename="LuaValue.cpp">
 			<Option virtualFolder="LuaWrap/" />
 			<Option target="Debug" />
@@ -223,6 +259,119 @@
 			<Option target="Debug Win32" />
 			<Option target="Release Win32" />
 			<Option target="Release" />
+		</Unit>
+		<Unit filename="LuaWrapBase.h">
+			<Option virtualFolder="LuaWrap/" />
+		</Unit>
+		<Unit filename="LuaWrapBody.h">
+			<Option virtualFolder="LuaWrap/" />
+		</Unit>
+		<Unit filename="LuaWrapHead.h">
+			<Option virtualFolder="LuaWrap/" />
+		</Unit>
+		<Unit filename="luasocket/auxiliar.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/auxiliar.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/buffer.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/buffer.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/compat.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/compat.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/except.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/except.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/inet.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/inet.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/io.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/io.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/luasocket.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/luasocket.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/mime.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/mime.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/options.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/options.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/pierror.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/select.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/select.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/socket.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/tcp.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/tcp.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/timeout.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/timeout.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/udp.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/udp.h">
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/usocket.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="LuaSocket/" />
+		</Unit>
+		<Unit filename="luasocket/usocket.h">
+			<Option virtualFolder="LuaSocket/" />
 		</Unit>
 		<Unit filename="src/lapi.c">
 			<Option compilerVar="CC" />
@@ -808,9 +957,6 @@
 			<Option target="Release Win32" />
 			<Option target="Release" />
 		</Unit>
-		<Extensions>
-			<code_completion />
-			<debugger />
-		</Extensions>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

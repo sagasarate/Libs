@@ -46,6 +46,9 @@
     <Filter Include="对象代理服务\缺省实现\无网络层缓冲版本">
       <UniqueIdentifier>{bb4f5420-f0a4-49b2-a027-1570a19b5447}</UniqueIdentifier>
     </Filter>
+    <Filter Include="对象代理服务\WebSocket实现">
+      <UniqueIdentifier>{27e85f49-3ca9-47f6-b13c-3ea002d84cb0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -101,6 +104,12 @@
     </ClCompile>
     <ClCompile Include="ENLConnectionNoBuff.cpp">
       <Filter>路由服务</Filter>
+    </ClCompile>
+    <ClCompile Include="WebSocketProxyConnection.cpp">
+      <Filter>对象代理服务\WebSocket实现</Filter>
+    </ClCompile>
+    <ClCompile Include="WebSocketProxyService.cpp">
+      <Filter>对象代理服务\WebSocket实现</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +178,12 @@
     </ClInclude>
     <ClInclude Include="ENLConnectionNoBuff.h">
       <Filter>路由服务</Filter>
+    </ClInclude>
+    <ClInclude Include="WebSocketProxyConnection.h">
+      <Filter>对象代理服务\WebSocket实现</Filter>
+    </ClInclude>
+    <ClInclude Include="WebSocketProxyService.h">
+      <Filter>对象代理服务\WebSocket实现</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -61,7 +61,8 @@ protected:
 
 	UINT										m_ReleaseTime;
 
-	volatile UINT64								m_BroadcastGroupID;
+	volatile UINT64								m_BroadcastMask;
+	CThreadSafeStaticMap<UINT64, UINT64>		m_BroadcastGroupList;
 
 public:
 	CDOSObjectProxyConnectionDefault(void);
@@ -107,26 +108,57 @@ public:
 	{
 		return m_ReleaseTime;
 	}
-	void SetBroadcastGroupID(UINT64 GroupID)
+	void SetBroadcastMask(UINT64 Mask)
 	{
-		m_BroadcastGroupID = GroupID;
+		m_BroadcastMask = Mask;
 	}
-	UINT64 GetBroadcastGroupID()
+	void AddBroadcastMask(UINT64 Mask)
 	{
-		return m_BroadcastGroupID;
+		AtomicOr(&m_BroadcastMask, Mask);
+	}
+	void RemoveBroadcastMask(UINT64 Mask)
+	{
+		AtomicAnd(&m_BroadcastMask, ~Mask);
+	}
+	UINT64 GetBroadcastMask()
+	{
+		return m_BroadcastMask;
+	}
+	bool AddBroadcastGroup(UINT64 GroupID)
+	{
+		return m_BroadcastGroupList.Insert(GroupID, GroupID) != 0;
+	}
+	bool RemoveBroadcastGroup(UINT64 GroupID)
+	{
+		if (GroupID == (UINT64)(-1))
+		{
+			m_BroadcastGroupList.Clear();
+			return true;
+		}
+		else
+		{
+			return m_BroadcastGroupList.Delete(GroupID) != FALSE;
+		}		
+	}
+	bool IsInBroadcastGroup(UINT64 GroupID)
+	{
+		return m_BroadcastGroupList.Find(GroupID) != NULL;
 	}
 protected:
 
 	CDOSServer * GetServer();
-	void OnClientMsg(CDOSSimpleMessage * pMessage);
-	void OnClientSystemMsg(CDOSSimpleMessage * pMessage);
+	void ProcessClientMsg(MSG_ID_TYPE MsgID, WORD MsgFlag, WORD CRC, const void* pData, MSG_LEN_TYPE DataLen);
+	void OnClientMsg(MSG_ID_TYPE MsgID, WORD MsgFlag, WORD CRC, const void* pData, MSG_LEN_TYPE DataLen);
+	void OnClientSystemMsg(MSG_ID_TYPE MsgID, WORD MsgFlag, WORD CRC, const void* pData, MSG_LEN_TYPE DataLen);
 
-	bool OnMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, const void * pData, MSG_LEN_TYPE DataLen);
+	virtual bool OnMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, const void * pData, MSG_LEN_TYPE DataLen);
 	bool OnSystemMessage(const CDOSMessagePacket * pPacket);
 	
 	bool SendDisconnectNotify();
-	void SendKeepAliveMsg();
-	void SendProtocolOption();
+	virtual void OnKeepAliveMsg(UINT Timestamp, UINT RecentDelay);
+	virtual void OnKeepAliveAckMsg(UINT Timestamp);
+	virtual void SendKeepAliveMsg();
+	virtual void SendProtocolOption();
 
 	bool DoRegisterMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);
 	bool DoUnregisterMsgMap(MSG_ID_TYPE MsgID, OBJECT_ID ObjectID);

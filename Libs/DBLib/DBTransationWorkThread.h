@@ -30,6 +30,7 @@ protected:
 	CThreadSafeCycleQueue<CDBTransaction *>		m_TransQueue;
 	CThreadSafeCycleQueue<CDBTransaction *>		m_FinishTransQueue;
 	CEasyTimer									m_ConnectionTestTimer;
+	volatile bool								m_IsBusy;
 
 	DECLARE_CLASS_INFO_STATIC(CDBTransationWorkThread)
 public:
@@ -63,7 +64,10 @@ public:
 	{
 		return IsQueueFull() && (GetFinishQueueLen() == 0);
 	}
-
+	bool IsBusy()
+	{
+		return m_IsBusy;
+	}
 protected:
 	virtual BOOL OnStart();	
 	virtual BOOL OnRun();

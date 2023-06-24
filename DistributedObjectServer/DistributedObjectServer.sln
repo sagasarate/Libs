@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.329
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31829.152
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Work", "Work", "{B17B038C-BDAC-490B-BA6E-5CFC1AE7A8D5}"
 	ProjectSection(SolutionItems) = preProject
@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Work", "Work", "{B17B038C-B
 		Work\LittleWorldDBPlugin.xml = Work\LittleWorldDBPlugin.xml
 		Work\LittleWorldDOSPlugin.xml = Work\LittleWorldDOSPlugin.xml
 		AndroidWork\Script01.txt = AndroidWork\Script01.txt
+		Work\WebSocketProxy.xml = Work\WebSocketProxy.xml
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Utils", "..\Libs\Utils\Utils.vcxproj", "{F4126B50-6B57-4B34-A58A-987D6B4219C8}"
@@ -41,11 +42,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Make", "Make", "{0CAB551B-0
 		makefile = makefile
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LuaBase", "LuaBase", "{B66C63B4-241E-4BF1-B642-348739464D8D}"
+	ProjectSection(SolutionItems) = preProject
+		LuaBase\class.lua = LuaBase\class.lua
+	EndProjectSection
+EndProject
 Global
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_MonitoredNew|Any CPU = Debug_MonitoredNew|Any CPU
 		Debug_MonitoredNew|Mixed Platforms = Debug_MonitoredNew|Mixed Platforms
@@ -447,5 +449,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {34C02319-0061-455D-89E9-05FE7EAF32F0}
+	EndGlobalSection
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN2019 - Subversion Support for Visual Studio
 	EndGlobalSection
 EndGlobal

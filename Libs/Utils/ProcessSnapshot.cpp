@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 #define PROCESS_BLOCK_SIZE	128
 
@@ -47,7 +47,7 @@ bool CProcessSnapshot::Snapshot()
 	UINT64 TimeSpan = 0;
 	if (GetSystemTimes(&IdleTime, &KernelTime, &UserTime))
 	{
-		//windowsµÄ¿ÕÏĞÊ±¼ä°üº¬ÔÚºËĞÄÊ±¼äÄÚ
+		//windowsçš„ç©ºé—²æ—¶é—´åŒ…å«åœ¨æ ¸å¿ƒæ—¶é—´å†…
 		UINT64_CONVERTER Converter;
 		UINT64 SystemUserTime = 0;
 		UINT64 SystemKernelTime = 0;

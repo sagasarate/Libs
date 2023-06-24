@@ -33,7 +33,7 @@ bool xml_parser::parse_file(const TCHAR* path, unsigned int optmsk, int FileChan
 
 	if (XMLFile.LoadFile(path, false))
 	{
-		_buffer.SetString(XMLFile.GetData(), XMLFile.GetDataLen());
+		_buffer.SetString(XMLFile.GetData(), (int)XMLFile.GetDataLen());
 
 		_xmldoc = new_node(node_document); //Allocate a new root.
 		_xmldoc->parent = _xmldoc; //Point to self.

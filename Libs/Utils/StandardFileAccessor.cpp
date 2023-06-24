@@ -12,12 +12,13 @@
 #include "stdafx.h"
 
 
-IMPLEMENT_CLASS_INFO_STATIC(CStandardFileAccessor,IFileAccessor);
+IMPLEMENT_CLASS_INFO_STATIC(CStandardFileAccessor, IFileAccessor);
 
-CStandardFileAccessor::CStandardFileAccessor(void):IFileAccessor()
+CStandardFileAccessor::CStandardFileAccessor(void) :IFileAccessor()
 {
-	m_hFile=NULL;
-	m_IsWriteFlush=false;
+	m_hFile = NULL;
+	m_IsWriteFlush = false;
+	m_HaveError = false;
 }
 
 CStandardFileAccessor::~CStandardFileAccessor(void)
@@ -26,139 +27,155 @@ CStandardFileAccessor::~CStandardFileAccessor(void)
 }
 
 
-BOOL CStandardFileAccessor::Open(LPCTSTR FileName,int OpenMode)
+bool CStandardFileAccessor::Open(LPCTSTR FileName, int OpenMode)
 {
-	if(m_hFile)
+	m_HaveError = false;
+	if (m_hFile)
 		Close();
 
 	TCHAR ModeStr[20];
 
-	ModeStr[0]=0;
-	switch(OpenMode&modeCreationMask)
+	ModeStr[0] = 0;
+	switch (OpenMode & modeCreationMask)
 	{
 	case modeOpenAlways:
-		_tcscat_s(ModeStr,20,_T("r"));
+		_tcscat_s(ModeStr, 20, _T("r"));
 		break;
 	case modeCreate:
-		_tcscat_s(ModeStr,20,_T("w"));
+		_tcscat_s(ModeStr, 20, _T("w"));
 		break;
 	case modeCreateAlways:
-		_tcscat_s(ModeStr,20,_T("w"));
+		_tcscat_s(ModeStr, 20, _T("w"));
 		break;
 	case modeTruncate:
-		_tcscat_s(ModeStr,20,_T("w"));
+		_tcscat_s(ModeStr, 20, _T("w"));
 		break;
 	case modeAppend:
-		_tcscat_s(ModeStr,20,_T("a+"));
+		_tcscat_s(ModeStr, 20, _T("a+"));
 		break;
 	default:
-		_tcscat_s(ModeStr,20,_T("r"));
+		_tcscat_s(ModeStr, 20, _T("r"));
 	}
 
-	if(((OpenMode&modeCreationMask)!=modeAppend)&&(OpenMode&modeReadWrite))
-		_tcscat_s(ModeStr,20,_T("+"));
+	if (((OpenMode & modeCreationMask) != modeAppend) && (OpenMode & modeReadWrite))
+		_tcscat_s(ModeStr, 20, _T("+"));
 
-	if(OpenMode&(osWriteThrough|osNoBuffer))
-		m_IsWriteFlush=true;
+	if (OpenMode & (osWriteThrough | osNoBuffer))
+		m_IsWriteFlush = true;
 	else
-		m_IsWriteFlush=false;
+		m_IsWriteFlush = false;
 
-	m_hFile=NULL;
-	BOOL Ret=FALSE;
-	_tfopen_s(&m_hFile,FileName,ModeStr);
-	if(m_hFile)
+	m_hFile = NULL;
+	bool Ret = false;
+	_tfopen_s(&m_hFile, FileName, ModeStr);
+	if (m_hFile)
 	{
-		Ret=TRUE;
+		Ret = true;
 	}
 
-	if(Ret&&((OpenMode&modeCreationMask)==modeAppend))
+	if (Ret && ((OpenMode & modeCreationMask) == modeAppend))
 	{
-		fseek(m_hFile,0,SEEK_END);
+		fseek(m_hFile, 0, SEEK_END);
 	}
-
+	m_HaveError = (errno != 0);
 	return Ret;
 }
 
 void CStandardFileAccessor::Close()
 {
-	if(m_hFile)
+	m_HaveError = false;
+	if (m_hFile)
 	{
 		fclose(m_hFile);
-		m_hFile=NULL;
+		m_HaveError = (errno != 0);
+		m_hFile = NULL;
 	}
 }
 
 ULONG64 CStandardFileAccessor::GetSize()
 {
-	if(m_hFile)
+	m_HaveError = false;
+	if (m_hFile)
 	{
-		long CurPos=ftell(m_hFile);
-		fseek(m_hFile,0,SEEK_END);
-		long Size=ftell(m_hFile);
-		fseek(m_hFile,CurPos,SEEK_SET);
+		long CurPos = ftell(m_hFile);
+		fseek(m_hFile, 0, SEEK_END);
+		long Size = ftell(m_hFile);
+		fseek(m_hFile, CurPos, SEEK_SET);
 		return Size;
 	}
-	else
-		return 0;
+	m_HaveError = true;
+	return 0;
 }
 
-ULONG64 CStandardFileAccessor::Read(LPVOID pBuff,ULONG64 Size)
+ULONG64 CStandardFileAccessor::Read(LPVOID pBuff, ULONG64 Size)
 {
-	return fread(pBuff,1,(size_t)Size,m_hFile);
+	m_HaveError = false;
+	ULONG64 Result = fread(pBuff, 1, (size_t)Size, m_hFile);
+	m_HaveError = (errno != 0);
+	return Result;
 }
 
-ULONG64 CStandardFileAccessor::Write(LPCVOID pBuff,ULONG64 Size)
+ULONG64 CStandardFileAccessor::Write(LPCVOID pBuff, ULONG64 Size)
 {
-	ULONG64 WriteSize=fwrite(pBuff,1,(size_t)Size,m_hFile);
-	if(m_IsWriteFlush)
+	m_HaveError = false;
+	ULONG64 WriteSize = fwrite(pBuff, 1, (size_t)Size, m_hFile);
+	if (m_IsWriteFlush)
 	{
 		fflush(m_hFile);
 	}
+	m_HaveError = (errno != 0);
 	return WriteSize;
 }
 
 
-BOOL CStandardFileAccessor::IsEOF()
+bool CStandardFileAccessor::IsEOF()
 {
+	m_HaveError = false;
 	return feof(m_hFile);
 }
 
-BOOL CStandardFileAccessor::Seek(LONG64 Offset,int SeekMode)
+bool CStandardFileAccessor::Seek(LONG64 Offset, int SeekMode)
 {
-	if(fseek(m_hFile,(long)Offset,SeekMode)==0)
+	m_HaveError = false;
+	if (fseek(m_hFile, (long)Offset, SeekMode) == 0)
 		return true;
-	else
-		return false;
+	m_HaveError = true;
+	return 0;
 }
 
 ULONG64 CStandardFileAccessor::GetCurPos()
 {
-	return ftell(m_hFile);
+	m_HaveError = false;
+	LONG64 Result = ftell(m_hFile);
+	if (Result != -1)
+		return Result;
+	m_HaveError = true;
+	return 0;
 }
 
-BOOL CStandardFileAccessor::SetCreateTime(const CEasyTime& Time)
+bool CStandardFileAccessor::SetCreateTime(const CEasyTime& Time)
 {
-	return FALSE;
+	return false;
 }
-BOOL CStandardFileAccessor::GetCreateTime(CEasyTime& Time)
+bool CStandardFileAccessor::GetCreateTime(CEasyTime& Time)
 {
-	return FALSE;
-}
-
-BOOL CStandardFileAccessor::SetLastAccessTime(const CEasyTime& Time)
-{
-	return FALSE;
-}
-BOOL CStandardFileAccessor::GetLastAccessTime(CEasyTime& Time)
-{
-	return FALSE;
+	return false;
 }
 
-BOOL CStandardFileAccessor::SetLastWriteTime(const CEasyTime& Time)
+bool CStandardFileAccessor::SetLastAccessTime(const CEasyTime& Time)
 {
-	return FALSE;
+	return false;
 }
-BOOL CStandardFileAccessor::GetLastWriteTime(CEasyTime& Time)
+bool CStandardFileAccessor::GetLastAccessTime(CEasyTime& Time)
 {
-	return FALSE;
+	return false;
+}
+
+bool CStandardFileAccessor::SetLastWriteTime(const CEasyTime& Time)
+{
+	return false;
+}
+bool CStandardFileAccessor::GetLastWriteTime(CEasyTime& Time)
+{
+	return false;
 }

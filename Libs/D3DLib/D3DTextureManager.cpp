@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DTextureManager.cpp                                    */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DTextureManager.cpp                                    */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -35,7 +35,7 @@ CD3DTextureManager::~CD3DTextureManager(void)
 		CEasyString Key;
 		TESTURE_INFO * pTextureInfo=m_TextureStorage.GetNextObject(Pos,Key);
 		if(m_DelayReleaseTime==0)
-			PrintD3DLog(_T("ÎÆÀí<%s>Î´ÊÍ·Å£¡"), (LPCTSTR)pTextureInfo->pTexture->GetName());
+			PrintD3DLog(_T("çº¹ç†<%s>æœªé‡Šæ”¾ï¼"), (LPCTSTR)pTextureInfo->pTexture->GetName());
 		SAFE_RELEASE(pTextureInfo->pTexture);
 	}
 	m_TextureStorage.Destory();
@@ -118,7 +118,7 @@ bool CD3DTextureManager::AddTexture(CD3DTexture * pTexture,LPCTSTR TextureName)
 	}
 	else
 	{
-		PrintD3DLog(_T("°ÑÎÆÀíÌí¼Óµ½ÎÆÀí¹ÜÀíÆ÷Ê§°Ü(%u,%u)"),
+		PrintD3DLog(_T("æŠŠçº¹ç†æ·»åŠ åˆ°çº¹ç†ç®¡ç†å™¨å¤±è´¥(%u,%u)"),
 			m_TextureStorage.GetObjectCount(),m_TextureStorage.GetBufferSize());
 		return false;
 	}
@@ -137,7 +137,7 @@ bool CD3DTextureManager::DeleteTexture(UINT ID)
 	}
 	else
 	{
-		PrintD3DLog(_T("CD3DTextureManager::DeleteTexture:ÎÆÀí[%u]Î´ÕÒµ½"),
+		PrintD3DLog(_T("CD3DTextureManager::DeleteTexture:çº¹ç†[%u]æœªæ‰¾åˆ°"),
 			ID);
 		return false;
 	}
@@ -158,7 +158,7 @@ bool CD3DTextureManager::DeleteTexture(LPCTSTR TextureName)
 	}
 	else
 	{
-		PrintD3DLog(_T("CD3DTextureManager::DeleteTexture:ÎÆÀí[%s]Î´ÕÒµ½"),
+		PrintD3DLog(_T("CD3DTextureManager::DeleteTexture:çº¹ç†[%s]æœªæ‰¾åˆ°"),
 			TextureName);
 		return false;
 	}	
@@ -257,7 +257,7 @@ int CD3DTextureManager::Update(FLOAT Time)
 				{
 					if(pTestureInfo->ReleaseTimer.IsTimeOut(m_DelayReleaseTime))
 					{
-						//PrintD3DDebugLog("CD3DFXManager::Update:ÒÑÑÓÊ±É¾³ıÎÆÀí:%s",pTestureInfo->pTexture->GetName());
+						//PrintD3DDebugLog("CD3DFXManager::Update:å·²å»¶æ—¶åˆ é™¤çº¹ç†:%s",pTestureInfo->pTexture->GetName());
 						SAFE_RELEASE(pTestureInfo->pTexture);
 					}
 				}

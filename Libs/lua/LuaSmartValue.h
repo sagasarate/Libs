@@ -1,13 +1,12 @@
-#pragma once
+﻿#pragma once
 class CLuaSmartValue :
-	public CLuaBaseStaticMetaClass
+	public CLuaBaseMetaClass
 {
 protected:
 	CSmartValue		m_Data;
 
-	DECLARE_STATIC_META_CLASS(CLuaSmartValue)
+	DECLARE_META_CLASS(CLuaSmartValue, 20003);
 public:
-	static const int CLASS_ID = 10003;
 	CLuaSmartValue()
 	{
 
@@ -54,21 +53,16 @@ public:
 	{
 		m_Data.CloneFrom(Value);
 	}
-
-	void CloneFromWidthDataBuffer(const CLuaSmartValue& Value, BYTE * pDataBuffer)
-	{
-		memcpy(pDataBuffer, Value.m_Data.GetData(), Value.m_Data.GetDataLen());
-		m_Data.Attach(pDataBuffer, Value.m_Data.GetDataLen());
-	}
+	
 
 	void Create(int Type, UINT Size)
 	{
 		m_Data.Create(Type, Size);
 	}
 
-	virtual const char * GetMetaClassName() const override
+	virtual LPCTSTR GetMetaClassName() const override
 	{
-		return _T("CLuaSmartValue");
+		return CLuaSmartValue::CLASS_NAME;
 	}
 	virtual int GetMetaClassID() const override
 	{
@@ -78,139 +72,79 @@ public:
 	{
 		return sizeof(CLuaSmartValue);
 	}
-	virtual bool Attach(void * pData, UINT DataLen) override
+	virtual void Dump(CEasyString& Data) const override;
+	bool Attach(void * pData, UINT DataLen)
 	{
 		return m_Data.Attach(pData, DataLen);
 	}
-	virtual UINT GetDataLen() const override
+	bool Attach(const CSmartValue& Data)
 	{
-		return m_Data.GetDataLen();
+		m_Data = Data;
+		return true;
 	}
-
-	virtual const BYTE * GetData() const override
+	bool Attach(const CSmartStruct& Data)
 	{
-		return (BYTE *)m_Data.GetData();
-	}
-
-	virtual BYTE * GetData() override
+		m_Data = Data;
+		return true;
+	}	
+	bool Attach(const CSmartArray& Data)
 	{
-		return (BYTE *)m_Data.GetData();
+		m_Data = Data;
+		return true;
 	}
-
 	CSmartValue& GetValue()
 	{
 		return m_Data;
 	}
-
+	const CSmartValue& GetValue() const
+	{
+		return m_Data;
+	}
 	void Destory()
 	{
 		m_Data.Destory();
 	}
-	static void PushValueToLua(lua_State * L, const CSmartValue& Value);
+	static void PushValueToLua(CLuaThread* pLuaThread, const CSmartValue& Value, CLuaBaseMetaClass* pParent);
+	static void ResgisterStaticFunctions(CBaseLuaVM* pLuaVM, LPCTSTR LibName);
+	static void ResgisterStaticFunctions(CBaseLuaVM* pLuaVM)
+	{
+		ResgisterStaticFunctions(pLuaVM, CLASS_NAME);
+	}
 protected:
 	virtual void RegisterMemberFunctions(lua_State * pLuaState) const;
 protected:
-	LUA_EMPTY_VALUE LuaGetData(CLuaThread * pThreadInfo);
-	LUA_EMPTY_VALUE LuaGetDataClone(CLuaThread * pThreadInfo);
-	UINT LuaGetDataLen(CLuaThread * pThreadInfo);	
-	UINT LuaGetLength(CLuaThread * pThreadInfo);
-	bool LuaAttach(CLuaThread * pThreadInfo, LUA_EMPTY_VALUE);
-	int LuaGetType(CLuaThread * pThreadInfo);
-	LUA_EMPTY_VALUE LuaGetValue(CLuaThread * pThreadInfo);
-	bool LuaSetValue(CLuaThread * pThreadInfo, LUA_EMPTY_VALUE);
-	LUA_EMPTY_VALUE LuaGetValueAsByteArray(CLuaThread * pThreadInfo);	
-	bool LuaGetValueAsBoolean(CLuaThread * pThreadInfo);
-	char LuaGetValueAsSByte(CLuaThread * pThreadInfo);
-	BYTE LuaGetValueAsByte(CLuaThread * pThreadInfo);	
-	short LuaGetValueAsShort(CLuaThread * pThreadInfo);
-	WORD LuaGetValueAsUShort(CLuaThread * pThreadInfo);
-	int LuaGetValueAsInt(CLuaThread * pThreadInfo);
-	UINT LuaGetValueAsUInt(CLuaThread * pThreadInfo);
-	INT64 LuaGetValueAsInt64(CLuaThread * pThreadInfo);
-	UINT64 LuaGetValueAsUInt64(CLuaThread * pThreadInfo);
-	float LuaGetValueAsFloat(CLuaThread * pThreadInfo);
-	double LuaGetValueAsDouble(CLuaThread * pThreadInfo);
-	LPCTSTR LuaGetValueAsString(CLuaThread * pThreadInfo);
-	LUA_EMPTY_VALUE LuaGetValueAsSmartStruct(CLuaThread * pThreadInfo);
+	virtual void OnGarbageCollect();
+	static LUA_EMPTY_VALUE LuaNew(CLuaThread* pLuaThread, LUA_EMPTY_VALUE);
+	LUA_EMPTY_VALUE LuaClone();
+	LUA_EMPTY_VALUE LuaGetData();
+	UINT LuaGetDataLen();	
+	UINT LuaGetLength();
+	bool LuaAttach(CLuaBaseMetaClass* pObject);
+	int LuaGetType();
+	LUA_EMPTY_VALUE LuaGetValue();
+	bool LuaSetValue(LUA_EMPTY_VALUE);
+	LUA_EMPTY_VALUE LuaGetValueAsByteArray();	
+	bool LuaGetValueAsBoolean();
+	char LuaGetValueAsSByte();
+	BYTE LuaGetValueAsByte();	
+	short LuaGetValueAsShort();
+	WORD LuaGetValueAsUShort();
+	int LuaGetValueAsInt();
+	UINT LuaGetValueAsUInt();
+	INT64 LuaGetValueAsInt64();
+	UINT64 LuaGetValueAsUInt64();
+	float LuaGetValueAsFloat();
+	double LuaGetValueAsDouble();
+	LPCTSTR LuaGetValueAsString();
+	LUA_EMPTY_VALUE LuaGetValueAsStruct();
+	LUA_EMPTY_VALUE LuaGetValueAsArray();
 };
 
-namespace LuaWrap
-{
-	inline void Push(lua_State* L, const CLuaSmartValue& value)
-	{
-		UINT ClassSize = (UINT)value.GetMetaClassSize();
-		UINT DataSize = value.GetDataLen();
-		if (value.GetData() && ClassSize && DataSize)
-		{
-			BYTE * pBuff = (BYTE *)lua_newuserdata(L, ClassSize + DataSize);
-#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
-#undef new
-#endif
-			::new(pBuff) CLuaSmartValue();
-#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
-#define new NEWNEW
-#endif
-			((CLuaSmartValue *)pBuff)->CloneFromWidthDataBuffer(value, pBuff + ClassSize);
-			value.SetMetaClass(L);
-		}
-		else
-		{
-			lua_pushnil(L);
-		}
-	}
-	inline void PushRef(lua_State* L, const CLuaSmartValue& value)
-	{
-		UINT ClassSize = (UINT)value.GetMetaClassSize();
-		UINT DataSize = value.GetDataLen();
-		if (value.GetData() && ClassSize && DataSize)
-		{
-			BYTE * pBuff = (BYTE *)lua_newuserdata(L, ClassSize + DataSize);
-#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
-#undef new
-#endif
-			::new(pBuff) CLuaSmartValue();
-#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
-#define new NEWNEW
-#endif
-			((CLuaSmartValue *)pBuff)->Attach((void *)value.GetData(), value.GetDataLen());
-			value.SetMetaClass(L);
-		}
-		else
-		{
-			lua_pushnil(L);
-		}
-	}
-	inline bool	Match(TypeWrapper<CLuaSmartValue>, lua_State* L, int idx)
-	{
-		return GetLuaObjectType(L, idx) == CLuaSmartValue::CLASS_ID;
-	}
-	inline CLuaSmartValue Get(TypeWrapper<CLuaSmartValue>, lua_State* L, int idx)
-	{
-		CLuaSmartValue Object;
-
-		UINT Len = (UINT)lua_rawlen(L, idx);
-		BYTE * pBuff = (BYTE *)lua_touserdata(L, idx);
-		if (pBuff&&Len)
-		{
-			UINT ClassSize = (UINT)Object.GetMetaClassSize();
-			Object.Attach(pBuff + ClassSize, Len - ClassSize);
-		}
-		return Object;
-	}
-	inline bool	Match(TypeWrapper<CLuaSmartValue&>, lua_State* L, int idx)
-	{
-		return GetLuaObjectType(L, idx) == CLuaSmartValue::CLASS_ID;
-	}
-	inline CLuaSmartValue& Get(TypeWrapper<CLuaSmartValue&>, lua_State* L, int idx)
-	{
-		BYTE * pBuff = (BYTE *)lua_touserdata(L, idx);
-		return *((CLuaSmartValue *)pBuff);
-	}
-}
+DECLARE_META_CLASS_MATCHER(CLuaSmartValue)
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
-#define LUA_WRAP_CALL_RETURN_TYPE CLuaSmartValue
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_CALL_RETURN_TYPE CLuaSmartValue*
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"

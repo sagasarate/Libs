@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 template < class CONTAINER_TYPE, class VALUE_TYPE>
 class const_list_iterator

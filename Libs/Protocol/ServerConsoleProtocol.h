@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    ServerConsoleProtocol.h                                  */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    ServerConsoleProtocol.h                                  */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -16,20 +16,20 @@
 
 enum SERVER_CONSOLE_MSG
 {
-	SC_MSG_QUERY_SERVER_STATUS=0x1000,				//»ñÈ¡·þÎñÆ÷×´Ì¬
+	SC_MSG_QUERY_SERVER_STATUS=0x1000,				//èŽ·å–æœåŠ¡å™¨çŠ¶æ€
 	SC_MSG_QUERY_ALL_SERVER_STATUS,
 	SC_MSG_QUERY_SERVER_STATUS_RESULT,
 
-	SC_MSG_SET_SERVER_STATUS,						//ÉèÖÃ·þÎñÆ÷×´Ì¬
+	SC_MSG_SET_SERVER_STATUS,						//è®¾ç½®æœåŠ¡å™¨çŠ¶æ€
 	SC_MSG_SET_SERVER_STATUS_RESULT,
 	
-	SC_MSG_LINK_LOG,								//¿ªÆô½ÓÊÕLog
-	SC_MSG_UNLINK_LOG,								//¹Ø±Õ½ÓÊÕLog
-	SC_MSG_SERVER_LOG,								//·þÎñÆ÷Log
+	SC_MSG_LINK_LOG,								//å¼€å¯æŽ¥æ”¶Log
+	SC_MSG_UNLINK_LOG,								//å…³é—­æŽ¥æ”¶Log
+	SC_MSG_SERVER_LOG,								//æœåŠ¡å™¨Log
 
-	SC_MSG_EXEC_COMMAND,							//Ö´ÐÐÃüÁî
+	SC_MSG_EXEC_COMMAND,							//æ‰§è¡Œå‘½ä»¤
 
-	SC_MSG_GET_SERVER_STATUS_FORMAT_INFO,			//»ñÈ¡·þÎñÆ÷×´Ì¬¸ñÊ½ÐÅÏ¢
+	SC_MSG_GET_SERVER_STATUS_FORMAT_INFO,			//èŽ·å–æœåŠ¡å™¨çŠ¶æ€æ ¼å¼ä¿¡æ¯
 	SC_MSG_GET_SERVER_STATUS_FORMAT_INFO_RESULT,
 };
 

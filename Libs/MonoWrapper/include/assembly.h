@@ -1,4 +1,4 @@
-#ifndef _MONONET_METADATA_ASSEMBLY_H_ 
+﻿#ifndef _MONONET_METADATA_ASSEMBLY_H_ 
 #define _MONONET_METADATA_ASSEMBLY_H_
 
 #include "image.h"

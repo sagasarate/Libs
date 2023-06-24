@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DSubMesh.cpp                                           */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ25ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DSubMesh.cpp                                           */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ25æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -402,7 +402,7 @@ bool CD3DSubMesh::GetHeightByXZ(const CD3DMatrix& WorldMatrix,const CD3DVector3&
 		}
 		//else
 		//{
-		//	PrintSystemLog(0,"µÃµ½µÄ¸ß%g¶È²»ÔÚ¸ß¶È·¶Î§[%g,%g]ÄÚ",
+		//	PrintSystemLog(0,"å¾—åˆ°çš„é«˜%gåº¦ä¸åœ¨é«˜åº¦èŒƒå›´[%g,%g]å†…",
 		//		IntersectPoint.y,MinHeight,MaxHeight);
 		//}
 	}
@@ -450,7 +450,7 @@ bool CD3DSubMesh::AllocDXVertexBuffer(DWORD Usage,D3DPOOL Pool)
 	}
 	else
 	{
-		PrintD3DLog( _T("ÉêÇë¶¥µã»º³åÊ§°Ü%X"), hResult);
+		PrintD3DLog( _T("ç”³è¯·é¡¶ç‚¹ç¼“å†²å¤±è´¥%X"), hResult);
 	}
 	return false;	
 }
@@ -490,7 +490,7 @@ bool CD3DSubMesh::AllocDXIndexBuffer(DWORD Usage,D3DPOOL Pool)
 	}
 	else
 	{
-		PrintD3DLog(_T("ÉêÇëË÷Òı»º³åÊ§°Ü%X"), hResult);
+		PrintD3DLog(_T("ç”³è¯·ç´¢å¼•ç¼“å†²å¤±è´¥%X"), hResult);
 	}
 	return false;
 }
@@ -906,7 +906,7 @@ bool CD3DSubMesh::CheckValid()
 			}
 			if(Index<m_StartVertex||Index>=m_StartVertex+m_VertexCount)
 			{
-				PrintD3DLog(_T("CD3DSubMesh::CheckValid:Ë÷ÒıÖµ³¬³ö¶¥µã·¶Î§"));
+				PrintD3DLog(_T("CD3DSubMesh::CheckValid:ç´¢å¼•å€¼è¶…å‡ºé¡¶ç‚¹èŒƒå›´"));
 				return false;
 			}
 		}
@@ -915,7 +915,7 @@ bool CD3DSubMesh::CheckValid()
 			float VertexValue=*((float *)(m_pVertexBuffer+i*m_VertexFormat.VertexSize));
 			if(VertexValue<-1e10f&&VertexValue>1e10f)
 			{
-				PrintD3DLog(_T("CD3DSubMesh::CheckValid:¶¥µãÊıÖµÒì³£"));
+				PrintD3DLog(_T("CD3DSubMesh::CheckValid:é¡¶ç‚¹æ•°å€¼å¼‚å¸¸"));
 				return false;
 			}
 			BYTE LastByte=(m_pVertexBuffer+i*m_VertexFormat.VertexSize)[m_VertexFormat.VertexSize-1];
@@ -941,7 +941,7 @@ bool CD3DSubMesh::CheckValidR()
 			}
 			if(Index<m_StartVertexR||Index>=m_StartVertexR+m_VertexCountR)
 			{
-				PrintD3DLog(_T("CD3DSubMesh::CheckValidR:Ë÷ÒıÖµ³¬³ö¶¥µã·¶Î§"));
+				PrintD3DLog(_T("CD3DSubMesh::CheckValidR:ç´¢å¼•å€¼è¶…å‡ºé¡¶ç‚¹èŒƒå›´"));
 				return false;
 			}
 		}
@@ -950,7 +950,7 @@ bool CD3DSubMesh::CheckValidR()
 			float VertexValue=*((float *)(GetVertexBufferR()+i*m_VertexFormat.VertexSize));
 			if(VertexValue<-1e10f&&VertexValue>1e10f)
 			{
-				PrintD3DLog(_T("CD3DSubMesh::CheckValidR:¶¥µãÊıÖµÒì³£"));
+				PrintD3DLog(_T("CD3DSubMesh::CheckValidR:é¡¶ç‚¹æ•°å€¼å¼‚å¸¸"));
 				return false;
 			}
 			BYTE LastByte=(GetVertexBufferR()+i*m_VertexFormat.VertexSize)[m_VertexFormat.VertexSize-1];

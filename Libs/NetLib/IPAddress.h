@@ -454,8 +454,7 @@ public:
 					else if (Ptr->ai_family == AF_INET6)
 					{
 						struct sockaddr_in6 * pAddr = (struct sockaddr_in6 *)Ptr->ai_addr;
-						if (!IN6_IS_ADDR_MULTICAST(&pAddr->sin6_addr) && !IN6_IS_ADDR_LOOPBACK(&pAddr->sin6_addr) 
-							&& !IN6_IS_ADDR_UNSPECIFIED(&pAddr->sin6_addr))
+						if (!IN6_IS_ADDR_MULTICAST(&pAddr->sin6_addr) && !IN6_IS_ADDR_UNSPECIFIED(&pAddr->sin6_addr))
 						{
 							CIPAddress * pAddress = AddressList.AddEmpty();
 							pAddress->SetAddress(*pAddr);
@@ -479,27 +478,22 @@ public:
 		{
 			for (pCurInfo = pIFInfo; pCurInfo != NULL; pCurInfo = pCurInfo->ifa_next)
 			{
-				if (_strnicmp(pCurInfo->ifa_name, "eth", 3) == 0)
+				if (pCurInfo->ifa_addr)
 				{
-					//if name is eth...
-					if(pCurInfo->ifa_addr)
+					if (pCurInfo->ifa_addr->sa_family == AF_INET)
 					{
-						if (pCurInfo->ifa_addr->sa_family == AF_INET)
+						CIPAddress* pAddress = AddressList.AddEmpty();
+						pAddress->SetAddress(*((struct sockaddr_in*)pCurInfo->ifa_addr));
+					}
+					else if (pCurInfo->ifa_addr->sa_family == AF_INET6)
+					{
+						struct sockaddr_in6* pAddr = (struct sockaddr_in6*)pCurInfo->ifa_addr;
+						if (!IN6_IS_ADDR_MULTICAST(&pAddr->sin6_addr) && !IN6_IS_ADDR_UNSPECIFIED(&pAddr->sin6_addr))
 						{
-							CIPAddress * pAddress = AddressList.AddEmpty();
-							pAddress->SetAddress(*((struct sockaddr_in *)pCurInfo->ifa_addr));
+							CIPAddress* pAddress = AddressList.AddEmpty();
+							pAddress->SetAddress(*pAddr);
 						}
-						else if (pCurInfo->ifa_addr->sa_family == AF_INET6)
-						{
-							struct sockaddr_in6 * pAddr = (struct sockaddr_in6 *)pCurInfo->ifa_addr;
-							if (!IN6_IS_ADDR_MULTICAST(&pAddr->sin6_addr) && !IN6_IS_ADDR_LOOPBACK(&pAddr->sin6_addr) 
-								&& !IN6_IS_ADDR_UNSPECIFIED(&pAddr->sin6_addr))
-							{
-								CIPAddress * pAddress = AddressList.AddEmpty();
-								pAddress->SetAddress(*pAddr);
-							}
 
-						}
 					}
 				}
 			}

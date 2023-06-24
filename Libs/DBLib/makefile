@@ -11,8 +11,8 @@ AR = ar
 LD = g++
 WINDRES = windres
 
-INC = -IMySQL/include/x64/linux
-CFLAGS = -std=c++11 -W -fPIC
+INC = -I../OtherInclude/MySQL/x64/linux
+CFLAGS = -std=c++14 -W -fPIC
 RESINC = 
 LIBDIR = 
 LIB = 
@@ -22,7 +22,7 @@ SRC_CPP_FILES=$(shell find ./ -name "*.cpp" -a ! -name "ODBC*.*")
 HEADER_FILES=$(shell find ./ -name "*.h" -a ! -name "ODBC*.*")
 
 INC_DEBUG = $(INC)
-CFLAGS_DEBUG = $(CFLAGS) -g -O0 -D_DEBUG
+CFLAGS_DEBUG = $(CFLAGS) -g -W -O0 -fPIC -D_DEBUG
 RESINC_DEBUG = $(RESINC)
 RCFLAGS_DEBUG = $(RCFLAGS)
 LIBDIR_DEBUG = $(LIBDIR)
@@ -33,7 +33,7 @@ DEP_DEBUG =
 OUT_DEBUG = ../Bin/DBLibD.a
 
 INC_RELEASE = $(INC)
-CFLAGS_RELEASE = $(CFLAGS) -g
+CFLAGS_RELEASE = $(CFLAGS) -g -W -fPIC
 RESINC_RELEASE = $(RESINC)
 RCFLAGS_RELEASE = $(RCFLAGS)
 LIBDIR_RELEASE = $(LIBDIR)
@@ -62,12 +62,16 @@ debug: before_debug out_debug after_debug
 out_debug: before_debug $(OBJ_CPP_DEBUG) $(DEP_DEBUG)
 	$(AR) rcs $(OUT_DEBUG) $(OBJ_CPP_DEBUG)
 
-$(OBJ_CPP_DEBUG):$(OBJDIR_DEBUG)/%.o:%.cpp
+stdafx.h.gch: stdafx.h
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c $<
+
+$(OBJ_CPP_DEBUG):$(OBJDIR_DEBUG)/%.o:%.cpp stdafx.h.gch
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c $< -o $@
 
 
 clean_debug: 
-	rm -f $(OBJ_CPP_DEBUG) $(OUT_DEBUG)
+	-rm -f stdafx.h.gch
+	-rm -f $(OBJ_CPP_DEBUG) $(OUT_DEBUG)
 
 before_release: 
 	test -d ../Bin || mkdir -p ../Bin
@@ -80,11 +84,15 @@ release: before_release out_release after_release
 out_release: before_release $(OBJ_CPP_RELEASE) $(DEP_RELEASE)
 	$(AR) rcs $(OUT_RELEASE) $(OBJ_CPP_RELEASE)
 
-$(OBJ_CPP_RELEASE):$(OBJDIR_RELEASE)/%.o:%.cpp
+stdafx.h.gch: stdafx.h
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c $<
+
+$(OBJ_CPP_RELEASE):$(OBJDIR_RELEASE)/%.o:%.cpp stdafx.h.gch
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c $< -o $@
 
 clean_release: 
-	rm -f $(OBJ_CPP_RELEASE) $(OUT_RELEASE)
+	-rm -f stdafx.h.gch
+	-rm -f $(OBJ_CPP_RELEASE) $(OUT_RELEASE)
 
 .PHONY: before_debug after_debug clean_debug before_release after_release clean_release
 

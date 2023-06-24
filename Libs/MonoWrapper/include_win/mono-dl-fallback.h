@@ -1,4 +1,4 @@
-#ifndef __MONO_UTILS_DL_FALLBACK_H__
+﻿#ifndef __MONO_UTILS_DL_FALLBACK_H__
 #define __MONO_UTILS_DL_FALLBACK_H__
 
 #include "mono-publib.h"

@@ -1,4 +1,4 @@
-/* Bra.h -- Branch converters for executables
+﻿/* Bra.h -- Branch converters for executables
 2009-02-07 : Igor Pavlov : Public domain */
 
 #ifndef __BRA_H

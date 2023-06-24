@@ -1,4 +1,4 @@
-﻿#include "StdAfx.h"
+﻿#include "stdafx.h"
 
 
 
@@ -48,7 +48,7 @@ void CLuaScriptPool::Destory()
 	m_LuaScriptPool.Destory();
 }
 
-int CLuaScriptPool::Update()
+int CLuaScriptPool::Update(int ProcessLimit)
 {
 	int ProcessCount=0;
 	if (m_UpdateTimer.IsTimeOut(LUA_SCRIPT_UPDATE_TIME))
@@ -58,7 +58,7 @@ int CLuaScriptPool::Update()
 		while(Pos)
 		{
 			CLuaScript * pScript=m_LuaScriptPool.GetNextObject(Pos);
-			pScript->Update();			
+			ProcessCount += pScript->Update(ProcessLimit);
 		}
 	}
 	return ProcessCount;
@@ -121,22 +121,22 @@ CLuaScript * CLuaScriptPool::LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptConten
 }
 
 
-CLuaThread * CLuaScriptPool::AllocScriptThread(LPCTSTR szLuaFileName,CBaseScriptHost * pObject,LPCTSTR szFunctionName)
+CLuaThread * CLuaScriptPool::PrepareCall(LPCTSTR szLuaFileName,CBaseScriptHost * pObject,LPCTSTR szFunctionName)
 {
 	CLuaScript * pScript = GetScript(szLuaFileName);
 	if (pScript)
 	{
-		return pScript->AllocScriptThread(pObject, szFunctionName);
+		return pScript->PrepareCall(pObject, szFunctionName);
 	}	
 	return NULL;
 }
 
-CLuaThread * CLuaScriptPool::AllocScriptThread(UINT ScriptID,CBaseScriptHost * pObject,LPCTSTR szFunctionName)
+CLuaThread * CLuaScriptPool::PrepareCall(UINT ScriptID,CBaseScriptHost * pObject,LPCTSTR szFunctionName)
 {
 	CLuaScript * pScript = GetScript(ScriptID);
 	if (pScript)
 	{
-		return pScript->AllocScriptThread(pObject, szFunctionName);
+		return pScript->PrepareCall(pObject, szFunctionName);
 	}
 	return NULL;
 }

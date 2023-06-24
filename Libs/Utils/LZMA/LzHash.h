@@ -1,4 +1,4 @@
-/* LzHash.h -- HASH functions for LZ algorithms
+﻿/* LzHash.h -- HASH functions for LZ algorithms
 2009-02-07 : Igor Pavlov : Public domain */
 
 #ifndef __LZ_HASH_H

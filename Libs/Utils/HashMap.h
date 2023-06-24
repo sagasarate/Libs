@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 class CHashCodeMaker
 {
@@ -897,7 +897,7 @@ protected:
 			}
 			if (pSameNode)
 			{
-				//ÒÑÓÐÏàÍ¬KeyµÄÔªËØ£¬Ìæ»»
+				//å·²æœ‰ç›¸åŒKeyçš„å…ƒç´ ï¼Œæ›¿æ¢
 				if (pNode)
 				{
 					pSameNode->GetObjectRef() = pNode->GetObjectRef();

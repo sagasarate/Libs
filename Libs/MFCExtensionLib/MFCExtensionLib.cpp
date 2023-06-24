@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include <afxpriv.h>
 
 bool ExportListViewToCSV(CListCtrl& ListView,LPCTSTR szExportFileName,int ExportCodePage)
@@ -50,7 +50,7 @@ bool ExportListViewToCSV(CListCtrl& ListView,LPCTSTR szExportFileName,int Export
 }
 
 static CString s_DefaultBrowseFolder;
-int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 {
 	if (uMsg == BFFM_INITIALIZED)
 	{

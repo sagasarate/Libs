@@ -1,4 +1,4 @@
-/*
+﻿/*
  * blob.h: Definitions used to pull information out of the Blob
  *
  */

@@ -59,7 +59,10 @@ protected:
 	UINT										m_TotalMsgRecvCount;
 
 	UINT										m_ReleaseTime;
-	UINT64										m_BroadcastGroupID;
+
+	volatile UINT64								m_BroadcastMask;
+	CThreadSafeStaticMap<UINT64, UINT64>		m_BroadcastGroupList;
+
 public:
 	CDOSObjectProxyConnectionNoBuff(void);
 	virtual ~CDOSObjectProxyConnectionNoBuff(void);
@@ -107,13 +110,41 @@ public:
 	{
 		return m_ReleaseTime;
 	}
-	void SetBroadcastGroupID(UINT64 GroupID)
+	void SetBroadcastMask(UINT64 Mask)
 	{
-		m_BroadcastGroupID = GroupID;
+		m_BroadcastMask = Mask;
 	}
-	UINT64 GetBroadcastGroupID()
+	void AddBroadcastMask(UINT64 Mask)
 	{
-		return m_BroadcastGroupID;
+		AtomicOr(&m_BroadcastMask, Mask);
+	}
+	void RemoveBroadcastMask(UINT64 Mask)
+	{
+		AtomicAnd(&m_BroadcastMask, ~Mask);
+	}
+	UINT64 GetBroadcastMask()
+	{
+		return m_BroadcastMask;
+	}
+	bool AddBroadcastGroup(UINT64 GroupID)
+	{
+		return m_BroadcastGroupList.Insert(GroupID, GroupID) != 0;
+	}
+	bool RemoveBroadcastGroup(UINT64 GroupID)
+	{
+		if (GroupID == (UINT64)(-1))
+		{
+			m_BroadcastGroupList.Clear();
+			return true;
+		}
+		else
+		{
+			return m_BroadcastGroupList.Delete(GroupID) != FALSE;
+		}
+	}
+	bool IsInBroadcastGroup(UINT64 GroupID)
+	{
+		return m_BroadcastGroupList.Find(GroupID) != NULL;
 	}
 protected:
 

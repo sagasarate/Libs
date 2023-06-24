@@ -15,44 +15,46 @@
 namespace DBLib
 {
 
-class CDBFakeRecordSet :
-	public IDBRecordSet
-{
-protected:
-	CEasyBuffer		m_DataBuffer;
-	CDBValue		m_EmptyValue;
-public:
-	enum GET_DATA_RETURN_CODE
+	class CDBFakeRecordSet :
+		public IDBRecordSet
 	{
-		GET_DATA_NO_MORE_DATA,
-		GET_DATA_BUFFER_FULL,
+	protected:
+		CEasyBuffer		m_DataBuffer;
+		CDBValue		m_EmptyValue;
+	public:
+		enum GET_DATA_RETURN_CODE
+		{
+			GET_DATA_NO_MORE_DATA,
+			GET_DATA_BUFFER_FULL,
+		};
+
+		CDBFakeRecordSet(void);
+		virtual ~CDBFakeRecordSet(void);
+
+		int Init(LPCVOID pData, size_t DataSize);
+		virtual void Destory() override;
+		size_t GetRecordSetDataSize();
+		LPCVOID GetRecordSetData();
+		int GetRecordSetDataEx(size_t& Pos, LPVOID pBuffer, size_t& BufferSize);
+
+		virtual int GetRecordCount() override;
+		virtual int GetColumnCount() override;
+		virtual LPCSTR GetColumnName(int Index) override;
+		virtual int GetIndexByColumnName(LPCSTR Name) override;
+		virtual DB_COLUMN_INFO* GetColumnInfo(int Index) override;
+
+
+		virtual CDBValue& GetField(int Index) override;
+		virtual CDBValue& GetField(LPCSTR Name) override;
+		virtual int MoveFirst() override;
+		virtual int MoveLast() override;
+		virtual int MoveNext() override;
+		virtual int MovePrevious() override;
+		virtual int MoveTo(int Index) override;
+		virtual bool IsEOF() override;
+		virtual bool IsBOF() override;
+		virtual bool Close() override;
+		virtual bool SetBlobMaxProcessSize(size_t MaxSize) override;
 	};
-
-	CDBFakeRecordSet(void);
-	virtual ~CDBFakeRecordSet(void);
-
-	virtual int Init(LPCVOID pData,int DataSize);
-	virtual void Destory();
-	virtual int GetRecordSetDataSize();
-	virtual LPCVOID GetRecordSetData();
-	virtual int GetRecordSetDataEx(int& Pos,LPVOID pBuffer,int& BufferSize);
-
-	virtual int GetRecordCount();
-	virtual int GetColumnCount();
-	virtual LPCSTR GetColumnName(int Index);
-	virtual int GetIndexByColumnName(LPCSTR Name);
-	virtual DB_COLUMN_INFO * GetColumnInfo(int Index);
-
-
-	virtual CDBValue& GetField(int Index);
-	virtual CDBValue& GetField(LPCSTR Name);
-	virtual int MoveFirst();
-	virtual int MoveLast();
-	virtual int MoveNext();
-	virtual int MovePrevious();
-	virtual int MoveTo(int Index);
-	virtual bool IsEOF();
-	virtual bool IsBOF();
-};
 
 }

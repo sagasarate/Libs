@@ -18,45 +18,45 @@ namespace DBLib
 
 
 
-class CDBStaticRecordSet :
-	public IDBRecordSet
-{
-protected:
-	typedef CEasyArray<CDBValue> CDBValueRow;
-	CEasyArray<DB_COLUMN_INFO>		m_pColumnInfos;
-	CEasyArray<CDBValueRow>			m_Records;
-	CEasyArray<CDBValue>			m_Params;
-	int								m_CurRow;
-	CDBValue						m_EmptyValue;
+	class CDBStaticRecordSet :
+		public IDBRecordSet
+	{
+	protected:
+		typedef CEasyArray<CDBValue> CDBValueRow;
+		CEasyArray<DB_COLUMN_INFO>		m_pColumnInfos;
+		CEasyArray<CDBValueRow>			m_Records;
+		CEasyArray<CDBValue>			m_Params;
+		int								m_CurRow;
+		CDBValue						m_EmptyValue;
 
-	DECLARE_CLASS_INFO_STATIC(CDBStaticRecordSet)
-public:
-	CDBStaticRecordSet(void);
-	virtual ~CDBStaticRecordSet(void);
+		DECLARE_CLASS_INFO_STATIC(CDBStaticRecordSet)
+	public:
+		CDBStaticRecordSet(void);
+		virtual ~CDBStaticRecordSet(void);
 
-	virtual int Init(LPCVOID pData,int DataSize);
-	virtual void Destory();
+		int Init(LPCVOID pData, size_t DataSize);
+		virtual void Destory() override;
 
-	virtual int GetRecordCount();
-	virtual int GetColumnCount();
-	virtual LPCSTR GetColumnName(int Index);
-	virtual int GetIndexByColumnName(LPCSTR Name);
-	virtual DB_COLUMN_INFO * GetColumnInfo(int Index);
+		virtual int GetRecordCount() override;
+		virtual int GetColumnCount() override;
+		virtual LPCSTR GetColumnName(int Index) override;
+		virtual int GetIndexByColumnName(LPCSTR Name) override;
+		virtual DB_COLUMN_INFO* GetColumnInfo(int Index) override;
 
 
-	virtual CDBValue& GetField(int Index);
-	virtual CDBValue& GetField(LPCSTR Name);
-	virtual int MoveFirst();
-	virtual int MoveLast();
-	virtual int MoveNext();
-	virtual int MovePrevious();
-	virtual int MoveTo(int Index);
-	virtual bool IsEOF();
-	virtual bool IsBOF();
+		virtual CDBValue& GetField(int Index) override;
+		virtual CDBValue& GetField(LPCSTR Name) override;
+		virtual int MoveFirst() override;
+		virtual int MoveLast() override;
+		virtual int MoveNext() override;
+		virtual int MovePrevious() override;
+		virtual int MoveTo(int Index) override;
+		virtual bool IsEOF() override;
+		virtual bool IsBOF() override;
 
-	virtual bool Close();
+		virtual bool Close() override;
 
-	virtual bool SetBlobMaxProcessSize(UINT64 MaxSize);
-};
+		virtual bool SetBlobMaxProcessSize(size_t MaxSize) override;
+	};
 
 }

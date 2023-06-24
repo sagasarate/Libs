@@ -20,13 +20,14 @@ protected:
 	HGLOBAL			m_hResourceData;
 	ULONG64			m_ResourceDataSize;
 	LONG64			m_ReadPtr;
+	bool			m_HaveError;
 
 	DECLARE_CLASS_INFO_STATIC(CResourceFileAccessor)
 public:
 	CResourceFileAccessor(void);
 	virtual ~CResourceFileAccessor(void);
 
-	virtual BOOL Open(LPCTSTR FileName,int OpenMode);
+	virtual bool Open(LPCTSTR FileName,int OpenMode);
 	virtual void Close();
 
 	virtual ULONG64 GetSize();
@@ -35,18 +36,22 @@ public:
 	virtual ULONG64 Write(LPCVOID pBuff,ULONG64 Size);
 
 
-	virtual BOOL IsEOF();
+	virtual bool IsEOF();
 
-	virtual BOOL Seek(LONG64 Offset,int SeekMode);
+	virtual bool Seek(LONG64 Offset,int SeekMode);
 	virtual ULONG64 GetCurPos();
 
-	virtual BOOL SetCreateTime(const CEasyTime& Time);
-	virtual BOOL GetCreateTime(CEasyTime& Time);
+	virtual bool SetCreateTime(const CEasyTime& Time);
+	virtual bool GetCreateTime(CEasyTime& Time);
 
-	virtual BOOL SetLastAccessTime(const CEasyTime& Time);
-	virtual BOOL GetLastAccessTime(CEasyTime& Time);
+	virtual bool SetLastAccessTime(const CEasyTime& Time);
+	virtual bool GetLastAccessTime(CEasyTime& Time);
 
-	virtual BOOL SetLastWriteTime(const CEasyTime& Time);
-	virtual BOOL GetLastWriteTime(CEasyTime& Time);
+	virtual bool SetLastWriteTime(const CEasyTime& Time);
+	virtual bool GetLastWriteTime(CEasyTime& Time);
+	virtual bool HaveError() override
+	{
+		return m_HaveError;
+	}
 };
 

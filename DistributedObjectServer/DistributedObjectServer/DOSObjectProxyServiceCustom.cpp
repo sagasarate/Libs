@@ -13,7 +13,10 @@ CDOSObjectProxyServiceCustom::~CDOSObjectProxyServiceCustom()
 {
 }
 
-
+void CDOSObjectProxyServiceCustom::Release()
+{
+	CNameObject::Release();
+}
 void CDOSObjectProxyServiceCustom::Destory()
 {
 
@@ -38,16 +41,31 @@ void CDOSObjectProxyServiceCustom::Destory()
 
 	m_PluginInfo.hModule = NULL;
 }
+UINT CDOSObjectProxyServiceCustom::AddUseRef()
+{
+	return CNameObject::AddUseRef();
+}
 BYTE CDOSObjectProxyServiceCustom::GetProxyType()
 {
 	return m_Config.ProxyType;
 }
-
+void CDOSObjectProxyServiceCustom::SetID(UINT ID)
+{
+	CNameObject::SetID(ID);
+}
+UINT CDOSObjectProxyServiceCustom::GetID()
+{
+	return CNameObject::GetID();
+}
 bool CDOSObjectProxyServiceCustom::StartService()
 {
 	if (m_pProxyService)
-		m_pProxyService->StartService(this);
+		return m_pProxyService->StartService(this);
 	return false;
+}
+bool CDOSObjectProxyServiceCustom::StartService(IDOSObjectProxyServiceOperator* pOperator)
+{
+	return StartService();
 }
 void CDOSObjectProxyServiceCustom::StopService()
 {
@@ -80,6 +98,12 @@ float CDOSObjectProxyServiceCustom::GetCycleTime()
 		return m_pProxyService->GetCycleTime();
 	return 0;
 }
+UINT CDOSObjectProxyServiceCustom::GetMsgQueueLen()
+{
+	if (m_pProxyService)
+		return m_pProxyService->GetMsgQueueLen();
+	return 0;
+}
 
 UINT CDOSObjectProxyServiceCustom::GetGroupCount()
 {
@@ -99,12 +123,14 @@ float CDOSObjectProxyServiceCustom::GetGroupCycleTime(UINT Index)
 		return m_pProxyService->GetGroupCycleTime(Index);
 	return 0;
 }
-
-
-OBJECT_ID CDOSObjectProxyServiceCustom::GetObjectID()
+UINT CDOSObjectProxyServiceCustom::GetGroupMsgQueueLen(UINT Index)
 {
-	return m_ObjectID;
+	if (m_pProxyService)
+		return m_pProxyService->GetGroupMsgQueueLen(Index);
+	return 0;
 }
+
+
 const CLIENT_PROXY_CONFIG& CDOSObjectProxyServiceCustom::GetConfig()
 {
 	return m_Config;
@@ -114,12 +140,16 @@ CNetServer * CDOSObjectProxyServiceCustom::GetNetServer()
 {
 	return m_pServer;
 }
-bool CDOSObjectProxyServiceCustom::SendMessage(OBJECT_ID ReceiverID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
+UINT CDOSObjectProxyServiceCustom::GetRouterID()
 {
-	return m_pServer->GetRouter()->RouterMessage(m_ObjectID, ReceiverID, MsgID, MsgFlag, pData, DataSize) != FALSE;
+	return m_pServer->GetRouter()->GetRouterID();
+}
+bool CDOSObjectProxyServiceCustom::SendMessage(OBJECT_ID SenderID, OBJECT_ID ReceiverID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
+{
+	return m_pServer->GetRouter()->RouterMessage(SenderID, ReceiverID, MsgID, MsgFlag, pData, DataSize) != FALSE;
 }
 
-bool CDOSObjectProxyServiceCustom::SendMessageMulti(OBJECT_ID * pReceiverIDList, UINT ReceiverCount, bool IsSorted, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
+bool CDOSObjectProxyServiceCustom::SendMessageMulti(OBJECT_ID SenderID, OBJECT_ID * pReceiverIDList, UINT ReceiverCount, bool IsSorted, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
 {
 	if (pReceiverIDList == NULL || ReceiverCount == 0)
 	{
@@ -134,7 +164,7 @@ bool CDOSObjectProxyServiceCustom::SendMessageMulti(OBJECT_ID * pReceiverIDList,
 		return false;
 	}
 	pNewPacket->GetMessage().SetMsgID(MsgID);
-	pNewPacket->GetMessage().SetSenderID(GetObjectID());
+	pNewPacket->GetMessage().SetSenderID(SenderID);
 	pNewPacket->GetMessage().SetDataLength(DataSize);
 	pNewPacket->GetMessage().SetMsgFlag(MsgFlag);
 	if (pData)
@@ -175,12 +205,7 @@ BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGI
 	m_pServer = pServer;
 	m_Config = PluginInfo;
 	m_PluginInfo = PluginInfo;
-
-	m_ObjectID.ObjectIndex = 0;
-	m_ObjectID.GroupIndex = MAKE_PROXY_GROUP_INDEX(m_Config.ProxyType);
-	m_ObjectID.ObjectTypeID = DOT_PROXY_OBJECT;
-	m_ObjectID.RouterID = GetRouterID();
-
+		
 	if (m_PluginInfo.ModuleFileName.IsEmpty())
 #ifdef _DEBUG
 		m_PluginInfo.ModuleFileName = m_PluginInfo.PluginName + "D";
@@ -240,6 +265,8 @@ BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGI
 		}
 	}
 
+	
+
 	Log("开始装载代理插件%s", (LPCTSTR)m_PluginInfo.ModuleFileName);
 #ifdef WIN32
 	m_PluginInfo.hModule = LoadLibrary(m_PluginInfo.ModuleFileName);
@@ -264,21 +291,23 @@ BOOL CDOSObjectProxyServiceCustom::Init(CDOSServer * pServer, CLIENT_PROXY_PLUGI
 		if (InitFNError == NULL && GetServiceFNError == NULL && m_PluginInfo.pInitFN && m_PluginInfo.pGetServiceFN)
 #endif
 		{
+
+			CEasyString LogFileName;
+
+			CServerLogPrinter* pLog;
+			LogFileName.Format("%s/Plugin.%s", (LPCTSTR)m_PluginInfo.LogDir, (LPCTSTR)CFileTools::GetPathFileName(m_PluginInfo.PluginName));
+			pLog = MONITORED_NEW(_T("CDOSObjectProxyServiceCustom"), CServerLogPrinter, CDOSMainThread::GetInstance(), CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
+				CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
+			pLog->SetBackup(CSystemConfig::GetInstance()->GetLogBackupDir(), CSystemConfig::GetInstance()->GetLogBackupDelay());
+			CLogManager::GetInstance()->AddChannel(m_PluginInfo.LogChannel, pLog);
+			SAFE_RELEASE(pLog);
+
+
 			if (m_PluginInfo.pInitFN(m_PluginInfo.ID, m_PluginInfo.LogChannel, m_PluginInfo.ConfigDir, m_PluginInfo.LogDir))
 			{
 				m_pProxyService = m_PluginInfo.pGetServiceFN();
 				if (m_pProxyService)
 				{
-					CEasyString LogFileName;
-
-					CServerLogPrinter * pLog;
-					LogFileName.Format("%s/Log/Plugin.%s", (LPCTSTR)m_PluginInfo.LogDir, (LPCTSTR)CFileTools::GetPathFileName(m_PluginInfo.PluginName));
-					pLog = MONITORED_NEW(_T("CDOSObjectProxyServiceCustom"), CServerLogPrinter, CDOSMainThread::GetInstance(), CServerLogPrinter::LOM_CONSOLE | CServerLogPrinter::LOM_FILE,
-						CSystemConfig::GetInstance()->GetLogLevel(), LogFileName, CSystemConfig::GetInstance()->GetLogCacheSize());
-					CLogManager::GetInstance()->AddChannel(m_PluginInfo.LogChannel, pLog);
-					SAFE_RELEASE(pLog);
-
-
 					Log("代理插件装载成功%s", (LPCTSTR)m_PluginInfo.ModuleFileName);
 					m_PluginInfo.PluginStatus = PLUGIN_STATUS_RUNNING;
 					return true;

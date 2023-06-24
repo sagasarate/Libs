@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    LinkEdit.cpp                                             */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ23ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    LinkEdit.cpp                                             */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ23æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -35,11 +35,11 @@ BEGIN_MESSAGE_MAP(CLinkEdit, CEdit)
 END_MESSAGE_MAP()
 
 
-// CLinkEdit ÏûÏ¢´¦Àí³ÌĞò
+// CLinkEdit æ¶ˆæ¯å¤„ç†ç¨‹åº
 void CLinkEdit::OnKillFocus(CWnd* pNewWnd)
 {
 	CEdit::OnKillFocus(pNewWnd);	
-	// TODO: ÔÚ´Ë´¦Ìí¼ÓÏûÏ¢´¦Àí³ÌĞò´úÂë	
+	// TODO: åœ¨æ­¤å¤„æ·»åŠ æ¶ˆæ¯å¤„ç†ç¨‹åºä»£ç 	
 	//HideCaret();
 	if(IsWindowVisible())
 		((CInputer *)GetParent())->LostInputFocus();
@@ -49,7 +49,7 @@ void CLinkEdit::OnKillFocus(CWnd* pNewWnd)
 
 void CLinkEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-	// TODO: ÔÚ´ËÌí¼ÓÏûÏ¢´¦Àí³ÌĞò´úÂëºÍ/»òµ÷ÓÃÄ¬ÈÏÖµ
+	// TODO: åœ¨æ­¤æ·»åŠ æ¶ˆæ¯å¤„ç†ç¨‹åºä»£ç å’Œ/æˆ–è°ƒç”¨é»˜è®¤å€¼
 
 	if(m_EnableInput)
 		CEdit::OnChar(nChar, nRepCnt, nFlags);
@@ -62,7 +62,7 @@ void CLinkEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 void CLinkEdit::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-	// TODO: ÔÚ´ËÌí¼ÓÏûÏ¢´¦Àí³ÌĞò´úÂëºÍ/»òµ÷ÓÃÄ¬ÈÏÖµ
+	// TODO: åœ¨æ­¤æ·»åŠ æ¶ˆæ¯å¤„ç†ç¨‹åºä»£ç å’Œ/æˆ–è°ƒç”¨é»˜è®¤å€¼
 
 	if(m_EnableInput)
 		CEdit::OnKeyDown(nChar, nRepCnt, nFlags);
@@ -73,7 +73,7 @@ void CLinkEdit::OnSetFocus(CWnd* pOldWnd)
 {
 	CEdit::OnSetFocus(pOldWnd);
 
-	// TODO: ÔÚ´Ë´¦Ìí¼ÓÏûÏ¢´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤å¤„æ·»åŠ æ¶ˆæ¯å¤„ç†ç¨‹åºä»£ç 
 }
 
 

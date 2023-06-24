@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    BLZFileDefines.h                                         */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    BLZFileDefines.h                                         */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -380,52 +380,52 @@ extern LPCTSTR ITEM_INVENTORY_SLOT_NAME[IISI_MAX];
 
 extern LPCTSTR ITEM_PATH_BY_SLOT[IISI_MAX];
 
-//½ÇÉ«Ä£ÐÍ²¿¼þ
+//è§’è‰²æ¨¡åž‹éƒ¨ä»¶
 enum CHAR_SUBMESH_PART
 {
-	CSP_HAIR=0,				//Í··¢
-	CSP_WHISKER1=1,			//ºúÐë(ÏÂ°Í)
-	CSP_WHISKER2=2,			//ºúÐë(÷Þ½Ç)
-	CSP_WHISKER3=3,			//ºúÐë(ÉÏ´½)
-	CSP_GLOVE=4,			//ÊÖÍó(ÉÏ±Û)
-	CSP_FOOT=5,				//½Å(Ð¬×Ó)
-	CSP_EAR=7,				//¶ú¶ä
-	CSP_SLEEVE=8,			//Ðä×Ó
-	CSP_PAINTS=9,			//¿ã×ÓÐ¡ÍÈ
-	CSP_LAP=10,				//ÒÂ°Ú£¿¶ÌÈ¹£¿
-	CSP_SKIRT=11,			//ÒÂ·þÏÂ°Ú
-	CSP_ENSIGN=12,			//¹¤»áÆìÖÄ
-	CSP_ROBE=13,			//¿ã×Ó´óÍÈ/³¤ÅÛÏÂ°Ú
-	CSP_BACK=15,			//Åû·ç
-	CSP_SHINE_EYE=17,		//ÑÛ²¿·¢¹âÕÚÆ¬
-	CSP_SASH=18,			//Ñü´ø
+	CSP_HAIR=0,				//å¤´å‘
+	CSP_WHISKER1=1,			//èƒ¡é¡»(ä¸‹å·´)
+	CSP_WHISKER2=2,			//èƒ¡é¡»(é¬“è§’)
+	CSP_WHISKER3=3,			//èƒ¡é¡»(ä¸Šå”‡)
+	CSP_GLOVE=4,			//æ‰‹è…•(ä¸Šè‡‚)
+	CSP_FOOT=5,				//è„š(éž‹å­)
+	CSP_EAR=7,				//è€³æœµ
+	CSP_SLEEVE=8,			//è¢–å­
+	CSP_PAINTS=9,			//è£¤å­å°è…¿
+	CSP_LAP=10,				//è¡£æ‘†ï¼ŸçŸ­è£™ï¼Ÿ
+	CSP_SKIRT=11,			//è¡£æœä¸‹æ‘†
+	CSP_ENSIGN=12,			//å·¥ä¼šæ——å¸œ
+	CSP_ROBE=13,			//è£¤å­å¤§è…¿/é•¿è¢ä¸‹æ‘†
+	CSP_BACK=15,			//æŠ«é£Ž
+	CSP_SHINE_EYE=17,		//çœ¼éƒ¨å‘å…‰é®ç‰‡
+	CSP_SASH=18,			//è…°å¸¦
 };
 
 enum CHAR_RACES
 {
-	RACE_HUMAN              = 1,		//ÈËÀà
-	RACE_ORC                = 2,		//ÊÞÈË
-	RACE_DWARF              = 3,		//°«ÈË
-	RACE_NIGHTELF           = 4,		//°µÒ¹¾«Áé
-	RACE_UNDEAD             = 5,		//ÍöÁé
-	RACE_TAUREN             = 6,		//Å£Í·ÈË
-	RACE_GNOME              = 7,		//ÙªÈå
-	RACE_TROLL              = 8,		//¾ÞÄ§
-	RACE_GOBLIN             = 9,		//µØ¾«
-	RACE_BLOODELF           = 10,		//Ñª¾«Áé
-	RACE_DRAENEI            = 11,		//µÂÀ³Äá
-	RACE_FEL_ORC            = 12,		//Ð°ÊÞÈË
-	RACE_NAGA               = 13,		//ÄÉåÈ
-	RACE_BROKEN             = 14,		//ÆÆËéÕß
-	RACE_SKELETON           = 15,		//÷¼÷Ã
-	RACE_VRYKUL             = 16,		//Î¬¿âÈË
-	RACE_TUSKARR            = 17,		//º£ÏóÈË
-	RACE_FOREST_TROLL       = 18,		//É­ÁÖ¾ÞÄ§
-	RACE_TAUNKA             = 19,		//ºÄÅ£ÈË
-	RACE_NORTHREND_SKELETON = 20,		//ÅµÉ­µÂ÷¼÷Ã
-	RACE_ICE_TROLL          = 21,		//±ù¾ÞÄ§
-	RACE_WORGEN             = 22,		//ÀÇÈË
-	RACE_WORGEN_HUMAN       = 23,		//¼ª¶ûÄáË¹ÈË
+	RACE_HUMAN              = 1,		//äººç±»
+	RACE_ORC                = 2,		//å…½äºº
+	RACE_DWARF              = 3,		//çŸ®äºº
+	RACE_NIGHTELF           = 4,		//æš—å¤œç²¾çµ
+	RACE_UNDEAD             = 5,		//äº¡çµ
+	RACE_TAUREN             = 6,		//ç‰›å¤´äºº
+	RACE_GNOME              = 7,		//ä¾å„’
+	RACE_TROLL              = 8,		//å·¨é­”
+	RACE_GOBLIN             = 9,		//åœ°ç²¾
+	RACE_BLOODELF           = 10,		//è¡€ç²¾çµ
+	RACE_DRAENEI            = 11,		//å¾·èŽ±å°¼
+	RACE_FEL_ORC            = 12,		//é‚ªå…½äºº
+	RACE_NAGA               = 13,		//çº³è¿¦
+	RACE_BROKEN             = 14,		//ç ´ç¢Žè€…
+	RACE_SKELETON           = 15,		//éª·é«…
+	RACE_VRYKUL             = 16,		//ç»´åº“äºº
+	RACE_TUSKARR            = 17,		//æµ·è±¡äºº
+	RACE_FOREST_TROLL       = 18,		//æ£®æž—å·¨é­”
+	RACE_TAUNKA             = 19,		//è€—ç‰›äºº
+	RACE_NORTHREND_SKELETON = 20,		//è¯ºæ£®å¾·éª·é«…
+	RACE_ICE_TROLL          = 21,		//å†°å·¨é­”
+	RACE_WORGEN             = 22,		//ç‹¼äºº
+	RACE_WORGEN_HUMAN       = 23,		//å‰å°”å°¼æ–¯äºº
 };
 
 enum PARTICLE_EMITTER_BLENDING_TYPE
@@ -1221,7 +1221,7 @@ struct M2_PARTICLE_EMITTER
 	UINT32							UnknownPadding2;				//It could have been an array without them..  
 	M2_MODEL_ANIMATION_BLOCK		EmissionAreaLength;			// Well, you can do that in this area.  
 	M2_MODEL_ANIMATION_BLOCK		EmissionAreaWidth;			//  
-	M2_MODEL_ANIMATION_BLOCK		Decelerate;					// ¼õËÙ¶È
+	M2_MODEL_ANIMATION_BLOCK		Decelerate;					// å‡é€Ÿåº¦
 	M2_MODEL_FAKE_ANIMATION_BLOCK	ParticleColor;				// (short, vec3f) This one points to 3 floats defining red, green and blue.  
 	M2_MODEL_FAKE_ANIMATION_BLOCK	ParticleOpacity;			//? (short, short) Looks like opacity (short) --Igor; Most likely they all have 3 timestamps for {start, middle, end}.  
 	M2_MODEL_FAKE_ANIMATION_BLOCK	ParticleSizes;				// (short, vec2f) It carries two floats per key. (x and y scale)  

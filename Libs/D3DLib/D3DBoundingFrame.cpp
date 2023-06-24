@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DBoundingFrame.cpp                                     */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ25ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DBoundingFrame.cpp                                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ25æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -292,13 +292,13 @@ void CD3DBoundingFrame::BuildLine(BF_VERTEX * pBuff,CD3DVector3 p1,CD3DVector3 p
 
 bool CD3DBoundingFrame::ToSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pResourceManager,UINT Param)
 {
-	PrintD3DLog( _T("CD3DBoundingFrame±»±£´æ"));
+	PrintD3DLog( _T("CD3DBoundingFrameè¢«ä¿å­˜"));
 	return CD3DObject::ToSmartStruct(Packet,pResourceManager,Param);
 }
 
 UINT CD3DBoundingFrame::GetSmartStructSize(UINT Param)
 {
-	PrintD3DLog(_T("CD3DBoundingFrame±»±£´æ"));
+	PrintD3DLog(_T("CD3DBoundingFrameè¢«ä¿å­˜"));
 	return CD3DObject::GetSmartStructSize(Param);
 }
 

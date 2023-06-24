@@ -220,7 +220,7 @@ bool CNamedPipe::QueryRead()
 	m_Overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (m_Overlapped.hEvent)
 	{
-		if (ReadFile(m_hPipe, m_RecvBuffer.GetBuffer(), m_RecvBuffer.GetBufferSize(), NULL, &m_Overlapped))
+		if (ReadFile(m_hPipe, m_RecvBuffer.GetBuffer(), (DWORD)m_RecvBuffer.GetBufferSize(), NULL, &m_Overlapped))
 		{
 			return true;
 		}

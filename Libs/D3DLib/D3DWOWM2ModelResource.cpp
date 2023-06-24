@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DWOWM2ModelResource.cpp                                */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DWOWM2ModelResource.cpp                                */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -281,7 +281,7 @@ bool CD3DWOWM2ModelResource::LoadFromFile(LPCTSTR szModelFileName)
 		return false;
 	if(!pFile->Open(szModelFileName,IFileAccessor::modeRead))
 	{
-		PrintD3DLog(_T("ÎÄ¼ş%s´ò¿ªÊ§°Ü"),szModelFileName);
+		PrintD3DLog(_T("æ–‡ä»¶%sæ‰“å¼€å¤±è´¥"),szModelFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -397,7 +397,7 @@ bool CD3DWOWM2ModelResource::LoadFromXFile(LPCTSTR szModelFileName)
 		return false;
 
 
-	//»ñÈ¡¶¥µãÊı¾İ
+	//è·å–é¡¶ç‚¹æ•°æ®
 
 	LPDIRECT3DVERTEXBUFFER9 pVertexsBuffer;
 	D3DVERTEXBUFFER_DESC	VertexsBufferDesc;
@@ -408,7 +408,7 @@ bool CD3DWOWM2ModelResource::LoadFromXFile(LPCTSTR szModelFileName)
 	int VertexSize=pMesh->GetNumBytesPerVertex();
 	int VertexCount=VertexsBufferDesc.Size/VertexSize;
 
-	//»ñÈ¡Ë÷ÒıÊı¾İ
+	//è·å–ç´¢å¼•æ•°æ®
 	LPDIRECT3DINDEXBUFFER9	pIndexsBuffer;
 	D3DINDEXBUFFER_DESC		IndexsBufferDesc;
 
@@ -420,7 +420,7 @@ bool CD3DWOWM2ModelResource::LoadFromXFile(LPCTSTR szModelFileName)
 
 
 
-	//»ñÈ¡²ÄÖÊºÍÃæµÄ¶ÔÓ¦ĞÅÏ¢
+	//è·å–æè´¨å’Œé¢çš„å¯¹åº”ä¿¡æ¯
 	pMaterials=(D3DXMATERIAL *)pMaterialsBuffer->GetBufferPointer();
 
 	hr=pMesh->LockAttributeBuffer(D3DLOCK_READONLY,&pAttributes);
@@ -430,14 +430,14 @@ bool CD3DWOWM2ModelResource::LoadFromXFile(LPCTSTR szModelFileName)
 		SAFE_RELEASE(pMaterialsBuffer);
 		return false;
 	}	
-	//°´²ÄÖÊ½¨Á¢SubMesh
+	//æŒ‰æè´¨å»ºç«‹SubMesh
 	OrgSubMeshs.Resize(NumMaterials);
 	for(int i=0;i<(int)OrgSubMeshs.GetCount();i++)
 	{
 		OrgSubMeshs[i].SetMaterialID(i);
 	}
 
-	//°´²ÄÖÊ»®·ÖSubMesh
+	//æŒ‰æè´¨åˆ’åˆ†SubMesh
 	for(int i=0;i<(int)pMesh->GetNumFaces();i++)
 	{
 		OrgSubMeshs[pAttributes[i]].AddVertext(pIndexBuff[i*3],pVertexBuff+pIndexBuff[i*3]*VertexSize,VertexSize,pMesh->GetFVF());
@@ -449,7 +449,7 @@ bool CD3DWOWM2ModelResource::LoadFromXFile(LPCTSTR szModelFileName)
 	pMesh->UnlockAttributeBuffer();
 
 
-	//³ıÈ¥¿ÕµÄSubMesh
+	//é™¤å»ç©ºçš„SubMesh
 	for(int i=NumMaterials-1;i>=0;i--)
 	{
 		if(OrgSubMeshs[i].GetIndexCount()<=0)
@@ -1225,12 +1225,12 @@ bool CD3DWOWM2ModelResource::LoadSkin(LPCTSTR SkinFileName,CEasyArray<CD3DSubMes
 			if(Index<StartVertex)
 			{
 				StartVertex=Index;
-				PrintD3DDebugLog(_T("IndexÖµÓĞÒì³££¬ĞŞÕıVertex·¶Î§"));
+				PrintD3DDebugLog(_T("Indexå€¼æœ‰å¼‚å¸¸ï¼Œä¿®æ­£VertexèŒƒå›´"));
 			}
 			if(Index>EndVertex)
 			{
 				EndVertex=Index;
-				PrintD3DDebugLog(_T("IndexÖµÓĞÒì³££¬ĞŞÕıVertex·¶Î§"));
+				PrintD3DDebugLog(_T("Indexå€¼æœ‰å¼‚å¸¸ï¼Œä¿®æ­£VertexèŒƒå›´"));
 			}
 			if(!HasSkinMeshAni)
 			{
@@ -1917,7 +1917,7 @@ bool CD3DWOWM2ModelResource::LoadAnimationFromFile(BYTE * pData,UINT AnimationID
 		return false;
 	if(!pFile->Open(AniFileName,IFileAccessor::modeRead))
 	{
-		PrintD3DLog(_T("´ò¿ªÍâ²¿¶¯»­ÎÄ¼ş%sÊ§°Ü"),(LPCTSTR)AniFileName);
+		PrintD3DLog(_T("æ‰“å¼€å¤–éƒ¨åŠ¨ç”»æ–‡ä»¶%så¤±è´¥"),(LPCTSTR)AniFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -1932,7 +1932,7 @@ bool CD3DWOWM2ModelResource::LoadAnimationFromFile(BYTE * pData,UINT AnimationID
 		LoadBoneAnimation(pData,(BYTE *)AniData.GetBuffer(),m_Bones[i],pOrgBoneInfo[i],AniIndex);
 	}
 
-	PrintD3DLog(_T("×°ÔØÁËÍâ²¿¶¯»­ÎÄ¼ş%s"),(LPCTSTR)AniFileName);
+	PrintD3DLog(_T("è£…è½½äº†å¤–éƒ¨åŠ¨ç”»æ–‡ä»¶%s"),(LPCTSTR)AniFileName);
 	return true;
 }
 
@@ -1972,7 +1972,7 @@ bool CD3DWOWM2ModelResource::LoadRibbonEmitters(BYTE * pModelData)
 {
 	BLZ_M2_HEADER * pHeader=(BLZ_M2_HEADER *)pModelData;
 
-	//PrintD3DLog("Ò»¹²ÓĞ%u¸öÌõ´øÉú³ÉÆ÷",
+	//PrintD3DLog("ä¸€å…±æœ‰%uä¸ªæ¡å¸¦ç”Ÿæˆå™¨",
 	//	pHeader->RibbonEmittersCount);
 
 	M2_RIBBON_EMITTER * pRibbonEmitters=(M2_RIBBON_EMITTER *)(pModelData+pHeader->RibbonEmittersOffset);
@@ -2002,7 +2002,7 @@ bool CD3DWOWM2ModelResource::LoadParticleEmitters(BYTE * pModelData)
 {
 	BLZ_M2_HEADER * pHeader=(BLZ_M2_HEADER *)pModelData;
 
-	//PrintD3DLog("Ò»¹²ÓĞ%u¸öÁ£×ÓÉú³ÉÆ÷",
+	//PrintD3DLog("ä¸€å…±æœ‰%uä¸ªç²’å­ç”Ÿæˆå™¨",
 	//	pHeader->ParticleEmittersCount);
 
 	int size=sizeof(M2_PARTICLE_EMITTER);
@@ -2031,7 +2031,7 @@ bool CD3DWOWM2ModelResource::LoadTextureUVAnimation(BYTE * pModelData)
 {
 	BLZ_M2_HEADER * pHeader=(BLZ_M2_HEADER *)pModelData;
 
-	//PrintD3DLog("Ò»¹²ÓĞ%u¸öÎÆÀí¶¯»­",
+	//PrintD3DLog("ä¸€å…±æœ‰%uä¸ªçº¹ç†åŠ¨ç”»",
 	//	pHeader->TexAnimsCount);
 
 	M2_TEXTURE_UV_ANIMATION * pTexAnims=(M2_TEXTURE_UV_ANIMATION *)(pModelData+pHeader->TexAnimsOffset);
@@ -2295,10 +2295,10 @@ void CD3DWOWM2ModelResource::BuildFX(CD3DSubMesh * pSubMesh)
 		DestBlend="One";
 		break;
 	case D3D_BLEND_MODE_MODULATE:		
-		PrintD3DLog(_T("Î´´¦ÀíµÄ»ìºÏÄ£Ê½:D3D_BLEND_MODE_MODULATE[%s]"),GetName());
+		PrintD3DLog(_T("æœªå¤„ç†çš„æ··åˆæ¨¡å¼:D3D_BLEND_MODE_MODULATE[%s]"),GetName());
 		break;
 	case D3D_BLEND_MODE_MUL:
-		PrintD3DLog(_T("Î´´¦ÀíµÄ»ìºÏÄ£Ê½:D3D_BLEND_MODE_MUL[%s]"),GetName());
+		PrintD3DLog(_T("æœªå¤„ç†çš„æ··åˆæ¨¡å¼:D3D_BLEND_MODE_MUL[%s]"),GetName());
 		break;
 	}
 	if(MeshFlag&D3D_MESH_FLAG_USE_VERTEX_ALPHA1)

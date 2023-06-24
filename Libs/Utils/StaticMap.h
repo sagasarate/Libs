@@ -436,7 +436,7 @@ public:
 				if (pNeedBalanceNode)
 				{
 					BalanceDelete(pNeedBalanceNode);
-				}
+				}				
 				pNode->Key = NewKey;
 				pNeedBalanceNode = InsertNode(m_pTreeRoot, pNode);
 				if (pNeedBalanceNode)
@@ -1103,6 +1103,53 @@ public:
 	//	m_BlackCount=-1;
 	//	CheckNodeRule(m_pTreeRoot,0);
 	//}
+	template<typename KeyDumpFN>
+	void DumpTree(CStringBuilder& Str, KeyDumpFN DumpFn)
+	{
+		DumpTree<KeyDumpFN>(m_pTreeRoot, Str, DumpFn, CEasyString());
+	}
+	template<typename KeyDumpFN>
+	void DumpTree(StorageNode* pNode, CStringBuilder& Str, KeyDumpFN DumpFn, CEasyString Indent)
+	{
+		if (pNode)
+		{
+			
+			if (pNode->pFront)
+			{
+				DumpFn(Str, pNode->pFront->Key);
+			}
+			Str.Append(_T("["));
+			DumpFn(Str, pNode->Key);
+			Str.Append(_T("]"));
+			if (pNode->pBack)
+			{
+				DumpFn(Str, pNode->pBack->Key);
+			}
+			Str.Append(_T("\r\n"));
+			Indent += _T("    ");
+			if (pNode->pLeftChild)
+			{
+				Str.Append(Indent);
+				Str.Append(_T("L:"));
+				DumpTree(pNode->pLeftChild, Str, DumpFn, Indent);
+			}
+			if (pNode->pRightChild)
+			{
+				Str.Append(Indent);
+				Str.Append(_T("R:"));
+				DumpTree(pNode->pRightChild, Str, DumpFn, Indent);
+			}
+		}
+	}
+	UINT GetTreeSize(StorageNode* pNode)
+	{
+		UINT Size = 1;
+		if (pNode->pLeftChild)
+			Size += GetTreeSize(pNode->pLeftChild);
+		if (pNode->pRightChild)
+			Size += GetTreeSize(pNode->pRightChild);
+		return Size;
+	}
 protected:
 	//void CheckNodeRule(StorageNode * pNode,int BlackCount)
 	//{
@@ -1435,10 +1482,13 @@ protected:
 			}
 			else
 			{
-				if(pBackNode->pParent->pLeftChild==pBackNode)
-					pBackNode->pParent->pLeftChild=pNode;
-				else
-					pBackNode->pParent->pRightChild=pNode;
+				if (pBackNode->pParent)
+				{
+					if (pBackNode->pParent->pLeftChild == pBackNode)
+						pBackNode->pParent->pLeftChild = pNode;
+					else
+						pBackNode->pParent->pRightChild = pNode;
+				}
 				pNode->pParent=pBackNode->pParent;
 				pBackNode->pParent=NULL;
 				m_pTreeRoot=pBackNode;
@@ -1533,6 +1583,28 @@ protected:
 
 		pNode->Color = NC_NONE;
 
+		//更新有序链表
+		if (pNode == m_pFront && pNode == m_pBack)
+		{
+			m_pFront = NULL;
+			m_pBack = NULL;
+		}
+		else if (pNode == m_pFront)
+		{
+			m_pFront = pNode->pBack;
+			m_pFront->pFront = NULL;
+		}
+		else if (pNode == m_pBack)
+		{
+			m_pBack = pNode->pFront;
+			m_pBack->pBack = NULL;
+		}
+		else
+		{
+			pNode->pFront->pBack = pNode->pBack;
+			pNode->pBack->pFront = pNode->pFront;
+		}
+
 		if (DeleteFromList)
 			DeleteNodeFromList(pNode);
 
@@ -1562,26 +1634,7 @@ protected:
 			pNode->pNext->pPrev=pNode->pPrev;			
 		}		
 
-		if(pNode==m_pFront&&pNode==m_pBack)
-		{
-			m_pFront=NULL;
-			m_pBack=NULL;
-		}
-		else if(pNode==m_pFront)
-		{
-			m_pFront=pNode->pBack;				
-			m_pFront->pFront=NULL;			
-		}
-		else if(pNode==m_pBack)
-		{
-			m_pBack=pNode->pFront;
-			m_pBack->pBack=NULL;			
-		}
-		else
-		{
-			pNode->pFront->pBack=pNode->pBack;
-			pNode->pBack->pFront=pNode->pFront;			
-		}	
+		
 
 		
 		pNode->IsFree=true;		

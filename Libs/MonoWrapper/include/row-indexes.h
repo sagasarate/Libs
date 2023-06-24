@@ -1,4 +1,4 @@
-
+﻿
 #ifndef __MONO_METADATA_ROW_INDEXES_H__
 #define __MONO_METADATA_ROW_INDEXES_H__
 

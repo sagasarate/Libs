@@ -65,14 +65,14 @@ public:
 
 	virtual int SelectDefaultDatabase(LPCTSTR szDBName);
 
-	static int DBLibTypeToMySQLType(int Type,UINT& Size,UINT& DitigalSize);
-	static int MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize);
-	static UINT GetMySQLTypeBinLength(int Type, UINT Size, UINT DitigalSize, UINT BlobMaxProcessSize);
+	static int DBLibTypeToMySQLType(int Type, size_t& Size,UINT& DitigalSize);
+	static int MySQLTypeToDBLibType(int Type, size_t& Size,UINT& DitigalSize);
+	static size_t GetMySQLTypeBinLength(int Type, size_t Size, UINT DitigalSize, size_t BlobMaxProcessSize);
 
-	static BOOL MySQLStrValueToDBValue(int ValueType, LPCVOID pData, UINT DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue);
+	static BOOL MySQLStrValueToDBValue(int ValueType, LPCVOID pData, size_t DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue);
 
-	static BOOL DBValueToMySQLBinValue(int Type, LPCVOID pDBValue, UINT DBValueSize, LPVOID pData, UINT DataSize);
-	static BOOL MySQLBinValueToDBValue(int Type, LPCVOID pData, UINT DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue);
+	static BOOL DBValueToMySQLBinValue(int Type, LPCVOID pDBValue, size_t DBValueSize, LPVOID pData, size_t DataSize);
+	static BOOL MySQLBinValueToDBValue(int Type, LPCVOID pData, size_t DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue);
 
 	void ProcessErrorMsg(MYSQL_STMT_HANDLE hStmt,LPCSTR Msg);
 protected:

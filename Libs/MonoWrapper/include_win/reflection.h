@@ -1,4 +1,4 @@
-#ifndef __METADATA_REFLECTION_H__
+﻿#ifndef __METADATA_REFLECTION_H__
 #define __METADATA_REFLECTION_H__
 
 #include "object.h"

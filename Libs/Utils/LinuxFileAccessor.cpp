@@ -14,12 +14,13 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-IMPLEMENT_CLASS_INFO_STATIC(CLinuxFileAccessor,IFileAccessor);
+IMPLEMENT_CLASS_INFO_STATIC(CLinuxFileAccessor, IFileAccessor);
 
 CLinuxFileAccessor::CLinuxFileAccessor(void)
 {
-	m_FileDescriptor=INVALID_HANDLE_VALUE;
-	m_IsWriteFlush=false;
+	m_FileDescriptor = INVALID_HANDLE_VALUE;
+	m_IsWriteFlush = false;
+	m_HaveError = false;
 }
 
 CLinuxFileAccessor::~CLinuxFileAccessor(void)
@@ -28,116 +29,118 @@ CLinuxFileAccessor::~CLinuxFileAccessor(void)
 }
 
 
-BOOL CLinuxFileAccessor::Open(LPCTSTR FileName,int OpenMode)
+bool CLinuxFileAccessor::Open(LPCTSTR FileName, int OpenMode)
 {
-	if(m_FileDescriptor!=INVALID_HANDLE_VALUE)
+	m_HaveError = false;
+	if (m_FileDescriptor != INVALID_HANDLE_VALUE)
 		Close();
 
-	int Flag=0;
+	int Flag = 0;
 
-	switch(OpenMode&modeAccessMask)
+	switch (OpenMode & modeAccessMask)
 	{
 	case modeRead:
-		Flag=O_RDONLY;
+		Flag = O_RDONLY;
 		break;
 	case modeWrite:
-		Flag=O_WRONLY;
+		Flag = O_WRONLY;
 		break;
 	case modeReadWrite:
-		Flag=O_RDWR;
+		Flag = O_RDWR;
 		break;
 	}
 
-	switch(OpenMode&modeCreationMask)
+	switch (OpenMode & modeCreationMask)
 	{
 	case modeOpenAlways:
-		Flag|=O_CREAT;
+		Flag |= O_CREAT;
 		break;
 	case modeCreate:
-		Flag|=O_EXCL|O_CREAT|O_TRUNC;
+		Flag |= O_EXCL | O_CREAT | O_TRUNC;
 		break;
 	case modeCreateAlways:
-		Flag|=O_CREAT|O_TRUNC;
+		Flag |= O_CREAT | O_TRUNC;
 		break;
 	case modeTruncate:
-		Flag|=O_TRUNC;
+		Flag |= O_TRUNC;
 		break;
 	case modeAppend:
-		Flag|=O_CREAT|O_APPEND;
+		Flag |= O_CREAT | O_APPEND;
 		break;
 	}
 
-	if(OpenMode&(osWriteThrough|osNoBuffer))
-		m_IsWriteFlush=true;
+	if (OpenMode & (osWriteThrough | osNoBuffer))
+		m_IsWriteFlush = true;
 	else
-		m_IsWriteFlush=false;
+		m_IsWriteFlush = false;
 
-	m_FileDescriptor=open(FileName,Flag,S_IRWXU);
+	m_FileDescriptor = open(FileName, Flag, S_IRWXU);
 
-	if(m_FileDescriptor==INVALID_HANDLE_VALUE)
+	if (m_FileDescriptor == INVALID_HANDLE_VALUE)
 	{
-		printf(_T("File Create Failed:%d\r\n"),errno);
+		printf(_T("File Create Failed:%d\r\n"), errno);
 		return false;
 	}
 	else
 	{
-		if ((OpenMode&KeepOnExec) == 0)
+		if ((OpenMode & KeepOnExec) == 0)
 		{
 			fcntl(m_FileDescriptor, F_SETFD, FD_CLOEXEC);
 		}
 		m_FileInfo.FetchFileInfo(FileName);
+		m_HaveError = true;
 		return true;
 	}
 
 }
 void CLinuxFileAccessor::Close()
 {
-	if(m_FileDescriptor!=INVALID_HANDLE_VALUE)
+	m_HaveError = false;
+	if (m_FileDescriptor != INVALID_HANDLE_VALUE)
 	{
-		close(m_FileDescriptor);
-		m_FileDescriptor=INVALID_HANDLE_VALUE;
+		if (close(m_FileDescriptor) == -1)
+			m_HaveError = true;
+		m_FileDescriptor = INVALID_HANDLE_VALUE;
 	}
 }
 
 ULONG64 CLinuxFileAccessor::GetSize()
 {
-	if(m_FileDescriptor!=INVALID_HANDLE_VALUE)
+	m_HaveError = false;
+	if (m_FileDescriptor != INVALID_HANDLE_VALUE)
 	{
-		off_t CurPos=lseek(m_FileDescriptor,0,SEEK_CUR);
-		off_t FileSize=lseek(m_FileDescriptor,0,SEEK_END);
-		lseek(m_FileDescriptor,CurPos,SEEK_SET);
-
-		return FileSize;
-
+		off_t CurPos = lseek(m_FileDescriptor, 0, SEEK_CUR);
+		off_t FileSize = lseek(m_FileDescriptor, 0, SEEK_END);
+		if ((CurPos != -1) && (FileSize != -1) && (lseek(m_FileDescriptor, CurPos, SEEK_SET) != -1))
+		{
+			return FileSize;
+		}
 	}
-	else
-	{
-		return 0;
-	}
+	m_HaveError = true;
+	return 0;
 }
 
-ULONG64 CLinuxFileAccessor::Read(LPVOID pBuff,ULONG64 Size)
+ULONG64 CLinuxFileAccessor::Read(LPVOID pBuff, ULONG64 Size)
 {
-	if(m_FileDescriptor!=INVALID_HANDLE_VALUE)
+	m_HaveError = false;
+	if (m_FileDescriptor != INVALID_HANDLE_VALUE)
 	{
-		LONG64 ReadSize=read(m_FileDescriptor,pBuff,(size_t)Size);
-		if(ReadSize!=-1)
+		LONG64 ReadSize = read(m_FileDescriptor, pBuff, (size_t)Size);
+		if (ReadSize != -1)
 		{
 			return (ULONG64)ReadSize;
 		}
-		return 0;
 	}
-	else
-	{
-		return 0;
-	}
+	m_HaveError = true;
+	return 0;
 }
 
-ULONG64 CLinuxFileAccessor::Write(LPCVOID pBuff,ULONG64 Size)
+ULONG64 CLinuxFileAccessor::Write(LPCVOID pBuff, ULONG64 Size)
 {
-	if(m_FileDescriptor!=INVALID_HANDLE_VALUE)
+	m_HaveError = false;
+	if (m_FileDescriptor != INVALID_HANDLE_VALUE)
 	{
-		LONG64 WriteSize=write(m_FileDescriptor,pBuff,(size_t)Size);
+		LONG64 WriteSize = write(m_FileDescriptor, pBuff, (size_t)Size);
 		if (WriteSize != -1)
 		{
 			if (m_IsWriteFlush)
@@ -146,107 +149,111 @@ ULONG64 CLinuxFileAccessor::Write(LPCVOID pBuff,ULONG64 Size)
 			}
 			return (ULONG64)WriteSize;
 		}
-		return 0;
 	}
-	else
-	{
-		return 0;
-	}
+	m_HaveError = true;
+	return 0;
 }
 
 
-BOOL CLinuxFileAccessor::IsEOF()
+bool CLinuxFileAccessor::IsEOF()
 {
-	return GetCurPos()==GetSize();
+	return GetCurPos() == GetSize();
 }
 
-BOOL CLinuxFileAccessor::Seek(LONG64 Offset,int SeekMode)
+bool CLinuxFileAccessor::Seek(LONG64 Offset, int SeekMode)
 {
-	if(m_FileDescriptor!=INVALID_HANDLE_VALUE)
+	m_HaveError = false;
+	if (m_FileDescriptor != INVALID_HANDLE_VALUE)
 	{
-		int Whence=SEEK_SET;
-		switch(SeekMode)
+		int Whence = SEEK_SET;
+		switch (SeekMode)
 		{
 		case seekBegin:
-			Whence=SEEK_SET;
+			Whence = SEEK_SET;
 			break;
 		case seekCurrent:
-			Whence=SEEK_CUR;
+			Whence = SEEK_CUR;
 			break;
 		case seekEnd:
-			Whence=SEEK_END;
+			Whence = SEEK_END;
 			break;
 		}
-		if(lseek(m_FileDescriptor,(off_t)Offset,Whence)==-1)
-		{
-			return FALSE;
-		}
-		return TRUE;
+		if (lseek(m_FileDescriptor, (off_t)Offset, Whence) != -1)
+			return true;
 
 	}
-	else
-	{
-		return FALSE;
-	}
+	m_HaveError = true;
+	return false;
 }
 ULONG64 CLinuxFileAccessor::GetCurPos()
 {
-	if(m_FileDescriptor!=INVALID_HANDLE_VALUE)
+	m_HaveError = false;
+	if (m_FileDescriptor != INVALID_HANDLE_VALUE)
 	{
-		return lseek(m_FileDescriptor,0,SEEK_CUR);
+		LONG64 Result = lseek(m_FileDescriptor, 0, SEEK_CUR);
+		if (Result != -1)
+			return Result;
 	}
-	else
-	{
-		return 0;
-	}
+	m_HaveError = true;
+	return 0;
 }
 
-BOOL CLinuxFileAccessor::SetCreateTime(const CEasyTime& Time)
+bool CLinuxFileAccessor::SetCreateTime(const CEasyTime& Time)
 {
-	return FALSE;
+	return false;
 }
-BOOL CLinuxFileAccessor::GetCreateTime(CEasyTime& Time)
+bool CLinuxFileAccessor::GetCreateTime(CEasyTime& Time)
 {
+	m_HaveError = false;
 	if (m_FileInfo.IsOK())
 	{
 		Time = m_FileInfo.GetCreateTime();
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	m_HaveError = true;
+	return false;
 }
 
-BOOL CLinuxFileAccessor::SetLastAccessTime(const CEasyTime& Time)
+bool CLinuxFileAccessor::SetLastAccessTime(const CEasyTime& Time)
 {
+	m_HaveError = false;
 	if (m_FileInfo.SetLastAccessTime(Time))
 	{
 		return true;
 	}
-	return FALSE;
+	m_HaveError = true;
+	return false;
 }
-BOOL CLinuxFileAccessor::GetLastAccessTime(CEasyTime& Time)
+bool CLinuxFileAccessor::GetLastAccessTime(CEasyTime& Time)
 {
+	m_HaveError = false;
 	if (m_FileInfo.IsOK())
 	{
 		Time = m_FileInfo.GetLastAccessTime();
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	m_HaveError = true;
+	return false;
 }
 
-BOOL CLinuxFileAccessor::SetLastWriteTime(const CEasyTime& Time)
+bool CLinuxFileAccessor::SetLastWriteTime(const CEasyTime& Time)
 {
+	m_HaveError = false;
 	if (m_FileInfo.SetLastWriteTime(Time))
 	{
 		return true;
 	}
-	return FALSE;
+	m_HaveError = true;
+	return false;
 }
-BOOL CLinuxFileAccessor::GetLastWriteTime(CEasyTime& Time)
+bool CLinuxFileAccessor::GetLastWriteTime(CEasyTime& Time)
 {
+	m_HaveError = false;
 	if (m_FileInfo.IsOK())
 	{
 		Time = m_FileInfo.GetLastWriteTime();
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	m_HaveError = true;
+	return false;
 }

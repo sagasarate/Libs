@@ -31,7 +31,95 @@ public:
 	{
 		HEAD_SIZE = (sizeof(BYTE) + sizeof(UINT)),
 		INVALID_MEMBER_ID = ((WORD)-1),
+	};	
+	struct Pair
+	{
+		WORD		MemberID;
+		CSmartValue	Value;
 	};
+	class iterator
+	{
+	protected:
+		CSmartStruct* m_pParent;
+		void* m_Pos;
+	public:
+		iterator()
+		{
+			m_pParent = NULL;
+			m_Pos = NULL;
+		}
+		iterator(CSmartStruct* pArray, void* Pos)
+		{
+			m_pParent = pArray;
+			m_Pos = Pos;
+		}
+		iterator(const iterator& itr)
+		{
+			m_pParent = itr.m_pParent;
+			m_Pos = itr.m_Pos;
+		}
+		Pair operator*()
+		{
+			return m_pParent->GetPairByPos(m_Pos);
+		}
+		iterator& operator++()
+		{
+			m_Pos = m_pParent->GetNextMemberPos(m_Pos);
+			return *this;
+		}
+		iterator& operator=(const iterator& itr)
+		{
+			m_pParent = itr.m_pParent;
+			m_Pos = itr.m_Pos;
+			return *this;
+		}
+		bool operator!=(const iterator& itr)
+		{
+			return (m_pParent != itr.m_pParent) || (m_Pos != itr.m_Pos);
+		}
+	};
+	class const_iterator
+	{
+	protected:
+		const CSmartStruct* m_pParent;
+		void* m_Pos;
+	public:
+		const_iterator()
+		{
+			m_pParent = NULL;
+			m_Pos = NULL;
+		}
+		const_iterator(const CSmartStruct* pArray, void* Pos)
+		{
+			m_pParent = pArray;
+			m_Pos = Pos;
+		}
+		const_iterator(const const_iterator& itr)
+		{
+			m_pParent = itr.m_pParent;
+			m_Pos = itr.m_Pos;
+		}
+		const Pair operator*()
+		{
+			return m_pParent->GetPairByPos(m_Pos);
+		}
+		const_iterator& operator++()
+		{
+			m_Pos = m_pParent->GetNextMemberPos(m_Pos);
+			return *this;
+		}
+		const_iterator& operator=(const const_iterator& itr)
+		{
+			m_pParent = itr.m_pParent;
+			m_Pos = itr.m_Pos;
+			return *this;
+		}
+		bool operator !=(const const_iterator& itr)
+		{
+			return (m_pParent != itr.m_pParent) || (m_Pos != itr.m_Pos);
+		}
+	};
+
 	CSmartStruct(LPCTSTR Tag = _T("CSmartStruct"))
 	{
 		m_pData = NULL;
@@ -69,7 +157,7 @@ public:
 		m_DataLen = 0;
 		m_IsSelfData = true;
 		m_Tag = Tag;
-		Attach(Value.GetData(), Value.GetDataLen(), false);
+		Attach((void*)Value.GetData(), Value.GetBufferLen(), false);
 	}
 	LPCTSTR GetTag()
 	{
@@ -86,30 +174,51 @@ public:
 		m_pData = MONITORED_NEW_ARRAY(GetTag(), BYTE, m_DataLen);
 		ZeroMemory(m_pData, m_DataLen);
 		*m_pData = CSmartValue::VT_STRUCT;
-		*((UINT *)(m_pData + 1)) = 0;
+		*((UINT *)(m_pData + sizeof(BYTE))) = 0;
+		m_IsSelfData = true;
+		return true;
+	}
+	bool Expand(UINT ExpandSize)
+	{
+		UINT NewDataLen = 0;
+		if (m_DataLen == 0)
+		{
+			NewDataLen = sizeof(BYTE) + sizeof(UINT) + ExpandSize;
+		}
+		else
+		{
+			NewDataLen += ExpandSize;
+		}
+
+		BYTE* pNewData = MONITORED_NEW_ARRAY(GetTag(), BYTE, m_DataLen);
+		if (m_DataLen == 0)
+		{
+			ZeroMemory(m_pData, m_DataLen);
+			*m_pData = CSmartValue::VT_STRUCT;
+			*((UINT*)(m_pData + sizeof(BYTE))) = 0;
+		}
+		else
+		{
+			memcpy(pNewData, m_pData, m_DataLen);
+		}
+		SAFE_DELETE_ARRAY(m_pData);
+		m_pData = pNewData;
+		m_DataLen = NewDataLen;
 		m_IsSelfData = true;
 		return true;
 	}
 
 	bool Attach(LPVOID pData, UINT DataLen, bool IsEmpty)
 	{
-		if (pData == NULL || DataLen == 0)
+		if ((pData == NULL) || (DataLen < sizeof(BYTE) + sizeof(UINT)))
 			return false;
 		Destory();
 		m_IsSelfData = false;
 		m_pData = (BYTE *)pData;
 		if (IsEmpty)
 		{
-			if (DataLen >= sizeof(BYTE) + sizeof(UINT))
-			{
-				m_pData[0] = CSmartValue::VT_STRUCT;
-				*((UINT *)(m_pData + 1)) = 0;
-			}
-			else
-			{
-				Destory();
-				return false;
-			}
+			m_pData[0] = CSmartValue::VT_STRUCT;
+			Clear();
 		}
 		else
 		{
@@ -157,7 +266,7 @@ public:
 	void Clear()
 	{
 		if (m_pData)
-			*((UINT *)(m_pData + 1)) = 0;
+			*((UINT*)(m_pData + sizeof(BYTE))) = 0;
 	}
 
 	operator CSmartValue() const
@@ -167,9 +276,6 @@ public:
 
 	void operator=(const CSmartStruct& Struct)
 	{
-		m_pData = NULL;
-		m_DataLen = 0;
-		m_IsSelfData = true;
 		Attach(Struct.GetData(), Struct.GetBufferLen(), false);
 	}
 
@@ -178,7 +284,7 @@ public:
 	{
 		if (m_pData == NULL)
 			return 0;
-		return *((UINT *)(m_pData + 1));
+		return *((UINT *)(m_pData + sizeof(BYTE)));
 	}
 
 	UINT GetDataLen() const
@@ -207,7 +313,7 @@ public:
 			CSmartValue SmartValue;
 			if (SmartValue.Attach(pBuffer, BufferSize, CSmartValue::VT_CHAR))
 			{
-				SmartValue = Value;
+				SmartValue.SetValue(Value);
 				return FinishMember(ID, SmartValue.GetDataLen());
 			}
 		}
@@ -222,7 +328,7 @@ public:
 			CSmartValue SmartValue;
 			if (SmartValue.Attach(pBuffer, BufferSize, CSmartValue::VT_UCHAR))
 			{
-				SmartValue = Value;
+				SmartValue.SetValue(Value);
 				return FinishMember(ID, SmartValue.GetDataLen());
 			}
 		}
@@ -237,7 +343,7 @@ public:
 			CSmartValue SmartValue;
 			if (SmartValue.Attach(pBuffer, BufferSize, CSmartValue::VT_SHORT))
 			{
-				SmartValue = Value;
+				SmartValue.SetValue(Value);
 				return FinishMember(ID, SmartValue.GetDataLen());
 			}
 		}
@@ -252,7 +358,7 @@ public:
 			CSmartValue SmartValue;
 			if (SmartValue.Attach(pBuffer, BufferSize, CSmartValue::VT_USHORT))
 			{
-				SmartValue = Value;
+				SmartValue.SetValue(Value);
 				return FinishMember(ID, SmartValue.GetDataLen());
 			}
 		}
@@ -297,7 +403,7 @@ public:
 			CSmartValue SmartValue;
 			if (SmartValue.Attach(pBuffer, BufferSize, CSmartValue::VT_INT))
 			{
-				SmartValue = Value;
+				SmartValue.SetValue(Value);
 				return FinishMember(ID, SmartValue.GetDataLen());
 			}
 		}
@@ -312,7 +418,7 @@ public:
 			CSmartValue SmartValue;
 			if (SmartValue.Attach(pBuffer, BufferSize, CSmartValue::VT_UINT))
 			{
-				SmartValue = Value;
+				SmartValue.SetValue(Value);
 				return FinishMember(ID, SmartValue.GetDataLen());
 			}
 		}
@@ -327,7 +433,7 @@ public:
 			CSmartValue SmartValue;
 			if (SmartValue.Attach(pBuffer, BufferSize, CSmartValue::VT_BIGINT))
 			{
-				SmartValue = Value;
+				SmartValue.SetValue(Value);
 				return FinishMember(ID, SmartValue.GetDataLen());
 			}
 		}
@@ -342,7 +448,7 @@ public:
 			CSmartValue SmartValue;
 			if (SmartValue.Attach(pBuffer, BufferSize, CSmartValue::VT_UBIGINT))
 			{
-				SmartValue = Value;
+				SmartValue.SetValue(Value);
 				return FinishMember(ID, SmartValue.GetDataLen());
 			}
 		}
@@ -357,7 +463,7 @@ public:
 			CSmartValue SmartValue;
 			if (SmartValue.Attach(pBuffer, BufferSize, CSmartValue::VT_FLOAT))
 			{
-				SmartValue = Value;
+				SmartValue.SetValue(Value);
 				return FinishMember(ID, SmartValue.GetDataLen());
 			}
 		}
@@ -372,7 +478,7 @@ public:
 			CSmartValue SmartValue;
 			if (SmartValue.Attach(pBuffer, BufferSize, CSmartValue::VT_DOUBLE))
 			{
-				SmartValue = Value;
+				SmartValue.SetValue(Value);
 				return FinishMember(ID, SmartValue.GetDataLen());
 			}
 		}
@@ -387,7 +493,7 @@ public:
 			CSmartValue SmartValue;
 			if (SmartValue.Attach(pBuffer, BufferSize, CSmartValue::VT_BOOL))
 			{
-				SmartValue = Value;
+				SmartValue.SetValue(Value);
 				return FinishMember(ID, SmartValue.GetDataLen());
 			}
 		}
@@ -425,7 +531,30 @@ public:
 		*((WORD *)pFreeBuffer) = ID;
 		pFreeBuffer += sizeof(WORD);
 		memcpy(pFreeBuffer, Value.GetData(), Value.GetDataLen());
-		*((UINT *)(m_pData + 1)) += NeedSize;
+		*((UINT *)(m_pData + sizeof(BYTE))) += NeedSize;
+		return true;
+	}
+	bool AddMember(WORD ID, const CSmartArray& Value)
+	{
+		if (m_pData == NULL)
+			return false;
+		if (ID == 0)
+			return false;
+		if (Value.GetDataLen() <= 0)
+		{
+			//如果是空数据，插入一个NULL
+			return AddMemberNull(ID);
+		}
+		UINT NeedSize = sizeof(WORD) + Value.GetDataLen();
+		if (GetFreeLen() < NeedSize)
+		{
+			return false;
+		}
+		BYTE* pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength();
+		*((WORD*)pFreeBuffer) = ID;
+		pFreeBuffer += sizeof(WORD);
+		memcpy(pFreeBuffer, Value.GetData(), Value.GetDataLen());
+		*((UINT*)(m_pData + sizeof(BYTE))) += NeedSize;
 		return true;
 	}
 	bool AddMemberNull(WORD ID)
@@ -567,7 +696,7 @@ public:
 				break;
 			}
 		}
-		*((UINT *)(m_pData + 1)) += NeedSize;
+		*((UINT *)(m_pData + sizeof(BYTE))) += NeedSize;
 		return true;
 	}
 	bool AddMember(WORD ID, const WCHAR * pszStr, UINT nStrLen)
@@ -663,31 +792,67 @@ public:
 		*((UINT *)pFreeBuffer) = DataLen;
 		pFreeBuffer += sizeof(UINT);
 		memcpy(pFreeBuffer, pData, DataLen);
-		*((UINT *)(m_pData + 1)) += NeedSize;
+		*((UINT *)(m_pData + sizeof(BYTE))) += NeedSize;
 		return true;
 	}
 	bool AddMember(WORD ID, const CEasyBuffer& Data)
 	{
-		if (ID == 0)
-			return false;
-		if ((Data.GetUsedSize() > 0) && (m_pData == NULL))
-			return false;
-
-		UINT NeedSize = sizeof(WORD) + sizeof(BYTE) + sizeof(UINT) + Data.GetUsedSize();
-		if (GetFreeLen() < NeedSize)
+		return AddMember(ID, (const unsigned char*)Data.GetBuffer(), (UINT)Data.GetUsedSize());
+	}
+	bool AddMember(WORD ID, const CVariedValue& Value)
+	{
+		switch (Value.GetType())
 		{
-			return false;
+		case VARIED_VALUE_TYPE::NIL:
+			return AddMemberNull(ID);
+		case VARIED_VALUE_TYPE::BOOLEAN:
+			return AddMember(ID, (bool)Value);
+		case VARIED_VALUE_TYPE::INT8:
+			return AddMember(ID, (char)Value);
+		case VARIED_VALUE_TYPE::UINT8:
+			return AddMember(ID, (unsigned char)Value);
+		case VARIED_VALUE_TYPE::INT16:
+			return AddMember(ID, (short)Value);
+		case VARIED_VALUE_TYPE::UINT16:
+			return AddMember(ID, (unsigned short)Value);
+		case VARIED_VALUE_TYPE::INT32:
+			return AddMember(ID, (int)Value);
+		case VARIED_VALUE_TYPE::UINT32:
+			return AddMember(ID, (unsigned int)Value);
+		case VARIED_VALUE_TYPE::INT64:
+			return AddMember(ID, (__int64)Value);
+		case VARIED_VALUE_TYPE::UINT64:
+			return AddMember(ID, (unsigned __int64)Value);
+		case VARIED_VALUE_TYPE::FLOAT32:
+			return AddMember(ID, (float)Value);
+		case VARIED_VALUE_TYPE::FLOAT64:
+			return AddMember(ID, (double)Value);
+		case VARIED_VALUE_TYPE::STRING:
+			return AddMember(ID, (LPCTSTR)Value);
+		case VARIED_VALUE_TYPE::BINARY:
+			return AddMember(ID, (const unsigned char*)Value, Value.GetLength());
+		case VARIED_VALUE_TYPE::ARRAY:
+			{
+				CSmartValue Member;
+				if (PrepareMember(CSmartValue::VT_ARRAY, Member))
+				{
+					if (Member.SetValue(Value))
+						return FinishMember(ID, Member.GetDataLen());
+				}				
+			}
+			break;
+		case VARIED_VALUE_TYPE::TABLE:
+			{
+				CSmartValue Member;
+				if (PrepareMember(CSmartValue::VT_STRUCT, Member))
+				{
+					if (Member.SetValue(Value))
+						return FinishMember(ID, Member.GetDataLen());
+				}					
+			}
+			break;
 		}
-		BYTE * pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength();
-		*((WORD *)pFreeBuffer) = ID;
-		pFreeBuffer += sizeof(WORD);
-		*((BYTE *)pFreeBuffer) = CSmartValue::VT_BINARY;
-		pFreeBuffer += sizeof(BYTE);
-		*((UINT *)pFreeBuffer) = Data.GetUsedSize();
-		pFreeBuffer += sizeof(UINT);
-		memcpy(pFreeBuffer, Data.GetBuffer(), Data.GetUsedSize());
-		*((UINT *)(m_pData + 1)) += NeedSize;
-		return true;
+		return false;
 	}
 	void * PrepareMember(UINT& nUsableSize)
 	{
@@ -701,6 +866,31 @@ public:
 		nUsableSize = GetFreeLen() - sizeof(WORD);
 		BYTE * pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength() + sizeof(WORD);
 		return pFreeBuffer;
+	}
+	bool PrepareMember(CSmartValue::SMART_VALUE_TYPE Type, CSmartValue& Value)
+	{
+		UINT BufferSize;
+		void* pBuffer = PrepareMember(BufferSize);
+		if (pBuffer)
+		{
+			Value.Attach(pBuffer, BufferSize, Type);
+			return true;
+		}
+		return false;
+	}
+	CSmartArray PrepareSubArray()
+	{
+		CSmartArray SubArray;
+		if (m_pData)
+		{
+			if (GetFreeLen() >= GetStructMemberSize(0))
+			{
+				UINT nUsableSize = GetFreeLen() - sizeof(WORD);
+				BYTE* pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength() + sizeof(WORD);
+				SubArray.Attach(pFreeBuffer, nUsableSize, true);
+			}
+		}
+		return SubArray;
 	}
 	CSmartStruct PrepareSubStruct()
 	{
@@ -729,7 +919,7 @@ public:
 		}
 		BYTE * pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength();
 		*((WORD *)pFreeBuffer) = ID;
-		*((UINT *)(m_pData + 1)) += NeedSize;
+		*((UINT *)(m_pData + sizeof(BYTE))) += NeedSize;
 		return true;
 	}
 
@@ -749,7 +939,7 @@ public:
 		BYTE * pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength();
 
 		memcpy(pFreeBuffer, Struct.m_pData + sizeof(BYTE) + sizeof(UINT), NeedSize);
-		*((UINT *)(m_pData + 1)) += NeedSize;
+		*((UINT *)(m_pData + sizeof(BYTE))) += NeedSize;
 		return true;
 	}
 	int GetMemberCount() const
@@ -879,6 +1069,42 @@ public:
 		}
 		return 0;
 	}
+	Pair GetPairByPos(void* Pos)
+	{
+		Pair pair;
+		if (m_pData == NULL)
+			return pair;
+		if (Pos)
+		{
+			BYTE* pHead = (BYTE*)Pos;
+			BYTE* pTail = m_pData + GetDataLen();
+			pHead += sizeof(WORD);
+			if (pHead < pTail)			
+			{
+				if (!pair.Value.Attach(pHead, (UINT)(pTail - pHead), CSmartValue::VT_UNKNOWN))
+					return pair;
+			}
+		}
+		return pair;
+	}
+	const Pair GetPairByPos(void* Pos) const
+	{
+		Pair pair;
+		if (m_pData == NULL)
+			return pair;
+		if (Pos)
+		{
+			BYTE* pHead = (BYTE*)Pos;
+			BYTE* pTail = m_pData + GetDataLen();
+			pHead += sizeof(WORD);
+			if (pHead < pTail)
+			{
+				if (!pair.Value.Attach(pHead, (UINT)(pTail - pHead), CSmartValue::VT_UNKNOWN))
+					return pair;
+			}
+		}
+		return pair;
+	}
 	LPVOID GetFirstMemberPosition() const
 	{
 		if (m_pData == NULL)
@@ -933,13 +1159,61 @@ public:
 
 		}
 		return Value;
+	}	
+	void* GetNextMemberPos(void* Pos) const
+	{
+		if (m_pData == NULL)
+			return NULL;
+		if (Pos)
+		{
+			BYTE* pHead = (BYTE*)Pos;
+			BYTE* pTail = m_pData + GetDataLen();		
+			pHead += sizeof(WORD);
+			if (pHead >= pTail)
+			{
+				return NULL;
+			}
+			else
+			{
+				CSmartValue Value;
+				if (!Value.Attach(pHead, (UINT)(pTail - pHead), CSmartValue::VT_UNKNOWN))
+				{
+					return NULL;
+				}
+				Pos = pHead + Value.GetDataLen();
+				if (Pos >= pTail)
+				{
+					return NULL;
+				}
+			}
+
+		}
+		return Pos;
+	}
+	iterator begin()
+	{
+		return iterator(this, GetFirstMemberPosition());
 	}
 
+	iterator end()
+	{
+		return iterator(this, NULL);
+	}
+	const_iterator begin() const
+	{
+		return const_iterator(this, GetFirstMemberPosition());
+	}
+
+	const_iterator end() const
+	{
+		return const_iterator(this, NULL);
+	}
+	void Dump(CStringBuilder& OutBuffer, bool HaveType);
 	static inline UINT GetDataLenFromData(LPCVOID pData, UINT DataSize)
 	{
 		if (pData == NULL || DataSize < HEAD_SIZE)
 			return 0;
-		return *((UINT *)((BYTE *)pData + 1)) + HEAD_SIZE;
+		return *((UINT *)((BYTE *)pData + sizeof(BYTE))) + HEAD_SIZE;
 	}
 
 	static inline UINT GetEmptyStructSize()
@@ -950,6 +1224,10 @@ public:
 	static inline UINT GetFixMemberSize(UINT TypeLen)
 	{
 		return sizeof(WORD) + sizeof(BYTE) + TypeLen;
+	}
+	static inline UINT GetArrayMemberSize(UINT ArraySize)
+	{
+		return sizeof(WORD) + sizeof(BYTE) + sizeof(UINT) + ArraySize;
 	}
 	static inline UINT GetStructMemberSize(UINT StructSize)
 	{
@@ -1007,10 +1285,11 @@ public:
 		}
 		
 	}
-	static inline UINT GetBinaryMemberSize(UINT DataLen)
+	inline static UINT GetBinaryMemberSize(UINT DataLen)
 	{
 		return sizeof(WORD) + sizeof(BYTE) + sizeof(UINT) + DataLen;
 	}
+	static UINT GetVariedMemberSize(const CVariedValue& Value);
 	UINT GetFreeLen()
 	{
 		return m_DataLen-GetDataLen();

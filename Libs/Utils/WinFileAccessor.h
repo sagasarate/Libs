@@ -16,34 +16,39 @@ class CWinFileAccessor :
 {
 protected:
 	HANDLE	m_hFile;
+	bool	m_HaveError;
 
 	DECLARE_CLASS_INFO_STATIC(CWinFileAccessor)
 public:
 	CWinFileAccessor(void);
 	virtual ~CWinFileAccessor(void);
 
-	virtual BOOL Open(LPCTSTR FileName,int OpenMode);
-	virtual void Close();
+	virtual bool Open(LPCTSTR FileName, int OpenMode) override;
+	virtual void Close() override;
 
-	virtual ULONG64 GetSize();
+	virtual ULONG64 GetSize() override;
 
-	virtual ULONG64 Read(LPVOID pBuff,ULONG64 Size);
-	virtual ULONG64 Write(LPCVOID pBuff,ULONG64 Size);
+	virtual ULONG64 Read(LPVOID pBuff,ULONG64 Size) override;
+	virtual ULONG64 Write(LPCVOID pBuff,ULONG64 Size) override;
 
 
-	virtual BOOL IsEOF();
+	virtual bool IsEOF() override;
 
-	virtual BOOL Seek(LONG64 Offset,int SeekMode);
-	virtual ULONG64 GetCurPos();
+	virtual bool Seek(LONG64 Offset,int SeekMode) override;
+	virtual ULONG64 GetCurPos() override;
 
-	virtual BOOL SetCreateTime(const CEasyTime& Time);
-	virtual BOOL GetCreateTime(CEasyTime& Time);
+	virtual bool SetCreateTime(const CEasyTime& Time) override;
+	virtual bool GetCreateTime(CEasyTime& Time) override;
 
-	virtual BOOL SetLastAccessTime(const CEasyTime& Time);
-	virtual BOOL GetLastAccessTime(CEasyTime& Time);
+	virtual bool SetLastAccessTime(const CEasyTime& Time) override;
+	virtual bool GetLastAccessTime(CEasyTime& Time) override;
 
-	virtual BOOL SetLastWriteTime(const CEasyTime& Time);
-	virtual BOOL GetLastWriteTime(CEasyTime& Time);
+	virtual bool SetLastWriteTime(const CEasyTime& Time) override;
+	virtual bool GetLastWriteTime(CEasyTime& Time) override;
+	virtual bool HaveError() override
+	{
+		return m_HaveError;
+	}
 
 	HANDLE GetFileHandle()
 	{

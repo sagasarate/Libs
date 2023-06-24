@@ -1,31 +1,31 @@
+ï»¿/****************************************************************************/
+/*                                                                          */
+/*      æ–‡ä»¶å:    stdafx.h                                                 */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
+/*                                                                          */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
+/*                                                                          */
 /****************************************************************************/
-/*                                                                          */
-/*      ÎÄ¼þÃû:    stdafx.h                                                 */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
-/*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
-/*                                                                          */
-/****************************************************************************/
-// stdafx.h : ±ê×¼ÏµÍ³°üº¬ÎÄ¼þµÄ°üº¬ÎÄ¼þ£¬
-// »òÊÇ³£ÓÃµ«²»³£¸ü¸ÄµÄÏîÄ¿ÌØ¶¨µÄ°üº¬ÎÄ¼þ
+// stdafx.h : æ ‡å‡†ç³»ç»ŸåŒ…å«æ–‡ä»¶çš„åŒ…å«æ–‡ä»¶ï¼Œ
+// æˆ–æ˜¯å¸¸ç”¨ä½†ä¸å¸¸æ›´æ”¹çš„é¡¹ç›®ç‰¹å®šçš„åŒ…å«æ–‡ä»¶
 //
 
 #pragma once
 
 
-#define WIN32_LEAN_AND_MEAN		// ´Ó Windows Í·ÖÐÅÅ³ý¼«ÉÙÊ¹ÓÃµÄ×ÊÁÏ
-//#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// Ä³Ð© CEasyString ¹¹Ôìº¯Êý½«ÎªÏÔÊ½µÄ
+#define WIN32_LEAN_AND_MEAN		// ä»Ž Windows å¤´ä¸­æŽ’é™¤æžå°‘ä½¿ç”¨çš„èµ„æ–™
+//#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// æŸäº› CEasyString æž„é€ å‡½æ•°å°†ä¸ºæ˜¾å¼çš„
 
 #ifndef VC_EXTRALEAN
-#define VC_EXTRALEAN		// ´Ó Windows Í·ÖÐÅÅ³ý¼«ÉÙÊ¹ÓÃµÄ×ÊÁÏ
+#define VC_EXTRALEAN		// ä»Ž Windows å¤´ä¸­æŽ’é™¤æžå°‘ä½¿ç”¨çš„èµ„æ–™
 #endif
 
 
 #define USE_CRT_DETAIL_NEW
-// TODO: ÔÚ´Ë´¦ÒýÓÃ³ÌÐòÒªÇóµÄ¸½¼ÓÍ·ÎÄ¼þ
+// TODO: åœ¨æ­¤å¤„å¼•ç”¨ç¨‹åºè¦æ±‚çš„é™„åŠ å¤´æ–‡ä»¶
 //#define D3D_DEBUG_INFO
 
 #include "..\Utils\Utils.h"

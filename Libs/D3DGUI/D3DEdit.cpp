@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DEdit.cpp                                              */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DEdit.cpp                                              */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -525,14 +525,14 @@ void CD3DEdit::UpdateRects()
 	CEasyRect ClientRect=GetClientRect();	
 	ClientToScreen(&ClientRect);		
 
-	//¼ÆËãĞèÒªµÄ¿ÉÊÓĞĞÊı
+	//è®¡ç®—éœ€è¦çš„å¯è§†è¡Œæ•°
 	m_CurVisibleLineCount=(int)floor((FLOAT)ClientRect.Height()/(m_LineHeight+m_FontLineSpace));
 
-	//¸ù¾İĞèÒªÀ©³ä¾ØĞÎÊı
+	//æ ¹æ®éœ€è¦æ‰©å……çŸ©å½¢æ•°
 	if(m_CurVisibleLineCount>GetSelectRectCount())
 		GrowTextRect(m_CurVisibleLineCount-GetSelectRectCount()+LINE_GROW);
 
-	//°´ĞèÒªÖØĞÂ¶ÏĞĞ
+	//æŒ‰éœ€è¦é‡æ–°æ–­è¡Œ
 	if(m_AutoWrap&&m_IsMultiLine)
 	{
 		if(m_ClientCurWidth!=ClientRect.Width())
@@ -622,10 +622,10 @@ void CD3DEdit::UpdateCaret()
 
 	if(!IsActive())	
 		return;
-	//¸üĞÂ¹â±ê
+	//æ›´æ–°å…‰æ ‡
 	if(m_IsShowCaret)
 	{		
-		//¼ÆËã¹â±êÎ»ÖÃ
+		//è®¡ç®—å…‰æ ‡ä½ç½®
 		FLOAT_RECT CaretRect;
 
 		CEasyRect ClientRect=GetClientRect();	
@@ -1064,7 +1064,7 @@ bool CD3DEdit::LoadFromXml(xml_node * pXMLNode)
 	}
 	HandleMessage(this,WM_D3DGUI_WND_LOADED,GetID(),(LPARAM)this);
 
-	//×°ÔØ×Ó´°¿Ú
+	//è£…è½½å­çª—å£
 	for(int i=(int)pXMLNode->children()-1;i>=0;i--)
 	{
 		if(_tcsnicmp(pXMLNode->child(i).name(),_T("Childs"),7)==0)
@@ -1074,7 +1074,7 @@ bool CD3DEdit::LoadFromXml(xml_node * pXMLNode)
 		}
 	}
 
-	//Ê¶±ğÄÚ²¿¶ÔÏó
+	//è¯†åˆ«å†…éƒ¨å¯¹è±¡
 	for(int i=(int)m_ChildWndList.GetCount()-1;i>=0;i--)
 	{
 		CD3DWnd * pWnd=m_ChildWndList[i];
@@ -1335,7 +1335,7 @@ void CD3DEdit::RowColToIndex(int& Index,int Row,int Col,bool IsForward)
 
 void CD3DEdit::CheckIndex(int& Index,bool IsForward)
 {
-	//ÂÔ¹ı²»¿É¼û×Ö·û,²»°üÀ¨»»ĞĞ·û
+	//ç•¥è¿‡ä¸å¯è§å­—ç¬¦,ä¸åŒ…æ‹¬æ¢è¡Œç¬¦
 	LPCWSTR pText=(LPCWSTR)m_WndText;
 	if(IsForward)
 	{
@@ -1639,7 +1639,7 @@ void CD3DEdit::InsertStr(LPCWSTR Str,bool WantTrans)
 
 void CD3DEdit::GetMiniSize(int& Width,int& Height)
 {
-	//¼ì²â´°¿Ú´óĞ¡
+	//æ£€æµ‹çª—å£å¤§å°
 	int LMinWidth,RMinWidth;
 
 	LMinWidth=m_Borders[RECT_LEFT];
@@ -1670,7 +1670,7 @@ void CD3DEdit::GetMiniSize(int& Width,int& Height)
 
 void CD3DEdit::MakeCaretVisible()
 {
-	//±£³Ö¹â±ê¿É¼û
+	//ä¿æŒå…‰æ ‡å¯è§
 
 	if(m_IsMultiLine)
 	{	
@@ -1849,7 +1849,7 @@ bool CD3DEdit::ProcessIME(UINT msg, WPARAM wParam, LPARAM lParam)
 					{
 						LPCWSTR pStr=(LPCWSTR)(pBuffer+pCandidateList->dwOffset[i]);
 						CandidateStrings+=(char)('1'+i-pCandidateList->dwPageStart);
-						CandidateStrings+="¡¢";
+						CandidateStrings+="ã€";
 						CandidateStrings+=pStr;
 						CandidateStrings+="\r\n";
 					}

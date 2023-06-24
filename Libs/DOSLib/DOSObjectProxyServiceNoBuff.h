@@ -38,7 +38,7 @@ protected:
 	};
 
 	CLIENT_PROXY_CONFIG													m_Config;
-	CCycleQueue<CDOSMessagePacket *>									m_MsgQueue;
+	CCycleQueue<DISPATCHED_MSG>											m_MsgQueue;
 
 	CStaticMap<MSG_ID_TYPE, MSG_MAP_INFO>								m_MessageMap;
 	OBJECT_ID															m_UnhandleMsgReceiverID;
@@ -61,8 +61,7 @@ protected:
 	CEasyArray<IP_INFO>													m_PrepareIPBlackList;
 	CEasyCriticalSection												m_BlackListCriticalSection;
 	CEasyTimer															m_BlackListUpdateTimer;
-
-	CStaticMap<UINT64, CEasyArray<CDOSObjectProxyConnectionDefault *> >	m_GroupBroadcastMap;
+	
 
 public:
 	CDOSObjectProxyServiceNoBuff(void);
@@ -70,9 +69,12 @@ public:
 	
 	virtual void Release();
 	virtual void Destory();
+	virtual UINT AddUseRef() override;
+	virtual UINT GetUseRef();
 	virtual BYTE GetProxyType();
 	virtual void SetID(UINT ID);
 	virtual UINT GetID();
+	virtual bool StartService(IDOSObjectProxyServiceOperator* pOperator) override;
 	virtual bool StartService();
 	virtual void StopService();
 	virtual bool PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket);
@@ -80,9 +82,11 @@ public:
 	virtual UINT GetConnectionCount();
 	virtual float GetCPUUsedRate();
 	virtual float GetCycleTime();
+	virtual UINT GetMsgQueueLen();
 	virtual UINT GetGroupCount();
 	virtual float GetGroupCPUUsedRate(UINT Index);
 	virtual float GetGroupCycleTime(UINT Index);
+	virtual UINT GetGroupMsgQueueLen(UINT Index);
 
 
 
@@ -121,6 +125,7 @@ public:
 	bool AddBlackList(CIPAddress IP, UINT Duration);
 	bool OnRecvProtected(CIPAddress IP);
 protected:
+	void ProcessMsg(DISPATCHED_MSG& Msg);
 	void OnMsg(CDOSMessage * pMessage);
 	void OnSystemMsg(CDOSMessagePacket * pPacket);
 	bool DoRegisterGlobalMsgMap(MSG_ID_TYPE MsgID, int MapType, OBJECT_ID ObjectID);
@@ -128,8 +133,6 @@ protected:
 	void ClearMsgMapByRouterID(UINT RouterID);
 	bool CheckEncryptConfig();
 	int CheckFreeObject();
-	bool AddConnectionToBroadcastGroup(CDOSObjectProxyConnectionDefault * pConnection, UINT64 GroupID);
-	bool RemoveConnectionFromBroadcastGroup(CDOSObjectProxyConnectionDefault * pConnection);
 };
 
 

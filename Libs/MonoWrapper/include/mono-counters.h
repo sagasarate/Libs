@@ -1,4 +1,4 @@
-#ifndef __MONO_COUNTERS_H__
+﻿#ifndef __MONO_COUNTERS_H__
 #define __MONO_COUNTERS_H__
 
 #include <stdio.h>

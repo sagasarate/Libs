@@ -16,12 +16,18 @@
     <Filter Include="Lib">
       <UniqueIdentifier>{a39eaa6d-d27b-4a21-acb9-277215f19a5e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LuaSocket">
+      <UniqueIdentifier>{0af9f6d8-b566-410b-b27e-7fd4c3a3d5ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts">
+      <UniqueIdentifier>{5e89994a-73ad-4fb4-a6af-e8399d91badb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts\socket">
+      <UniqueIdentifier>{c90177e2-d776-48ac-9438-7439b86584a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LuaScriptPool.cpp">
-      <Filter>LuaWrap</Filter>
-    </ClCompile>
-    <ClCompile Include="LuaTable.cpp">
       <Filter>LuaWrap</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
@@ -36,6 +42,33 @@
     <ClCompile Include="LuaBaseMetaClass.cpp">
       <Filter>MetaClass</Filter>
     </ClCompile>
+    <ClCompile Include="LuaVM.cpp">
+      <Filter>LuaWrap</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseLuaVM.cpp">
+      <Filter>LuaWrap</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaByteArray.cpp">
+      <Filter>MetaClass</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaGrid.cpp">
+      <Filter>MetaClass</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaSmartStruct.cpp">
+      <Filter>MetaClass</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaSmartValue.cpp">
+      <Filter>MetaClass</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaLibCommon.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseLuaLib.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaSmartArray.cpp">
+      <Filter>MetaClass</Filter>
+    </ClCompile>
     <ClCompile Include="src\lapi.c">
       <Filter>Lua</Filter>
     </ClCompile>
@@ -43,9 +76,6 @@
       <Filter>Lua</Filter>
     </ClCompile>
     <ClCompile Include="src\lbaselib.c">
-      <Filter>Lua</Filter>
-    </ClCompile>
-    <ClCompile Include="src\lbitlib.c">
       <Filter>Lua</Filter>
     </ClCompile>
     <ClCompile Include="src\lcode.c">
@@ -123,6 +153,12 @@
     <ClCompile Include="src\ltm.c">
       <Filter>Lua</Filter>
     </ClCompile>
+    <ClCompile Include="src\lua.c">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="src\luac.c">
+      <Filter>Lua</Filter>
+    </ClCompile>
     <ClCompile Include="src\lundump.c">
       <Filter>Lua</Filter>
     </ClCompile>
@@ -135,48 +171,54 @@
     <ClCompile Include="src\lzio.c">
       <Filter>Lua</Filter>
     </ClCompile>
-    <ClCompile Include="LuaBaseStaticMetaClass.cpp">
-      <Filter>MetaClass</Filter>
+    <ClCompile Include="luasocket\auxiliar.c">
+      <Filter>LuaSocket</Filter>
     </ClCompile>
-    <ClCompile Include="LuaValue.cpp">
-      <Filter>LuaWrap</Filter>
+    <ClCompile Include="luasocket\buffer.c">
+      <Filter>LuaSocket</Filter>
     </ClCompile>
-    <ClCompile Include="LuaVM.cpp">
-      <Filter>LuaWrap</Filter>
+    <ClCompile Include="luasocket\compat.c">
+      <Filter>LuaSocket</Filter>
     </ClCompile>
-    <ClCompile Include="BaseLuaVM.cpp">
-      <Filter>LuaWrap</Filter>
+    <ClCompile Include="luasocket\except.c">
+      <Filter>LuaSocket</Filter>
     </ClCompile>
-    <ClCompile Include="LuaByteArray.cpp">
-      <Filter>MetaClass</Filter>
+    <ClCompile Include="luasocket\inet.c">
+      <Filter>LuaSocket</Filter>
     </ClCompile>
-    <ClCompile Include="LuaGrid.cpp">
-      <Filter>MetaClass</Filter>
+    <ClCompile Include="luasocket\io.c">
+      <Filter>LuaSocket</Filter>
     </ClCompile>
-    <ClCompile Include="LuaSmartStruct.cpp">
-      <Filter>MetaClass</Filter>
+    <ClCompile Include="luasocket\luasocket.c">
+      <Filter>LuaSocket</Filter>
     </ClCompile>
-    <ClCompile Include="LuaSmartValue.cpp">
-      <Filter>MetaClass</Filter>
+    <ClCompile Include="luasocket\mime.c">
+      <Filter>LuaSocket</Filter>
     </ClCompile>
-    <ClCompile Include="LuaLibCommon.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="luasocket\options.c">
+      <Filter>LuaSocket</Filter>
     </ClCompile>
-    <ClCompile Include="LuaLibSmartStruct.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="luasocket\select.c">
+      <Filter>LuaSocket</Filter>
     </ClCompile>
-    <ClCompile Include="BaseLuaLib.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="luasocket\tcp.c">
+      <Filter>LuaSocket</Filter>
     </ClCompile>
-    <ClCompile Include="LuaJsonValue.cpp">
-      <Filter>MetaClass</Filter>
+    <ClCompile Include="luasocket\timeout.c">
+      <Filter>LuaSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="luasocket\udp.c">
+      <Filter>LuaSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="luasocket\usocket.c">
+      <Filter>LuaSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="luasocket\wsocket.c">
+      <Filter>LuaSocket</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LuaScriptPool.h">
-      <Filter>LuaWrap</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaTable.h">
       <Filter>LuaWrap</Filter>
     </ClInclude>
     <ClInclude Include="LuaWrap.h">
@@ -203,6 +245,45 @@
     <ClInclude Include="LuaBaseMetaClass.h">
       <Filter>MetaClass</Filter>
     </ClInclude>
+    <ClInclude Include="LuaWrapBase.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaVM.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseLuaVM.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaByteArray.h">
+      <Filter>MetaClass</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaGrid.h">
+      <Filter>MetaClass</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaSmartStruct.h">
+      <Filter>MetaClass</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaSmartValue.h">
+      <Filter>MetaClass</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaLibCommon.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseLuaLib.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaSmartArray.h">
+      <Filter>MetaClass</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaCallWrapDefines.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaWrapHead.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaWrapBody.h">
+      <Filter>LuaWrap</Filter>
+    </ClInclude>
     <ClInclude Include="src\lapi.h">
       <Filter>Lua</Filter>
     </ClInclude>
@@ -227,6 +308,9 @@
     <ClInclude Include="src\lgc.h">
       <Filter>Lua</Filter>
     </ClInclude>
+    <ClInclude Include="src\ljumptab.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
     <ClInclude Include="src\llex.h">
       <Filter>Lua</Filter>
     </ClInclude>
@@ -240,6 +324,9 @@
       <Filter>Lua</Filter>
     </ClInclude>
     <ClInclude Include="src\lopcodes.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lopnames.h">
       <Filter>Lua</Filter>
     </ClInclude>
     <ClInclude Include="src\lparser.h">
@@ -281,48 +368,93 @@
     <ClInclude Include="src\lzio.h">
       <Filter>Lua</Filter>
     </ClInclude>
-    <ClInclude Include="LuaBaseStaticMetaClass.h">
-      <Filter>MetaClass</Filter>
+    <ClInclude Include="luasocket\auxiliar.h">
+      <Filter>LuaSocket</Filter>
     </ClInclude>
-    <ClInclude Include="LuaValue.h">
+    <ClInclude Include="luasocket\buffer.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\compat.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\except.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\inet.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\io.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\luasocket.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\mime.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\options.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\pierror.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\select.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\socket.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\tcp.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\timeout.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\udp.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\usocket.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="luasocket\wsocket.h">
+      <Filter>LuaSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaLoader.h">
       <Filter>LuaWrap</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaWrapBase.h">
-      <Filter>LuaWrap</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaVM.h">
-      <Filter>LuaWrap</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseLuaVM.h">
-      <Filter>LuaWrap</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaByteArray.h">
-      <Filter>MetaClass</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaGrid.h">
-      <Filter>MetaClass</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaSmartStruct.h">
-      <Filter>MetaClass</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaSmartValue.h">
-      <Filter>MetaClass</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaLibCommon.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaLibSmartStruct.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseLuaLib.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="LuaJsonValue.h">
-      <Filter>MetaClass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Lua.cbp" />
     <None Include="makefile" />
+    <None Include="scripts\ltn12.lua">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="scripts\mime.lua">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="scripts\socket.lua">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="scripts\socket\ftp.lua">
+      <Filter>Scripts\socket</Filter>
+    </None>
+    <None Include="scripts\socket\headers.lua">
+      <Filter>Scripts\socket</Filter>
+    </None>
+    <None Include="scripts\socket\http.lua">
+      <Filter>Scripts\socket</Filter>
+    </None>
+    <None Include="scripts\socket\mbox.lua">
+      <Filter>Scripts\socket</Filter>
+    </None>
+    <None Include="scripts\socket\smtp.lua">
+      <Filter>Scripts\socket</Filter>
+    </None>
+    <None Include="scripts\socket\tp.lua">
+      <Filter>Scripts\socket</Filter>
+    </None>
+    <None Include="scripts\socket\url.lua">
+      <Filter>Scripts\socket</Filter>
+    </None>
   </ItemGroup>
 </Project>

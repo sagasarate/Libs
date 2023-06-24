@@ -6,7 +6,7 @@
 		<Option platforms="Unix;" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="头文件/;客户端组件/;对象代理服务/;对象和对象管理/;服务器/;消息协议/;路由服务/;预编译/;对象和对象管理/对象基类/;对象和对象管理/对象插件接口/;对象和对象管理/对象管理器/;对象和对象管理/对象组/;对象代理服务/基础类/;对象代理服务/缺省实现/;对象代理服务/缺省实现/无网络层缓冲版本/;" />
+		<Option virtualFolders="头文件/;客户端组件/;对象代理服务/;对象和对象管理/;服务器/;消息协议/;路由服务/;预编译/;对象和对象管理/对象基类/;对象和对象管理/对象插件接口/;对象和对象管理/对象管理器/;对象和对象管理/对象组/;对象代理服务/基础类/;对象代理服务/缺省实现/;对象代理服务/缺省实现/无网络层缓冲版本/;对象代理服务/WebScoket实现/" />
 		<Build>
 			<Target title="Debug">
 				<Option platforms="Unix;" />
@@ -55,7 +55,7 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-std=c++11" />
+			<Add option="-std=c++14" />
 			<Add option="-fvisibility=hidden" />
 		</Compiler>
 		<Unit filename="DOSBaseObject.cpp">
@@ -172,6 +172,18 @@
 		<Unit filename="IDistributedObject.h">
 			<Option virtualFolder="对象和对象管理/对象插件接口/" />
 		</Unit>
+		<Unit filename="WebSocketProxyConnection.cpp">
+			<Option virtualFolder="对象代理服务/WebScoket实现/" />
+		</Unit>
+		<Unit filename="WebSocketProxyConnection.h">
+			<Option virtualFolder="对象代理服务/WebScoket实现/" />
+		</Unit>
+		<Unit filename="WebSocketProxyService.cpp">
+			<Option virtualFolder="对象代理服务/WebScoket实现/" />
+		</Unit>
+		<Unit filename="WebSocketProxyService.h">
+			<Option virtualFolder="对象代理服务/WebScoket实现/" />
+		</Unit>
 		<Unit filename="stdafx.cpp">
 			<Option virtualFolder="预编译/" />
 		</Unit>
@@ -180,10 +192,6 @@
 			<Option weight="0" />
 			<Option virtualFolder="预编译/" />
 		</Unit>
-		<Extensions>
-			<code_completion />
-			<debugger />
-			<envvars />
-		</Extensions>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

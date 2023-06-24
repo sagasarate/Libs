@@ -141,14 +141,22 @@ struct STORAGE_POOL_SETTING
 
 #include "SmartPtr.h"
 
+#include "EasyArray.h"
+#include "EasyBuffer.h"
+
 #include "EasyString.h"
+
 
 #include "EasyTime.h"
 #include "EasyTimer.h"
+#include "EasyTimer64.h"
 #include "EasyTimerEx.h"
 
 //#include "IndexSet.h"
-#include "EasyArray.h"
+
+
+#include "StringBuilder.h"
+
 #include "EasyMap.h"
 #include "EasyList.h"
 #include "ListIterator.h"
@@ -157,15 +165,17 @@ struct STORAGE_POOL_SETTING
 #include "HashMap.h"
 #include "CycleQueue.h"
 
+#include "VariedValue.h"
 
 
 #include "StringSplitter.h"
+
 #include "WordFilter.h"
 
-#include "EasyBuffer.h"
-#include "SmartValue.h"
-#include "SmartStruct.h"
 
+#include "SmartValue.h"
+#include "SmartArray.h"
+#include "SmartStruct.h"
 
 
 #include "AutoReadLock.h"

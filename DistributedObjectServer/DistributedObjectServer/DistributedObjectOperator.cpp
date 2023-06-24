@@ -176,10 +176,17 @@ BOOL CDistributedObjectOperator::SendMessageMulti(OBJECT_ID * pReceiverIDList,UI
 	FUNCTION_END;
 	return FALSE;
 }
-BOOL CDistributedObjectOperator::BroadcastMessageToProxyObjectByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
+BOOL CDistributedObjectOperator::BroadcastMessageToProxyByMask(WORD RouterID, BYTE ProxyType, UINT64 Mask, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
-	return CDOSBaseObject::BroadcastMessageToProxyObjectByGroup(RouterID, ProxyType, GroupID, MsgID, MsgFlag, pData, DataSize);
+	return CDOSBaseObject::BroadcastMessageToProxyByMask(RouterID, ProxyType, Mask, MsgID, MsgFlag, pData, DataSize);
+	FUNCTION_END;
+	return FALSE;
+}
+BOOL CDistributedObjectOperator::BroadcastMessageToProxyByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
+{
+	FUNCTION_BEGIN;
+	return CDOSBaseObject::BroadcastMessageToProxyByGroup(RouterID, ProxyType, GroupID, MsgID, MsgFlag, pData, DataSize);
 	FUNCTION_END;
 	return FALSE;
 }
@@ -258,10 +265,10 @@ BOOL CDistributedObjectOperator::DeleteConcernedObject(OBJECT_ID ObjectID)
 	return FALSE;
 }
 
-BOOL CDistributedObjectOperator::FindObject(UINT ObjectType)
+BOOL CDistributedObjectOperator::FindObject(UINT ObjectType, bool OnlyLocal)
 {
 	FUNCTION_BEGIN;
-	return CDOSBaseObject::FindObject(ObjectType);
+	return CDOSBaseObject::FindObject(ObjectType, OnlyLocal);
 	FUNCTION_END;
 	return FALSE;
 }
@@ -374,7 +381,7 @@ void CDistributedObjectOperator::SetServerWorkStatus(BYTE WorkStatus)
 	CDOSMainThread::GetInstance()->SetServerStatus(SC_SST_SS_WORK_STATUS, CSmartValue(WorkStatus));
 }
 
-UINT CDistributedObjectOperator::AddTimer(UINT TimeOut, UINT64 Param, bool IsRepeat)
+UINT CDistributedObjectOperator::AddTimer(UINT64 TimeOut, UINT64 Param, bool IsRepeat)
 {
 	FUNCTION_BEGIN;
 	return CDOSBaseObject::AddTimer(TimeOut, Param, IsRepeat);
@@ -389,10 +396,40 @@ BOOL CDistributedObjectOperator::DeleteTimer(UINT ID)
 	return FALSE;
 }
 
-BOOL CDistributedObjectOperator::SetBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID)
+BOOL CDistributedObjectOperator::SetBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 GroupID)
 {
 	FUNCTION_BEGIN;
-	return CDOSBaseObject::SetBroadcastGroup(ProxyObjectID, GroupID);
+	return CDOSBaseObject::SetBroadcastMask(ProxyObjectID, GroupID);
+	FUNCTION_END;
+	return FALSE;
+}
+
+BOOL CDistributedObjectOperator::AddBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask)
+{
+	FUNCTION_BEGIN;
+	return CDOSBaseObject::AddBroadcastMask(ProxyObjectID, Mask);
+	FUNCTION_END;
+	return FALSE;
+}
+
+BOOL CDistributedObjectOperator::RemoveBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask)
+{
+	FUNCTION_BEGIN;
+	return CDOSBaseObject::RemoveBroadcastMask(ProxyObjectID, Mask);
+	FUNCTION_END;
+	return FALSE;
+}
+BOOL CDistributedObjectOperator::AddBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID)
+{
+	FUNCTION_BEGIN;
+	return CDOSBaseObject::AddBroadcastGroup(ProxyObjectID, GroupID);
+	FUNCTION_END;
+	return FALSE;
+}
+BOOL CDistributedObjectOperator::RemoveBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID)
+{
+	FUNCTION_BEGIN;
+	return CDOSBaseObject::RemoveBroadcastGroup(ProxyObjectID, GroupID);
 	FUNCTION_END;
 	return FALSE;
 }
@@ -538,16 +575,16 @@ int CDistributedObjectOperator::Update(int ProcessPacketLimit)
 	OBJECT_EXCEPTION_CATCH_END;
 	return 0;
 }
-void CDistributedObjectOperator::OnTimer(UINT ID, UINT64 Param)
+void CDistributedObjectOperator::OnTimer(UINT ID, UINT64 Param, bool IsRepeat)
 {
 	OBJECT_EXCEPTION_CATCH_START;
 	switch (m_PluginType)
 	{
 	case PLUGIN_TYPE_NATIVE:
-		m_pDistributedObject->OnTimer(ID, Param);
+		m_pDistributedObject->OnTimer(ID, Param, IsRepeat);
 		break;
 	case PLUGIN_TYPE_CSHARP:
-		CallCSOnTimer(ID, Param);
+		CallCSOnTimer(ID, Param, IsRepeat);
 		break;
 	}
 	OBJECT_EXCEPTION_CATCH_END;
@@ -1133,7 +1170,7 @@ bool CDistributedObjectOperator::CallOnConsoleCommand(LPCTSTR szCommand)
 	return false;
 }
 
-void CDistributedObjectOperator::CallCSOnTimer(UINT ID, UINT64 Param)
+void CDistributedObjectOperator::CallCSOnTimer(UINT ID, UINT64 Param, bool IsRepeat)
 {
 	FUNCTION_BEGIN;
 	if (m_MonoClassInfo_DO.pOnTimerMethod)
@@ -1143,12 +1180,13 @@ void CDistributedObjectOperator::CallCSOnTimer(UINT ID, UINT64 Param)
 		if (pObject)
 		{
 			MonoObject * pException = NULL;
-			LPVOID Params[2];
+			LPVOID Params[3];
 			Params[0] = &ID;
 			if (Param)
 				Params[1] = mono_gchandle_get_target(Param);
 			else
 				Params[1] = NULL;
+			Params[2] = &IsRepeat;
 			MonoObject * pReturnValue = mono_runtime_invoke(m_MonoClassInfo_DO.pOnTimerMethod, pObject, Params, &pException);
 			if (pException)
 			{
@@ -1277,7 +1315,7 @@ bool CDistributedObjectOperator::InternalCallSendMessageMulti(CDistributedObject
 	}
 	return false;
 }
-bool CDistributedObjectOperator::InternalCallBroadcastMessageToProxyObjectByGroup(CDistributedObjectOperator * pOperator, WORD RouterID, BYTE ProxyType, UINT64 GroupID, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen)
+bool CDistributedObjectOperator::InternalCallBroadcastMessageToProxyByMask(CDistributedObjectOperator * pOperator, WORD RouterID, BYTE ProxyType, UINT64 Mask, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen)
 {
 	if (pOperator)
 	{
@@ -1287,7 +1325,22 @@ bool CDistributedObjectOperator::InternalCallBroadcastMessageToProxyObjectByGrou
 		{
 			if ((size_t)StartIndex + (size_t)DataLen > ArrayLen)
 				DataLen = (int)(ArrayLen - (size_t)StartIndex);
-			return pOperator->BroadcastMessageToProxyObjectByGroup(RouterID, ProxyType, GroupID, MsgID, MsgFlag, pBuff + StartIndex, DataLen) != FALSE;
+			return pOperator->BroadcastMessageToProxyByMask(RouterID, ProxyType, Mask, MsgID, MsgFlag, pBuff + StartIndex, DataLen) != FALSE;
+		}
+	}
+	return false;
+}
+bool CDistributedObjectOperator::InternalCallBroadcastMessageToProxyByGroup(CDistributedObjectOperator* pOperator, WORD RouterID, BYTE ProxyType, UINT64 GroupID, UINT MsgID, WORD MsgFlag, MonoArray* Data, int StartIndex, int DataLen)
+{
+	if (pOperator)
+	{
+		size_t ArrayLen = 0;
+		BYTE* pBuff = CDOSMainThread::GetInstance()->MonoGetByteArray(Data, ArrayLen);
+		if ((size_t)StartIndex < ArrayLen)
+		{
+			if ((size_t)StartIndex + (size_t)DataLen > ArrayLen)
+				DataLen = (int)(ArrayLen - (size_t)StartIndex);
+			return pOperator->BroadcastMessageToProxyByGroup(RouterID, ProxyType, GroupID, MsgID, MsgFlag, pBuff + StartIndex, DataLen) != FALSE;
 		}
 	}
 	return false;
@@ -1354,10 +1407,10 @@ bool CDistributedObjectOperator::InternalCallDeleteConcernedObject(CDistributedO
 	}
 	return false;
 }
-bool CDistributedObjectOperator::InternalCallFindObject(CDistributedObjectOperator * pOperator, UINT ObjectType)
+bool CDistributedObjectOperator::InternalCallFindObject(CDistributedObjectOperator * pOperator, UINT ObjectType, bool OnlyLocal)
 {
 	if (pOperator)
-		return pOperator->FindObject(ObjectType) != FALSE;
+		return pOperator->FindObject(ObjectType, OnlyLocal) != FALSE;
 	return false;
 }
 bool CDistributedObjectOperator::InternalCallReportObject(CDistributedObjectOperator * pOperator, OBJECT_ID TargetID, MonoArray * Data, int StartIndex, int DataLen)
@@ -1486,7 +1539,7 @@ void CDistributedObjectOperator::InternalCallSetServerWorkStatus(CDistributedObj
 		CDOSMainThread::GetInstance()->SetServerStatus(SC_SST_SS_WORK_STATUS, CSmartValue(WorkStatus));
 	}
 }
-UINT CDistributedObjectOperator::InternalCallAddTimer(CDistributedObjectOperator * pOperator, UINT TimeOut, MonoObject * pParam, bool IsRepeat)
+UINT CDistributedObjectOperator::InternalCallAddTimer(CDistributedObjectOperator * pOperator, UINT64 TimeOut, MonoObject * pParam, bool IsRepeat)
 {
 	if (pOperator)
 	{
@@ -1506,11 +1559,43 @@ bool CDistributedObjectOperator::InternalCallDeleteTimer(CDistributedObjectOpera
 	return false;
 }
 
-bool CDistributedObjectOperator::InternalCallSetBroadcastGroup(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, UINT64 GroupID)
+bool CDistributedObjectOperator::InternalCallSetBroadcastMask(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, UINT64 Mask)
 {
 	if (pOperator)
 	{
-		return pOperator->CDOSBaseObject::SetBroadcastGroup(ProxyObjectID, GroupID) != FALSE;
+		return pOperator->CDOSBaseObject::SetBroadcastMask(ProxyObjectID, Mask) != FALSE;
+	}
+	return false;
+}
+bool CDistributedObjectOperator::InternalCallAddBroadcastMask(CDistributedObjectOperator* pOperator, OBJECT_ID ProxyObjectID, UINT64 Mask)
+{
+	if (pOperator)
+	{
+		return pOperator->CDOSBaseObject::AddBroadcastMask(ProxyObjectID, Mask) != FALSE;
+	}
+	return false;
+}
+bool CDistributedObjectOperator::InternalCallRemoveBroadcastMask(CDistributedObjectOperator* pOperator, OBJECT_ID ProxyObjectID, UINT64 Mask)
+{
+	if (pOperator)
+	{
+		return pOperator->CDOSBaseObject::RemoveBroadcastMask(ProxyObjectID, Mask) != FALSE;
+	}
+	return false;
+}
+bool CDistributedObjectOperator::InternalCallAddBroadcastGroup(CDistributedObjectOperator* pOperator, OBJECT_ID ProxyObjectID, UINT64 GroupID)
+{
+	if (pOperator)
+	{
+		return pOperator->CDOSBaseObject::AddBroadcastGroup(ProxyObjectID, GroupID) != FALSE;
+	}
+	return false;
+}
+bool CDistributedObjectOperator::InternalCallRemoveBroadcastGroup(CDistributedObjectOperator* pOperator, OBJECT_ID ProxyObjectID, UINT64 GroupID)
+{
+	if (pOperator)
+	{
+		return pOperator->CDOSBaseObject::RemoveBroadcastGroup(ProxyObjectID, GroupID) != FALSE;
 	}
 	return false;
 }

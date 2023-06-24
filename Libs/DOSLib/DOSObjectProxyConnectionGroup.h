@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CDOSObjectProxyServiceDefault;
 
@@ -9,12 +9,14 @@ protected:
 	CDOSObjectProxyServiceDefault *								m_pService;
 	CLIENT_PROXY_CONFIG											m_Config;
 	UINT														m_Index;
-	CIDStorage<CDOSObjectProxyConnectionDefault *>				m_ConnectionPool;
+	CStaticMap<UINT, CDOSObjectProxyConnectionDefault*>			m_ConnectionPool;
 	CEasyCriticalSection										m_EasyCriticalSection;
 	CThreadPerformanceCounter									m_ThreadPerformanceCounter;
 	CEasyBuffer													m_CompressBuffer;
 	CEasyBuffer													m_EncyptBuffer;
 	char														m_LZOCompressWorkMemory[LZO1X_1_MEM_COMPRESS];
+
+	CCycleQueue<DISPATCHED_MSG>									m_MsgQueue;
 
 public:
 	CDOSObjectProxyConnectionGroup();
@@ -34,8 +36,18 @@ public:
 	{
 		return m_ThreadPerformanceCounter.GetCycleTime();
 	}
+	UINT GetMsgQueueLen()
+	{
+		return m_MsgQueue.GetUsedSize();
+	}
+	virtual BOOL OnStart() override;
+	virtual BOOL OnRun() override;
+	virtual void OnTerminate() override;
 
-	BOOL OnStart();
-	virtual BOOL OnRun();
+	bool PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket* pPacket);
+protected:
+	void ProcessMsg(DISPATCHED_MSG& Msg);
+	void OnMsg(CDOSMessage* pMessage);
+	void OnSystemMsg(CDOSMessagePacket* pPacket);
 };
 

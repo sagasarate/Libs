@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DTextTexture.h                                         */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ25ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DTextTexture.h                                         */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ25æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -113,7 +113,7 @@ public:
 	void SetColor(D3DCOLOR Color);	
 	void SetText(LPCTSTR szText,int StrLen);
 	void SetTextW(LPCWSTR szText,int StrLen);
-	void SetAlign(DWORD dwAlign);//¶ÔÆëÄ£Ê½£¬ÖµÍ¬ID3DXFontµÄDrawTextÖĞµÄ²ÎÊı
+	void SetAlign(DWORD dwAlign);//å¯¹é½æ¨¡å¼ï¼Œå€¼åŒID3DXFontçš„DrawTextä¸­çš„å‚æ•°
 	void SetShadowMode(DWORD ShadowMode);
 	void SetShadowColor(D3DCOLOR ShadowColor);
 	void SetShadowWidth(int Width);

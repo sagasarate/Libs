@@ -44,7 +44,7 @@ void CDOSServerThread::Execute()
 		m_GuardThread.SafeTerminate();
 	OnBeginTerminate();
 	DWORD Time=CEasyTimer::GetTime();
-	while(GetTimeToTime(Time,CEasyTimer::GetTime())<SERVER_ENDING_TIME&&OnTerminating())
+	while (CEasyTimer::GetTimeToTime(Time, CEasyTimer::GetTime()) < SERVER_ENDING_TIME && OnTerminating())
 	{
 	}
 
@@ -292,7 +292,9 @@ BOOL CDOSServerThread::OnStart()
 			SetServerStatusFormat(SST_SS_OBJECT_PROXY_CYCLE_TIME + i, Temp);
 			Temp.Format("对象代理(%u)CPU占用率", pProxyService->GetID());
 			SetServerStatusFormat(SST_SS_OBJECT_PROXY_CPU_USED_RATE + i, Temp, SSFT_PERCENT);
-			Temp.Format(",Proxy%dCycleTime,Proxy%dCPUUsed", pProxyService->GetID(), pProxyService->GetID());
+			Temp.Format("对象代理(%u)消息队列长度", pProxyService->GetID());
+			SetServerStatusFormat(SST_SS_OBJECT_PROXY_MSG_QUEUE_LEN + i, Temp);
+			Temp.Format(",Proxy%dCycleTime,Proxy%dCPUUsed,Proxy%dMsgQueueLen", pProxyService->GetID(), pProxyService->GetID(), pProxyService->GetID());
 			CSVLogHeader += Temp;
 
 			for (UINT i = 0; i < pProxyService->GetGroupCount(); i++)
@@ -301,7 +303,9 @@ BOOL CDOSServerThread::OnStart()
 				SetServerStatusFormat(SST_SS_PROXY_GROUP_CYCLE_TIME + i, Temp);
 				Temp.Format("连接组(%u)CPU占用率", pProxyService->GetID());
 				SetServerStatusFormat(SST_SS_PROXY_GROUP_CPU_USED_RATE + i, Temp, SSFT_PERCENT);
-				Temp.Format(",ProxyGroup%dCycleTime,ProxyGroup%dCPUUsed", i, i);
+				Temp.Format("连接组(%u)消息队列长度", pProxyService->GetID());
+				SetServerStatusFormat(SST_SS_PROXY_GROUP_MSG_QUEUE_LEN + i, Temp);
+				Temp.Format(",ProxyGroup%dCycleTime,ProxyGroup%dCPUUsed,ProxyGroup%dMsgQueueLen", i, i, i);
 				CSVLogHeader += Temp;
 			}
 		}
@@ -620,20 +624,22 @@ void CDOSServerThread::DoServerStat()
 		{
 			SetServerStatus(SST_SS_OBJECT_PROXY_CYCLE_TIME + i, CSmartValue(pProxyService->GetCycleTime()));
 			SetServerStatus(SST_SS_OBJECT_PROXY_CPU_USED_RATE + i, CSmartValue(pProxyService->GetCPUUsedRate()));
-			Temp.Format(",%.03f,%.03f", pProxyService->GetCycleTime(), pProxyService->GetCPUUsedRate());
+			SetServerStatus(SST_SS_OBJECT_PROXY_MSG_QUEUE_LEN + i, CSmartValue(pProxyService->GetMsgQueueLen()));
+			Temp.Format(",%.03f,%.03f,%u", pProxyService->GetCycleTime(), pProxyService->GetCPUUsedRate(), pProxyService->GetMsgQueueLen());
 			ProxyStatData += Temp;
 
-			for (UINT i = 0; i < pProxyService->GetGroupCount(); i++)
+			for (UINT j = 0; j < pProxyService->GetGroupCount(); j++)
 			{
-				SetServerStatus(SST_SS_PROXY_GROUP_CYCLE_TIME + i, CSmartValue(pProxyService->GetGroupCycleTime(i)));
-				SetServerStatus(SST_SS_PROXY_GROUP_CPU_USED_RATE + i, CSmartValue(pProxyService->GetGroupCPUUsedRate(i)));
-				Temp.Format(",%.03f,%.03f", pProxyService->GetGroupCycleTime(i), pProxyService->GetGroupCPUUsedRate(i));
+				SetServerStatus(SST_SS_PROXY_GROUP_CYCLE_TIME + j, CSmartValue(pProxyService->GetGroupCycleTime(j)));
+				SetServerStatus(SST_SS_PROXY_GROUP_CPU_USED_RATE + j, CSmartValue(pProxyService->GetGroupCPUUsedRate(j)));
+				SetServerStatus(SST_SS_PROXY_GROUP_MSG_QUEUE_LEN + j, CSmartValue(pProxyService->GetGroupMsgQueueLen(j)));
+				Temp.Format(",%.03f,%.03f,%u", pProxyService->GetGroupCycleTime(j), pProxyService->GetGroupCPUUsedRate(j), pProxyService->GetGroupMsgQueueLen(j));
 				ProxyStatData += Temp;
 			}
 		}
 		else
 		{
-			Temp = ",N/A,N/A";
+			Temp = ",N/A,N/A,N/A";
 			ProxyStatData += Temp;
 		}		
 	}
@@ -645,12 +651,12 @@ void CDOSServerThread::DoServerStat()
 	{
 		CEasyString Temp;
 		CDOSObjectGroup * pGroup=GetObjectManager()->GetGroup(i);
-		if(pGroup)
+		if (pGroup)
 		{
-			SetServerStatus(SST_SS_GROUP_CYCLE_TIME+i,CSmartValue(pGroup->GetCycleTime()));
-			SetServerStatus(SST_SS_GROUP_MAX_OBJECT_MSG_QUEUE_LEN+i,CSmartValue(pGroup->GetMaxObjectMsgQueueLen()));
-			SetServerStatus(SST_SS_GROUP_CPU_USED_RATE+i,CSmartValue(pGroup->GetCPUUsedRate()));
-			Temp.Format(",%.03f,%d,%.03f",pGroup->GetCycleTime(),pGroup->GetMaxObjectMsgQueueLen(),pGroup->GetCPUUsedRate());
+			SetServerStatus(SST_SS_GROUP_CYCLE_TIME + i, CSmartValue(pGroup->GetCycleTime()));
+			SetServerStatus(SST_SS_GROUP_MAX_OBJECT_MSG_QUEUE_LEN + i, CSmartValue(pGroup->GetMaxObjectMsgQueueLen()));
+			SetServerStatus(SST_SS_GROUP_CPU_USED_RATE + i, CSmartValue(pGroup->GetCPUUsedRate()));
+			Temp.Format(",%.03f,%d,%.03f", pGroup->GetCycleTime(), pGroup->GetMaxObjectMsgQueueLen(), pGroup->GetCPUUsedRate());
 		}
 		else
 		{

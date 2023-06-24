@@ -1,4 +1,4 @@
-#ifndef _MONONET_METADATA_IMAGE_H_ 
+﻿#ifndef _MONONET_METADATA_IMAGE_H_ 
 #define _MONONET_METADATA_IMAGE_H_
 
 #include <stdio.h>

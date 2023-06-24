@@ -15,6 +15,7 @@ protected:
 	{
 		STATUS_NONE,
 		STATUS_COMPILE_LIBS,
+		STATUS_PROXY_PLUGIN_LOAD,
 		STATUS_PLUGIN_LOAD,
 		STATUS_WORKING,
 		STATUS_SHUTDOWN,
@@ -92,10 +93,12 @@ public:
 	bool AddConsoleCommandReceiver(CDistributedObjectOperator * pOperator);
 	bool DeleteConsoleCommandReceiver(CDistributedObjectOperator * pOperator);
 protected:
-	bool LoadPlugins();
+	void StartPluginsLoad();
+	bool DoPluginsLoad();
 	void FreePlugins();
 	void CompileLibs();
-	bool LoadProxyPlugins();
+	void StartProxyPluginsLoad();
+	bool DoProxyPluginsLoad();
 
 	bool LoadPlugin(PLUGIN_INFO& PluginInfo);
 	bool FreePlugin(PLUGIN_INFO& PluginInfo);

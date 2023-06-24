@@ -86,7 +86,7 @@ namespace DOSSystem
         COMMON_RESULT_MSG_HANDLER_NOT_FIND = 189103,
         COMMON_RESULT_FAILED = -2,
     };
-    enum DOS_MESSAGE_FLAG
+    public enum DOS_MESSAGE_FLAG
     {
         DOS_MESSAGE_FLAG_SYSTEM_MESSAGE = 1,
         DOS_MESSAGE_FLAG_COMPRESSED = (1 << 1),
@@ -95,7 +95,7 @@ namespace DOSSystem
         DOS_MESSAGE_FLAG_NO_COMPRESS = (1 << 4),
     };
 
-    enum BROAD_CAST_IDS
+    public enum BROAD_CAST_IDS
     {
         BROAD_CAST_ROUTER_ID = 0xFFFF,
         BROAD_CAST_OBJECT_TYPE_ID = 0xFFFF,

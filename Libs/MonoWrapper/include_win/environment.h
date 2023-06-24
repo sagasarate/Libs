@@ -1,4 +1,4 @@
-/*
+﻿/*
  * environment.h: System.Environment support internal calls
  *
  * Author:

@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DBoundingBox.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DBoundingBox.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -20,7 +20,7 @@ bool CD3DBoundingBox::RayIntersect(const CD3DVector3& Point,const CD3DVector3& D
 	FLOAT D;
 	FLOAT Dis=3.4E+38f;
 	bool IsIntersect=false;
-	//¶¥Ãæ
+	//é¡¶é¢
 	p1=CD3DVector3(m_Min.x,m_Max.y,m_Max.z);
 	p2=CD3DVector3(m_Max.x,m_Max.y,m_Max.z);
 	p3=CD3DVector3(m_Min.x,m_Max.y,m_Min.z);
@@ -52,7 +52,7 @@ bool CD3DBoundingBox::RayIntersect(const CD3DVector3& Point,const CD3DVector3& D
 			Distance=Dis;
 		}
 	}
-	//µ×Ãæ
+	//åº•é¢
 	p1=CD3DVector3(m_Min.x,m_Min.y,m_Max.z);
 	p2=CD3DVector3(m_Max.x,m_Min.y,m_Max.z);
 	p3=CD3DVector3(m_Min.x,m_Min.y,m_Min.z);
@@ -84,7 +84,7 @@ bool CD3DBoundingBox::RayIntersect(const CD3DVector3& Point,const CD3DVector3& D
 			Distance=Dis;
 		}
 	}
-	//Ç°Ãæ
+	//å‰é¢
 	p1=CD3DVector3(m_Min.x,m_Max.y,m_Min.z);
 	p2=CD3DVector3(m_Max.x,m_Max.y,m_Min.z);
 	p3=CD3DVector3(m_Min.x,m_Min.y,m_Min.z);
@@ -115,7 +115,7 @@ bool CD3DBoundingBox::RayIntersect(const CD3DVector3& Point,const CD3DVector3& D
 			Distance=Dis;
 		}
 	}
-	//ºóÃæ
+	//åé¢
 	p1=CD3DVector3(m_Min.x,m_Max.y,m_Max.z);
 	p2=CD3DVector3(m_Max.x,m_Max.y,m_Max.z);
 	p3=CD3DVector3(m_Min.x,m_Min.y,m_Max.z);
@@ -146,7 +146,7 @@ bool CD3DBoundingBox::RayIntersect(const CD3DVector3& Point,const CD3DVector3& D
 			Distance=Dis;
 		}
 	}
-	//×óÃæ
+	//å·¦é¢
 	p1=CD3DVector3(m_Min.x,m_Max.y,m_Max.z);
 	p2=CD3DVector3(m_Min.x,m_Max.y,m_Min.z);
 	p3=CD3DVector3(m_Min.x,m_Min.y,m_Max.z);
@@ -177,7 +177,7 @@ bool CD3DBoundingBox::RayIntersect(const CD3DVector3& Point,const CD3DVector3& D
 			Distance=Dis;
 		}
 	}
-	//ÓÒÃæ
+	//å³é¢
 	p1=CD3DVector3(m_Max.x,m_Max.y,m_Max.z);
 	p2=CD3DVector3(m_Max.x,m_Max.y,m_Min.z);
 	p3=CD3DVector3(m_Max.x,m_Min.y,m_Max.z);

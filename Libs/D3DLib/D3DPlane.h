@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DPlane.h                                               */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DPlane.h                                               */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -23,20 +23,20 @@ public:
 
 	~CD3DPlane(){};
 
-	//¹æ¸ñ»¯
+	//è§„æ ¼åŒ–
 	void Normalize();
 	CD3DPlane GetNormalize();
 
-	//µã³Ë
+	//ç‚¹ä¹˜
 	FLOAT Dot(const D3DXVECTOR4& Vector);
 	FLOAT DotCoord(const D3DXVECTOR3& Vector);
 	FLOAT DotNormal(const D3DXVECTOR3& Vector);
 
-	//Ëõ·Å
+	//ç¼©æ”¾
 	void Scale(FLOAT Scale);
 	CD3DPlane GetScale(FLOAT Scale);
 
-	//Çó½»µã
+	//æ±‚äº¤ç‚¹
 	CD3DVector3 IntersectLine(const D3DXVECTOR3& Vector1,const D3DXVECTOR3& Vector2);
 
 	static CD3DPlane FromPoints(const D3DXVECTOR3& Vector1,const D3DXVECTOR3& Vector2,const D3DXVECTOR3& Vector3);

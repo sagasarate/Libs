@@ -53,10 +53,10 @@ int CMySQLDynamicRecordSet::Init(CMySQLConnection * pDBConnection,MYSQL_STMT_HAN
 	m_FetchBuffer.Resize(ColNum);
 	ZeroMemory(&(m_FetchBuffer[0]),sizeof(MYSQL_BIND)*ColNum);
 	MYSQL_FIELD * pFields=mysql_fetch_fields(hResult);
-	UINT FetchBufferLen=0;
+	size_t FetchBufferLen=0;
 	for(int i=0;i<ColNum;i++)
 	{
-		UINT Size=pFields[i].length;
+		size_t Size=pFields[i].length;
 		UINT DigitalSize=pFields[i].decimals;
 		int DBType=CMySQLConnection::MySQLTypeToDBLibType(pFields[i].type,Size,DigitalSize);
 		strncpy_0(m_pColumnInfos[i].Name,MAX_COLUMN_NAME,pFields[i].name,MAX_COLUMN_NAME);
@@ -71,7 +71,7 @@ int CMySQLDynamicRecordSet::Init(CMySQLConnection * pDBConnection,MYSQL_STMT_HAN
 		m_FetchBuffer[i].buffer_type=pFields[i].type;
 		m_FetchBuffer[i].is_unsigned=(pFields[i].flags&UNSIGNED_FLAG)?1:0;
 		m_FetchBuffer[i].buffer=(char *)m_FetchDataBuffer.GetFreeBuffer();
-		m_FetchBuffer[i].buffer_length = CMySQLConnection::GetMySQLTypeBinLength(pFields[i].type, pFields[i].length, pFields[i].decimals, (UINT)m_BlobMaxProcessSize);
+		m_FetchBuffer[i].buffer_length = (unsigned long)CMySQLConnection::GetMySQLTypeBinLength(pFields[i].type, pFields[i].length, pFields[i].decimals, (UINT)m_BlobMaxProcessSize);
 		m_FetchDataBuffer.PushBack(NULL,m_FetchBuffer[i].buffer_length);
 
 		m_FetchBuffer[i].length=(ULONG *)m_FetchDataBuffer.GetFreeBuffer();
@@ -332,7 +332,7 @@ bool CMySQLDynamicRecordSet::Close()
 	return true;
 }
 
-bool CMySQLDynamicRecordSet::SetBlobMaxProcessSize(UINT64 MaxSize)
+bool CMySQLDynamicRecordSet::SetBlobMaxProcessSize(size_t MaxSize)
 {
 	m_BlobMaxProcessSize = MaxSize;
 	return true;

@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DWOWWMOModel.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DWOWWMOModel.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -200,8 +200,8 @@ void CD3DWOWWMOModel::DoPortalCull(CD3DCamera * pCamera)
 		
 		GetGroupByPos(CameraNearFacePos,Groups);
 
-		//Doodad²Ã¼ô
-		//ÏÈÌŞ³ıËùÓĞDoodad,ºÍgroup£¬µ«²»°üÀ¨ÉãÏñ»úËùÔÚµÄgroup,Íâ²¿groupÒ²²»Òş²Ø
+		//Doodadè£å‰ª
+		//å…ˆå‰”é™¤æ‰€æœ‰Doodad,å’Œgroupï¼Œä½†ä¸åŒ…æ‹¬æ‘„åƒæœºæ‰€åœ¨çš„group,å¤–éƒ¨groupä¹Ÿä¸éšè—
 		//if(Groups.GetCount())
 		{
 			for(UINT i=0;i<m_DoodadList.GetCount();i++)
@@ -257,7 +257,7 @@ void CD3DWOWWMOModel::DoPortalCull(CD3DCamera * pCamera)
 					CD3DMatrix WorldViewMat=pGroup->GetWorldMatrixR()*pCamera->GetViewMatR();
 					CD3DMatrix WorldScaleRotationMat=pGroup->GetWorldMatrixR().GetScaleRotation();
 
-					//¸ù¾İÃ¿Ò»¸öPortalÌí¼Ó¿É¼ûµÄDoodad
+					//æ ¹æ®æ¯ä¸€ä¸ªPortalæ·»åŠ å¯è§çš„Doodad
 					for(UINT i=0;i<pGroupInfo->PortalList.GetCount();i++)
 					{
 						CD3DVector3 CameraDir=pGroupInfo->PortalList[i].Center*pGroup->GetWorldMatrixR()-CameraPos;
@@ -289,7 +289,7 @@ void CD3DWOWWMOModel::DoPortalCull(CD3DCamera * pCamera)
 							if(MaxX<-1.0f||MaxY<-1.0f||MinX>1.0f||MinY>1.0f||
 								ZOutCount>=pGroupInfo->PortalList[i].Vertices.GetCount())//||MinZ>1.0f)
 							{
-								//PortalÔÚÊÓÒ°Íâ£¬²»Ğè½øĞĞ²Ã¼ô
+								//Portalåœ¨è§†é‡å¤–ï¼Œä¸éœ€è¿›è¡Œè£å‰ª
 								continue;
 							}
 							if(MaxX>1.0f)

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * appdomain.h: AppDomain functions
  *
  * Author:

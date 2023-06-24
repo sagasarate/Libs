@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 typedef unsigned long long u64;
 typedef unsigned int u32;

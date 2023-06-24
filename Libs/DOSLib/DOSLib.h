@@ -33,6 +33,9 @@
 #include "DOSObjectProxyServiceNoBuff.h"
 #endif
 
+#include "WebSocketProxyConnection.h"
+#include "WebSocketProxyService.h"
+
 //#include "DOSProxyConnection.h"
 //#include "DOSObjectProxyService.h"
 #include "DOSProxyManager.h"

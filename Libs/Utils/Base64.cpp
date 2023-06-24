@@ -1,4 +1,4 @@
-﻿#include "StdAfx.h"
+﻿#include "stdafx.h"
 
 const TCHAR * CBase64::bstr =
 	_T("ABCDEFGHIJKLMNOPQ")
@@ -127,6 +127,9 @@ bool  CBase64::Decode(LPCTSTR szInData,size_t InLen, CEasyBuffer& OutData)
 
 bool CBase64::Decode(LPCTSTR szInData,size_t InLen, BYTE * pOutData, size_t& OutLen)
 {
+	if (szInData == 0 || InLen == 0 || InLen % 4)
+		return false;
+
 	size_t i = 0;
 	size_t l = InLen;
 	size_t j = 0;
@@ -139,36 +142,30 @@ bool CBase64::Decode(LPCTSTR szInData,size_t InLen, BYTE * pOutData, size_t& Out
 		{
 			unsigned char b1 = (unsigned char)((rstr[(int)szInData[i]] << 2 & 0xfc) +
 				(rstr[(int)szInData[i + 1]] >> 4 & 0x03));
-			if (pOutData)
+			if (pOutData && (j < OutLen))
 			{
 				pOutData[j] = b1;
 			}
 			j++;
-			if(j>OutLen)
-				return false;
 			if (szInData[i + 2] != '=')
 			{
 				unsigned char b2 = (unsigned char)((rstr[(int)szInData[i + 1]] << 4 & 0xf0) +
 					(rstr[(int)szInData[i + 2]] >> 2 & 0x0f));
-				if (pOutData)
+				if (pOutData && (j < OutLen))
 				{
 					pOutData[j] = b2;
 				}
 				j++;
-				if(j>OutLen)
-					return false;
 			}
 			if (szInData[i + 3] != '=')
 			{
 				unsigned char b3 = (unsigned char)((rstr[(int)szInData[i + 2]] << 6 & 0xc0) +
 					rstr[(int)szInData[i + 3]]);
-				if (pOutData)
+				if (pOutData && (j < OutLen))
 				{
 					pOutData[j] = b3;
 				}
 				j++;
-				if(j>OutLen)
-					return false;
 			}
 			i += 4;
 		}

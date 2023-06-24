@@ -872,7 +872,7 @@ int CODBCConnection::ExecuteSQLDirect(LPCSTR SQLStr,int StrLen)
 		ErrorSQL="执行SQL[";
 		if(StrLen<=0)
 			StrLen=(int)strlen(SQLStr);
-		ErrorSQL.AppendString(SQLStr,StrLen);
+		ErrorSQL.Append(SQLStr,StrLen);
 		ErrorSQL+="失败]";
 		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,ErrorSQL, TRUE);		
 		return DBERR_EXE_SQL_FAIL;
@@ -921,7 +921,7 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 		ErrorSQL="预执行SQL[";
 		if(StrLen<=0)
 			StrLen=(int)strlen(SQLStr);
-		ErrorSQL.AppendString(SQLStr,StrLen);
+		ErrorSQL.Append(SQLStr,StrLen);
 		ErrorSQL+="失败]";
 		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,ErrorSQL, TRUE);		
 		return DBERR_EXE_SQL_FAIL;
@@ -1010,7 +1010,7 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 		ErrorSQL="预执行SQL[";
 		if(StrLen<=0)
 			StrLen=(int)strlen(SQLStr);
-		ErrorSQL.AppendString(SQLStr,StrLen);
+		ErrorSQL.Append(SQLStr,StrLen);
 		ErrorSQL+="失败]";
 		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,ErrorSQL, TRUE);		
 		return DBERR_EXE_SQL_FAIL;

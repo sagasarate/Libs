@@ -10,6 +10,9 @@
     <Filter Include="配置">
       <UniqueIdentifier>{0877463a-7172-49dc-b905-da28744d12e0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="代理连接">
+      <UniqueIdentifier>{1ed7e79c-98e7-48dd-8079-61de89749b27}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -21,8 +24,11 @@
     <ClCompile Include="WebSocketProxy.cpp">
       <Filter>主程序</Filter>
     </ClCompile>
+    <ClCompile Include="WebSocketProxyService.cpp">
+      <Filter>代理连接</Filter>
+    </ClCompile>
     <ClCompile Include="WebSocketProxyConnection.cpp">
-      <Filter>主程序</Filter>
+      <Filter>代理连接</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -35,8 +41,11 @@
     <ClInclude Include="MainConfig.h">
       <Filter>配置</Filter>
     </ClInclude>
+    <ClInclude Include="WebSocketProxyService.h">
+      <Filter>代理连接</Filter>
+    </ClInclude>
     <ClInclude Include="WebSocketProxyConnection.h">
-      <Filter>主程序</Filter>
+      <Filter>代理连接</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

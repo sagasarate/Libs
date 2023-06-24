@@ -469,7 +469,9 @@
     <ClInclude Include="Base32.h" />
     <ClInclude Include="CCRCMaker.h" />
     <ClInclude Include="CryptTools.h" />
+    <ClInclude Include="EasyTimer64.h" />
     <ClInclude Include="ListIterator.h" />
+    <ClInclude Include="SmartArray.h" />
     <ClInclude Include="stacktrace\stacktrace.h" />
     <ClInclude Include="stacktrace\stacktrace_arm-inl.h" />
     <ClInclude Include="stacktrace\stacktrace_config.h" />
@@ -480,7 +482,9 @@
     <ClInclude Include="stacktrace\stacktrace_x86-inl.h" />
     <ClInclude Include="StaticMapLite.h" />
     <ClInclude Include="SHA256.h" />
+    <ClInclude Include="StringBuilder.h" />
     <ClInclude Include="ThreadSafeCycleQueue.h" />
+    <ClInclude Include="VariedValue.h" />
     <ClInclude Include="WordFilter.h" />
     <ClInclude Include="CycleQueue.h" />
     <ClInclude Include="EasyTime.h" />
@@ -680,6 +684,7 @@
     <ClCompile Include="CCRCMaker.cpp" />
     <ClCompile Include="CryptTools.cpp" />
     <ClCompile Include="SHA256.cpp" />
+    <ClCompile Include="SmartArray.cpp" />
     <ClCompile Include="stacktrace\stacktrace.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug_MonitoredNew|Win32'">NotUsing</PrecompiledHeader>

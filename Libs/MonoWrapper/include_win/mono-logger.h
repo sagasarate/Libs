@@ -1,4 +1,4 @@
-#ifndef __MONO_LOGGER_H__
+﻿#ifndef __MONO_LOGGER_H__
 #define __MONO_LOGGER_H__
 
 #include "mono-publib.h"

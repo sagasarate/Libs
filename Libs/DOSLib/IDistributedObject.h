@@ -59,7 +59,7 @@
 		{\
 			PrintDOSDebugLog(_T("[0x%llX]无法找到消息[0x%X]的处理函数"), m_pOperator->GetObjectID(), MsgID);\
 		}\
-		return COMMON_RESULT_MSG_HANDLER_NOT_FIND;\
+		return COMMON_RESULT_MSG_NO_HANDLER;\
 	}\
 	BOOL ClassName::OnMessage(CDOSMessage * pMessage)\
 	{\
@@ -105,7 +105,7 @@
 		{\
 			return ((pHandleInfo->pObject)->*(pHandleInfo->pFN))(MsgPacket);\
 		}\
-		return COMMON_RESULT_MSG_HANDLER_NOT_FIND;\
+		return COMMON_RESULT_MSG_NO_HANDLER;\
 	}\
 	BOOL ClassName::OnDOSMessage(CDOSSimpleMessage * pMessage)\
 	{\
@@ -138,13 +138,13 @@ struct DOS_MSG_HANDLE_INFO
 
 enum COMMON_RESULT_CODE
 {
-	COMMON_RESULT_SUCCEED=0,	
-	COMMON_RESULT_MSG_PACK_ERROR=189001,
-	COMMON_RESULT_MSG_UNPACK_ERROR=189002,
-	COMMON_RESULT_MSG_ALLOC_ERROR=189101,
-	COMMON_RESULT_MSG_SEND_ERROR=189102,
-	COMMON_RESULT_MSG_HANDLER_NOT_FIND=189103,
-	COMMON_RESULT_FAILED=-2,
+	COMMON_RESULT_SUCCEED = 0,
+	COMMON_RESULT_FAILED = -2,
+	COMMON_RESULT_MSG_PACK_ERROR = -3,
+	COMMON_RESULT_MSG_UNPACK_ERROR = -4,
+	COMMON_RESULT_MSG_ALLOC_ERROR = -5,
+	COMMON_RESULT_MSG_SEND_ERROR = -6,
+	COMMON_RESULT_MSG_NO_HANDLER = -7,
 };
 
 
@@ -189,7 +189,8 @@ public:
 	virtual int GetGroupIndex() = 0;
 	virtual BOOL SendMessage(OBJECT_ID ReceiverID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) = 0;
 	virtual BOOL SendMessageMulti(OBJECT_ID * pReceiverIDList, UINT ReceiverCount, bool IsSorted, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) = 0;
-	virtual BOOL BroadcastMessageToProxyObjectByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize) = 0;
+	virtual BOOL BroadcastMessageToProxyByMask(WORD RouterID, BYTE ProxyType, UINT64 Mask, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize) = 0;
+	virtual BOOL BroadcastMessageToProxyByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize) = 0;
 
 	virtual CDOSMessagePacket * NewMessagePacket(UINT DataSize, UINT ReceiverCount) = 0;
 	virtual BOOL ReleaseMessagePacket(CDOSMessagePacket * pPacket) = 0;
@@ -204,7 +205,7 @@ public:
 	virtual BOOL AddConcernedObject(OBJECT_ID ObjectID, bool NeedTest) = 0;
 	virtual BOOL DeleteConcernedObject(OBJECT_ID ObjectID) = 0;
 
-	virtual BOOL FindObject(UINT ObjectType) = 0;
+	virtual BOOL FindObject(UINT ObjectType, bool OnlyLocal) = 0;
 	virtual BOOL ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize) = 0;
 	virtual BOOL CloseProxyObject(OBJECT_ID ProxyObjectID, UINT Delay) = 0;
 	virtual BOOL RequestProxyObjectIP(OBJECT_ID ProxyObjectID) = 0;
@@ -221,10 +222,14 @@ public:
 	virtual BOOL RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader) = 0;
 
 	virtual void SetServerWorkStatus(BYTE WorkStatus) = 0;
-	virtual UINT AddTimer(UINT TimeOut, UINT64 Param, bool IsRepeat) = 0;
+	virtual UINT AddTimer(UINT64 TimeOut, UINT64 Param, bool IsRepeat) = 0;
 	virtual BOOL DeleteTimer(UINT ID) = 0;
 
-	virtual BOOL SetBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID) = 0;
+	virtual BOOL SetBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask) = 0;
+	virtual BOOL AddBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask) = 0;
+	virtual BOOL RemoveBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask) = 0;
+	virtual BOOL AddBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID) = 0;
+	virtual BOOL RemoveBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID) = 0;
 };
 
 class IDistributedObject
@@ -249,7 +254,7 @@ public:
 	virtual void OnShutDown(BYTE Level, UINT Param) {}
 	virtual int Update(int ProcessPacketLimit) { return 0; }
 	virtual BOOL OnConsoleCommand(LPCTSTR szCommand) { return false; }
-	virtual void OnTimer(UINT ID, UINT64 Param) {};
+	virtual void OnTimer(UINT ID, UINT64 Param, bool IsRepeat) {};
 	virtual void OnTimerRelease(UINT ID, UINT64 Param) {}
 };
 

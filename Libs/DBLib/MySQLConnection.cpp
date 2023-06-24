@@ -478,7 +478,7 @@ DWORD CMySQLConnection::FetchConnectFlags(LPCSTR FlagsStr)
 	return Flags;
 }
 
-int CMySQLConnection::DBLibTypeToMySQLType(int Type,UINT& Size,UINT& DitigalSize)
+int CMySQLConnection::DBLibTypeToMySQLType(int Type, size_t& Size,UINT& DitigalSize)
 {
 	switch(Type)
 	{
@@ -519,7 +519,7 @@ int CMySQLConnection::DBLibTypeToMySQLType(int Type,UINT& Size,UINT& DitigalSize
 	}
 }
 
-int CMySQLConnection::MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize)
+int CMySQLConnection::MySQLTypeToDBLibType(int Type, size_t& Size,UINT& DitigalSize)
 {
 	switch(Type)
 	{
@@ -594,7 +594,7 @@ int CMySQLConnection::MySQLTypeToDBLibType(int Type,UINT& Size,UINT& DitigalSize
 	}
 }
 
-UINT CMySQLConnection::GetMySQLTypeBinLength(int Type,UINT Size,UINT DitigalSize, UINT BlobMaxProcessSize)
+size_t CMySQLConnection::GetMySQLTypeBinLength(int Type, size_t Size,UINT DitigalSize, size_t BlobMaxProcessSize)
 {
 	switch(Type)
 	{
@@ -660,7 +660,7 @@ UINT CMySQLConnection::GetMySQLTypeBinLength(int Type,UINT Size,UINT DitigalSize
 }
 
 
-BOOL CMySQLConnection::MySQLStrValueToDBValue(int ValueType, LPCVOID pData, UINT DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue)
+BOOL CMySQLConnection::MySQLStrValueToDBValue(int ValueType, LPCVOID pData, size_t DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue)
 {
 #pragma warning (push)
 #pragma warning (disable : 4996)
@@ -785,7 +785,7 @@ BOOL CMySQLConnection::MySQLStrValueToDBValue(int ValueType, LPCVOID pData, UINT
 
 }
 
-BOOL CMySQLConnection::DBValueToMySQLBinValue(int Type, LPCVOID pDBValue, UINT DBValueSize, LPVOID pData, UINT DataSize)
+BOOL CMySQLConnection::DBValueToMySQLBinValue(int Type, LPCVOID pDBValue, size_t DBValueSize, LPVOID pData, size_t DataSize)
 {
 	switch(Type)
 	{
@@ -898,7 +898,7 @@ BOOL CMySQLConnection::DBValueToMySQLBinValue(int Type, LPCVOID pDBValue, UINT D
 	return FALSE;
 }
 
-BOOL CMySQLConnection::MySQLBinValueToDBValue(int Type, LPCVOID pData, UINT DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue)
+BOOL CMySQLConnection::MySQLBinValueToDBValue(int Type, LPCVOID pData, size_t DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue)
 {
 	switch(Type)
 	{
@@ -1018,11 +1018,11 @@ int CMySQLConnection::ExecuteSQLDirect(LPCSTR SQLStr,int StrLen)
 	return DBERR_SUCCEED;
 }
 
-int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterSet * pParamSet)
+int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr, int StrLen, CDBParameterSet* pParamSet)
 {
-	if(m_MySQLHandle==NULL)
+	if (m_MySQLHandle == NULL)
 		return DBERR_MYSQL_WANTCONNECT;
-	if(!SQLStr)
+	if (!SQLStr)
 	{
 		return DBERR_INVALID_PARAM;
 	}
@@ -1031,89 +1031,89 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 		StrLen = (int)strlen(SQLStr);
 	m_LastSQL.SetString(SQLStr, StrLen);
 
-	if(m_MySQLStmt)
+	if (m_MySQLStmt)
 	{
 		mysql_stmt_close(m_MySQLStmt);
-		m_MySQLStmt=NULL;
+		m_MySQLStmt = NULL;
 	}
 
-	m_MySQLStmt=mysql_stmt_init(m_MySQLHandle);
-	if(m_MySQLStmt==NULL)
+	m_MySQLStmt = mysql_stmt_init(m_MySQLHandle);
+	if (m_MySQLStmt == NULL)
 	{
-		ProcessErrorMsg(NULL,"分配环境句柄失败\r\n");
+		ProcessErrorMsg(NULL, "分配环境句柄失败\r\n");
 		return DBERR_SQLALLOCHANDLEFAIL;
 	}
-	
-	if(mysql_stmt_prepare(m_MySQLStmt,SQLStr,StrLen))
+
+	if (mysql_stmt_prepare(m_MySQLStmt, SQLStr, StrLen))
 	{
-		ProcessErrorMsg(m_MySQLStmt,"准备SQL失败\r\n");
+		ProcessErrorMsg(m_MySQLStmt, "准备SQL失败\r\n");
 		return DBERR_EXE_SQL_FAIL;
 	}
 	CEasyArray<MYSQL_BIND> ParamList(_T("CMySQLConnection"));
 
-	UINT ParamNum=mysql_stmt_param_count(m_MySQLStmt);
+	UINT ParamNum = mysql_stmt_param_count(m_MySQLStmt);
 	CEasyBuffer ParamBuffer(_T("CMySQLConnection"));
 
-	if(ParamNum>0)
+	if (ParamNum > 0)
 	{
-		if(pParamSet==NULL)
+		if (pParamSet == NULL)
 		{
-			ProcessErrorMsg(m_MySQLStmt,"没有足够的参数\r\n");
+			ProcessErrorMsg(m_MySQLStmt, "没有足够的参数\r\n");
 			return DBERR_NOTENOUGHPARAM;
 		}
 
-		if(ParamNum>(UINT)pParamSet->GetCount())
+		if (ParamNum > (UINT)pParamSet->GetCount())
 		{
-			ProcessErrorMsg(m_MySQLStmt,"没有足够的参数\r\n");
+			ProcessErrorMsg(m_MySQLStmt, "没有足够的参数\r\n");
 			return DBERR_NOTENOUGHPARAM;
 		}
 
 
 
 		ParamList.Resize(ParamNum);
-		ZeroMemory(&(ParamList[0]),sizeof(MYSQL_BIND)*ParamNum);
+		ZeroMemory(&(ParamList[0]), sizeof(MYSQL_BIND) * ParamNum);
 
 		//计算参数需要的缓冲大小
-		UINT ParamBufferSize=0;
-		for(UINT i=0;i<ParamNum;i++)
+		size_t ParamBufferSize = 0;
+		for (UINT i = 0; i < ParamNum; i++)
 		{
-			UINT Size=pParamSet->GetParam(i).GetLength();
-			UINT DigitalSize=pParamSet->GetParam(i).GetDigitalLength();
-			ParamList[i].buffer_type=(enum_field_types)DBLibTypeToMySQLType(pParamSet->GetParamInfo(i)->Type,Size,DigitalSize);
-			ParamBufferSize+=Size+sizeof(ULONG)+sizeof(my_bool);
+			size_t Size = pParamSet->GetParam(i).GetLength();
+			UINT DigitalSize = pParamSet->GetParam(i).GetDigitalLength();
+			ParamList[i].buffer_type = (enum_field_types)DBLibTypeToMySQLType(pParamSet->GetParamInfo(i)->Type, Size, DigitalSize);
+			ParamBufferSize += Size + sizeof(ULONG) + sizeof(my_bool);
 		}
 		//转换内容到缓冲
 		ParamBuffer.Create(ParamBufferSize);
-		for(UINT i=0;i<ParamNum;i++)
+		for (UINT i = 0; i < ParamNum; i++)
 		{
 
-			UINT Size=pParamSet->GetParam(i).GetLength();
-			UINT DigitalSize=pParamSet->GetParam(i).GetDigitalLength();
-			ParamList[i].buffer_type=(enum_field_types)DBLibTypeToMySQLType(pParamSet->GetParamInfo(i)->Type,Size,DigitalSize);
+			size_t Size = pParamSet->GetParam(i).GetLength();
+			UINT DigitalSize = pParamSet->GetParam(i).GetDigitalLength();
+			ParamList[i].buffer_type = (enum_field_types)DBLibTypeToMySQLType(pParamSet->GetParamInfo(i)->Type, Size, DigitalSize);
 
-			ParamList[i].buffer=(char *)ParamBuffer.GetFreeBuffer();
-			ParamList[i].buffer_length=Size;
-			ParamBuffer.PushBack(NULL,Size);
-			ParamList[i].length=(ULONG *)ParamBuffer.GetFreeBuffer();
+			ParamList[i].buffer = (char*)ParamBuffer.GetFreeBuffer();
+			ParamList[i].buffer_length = (unsigned long)Size;
+			ParamBuffer.PushBack(NULL, Size);
+			ParamList[i].length = (ULONG*)ParamBuffer.GetFreeBuffer();
 			ParamBuffer.PushBack(&Size, sizeof(ULONG));
-			ParamList[i].is_null=(my_bool *)ParamBuffer.GetFreeBuffer();
-			ParamBuffer.PushConstBack(0,sizeof(my_bool));
+			ParamList[i].is_null = (my_bool*)ParamBuffer.GetFreeBuffer();
+			ParamBuffer.PushConstBack(0, sizeof(my_bool));
 
-			if(pParamSet->GetParam(i).IsNull())
+			if (pParamSet->GetParam(i).IsNull())
 			{
-				*(ParamList[i].is_null)=true;
-				*(ParamList[i].length)=0;
-				ParamList[i].length_value=0;
+				*(ParamList[i].is_null) = true;
+				*(ParamList[i].length) = 0;
+				ParamList[i].length_value = 0;
 
 			}
 			else
 			{
-				*(ParamList[i].is_null)=false;
-				*(ParamList[i].length)=Size;
-				ParamList[i].length_value=Size;
-				if(!DBValueToMySQLBinValue(pParamSet->GetParam(i).GetType(),
-					pParamSet->GetParam(i).GetBuffer(),pParamSet->GetParam(i).GetLength(),
-					ParamList[i].buffer,ParamList[i].buffer_length))
+				*(ParamList[i].is_null) = false;
+				*(ParamList[i].length) = (unsigned long)Size;
+				ParamList[i].length_value = (unsigned long)Size;
+				if (!DBValueToMySQLBinValue(pParamSet->GetParam(i).GetType(),
+					pParamSet->GetParam(i).GetBuffer(), pParamSet->GetParam(i).GetLength(),
+					ParamList[i].buffer, ParamList[i].buffer_length))
 				{
 					return DBERR_BINDPARAMFAIL;
 				}
@@ -1122,37 +1122,37 @@ int CMySQLConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 		}
 
 		//绑定参数
-		if(mysql_stmt_bind_param(m_MySQLStmt,&(ParamList[0])))
+		if (mysql_stmt_bind_param(m_MySQLStmt, &(ParamList[0])))
 		{
-			ProcessErrorMsg(m_MySQLStmt,"绑定参数失败\r\n");
+			ProcessErrorMsg(m_MySQLStmt, "绑定参数失败\r\n");
 			return DBERR_BINDPARAMFAIL;
 		}
 	}
-	if(mysql_stmt_execute(m_MySQLStmt))
+	if (mysql_stmt_execute(m_MySQLStmt))
 	{
-		ProcessErrorMsg(m_MySQLStmt,"执行SQL失败\r\n");
+		ProcessErrorMsg(m_MySQLStmt, "执行SQL失败\r\n");
 		return DBERR_EXE_SQL_FAIL;
 	}
-	if(ParamNum)
+	if (ParamNum)
 	{
 		//从缓冲将内容转换出来
-		for(UINT i=0;i<ParamNum;i++)
+		for (UINT i = 0; i < ParamNum; i++)
 		{
-			if(pParamSet->GetParamInfo(i)->ParamType==DB_PARAM_TYPE_OUTPUT||
-				pParamSet->GetParamInfo(i)->ParamType==DB_PARAM_TYPE_INPUT_OUTPUT)
+			if (pParamSet->GetParamInfo(i)->ParamType == DB_PARAM_TYPE_OUTPUT ||
+				pParamSet->GetParamInfo(i)->ParamType == DB_PARAM_TYPE_INPUT_OUTPUT)
 			{
-				if(*(ParamList[i].is_null))
+				if (*(ParamList[i].is_null))
 				{
-					pParamSet->GetParam(i).SetValue(pParamSet->GetParam(i).GetType(),NULL,0,0);
+					pParamSet->GetParam(i).SetValue(pParamSet->GetParam(i).GetType(), NULL, 0, 0);
 				}
 				else
 				{
-					UINT Size=*(ParamList[i].length);
-					UINT DigitalSize=0;
-					int DBType=MySQLTypeToDBLibType(ParamList[i].buffer_type,Size,DigitalSize);
-					if(!MySQLBinValueToDBValue(ParamList[i].buffer_type,
-						ParamList[i].buffer,*(ParamList[i].length),
-						DBType,DigitalSize,
+					size_t Size = *(ParamList[i].length);
+					UINT DigitalSize = 0;
+					int DBType = MySQLTypeToDBLibType(ParamList[i].buffer_type, Size, DigitalSize);
+					if (!MySQLBinValueToDBValue(ParamList[i].buffer_type,
+						ParamList[i].buffer, *(ParamList[i].length),
+						DBType, DigitalSize,
 						pParamSet->GetParam(i)))
 					{
 						return DBERR_BINDPARAMFAIL;

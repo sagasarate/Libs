@@ -58,7 +58,7 @@ void CServerThread::Execute()
 
 	OnBeginTerminate();
 	DWORD Time=CEasyTimer::GetTime();
-	while(GetTimeToTime(Time,CEasyTimer::GetTime())<SERVER_ENDING_TIME&&OnTerminating())
+	while (CEasyTimer::GetTimeToTime(Time, CEasyTimer::GetTime()) < SERVER_ENDING_TIME && OnTerminating())
 	{
 	}
 

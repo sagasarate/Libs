@@ -25,7 +25,7 @@ protected:
 	CThreadSafeCycleBuffer		m_LogDataBuffer;
 	CEasyTime					m_RecentLogTime;
 	CEasyString					m_LogBackupDir;
-	UINT						m_LogBackupDelay;
+	int							m_LogBackupDelay;
 public:
 	
 	CAsyncFileLogPrinter();
@@ -54,7 +54,7 @@ public:
 	{
 		return true;
 	}
-	void SetBackup(LPCTSTR BackupDir, UINT BackupDelay)
+	void SetBackup(LPCTSTR BackupDir, int BackupDelay)
 	{
 		m_LogBackupDir = BackupDir;
 		m_LogBackupDelay = BackupDelay;

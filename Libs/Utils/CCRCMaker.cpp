@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 
 
@@ -285,9 +285,9 @@ unsigned short CCRCMaker::CRC16_USB(const unsigned char *puchMsg, unsigned int u
 
 
 // --------------------------------------------------------------
-// CRC16¼ÆËã·½·¨1:Ê¹ÓÃ2¸ö256³¤¶ÈµÄĞ£Ñé±í
+// CRC16è®¡ç®—æ–¹æ³•1:ä½¿ç”¨2ä¸ª256é•¿åº¦çš„æ ¡éªŒè¡¨
 // --------------------------------------------------------------
-const unsigned char chCRCHTalbe[] = // CRC ¸ßÎ»×Ö½ÚÖµ±í
+const unsigned char chCRCHTalbe[] = // CRC é«˜ä½å­—èŠ‚å€¼è¡¨
 {
 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,
 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40,
@@ -313,7 +313,7 @@ const unsigned char chCRCHTalbe[] = // CRC ¸ßÎ»×Ö½ÚÖµ±í
 0x00, 0xC1, 0x81, 0x40
 };
 
-const unsigned char chCRCLTalbe[] = // CRC µÍÎ»×Ö½ÚÖµ±í
+const unsigned char chCRCLTalbe[] = // CRC ä½ä½å­—èŠ‚å€¼è¡¨
 {
 0x00, 0xC0, 0xC1, 0x01, 0xC3, 0x03, 0x02, 0xC2, 0xC6, 0x06, 0x07, 0xC7,
 0x05, 0xC5, 0xC4, 0x04, 0xCC, 0x0C, 0x0D, 0xCD, 0x0F, 0xCF, 0xCE, 0x0E,
@@ -341,15 +341,15 @@ const unsigned char chCRCLTalbe[] = // CRC µÍÎ»×Ö½ÚÖµ±í
 
 void CCRCMaker::CRC16_Fast_Init()
 {
-	m_chCRCHi = 0xFF; // ¸ßCRC×Ö½Ú³õÊ¼»¯
-	m_chCRCLo = 0xFF; // µÍCRC×Ö½Ú³õÊ¼»¯
-	m_wIndex = 0; // CRCÑ­»·ÖĞµÄË÷Òı
+	m_chCRCHi = 0xFF; // é«˜CRCå­—èŠ‚åˆå§‹åŒ–
+	m_chCRCLo = 0xFF; // ä½CRCå­—èŠ‚åˆå§‹åŒ–
+	m_wIndex = 0; // CRCå¾ªç¯ä¸­çš„ç´¢å¼•
 }
 void CCRCMaker::CRC16_Fast_Append(const unsigned char * pchMsg, unsigned int wDataLen)
 {
 	while (wDataLen--)
 	{
-		// ¼ÆËãCRC
+		// è®¡ç®—CRC
 		m_wIndex = m_chCRCLo ^ *pchMsg++;
 		m_chCRCLo = m_chCRCHi ^ chCRCHTalbe[m_wIndex];
 		m_chCRCHi = chCRCLTalbe[m_wIndex];

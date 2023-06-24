@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "PropertyGrid.h"
 #include "DialogItemSorter.h"
@@ -30,26 +30,17 @@ extern bool AfxBrowseForFolder(LPCTSTR szTitke, CString& SelectedFolder, UINT Fl
 extern void DDX_Text(CDataExchange* pDX, int nIDC, CEasyString& value);
 extern void DDX_Check(CDataExchange* pDX, int nIDC, bool& value);
 
-
-inline void DDX_Check(CDataExchange* pDX, int nIDC, UINT& Flag, UINT TargetFlag)
+template<typename T1,typename T2>
+inline void DDX_Check(CDataExchange* pDX, int nIDC, T1& Flag, T2 TargetFlag)
 {
-	bool IsCheck = (Flag& TargetFlag) != 0;
+	bool IsCheck = (Flag & TargetFlag) != 0;
 	DDX_Check(pDX, nIDC, IsCheck);
 	if (IsCheck)
-		Flag |= TargetFlag;
+		Flag = (T1)(Flag | TargetFlag);
 	else
-		Flag &= ~TargetFlag;
+		Flag = (T1)(Flag & (~TargetFlag));
 }
 
-inline void DDX_Check(CDataExchange* pDX, int nIDC, UINT64& Flag, UINT64 TargetFlag)
-{
-	bool IsCheck = (Flag& TargetFlag) != 0;
-	DDX_Check(pDX, nIDC, IsCheck);
-	if (IsCheck)
-		Flag |= TargetFlag;
-	else
-		Flag &= ~TargetFlag;
-}
 
 inline void DDX_DateTimeCtrl(CDataExchange* pDX, int nIDC, CEasyTime& value)
 {
@@ -82,5 +73,31 @@ inline void DDX_DateTimeCtrl(CDataExchange* pDX, int nIDC, CEasyTime& value)
 		SYSTEMTIME Time;
 		value.GetTime(Time);
 		pWnd->SetTime(&Time);
+	}
+}
+
+inline void ListCtrlColAutoFit(CListCtrl& lv)
+{
+	lv.SetRedraw(FALSE);
+	int nColumnCount = lv.GetHeaderCtrl()->GetItemCount();
+
+	for (int i = 0; i < nColumnCount; i++)
+	{
+		lv.SetColumnWidth(i, LVSCW_AUTOSIZE);
+		int nColumnWidth = lv.GetColumnWidth(i);
+		lv.SetColumnWidth(i, LVSCW_AUTOSIZE_USEHEADER);
+		int nHeaderWidth = lv.GetColumnWidth(i);
+		lv.SetColumnWidth(i, max(nColumnWidth, nHeaderWidth));
+	}
+	lv.SetRedraw(TRUE);
+}
+
+inline void ListCtrlClearSelections(CListCtrl& lv)
+{
+	POSITION Pos = lv.GetFirstSelectedItemPosition();
+	while (Pos)
+	{
+		int Item = lv.GetNextSelectedItem(Pos);
+		lv.SetItemState(Item, 0, LVIS_SELECTED);
 	}
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CBaseLuaLib :
 	public CBaseScriptHost
@@ -15,10 +15,10 @@ public:
 
 	}
 
-	template <typename Callee, typename Func>
+	template <typename Func>
 	inline void RegisterFunction(LPCTSTR FuncName, Func func)
 	{
-		AddCFunction(FuncName, LuaWrap::DirectCallObjectMemberDispatcherHelper<Callee, Func, 1>::DirectCallMemberDispatcher, &func, sizeof(func));
+		AddCFunction(FuncName, LuaWrap::DirectCallFunctionDispatchHelper<Func, 1>::DirectCallFunctionDispatcher, &func, sizeof(func));
 	}
 
 	void AddCFunction(LPCTSTR FuncName, lua_CFunction Function, LPCVOID FunAddr, UINT FuncSize)

@@ -4,12 +4,7 @@ CMainConfig::CMainConfig(void)
 {
 	//FUNCTION_BEGIN;
 
-	m_IsPlayerCharDataDBEnable=false;
-	m_PlayerCharDataDBConfig.DBType=DB_TYPE_MYSQL;
-	m_PlayerCharDataDBConfig.ThreadCount=2;
-	m_PlayerCharDataDBConfig.QueueSize=128;
-	m_PlayerCharDataDBConfig.RunLimit=16;
-	m_PlayerCharDataDBConfig.IsLogPerformance=true;
+	
 
 	//FUNCTION_END;
 }

@@ -140,5 +140,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DBLib.cbp" />
+    <None Include="makefile" />
   </ItemGroup>
 </Project>

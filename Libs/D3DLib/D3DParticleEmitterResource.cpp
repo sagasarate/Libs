@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+﻿#include "StdAfx.h"
 
 namespace D3DLib{
 
@@ -571,7 +571,7 @@ CD3DFX * CD3DParticleEmitterResource::BuildParticleFX(UINT BlendingType)
 		EnableAlphaTest="False";
 		break;
 	default:
-		PrintD3DLog( _T("CD3DWOWM2ModelResource::BuildParticleFX:δ֪���ģʽ%d"), BlendingType);
+		PrintD3DLog( _T("CD3DWOWM2ModelResource::BuildParticleFX:未知混合模式%d"), BlendingType);
 		EnableZWrite="True";
 		EnableAlphaBlend="False";
 		BlendOp="Add";

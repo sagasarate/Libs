@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DWnd.cpp                                               */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ25ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DWnd.cpp                                               */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ25æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -126,7 +126,7 @@ void CD3DWnd::InitWnd(CD3DGUI *  pGUI)
 
 void CD3DWnd::Destory()
 {
-	//É¾³ı×Ó´°¿Ú
+	//åˆ é™¤å­çª—å£
 	for(int i=m_ChildWndList.GetCount()-1;i>=0;i--)	
 	{			
 		CD3DWnd * pWnd=m_ChildWndList[i];
@@ -134,7 +134,7 @@ void CD3DWnd::Destory()
 	}
 	m_ChildWndList.Clear();
 
-	//´Ó¸¸´°¿ÚÄÇÀïÉ¾³ı×Ô¼º
+	//ä»çˆ¶çª—å£é‚£é‡Œåˆ é™¤è‡ªå·±
 
 	if(m_pParentWnd)
 	{
@@ -1107,7 +1107,7 @@ bool CD3DWnd::LoadFromXml(xml_node * pXMLNode)
 	}
 	HandleMessage(this,WM_D3DGUI_WND_LOADED,GetID(),(LPARAM)this);
 
-	//×°ÔØ×Ó´°¿Ú
+	//è£…è½½å­çª—å£
 	for(int i=(int)pXMLNode->children()-1;i>=0;i--)
 	{
 		if(_tcsnicmp(pXMLNode->child(i).name(),_T("Childs"),7)==0)
@@ -1810,7 +1810,7 @@ void CD3DWnd::TopParent()
 
 void CD3DWnd::GetMiniSize(int& Width,int& Height)
 {
-	//¼ì²â´°¿Ú´óĞ¡
+	//æ£€æµ‹çª—å£å¤§å°
 	int LMinWidth,RMinWidth;
 
 	LMinWidth=m_Borders[RECT_LEFT];

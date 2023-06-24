@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    D3DBoundingBox.h                                         */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DBoundingBox.h                                         */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -21,10 +21,10 @@ public:
 
 	enum RELATION_TYPE
 	{
-		RELATION_TYPE_OUT,					//·ÖÀë
-		RELATION_TYPE_INCLUDE,				//°üº¬
-		RELATION_TYPE_BE_INCLUDE,			//±»°üº¬
-		RELATION_TYPE_INTERSECT,			//Ïà½»
+		RELATION_TYPE_OUT,					//åˆ†ç¦»
+		RELATION_TYPE_INCLUDE,				//åŒ…å«
+		RELATION_TYPE_BE_INCLUDE,			//è¢«åŒ…å«
+		RELATION_TYPE_INTERSECT,			//ç›¸äº¤
 	};
 public:
 	CD3DBoundingBox();

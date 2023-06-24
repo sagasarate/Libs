@@ -7,7 +7,7 @@ CLuaVM::CLuaVM()
 
 CLuaVM::~CLuaVM()
 {
-	Destory();
+	m_IncludeLoadHistory.Destory();
 }
 
 bool CLuaVM::Init(int LuaStackSize, UINT ThreadCount, UINT GrowSize, UINT GrowLimit)
@@ -21,18 +21,12 @@ bool CLuaVM::Init(int LuaStackSize, UINT ThreadCount, UINT GrowSize, UINT GrowLi
 
 	m_IncludeLoadHistory.Create(256, 256, 256);
 
-	m_pLuaState = luaL_newstate();
-	if (m_pLuaState)
+	m_MainThread.CreateMainThread(this, m_LuaStackSize + m_ThreadCount);
+	if (GetLuaState())
 	{
-		lua_checkstack(m_pLuaState, m_ThreadCount);
+		InitEnv();
 
-		luaL_openlibs(m_pLuaState);
-		//luaopen_bit32(m_pLuaState);
-		//luaopen_base(m_pLuaState);
-		//luaopen_string(m_pLuaState);
-		//luaopen_math(m_pLuaState);
-		CLuaLibCommon::GetInstance()->RegisterToVM(this);
-		CLuaLibSmartStruct::GetInstance()->RegisterToVM(this);
+		LogLuaDebug(_T("stack=%u"), lua_gettop(GetLuaState()));
 		
 		return InitThreadPool();
 	}
@@ -43,9 +37,9 @@ bool CLuaVM::Init(int LuaStackSize, UINT ThreadCount, UINT GrowSize, UINT GrowLi
 	return false;
 }
 
-bool CLuaVM::LoadScript(LPCTSTR ScriptName, const CEasyString& ScriptContent, LPCTSTR IncludePath)
+bool CLuaVM::LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent, LPCTSTR IncludePath)
 {
-	if (m_pLuaState)
+	if (GetLuaState())
 	{
 		if (ProcessScriptInclude(ScriptContent, IncludePath, 0))
 			return LoadScript(ScriptName, ScriptContent);
@@ -53,28 +47,11 @@ bool CLuaVM::LoadScript(LPCTSTR ScriptName, const CEasyString& ScriptContent, LP
 	return false;
 }
 
-bool CLuaVM::LoadScript(LPCTSTR ScriptName, const CEasyString& ScriptContent)
+bool CLuaVM::LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent)
 {
-	if (m_pLuaState)
-	{
-#ifdef UNICODE
-		CEasyStringA ScriptContentA, ScriptNameA;
-		ScriptContentA = ScriptContent;
-		ScriptNameA = ScriptName;
-		if (luaL_dostring(m_pLuaState, ScriptContentA, ScriptNameA) == 0)
-#else
-		if (luaL_dostring(m_pLuaState, ScriptContent, ScriptName) == 0)
-#endif
-		{
-			return true;
-		}
-		else
-		{
-			if (lua_type(m_pLuaState, -1) == LUA_TSTRING)
-				LogLua(_T("%s"), lua_tolstring(m_pLuaState, -1, NULL));
-		}
-	}
-	return false;
+	int Ret = m_MainThread.DoCall(ScriptName, ScriptContent);
+	m_MainThread.ClearStack();
+	return Ret == LUA_OK;
 }
 
 
@@ -82,31 +59,11 @@ bool CLuaVM::LoadScript(LPCTSTR ScriptName, const CEasyString& ScriptContent)
 void CLuaVM::Destory()
 {
 	m_IncludeLoadHistory.Destory();
-	CloseLuaState();		
+	CBaseLuaVM::Destory();
 }
 
 
 
-void CLuaVM::Update()
-{
-	if (m_ThreadRecyleTimer.IsTimeOut(LUA_THREAD_RECYLE_CHECK_TIME))
-	{
-		m_ThreadRecyleTimer.SaveTime();
-		RecycleThread();
-	}	
-}
-
-void CLuaVM::CloseLuaState()
-{
-	if (m_pLuaState)
-	{
-		DestoryThreadPool();
-		lua_reset_state(m_pLuaState);
-		lua_gc(m_pLuaState, LUA_GCCOLLECT, 0);
-		lua_close(m_pLuaState);
-		m_pLuaState = NULL;
-	}
-}
 
 
 bool CLuaVM::ProcessScriptInclude(const CEasyString& ScriptContent, LPCTSTR SearchDir, int Depth)

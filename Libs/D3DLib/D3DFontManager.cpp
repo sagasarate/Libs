@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DFontManager.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DFontManager.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -32,7 +32,7 @@ CD3DFontManager::~CD3DFontManager(void)
 	{
 		CEasyString Key;
 		CD3DBaseFont * pFont=*(m_FontStorage.GetNextObject(Pos,Key));
-		PrintD3DLog(_T("×ÖÌå<%s>Î´ÊÍ·Å£¡"), (LPCTSTR)pFont->GetName());
+		PrintD3DLog(_T("å­—ä½“<%s>æœªé‡Šæ”¾ï¼"), (LPCTSTR)pFont->GetName());
 	}
 	m_FontStorage.Destory();
 #endif
@@ -92,7 +92,7 @@ bool CD3DFontManager::AddD3DFont(CD3DBaseFont * pFont,LPCTSTR FontName)
 	}
 	else
 	{
-		PrintD3DLog(_T("½«×ÖÌå¼ÓÈë×ÖÌå¹ÜÀíÆ÷Ê§°Ü(%u,%u)"),
+		PrintD3DLog(_T("å°†å­—ä½“åŠ å…¥å­—ä½“ç®¡ç†å™¨å¤±è´¥(%u,%u)"),
 			m_FontStorage.GetObjectCount(),m_FontStorage.GetBufferSize());
 		return false;
 	}
@@ -106,7 +106,7 @@ bool CD3DFontManager::DeleteD3DFont(UINT ID)
 	}
 	else
 	{
-		PrintD3DLog(_T("CD3DFontManager::DeleteD3DFont:×ÖÌå[%u]Î´ÕÒµ½"),
+		PrintD3DLog(_T("CD3DFontManager::DeleteD3DFont:å­—ä½“[%u]æœªæ‰¾åˆ°"),
 			ID);
 		return false;
 	}
@@ -122,7 +122,7 @@ bool CD3DFontManager::DeleteD3DFont(LPCTSTR FontName)
 	}
 	else
 	{
-		PrintD3DLog(_T("CD3DFontManager::DeleteD3DFont:×ÖÌå[%s]Î´ÕÒµ½"),
+		PrintD3DLog(_T("CD3DFontManager::DeleteD3DFont:å­—ä½“[%s]æœªæ‰¾åˆ°"),
 			FontName);
 		return false;
 	}

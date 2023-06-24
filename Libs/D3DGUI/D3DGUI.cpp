@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DGUI.cpp                                               */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DGUI.cpp                                               */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -135,11 +135,11 @@ BOOL CD3DGUI::HandleMessage(UINT msg, WPARAM wParam , LPARAM lParam)
 	case WM_MOUSEMOVE:		
 	case WM_MOUSEWHEEL:	
 		{
-			//ÕÒµ½´°¿Ú
+			//æ‰¾åˆ°çª—å£
 			m_CurMouseX=LOWORD(lParam);
 			m_CurMouseY=HIWORD(lParam);	
 			pWnd=GetWndAtPos(m_CurMouseX,m_CurMouseY);
-			//´¦ÀíMouseLeaveEnterÏûÏ¢
+			//å¤„ç†MouseLeaveEnteræ¶ˆæ¯
 			if(m_pRecentMouseWnd!=pWnd)
 			{
 				if(m_pRecentMouseWnd)
@@ -148,7 +148,7 @@ BOOL CD3DGUI::HandleMessage(UINT msg, WPARAM wParam , LPARAM lParam)
 				if(m_pRecentMouseWnd)
 					m_pRecentMouseWnd->HandleMessage(m_pRecentMouseWnd,WM_D3DGUI_MOUSE_ENTER,wParam,lParam);					
 			}	
-			//´¦ÀíÏûÏ¢
+			//å¤„ç†æ¶ˆæ¯
 			if(ActiveMessage)
 			{
 				CD3DWnd* pActiveWnd=pWnd;

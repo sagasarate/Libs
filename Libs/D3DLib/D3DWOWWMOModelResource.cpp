@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DWOWWMOModelResource.cpp                               */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DWOWWMOModelResource.cpp                               */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -75,7 +75,7 @@ bool CD3DWOWWMOModelResource::LoadFromFile(LPCTSTR ModelFileName)
 		return false;
 	if(!pFile->Open(ModelFileName,IFileAccessor::modeRead))
 	{
-		PrintD3DLog(_T("ÎÄ¼ş%s´ò¿ªÊ§°Ü"),ModelFileName);
+		PrintD3DLog(_T("æ–‡ä»¶%sæ‰“å¼€å¤±è´¥"),ModelFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -84,7 +84,7 @@ bool CD3DWOWWMOModelResource::LoadFromFile(LPCTSTR ModelFileName)
 
 	if(!WMOChunk.Load(pFile))
 	{
-		PrintD3DLog(_T("ÎÄ¼ş%s¸ñÊ½´íÎó"),ModelFileName);
+		PrintD3DLog(_T("æ–‡ä»¶%sæ ¼å¼é”™è¯¯"),ModelFileName);
 		pFile->Release();
 		return false;
 	}
@@ -167,7 +167,7 @@ bool CD3DWOWWMOModelResource::LoadFromFile(LPCTSTR ModelFileName)
 	UINT PortalCount=pPortalInfos->ChunkSize/sizeof(WMOPortalInfo);
 	if(pHeader->PortalCount!=PortalCount)
 	{
-		PrintD3DLog(_T("PortalÊıÁ¿ÓĞÒì³£"));
+		PrintD3DLog(_T("Portalæ•°é‡æœ‰å¼‚å¸¸"));
 	}
 
 	for(UINT i=0;i<GroupPortalCount;i++)
@@ -196,12 +196,12 @@ bool CD3DWOWWMOModelResource::LoadFromFile(LPCTSTR ModelFileName)
 			}
 			else
 			{
-				PrintD3DLog(_T("Portal(%d)ÕÒ²»µ½¶ÔÓ¦Group(%d)"),i,PortalInfo.GroupIndex);
+				PrintD3DLog(_T("Portal(%d)æ‰¾ä¸åˆ°å¯¹åº”Group(%d)"),i,PortalInfo.GroupIndex);
 			}
 		}
 		else
 		{
-			PrintD3DLog(_T("Portal(%d)ÕÒ²»µ½"),Index);
+			PrintD3DLog(_T("Portal(%d)æ‰¾ä¸åˆ°"),Index);
 		}
 	}
 
@@ -857,7 +857,7 @@ bool CD3DWOWWMOModelResource::LoadGroup(GROUP_INFO& GroupInfo,LPCTSTR ModelFileN
 		return false;
 	if(!pFile->Open(ModelFileName,IFileAccessor::modeRead))
 	{
-		PrintD3DLog(_T("ÎÄ¼ş%s´ò¿ªÊ§°Ü"),ModelFileName);
+		PrintD3DLog(_T("æ–‡ä»¶%sæ‰“å¼€å¤±è´¥"),ModelFileName);
 		pFile->Release();
 		return false;	
 	}
@@ -959,7 +959,7 @@ bool CD3DWOWWMOModelResource::LoadGroup(GROUP_INFO& GroupInfo,LPCTSTR ModelFileN
 		}
 	}
 
-	//µ÷ÕûÈı½ÇÃæµÄÊÖĞÔºÍ¶¥µãµÄ×ø±êÏµ
+	//è°ƒæ•´ä¸‰è§’é¢çš„æ‰‹æ€§å’Œé¡¶ç‚¹çš„åæ ‡ç³»
 	GroupInfo.IndexList.Resize(TotalIndexCount);
 	GroupInfo.VertexList.Resize(TotalVertexCount);
 	
@@ -975,14 +975,14 @@ bool CD3DWOWWMOModelResource::LoadGroup(GROUP_INFO& GroupInfo,LPCTSTR ModelFileN
 		GroupInfo.VertexList[i].Diffuse=0xFFEEEEEE;
 	}
 
-	//Èı½ÇÃæÊôĞÔ
+	//ä¸‰è§’é¢å±æ€§
 	GroupInfo.FaceFlags.Resize(TriangleMaterialInfoCount);
 	for(UINT i=0;i<TriangleMaterialInfoCount;i++)
 	{
 		GroupInfo.FaceFlags[i]=pTriangleMaterialInfo->TriangleMaterialInfo[i].Flags;
 	}
 
-	//BSPÊ÷
+	//BSPæ ‘
 	if(pBSPNodes&&pBSPFaces)
 	{
 		GroupInfo.BSPTree.Resize(BSPNodeCount);
@@ -1044,7 +1044,7 @@ bool CD3DWOWWMOModelResource::LoadDoodads(UINT DoodadCount,UINT DoodadSetCount,B
 		UINT RealDoodadCount=pDoodads->ChunkSize/sizeof(SMODoodadInfo);
 		if(DoodadCount>RealDoodadCount)
 		{
-			//PrintSystemLog(0,"CD3DWOWWMOModelResource::LoadDoodads:DoodadCountÓĞÎó");
+			//PrintSystemLog(0,"CD3DWOWWMOModelResource::LoadDoodads:DoodadCountæœ‰è¯¯");
 			DoodadCount=RealDoodadCount;
 		}
 		m_DoodadInfos.Resize(DoodadCount);
@@ -1070,7 +1070,7 @@ bool CD3DWOWWMOModelResource::LoadDoodads(UINT DoodadCount,UINT DoodadSetCount,B
 						pResource=new CD3DWOWM2ModelResource(m_pManager);
 						if(pResource->LoadFromFile(ModelFileName))
 						{
-							//PrintSystemLog(0,"¼ÓÔØÁË[%s]",(LPCTSTR)ModelFileName);
+							//PrintSystemLog(0,"åŠ è½½äº†[%s]",(LPCTSTR)ModelFileName);
 							if(!m_pManager->AddResource(pResource,ObjectName))
 							{
 								pResource->Release();

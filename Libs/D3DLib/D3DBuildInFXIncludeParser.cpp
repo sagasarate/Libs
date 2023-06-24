@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+﻿#include "StdAfx.h"
 
 
 CD3DBuildInFXIncludeParser::CD3DBuildInFXIncludeParser(void)

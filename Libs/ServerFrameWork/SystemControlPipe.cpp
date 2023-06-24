@@ -73,7 +73,7 @@ void CSystemControlPipe::OnRecvData(const BYTE * pData, UINT DataSize)
 	if (m_AssembleBuffer.PushBack(pData, DataSize))
 	{
 		UINT PacketSize = 0;
-		UINT Pos = 1;
+		size_t Pos = 1;
 		while (m_AssembleBuffer.Peek(Pos, &PacketSize, sizeof(UINT)))
 		{
 			PacketSize += CSmartStruct::GetEmptyStructSize();

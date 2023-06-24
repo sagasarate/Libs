@@ -138,7 +138,7 @@ bool CENLConnectionNoBuff::AllocRecvBuffer(const BYTE * pPacketHeader, UINT Head
 	CDOSMessagePacket * pPacket = m_pManager->GetRouter()->GetServer()->NewMessagePacket(MsgSize);
 	if (pPacket)
 	{
-		pBuffer = (BYTE *)pPacket->GetPacketBuffer();
+		pBuffer = (BYTE *)pPacket->GetPacketData();
 		BufferSize = MsgSize;
 		Param = pPacket;
 		return true;
@@ -172,7 +172,7 @@ void CENLConnectionNoBuff::OnRecvData(const BYTE * pData, UINT DataSize, LPCVOID
 	case DSM_ROUTE_LINK_START:
 		if (pPacket->GetMessage().GetDataLength() >= sizeof(EASY_NET_LINK_INFO))
 		{
-			EASY_NET_LINK_INFO * pInfo = (EASY_NET_LINK_INFO *)pPacket->GetMessage().GetDataBuffer();
+			EASY_NET_LINK_INFO * pInfo = (EASY_NET_LINK_INFO *)pPacket->GetMessage().GetMsgData();
 			if (m_pManager)
 			{
 				if (!m_pManager->AcceptLink(pInfo->ID, m_pParent))
@@ -216,7 +216,7 @@ void CENLConnectionNoBuff::OnRecvData(const BYTE * pData, UINT DataSize, LPCVOID
 	default:
 		if (pPacket->GetMessage().GetMsgFlag()&DOS_MESSAGE_FLAG_COMPRESSED)
 		{
-			BYTE * pData = (BYTE *)pPacket->GetMessage().GetDataBuffer();
+			BYTE * pData = (BYTE *)pPacket->GetMessage().GetMsgData();
 			UINT DataLen = pPacket->GetPacketLength() - sizeof(MSG_LEN_TYPE) - CDOSMessage::GetMsgHeaderLength();
 			if (DataLen >= sizeof(UINT))
 			{
@@ -228,7 +228,7 @@ void CENLConnectionNoBuff::OnRecvData(const BYTE * pData, UINT DataSize, LPCVOID
 				{
 					pNewPacket->GetMessage().GetMsgHeader() = pPacket->GetMessage().GetMsgHeader();
 					lzo_uint OutLen = OrginSize - sizeof(MSG_LEN_TYPE) - CDOSMessage::GetMsgHeaderLength();
-					int Result = lzo1x_decompress_safe(pData, DataSize, (BYTE *)pNewPacket->GetMessage().GetDataBuffer(), &OutLen, s_LZOCompressWorkMemory);
+					int Result = lzo1x_decompress_safe(pData, DataSize, (BYTE *)pNewPacket->GetMessage().GetMsgData(), &OutLen, s_LZOCompressWorkMemory);
 					if (Result == LZO_E_OK)
 					{
 						((CDOSRouterLink *)m_pParent)->OnMsgPacket(pNewPacket);
@@ -322,14 +322,14 @@ void CENLConnectionNoBuff::SendLinkMsg(DWORD MsgID, LPCVOID pData, UINT DataSize
 		pPacket->GetMessage().SetMsgID(MsgID);
 		pPacket->GetMessage().SetMsgFlag(DOS_MESSAGE_FLAG_SYSTEM_MESSAGE);
 		pPacket->GetMessage().SetData(pData, DataSize);
-		Send(pPacket->GetPacketBuffer(), pPacket->GetPacketLength(), pPacket);
+		Send(pPacket->GetPacketData(), pPacket->GetPacketLength(), pPacket);
 	}
 }
 
 bool CENLConnectionNoBuff::SendPacket(CDOSMessagePacket * pPacket)
 {
 	UINT DataSize = pPacket->GetPacketLength() - sizeof(MSG_LEN_TYPE) - CDOSMessage::GetMsgHeaderLength();
-	BYTE * pData = (BYTE *)pPacket->GetMessage().GetDataBuffer();
+	BYTE * pData = (BYTE *)pPacket->GetMessage().GetMsgData();
 	pPacket->IncRefCount();
 	if (m_DataCompressType == CEasyNetLinkManager::DATA_COMPRESS_TYPE_LZO && DataSize >= m_MinCompressSize)
 	{
@@ -338,7 +338,7 @@ bool CENLConnectionNoBuff::SendPacket(CDOSMessagePacket * pPacket)
 		if (pNewPacket)
 		{
 			int Result = lzo1x_1_compress((BYTE *)pData, DataSize,
-				(BYTE *)pNewPacket->GetMessage().GetDataBuffer(), &OutLen,
+				(BYTE *)pNewPacket->GetMessage().GetMsgData(), &OutLen,
 				s_LZOCompressWorkMemory);
 
 			if (Result == LZO_E_OK)
@@ -360,7 +360,7 @@ bool CENLConnectionNoBuff::SendPacket(CDOSMessagePacket * pPacket)
 		}
 	}
 
-	return Send(pPacket->GetPacketBuffer(), pPacket->GetPacketLength(), pPacket);
+	return Send(pPacket->GetPacketData(), pPacket->GetPacketLength(), pPacket);
 }
 
 void CENLConnectionNoBuff::Disconnect()

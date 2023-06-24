@@ -84,7 +84,7 @@ void CTRConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 		while (m_AssembleBuffer.GetUsedSize() >= sizeof(UINT))
 		{
 			UINT MsgSize = 0;
-			UINT PeekPtr = 0;
+			size_t PeekPtr = 0;
 			m_AssembleBuffer.Peek(PeekPtr, &MsgSize, sizeof(MsgSize));
 			MsgSize = ntohl(MsgSize);
 			if (m_AssembleBuffer.GetUsedSize() >= MsgSize + sizeof(UINT))
@@ -131,7 +131,7 @@ bool CTRConnection::SendHandshake1()
 bool CTRConnection::SendHandshake2()
 {
 	char * pBuff = (char *)m_SendBuffer.GetBuffer();
-	UINT BuffSize = m_SendBuffer.GetBufferSize();
+	size_t BuffSize = m_SendBuffer.GetBufferSize();
 	UINT BuffPtr = 0;
 
 	UINT * MsgSize = (UINT *)(pBuff + BuffPtr);
@@ -156,7 +156,7 @@ bool CTRConnection::SendHandshake2()
 bool CTRConnection::SendRequest(UINT Piece)
 {
 	char * pBuff = (char *)m_SendBuffer.GetBuffer();
-	UINT BuffSize = m_SendBuffer.GetBufferSize();
+	size_t BuffSize = m_SendBuffer.GetBufferSize();
 	UINT BuffPtr = 0;
 
 	UINT * MsgSize = (UINT *)(pBuff + BuffPtr);
@@ -281,7 +281,7 @@ void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)
 					{
 						PrintNetLogWithTag( _T("MetaData接受完毕，连接%s断开"), GetRemoteAddress().GetAddressString());
 						Disconnect();
-						m_pParent->OnTorrent(m_SearchID, (BYTE *)m_MetaDataBuffer.GetBuffer(), m_MetaDataBuffer.GetUsedSize());
+						m_pParent->OnTorrent(m_SearchID, (BYTE *)m_MetaDataBuffer.GetBuffer(), (UINT)m_MetaDataBuffer.GetUsedSize());
 					}
 				}
 				else

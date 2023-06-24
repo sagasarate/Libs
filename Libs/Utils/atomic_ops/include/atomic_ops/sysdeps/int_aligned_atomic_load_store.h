@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2004 Hewlett-Packard Development Company, L.P.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy

@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DWOWWMOGroupModel.cpp	                                */
-/*      ´´½¨ÈÕÆÚ:  2010Äê08ÔÂ04ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DWOWWMOGroupModel.cpp	                                */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´08æœˆ04æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -75,7 +75,7 @@ void CD3DWOWWMOGroupModel::OnPrepareRender(CD3DBaseRender * pRender,CD3DFX * pFX
 }
 void CD3DWOWWMOGroupModel::OnPrepareRenderSubMesh(CD3DBaseRender * pRender,CD3DFX * pFX,CD3DSubMesh * pSubMesh,CD3DSubMeshMaterial * pMaterial,CEasyArray<CD3DLight *>& LightList,CD3DCamera * pCamera)
 {
-	////ÉèÖÃ²ÄÖÊ
+	////è®¾ç½®æè´¨
 	//D3DMATERIAL9 * pD3DMaterial;
 	//if(pSubMesh->IsSelected())
 	//	pD3DMaterial=&SELECTED_SUBMESH_MATERIAL;
@@ -87,7 +87,7 @@ void CD3DWOWWMOGroupModel::OnPrepareRenderSubMesh(CD3DBaseRender * pRender,CD3DF
 	//pMaterial->GetFX()->SetColor("MaterialEmissive",pD3DMaterial->Emissive);
 	//pMaterial->GetFX()->SetFloat("MaterialPower",pD3DMaterial->Power);
 
-	//ÉèÖÃÎÆÀí
+	//è®¾ç½®çº¹ç†
 	//pFX->SetTexture("TexLay0",pMaterial->GetTexture(0));
 	//if(pSubMesh->IsSelected())
 	//{

@@ -6,7 +6,7 @@
 		<Option platforms="Unix;" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="Log/;ServerApp/;头文件/;服务器控制台/;服务器线程/;杂项工具/;系统连接/;系统配置/;预编译/;基础类/;" />
+		<Option virtualFolders="Log/;ServerApp/;头文件/;服务器控制台/;服务器线程/;杂项工具/;系统连接/;系统配置/;预编译/;基础类/" />
 		<Build>
 			<Target title="Debug">
 				<Option output="../bin/ServerFrameWorkD" prefix_auto="0" extension_auto="1" />
@@ -52,7 +52,7 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-std=c++11" />
+			<Add option="-std=c++14" />
 			<Add option="-fvisibility=hidden" />
 		</Compiler>
 		<Unit filename="BaseServer.cpp">
@@ -126,10 +126,6 @@
 			<Option weight="0" />
 			<Option virtualFolder="预编译/" />
 		</Unit>
-		<Extensions>
-			<code_completion />
-			<debugger />
-			<envvars />
-		</Extensions>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

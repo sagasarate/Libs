@@ -1,32 +1,70 @@
 ﻿#include "stdafx.h"
 
-IMPLEMENT_STATIC_META_CLASS(CLuaGrid)
+#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
+#undef new
+#endif
 
+IMPLEMENT_META_CLASS(CLuaGrid, _T("Grid"))
 
+#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
+#define new NEWNEW
+#endif
+
+#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
+#define new NEWNEW
+#endif
+
+void CLuaGrid::Dump(CEasyString& Data) const
+{
+	UINT Row = m_Data.GetCount();
+	UINT Col = 0;
+	if (Row)
+		Col = m_Data[0].GetCount();
+	Data.Format(_T("CLuaGrid(%u,%u)(%s)"), Col, Row, IsInLuaHeap() ? _T("InLuaHeap") : _T("InCHeap"));
+}
+void CLuaGrid::ResgisterStaticFunctions(CBaseLuaVM* pLuaVM, LPCTSTR LibName)
+{
+	pLuaVM->RegisterStaticFunction(LibName, _T("New"), &CLuaGrid::LuaNew);
+}
 void CLuaGrid::RegisterMemberFunctions(lua_State * pLuaState) const
 {
-	CLuaBaseStaticMetaClass::RegisterMemberFunctions(pLuaState);
+	CLuaBaseMetaClass::RegisterMemberFunctions(pLuaState);
 
-	RegisterMetaFunction<CLuaGrid>(pLuaState, "GetMaxCol", &CLuaGrid::LuaGetMaxCol);
-	RegisterMetaFunction<CLuaGrid>(pLuaState, "GetMaxRow", &CLuaGrid::LuaGetMaxRow);
-	RegisterMetaFunction<CLuaGrid>(pLuaState, "SetValue", &CLuaGrid::LuaSetValue);
-	RegisterMetaFunction<CLuaGrid>(pLuaState, "GetValue", &CLuaGrid::LuaGetValue);
+	RegisterMetaFunction<CLuaGrid>(pLuaState, _T("GetMaxCol"), &CLuaGrid::GetMaxCol);
+	RegisterMetaFunction<CLuaGrid>(pLuaState, _T("GetMaxRow"), &CLuaGrid::GetMaxRow);
+	RegisterMetaFunction<CLuaGrid>(pLuaState, _T("SetValue"), &CLuaGrid::LuaSetValue);
+	RegisterMetaFunction<CLuaGrid>(pLuaState, _T("GetValue"), &CLuaGrid::LuaGetValue);
 }
 
-
-WORD CLuaGrid::LuaGetMaxCol(CLuaThread * pThreadInfo)
+void CLuaGrid::OnGarbageCollect()
 {
-	return GetMaxCol();
+	if (m_IsInLuaHeap)
+		this->~CLuaGrid();
 }
-WORD CLuaGrid::LuaGetMaxRow(CLuaThread * pThreadInfo)
+LUA_EMPTY_VALUE CLuaGrid::LuaNew(CLuaThread* pLuaThread, UINT Col, UINT Row)
 {
-	return GetMaxRow();
+	CLuaGrid* pObject = CLuaGrid::New(pLuaThread, NULL);
+	if (pObject)
+	{
+		pObject->Create(Col, Row);
+	}	
+	return LUA_EMPTY_VALUE();
 }
-void CLuaGrid::LuaSetValue(CLuaThread * pThreadInfo, UINT Col, UINT Row, LuaValue Value)
+LUA_EMPTY_VALUE CLuaGrid::Clone()
+{
+	CLuaGrid* pObject = CLuaGrid::New(m_pCurThread, NULL);
+	if (pObject)
+	{
+		pObject->CloneFrom(*pObject);
+	}	
+	return LUA_EMPTY_VALUE();
+}
+
+void CLuaGrid::LuaSetValue(UINT Col, UINT Row, CVariedValue Value)
 {
 	GetValue(Col, Row) = Value;
 }
-LuaValue CLuaGrid::LuaGetValue(CLuaThread * pThreadInfo, UINT Col, UINT Row)
+CVariedValue& CLuaGrid::LuaGetValue(UINT Col, UINT Row)
 {
 	return GetValue(Col, Row);
 }

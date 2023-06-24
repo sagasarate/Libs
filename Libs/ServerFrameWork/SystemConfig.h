@@ -46,7 +46,7 @@ protected:
 	UINT			m_LogLevel;
 	UINT			m_ConsoleLogLevel;
 	UINT			m_LogCacheSize;
-	UINT			m_LogBackupDelay;
+	int				m_LogBackupDelay;
 	CEasyString		m_LogBackupDir;
 	bool			m_EnableGuardThread;
 	UINT			m_GuardThreadKeepAliveTime;
@@ -105,7 +105,7 @@ public:
 	{
 		return m_ConsoleLogLevel;
 	}
-	UINT GetLogBackupDelay()
+	int GetLogBackupDelay()
 	{
 		return m_LogBackupDelay;
 	}

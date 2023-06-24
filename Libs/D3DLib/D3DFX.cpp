@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DFX.cpp                                                */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ25ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DFX.cpp                                                */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ25æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -78,7 +78,7 @@ bool CD3DFX::LoadFromFile(LPCTSTR FileName)
 	if(pFile==NULL)
 		return false;
 
-	PrintD3DDebugLog(_T("×°ÔØFX<%s>....."),(LPCTSTR)FxFileName);
+	PrintD3DDebugLog(_T("è£…è½½FX<%s>....."),(LPCTSTR)FxFileName);
 	if(pFile->Open(FxFileName,IFileAccessor::modeRead))
 	{
 		UINT Size=(UINT)pFile->GetSize();
@@ -93,13 +93,13 @@ bool CD3DFX::LoadFromFile(LPCTSTR FileName)
 		
 		if(LoadFromMemory(NULL,0))
 		{
-			PrintD3DDebugLog(_T("×°ÔØFX<%s>³É¹¦"),(LPCTSTR)FxFileName);
+			PrintD3DDebugLog(_T("è£…è½½FX<%s>æˆåŠŸ"),(LPCTSTR)FxFileName);
 			return true;
 		}
 	}
 	else
 		pFile->Release();
-	PrintD3DLog(_T("×°ÔØFX<%s>Ê§°Ü%d"),(LPCTSTR)FxFileName,GetLastError());
+	PrintD3DLog(_T("è£…è½½FX<%s>å¤±è´¥%d"),(LPCTSTR)FxFileName,GetLastError());
 	return false;
 }
 
@@ -128,10 +128,10 @@ bool CD3DFX::LoadFromFileDirect(LPCTSTR FileName)
 	{
 		CEasyString ErrorMsg;
 		if(pErrors)
-			ErrorMsg.Format(_T("ÎŞ·¨¼ÓÔØFX,Err=(%s)"),(char*)(pErrors->GetBufferPointer()));
+			ErrorMsg.Format(_T("æ— æ³•åŠ è½½FX,Err=(%s)"),(char*)(pErrors->GetBufferPointer()));
 		else
-			ErrorMsg.Format(_T("ÎŞ·¨¼ÓÔØFX"));
-		MessageBox(GetForegroundWindow(),ErrorMsg,"ÎŞ·¨¼ÓÔØFX",MB_OK);
+			ErrorMsg.Format(_T("æ— æ³•åŠ è½½FX"));
+		MessageBox(GetForegroundWindow(),ErrorMsg,"æ— æ³•åŠ è½½FX",MB_OK);
 		SAFE_RELEASE(pErrors);
 		return false;
 	}
@@ -179,9 +179,9 @@ bool CD3DFX::LoadFromMemory(const void * pData,int DataSize)
 		else
 		{
 			if(pErrors)
-				PrintD3DLog(_T("ÎŞ·¨±àÒëFX,Err=(%s)"),(LPCTSTR)(pErrors->GetBufferPointer()));
+				PrintD3DLog(_T("æ— æ³•ç¼–è¯‘FX,Err=(%s)"),(LPCTSTR)(pErrors->GetBufferPointer()));
 			else
-				PrintD3DLog(_T("ÎŞ·¨±àÒëFX"));
+				PrintD3DLog(_T("æ— æ³•ç¼–è¯‘FX"));
 			SAFE_RELEASE(pErrors);
 		}
 		SAFE_RELEASE(pCompiler);
@@ -190,9 +190,9 @@ bool CD3DFX::LoadFromMemory(const void * pData,int DataSize)
 	else
 	{
 		if(pErrors)
-			PrintD3DLog(_T("ÎŞ·¨´´½¨FX±àÒëÆ÷,Err=(%s)"),(LPCTSTR)(pErrors->GetBufferPointer()));
+			PrintD3DLog(_T("æ— æ³•åˆ›å»ºFXç¼–è¯‘å™¨,Err=(%s)"),(LPCTSTR)(pErrors->GetBufferPointer()));
 		else
-			PrintD3DLog(_T("ÎŞ·¨´´½¨FX±àÒë"));
+			PrintD3DLog(_T("æ— æ³•åˆ›å»ºFXç¼–è¯‘"));
 		SAFE_RELEASE(pErrors);
 		return false;
 	}
@@ -555,9 +555,9 @@ bool CD3DFX::LoadFXDirect(const void * pData,int DataSize)
 	if(m_pEffect==NULL)
 	{
 		if(pErrors)
-			PrintD3DLog(_T("ÎŞ·¨¼ÓÔØFX,Err=(%s)"),(LPCTSTR)(pErrors->GetBufferPointer()));
+			PrintD3DLog(_T("æ— æ³•åŠ è½½FX,Err=(%s)"),(LPCTSTR)(pErrors->GetBufferPointer()));
 		else
-			PrintD3DLog(_T("ÎŞ·¨¼ÓÔØFX"));
+			PrintD3DLog(_T("æ— æ³•åŠ è½½FX"));
 		SAFE_RELEASE(pErrors);
 		return false;
 	}

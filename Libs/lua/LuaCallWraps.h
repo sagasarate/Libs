@@ -1,216 +1,37 @@
 ﻿#pragma once
 
-class CLuaBaseMetaClass;
 namespace LuaWrap
 {
-
-	template<class RT>
-	struct ReturnSpecialization
-	{
-		static int Call(RT(*func)(CLuaThread *), lua_State* L, int /*index*/, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-
-		template <typename P1>
-		static int Call(RT(*func)(CLuaThread *, P1), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-
-		template <typename P1, typename P2>
-		static int Call(RT(*func)(CLuaThread *, P1, P2), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-
-		template <typename P1, typename P2, typename P3>
-		static int Call(RT(*func)(CLuaThread *, P1, P2, P3), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-
-		template <typename P1, typename P2, typename P3, typename P4>
-		static int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-
-		template <typename P1, typename P2, typename P3, typename P4,
-			typename P5>
-			static int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-
-		template <typename P1, typename P2, typename P3, typename P4,
-			typename P5, typename P6>
-			static int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5, P6), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-
-		template <typename P1, typename P2, typename P3, typename P4,
-			typename P5, typename P6, typename P7>
-			static int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		template <typename P1, typename P2, typename P3, typename P4,
-			typename P5, typename P6, typename P7, typename P8>
-			static int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		template <typename P1, typename P2, typename P3, typename P4,
-			typename P5, typename P6, typename P7, typename P8, typename P9>
-			static int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		template <typename P1, typename P2, typename P3, typename P4,
-			typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
-			static int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		template <typename P1, typename P2, typename P3, typename P4,
-			typename P5, typename P6, typename P7, typename P8, typename P9, typename P10, typename P11>
-			static int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		//This Call Wrap
-		//////////////////////////////////////////////////////////////////////////////
-		//////////////////////////////////////////////////////////////////////////////
-		//////////////////////////////////////////////////////////////////////////////
-		template <typename Callee>
-		static int Call(Callee& callee, RT(Callee::*func)(CLuaThread *), lua_State* L, int /*index*/, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-
-		template <typename Callee, typename P1>
-		static int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-
-		template <typename Callee, typename P1, typename P2>
-		static int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		template <typename Callee, typename P1, typename P2, typename P3>
-		static int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		template <typename Callee, typename P1, typename P2, typename P3,
-			typename P4>
-			static int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		template <typename Callee, typename P1, typename P2, typename P3,
-			typename P4, typename P5>
-			static int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		template <typename Callee, typename P1, typename P2, typename P3,
-			typename P4, typename P5, typename P6>
-			static int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		template <typename Callee, typename P1, typename P2, typename P3,
-			typename P4, typename P5, typename P6, typename P7>
-			static int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		template <typename Callee, typename P1, typename P2, typename P3,
-			typename P4, typename P5, typename P6, typename P7, typename P8>
-			static int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		template <typename Callee, typename P1, typename P2, typename P3,
-			typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
-			static int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		template <typename Callee, typename P1, typename P2, typename P3,
-			typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
-			static int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-
-		template <typename Callee, typename P1, typename P2, typename P3,
-			typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10, typename P11>
-			static int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11), lua_State* L, int index, CLuaThread * pThreadInfo)
-		{
-			return 0;
-		}
-	};
-
-
-
 	template <typename RT>
-	int Call(RT(*func)(CLuaThread *), lua_State* L, int index, CLuaThread * pThreadInfo)
+	int Call(RT(*func)(), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(func, L, index, pThreadInfo);
 	}
 
 
 	template <typename RT, typename P1>
-	int Call(RT(*func)(CLuaThread *, P1), lua_State* L, int index, CLuaThread * pThreadInfo)
+	int Call(RT(*func)(P1), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(func, L, index, pThreadInfo);
 	}
 
 
 	template <typename RT, typename P1, typename P2>
-	int Call(RT(*func)(CLuaThread *, P1, P2), lua_State* L, int index, CLuaThread * pThreadInfo)
+	int Call(RT(*func)(P1, P2), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(func, L, index, pThreadInfo);
 	}
 
 
 	template <typename RT, typename P1, typename P2, typename P3>
-	int Call(RT(*func)(CLuaThread *, P1, P2, P3), lua_State* L, int index, CLuaThread * pThreadInfo)
+	int Call(RT(*func)(P1, P2, P3), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(func, L, index, pThreadInfo);
 	}
 
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4>
-	int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4), lua_State* L, int index, CLuaThread * pThreadInfo)
+	int Call(RT(*func)(P1, P2, P3, P4), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(func, L, index, pThreadInfo);
 	}
@@ -218,7 +39,7 @@ namespace LuaWrap
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4,
 		typename P5>
-		int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(RT(*func)(P1, P2, P3, P4, P5), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(func, L, index, pThreadInfo);
 	}
@@ -226,7 +47,7 @@ namespace LuaWrap
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4,
 		typename P5, typename P6>
-		int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5, P6), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(RT(*func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(func, L, index, pThreadInfo);
 	}
@@ -234,64 +55,62 @@ namespace LuaWrap
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4,
 		typename P5, typename P6, typename P7>
-		int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(RT(*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(func, L, index, pThreadInfo);
 	}
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4,
 		typename P5, typename P6, typename P7, typename P8>
-		int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(RT(*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(func, L, index, pThreadInfo);
 	}
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4,
 		typename P5, typename P6, typename P7, typename P8, typename P9>
-		int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(RT(*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(func, L, index, pThreadInfo);
 	}
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4,
 		typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
-		int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(RT(*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(func, L, index, pThreadInfo);
 	}
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4,
 		typename P5, typename P6, typename P7, typename P8, typename P9, typename P10, typename P11>
-		int Call(RT(*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(RT(*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(func, L, index, pThreadInfo);
 	}
-
-
-	//This Call
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	template <typename Callee, typename RT>
-	int Call(Callee& callee, RT(Callee::*func)(CLuaThread *), lua_State* L, int index, CLuaThread * pThreadInfo)
+	int Call(Callee& callee, RT(Callee::* func)(), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
 	}
 
 
 	template <typename Callee, typename RT, typename P1>
-	int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1), lua_State* L, int index, CLuaThread * pThreadInfo)
+	int Call(Callee& callee, RT(Callee::* func)(P1), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2>
-	int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2), lua_State* L, int index, CLuaThread * pThreadInfo)
+	int Call(Callee& callee, RT(Callee::* func)(P1, P2), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3>
-	int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3), lua_State* L, int index, CLuaThread * pThreadInfo)
+	int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
 	}
@@ -299,7 +118,7 @@ namespace LuaWrap
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 		typename P4>
-		int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
 	}
@@ -307,7 +126,7 @@ namespace LuaWrap
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 		typename P4, typename P5>
-		int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
 	}
@@ -315,7 +134,7 @@ namespace LuaWrap
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 		typename P4, typename P5, typename P6>
-		int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
 	}
@@ -323,38 +142,397 @@ namespace LuaWrap
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 		typename P4, typename P5, typename P6, typename P7>
-		int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
 	}
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 		typename P4, typename P5, typename P6, typename P7, typename P8>
-		int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
 	}
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 		typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
-		int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
 	}
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 		typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
-		int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
 	}
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 		typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10, typename P11>
-		int Call(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11), lua_State* L, int index, CLuaThread * pThreadInfo)
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11), lua_State* L, int index, CLuaThread* pThreadInfo)
 	{
 		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
 	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	template <typename Callee, typename RT>
+	int Call(Callee& callee, RT(Callee::* func)() const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1>
+	int Call(Callee& callee, RT(Callee::* func)(P1) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2>
+	int Call(Callee& callee, RT(Callee::* func)(P1, P2) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3>
+	int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4>
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5>
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6>
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5, P6) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7>
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5, P6, P7) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
+	}
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7, typename P8>
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5, P6, P7, P8) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
+	}
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5, P6, P7, P8, P9) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
+	}
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
+	}
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10, typename P11>
+		int Call(Callee& callee, RT(Callee::* func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index, pThreadInfo);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	template <typename RT>
+	int CallWithThread(RT(*func)(CLuaThread*), lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(func, L, index, pThreadInfo);
+	}
+
+
+	template <typename RT, typename P1>
+	int CallWithThread(RT(*func)(CLuaThread*, P1), lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(func, L, index, pThreadInfo);
+	}
+
+
+	template <typename RT, typename P1, typename P2>
+	int CallWithThread(RT(*func)(CLuaThread*, P1, P2), lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(func, L, index, pThreadInfo);
+	}
+
+
+	template <typename RT, typename P1, typename P2, typename P3>
+	int CallWithThread(RT(*func)(CLuaThread*, P1, P2, P3), lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(func, L, index, pThreadInfo);
+	}
+
+
+	template <typename RT, typename P1, typename P2, typename P3, typename P4>
+	int CallWithThread(RT(*func)(CLuaThread*, P1, P2, P3, P4), lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(func, L, index, pThreadInfo);
+	}
+
+
+	template <typename RT, typename P1, typename P2, typename P3, typename P4,
+		typename P5>
+		int CallWithThread(RT(*func)(CLuaThread*, P1, P2, P3, P4, P5), lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(func, L, index, pThreadInfo);
+	}
+
+
+	template <typename RT, typename P1, typename P2, typename P3, typename P4,
+		typename P5, typename P6>
+		int CallWithThread(RT(*func)(CLuaThread*, P1, P2, P3, P4, P5, P6), lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(func, L, index, pThreadInfo);
+	}
+
+
+	template <typename RT, typename P1, typename P2, typename P3, typename P4,
+		typename P5, typename P6, typename P7>
+		int CallWithThread(RT(*func)(CLuaThread*, P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(func, L, index, pThreadInfo);
+	}
+
+	template <typename RT, typename P1, typename P2, typename P3, typename P4,
+		typename P5, typename P6, typename P7, typename P8>
+		int CallWithThread(RT(*func)(CLuaThread*, P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(func, L, index, pThreadInfo);
+	}
+
+	template <typename RT, typename P1, typename P2, typename P3, typename P4,
+		typename P5, typename P6, typename P7, typename P8, typename P9>
+		int CallWithThread(RT(*func)(CLuaThread*, P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(func, L, index, pThreadInfo);
+	}
+
+	template <typename RT, typename P1, typename P2, typename P3, typename P4,
+		typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
+		int CallWithThread(RT(*func)(CLuaThread*, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(func, L, index, pThreadInfo);
+	}
+
+	template <typename RT, typename P1, typename P2, typename P3, typename P4,
+		typename P5, typename P6, typename P7, typename P8, typename P9, typename P10, typename P11>
+		int CallWithThread(RT(*func)(CLuaThread*, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11), lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(func, L, index, pThreadInfo);
+	}
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+	template <typename Callee, typename RT>
+	int CallWithThread(Callee& callee, RT(Callee::*func)(CLuaThread *), lua_State* L, int index, CLuaThread * pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1>
+	int CallWithThread(Callee& callee, RT(Callee::*func)(CLuaThread *, P1), lua_State* L, int index, CLuaThread * pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2>
+	int CallWithThread(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2), lua_State* L, int index, CLuaThread * pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3>
+	int CallWithThread(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3), lua_State* L, int index, CLuaThread * pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4>
+		int CallWithThread(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4), lua_State* L, int index, CLuaThread * pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5>
+		int CallWithThread(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5), lua_State* L, int index, CLuaThread * pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6>
+		int CallWithThread(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6), lua_State* L, int index, CLuaThread * pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7>
+		int CallWithThread(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index, CLuaThread * pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7, typename P8>
+		int CallWithThread(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index, CLuaThread * pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
+		int CallWithThread(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index, CLuaThread * pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
+		int CallWithThread(Callee& callee, RT(Callee::*func)(CLuaThread *, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index, CLuaThread * pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10, typename P11>
+		int CallWithThread(Callee& callee, RT(Callee::* func)(CLuaThread*, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11), lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	template <typename Callee, typename RT>
+	int CallWithThread(Callee& callee, RT(Callee::* func)(CLuaThread*) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1>
+	int CallWithThread(Callee& callee, RT(Callee::* func)(CLuaThread*, P1) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2>
+	int CallWithThread(Callee& callee, RT(Callee::* func)(CLuaThread*, P1, P2) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3>
+	int CallWithThread(Callee& callee, RT(Callee::* func)(CLuaThread*, P1, P2, P3) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4>
+		int CallWithThread(Callee& callee, RT(Callee::* func)(CLuaThread*, P1, P2, P3, P4) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5>
+		int CallWithThread(Callee& callee, RT(Callee::* func)(CLuaThread*, P1, P2, P3, P4, P5) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6>
+		int CallWithThread(Callee& callee, RT(Callee::* func)(CLuaThread*, P1, P2, P3, P4, P5, P6) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7>
+		int CallWithThread(Callee& callee, RT(Callee::* func)(CLuaThread*, P1, P2, P3, P4, P5, P6, P7) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7, typename P8>
+		int CallWithThread(Callee& callee, RT(Callee::* func)(CLuaThread*, P1, P2, P3, P4, P5, P6, P7, P8) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
+		int CallWithThread(Callee& callee, RT(Callee::* func)(CLuaThread*, P1, P2, P3, P4, P5, P6, P7, P8, P9) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
+		int CallWithThread(Callee& callee, RT(Callee::* func)(CLuaThread*, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
+		typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10, typename P11>
+		int CallWithThread(Callee& callee, RT(Callee::* func)(CLuaThread*, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11) const, lua_State* L, int index, CLuaThread* pThreadInfo)
+	{
+		return ReturnSpecialization<RT>::CallWithThread(callee, func, L, index, pThreadInfo);
+	}
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	inline unsigned char* GetFirstUpValueAsUserData(lua_State* L)
 	{
@@ -398,10 +576,10 @@ namespace LuaWrap
 
 	inline void* GetObjectIndexData1(lua_State* L)
 	{
-		StkId o = restorestack(L, sizeof(TValue));
+		StkId o = restorestack(L, sizeof(StackValue));
 
-		if (ttype(o) == LUA_TLIGHTUSERDATA)
-			return pvalue(o);
+		if (ttype(s2v(o)) == LUA_TLIGHTUSERDATA)
+			return pvalue(s2v(o));
 		else
 		{
 			luaL_argerror(L, 1, "must be userdata or a table with a userdata member called __object");
@@ -411,10 +589,10 @@ namespace LuaWrap
 	}
 	inline void* GetObjectIndexData2(lua_State* L)
 	{
-		StkId o = restorestack(L, sizeof(TValue) * 2);
+		StkId o = restorestack(L, sizeof(StackValue) * 2);
 
-		if (ttype(o) == LUA_TLIGHTUSERDATA)
-			return pvalue(o);
+		if (ttype(s2v(o)) == LUA_TLIGHTUSERDATA)
+			return pvalue(s2v(o));
 		else
 		{
 			luaL_argerror(L, 1, "must be userdata or a table with a userdata member called __object");
@@ -430,9 +608,16 @@ namespace LuaWrap
 		static inline int DirectCallFunctionDispatcher(lua_State* L)
 		{
 			unsigned char* buffer = GetFirstUpValueAsUserData(L);
-			CLuaThread * pThreadInfo = (CLuaThread*)GetObjectIndexData2(L);
-
-			return Call(*(Func*)(buffer), L, 1, pThreadInfo);
+			CLuaThread* pThreadInfo = (CLuaThread*)GetObjectIndexData1(L);
+			if (pThreadInfo)
+			{
+				return CallWithThread(*(Func*)(buffer), L, 1, pThreadInfo);
+			}
+			else
+			{
+				luaL_error(L, "thread info not exist");
+			}
+			return 0;
 		}
 	};
 
@@ -443,16 +628,26 @@ namespace LuaWrap
 		static inline int DirectCallMemberDispatcher(lua_State* L)
 		{
 			unsigned char* buffer = GetFirstUpValueAsUserData(L);
-			Callee *callee = (Callee *)GetObjectIndexData1(L);
-			CLuaThread * pThreadInfo = (CLuaThread*)GetObjectIndexData2(L);
 
-			if (callee)
-				return Call(*callee, *(Func*)buffer, L, startIndex, pThreadInfo);
+			CLuaThread* pThreadInfo = (CLuaThread*)GetObjectIndexData1(L);
+			Callee* callee = dynamic_cast<Callee*>((CBaseScriptHost*)GetObjectIndexData2(L));
+
+			if (pThreadInfo)
+			{
+				if (callee)
+				{
+					return CallWithThread(*callee, *(Func*)buffer, L, startIndex, pThreadInfo);
+				}
+				else
+				{
+					luaL_error(L, "host object is null on call");
+				}
+			}
 			else
 			{
-				luaL_error(L, "host object is null on call");
-				return 0;
+				luaL_error(L, "thread info not exist");
 			}
+			return 0;
 		}
 	};
 
@@ -463,56 +658,73 @@ namespace LuaWrap
 		static inline int DirectCallMemberDispatcher(lua_State* L)
 		{
 			unsigned char* buffer = GetFirstUpValueAsUserData(L);
-			Callee *callee = dynamic_cast<Callee *>(*((CLuaBaseMetaClass **)lua_touserdata(L, startIndex)));			
-			CLuaThread * pThreadInfo = (CLuaThread*)GetObjectIndexData2(L);
+			CLuaThread* pThreadInfo = (CLuaThread*)GetObjectIndexData1(L);
+			BYTE* pData = (BYTE*)lua_touserdata(L, startIndex);
 
-			if (callee)
+			if (pThreadInfo)
 			{
-				return Call(*callee, *(Func*)buffer, L, startIndex + 1, pThreadInfo);
-			}
-			else
-			{
-				luaL_argerror(L, 1, "this is null in MetaClassCall");
-				return 0;
-			}
-				
-		}
-	};
-
-	template <typename Callee, typename Func, int startIndex>
-	class DirectCallStaticMetaClassMemberDispatcherHelper
-	{
-	public:
-		static inline int DirectCallMemberDispatcher(lua_State* L)
-		{
-			
-			unsigned char* buffer = GetFirstUpValueAsUserData(L);
-			BYTE * pData = (BYTE *)lua_touserdata(L, startIndex);
-			UINT DataLen = (UINT)lua_rawlen(L, startIndex);
-			if (pData&&DataLen)
-			{
-				Callee * pCallee = (Callee *)pData;
-				UINT ClassSize = (UINT)pCallee->GetMetaClassSize();
-				if(ClassSize&&ClassSize<= DataLen)
+				if (pData)
 				{
-					//pCallee->Attach(pData + ClassSize, DataLen - ClassSize);
-					CLuaThread * pThreadInfo = (CLuaThread*)GetObjectIndexData2(L);
-
-					return Call(*pCallee, *(Func*)buffer, L, startIndex + 1, pThreadInfo);
+					Callee* callee = dynamic_cast<Callee*>(*((CLuaBaseMetaClass**)pData));
+					if (callee)
+					{
+						callee->SetCurLuaThread(pThreadInfo);
+						int Result = Call(*callee, *(Func*)buffer, L, startIndex + 1, pThreadInfo);
+						callee->SetCurLuaThread(NULL);
+						return Result;
+					}
+					else
+					{
+						luaL_argerror(L, 1, "this is not match in MetaClassCall");
+					}
 				}
 				else
 				{
-					luaL_argerror(L, 1, "Invalid StaticMetaClassSize");
-					return 0;
+					luaL_argerror(L, 1, "this is null in MetaClassCall");
 				}
 			}
 			else
 			{
-				luaL_argerror(L, 1, "this is null in StaticMetaClassCall");
-				return 0;
+				luaL_error(L, "thread info not exist");
 			}
+			return 0;
 		}
 	};
+
+	//template <typename Callee, typename Func, int startIndex>
+	//class DirectCallStaticMetaClassMemberDispatcherHelper
+	//{
+	//public:
+	//	static inline int DirectCallMemberDispatcher(lua_State* L)
+	//	{
+	//		
+	//		unsigned char* buffer = GetFirstUpValueAsUserData(L);
+	//		BYTE * pData = (BYTE *)lua_touserdata(L, startIndex);
+	//		UINT DataLen = (UINT)lua_rawlen(L, startIndex);
+	//		if (pData&&DataLen)
+	//		{
+	//			Callee * pCallee = (Callee *)pData;
+	//			UINT ClassSize = (UINT)pCallee->GetMetaClassSize();
+	//			if(ClassSize&&ClassSize<= DataLen)
+	//			{
+	//				//pCallee->Attach(pData + ClassSize, DataLen - ClassSize);
+	//				CLuaThread * pThreadInfo = (CLuaThread*)GetObjectIndexData2(L);
+
+	//				return CallWithThread(*pCallee, *(Func*)buffer, L, startIndex + 1, pThreadInfo);
+	//			}
+	//			else
+	//			{
+	//				luaL_argerror(L, 1, "Invalid StaticMetaClassSize");
+	//				return 0;
+	//			}
+	//		}
+	//		else
+	//		{
+	//			luaL_argerror(L, 1, "this is null in StaticMetaClassCall");
+	//			return 0;
+	//		}
+	//	}
+	//};
 
 }
 
@@ -527,63 +739,63 @@ namespace LuaWrap
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE bool
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE char
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE unsigned char
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE short
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE unsigned short
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE int
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE unsigned int
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE __int64
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE unsigned __int64
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 
@@ -593,42 +805,35 @@ namespace LuaWrap
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE float
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE double
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE const char *
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
-#define LUA_WRAP_CALL_RETURN_TYPE LuaValue
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#define LUA_WRAP_CALL_RETURN_TYPE CVariedValue
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
-#define LUA_WRAP_CALL_RETURN_TYPE CLuaTable
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
-#include "LuaCallWrapTemplate.h"
-
-#undef LUA_WRAP_CALL_RETURN_TYPE
-#undef LUA_WRAP_RETURN_PUSH_OPERATION
-
-#define LUA_WRAP_CALL_RETURN_TYPE CEasyArray<LuaValue>
-#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(L, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return (int)Ret.GetCount();
+#define LUA_WRAP_CALL_RETURN_TYPE CVariedValue&
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 
 #undef LUA_WRAP_CALL_RETURN_TYPE

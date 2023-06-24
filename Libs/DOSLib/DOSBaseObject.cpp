@@ -233,12 +233,12 @@ BOOL CDOSBaseObject::SendMessageMulti(OBJECT_ID * pReceiverIDList,UINT ReceiverC
 	return FALSE;
 }
 
-BOOL CDOSBaseObject::BroadcastMessageToProxyObjectByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
+BOOL CDOSBaseObject::BroadcastMessageToProxyByMask(WORD RouterID, BYTE ProxyType, UINT64 Mask, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
-	if (GroupID == 0)
+	if (Mask == 0)
 		return FALSE;
-	int PacketSize = CDOSMessagePacket::CaculatePacketLength(DataSize + sizeof(GROUP_BROADCAST_INFO), 1);
+	int PacketSize = CDOSMessagePacket::CaculatePacketLength(DataSize + sizeof(MASK_BROADCAST_INFO), 1);
 
 	CDOSMessagePacket * pNewPacket = m_pRouter->GetServer()->NewMessagePacket(PacketSize);
 	if (pNewPacket == NULL)
@@ -246,11 +246,50 @@ BOOL CDOSBaseObject::BroadcastMessageToProxyObjectByGroup(WORD RouterID, BYTE Pr
 		PrintDOSLog(_T("分配消息内存块失败！"));
 		return FALSE;
 	}
-	pNewPacket->GetMessage().SetMsgID(DSM_PROXY_GROUP_BROADCAST);
+	pNewPacket->GetMessage().SetMsgID(DSM_PROXY_BROADCAST_BY_MASK);
+	pNewPacket->GetMessage().SetSenderID(GetObjectID());
+	pNewPacket->GetMessage().SetDataLength(sizeof(MASK_BROADCAST_INFO) + DataSize);
+	pNewPacket->GetMessage().SetMsgFlag(DOS_MESSAGE_FLAG_SYSTEM_MESSAGE);
+	MASK_BROADCAST_INFO * pInfo = (MASK_BROADCAST_INFO *)pNewPacket->GetMessage().GetMsgData();
+	pInfo->Mask = Mask;
+	pInfo->MsgID = MsgID;
+	pInfo->MsgFlag = MsgFlag;
+	if (pData)
+		pNewPacket->GetMessage().PutMsgData(sizeof(MASK_BROADCAST_INFO), pData, DataSize);
+	OBJECT_ID TargetID;
+	TargetID.RouterID = RouterID;
+	TargetID.GroupIndex = MAKE_PROXY_GROUP_INDEX(ProxyType);
+	TargetID.ObjectTypeID = DOT_PROXY_OBJECT;
+	TargetID.ObjectIndex = 0;
+	pNewPacket->SetTargetIDCount(0);
+	pNewPacket->AddTargetID(TargetID);
+	pNewPacket->MakePacketLength();
+
+	BOOL Ret = m_pRouter->RouterMessage(pNewPacket);
+	ReleaseMessagePacket(pNewPacket);
+	return Ret;
+	FUNCTION_END;
+	return FALSE;
+}
+
+BOOL CDOSBaseObject::BroadcastMessageToProxyByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
+{
+	FUNCTION_BEGIN;
+	if (GroupID == 0)
+		return FALSE;
+	int PacketSize = CDOSMessagePacket::CaculatePacketLength(DataSize + sizeof(GROUP_BROADCAST_INFO), 1);
+
+	CDOSMessagePacket* pNewPacket = m_pRouter->GetServer()->NewMessagePacket(PacketSize);
+	if (pNewPacket == NULL)
+	{
+		PrintDOSLog(_T("分配消息内存块失败！"));
+		return FALSE;
+	}
+	pNewPacket->GetMessage().SetMsgID(DSM_PROXY_BROADCAST_BY_GROUP);
 	pNewPacket->GetMessage().SetSenderID(GetObjectID());
 	pNewPacket->GetMessage().SetDataLength(sizeof(GROUP_BROADCAST_INFO) + DataSize);
 	pNewPacket->GetMessage().SetMsgFlag(DOS_MESSAGE_FLAG_SYSTEM_MESSAGE);
-	GROUP_BROADCAST_INFO * pInfo = (GROUP_BROADCAST_INFO *)pNewPacket->GetMessage().GetMsgData();
+	GROUP_BROADCAST_INFO* pInfo = (GROUP_BROADCAST_INFO*)pNewPacket->GetMessage().GetMsgData();
 	pInfo->GroupID = GroupID;
 	pInfo->MsgID = MsgID;
 	pInfo->MsgFlag = MsgFlag;
@@ -382,15 +421,18 @@ BOOL CDOSBaseObject::DeleteConcernedObject(OBJECT_ID ObjectID)
 	return FALSE;
 }
 
-BOOL CDOSBaseObject::FindObject(UINT ObjectType)
+BOOL CDOSBaseObject::FindObject(UINT ObjectType, bool OnlyLocal)
 {
 	FUNCTION_BEGIN;
 	OBJECT_ID ObjectID;
-	ObjectID.RouterID=BROAD_CAST_ROUTER_ID;
-	ObjectID.ObjectTypeID=ObjectType;
-	ObjectID.GroupIndex=BROAD_CAST_GROUP_INDEX;
-	ObjectID.ObjectIndex=BROAD_CAST_OBJECT_INDEX;
-	return SendMessage(ObjectID,DSM_OBJECT_FIND,DOS_MESSAGE_FLAG_SYSTEM_MESSAGE);
+	if (OnlyLocal)
+		ObjectID.RouterID = 0;
+	else
+		ObjectID.RouterID = BROAD_CAST_ROUTER_ID;
+	ObjectID.ObjectTypeID = ObjectType;
+	ObjectID.GroupIndex = BROAD_CAST_GROUP_INDEX;
+	ObjectID.ObjectIndex = BROAD_CAST_OBJECT_INDEX;
+	return SendMessage(ObjectID, DSM_OBJECT_FIND, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE);
 	FUNCTION_END;
 	return FALSE;
 }
@@ -418,7 +460,7 @@ BOOL CDOSBaseObject::RequestProxyObjectIP(OBJECT_ID ProxyObjectID)
 	return FALSE;
 }
 
-UINT CDOSBaseObject::AddTimer(UINT TimeOut, UINT64 Param, bool IsRepeat)
+UINT CDOSBaseObject::AddTimer(UINT64 TimeOut, UINT64 Param, bool IsRepeat)
 {
 	FUNCTION_BEGIN;
 	return m_pGroup->AddTimer(m_ObjectID, TimeOut, Param, IsRepeat);
@@ -444,19 +486,61 @@ BOOL CDOSBaseObject::QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param)
 	return FALSE;
 }
 
-BOOL CDOSBaseObject::SetBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID)
+BOOL CDOSBaseObject::SetBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask)
+{
+	FUNCTION_BEGIN;
+	BROADCAST_MASK_SET_INFO Info;
+	Info.ProxyObjectID = ProxyObjectID;
+	Info.Mask = Mask;
+	ProxyObjectID.ObjectIndex = 0;
+	return SendMessage(ProxyObjectID, DSM_PROXY_SET_BROADCAST_MASK, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, &Info, sizeof(Info));
+	FUNCTION_END;
+	return FALSE;
+}
+BOOL CDOSBaseObject::AddBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask)
+{
+	FUNCTION_BEGIN;
+	BROADCAST_MASK_SET_INFO Info;
+	Info.ProxyObjectID = ProxyObjectID;
+	Info.Mask = Mask;
+	ProxyObjectID.ObjectIndex = 0;
+	return SendMessage(ProxyObjectID, DSM_PROXY_ADD_BROADCAST_MASK, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, &Info, sizeof(Info));
+	FUNCTION_END;
+	return FALSE;
+}
+BOOL CDOSBaseObject::RemoveBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask)
+{
+	FUNCTION_BEGIN;
+	BROADCAST_MASK_SET_INFO Info;
+	Info.ProxyObjectID = ProxyObjectID;
+	Info.Mask = Mask;
+	ProxyObjectID.ObjectIndex = 0;
+	return SendMessage(ProxyObjectID, DSM_PROXY_REMOVE_BROADCAST_MASK, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, &Info, sizeof(Info));
+	FUNCTION_END;
+	return FALSE;
+}
+BOOL CDOSBaseObject::AddBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID)
 {
 	FUNCTION_BEGIN;
 	BROADCAST_GROUP_SET_INFO Info;
 	Info.ProxyObjectID = ProxyObjectID;
 	Info.GroupID = GroupID;
 	ProxyObjectID.ObjectIndex = 0;
-	return SendMessage(ProxyObjectID, DSM_PROXY_SET_BROADCAST_GROUP, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, &Info, sizeof(Info));
+	return SendMessage(ProxyObjectID, DSM_PROXY_ADD_BROADCAST_GROUP, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, &Info, sizeof(Info));
 	FUNCTION_END;
 	return FALSE;
 }
-
-
+BOOL CDOSBaseObject::RemoveBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID)
+{
+	FUNCTION_BEGIN;
+	BROADCAST_GROUP_SET_INFO Info;
+	Info.ProxyObjectID = ProxyObjectID;
+	Info.GroupID = GroupID;
+	ProxyObjectID.ObjectIndex = 0;
+	return SendMessage(ProxyObjectID, DSM_PROXY_REMOVE_BROADCAST_GROUP, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, &Info, sizeof(Info));
+	FUNCTION_END;
+	return FALSE;
+}
 
 BOOL CDOSBaseObject::OnMessage(CDOSMessage * pMessage)
 {
@@ -604,7 +688,7 @@ void CDOSBaseObject::OnShutDown(BYTE Level, UINT Param)
 	FUNCTION_END;
 }
 
-void CDOSBaseObject::OnTimer(UINT ID, UINT64 Param)
+void CDOSBaseObject::OnTimer(UINT ID, UINT64 Param, bool IsRepeat)
 {
 	FUNCTION_BEGIN;
 	FUNCTION_END;
@@ -707,7 +791,7 @@ int CDOSBaseObject::DoConcernedObjectTest()
 
 void CDOSBaseObject::DoConcernedObjectTest(CONCERNED_OBJECT_INFO& Info, UINT CurTime)
 {
-	if (GetTimeToTime(Info.RecentTestTime, CurTime) >= m_ConcernedObjectTestTime)
+	if (CEasyTimer::GetTimeToTime(Info.RecentTestTime, CurTime) >= m_ConcernedObjectTestTime)
 	{
 		Info.RecentTestTime = CurTime;
 

@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DTexture.cpp                                           */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DTexture.cpp                                           */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -170,7 +170,7 @@ bool CD3DTexture::LoadTexture(LPCTSTR TextureFileName,UINT MipLevels,bool UseFil
 	CEasyString FileName=FindFileOne(TextureFileName);
 
 
-	//PrintD3DLog("×°ÔØÎÆÀí<%s>...\r\n",FileName);
+	//PrintD3DLog("è£…è½½çº¹ç†<%s>...\r\n",FileName);
 
 
 	IFileAccessor * pFile;
@@ -184,12 +184,12 @@ bool CD3DTexture::LoadTexture(LPCTSTR TextureFileName,UINT MipLevels,bool UseFil
 		Ret=LoadTexture(pFile,MipLevels,UseFilter,IsManaged,KeyColor);
 		if(!Ret)
 		{
-			PrintD3DLog(_T("×°ÔØÎÆÀí<%s>Ê§°Ü\r\n"),TextureFileName);	
+			PrintD3DLog(_T("è£…è½½çº¹ç†<%s>å¤±è´¥\r\n"),TextureFileName);	
 		}
 	}
 	else
 	{
-		PrintD3DLog(_T("´ò¿ªÎÆÀí<%s>Ê§°Ü\r\n"),TextureFileName);			
+		PrintD3DLog(_T("æ‰“å¼€çº¹ç†<%s>å¤±è´¥\r\n"),TextureFileName);			
 	}
 
 	pFile->Release();
@@ -491,7 +491,7 @@ bool CD3DTexture::LoadBLPTexture(LPVOID pData,int DataSize,DWORD Usage,bool IsMa
 			DXTBlockBytes=DXT5_BLOCK_BYTES;
 			break;
 		default:
-			PrintD3DLog(_T("CD3DTexture::LoadBLPTexture:ÎŞ·¨Ê¶±ğµÄÑ¹Ëõ¸ñÊ½"));
+			PrintD3DLog(_T("CD3DTexture::LoadBLPTexture:æ— æ³•è¯†åˆ«çš„å‹ç¼©æ ¼å¼"));
 			return false;
 		}		
 		

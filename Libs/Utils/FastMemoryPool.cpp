@@ -351,7 +351,7 @@ void CFastMemoryPool::DumpBlock(BlockNode * pNode)
 		BlockList * pLevel = m_pBlockLevels + i;
 		if ((((BYTE *)pNode) >= ((BYTE *)pLevel->pBlocks)) && (((BYTE *)pNode) < ((BYTE *)pLevel->pBlocks) + pLevel->BlockSize*pLevel->BlockCount))
 		{
-			UINT BlockIndex = (((BYTE *)pNode) - ((BYTE *)pLevel->pBlocks)) / pLevel->BlockSize;
+			UINT BlockIndex = (UINT)((((BYTE *)pNode) - ((BYTE *)pLevel->pBlocks)) / pLevel->BlockSize);
 			PrintImportantLog(_T("块0x%p位于第%u层的第%u块,层开始地址0x%p,块大小%u,总块数%u"),
 				pNode, i, BlockIndex, pLevel->pBlocks, pLevel->BlockSize, pLevel->BlockCount);
 			PrintImportantLog(_T("出错块%u:"), BlockIndex);

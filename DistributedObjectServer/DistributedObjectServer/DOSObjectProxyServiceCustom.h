@@ -2,11 +2,11 @@
 
 class CDOSObjectProxyServiceCustom :
 	public CBaseDOSObjectProxyService,
-	public IDOSObjectProxyServiceOperator
+	public IDOSObjectProxyServiceOperator,
+	public CNameObject
 {
 protected:
 	CLIENT_PROXY_CONFIG										m_Config;
-	OBJECT_ID												m_ObjectID;
 
 	CLIENT_PROXY_PLUGIN_INFO								m_PluginInfo;
 	CDOSServer *											m_pServer;
@@ -16,29 +16,36 @@ public:
 	~CDOSObjectProxyServiceCustom();
 
 
-	virtual void Destory();
-	virtual BYTE GetProxyType();
-	virtual bool StartService();
-	virtual void StopService();
-	virtual bool PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket);
+	virtual void Release() override;
+	virtual void Destory() override;
+	virtual UINT AddUseRef() override;	
+	virtual BYTE GetProxyType() override;
+	virtual void SetID(UINT ID) override;
+	virtual UINT GetID() override;
+	virtual bool StartService() override;
+	virtual bool StartService(IDOSObjectProxyServiceOperator* pOperator) override;
+	virtual void StopService() override;
+	virtual bool PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket * pPacket) override;
 
 
-	virtual UINT GetConnectionCount();
-	virtual float GetCPUUsedRate();
-	virtual float GetCycleTime();
-	virtual UINT GetGroupCount();
-	virtual float GetGroupCPUUsedRate(UINT Index);
-	virtual float GetGroupCycleTime(UINT Index);
+	virtual UINT GetConnectionCount() override;
+	virtual float GetCPUUsedRate() override;
+	virtual float GetCycleTime() override;
+	virtual UINT GetMsgQueueLen() override;
+	virtual UINT GetGroupCount() override;
+	virtual float GetGroupCPUUsedRate(UINT Index) override;
+	virtual float GetGroupCycleTime(UINT Index) override;
+	virtual UINT GetGroupMsgQueueLen(UINT Index) override;
 
-	//IDOSObjectProxyServiceOperator
-	virtual OBJECT_ID GetObjectID();
-	virtual const CLIENT_PROXY_CONFIG& GetConfig();
-	virtual CNetServer * GetNetServer();
-	virtual bool SendMessage(OBJECT_ID ReceiverID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0);
-	virtual bool SendMessageMulti(OBJECT_ID * pReceiverIDList, UINT ReceiverCount, bool IsSorted, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0);
-	virtual CDOSMessagePacket * NewMessagePacket(UINT DataSize, UINT ReceiverCount);
-	virtual bool ReleaseMessagePacket(CDOSMessagePacket * pPacket);
-	virtual bool SendMessagePacket(CDOSMessagePacket * pPacket);
+	//IDOSObjectProxyServiceOperator	
+	virtual const CLIENT_PROXY_CONFIG& GetConfig() override;
+	virtual CNetServer * GetNetServer() override;
+	virtual UINT GetRouterID() override;
+	virtual bool SendMessage(OBJECT_ID SenderID, OBJECT_ID ReceiverID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) override;
+	virtual bool SendMessageMulti(OBJECT_ID SenderID, OBJECT_ID * pReceiverIDList, UINT ReceiverCount, bool IsSorted, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) override;
+	virtual CDOSMessagePacket * NewMessagePacket(UINT DataSize, UINT ReceiverCount) override;
+	virtual bool ReleaseMessagePacket(CDOSMessagePacket * pPacket) override;
+	virtual bool SendMessagePacket(CDOSMessagePacket * pPacket) override;
 
 
 	BOOL Init(CDOSServer * pServer, CLIENT_PROXY_PLUGIN_INFO& PluginInfo);
@@ -53,13 +60,7 @@ public:
 	{
 		return m_pServer;
 	}
-	UINT GetRouterID()
-	{
-		return m_pServer->GetRouter()->GetRouterID();
-	}
 
 protected:
-	void OnMsg(CDOSMessage * pMessage);
-	void OnSystemMsg(CDOSMessage * pMessage);
 };
 

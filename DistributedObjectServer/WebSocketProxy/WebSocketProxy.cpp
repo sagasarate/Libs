@@ -3,19 +3,20 @@
 
 #include "stdafx.h"
 
-extern "C" UTILS_DLL_EXPORT bool InitPlugin(UINT PluginID, UINT LogChannel);
+extern "C" UTILS_DLL_EXPORT bool InitPlugin(UINT PluginID, UINT LogChannel, LPCTSTR ConfigDir, LPCTSTR LogDir);
 extern "C" UTILS_DLL_EXPORT IDOSObjectProxyService * GetProxyService();
-extern "C" UTILS_DLL_EXPORT IDOSObjectProxyConnection * CreateProxyConnection();
-
 
 
 UINT g_LogChannel = 0;
-
-bool InitPlugin(UINT PluginID, UINT LogChannel)
+CWebSocketProxyService* g_pService = NULL;
+bool InitPlugin(UINT PluginID, UINT LogChannel, LPCTSTR ConfigDir, LPCTSTR LogDir)
 {
 	g_LogChannel = LogChannel;
 
-	if (!CMainConfig::GetInstance()->LoadConfig(MakeModuleFullPath(NULL, CONFIG_FILE_NAME)))
+	CEasyString ConfileFileName = ConfigDir;
+	ConfileFileName += DIR_SLASH;
+	ConfileFileName += CONFIG_FILE_NAME;
+	if (!CMainConfig::GetInstance()->LoadConfig(ConfileFileName))
 	{
 		Log("º”‘ÿ≈‰÷√Œƒº˛[%s] ß∞‹", CONFIG_FILE_NAME);
 		return FALSE;
@@ -25,14 +26,8 @@ bool InitPlugin(UINT PluginID, UINT LogChannel)
 
 IDOSObjectProxyService * GetProxyService()
 {
-	return NULL;
+	g_pService = new CWebSocketProxyService();
+	return g_pService;
 }
 
-IDOSObjectProxyConnection * CreateProxyConnection()
-{
-	//_CrtSetBreakAlloc(155);	
-
-	return new CWebSocketProxyConnection();
-	
-}
 

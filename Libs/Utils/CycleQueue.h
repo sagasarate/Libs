@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 template < class T >
 class CCycleQueue
@@ -52,7 +52,7 @@ public:
 
 	UINT GetBufferSize()
 	{
-		//BufferµÄ¿ÉÊ¹ÓÃ´óĞ¡±È´´½¨´óĞ¡Ğ¡1£¬·ÀÖ¹Ê×Î²Ö¸ÕëÖØµş
+		//Bufferçš„å¯ä½¿ç”¨å¤§å°æ¯”åˆ›å»ºå¤§å°å°1ï¼Œé˜²æ­¢é¦–å°¾æŒ‡é’ˆé‡å 
 		if (m_BufferSize)
 			return m_BufferSize - 1;
 		else

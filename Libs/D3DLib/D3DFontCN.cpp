@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DFontCN.cpp                                            */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DFontCN.cpp                                            */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -91,16 +91,16 @@ bool CD3DFontCN::Create(const LOGFONT * pLogFont,int MipLevels,int BufferSize)
 	m_MipLevels=MipLevels;
 	m_CharBuffSize=BufferSize;
 
-	//³õÊ¼»¯Ó³Éä±í
+	//åˆå§‹åŒ–æ˜ å°„è¡¨
 	memset(m_CharMap,0xff,sizeof(m_CharMap));
 	
-	//»ñÈ¡Éè±¸Ö§³ÖµÄ×î´óÎÆÀí´óĞ¡
+	//è·å–è®¾å¤‡æ”¯æŒçš„æœ€å¤§çº¹ç†å¤§å°
 	D3DCAPS9 D3DCaps;
 	hr=m_pManager->GetDevice()->GetD3DDevice()->GetDeviceCaps( &D3DCaps );
 	if(FAILED(hr))
 		return false;
 
-	//¾ö¶¨»º³åÎÆÀí´óĞ¡
+	//å†³å®šç¼“å†²çº¹ç†å¤§å°
 	int HCount,VCount,Width,Height;
 	HCount=(int)sqrt((FLOAT)m_CharBuffSize);
 	m_CharHeight=m_LogFont.lfHeight;
@@ -134,17 +134,17 @@ bool CD3DFontCN::Create(const LOGFONT * pLogFont,int MipLevels,int BufferSize)
 
 	m_CharBuffSize=HCount*VCount;
 
-	//´´½¨ĞÅÏ¢»º³å	
+	//åˆ›å»ºä¿¡æ¯ç¼“å†²	
 	m_pCharInfoBuff=new FONT_CHAR_INFO[m_CharBuffSize];
 	m_CharBuffWritePtr=0;
 
-	//¼ì²éÖ§³ÖµÄÎÆÀí¸ñÊ½
+	//æ£€æŸ¥æ”¯æŒçš„çº¹ç†æ ¼å¼
 	if(m_pManager->GetDevice()->CheckDeviceFormat(D3DFMT_A8))
 		m_TextureFormat=D3DFMT_A8;
 	else
 		m_TextureFormat=D3DFMT_A8R8G8B8;
 	
-	//´´½¨ÎÆÀí
+	//åˆ›å»ºçº¹ç†
 
 	m_pCharTextureBuff=new CD3DTexture(m_pManager->GetDevice()->GetTextureManager());
 	if(m_pCharTextureBuff==NULL)
@@ -159,7 +159,7 @@ bool CD3DFontCN::Create(const LOGFONT * pLogFont,int MipLevels,int BufferSize)
 		return false;
 	}
 
-	//³õÊ¼»¯ÎÆÀí×ø±ê
+	//åˆå§‹åŒ–çº¹ç†åæ ‡
 	for(int i=0;i<m_CharBuffSize;i++)
 	{
 		m_pCharInfoBuff[i].Pos.x=(i%HCount)*m_CharWidth;
@@ -168,7 +168,7 @@ bool CD3DFontCN::Create(const LOGFONT * pLogFont,int MipLevels,int BufferSize)
 		m_pCharInfoBuff[i].UV.top=(FLOAT)(m_pCharInfoBuff[i].Pos.y)/m_pCharTextureBuff->GetHeight();
 	}
 
-	//´´½¨DC
+	//åˆ›å»ºDC
 	m_FontDC=CreateCompatibleDC(NULL);
 	if(m_FontDC==NULL)
 	{
@@ -177,7 +177,7 @@ bool CD3DFontCN::Create(const LOGFONT * pLogFont,int MipLevels,int BufferSize)
 		return false;
 	}
 	SetMapMode( m_FontDC, MM_TEXT );
-	//´´½¨GDI×ÖÌå
+	//åˆ›å»ºGDIå­—ä½“
 	m_GDIFont=CreateFontIndirect(&m_LogFont);
 	if(m_GDIFont==NULL)
 	{
@@ -191,7 +191,7 @@ bool CD3DFontCN::Create(const LOGFONT * pLogFont,int MipLevels,int BufferSize)
 	HGDIOBJ OldFont=SelectObject(m_FontDC,m_GDIFont);
 	DeleteObject(OldFont);
 
-	//´´½¨ÈİÄÉ×Ö·ûµÄBMP	
+	//åˆ›å»ºå®¹çº³å­—ç¬¦çš„BMP	
 	BITMAPINFO bmi;
 	ZeroMemory( &bmi.bmiHeader, sizeof(BITMAPINFOHEADER) );
 	bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
@@ -222,7 +222,7 @@ bool CD3DFontCN::Create(const LOGFONT * pLogFont,int MipLevels,int BufferSize)
 	SetBkColor(m_FontDC,0x00000000);
 	SetTextAlign( m_FontDC,TA_TOP);
 
-	//½¨Á¢äÖÈ¾Æ÷
+	//å»ºç«‹æ¸²æŸ“å™¨
 	if(!m_Render.Create(m_pManager->GetDevice()))
 	{
 		DeleteObject(m_CharBmp);
@@ -304,7 +304,7 @@ bool CD3DFontCN::GetTextSizeW(LPCWSTR pText,int TextLen,LPSIZE pSize,LPINT pChar
 		FONT_CHAR_INFO * pCharInfo=NULL;
 		if(pText[i]=='<')
 		{
-			//´¦ÀíÃüÁî
+			//å¤„ç†å‘½ä»¤
 			CanOut=false;
 		}
 		else if(pText[i]=='>')
@@ -418,9 +418,9 @@ bool CD3DFontCN::AddChar(WCHAR Char)
 	SIZE CharSize;	
 	
 
-	//»ñÈ¡×Ö·ûµÄ´óĞ¡
+	//è·å–å­—ç¬¦çš„å¤§å°
 	GetTextExtentPoint32W( GetDC(), &Char, 1, &CharSize );
-	//Êä³ö×Ö·ûµ½BMP
+	//è¾“å‡ºå­—ç¬¦åˆ°BMP
 	if(ExtTextOutW( GetDC(), 0, 0, ETO_OPAQUE, NULL, &Char, 1, NULL )==0)
 	{		
 		return false;
@@ -531,7 +531,7 @@ void CD3DFontCN::ParseLineInfo(LPCWSTR pText,int TextLen,RECT * pRect,DWORD Alig
 		FONT_CHAR_INFO * pCharInfo=NULL;
 		if(pText[i]=='<')
 		{
-			//´¦ÀíÃüÁî
+			//å¤„ç†å‘½ä»¤
 			CanOut=false;
 		}
 		else if(pText[i]=='>')
@@ -555,7 +555,7 @@ void CD3DFontCN::ParseLineInfo(LPCWSTR pText,int TextLen,RECT * pRect,DWORD Alig
 		if(pCharInfo)
 		{
 			x+=pCharInfo->Size.cx;
-			//³¬¹ı¿í¶È»òÕßÓöµ½»»ĞĞ·û
+			//è¶…è¿‡å®½åº¦æˆ–è€…é‡åˆ°æ¢è¡Œç¬¦
 			if((x>pRect->right||ForceReturn)&&(Align&D3DFONT_WORDBREAK))
 			{
 				TEXT_LINE_INFO LineInfo;
@@ -571,7 +571,7 @@ void CD3DFontCN::ParseLineInfo(LPCWSTR pText,int TextLen,RECT * pRect,DWORD Alig
 
 
 				y+=m_CharHeight+m_LineSpace;
-				//³¬³ö·¶Î§£¬²»ÓÃ¼ÌĞø»­
+				//è¶…å‡ºèŒƒå›´ï¼Œä¸ç”¨ç»§ç»­ç”»
 				//if(y>=pRect->bottom)
 				//	break;
 
@@ -612,7 +612,7 @@ void CD3DFontCN::DrawLine(int x,int y,LPCWSTR pText,int TextLen,int TextWidth,RE
 	bool CanOut=true;
 	int CommandStart;	
 
-	//³¬³ö»æÖÆ·¶Î§£¬²»»æÖÆ
+	//è¶…å‡ºç»˜åˆ¶èŒƒå›´ï¼Œä¸ç»˜åˆ¶
 	if(y>pRange->bottom)
 		return;
 
@@ -629,7 +629,7 @@ void CD3DFontCN::DrawLine(int x,int y,LPCWSTR pText,int TextLen,int TextWidth,RE
 		FONT_CHAR_INFO * pCharInfo=NULL;
 		if(pText[i]=='<')
 		{
-			//´¦ÀíÃüÁî
+			//å¤„ç†å‘½ä»¤
 			CanOut=false;
 			CommandStart=i+1;
 		}
@@ -663,7 +663,7 @@ void CD3DFontCN::DrawLine(int x,int y,LPCWSTR pText,int TextLen,int TextWidth,RE
 			int XCut=0;
 			int YCut=0;
 
-			//³¬³ö»æÖÆ·¶Î§£¬Í£Ö¹»æÖÆ
+			//è¶…å‡ºç»˜åˆ¶èŒƒå›´ï¼Œåœæ­¢ç»˜åˆ¶
 			if(x>pRange->right)
 				break;
 			CharRect.left=x;

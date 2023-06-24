@@ -33,9 +33,9 @@ public:
 	BOOL LoadFile( IFileAccessor * pFile ,bool bSplitLine=true);
 	BOOL LoadFromString(LPCTSTR pStr,int Len=-1,bool bSplitLine=true);
 	BOOL SaveToFile(LPCTSTR pszTextFile);
-	BOOL SaveToFile(TCHAR * pData, LPCTSTR pszTextFile);
+	BOOL SaveToFile(LPCTSTR pData, LPCTSTR pszTextFile);
 	BOOL SaveToFile(IFileAccessor * pFile);
-	BOOL SaveToFile(TCHAR * pData, IFileAccessor * pFile);
+	BOOL SaveToFile(LPCTSTR, IFileAccessor * pFile);
 	TCHAR * operator[]( UINT line );
 	TCHAR * GetData()
 	{

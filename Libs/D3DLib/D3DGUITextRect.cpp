@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DGUITextRect.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2009Äê10ÔÂ20ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DGUITextRect.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´10æœˆ20æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -78,7 +78,7 @@ void CD3DGUITextRect::SetRender(CD3DBaseRender * pRender)
 		m_pTexture=new CD3DTextTexture(GetDevice()->GetTextureManager());//->CreateTextTexture("[TextTexture]",NULL,(int)m_Rect.Width(),(int)m_Rect.Height(),1,0xffffffff);
 		if(!m_pTexture->Create(NULL,(int)m_Rect.Width(),(int)m_Rect.Height(),1,0xffffffff))
 		{
-			PrintD3DLog(_T("CD3DGUITextRect::SetRender:´´½¨ÎÄ×ÖÎÆÀíÊ§°Ü"));
+			PrintD3DLog(_T("CD3DGUITextRect::SetRender:åˆ›å»ºæ–‡å­—çº¹ç†å¤±è´¥"));
 		}
 		if(!m_SubMesh.GetMaterial().SetTexture(0,m_pTexture))
 			m_SubMesh.GetMaterial().AddTexture(m_pTexture,0,"","");
@@ -338,7 +338,7 @@ void CD3DGUITextRect::OnPrepareRender(CD3DBaseRender * pRender,CD3DFX * pFX,CEas
 }
 void CD3DGUITextRect::OnPrepareRenderSubMesh(CD3DBaseRender * pRender,CD3DFX * pFX,CD3DSubMesh * pSubMesh,CD3DSubMeshMaterial * pMaterial,CEasyArray<CD3DLight *>& LightList,CD3DCamera * pCamera)
 {
-	//ÉèÖÃÎÆÀí
+	//è®¾ç½®çº¹ç†
 				
 	pFX->SetTexture("TexLay0",pMaterial->GetTexture(0));
 	//pFX->SetTexture("TexLay1",pMaterial->GetTexture(1));		
@@ -348,7 +348,7 @@ void CD3DGUITextRect::OnPrepareRenderSubMesh(CD3DBaseRender * pRender,CD3DFX * p
 
 void CD3DGUITextRect::Update(FLOAT Time)
 {
-	////¸üĞÂ×Ó¶ÔÏó
+	////æ›´æ–°å­å¯¹è±¡
 	//for(UINT i=0;i<GetChildCount();i++)
 	//	GetChildByIndex(i)->Update(Time);
 }

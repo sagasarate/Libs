@@ -40,7 +40,8 @@ CGuardThread::~CGuardThread(void)
 
 BOOL CGuardThread::OnStart()
 {	
-	PrintImportantLog(_T("守护线程启动，目标线程[%u]"), m_TargetThreadID);
+	PrintImportantLog(_T("守护线程启动，目标线程[%u],KeepAliveTime=%u,MaxLostAliveCount=%u"),
+		m_TargetThreadID, m_KeepAliveTime, m_MaxLostAliveCount);
 	return TRUE;
 }
 
@@ -49,17 +50,15 @@ BOOL CGuardThread::OnRun()
 	if (m_Enable)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
-		UINT CurTime=CEasyTimer::GetTime();
-		if(GetTimeToTime(m_RecentKeepAliveTime,CurTime)>m_KeepAliveTime)
+		UINT CurTime = CEasyTimer::GetTime();
+		if (CEasyTimer::GetTimeToTime(m_RecentKeepAliveTime, CurTime) > m_KeepAliveTime)
 		{
-
-
-			m_RecentKeepAliveTime=CurTime;
+			m_RecentKeepAliveTime = CurTime;
 			m_LostAliveCount++;
-			PrintImportantLog(_T("检测到线程[%u]失去响应,第%d次"),m_TargetThreadID,m_LostAliveCount);
-			if(m_LostAliveCount>m_MaxLostAliveCount)
+			PrintImportantLog(_T("检测到线程[%u]失去响应,第%u/%u次"), m_TargetThreadID, m_LostAliveCount, m_MaxLostAliveCount);
+			if (m_LostAliveCount > m_MaxLostAliveCount)
 			{
-				PrintImportantLog(_T("检测到线程[%u]死锁"),m_TargetThreadID);
+				PrintImportantLog(_T("检测到线程[%u]死锁"), m_TargetThreadID);
 				DumpThreadCallStack();
 				assert(false);
 			}
@@ -93,8 +92,8 @@ void CGuardThread::DumpThreadCallStack()
 	int CallStackSize = CEasyThread::GetCallStack(m_TargetThreadHandle, CallStacks, 20);
 
 	PrintImportantLog("call stack size:%d", CallStackSize);
-	char ExceptionFileName[MAX_PATH];
-	char ExeFilePath[MAX_PATH];
+	char ExceptionFileName[MAX_PATH + 1];
+	char ExeFilePath[MAX_PATH + 1];
 
 
 	//先在重要日志输出一遍原始地址
@@ -116,6 +115,7 @@ void CGuardThread::DumpThreadCallStack()
 	int Len = readlink(ExceptionFileName, ExeFilePath, MAX_PATH);
 	if (Len > 0)
 	{
+		ExeFilePath[Len] = 0;
 		CEasyTime CurTime;
 		CurTime.FetchLocalTime();
 

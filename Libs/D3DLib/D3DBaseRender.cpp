@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DBaseRender.cpp                                        */
-/*      ´´½¨ÈÕÆÚ:  2011Äê01ÔÂ14ÈÕ				                            */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DBaseRender.cpp                                        */
+/*      åˆ›å»ºæ—¥æœŸ:  2011å¹´01æœˆ14æ—¥				                            */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -141,7 +141,7 @@ void CD3DBaseRender::RenderSubMesh(CD3DSubMesh * pSubMesh,CD3DFX * pRenderFX,LPC
 		return;
 
 
-	//ÉèÖÃ¶¥µã½á¹¹¶¨Òå
+	//è®¾ç½®é¡¶ç‚¹ç»“æ„å®šä¹‰
 	if(pSubMesh->GetVertexFormat().pVertexDeclaration)
 	{
 		m_pDevice->GetD3DDevice()->SetVertexDeclaration(pSubMesh->GetVertexFormat().pVertexDeclaration);
@@ -156,7 +156,7 @@ void CD3DBaseRender::RenderSubMesh(CD3DSubMesh * pSubMesh,CD3DFX * pRenderFX,LPC
 		IndexFormat=D3DFMT_INDEX32;
 
 
-	//Ìî³ä¶¥µãÊı¾İ
+	//å¡«å……é¡¶ç‚¹æ•°æ®
 	if(pSubMesh->GetRenderBufferUsed()==CD3DSubMesh::BUFFER_USE_DX)
 	{
 		m_pDevice->GetD3DDevice()->SetStreamSource( 0, pSubMesh->GetDXVertexBuffer(), 0, pSubMesh->GetVertexFormat().VertexSize );
@@ -166,7 +166,7 @@ void CD3DBaseRender::RenderSubMesh(CD3DSubMesh * pSubMesh,CD3DFX * pRenderFX,LPC
 
 
 	HRESULT hr;
-	//Ìá½»äÖÈ¾	
+	//æäº¤æ¸²æŸ“	
 	if(pRenderFX)
 	{		
 		if(RenderTech)

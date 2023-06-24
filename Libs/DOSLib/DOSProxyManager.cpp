@@ -101,6 +101,29 @@ bool CDOSProxyManager::Initialize(CDOSServer * pServer)
 				PrintDOSLog(_T("windows不支持无缓冲模式"));
 #endif
 			}
+			else if (ProxyConfigs[i].ProxyMode == CLIENT_PROXY_MODE_WEB_SOCKET)
+			{
+				CWebSocketProxyService* pProxyServiceList = MONITORED_NEW(_T("CDOSProxyManager"), CWebSocketProxyService);
+				pProxyServiceList->SetID(i + 1);
+				if (pProxyServiceList->Init(m_pServer, ProxyConfigs[i]))
+				{
+					if (pProxyServiceList->StartService())
+					{
+						m_ProxyServiceList.Add(pProxyServiceList);
+						m_ProxyServiceMap[pProxyServiceList->GetProxyType()] = pProxyServiceList;
+					}
+					else
+					{
+						PrintDOSLog(_T("代理%d无法启动"), pProxyServiceList->GetProxyType());
+						SAFE_DELETE(pProxyServiceList);
+					}
+
+				}
+				else
+				{
+					SAFE_DELETE(pProxyServiceList);
+				}
+			}
 			else
 			{
 				CDOSObjectProxyServiceDefault * pProxyServiceList = MONITORED_NEW(_T("CDOSProxyManager"), CDOSObjectProxyServiceDefault);
@@ -156,6 +179,7 @@ bool CDOSProxyManager::RegisterProxyService(CBaseDOSObjectProxyService * pServic
 	if (pService->StartService())
 	{
 		m_ProxyServiceList.Add(pService);
+		m_ProxyServiceMap[pService->GetProxyType()] = pService;
 		PrintDOSLog( _T("类型为%d的代理已被注册"), pService->GetProxyType());
 		return true;
 	}
@@ -171,8 +195,9 @@ bool CDOSProxyManager::UnregisterProxyService(BYTE ProxyID)
 	ProxyID--;
 	if (ProxyID < m_ProxyServiceList.GetCount())
 	{
+		m_ProxyServiceMap[m_ProxyServiceList[ProxyID]->GetProxyType()] = NULL;
 		SAFE_RELEASE(m_ProxyServiceList[ProxyID]);
-		m_ProxyServiceList.Delete(ProxyID);
+		m_ProxyServiceList.Delete(ProxyID);		
 		return true;
 	}
 	return false;

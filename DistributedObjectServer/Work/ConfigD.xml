@@ -41,20 +41,22 @@
 
   <!--ClientProxys块是客户端代理配置，也就是一般意义上的网关配置，可以配置多个客户端代理，每个侦听一个端口-->
   <ClientProxys>
-    <ClientProxy ProxyType="1" ProxyMode="0" ListenIP="::" ListenPort="9800" ConnectionGroupCount="0" 
+    <ClientProxy ProxyType="1" ProxyMode="0" ProxyMsgQueueSize="1024" ListenIP="::" ListenPort="9800" ConnectionGroupCount="0" 
                  ConnectionPoolStartSize="256" ConnectionPoolGrowSize="256" ConnectionPoolGrowLimit="32"
                  ConnectionMsgQueueSize="256"
                  AcceptQueueSize="128" ParallelAcceptCount="32" RecvBufferSize="128" SendBufferSize="128"                 
                  UnacceptConnectionKeepTime="30000" UseServerInitiativeKeepAlive="false" KeepAliveTime="10000" KeepAliveCount="20"
                  RecvFreqProtect="0" RecvFlowProtect="0" RecvProtectCheckInterval="10" ProtectCountToAddBlackList="10" ProtectBlockTime="600"
-                 EnableBlackList="false" InitBlackList="" BlackListPoolStartSize="256" BlackListPoolGrowLimit="32"
+                 EnableBlackList="false" InitBlackList="" BlackListPoolStartSize="256" BlackListPoolGrowSize="256" BlackListPoolGrowLimit="32"
+				 BroadcastGroupPoolStartSize="256" BroadcastGroupPoolGrowSize="256" BroadcastGroupPoolGrowLimit="256"
                  MsgCompressType="lzo" MinMsgCompressSize="1024" 
                  MsgEnCryptType="none" MsgEnCryptMode="0" SecretKey="1234567890"
                  GlobalMsgMapSize="128" MsgMapSize="1024" MaxMsgSize="40960" MinMsgSize="5" DumpMsg="false" MaxMsgDumpSize="1024"
                  PluginName="WebSocketProxy" PluginModuleFileName="" ConfigDir="" LogDir=""
                  EnableGuardThread="true" GuardThreadKeepAliveTime="20000" GuardThreadKeepAliveCount="5" />
     <!--ProxyType：代理类型，必须唯一，所有的客户端代理不能有相同的代理类型
-      ProxyMode：代理模式，0=使用内置缺省客户端代理，1=使用内置无缓冲客户端代理，2=使用客户端代理插件
+      ProxyMode：代理模式，0=使用内置缺省客户端代理，1=使用内置无缓冲客户端代理，2=使用WebSocket客户端代理，100=使用客户端代理插件
+	  ProxyMsgQueueSize：代理消息队列大小
       ListenIP/ListenPort：侦听地址
       ConnectionGroupCount：连接组数量，0=不分组，>1=使用多个线程来分组管理连接，以提高效率
       ConnectionPoolStartSize/ConnectionPoolGrowSize/ConnectionPoolGrowLimit：连接对象池设置，限制了最大连接数
@@ -74,7 +76,11 @@
       EnableBlackList：是否启动连接黑名单
       InitBlackList：初始黑名单，|隔开的IP地址
       BlackListPoolStartSize：连接黑名单初始大小
+	  BlackListPoolGrowSize：连接黑名单每次增长大小
       BlackListPoolGrowLimit：连接黑名单增长限制
+	  BroadcastGroupPoolStartSize：群发组初始大小
+	  BroadcastGroupPoolGrowSize：群发组每次增长大小
+      BroadcastGroupPoolGrowLimit：群发组增长限制
       MsgCompressType：数据包压缩格式，lzo代表使用lzo格式压缩，其他不压缩
       MinMsgCompressSize：最小压缩的数据包大小，小于这个大小的数据包不压缩
       MsgEnCryptType：数据包加密格式，可选择DES,AES和TEA
@@ -173,14 +179,47 @@
     SourceDir：c#源文件目录，可以有多个-->
   </Plugins>
 
+  <!--System块是系统的基础设置-->
   <System>
     <MainThread ProcessLimit="64"/>
-    <LogConfig LogLevel="3" ConsoleLogLevel="3" LogCacheSize="655360" LogServerObjectUse="false" PreLoadModuleSym="false" 
-               MakeFullDump="false" LogModuleSymStatus="false" BackupDelay="5" BackupDir="Backup"/>
-    <UDPControlAddress IP="0" Port="8900"/>
-    <GuardThread Enable="true" KeepAliveTime="20000" KeepAliveCount="5"/>
-    <ControlPipe Name="DOSS" AssembleBufferSize="8192" />
-    <MallocConfig TrimThreshold="131072" MMapThreshold="131072" MMapMax="33554432" TrimInterval="300000"/>
+	<!--MainThread是主线程设置
+	ProcessLimit：主线程单循环处理限制-->
+	<LogConfig LogLevel="3" ConsoleLogLevel="3" LogCacheSize="655360" LogServerObjectUse="false" PreLoadModuleSym="false" 
+            MakeFullDump="false" LogModuleSymStatus="false" BackupDelay="5" BackupDir="Backup"/>
+	<!--LogConfig是日志相关设置
+	LogServerObjectUse：生成DOS对象使用情况统计文件DOSObjectStat.xxx.log
+	PreLoadModuleSym：提前加载模块dll的符号文件，仅限windows系统下
+	MakeFullDump：崩溃时生成FullDump,仅限windows系统下
+	LogModuleSymStatus：输出模块符号加载状态日志,仅限windows系统下
+	LogLevel：要记录的日志等级1=Normal，2=Debug
+	ConsoleLogLevel：在控制台显示的日志等级
+	LogCacheSize：日志写入缓冲大小
+	BackupDelay：日志文件过期天数，过期的日志文件将被转移到备份目录，如果此值为负数，过期日志将被删除，0表示永不过期
+	BackupDir：日志文件备份目录，可以为相对于日志文件所在目录的相对路径
+	-->
+	<UDPControlAddress IP="0" Port="8900"/>
+	<!--UDPControlAddress为UDP控制端口设置
+	IP：UDP控制端口侦听IP
+	Port：UDP控制端口侦听端口
+	-->
+	<GuardThread Enable="true" KeepAliveTime="20000" KeepAliveCount="5"/>
+	<!--GuardThread为守护线程设置
+	Enable：是否启用主线程的守护线程
+	KeepAliveTime：守护线程超时检测时间
+	KeepAliveCount：守护线程最大超时次数
+	-->
+	<ControlPipe Name="DOSS" AssembleBufferSize="8192" />
+	<!--ControlPipe为控制管道设置
+	Name：管道名称
+	AssembleBufferSize：管道消息解析缓冲大小
+	-->
+	<MallocConfig TrimThreshold="131072" MMapThreshold="131072" MMapMax="33554432" TrimInterval="300000"/>
+	<!--MallocConfig为c内存堆设置，仅linux有效
+	TrimThreshold：c内存堆工作参数：M_TRIM_THRESHOLD，可参见c标准库函数mallopt
+	MMapThreshold：c内存堆工作参数：M_MMAP_THRESHOLD
+	MMapMax：c内存堆工作参数：M_MMAP_MAX
+	TrimInterval：进行内存整理的时间间隔，毫秒单位
+	-->
   </System>
 
 

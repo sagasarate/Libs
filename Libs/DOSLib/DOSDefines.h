@@ -50,7 +50,8 @@ enum CLIENT_PROXY_MODE
 {
 	CLIENT_PROXY_MODE_DEFAULT,
 	CLIENT_PROXY_MODE_NO_BUFF,
-	CLIENT_PROXY_MODE_CUSTOM,
+	CLIENT_PROXY_MODE_WEB_SOCKET,
+	CLIENT_PROXY_MODE_CUSTOM=100,
 };
 
 enum OBJECT_GROUP_TYPE
@@ -64,6 +65,7 @@ struct CLIENT_PROXY_CONFIG
 	UINT										ProxyType;
 	CLIENT_PROXY_MODE							ProxyMode;
 	CIPAddress									ListenAddress;
+	UINT										ProxyMsgQueueSize;
 	UINT										ConnectionGroupCount;
 	STORAGE_POOL_SETTING						ConnectionPoolSetting;	
 	UINT										ConnectionMsgQueueSize;
@@ -85,6 +87,8 @@ struct CLIENT_PROXY_CONFIG
 	bool										EnableBlackList;
 	CEasyArray<CIPAddress>						InitBlackList;
 	STORAGE_POOL_SETTING						BlackListPoolSetting;
+
+	STORAGE_POOL_SETTING						BroadcastGroupPoolSetting;
 
 	UINT										MsgCompressType;
 	UINT										MinMsgCompressSize;
@@ -110,6 +114,7 @@ struct CLIENT_PROXY_CONFIG
 	{
 		ProxyType = 0;
 		ProxyMode = CLIENT_PROXY_MODE_DEFAULT;
+		ProxyMsgQueueSize = 1024;
 		ConnectionGroupCount = 0;
 		ConnectionPoolSetting.StartSize = 128;
 		ConnectionPoolSetting.GrowSize = 128;
@@ -125,6 +130,9 @@ struct CLIENT_PROXY_CONFIG
 		ParallelAcceptCount = DEFAULT_PARALLEL_ACCEPT;
 		RecvBufferSize = DEFAULT_SERVER_RECV_DATA_QUEUE;
 		SendBufferSize = DEFAULT_SERVER_SEND_DATA_QUEUE;
+		BroadcastGroupPoolSetting.StartSize = 128;
+		BroadcastGroupPoolSetting.GrowSize = 128;
+		BroadcastGroupPoolSetting.GrowLimit = 32;		
 		MsgCompressType = MSG_COMPRESS_NONE;
 		MinMsgCompressSize = 0;
 		MsgEnCryptType = MSG_ENCRYPT_NONE;

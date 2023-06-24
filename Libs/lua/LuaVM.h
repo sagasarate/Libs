@@ -11,13 +11,13 @@ public:
 	virtual void Destory();
 
 	bool Init(int LuaStackSize, UINT ThreadCount, UINT GrowSize, UINT GrowLimit);
-	bool LoadScript(LPCTSTR ScriptName, const CEasyString& ScriptContent, LPCTSTR IncludePath);
-	bool LoadScript(LPCTSTR ScriptName, const CEasyString& ScriptContent);
+	bool LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent, LPCTSTR IncludePath);
+	bool LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent);
 
-	virtual void Update();
 	
+	
+
 protected:
-	void CloseLuaState();	
 	bool ProcessScriptInclude(const CEasyString& ScriptContent, LPCTSTR SearchDir, int Depth);
 };
 

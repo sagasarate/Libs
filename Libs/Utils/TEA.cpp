@@ -10,7 +10,7 @@
 /*                                                                          */
 /****************************************************************************/
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 void tea_encrypt(unsigned int *v, const unsigned int *k, unsigned int Cycle)
 {

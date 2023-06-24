@@ -11,20 +11,19 @@
 /****************************************************************************/
 #pragma once
 
-
-#define MAXTIME	(UINT32(0xffffffff))
-
-inline UINT32	GetTimeToTime(UINT32 t1,UINT32 t2 )
-{
-	return (t1<=t2?(t2-t1):(MAXTIME-t1+t2));
-}
-
 class CEasyTimer
 {
 protected:
 	UINT32	m_dwSavedTime;
 	UINT32	m_dwTimeoutTime;
 public:
+	const static UINT32 MAXTIME = UINT32(0xffffffff);
+
+	static inline UINT32 GetTimeToTime(UINT32 t1, UINT32 t2)
+	{
+		return (t1 <= t2 ? (t2 - t1) : (MAXTIME - t1 + t2));
+	}
+
 	CEasyTimer():m_dwSavedTime(0),m_dwTimeoutTime(0)
 	{
 

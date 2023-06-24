@@ -783,6 +783,18 @@
     <ClInclude Include="CCRCMaker.h">
       <Filter>加解密\CRC</Filter>
     </ClInclude>
+    <ClInclude Include="SmartArray.h">
+      <Filter>SmartStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyTimer64.h">
+      <Filter>时间相关</Filter>
+    </ClInclude>
+    <ClInclude Include="StringBuilder.h">
+      <Filter>字符串\字符串工具</Filter>
+    </ClInclude>
+    <ClInclude Include="VariedValue.h">
+      <Filter>数据结构</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EasyTimerEx.cpp">
@@ -1051,6 +1063,9 @@
     </ClCompile>
     <ClCompile Include="CCRCMaker.cpp">
       <Filter>加解密\CRC</Filter>
+    </ClCompile>
+    <ClCompile Include="SmartArray.cpp">
+      <Filter>SmartStruct</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

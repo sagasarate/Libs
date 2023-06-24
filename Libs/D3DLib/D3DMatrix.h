@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DMatrix.h                                              */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DMatrix.h                                              */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -37,54 +37,54 @@ public:
 
 	const CD3DMatrix& operator=(const CD3DMatrix& Mat);
 
-	//ÉèÎªµ¥Î»¾ØÕó
+	//è®¾ä¸ºå•ä½çŸ©é˜µ
 	void SetIdentity();	
-	//ÊÇ·ñµ¥Î»¾ØÕó
+	//æ˜¯å¦å•ä½çŸ©é˜µ
 	BOOL IsIdentity() const;
-	//×ªÖÃ
+	//è½¬ç½®
 	void Transpose();
-	//»ñµÃ×ªÖÃ
+	//è·å¾—è½¬ç½®
 	CD3DMatrix GetTranspose() const;
-	//ÇóÄæ
+	//æ±‚é€†
 	void Invert();
-	//»ñµÃÄæ
+	//è·å¾—é€†
 	CD3DMatrix GetInverse() const;
-	//»ñµÃĞĞ
+	//è·å¾—è¡Œ
 	CD3DVector4 GetRow4v(int row) const;
-	//»ñµÃÁĞ
+	//è·å¾—åˆ—
 	CD3DVector4 GetCol4v(int col) const;
-	//ÉèÖÃĞĞ
+	//è®¾ç½®è¡Œ
 	void SetRow4v(int row, const D3DXVECTOR4& Vector);
-	//ÉèÖÃÁĞ
+	//è®¾ç½®åˆ—
 	void SetCol4v(int col, const D3DXVECTOR4& Vector);
 
-	//»ñµÃĞĞ
+	//è·å¾—è¡Œ
 	CD3DVector3 GetRow3v(int row) const;
-	//»ñµÃÁĞ
+	//è·å¾—åˆ—
 	CD3DVector3 GetCol3v(int col) const;
-	//ÉèÖÃĞĞ
+	//è®¾ç½®è¡Œ
 	void SetRow3v(int row, const D3DVECTOR& Vector);
-	//ÉèÖÃÁĞ
+	//è®¾ç½®åˆ—
 	void SetCol3v(int col, const D3DVECTOR& Vector);
 
-	//»ñµÃÎ»ÒÆ
+	//è·å¾—ä½ç§»
 	CD3DVector3 GetTranslation() const;
 	CD3DMatrix GetTranslationMatrix() const;
-	//ÉèÖÃÎ»ÒÆ
+	//è®¾ç½®ä½ç§»
 	void SetTranslation(const D3DVECTOR& Translation);
 	void SetTranslation(FLOAT x,FLOAT y,FLOAT z);
 
-	//»ñµÃĞı×ª
+	//è·å¾—æ—‹è½¬
 	CD3DMatrix GetRotation() const;
 	CD3DQuaternion GetRotationOnQuaternion() const;
 
 	CD3DMatrix GetScaleRotation() const;
-	//ÉèÖÃĞı×ª
+	//è®¾ç½®æ—‹è½¬
 	void SetRotation(const D3DXMATRIX& Rotation);	
 
-	//»ñµÃËõ·Å
+	//è·å¾—ç¼©æ”¾
 	CD3DVector3 GetScale() const;
-	//ÉèÖÃËõ·Å
+	//è®¾ç½®ç¼©æ”¾
 	void SetScale(const D3DVECTOR& Scale);	
 
 	CD3DMatrix GetScaleTranslation() const;
@@ -94,35 +94,35 @@ public:
 
 	bool IsValid() const;
 
-	//ÓÉÎ»ÒÆ½¨Á¢¾ØÕó
+	//ç”±ä½ç§»å»ºç«‹çŸ©é˜µ
 	static CD3DMatrix FromTranslation(FLOAT x,FLOAT y,FLOAT z);
 	static CD3DMatrix FromTranslation(const D3DVECTOR& Translation);
 
-	//½¨Á¢XÖáĞı×ª¾ØÕó
+	//å»ºç«‹Xè½´æ—‹è½¬çŸ©é˜µ
 	static CD3DMatrix FromRotationX(FLOAT Angle);
-	//½¨Á¢YÖáĞı×ª¾ØÕó
+	//å»ºç«‹Yè½´æ—‹è½¬çŸ©é˜µ
 	static CD3DMatrix FromRotationY(FLOAT Angle);
-	//½¨Á¢YÖáĞı×ª¾ØÕó
+	//å»ºç«‹Yè½´æ—‹è½¬çŸ©é˜µ
 	static CD3DMatrix FromRotationZ(FLOAT Angle);
-	//½¨Á¢ÈÎÒâÖáĞı×ª¾ØÕó
+	//å»ºç«‹ä»»æ„è½´æ—‹è½¬çŸ©é˜µ
 	static CD3DMatrix FromRotationAxis(const D3DXVECTOR3& Axis,FLOAT Angle);
-	//ÓÉÅ·À­½Ç½¨Á¢Ğı×ª¾ØÕó
+	//ç”±æ¬§æ‹‰è§’å»ºç«‹æ—‹è½¬çŸ©é˜µ
 	static CD3DMatrix FromRotationYawPitchRoll(FLOAT Yaw,FLOAT Pitch,FLOAT Roll);
-	//ÓÉËÄÔª½¨Á¢Ğı×ª¾ØÕó
+	//ç”±å››å…ƒå»ºç«‹æ—‹è½¬çŸ©é˜µ
 	static CD3DMatrix FromRotationQuaternion(const D3DXQUATERNION& Quaternion);
 
-	//ÓÉËõ·Å½¨Á¢¾ØÕó
+	//ç”±ç¼©æ”¾å»ºç«‹çŸ©é˜µ
 	static CD3DMatrix FromScale(FLOAT x,FLOAT y,FLOAT z);
 	static CD3DMatrix FromScale(const D3DVECTOR& Scale);
 
-	//½¨Á¢±ä»»¾ØÕó
+	//å»ºç«‹å˜æ¢çŸ©é˜µ
 	static CD3DMatrix FromTransformation(const D3DXVECTOR3& Scale,const D3DXQUATERNION& Rotation,const D3DXVECTOR3& Translation);
 
-	//½¨Á¢ÊÓ¾ØÕó
+	//å»ºç«‹è§†çŸ©é˜µ
 	static CD3DMatrix FromLookAtLH(const D3DXVECTOR3& Eye,const D3DXVECTOR3& At,const D3DXVECTOR3& Up);
 	static CD3DMatrix FromLookAtRH(const D3DXVECTOR3& Eye,const D3DXVECTOR3& At,const D3DXVECTOR3& Up);
 
-	//½¨Á¢Í¸ÊÓÍ¶Ó°¾ØÕó
+	//å»ºç«‹é€è§†æŠ•å½±çŸ©é˜µ
 	static CD3DMatrix FromPerspectiveFovLH(FLOAT Fov,FLOAT Aspect,FLOAT Near,FLOAT Far);
 	static CD3DMatrix FromPerspectiveFovRH(FLOAT Fov,FLOAT Aspect,FLOAT Near,FLOAT Far);
 	static CD3DMatrix FromPerspectiveFovXLH(FLOAT Fov,FLOAT Aspect,FLOAT Near,FLOAT Far);
@@ -130,7 +130,7 @@ public:
 	static CD3DMatrix FromPerspectiveOffCenterLH(FLOAT Left,FLOAT Right,FLOAT Top,FLOAT Bottom,FLOAT Near,FLOAT Far);
 	static CD3DMatrix FromPerspectiveOffCenterRH(FLOAT Left,FLOAT Right,FLOAT Top,FLOAT Bottom,FLOAT Near,FLOAT Far);
 
-	//½¨Á¢Õı½»Í¶Ó°¾ØÕó
+	//å»ºç«‹æ­£äº¤æŠ•å½±çŸ©é˜µ
 	static CD3DMatrix FromOrthoLH(FLOAT Width,FLOAT Height,FLOAT Near,FLOAT Far);
 	static CD3DMatrix FromOrthoRH(FLOAT Width,FLOAT Height,FLOAT Near,FLOAT Far);
 
@@ -383,7 +383,7 @@ inline bool CD3DMatrix::IsValid() const
 	return true;
 }
 
-//ÓÉÎ»ÒÆ½¨Á¢¾ØÕó
+//ç”±ä½ç§»å»ºç«‹çŸ©é˜µ
 inline CD3DMatrix CD3DMatrix::FromTranslation(FLOAT x,FLOAT y,FLOAT z)
 {
 	CD3DMatrix Mat;
@@ -396,42 +396,42 @@ inline CD3DMatrix CD3DMatrix::FromTranslation(const D3DVECTOR& Translation)
 	return FromTranslation(Translation.x,Translation.y,Translation.z);
 }
 
-//½¨Á¢XÖáĞı×ª¾ØÕó
+//å»ºç«‹Xè½´æ—‹è½¬çŸ©é˜µ
 inline CD3DMatrix CD3DMatrix::FromRotationX(FLOAT Angle)
 {
 	CD3DMatrix Mat;	
 	D3DXMatrixRotationX(&Mat,Angle);
 	return Mat;
 }
-//½¨Á¢YÖáĞı×ª¾ØÕó
+//å»ºç«‹Yè½´æ—‹è½¬çŸ©é˜µ
 inline CD3DMatrix CD3DMatrix::FromRotationY(FLOAT Angle)
 {
 	CD3DMatrix Mat;	
 	D3DXMatrixRotationY(&Mat,Angle);
 	return Mat;
 }
-//½¨Á¢YÖáĞı×ª¾ØÕó
+//å»ºç«‹Yè½´æ—‹è½¬çŸ©é˜µ
 inline CD3DMatrix CD3DMatrix::FromRotationZ(FLOAT Angle)
 {
 	CD3DMatrix Mat;	
 	D3DXMatrixRotationZ(&Mat,Angle);
 	return Mat;
 }
-//½¨Á¢ÈÎÒâÖáĞı×ª¾ØÕó
+//å»ºç«‹ä»»æ„è½´æ—‹è½¬çŸ©é˜µ
 inline CD3DMatrix CD3DMatrix::FromRotationAxis(const D3DXVECTOR3& Axis,FLOAT Angle)
 {
 	CD3DMatrix Mat;	
 	D3DXMatrixRotationAxis(&Mat,&Axis,Angle);
 	return Mat;
 }
-//ÓÉÅ·À­½Ç½¨Á¢Ğı×ª¾ØÕó
+//ç”±æ¬§æ‹‰è§’å»ºç«‹æ—‹è½¬çŸ©é˜µ
 inline CD3DMatrix CD3DMatrix::FromRotationYawPitchRoll(FLOAT Yaw,FLOAT Pitch,FLOAT Roll)
 {
 	CD3DMatrix Mat;
 	D3DXMatrixRotationYawPitchRoll(&Mat,Yaw,Pitch,Roll);
 	return Mat;
 }
-//ÓÉËÄÔª½¨Á¢Ğı×ª¾ØÕó
+//ç”±å››å…ƒå»ºç«‹æ—‹è½¬çŸ©é˜µ
 inline CD3DMatrix CD3DMatrix::FromRotationQuaternion(const D3DXQUATERNION& Quaternion)
 {
 	CD3DMatrix Mat;	
@@ -439,7 +439,7 @@ inline CD3DMatrix CD3DMatrix::FromRotationQuaternion(const D3DXQUATERNION& Quate
 	return Mat;
 }
 
-//ÓÉËõ·Å½¨Á¢¾ØÕó
+//ç”±ç¼©æ”¾å»ºç«‹çŸ©é˜µ
 inline CD3DMatrix CD3DMatrix::FromScale(FLOAT x,FLOAT y,FLOAT z)
 {
 	CD3DMatrix Mat;	
@@ -460,7 +460,7 @@ inline CD3DMatrix CD3DMatrix::FromTransformation(const D3DXVECTOR3& Scale,const 
 	return Mat;
 }
 
-//½¨Á¢ÊÓ¾àÕó
+//å»ºç«‹è§†è·é˜µ
 inline CD3DMatrix CD3DMatrix::FromLookAtLH(const D3DXVECTOR3& Eye,const D3DXVECTOR3& At,const D3DXVECTOR3& Up)
 {
 	CD3DMatrix Mat;	
@@ -476,7 +476,7 @@ inline CD3DMatrix CD3DMatrix::FromLookAtRH(const D3DXVECTOR3& Eye,const D3DXVECT
 
 
 
-//½¨Á¢Í¸ÊÓÍ¶Ó°¾ØÕó
+//å»ºç«‹é€è§†æŠ•å½±çŸ©é˜µ
 inline CD3DMatrix CD3DMatrix::FromPerspectiveFovLH(FLOAT Fov,FLOAT Aspect,FLOAT Near,FLOAT Far)
 {
 	CD3DMatrix Mat;	
@@ -517,7 +517,7 @@ inline CD3DMatrix CD3DMatrix::FromPerspectiveOffCenterRH(FLOAT Left,FLOAT Right,
 }
 
 
-//½¨Á¢Õı½»Í¶Ó°¾ØÕó
+//å»ºç«‹æ­£äº¤æŠ•å½±çŸ©é˜µ
 inline CD3DMatrix CD3DMatrix::FromOrthoLH(FLOAT Width,FLOAT Height,FLOAT Near,FLOAT Far)
 {
 	CD3DMatrix Mat;	

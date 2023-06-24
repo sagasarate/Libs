@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    D3DWOWADTModel.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DWOWADTModel.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -443,7 +443,7 @@ bool CD3DWOWADTModel::LoadObjects()
 			{
 				if(!pObject->LoadFromResource(pInfo->pModelResource))
 				{
-					PrintD3DLog( _T("µØÍ¼¶ÔÏó×°ÔØÊ§°Ü"));
+					PrintD3DLog( _T("åœ°å›¾å¯¹è±¡è£…è½½å¤±è´¥"));
 					SAFE_RELEASE(pObject);
 					return false;
 				}		
@@ -452,7 +452,7 @@ bool CD3DWOWADTModel::LoadObjects()
 			{
 				if(!pObject->LoadFromFile(pInfo->ModelFilePath))
 				{
-					PrintD3DLog( _T("µØÍ¼¶ÔÏó×°ÔØÊ§°Ü"));
+					PrintD3DLog( _T("åœ°å›¾å¯¹è±¡è£…è½½å¤±è´¥"));
 					SAFE_RELEASE(pObject);
 					return false;
 				}
@@ -486,7 +486,7 @@ bool CD3DWOWADTModel::LoadObjects()
 			{
 				if(!pObject->LoadFromResource(pInfo->pModelResource))
 				{
-					PrintD3DLog(_T("µØÍ¼¶ÔÏó×°ÔØÊ§°Ü"));
+					PrintD3DLog(_T("åœ°å›¾å¯¹è±¡è£…è½½å¤±è´¥"));
 					SAFE_RELEASE(pObject);
 					return false;
 				}
@@ -495,7 +495,7 @@ bool CD3DWOWADTModel::LoadObjects()
 			{
 				if(!pObject->LoadFromFile(pInfo->ModelFilePath))
 				{
-					PrintD3DLog(_T("µØÍ¼¶ÔÏó×°ÔØÊ§°Ü"));
+					PrintD3DLog(_T("åœ°å›¾å¯¹è±¡è£…è½½å¤±è´¥"));
 					SAFE_RELEASE(pObject);
 					return false;
 				}

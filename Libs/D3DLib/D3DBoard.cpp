@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+Ôªø#include "StdAfx.h"
 
 namespace D3DLib{
 	
@@ -131,13 +131,13 @@ CD3DBoundingBox * CD3DBoard::GetBoundingBox()
 
 bool CD3DBoard::ToSmartStruct(CSmartStruct& Packet,CUSOResourceManager * pResourceManager,UINT Param)
 {
-	PrintD3DLog( _T("CD3DBoard±ª±£¥Ê"));
+	PrintD3DLog( _T("CD3DBoardË¢´‰øùÂ≠ò"));
 	return CD3DObject::ToSmartStruct(Packet,pResourceManager,Param);
 }
 
 UINT CD3DBoard::GetSmartStructSize(UINT Param)
 {
-	PrintD3DLog( _T("CD3DBoard±ª±£¥Ê"));
+	PrintD3DLog( _T("CD3DBoardË¢´‰øùÂ≠ò"));
 	return CD3DObject::GetSmartStructSize(Param);
 }
 

@@ -222,8 +222,8 @@ void CServerApp::OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * p
 		PrintImportantLog("开始处理信号%d在线程%u", SignalNum, pthread_self());
 	size_t CallStackSize = backtrace(CallStacks, MAX_STACK_LAYERS);
 	PrintImportantLog("输出调用栈大小:%d", (int)CallStackSize);
-	char ExceptionFileName[MAX_PATH];
-	char ExeFilePath[MAX_PATH];
+	char ExceptionFileName[MAX_PATH + 1];
+	char ExeFilePath[MAX_PATH + 1];
 
 	//恢复对SIGCHLD的屏蔽
 	signal(SIGCHLD, SIG_DFL);
@@ -244,6 +244,7 @@ void CServerApp::OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * p
 	int Len = readlink(ExceptionFileName, ExeFilePath, MAX_PATH);
 	if (Len > 0)
 	{
+		ExeFilePath[Len] = 0;
 		CEasyTime CurTime;
 		CurTime.FetchLocalTime();
 

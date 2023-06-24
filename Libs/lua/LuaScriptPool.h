@@ -24,14 +24,14 @@ public:
 
 	virtual void Destory();
 
-	int Update();
+	int Update(int ProcessLimit = 32);
 
 	CLuaScript * GetScript(LPCTSTR szLuaFileName);
 	CLuaScript * GetScript(UINT ScriptID);
 	CLuaScript * LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent);
 
-	CLuaThread * AllocScriptThread(LPCTSTR szLuaFileName,CBaseScriptHost * pObject,LPCTSTR szFunctionName);
-	CLuaThread * AllocScriptThread(UINT ScriptID,CBaseScriptHost * pObject,LPCTSTR szFunctionName);
+	CLuaThread * PrepareCall(LPCTSTR szLuaFileName,CBaseScriptHost * pObject,LPCTSTR szFunctionName);
+	CLuaThread * PrepareCall(UINT ScriptID,CBaseScriptHost * pObject,LPCTSTR szFunctionName);
 
 	void ReloadAllScript();
 	void ReloadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent);

@@ -4,7 +4,6 @@
 
 CWebSocketProxyConnection::CWebSocketProxyConnection()
 {
-	m_pOperator = NULL;
 	m_WebSocketStatus = WEB_SOCKET_STATUS_NONE;
 }
 
@@ -12,59 +11,57 @@ CWebSocketProxyConnection::CWebSocketProxyConnection()
 CWebSocketProxyConnection::~CWebSocketProxyConnection()
 {
 }
-
-
-bool CWebSocketProxyConnection::Initialize(IDOSObjectProxyConnectionOperator * pOperator)
+void CWebSocketProxyConnection::OnConnection(bool IsSucceed)
 {
-	m_pOperator = pOperator;
-	if (m_AssembleBuffer.GetBufferSize() < m_pOperator->GetConfig().MaxMsgSize * 2)
+	m_NeedDelayClose = false;
+	m_KeepAliveTimer.SaveTime();
+	m_KeepAliveCount = 0;
+	m_RecentPingDelay = 0;
+	m_RecvCount = 0;
+	m_RecvFlow = 0;
+
+	if (IsSucceed)
 	{
-		if (!m_AssembleBuffer.Create(m_pOperator->GetConfig().MaxMsgSize * 2))
+		PrintDOSDebugLog(_T("收到代理对象的连接！IP=%s"), GetRemoteAddress().GetIPString());
+		m_Status = STATUS_CONNECTED;
+		m_pService->AcceptConnection(this);
+
+		//SendProtocolOption();
+	}
+	else
+	{
+		PrintDOSLog(_T("连接初始化失败！IP=%s"), GetRemoteAddress().GetIPString());
+		m_Status = STATUS_DISCONNECTED;
+		m_pService->QueryDestoryConnection(this);
+	}
+}
+
+bool CWebSocketProxyConnection::OnMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, const void* pData, MSG_LEN_TYPE DataLen)
+{
+	m_TotalMsgSendCount++;
+
+	if ((m_Config.MsgCompressType != MSG_COMPRESS_NONE) && ((MsgFlag & DOS_MESSAGE_FLAG_NO_COMPRESS) == 0))
+	{
+		//压缩
+		LPCVOID pNewData = CompressMsg(pData, DataLen);
+		if (pNewData == NULL)
 		{
-			PrintDOSLog(_T("DOSLib"), _T("创建%u大小的拼包缓冲失败！"),
-				m_pOperator->GetConfig().MaxMsgSize * 2);
+			Log(_T("消息0x%X压缩失败"), MsgID);
 			return false;
 		}
+		if (pNewData != pData)
+		{
+			MsgFlag |= DOS_MESSAGE_FLAG_COMPRESSED;
+			pData = pNewData;
+		}
 	}
-	m_WebSocketStatus = WEB_SOCKET_STATUS_NONE;
-	return true;
-}
-void CWebSocketProxyConnection::Destory()
-{
-	CNameObject::Destory();
-}
-UINT CWebSocketProxyConnection::AddUseRef()
-{
-	return CNameObject::AddUseRef();
-}
-void CWebSocketProxyConnection::Release()
-{
-	CNameObject::Release();
+	return SendWebSocketFrame(WEB_SOCKET_OP_CODE_BINARY_DATA, MsgID, MsgFlag, 0, pData, DataLen);
 }
 
-void CWebSocketProxyConnection::OnConnection(BOOL IsSucceed)
-{
-
-}
-void CWebSocketProxyConnection::OnDisconnection()
-{
-
-}
-bool CWebSocketProxyConnection::OnMessage(CDOSMessage * pMessage)
-{
-	return SendWebSocketFrame(WEB_SOCKET_OP_CODE_BINARY_DATA, (BYTE *)pMessage->GetDataBuffer(), pMessage->GetDataLength());
-}
-bool CWebSocketProxyConnection::OnSystemMessage(CDOSMessage * pMessage)
-{
-	return false;
-}
-bool CWebSocketProxyConnection::OnSendKeepAlive()
-{
-	SendWebSocketPingMsg();
-	return true;
-}
 void CWebSocketProxyConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 {
+	m_KeepAliveCount = 0;
+	m_KeepAliveTimer.SaveTime();
 	switch (m_WebSocketStatus)
 	{
 	case WEB_SOCKET_STATUS_NONE:
@@ -76,13 +73,29 @@ void CWebSocketProxyConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 	}
 }
 
-OBJECT_ID CWebSocketProxyConnection::GetMsgMap(MSG_ID_TYPE MsgID)
+
+void CWebSocketProxyConnection::OnKeepAliveMsg(UINT Timestamp, UINT RecentDelay)
 {
-	return m_pOperator->GetMsgMap(MsgID);
+
 }
-int CWebSocketProxyConnection::Update(int ProcessPacketLimit)
+void CWebSocketProxyConnection::OnKeepAliveAckMsg(UINT Timestamp)
 {
-	return 0;
+
+}
+void CWebSocketProxyConnection::SendKeepAliveMsg()
+{
+	SendWebSocketPingMsg();
+}
+void CWebSocketProxyConnection::SendProtocolOption()
+{
+	PROTOCOL_OPTION Data;
+	Data.Flag = 0;
+	if (m_Config.MsgEnCryptType != MSG_ENCRYPT_NONE)
+		Data.Flag |= PROTOCOL_OPTION_FLAG_UP_MSG_USE_ENCRYPT;
+
+	SendWebSocketFrame(WEB_SOCKET_OP_CODE_BINARY_DATA, DSM_PROTOCOL_OPTION, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE,0, &Data, sizeof(PROTOCOL_OPTION));
+
+	LogDebug(_T("已发送协议配置0x%X"), Data.Flag);
 }
 
 
@@ -133,7 +146,7 @@ void CWebSocketProxyConnection::ProcessHTTPMsg(const BYTE * pData, UINT DataSize
 
 void CWebSocketProxyConnection::OnHTTPRequest(const char * szRequest)
 {
-	PrintDOSLog(_T("DOSLib"), _T("CHTTPSession::OnHTTPRequest:%s"), szRequest);
+	Log(_T("%s"), szRequest);
 
 	CEasyArray<char *> Lines;
 	ParseStringLines((char *)szRequest, Lines);
@@ -194,7 +207,7 @@ void CWebSocketProxyConnection::OnHTTPRequest(const char * szRequest)
 		CSHA1 sha1;
 		BYTE HashBin[20];
 
-		sha1.Update((BYTE *)SecWebSocketKeyField.GetBuffer(), SecWebSocketKeyField.GetLength());
+		sha1.Update((BYTE*)SecWebSocketKeyField.GetBuffer(), SecWebSocketKeyField.GetLength());
 		sha1.Final();
 		sha1.GetHash(HashBin);
 		CEasyString HashStr = CBase64::Encode(HashBin, 20);
@@ -225,10 +238,10 @@ void CWebSocketProxyConnection::SendHTTPRespond(int Code, LPCSTR szContent)
 			strlen(szContent), szContent);
 		break;
 	}
-	m_pOperator->SendData(Buff, strlen(Buff));
+	Send(Buff, strlen(Buff));
 	if (Code != 101)
 	{
-		m_pOperator->Disconnect(1000);
+		QueryDisconnect(1000);
 	}
 }
 
@@ -265,11 +278,13 @@ void CWebSocketProxyConnection::ProcessWebSocketData(const BYTE * pData, UINT Da
 		UINT64 DataLen = Header2 & 0x7F;
 		if (DataLen == 126)
 		{
-			m_AssembleBuffer.Peek(Pos, &DataLen, sizeof(UINT));
+			m_AssembleBuffer.Peek(Pos, &DataLen, sizeof(WORD));
+			DataLen = ntohs(DataLen);
 		}
 		else if (DataLen == 127)
 		{
 			m_AssembleBuffer.Peek(Pos, &DataLen, sizeof(UINT64));
+			DataLen = __ntohll(DataLen);
 		}
 		BYTE MaskKey[4];
 		if (HaveMask)
@@ -278,60 +293,60 @@ void CWebSocketProxyConnection::ProcessWebSocketData(const BYTE * pData, UINT Da
 		}
 		if (m_AssembleBuffer.GetUsedSize() >= Pos + DataLen)
 		{
-			OnWebSocketFrame(OPCode, IsFinFrame, HaveMask, MaskKey, (BYTE *)m_AssembleBuffer.GetBuffer(), Pos + DataLen, Pos);
-			m_AssembleBuffer.PopBack(NULL, Pos + DataLen);
+			OnWebSocketFrame(OPCode, IsFinFrame, HaveMask, MaskKey, ((BYTE*)m_AssembleBuffer.GetBuffer()) + Pos, DataLen);
+			m_AssembleBuffer.PopFront(NULL, Pos + DataLen);
 		}
 	}
 	else
 	{
-		m_pOperator->Disconnect(0);
-		PrintDOSLog(_T("DOSLib"), _T("对象代理(%d)拼包缓冲溢出，连接断开！"), GetID());
+		Disconnect();
+		Log(_T("DOSLib"), _T("对象代理(%d)拼包缓冲溢出，连接断开！"), GetID());
 	}
 }
 
-void CWebSocketProxyConnection::OnWebSocketFrame(BYTE OPCode, bool IsFinFrame, bool HaveMask, BYTE * MaskKey, BYTE * pFrameData, UINT FrameLen, UINT DataPos)
+void CWebSocketProxyConnection::OnWebSocketFrame(BYTE OPCode, bool IsFinFrame, bool HaveMask, BYTE * MaskKey, BYTE* pData, UINT DataLen)
 {
+	//LogDebug("Frame:%u %u %s %s Mask=%02X %02X %02X %02X", 
+	//	OPCode, DataLen, IsFinFrame ? "true" : "false", HaveMask ? "true" : "false", MaskKey[0], MaskKey[1], MaskKey[2], MaskKey[3]);
 	switch (OPCode)
 	{
 	case WEB_SOCKET_OP_CODE_CONTINUOUS_DATA:
 	case WEB_SOCKET_OP_CODE_TEXT_DATA:
 	case WEB_SOCKET_OP_CODE_BINARY_DATA:
-	{
-		BYTE * pData = pFrameData + DataPos;
-		UINT DataLen = FrameLen - DataPos;
-		if (HaveMask)
 		{
-			for (UINT i = 0; i < DataLen; i++)
+			if (HaveMask)
 			{
-				pData[i] = pData[i] ^ MaskKey[i % 4];
+				for (UINT i = 0; i < DataLen; i++)
+				{
+					pData[i] = pData[i] ^ MaskKey[i % 4];
+				}
+			}
+			if (DataLen >= sizeof(WS_MESSAGE_HEAD))
+			{
+				WS_MESSAGE_HEAD* pHeader = (WS_MESSAGE_HEAD*)pData;
+				ProcessClientMsg(pHeader->MsgID, pHeader->MsgFlag, pHeader->CRC, pData + sizeof(WS_MESSAGE_HEAD), DataLen - sizeof(WS_MESSAGE_HEAD));
 			}
 		}
-		if (DataLen)
-		{
-			m_pOperator->SendInSideMsg(0, 0, pData, DataLen);
-		}
-	}
-	break;
+		break;
 	case WEB_SOCKET_OP_CODE_CLOSE:
-	{
-		SendWebSocketCloseMsg();
-		m_pOperator->Disconnect(1000);
-	}
+		{
+			SendWebSocketCloseMsg();
+			QueryDisconnect(1000);
+		}
+		break;
 	case WEB_SOCKET_OP_CODE_KEEP_ALIVE_PING:
-	{
-		m_pOperator->ResetKeepAlive();
-		*pFrameData = ((*pFrameData) & 0x0F) | WEB_SOCKET_OP_CODE_KEEP_ALIVE_PONG;
-		m_pOperator->SendData(pFrameData, FrameLen);
-	}
-	break;
+		{
+			m_KeepAliveCount = 0;
+			m_KeepAliveTimer.SaveTime();
+			SendWebSocketPongMsg();
+		}
+		break;
 	case WEB_SOCKET_OP_CODE_KEEP_ALIVE_PONG:
-	{
-		m_pOperator->ResetKeepAlive();
-	}
-	break;
+	
+		break;
 	default:
-		PrintDOSLog(_T("DOSLib"), _T("对象代理(%d)未知的WebSocket的OPCode(%d)，连接断开！"), GetID(), OPCode);
-		m_pOperator->Disconnect(0);
+		Log(_T("DOSLib"), _T("对象代理(%d)未知的WebSocket的OPCode(%d)，连接断开！"), GetID(), OPCode);
+		Disconnect();
 	}
 }
 
@@ -339,30 +354,36 @@ void CWebSocketProxyConnection::SendWebSocketCloseMsg()
 {
 	static BYTE CloseFrame[] = { WEB_SOCKET_OP_CODE_CLOSE | 0x80, 0 };
 	if (m_WebSocketStatus == WEB_SOCKET_STATUS_ACCEPTED)
-		m_pOperator->SendData(CloseFrame, sizeof(CloseFrame));
+		Send(CloseFrame, sizeof(CloseFrame));
 }
 void CWebSocketProxyConnection::SendWebSocketPingMsg()
 {
 	static BYTE PingFrame[] = { WEB_SOCKET_OP_CODE_KEEP_ALIVE_PING | 0x80, 0 };
 	if (m_WebSocketStatus == WEB_SOCKET_STATUS_ACCEPTED)
-		m_pOperator->SendData(PingFrame, sizeof(PingFrame));
+		Send(PingFrame, sizeof(PingFrame));
+}
+void CWebSocketProxyConnection::SendWebSocketPongMsg()
+{
+	static BYTE Frame[] = { WEB_SOCKET_OP_CODE_KEEP_ALIVE_PONG | 0x80, 0 };
+	if (m_WebSocketStatus == WEB_SOCKET_STATUS_ACCEPTED)
+		Send(Frame, sizeof(Frame));
 }
 
 
-
-bool CWebSocketProxyConnection::SendWebSocketFrame(WEB_SOCKET_OP_CODE OPCode, BYTE * pData, UINT DataLen)
+bool CWebSocketProxyConnection::SendWebSocketFrame(WEB_SOCKET_OP_CODE OPCode, MSG_ID_TYPE MsgID, WORD MsgFlag, WORD CRC, const void* pData, UINT DataLen)
 {
 	BYTE FrameHeader[10];
 	UINT HeaderSize = 2;
 	FrameHeader[0] = OPCode | 0x80;
-	if (DataLen < 126)
+	UINT MsgLen = DataLen + sizeof(WS_MESSAGE_HEAD);
+	if (MsgLen < 126)
 	{
-		FrameHeader[1] = DataLen;
+		FrameHeader[1] = MsgLen;
 	}
-	else if (DataLen < 0x10000)
+	else if (MsgLen < 0x10000)
 	{
 		FrameHeader[1] = 126;
-		WORD Len = htons(DataLen);
+		WORD Len = htons(MsgLen);
 		FrameHeader[2] = Len & 0xFF;
 		FrameHeader[3] = (Len >> 8) & 0xFF;
 		HeaderSize += 2;
@@ -370,7 +391,7 @@ bool CWebSocketProxyConnection::SendWebSocketFrame(WEB_SOCKET_OP_CODE OPCode, BY
 	else
 	{
 		FrameHeader[1] = 127;
-		UINT64 Len = __htonll(DataLen);
+		UINT64 Len = __htonll(MsgLen);
 		FrameHeader[2] = Len & 0xFF;
 		FrameHeader[3] = (Len >> 8) & 0xFF;
 		FrameHeader[4] = (Len >> 16) & 0xFF;
@@ -381,8 +402,25 @@ bool CWebSocketProxyConnection::SendWebSocketFrame(WEB_SOCKET_OP_CODE OPCode, BY
 		FrameHeader[9] = (Len >> 56) & 0xFF;
 		HeaderSize += 8;
 	}
-	m_pOperator->SendData(FrameHeader, HeaderSize);
-	if (pData&&DataLen)
-		m_pOperator->SendData(pData, DataLen);
-	return TRUE;
+
+	WS_MESSAGE_HEAD MsgHeader;
+	MsgHeader.MsgID = MsgID;
+	MsgHeader.MsgFlag = MsgFlag;
+	MsgHeader.CRC = CRC;
+
+	LPCVOID DataBuffers[3];
+	UINT DataSizes[3];
+
+	DataBuffers[0] = FrameHeader;
+	DataSizes[0] = HeaderSize;
+	DataBuffers[1] = &MsgHeader;
+	DataSizes[1] = sizeof(MsgHeader);
+	DataBuffers[2] = pData;
+	DataSizes[2] = DataLen;
+
+	
+	if (pData && DataLen)
+		return SendMulti(DataBuffers, DataSizes, 3);
+	else
+		return SendMulti(DataBuffers, DataSizes, 2);
 }

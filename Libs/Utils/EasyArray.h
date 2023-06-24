@@ -26,7 +26,7 @@ protected:
 	size_t	m_GrowSize;
 	LPCTSTR	m_Tag;
 public:
-	CEasyArray(LPCTSTR Tag = _T("CEasyArray"))
+	explicit CEasyArray(LPCTSTR Tag = _T("CEasyArray"))
 	{
 		m_pBuffer = NULL;
 		m_BufferSize = 0;
@@ -43,19 +43,19 @@ public:
 		m_Tag = Tag;
 		*this=Array;
 	}
-	CEasyArray(size_t Size,size_t GrowSize=1, LPCTSTR Tag = _T("CEasyArray"))
+	explicit CEasyArray(size_t Size, size_t GrowSize = 1, LPCTSTR Tag = _T("CEasyArray"))
 	{
-		ASSERT_AND_THROW(GrowSize>0);
-		m_pBuffer=NULL;
-		m_BufferSize=Size;
-		m_ArrayLength=0;
-		m_GrowSize=GrowSize;
+		ASSERT_AND_THROW(GrowSize > 0);
+		m_pBuffer = NULL;
+		m_BufferSize = Size;
+		m_ArrayLength = 0;
+		m_GrowSize = GrowSize;
 		m_Tag = Tag;
-		if(m_BufferSize)
+		if (m_BufferSize)
 		{
-			m_pBuffer=(T *)MONITORED_MALLOC(GetTag(), sizeof(T)*m_BufferSize);
+			m_pBuffer = (T*)MONITORED_MALLOC(GetTag(), sizeof(T) * m_BufferSize);
 			//ConstructObjects(m_pBuffer,m_BufferSize);
-		}		
+		}
 	}
 	~CEasyArray()
 	{
@@ -69,6 +69,10 @@ public:
 	void SetTag(LPCTSTR Tag)
 	{
 		m_Tag = Tag;
+	}
+	void SetGrowSize(size_t	GrowSize)
+	{
+		m_GrowSize = GrowSize;
 	}
 	void Clear()
 	{
@@ -152,20 +156,23 @@ public:
 	}
 	T * Insert(size_t BeforeIndex,const T& Value)
 	{
-		if(BeforeIndex<=m_ArrayLength)
+		if (BeforeIndex <= m_ArrayLength)
 		{
-			if(m_ArrayLength>=m_BufferSize)
+			if (m_ArrayLength >= m_BufferSize)
 			{
-				ResizeBuffer(m_BufferSize+m_GrowSize);
+				ResizeBuffer(m_BufferSize + m_GrowSize);
 			}
-			if(m_ArrayLength-BeforeIndex)
-				memmove(m_pBuffer+BeforeIndex+1,m_pBuffer+BeforeIndex,sizeof(T)*(m_ArrayLength-BeforeIndex));
-			ConstructObjects(m_pBuffer+BeforeIndex,1);
-			m_pBuffer[BeforeIndex]=Value;
+			if (m_ArrayLength - BeforeIndex)
+				memmove(m_pBuffer + BeforeIndex + 1, m_pBuffer + BeforeIndex, sizeof(T) * (m_ArrayLength - BeforeIndex));
+			ConstructObjects(m_pBuffer + BeforeIndex, 1);
+			m_pBuffer[BeforeIndex] = Value;
 			m_ArrayLength++;
 			return m_pBuffer + BeforeIndex;
 		}
-		return NULL;
+		else
+		{
+			return Add(Value);
+		}
 	}
 	T * InsertEmpty(size_t BeforeIndex)
 	{
@@ -181,27 +188,32 @@ public:
 			m_ArrayLength++;
 			return m_pBuffer + BeforeIndex;
 		}
-		return NULL;
-	}
-	bool Insert(size_t BeforeIndex,const CEasyArray<T>& Array)
-	{
-		if(BeforeIndex<=m_ArrayLength&&Array.GetCount())
+		else
 		{
-			if(m_ArrayLength+Array.GetCount()>m_BufferSize)
-			{
-				ResizeBuffer(m_ArrayLength+Array.GetCount()+m_GrowSize);
-			}
-			if(m_ArrayLength-BeforeIndex)
-				memmove(m_pBuffer+BeforeIndex+Array.GetCount(),m_pBuffer+BeforeIndex,sizeof(T)*(m_ArrayLength-BeforeIndex));
-			ConstructObjects(m_pBuffer+BeforeIndex,Array.GetCount());
-			for(size_t i=0;i<Array.GetCount();i++)
-			{
-				m_pBuffer[BeforeIndex+i]=Array.GetObjectConst(i);
-			}
-			m_ArrayLength+=Array.GetCount();
-			return true;
+			return AddEmpty();
 		}
-		return false;
+	}
+	bool Insert(size_t BeforeIndex, const CEasyArray<T>& Array)
+	{
+		if (BeforeIndex <= m_ArrayLength && Array.GetCount())
+		{
+			if (m_ArrayLength + Array.GetCount() > m_BufferSize)
+			{
+				ResizeBuffer(m_ArrayLength + Array.GetCount() + m_GrowSize);
+			}
+			if (m_ArrayLength - BeforeIndex)
+				memmove(m_pBuffer + BeforeIndex + Array.GetCount(), m_pBuffer + BeforeIndex, sizeof(T) * (m_ArrayLength - BeforeIndex));
+			ConstructObjects(m_pBuffer + BeforeIndex, Array.GetCount());
+			for (size_t i = 0; i < Array.GetCount(); i++)
+			{
+				m_pBuffer[BeforeIndex + i] = Array.GetObjectConst(i);
+			}
+			m_ArrayLength += Array.GetCount();
+		}
+		else
+		{
+			AddArray(Array)
+		}
 	}
 	bool Delete(size_t Index, size_t Count = 1)
 	{
@@ -339,6 +351,30 @@ public:
 			Clear();
 		}
 	}
+	T* GetFirst()
+	{
+		if (m_ArrayLength)
+			return m_pBuffer;
+		return NULL;
+	}
+	const T* GetFirst() const
+	{
+		if (m_ArrayLength)
+			return m_pBuffer;
+		return NULL;
+	}
+	T* GetLast()
+	{
+		if (m_ArrayLength)
+			return m_pBuffer + m_ArrayLength - 1;
+		return NULL;
+	}
+	const T* GetLast() const
+	{
+		if (m_ArrayLength)
+			return m_pBuffer + m_ArrayLength - 1;
+		return NULL;
+	}
 	void Reserve(size_t NewSize)
 	{
 		ResizeBuffer(NewSize);
@@ -371,7 +407,7 @@ public:
 		{
 			ResizeBuffer(m_BufferSize + m_GrowSize);
 		}
-		T * pSwapBuff = m_pBuffer + sizeof(T)*GetCount();
+		T * pSwapBuff = m_pBuffer + GetCount();
 		for (UINT i = 0; i < GetCount() / 2; i++)
 		{
 			memcpy(pSwapBuff, m_pBuffer + i, sizeof(T));
@@ -662,6 +698,51 @@ inline bool RemoveFromList(CEasyArray<T>& List, EQUAL_FN EqualFN)
 
 	}
 	return false;
+}
+
+template<typename T>
+inline size_t RemoveAllFromList(CEasyArray<T>& List, const T& Value)
+{
+	size_t Count = 0;
+	for (int i = (int)List.GetCount() - 1; i >= 0; i--)
+	{
+		if (List[i] == Value)
+		{
+			List.Delete(i);
+			Count++;
+		}
+	}
+	return Count;
+}
+
+template<typename T, typename EQUAL_FN>
+inline size_t RemoveAllFromList(CEasyArray<T>& List, const T& Value, EQUAL_FN EqualFN)
+{
+	size_t Count = 0;
+	for (int i = (int)List.GetCount() - 1; i >= 0; i--)
+	{
+		if (EqualFN(List[i], Value))
+		{
+			List.Delete(i);
+			Count++;
+		}
+	}
+	return Count;
+}
+
+template<typename T, typename EQUAL_FN>
+inline size_t RemoveAllFromList(CEasyArray<T>& List, EQUAL_FN EqualFN)
+{
+	size_t Count = 0;
+	for (int i = (int)List.GetCount() - 1; i >= 0; i--)
+	{
+		if (EqualFN(List[i]))
+		{
+			List.Delete(i);
+			Count++;
+		}
+	}
+	return Count;
 }
 
 template<typename T>

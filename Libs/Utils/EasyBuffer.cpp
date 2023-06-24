@@ -14,42 +14,42 @@
 
 CEasyBuffer::CEasyBuffer(LPCTSTR Tag)
 {
-	m_pBuffer=NULL;
-	m_BufferSize=0;
-	m_UsedSize=0;
-	m_IsSelfBuffer=true;
+	m_pBuffer = NULL;
+	m_BufferSize = 0;
+	m_UsedSize = 0;
+	m_IsSelfBuffer = true;
 	m_Tag = Tag;
 }
 
-CEasyBuffer::CEasyBuffer(UINT Size, LPCTSTR Tag)
+CEasyBuffer::CEasyBuffer(size_t Size, LPCTSTR Tag)
 {
-	m_pBuffer=NULL;
-	m_BufferSize=0;
-	m_UsedSize=0;
-	m_IsSelfBuffer=true;
+	m_pBuffer = NULL;
+	m_BufferSize = 0;
+	m_UsedSize = 0;
+	m_IsSelfBuffer = true;
 	m_Tag = Tag;
 	Create(Size);
 }
 
-CEasyBuffer::CEasyBuffer(LPVOID pBuff,UINT Size, LPCTSTR Tag)
+CEasyBuffer::CEasyBuffer(LPVOID pBuff, size_t Size, LPCTSTR Tag)
 {
-	m_pBuffer=NULL;
-	m_BufferSize=0;
-	m_UsedSize=0;
-	m_IsSelfBuffer=true;
+	m_pBuffer = NULL;
+	m_BufferSize = 0;
+	m_UsedSize = 0;
+	m_IsSelfBuffer = true;
 	m_Tag = Tag;
-	Create(pBuff,Size);
+	Create(pBuff, Size);
 }
 
 CEasyBuffer::CEasyBuffer(const CEasyBuffer& Buffer, LPCTSTR Tag)
 {
-	m_pBuffer=NULL;
-	m_BufferSize=0;
-	m_UsedSize=0;
-	m_IsSelfBuffer=true;
+	m_pBuffer = NULL;
+	m_BufferSize = 0;
+	m_UsedSize = 0;
+	m_IsSelfBuffer = true;
 	m_Tag = Tag;
 	Create(Buffer.GetBufferSize());
-	PushBack(Buffer.GetBuffer(),Buffer.GetUsedSize());
+	PushBack(Buffer.GetBuffer(), Buffer.GetUsedSize());
 }
 
 CEasyBuffer::~CEasyBuffer(void)
@@ -57,29 +57,29 @@ CEasyBuffer::~CEasyBuffer(void)
 	Destory();
 }
 
-BOOL CEasyBuffer::Create(UINT Size)
+BOOL CEasyBuffer::Create(size_t Size)
 {
 	Destory();
-	if(Size)
+	if (Size)
 	{
 		m_pBuffer = MONITORED_NEW_ARRAY(GetTag(), BYTE, Size);
-		m_BufferSize=Size;
-		m_UsedSize=0;
-		m_IsSelfBuffer=true;
+		m_BufferSize = Size;
+		m_UsedSize = 0;
+		m_IsSelfBuffer = true;
 		return TRUE;
 	}
 	return FALSE;
 }
 
-BOOL CEasyBuffer::Create(LPVOID pBuff,UINT Size)
+BOOL CEasyBuffer::Create(LPVOID pBuff, size_t Size)
 {
 	Destory();
-	if(pBuff&&Size)
+	if (pBuff && Size)
 	{
-		m_pBuffer=(BYTE *)pBuff;
-		m_BufferSize=Size;
-		m_UsedSize=0;
-		m_IsSelfBuffer=false;
+		m_pBuffer = (BYTE*)pBuff;
+		m_BufferSize = Size;
+		m_UsedSize = 0;
+		m_IsSelfBuffer = false;
 		return TRUE;
 	}
 	return FALSE;
@@ -87,7 +87,7 @@ BOOL CEasyBuffer::Create(LPVOID pBuff,UINT Size)
 
 void CEasyBuffer::Destory()
 {
-	if(m_IsSelfBuffer)
+	if (m_IsSelfBuffer)
 		SAFE_DELETE_ARRAY(m_pBuffer);
 	m_pBuffer = NULL;
 	m_BufferSize = 0;

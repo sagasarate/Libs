@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    BLZWOWDatabase.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    BLZWOWDatabase.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -58,9 +58,9 @@ LPCTSTR CHAR_ATTACHMENT_NAME[CAI_MAX]={
 	_T("LeftPalm4"),
 };
 
-LPCTSTR ITEM_INVENTORY_SLOT_NAME[IISI_MAX]={_T("ÎŞ"),_T("Í·²¿"),_T("¾±²¿"),_T("¼ç°ò"),_T("³ÄÒÂ"),_T("ÄÚÒÂ"),_T("Ñü´ø"),_T("ÍÈ²¿"),_T("Ğ¬"),_T("ÊÖÍó"),_T("ÊÖÌ×"),
-_T("½äÖ¸"),_T("ÊÎÆ·"),_T("µ¥ÊÖ"),_T("¶ÜÅÆ"),_T("¹­"),_T("±³²¿"),_T("Ë«ÊÖ"),_T("±³°ü"),_T("´óÒÂ"),_T("³¤ÅÛ"),_T("Ö÷ÊÖ"),_T("¸±ÊÖ"),_T("¸±ÊÖÎïÆ·"),_T("µ¯Ò©"),_T("Í¶ÖÀÎäÆ÷"),
-_T("Î´Öª"),_T("Î´Öª"),_T("¼ÍÄîÆ·")};
+LPCTSTR ITEM_INVENTORY_SLOT_NAME[IISI_MAX]={_T("æ— "),_T("å¤´éƒ¨"),_T("é¢ˆéƒ¨"),_T("è‚©è†€"),_T("è¡¬è¡£"),_T("å†…è¡£"),_T("è…°å¸¦"),_T("è…¿éƒ¨"),_T("é‹"),_T("æ‰‹è…•"),_T("æ‰‹å¥—"),
+_T("æˆ’æŒ‡"),_T("é¥°å“"),_T("å•æ‰‹"),_T("ç›¾ç‰Œ"),_T("å¼“"),_T("èƒŒéƒ¨"),_T("åŒæ‰‹"),_T("èƒŒåŒ…"),_T("å¤§è¡£"),_T("é•¿è¢"),_T("ä¸»æ‰‹"),_T("å‰¯æ‰‹"),_T("å‰¯æ‰‹ç‰©å“"),_T("å¼¹è¯"),_T("æŠ•æ·æ­¦å™¨"),
+_T("æœªçŸ¥"),_T("æœªçŸ¥"),_T("çºªå¿µå“")};
 
 LPCTSTR ITEM_PATH_BY_SLOT[IISI_MAX]=
 {
@@ -149,43 +149,43 @@ CBLZWOWDatabase::~CBLZWOWDatabase(void)
 
 void CBLZWOWDatabase::Destory()
 {
-	//PrintD3DLog("Ğ¶ÔØCharSectionData");
+	//PrintD3DLog("å¸è½½CharSectionData");
 	m_CharSectionData.Clear();
 
-	//PrintD3DLog("Ğ¶ÔØAnimationData");
+	//PrintD3DLog("å¸è½½AnimationData");
 	m_AnimationData.Clear();
 
-	//PrintD3DLog("Ğ¶ÔØCharHairSubMeshInfo");
+	//PrintD3DLog("å¸è½½CharHairSubMeshInfo");
 	m_CharHairSubMeshInfo.Clear();
 
-	//PrintD3DLog("Ğ¶ÔØCharWhiskerSubMeshInfo");
+	//PrintD3DLog("å¸è½½CharWhiskerSubMeshInfo");
 	m_CharWhiskerSubMeshInfo.Clear();
 
-	//PrintD3DLog("Ğ¶ÔØCharRaceInfo");
+	//PrintD3DLog("å¸è½½CharRaceInfo");
 	m_CharRaceInfo.Clear();
 
-	//PrintD3DLog("Ğ¶ÔØCreatureDisplayInfo");
+	//PrintD3DLog("å¸è½½CreatureDisplayInfo");
 	m_CreatureDisplayInfo.Clear();
 
-	//PrintD3DLog("Ğ¶ÔØCreatureModelInfo");
+	//PrintD3DLog("å¸è½½CreatureModelInfo");
 	m_CreatureModelInfo.Clear();
 
-	//PrintD3DLog("Ğ¶ÔØItemClass");
+	//PrintD3DLog("å¸è½½ItemClass");
 	m_ItemClass.Clear();
 
-	//PrintD3DLog("Ğ¶ÔØItemSubClassMask");
+	//PrintD3DLog("å¸è½½ItemSubClassMask");
 	m_ItemSubClassMask.Clear();
 
-	//PrintD3DLog("Ğ¶ÔØItemData");
+	//PrintD3DLog("å¸è½½ItemData");
 	m_ItemData.Clear();
 
-	//PrintD3DLog("Ğ¶ÔØItemDisplayInfo");
+	//PrintD3DLog("å¸è½½ItemDisplayInfo");
 	m_ItemDisplayInfo.Clear();
 
-	//PrintD3DLog("Ğ¶ÔØHelmetGeosetVisibleInfo");
+	//PrintD3DLog("å¸è½½HelmetGeosetVisibleInfo");
 	m_HelmetGeosetVisibleInfo.Clear();
 
-	//PrintD3DLog("CBLZWOWDatabaseĞ¶ÔØÍê±Ï");
+	//PrintD3DLog("CBLZWOWDatabaseå¸è½½å®Œæ¯•");
 
 	m_MapInfo.Clear();
 
@@ -205,265 +205,265 @@ bool CBLZWOWDatabase::LoadDBCs(CEasyString& ErrorMsg)
 
 	
 	FileName=BLZ_DBC_CHAR_SECTION_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCharSectionData(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ANIMATION_DATA_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadAnimationData(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_CHAR_HAIR_GEOSET_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCharHairSubMeshInfo(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_CHAR_WHISKER_GEOSET_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCharWhiskerSubMeshInfo(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_CHAR_RACE_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCharRaceInfo(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_CREATURE_DISPLAY_INFO_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCreatureDisplayInfo(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_CREATURE_EXTRA_DISPLAY_INFO_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCreatureExtraDisplayInfo(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_CREATURE_MODEL_INFO_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadCreatureModelInfo(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	BuildCreatureModelInfo();
 
 	FileName=BLZ_DBC_NPC_DATA_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadNPCData(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ITEM_CLASS_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadItemClass(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ITEM_SUB_CLASS_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadItemSubClass(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ITEM_SUB_CLASS_MASK_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadItemSubClassMask(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ITEM_DATA_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadItemData(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ITEM_CACHE_DATA_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadItemCacheData(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_ITEM_DISPLAY_INFO_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadItemDisplayInfo(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_HELMET_GEOSET_VISIBLE_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadHelmetGeosetVisibleInfo(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_MAP_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadMapInfo(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	//FileName=BLZ_DBC_SPELL_VISUAL_EFFECT_NAME_FILE_NAME;
-	//PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	//PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	//LoadTime=CEasyTimer::GetTime();
 	//if(!m_SpellVisualEffectNameInfo.Load(FileName,
 	//	BLZ_DBC_SPELL_VISUAL_EFFECT_NAME_RECORD_SIZE))
 	//{
-	//	ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+	//	ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 	//	return false;
 	//}
-	//PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	//PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 	//	(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 
 	FileName=BLZ_DBC_LIQUID_TYPE_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadLiquidTypeInfo(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	
 	//FileName=BLZ_TRS_MINI_MAP_TEXTURE_FILES;
-	//PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	//PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	//LoadTime=CEasyTimer::GetTime();
 	//if(!LoadMiniMapInfo(FileName))
 	//{
-	//	ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+	//	ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 	//	return false;
 	//}
-	//PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	//PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 	//	(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_LIGHT_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadMapLightInfos(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 
 	FileName=BLZ_DBC_LIGHT_PARAMS_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadLightParams(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
 	FileName=BLZ_DBC_LIGHT_INT_BAND_FILE_NAME;
-	PrintD3DLog(_T("×°ÔØ%s"),(LPCTSTR)FileName);
+	PrintD3DLog(_T("è£…è½½%s"),(LPCTSTR)FileName);
 	LoadTime=CEasyTimer::GetTime();
 	if(!LoadLightColors(FileName))
 	{
-		ErrorMsg=FileName+_T("×°ÔØÊ§°Ü£¡");
+		ErrorMsg=FileName+_T("è£…è½½å¤±è´¥ï¼");
 		return false;
 	}
-	PrintD3DLog(_T("×°ÔØ%s»¨ÁË%uºÁÃë"),
+	PrintD3DLog(_T("è£…è½½%sèŠ±äº†%uæ¯«ç§’"),
 		(LPCTSTR)FileName,GetTimeToTime(LoadTime,CEasyTimer::GetTime()));
 
-	PrintD3DLog(_T("CBLZWOWDatabase×°ÔØÍê±Ï"));
+	PrintD3DLog(_T("CBLZWOWDatabaseè£…è½½å®Œæ¯•"));
 
 	return true;
 }

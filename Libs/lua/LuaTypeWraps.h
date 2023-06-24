@@ -2,6 +2,8 @@
 
 class CLuaBaseMetaClass;
 class CLuaGrid;
+class CLuaSmartValue;
+class CLuaSmartStruct;
 namespace LuaWrap
 {
 	struct LuaLightUserData
@@ -29,58 +31,132 @@ namespace LuaWrap
 	{
 	};	
 
-	inline void Push(lua_State* L, bool value)				{ lua_pushboolean(L, value); }
-	inline void Push(lua_State* L, char value)				{ lua_pushinteger(L, value); }
-	inline void Push(lua_State* L, unsigned char value)		{ lua_pushinteger(L, value); }
-	inline void Push(lua_State* L, short value)				{ lua_pushinteger(L, value); }
-	inline void Push(lua_State* L, unsigned short value)	{ lua_pushinteger(L, value); }
-	inline void Push(lua_State* L, int value)				{ lua_pushinteger(L, value); }
-	inline void Push(lua_State* L, unsigned int value)		{ lua_pushinteger(L, value); }
-	//inline void Push(lua_State* L, long value)				{ lua_pushnumber(L, value); }
-	//inline void Push(lua_State* L, unsigned long value)		{ lua_pushnumber(L, value); }
-	inline void Push(lua_State* L, __int64 value)			{ lua_pushinteger(L, value); }
-	inline void Push(lua_State* L, unsigned __int64 value)	{ lua_pushinteger(L, value); }
-	inline void Push(lua_State* L, double value)			{ lua_pushnumber(L, (lua_Number)value); }
-	inline void Push(lua_State* L, float value)				{ lua_pushnumber(L, (lua_Number)value); }
-	inline void Push(lua_State* L, const char* value)		{ lua_pushstring(L, value); }
-	inline void Push(lua_State* L, const WCHAR* value)		
+	inline void Push(CLuaThread* pLuaThread, bool value)				{ lua_pushboolean(pLuaThread->GetLuaState(), value); }
+	inline void Push(CLuaThread* pLuaThread, char value)				{ lua_pushinteger(pLuaThread->GetLuaState(), value); }
+	inline void Push(CLuaThread* pLuaThread, unsigned char value)		{ lua_pushinteger(pLuaThread->GetLuaState(), value); }
+	inline void Push(CLuaThread* pLuaThread, short value)				{ lua_pushinteger(pLuaThread->GetLuaState(), value); }
+	inline void Push(CLuaThread* pLuaThread, unsigned short value)		{ lua_pushinteger(pLuaThread->GetLuaState(), value); }
+	inline void Push(CLuaThread* pLuaThread, int value)					{ lua_pushinteger(pLuaThread->GetLuaState(), value); }
+	inline void Push(CLuaThread* pLuaThread, unsigned int value)		{ lua_pushinteger(pLuaThread->GetLuaState(), value); }
+	//inline void Push(lua_State* L, long value)						{ lua_pushnumber(pLuaThread->GetLuaState(), value); }
+	//inline void Push(lua_State* L, unsigned long value)				{ lua_pushnumber(pLuaThread->GetLuaState(), value); }
+	inline void Push(CLuaThread* pLuaThread, __int64 value)				{ lua_pushinteger(pLuaThread->GetLuaState(), value); }
+	inline void Push(CLuaThread* pLuaThread, unsigned __int64 value)	{ lua_pushinteger(pLuaThread->GetLuaState(), value); }
+	inline void Push(CLuaThread* pLuaThread, double value)				{ lua_pushnumber(pLuaThread->GetLuaState(), (lua_Number)value); }
+	inline void Push(CLuaThread* pLuaThread, float value)				{ lua_pushnumber(pLuaThread->GetLuaState(), (lua_Number)value); }
+	inline void Push(CLuaThread* pLuaThread, const char* value)			
 	{ 
-		CEasyStringA StringA;
-		StringA = value;
-		lua_pushstring(L, StringA);
-	}
-	inline void Push(lua_State* L, const LuaNil&)			{ lua_pushnil(L); }
-	inline void Push(lua_State* L, lua_CFunction value)		{ lua_pushcclosure(L, value, 0); }
-	inline void Push(lua_State* L, const void* value)		{ lua_pushlightuserdata(L, (void*)value); }
-	inline void Push(lua_State* L, const LuaLightUserData& value)	{ lua_pushlightuserdata(L, (void*)value.m_value); }
-	inline void Push(lua_State* L, const LuaValue& value)	
-	{ 
-		LuaValue::PushValueToLuaState(value, L);
-	}
-	
-	inline void Push(lua_State* L, const CLuaTable& value)
-	{
-		value.PushToLuaState(L);
-	}
-
-	inline void Push(lua_State* L, const CEasyArray<LuaValue>& value)
-	{
-		for (UINT i = 0; i < value.GetCount(); i++)
+		if (LUA_SCRIPT_CODE_PAGE == CEasyString::SYSTEM_STRING_CODE_PAGE)
 		{
-			LuaValue::PushValueToLuaState(value.GetObjectConst(i), L);
+			lua_pushstring(pLuaThread->GetLuaState(), value);
+		}
+		else
+		{
+			CEasyStringA StringA;
+			SystemStrToLuaStr(value, StringA);
+			lua_pushstring(pLuaThread->GetLuaState(), StringA);
 		}
 	}
-	inline void Push(lua_State* L, LUA_EMPTY_VALUE value)
+	inline void Push(CLuaThread* pLuaThread, const WCHAR* value)
+	{ 
+		CEasyStringA StringA;
+		SystemStrToLuaStr(value, StringA);
+		lua_pushstring(pLuaThread->GetLuaState(), StringA);
+	}
+	inline void Push(CLuaThread* pLuaThread, const CEasyString& value)
+	{
+		if (LUA_SCRIPT_CODE_PAGE == CEasyString::SYSTEM_STRING_CODE_PAGE)
+		{
+			lua_pushstring(pLuaThread->GetLuaState(), (LPCSTR)((LPCTSTR)value));
+		}
+		else
+		{
+			CEasyStringA StringA;
+			SystemStrToLuaStr(value, StringA);
+			lua_pushstring(pLuaThread->GetLuaState(), StringA);
+		}
+	}
+	inline void Push(CLuaThread* pLuaThread, const LuaNil&)					{ lua_pushnil(pLuaThread->GetLuaState()); }
+	inline void Push(CLuaThread* pLuaThread, lua_CFunction value)			{ lua_pushcclosure(pLuaThread->GetLuaState(), value, 0); }
+	inline void Push(CLuaThread* pLuaThread, const void* value)				{ lua_pushlightuserdata(pLuaThread->GetLuaState(), (void*)value); }
+	inline void Push(CLuaThread* pLuaThread, const LuaLightUserData& value)	{ lua_pushlightuserdata(pLuaThread->GetLuaState(), (void*)value.m_value); }
+	
+	inline void Push(CLuaThread* pLuaThread, LUA_EMPTY_VALUE value)
 	{
 		
 	}
-	inline void Push(lua_State* L, CLuaBaseMetaClass * pObject);
-	
-	inline void Push(lua_State* L, const CLuaGrid& value);
+	inline void Push(CLuaThread* pLuaThread, CLuaBaseMetaClass * pObject);	
+	inline void Push(CLuaThread* pLuaThread, const CVariedValue& value)
+	{
+		switch (value.GetType())
+		{
+		case VARIED_VALUE_TYPE::BOOLEAN:
+			lua_pushboolean(pLuaThread->GetLuaState(), (bool)value);
+			break;
+		case VARIED_VALUE_TYPE::INT8:
+		case VARIED_VALUE_TYPE::UINT8:
+		case VARIED_VALUE_TYPE::INT16:
+		case VARIED_VALUE_TYPE::UINT16:
+		case VARIED_VALUE_TYPE::INT32:
+		case VARIED_VALUE_TYPE::UINT32:
+		case VARIED_VALUE_TYPE::INT64:
+		case VARIED_VALUE_TYPE::UINT64:
+			lua_pushinteger(pLuaThread->GetLuaState(), (__int64)value);
+			break;
+		case VARIED_VALUE_TYPE::FLOAT32:
+		case VARIED_VALUE_TYPE::FLOAT64:
+			lua_pushnumber(pLuaThread->GetLuaState(), (double)value);
+			break;
+		case VARIED_VALUE_TYPE::STRING:
+			Push(pLuaThread, (LPCTSTR)value);
+			break;
+		case VARIED_VALUE_TYPE::BINARY:
+			if (value.GetLength())
+			{
+				void* pBuffer = lua_newuserdata(pLuaThread->GetLuaState(), value.GetLength());
+				memcpy(pBuffer, (const unsigned char*)value, value.GetLength());
+			}
+			else
+			{
+				pLuaThread->PushNil();
+			}
+			break;
+		case VARIED_VALUE_TYPE::ARRAY:
+			{
+				lua_createtable(pLuaThread->GetLuaState(), value.GetLength(), 0);
+				int Index = 1;
+				for (const CVariedValue& Value : value)
+				{
+					pLuaThread->PushInteger(Index);
+					pLuaThread->PushValue(Value);
+					lua_settable(pLuaThread->GetLuaState(), -3);
+					Index++;
+				}
+			}
+			break;
+		case VARIED_VALUE_TYPE::TABLE:
+			{
+				lua_newtable(pLuaThread->GetLuaState());
+				void* Pos = value.GetFirstChildPos();
+				while (Pos)
+				{
+					CVariedValue Key;
+					const CVariedValue* pData = value.GetNextChild(Pos, Key);
+					pLuaThread->PushValue(Key);
+					pLuaThread->PushValue(*pData);
+					lua_settable(pLuaThread->GetLuaState(), -3);
+				}
+			}
+			break;
+		default:
+			pLuaThread->PushNil();
+			break;
+		}
+	}
 
 	inline bool	Match(TypeWrapper<bool>, lua_State* L, int idx)
 	{
-		return lua_isboolean(L, idx);
+		return lua_isboolean(L, idx) || (lua_isnumber(L, idx) != 0);
 	}
 	inline bool	Match(TypeWrapper<char>, lua_State* L, int idx)
 	{
@@ -138,6 +214,10 @@ namespace LuaWrap
 	{
 		return lua_isstring(L, idx) != 0;
 	}
+	inline bool	Match(TypeWrapper<CEasyString>, lua_State* L, int idx)
+	{
+		return lua_isstring(L, idx) != 0;
+	}
 	inline bool	Match(TypeWrapper<lua_State*>, lua_State* L, int idx)
 	{
 		return lua_type(L, idx) == LUA_TNONE;
@@ -145,25 +225,9 @@ namespace LuaWrap
 	inline bool	Match(TypeWrapper<void*>, lua_State* L, int idx)
 	{
 		return lua_type(L, idx) == LUA_TLIGHTUSERDATA;
-	}
-
-	inline bool	Match(TypeWrapper<LuaValue>, lua_State* L, int idx)
-	{
-		return lua_gettop(L) >= idx;
 	}	
-	
 
-	inline bool	Match(TypeWrapper<CLuaTable>, lua_State* L, int idx)
-	{
-		return lua_type(L, idx) == LUA_TTABLE;
-	}
-
-	inline bool	Match(TypeWrapper<CEasyArray<LuaValue> >, lua_State* L, int idx)
-	{
-		return lua_gettop(L) >= idx;
-	}
-
-	inline bool	Match(TypeWrapper<LUA_PARAMS >, lua_State* L, int idx)
+	inline bool	Match(TypeWrapper<LUA_PARAMS&>, lua_State* L, int idx)
 	{
 		return lua_gettop(L) >= idx;
 	}
@@ -175,8 +239,16 @@ namespace LuaWrap
 
 	inline bool	Match(TypeWrapper<CLuaBaseMetaClass *>, lua_State* L, int idx);
 	
-	inline bool	Match(TypeWrapper<CLuaGrid >, lua_State* L, int idx);
-	
+	inline bool	Match(TypeWrapper<CVariedValue>, lua_State* L, int idx)
+	{
+		int Type = lua_type(L, idx);
+		return Type == LUA_TNIL || Type == LUA_TBOOLEAN || Type == LUA_TNUMBER || Type == LUA_TINTEGER || Type == LUA_TSTRING || Type == LUA_TTABLE || Type == LUA_TUSERDATA;
+	}
+	inline bool	Match(TypeWrapper<CVariedValue&>, lua_State* L, int idx)
+	{
+		int Type = lua_type(L, idx);
+		return Type == LUA_TNIL || Type == LUA_TBOOLEAN || Type == LUA_TNUMBER || Type == LUA_TINTEGER || Type == LUA_TSTRING || Type == LUA_TTABLE || Type == LUA_TUSERDATA;
+	}
 
 	inline void				Get(TypeWrapper<void>, lua_State*, int)
 	{  }
@@ -234,13 +306,30 @@ namespace LuaWrap
 	}
 	inline const char*		Get(TypeWrapper<const char*>, lua_State* L, int idx)
 	{
-		return static_cast<const char*>(lua_tostring(L, idx));
+		if (LUA_SCRIPT_CODE_PAGE == CEasyString::SYSTEM_STRING_CODE_PAGE)
+		{
+			return static_cast<const char*>(lua_tostring(L, idx));
+		}
+		else
+		{
+			static CEasyStringA Temp;
+			LuaStrToSystemStr(lua_tostring(L, idx), Temp);
+			return Temp;
+		}
 	}
 	inline const WCHAR*		Get(TypeWrapper<const WCHAR*>, lua_State* L, int idx)
 	{
 		static CEasyStringW StringW;
-		StringW = lua_tostring(L, idx);
+		LuaStrToSystemStr(lua_tostring(L, idx), StringW);
 		return StringW;
+
+	}
+	inline CEasyString Get(TypeWrapper<CEasyString>, lua_State* L, int idx)
+	{
+		CEasyString Str;
+		LuaStrToSystemStr(lua_tostring(L, idx), Str);
+		return Str;
+
 	}
 	inline LuaNil			Get(TypeWrapper<LuaNil>, lua_State* L, int idx)
 	{
@@ -257,42 +346,8 @@ namespace LuaWrap
 	inline lua_State*		Get(TypeWrapper<lua_State*>, lua_State* L, int /*idx*/)
 	{
 		return L;
-	}
-	
-	inline LuaValue	Get(TypeWrapper<LuaValue>, lua_State* L, int idx)
-	{
-		LuaValue Value;
-
-		LuaValue::GetValueFromLuaState(Value, L, idx);
-
-		return Value;
 	}	
-
-	inline CLuaTable	Get(TypeWrapper<CLuaTable>, lua_State* L, int idx)
-	{
-		CLuaTable LuaTable;
-
-		LuaTable.GetFromLuaState(L, idx);
-		
-		return LuaTable;
-	}
-
-	inline CEasyArray<LuaValue>	Get(TypeWrapper< CEasyArray<LuaValue> >, lua_State* L, int idx)
-	{
-		CEasyArray<LuaValue> LuaValueList;
-
-		int ParamCount = lua_gettop(L);
-		if (ParamCount>=idx)
-		{
-			LuaValueList.Resize(ParamCount - idx + 1);
-			for (int i = idx; i <= ParamCount; i++)
-			{
-				LuaValue::GetValueFromLuaState(LuaValueList[i - idx], L, i);
-			}
-		}
-		return LuaValueList;
-	}
-	inline LUA_PARAMS	Get(TypeWrapper< LUA_PARAMS >, lua_State* L, int idx)
+	inline LUA_PARAMS	Get(TypeWrapper<LUA_PARAMS&>, lua_State* L, int idx)
 	{
 		LUA_PARAMS LuaParams;
 
@@ -305,7 +360,7 @@ namespace LuaWrap
 		}
 		return LuaParams;
 	}
-	inline LUA_EMPTY_VALUE	Get(TypeWrapper< LUA_EMPTY_VALUE >, lua_State* L, int idx)
+	inline LUA_EMPTY_VALUE	Get(TypeWrapper<LUA_EMPTY_VALUE>, lua_State* L, int idx)
 	{
 		return LUA_EMPTY_VALUE();
 	}
@@ -313,7 +368,88 @@ namespace LuaWrap
 	
 	
 	inline CLuaBaseMetaClass * Get(TypeWrapper<CLuaBaseMetaClass *>, lua_State* L, int idx);
-
 	
-	inline CLuaGrid Get(TypeWrapper<CLuaGrid>, lua_State* L, int idx);
+	inline void	GetVariedValue(lua_State* L, int idx, CVariedValue& Value)
+	{
+		if (idx < 0)
+			idx = lua_gettop(L) + idx + 1;
+		switch (lua_type(L, idx))
+		{
+		case LUA_TBOOLEAN:
+			Value = lua_toboolean(L, idx) != 0;
+			break;
+		case LUA_TNUMBER:
+			Value = lua_tonumber(L, idx);
+			break;
+		case LUA_TSTRING:
+			Value = lua_tostring(L, idx);
+			break;
+		case LUA_TINTEGER:
+			Value = lua_tointeger(L, idx);
+			break;
+		case LUA_TTABLE:
+			{
+				size_t Len = lua_rawlen(L, idx);
+				lua_pushnil(L);
+				size_t Count = 0;
+				while (lua_next(L, idx))
+				{
+					if (!lua_isnumber(L, -1))
+					{
+						lua_pop(L, 2);
+						break;
+					}	
+					lua_pop(L, 1);
+					Count++;
+				}
+				if (Len == Count)
+				{
+					Value.CreateArray(Count);
+					lua_pushnil(L);
+					while (lua_next(L, idx))
+					{
+						CVariedValue* pValue = Value.AddChildNil();
+						if (pValue)
+							GetVariedValue(L, -1, *pValue);
+						lua_pop(L, 1);
+					}
+				}
+				else
+				{
+					Value.CreateTable(Count);
+					lua_pushnil(L);
+					while (lua_next(L, idx))
+					{
+						CVariedValue Key;
+						GetVariedValue(L, -2, Key);
+						CVariedValue* pValue = Value.AddChildNil(Key);
+						if (pValue)
+							GetVariedValue(L, -1, *pValue);
+						lua_pop(L, 1);
+					}
+				}
+			}
+			break;
+		case LUA_TUSERDATA:
+			{
+				void* pData = lua_touserdata(L, idx);
+				size_t Len = lua_rawlen(L, idx);
+				if (pData && Len)
+					Value.SetBinary((const unsigned char*)pData, Len);
+			}
+			break;
+		}		
+	}
+	inline CVariedValue	Get(TypeWrapper<CVariedValue>, lua_State* L, int idx)
+	{
+		CVariedValue Value;
+		GetVariedValue(L, idx, Value);
+		return Value;
+	}
+	inline CVariedValue	Get(TypeWrapper<CVariedValue&>, lua_State* L, int idx)
+	{
+		CVariedValue Value;
+		GetVariedValue(L, idx, Value);
+		return Value;
+	}
 }

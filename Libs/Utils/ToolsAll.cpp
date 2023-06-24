@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 UINT WalkCallStack(void * pFrame, LPVOID * AddressList, UINT MaxStep)
 {

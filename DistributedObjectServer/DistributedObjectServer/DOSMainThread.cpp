@@ -149,15 +149,15 @@ int CDOSMainThread::Update(int ProcessPacketLimit)
 				}
 			}
 			if (!IsCompiling)
-				m_Status = STATUS_PLUGIN_LOAD;
+				StartProxyPluginsLoad();
 		}
 		break;
+	case STATUS_PROXY_PLUGIN_LOAD:
+		DoProxyPluginsLoad();
+		break;
 	case STATUS_PLUGIN_LOAD:
-		{
-			LoadProxyPlugins();
-			LoadPlugins();
-			m_Status = STATUS_WORKING;
-		}
+		IsCompiling = true;
+		DoPluginsLoad();
 		break;
 	case STATUS_WORKING:
 		{
@@ -181,69 +181,7 @@ int CDOSMainThread::Update(int ProcessPacketLimit)
 
 			for (UINT i = 0; i < m_PluginList.GetCount(); i++)
 			{
-				PLUGIN_INFO& PluginInfo = m_PluginList[i];
-				if (PluginInfo.PluginStatus == PLUGIN_STATUS_COMPILEING)
-				{
-					IsCompiling = true;
-					if (PluginInfo.hMCSProcess != NULL)
-					{
-#ifdef WIN32
-						DWORD ExitCode = 0;
-						if (GetExitCodeProcess(PluginInfo.hMCSProcess, &ExitCode))
-						{
-							if (ExitCode != STILL_ACTIVE)
-							{
-								LogMono("MCS已退出%d", ExitCode);
-								if (ExitCode == 0)
-								{
-									PluginInfo.PluginStatus = PLUGIN_STATUS_COMPILED;
-									LoadCSharpPlugin(PluginInfo);
-								}
-								else
-								{
-									PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
-								}
-								CloseHandle(PluginInfo.hMCSProcess);
-								PluginInfo.hMCSProcess = NULL;
-							}
-						}
-						else
-						{
-							LogMono("获取MCS进程退出码失败%d", GetLastError());
-							PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
-							CloseHandle(PluginInfo.hMCSProcess);
-							PluginInfo.hMCSProcess = NULL;
-						}
-#else
-						int ExitCode = 0;
-						int Err = waitpid((pid_t)(ptrdiff_t)PluginInfo.hMCSProcess, &ExitCode, WNOHANG);
-						if (Err == -1)
-						{
-							LogMono("等待MCS出错%d", errno);
-						}
-						else if (Err != 0)
-						{
-							ExitCode = WEXITSTATUS(ExitCode);
-							LogMono("MCS已退出%d", ExitCode);
-							if (ExitCode == 0)
-							{
-								PluginInfo.PluginStatus = PLUGIN_STATUS_COMPILED;
-								LoadCSharpPlugin(PluginInfo);
-							}
-							else
-							{
-								PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
-							}
-							PluginInfo.hMCSProcess = NULL;
-						}
-#endif
-					}
-					else
-					{
-						LogMono("插件[%s]编译状态异常", (LPCTSTR)PluginInfo.PluginName);
-						PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
-					}
-				}
+				PLUGIN_INFO& PluginInfo = m_PluginList[i];				
 				if (PluginInfo.PluginStatus != PLUGIN_STATUS_NONE && PluginInfo.PluginStatus != PLUGIN_STATUS_ERROR)
 				{
 					RunningPluginCount++;
@@ -704,14 +642,13 @@ bool CDOSMainThread::MonoGetObjectIDList(MONO_DOMAIN_INFO& DomainInfo, MonoArray
 	}
 	return false;
 }
-
-bool CDOSMainThread::LoadPlugins()
+void CDOSMainThread::StartPluginsLoad()
 {
-	FUNCTION_BEGIN;
+	m_Status = STATUS_PLUGIN_LOAD;
 
 	m_PluginList = CDOSConfig::GetInstance()->GetPluginList();
 
-	Log("一共有%u个插件", m_PluginList.GetCount());
+	Log("一共有%u个插件需要加载", m_PluginList.GetCount());
 
 	for (UINT i = 0; i < m_PluginList.GetCount(); i++)
 	{
@@ -719,16 +656,104 @@ bool CDOSMainThread::LoadPlugins()
 		PluginInfo.ID = i + 1;
 		PluginInfo.LogChannel = PLUGIN_LOG_CHANNEL_START + i + 1;
 		PluginInfo.PluginStatus = PLUGIN_STATUS_NONE;
-		LoadPlugin(PluginInfo);
+	}
+}
+bool CDOSMainThread::DoPluginsLoad()
+{
+	FUNCTION_BEGIN;
+
+	bool AllFinished = true;
+	for (PLUGIN_INFO& PluginInfo : m_PluginList)
+	{
+		switch (PluginInfo.PluginStatus)
+		{
+		case PLUGIN_STATUS_NONE:
+			if (!LoadPlugin(PluginInfo))
+			{
+				PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
+			}
+			AllFinished = false;
+			break;
+		case PLUGIN_STATUS_COMPILEING:
+			if (PluginInfo.hMCSProcess != NULL)
+			{
+#ifdef WIN32
+				DWORD ExitCode = 0;
+				if (GetExitCodeProcess(PluginInfo.hMCSProcess, &ExitCode))
+				{
+					if (ExitCode != STILL_ACTIVE)
+					{
+						LogMono("MCS已退出%d", ExitCode);
+						if (ExitCode == 0)
+						{
+							PluginInfo.PluginStatus = PLUGIN_STATUS_COMPILED;
+							LoadCSharpPlugin(PluginInfo);
+						}
+						else
+						{
+							PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
+						}
+						CloseHandle(PluginInfo.hMCSProcess);
+						PluginInfo.hMCSProcess = NULL;
+					}
+				}
+				else
+				{
+					LogMono("获取MCS进程退出码失败%d", GetLastError());
+					PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
+					CloseHandle(PluginInfo.hMCSProcess);
+					PluginInfo.hMCSProcess = NULL;
+				}
+#else
+				int ExitCode = 0;
+				int Err = waitpid((pid_t)(ptrdiff_t)PluginInfo.hMCSProcess, &ExitCode, WNOHANG);
+				if (Err == -1)
+				{
+					LogMono("等待MCS出错%d", errno);
+				}
+				else if (Err != 0)
+				{
+					ExitCode = WEXITSTATUS(ExitCode);
+					LogMono("MCS已退出%d", ExitCode);
+					if (ExitCode == 0)
+					{
+						PluginInfo.PluginStatus = PLUGIN_STATUS_COMPILED;
+						LoadCSharpPlugin(PluginInfo);
+					}
+					else
+					{
+						PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
+					}
+					PluginInfo.hMCSProcess = NULL;
+				}
+#endif
+			}
+			else
+			{
+				LogMono("插件[%s]编译状态异常", (LPCTSTR)PluginInfo.PluginName);
+				PluginInfo.PluginStatus = PLUGIN_STATUS_ERROR;
+			}
+			AllFinished = false;
+			break;		
+		}
+		if (PluginInfo.PluginStatus == PLUGIN_STATUS_NONE)
+		{
+			return true;
+		}
 	}
 
+	if (!AllFinished)
+	{
+		Log("继续插件装载");
+		return true;
+	}
 
 	Log("插件装载完毕");
 
 #ifdef WIN32
 	CExceptionParser::GetInstance()->OnFinishModuleLoad();
 #endif
-
+	m_Status = STATUS_WORKING;
 	return true;
 	FUNCTION_END;
 	return false;
@@ -760,12 +785,17 @@ void CDOSMainThread::CompileLibs()
 
 	FUNCTION_END;
 }
-
-bool CDOSMainThread::LoadProxyPlugins()
+void CDOSMainThread::StartProxyPluginsLoad()
 {
+	m_Status = STATUS_PROXY_PLUGIN_LOAD;
 	const CEasyArray<CLIENT_PROXY_PLUGIN_INFO>& PluginList = CDOSConfig::GetInstance()->GetProxyPluginList();
 
-	Log("一共有%u个代理", PluginList.GetCount());
+	Log("一共有%u个代理插件需要加载", PluginList.GetCount());
+}
+bool CDOSMainThread::DoProxyPluginsLoad()
+{
+	const CEasyArray<CLIENT_PROXY_PLUGIN_INFO>& PluginList = CDOSConfig::GetInstance()->GetProxyPluginList();
+		
 
 	for (UINT i = 0; i < PluginList.GetCount(); i++)
 	{
@@ -777,11 +807,16 @@ bool CDOSMainThread::LoadProxyPlugins()
 			PluginInfo.LogChannel = PROXY_PLUGIN_LOG_CHANNEL_START + i + 1;
 			PluginInfo.PluginStatus = PLUGIN_STATUS_NONE;
 			CDOSObjectProxyServiceCustom * pProxy = MONITORED_NEW(_T("CDOSMainThread"), CDOSObjectProxyServiceCustom);
-			if (GetProxyManager()->RegisterProxyService(pProxy))
+			
+			if (pProxy->Init(this, PluginInfo))
 			{
-				if (!pProxy->Init(this, PluginInfo))
+				if (GetProxyManager()->RegisterProxyService(pProxy))
 				{
-					GetProxyManager()->UnregisterProxyService(pProxy->GetID());
+					return true;
+				}
+				else
+				{
+					SAFE_RELEASE(pProxy);
 				}
 			}
 			else
@@ -792,6 +827,7 @@ bool CDOSMainThread::LoadProxyPlugins()
 	}
 
 	Log("代理插件装载完毕");
+	StartPluginsLoad();
 	return true;
 }
 
@@ -933,6 +969,9 @@ bool CDOSMainThread::LoadNativePlugin(PLUGIN_INFO& PluginInfo)
 		(LPCTSTR)PluginInfo.ModuleFileName,
 		(LPCTSTR)PluginInfo.ConfigDir,
 		(LPCTSTR)PluginInfo.LogDir);
+
+
+
 #ifdef WIN32
 	PluginInfo.hModule = LoadLibrary(PluginInfo.ModuleFileName);
 #else
@@ -1573,8 +1612,10 @@ void CDOSMainThread::RegisterMonoFunctions()
 		(void *)CDistributedObjectOperator::InternalCallSendMessage);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSendMessageMulti(intptr,DOSSystem.OBJECT_ID[],bool,uint,uint16,byte[],int,int)",
 		(void *)CDistributedObjectOperator::InternalCallSendMessageMulti);
-	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallBroadcastMessageToProxyObjectByGroup(intptr,ushort,byte,ulong,uint,uint16,byte[],int,int)",
-		(void *)CDistributedObjectOperator::InternalCallBroadcastMessageToProxyObjectByGroup);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallBroadcastMessageToProxyByMask(intptr,ushort,byte,ulong,uint,uint16,byte[],int,int)",
+		(void *)CDistributedObjectOperator::InternalCallBroadcastMessageToProxyByMask);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallBroadcastMessageToProxyByGroup(intptr,ushort,byte,ulong,uint,uint16,byte[],int,int)",
+		(void*)CDistributedObjectOperator::InternalCallBroadcastMessageToProxyByGroup);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallRegisterMsgMap(intptr,DOSSystem.OBJECT_ID,uint[])",
 		(void *)CDistributedObjectOperator::InternalCallRegisterMsgMap);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallUnregisterMsgMap(intptr,DOSSystem.OBJECT_ID,uint[])",
@@ -1589,7 +1630,7 @@ void CDOSMainThread::RegisterMonoFunctions()
 		(void *)CDistributedObjectOperator::InternalCallAddConcernedObject);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallDeleteConcernedObject(intptr,DOSSystem.OBJECT_ID,bool)",
 		(void *)CDistributedObjectOperator::InternalCallDeleteConcernedObject);
-	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallFindObject(intptr,uint)",
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallFindObject(intptr,uint,bool)",
 		(void *)CDistributedObjectOperator::InternalCallFindObject);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallReportObject(intptr,DOSSystem.OBJECT_ID,byte[],int,int)",
 		(void *)CDistributedObjectOperator::InternalCallReportObject);
@@ -1617,12 +1658,20 @@ void CDOSMainThread::RegisterMonoFunctions()
 		(void *)CDistributedObjectOperator::InternalCallUnregisterCommandReceiver);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSetServerWorkStatus(intptr,byte)",
 		(void *)CDistributedObjectOperator::InternalCallSetServerWorkStatus);
-	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallAddTimer(intptr,uint,object,bool)",
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallAddTimer(intptr,ulong,object,bool)",
 		(void *)CDistributedObjectOperator::InternalCallAddTimer);
 	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallDeleteTimer(intptr,uint)",
 		(void *)CDistributedObjectOperator::InternalCallDeleteTimer);
-	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSetBroadcastGroup(intptr,DOSSystem.OBJECT_ID,ulong)",
-		(void *)CDistributedObjectOperator::InternalCallSetBroadcastGroup);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallSetBroadcastMask(intptr,DOSSystem.OBJECT_ID,ulong)",
+		(void *)CDistributedObjectOperator::InternalCallSetBroadcastMask);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallAddBroadcastMask(intptr,DOSSystem.OBJECT_ID,ulong)",
+		(void*)CDistributedObjectOperator::InternalCallAddBroadcastMask);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallRemoveBroadcastMask(intptr,DOSSystem.OBJECT_ID,ulong)",
+		(void*)CDistributedObjectOperator::InternalCallRemoveBroadcastMask);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallAddBroadcastGroup(intptr,DOSSystem.OBJECT_ID,ulong)",
+		(void*)CDistributedObjectOperator::InternalCallAddBroadcastGroup);
+	mono_add_internal_call("DOSSystem.DistributedObjectOperator::InternalCallRemoveBroadcastGroup(intptr,DOSSystem.OBJECT_ID,ulong)",
+		(void*)CDistributedObjectOperator::InternalCallRemoveBroadcastGroup);
 
 	FUNCTION_END;
 }
@@ -1905,8 +1954,12 @@ bool CDOSMainThread::CreateCSProj(LPCTSTR szPrjName, LPCTSTR szPrjDir, const CEa
 			guid.Data4[4], guid.Data4[5],
 			guid.Data4[6], guid.Data4[7]);
 #else
-		uuid_t guid;
-		uuid_generate(reinterpret_cast<unsigned char *>(&guid));
+		BYTE guid[16];
+		srand(time(NULL));
+		for (UINT i = 0; i < 16; i++)
+		{
+			guid[0] = GetRand(0, 255);
+		}
 		PrjGUIDStr.Format(_T("{%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X}"),
 			guid[3], guid[2], guid[1], guid[0],
 			guid[5], guid[4],

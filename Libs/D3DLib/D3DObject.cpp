@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DObject.cpp                                            */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DObject.cpp                                            */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -173,7 +173,7 @@ CD3DLight ** CD3DObject::GetLights()
 
 void CD3DObject::OnPrepareRender(CD3DBaseRender * pRender,CD3DFX * pFX,CEasyArray<CD3DLight *>& LightList,CD3DCamera * pCamera)
 {	
-	//ÉèÖÃ±ä»»¾ØÕó
+	//è®¾ç½®å˜æ¢çŸ©é˜µ
 	if(pCamera)
 		pCamera->Apply(pRender->GetDevice(),D3DCAMERA_APPLY_ALL);
 	pRender->GetDevice()->GetD3DDevice()->SetTransform(D3DTS_WORLD,&GetWorldMatrixR());
@@ -181,15 +181,15 @@ void CD3DObject::OnPrepareRender(CD3DBaseRender * pRender,CD3DFX * pFX,CEasyArra
 
 void CD3DObject::OnPrepareRenderSubMesh(CD3DBaseRender * pRender,CD3DFX * pFX,CD3DSubMesh * pSubMesh,CD3DSubMeshMaterial * pMaterial,CEasyArray<CD3DLight *>& LightList,CD3DCamera * pCamera)
 {
-	//ÉèÖÃ²ÄÖÊ
+	//è®¾ç½®æè´¨
 
-	//Èç¹ûÊÇ±»Ñ¡ÖĞµÄÊ¹ÓÃÌØÊâ²ÄÖÊ
+	//å¦‚æœæ˜¯è¢«é€‰ä¸­çš„ä½¿ç”¨ç‰¹æ®Šæè´¨
 	if(pSubMesh->IsSelected())
 		pRender->GetDevice()->GetD3DDevice()->SetMaterial(&SELECTED_SUBMESH_MATERIAL);
 	else
 		pRender->GetDevice()->GetD3DDevice()->SetMaterial(&(pMaterial->GetMaterial()));
 
-	//ÉèÖÃÎÆÀí
+	//è®¾ç½®çº¹ç†
 	if(pMaterial->GetFX())
 	{			
 		pMaterial->GetFX()->SetTexture("TexLay0",pMaterial->GetTexture(0));
@@ -225,7 +225,7 @@ void CD3DObject::OnPrepareRenderData()
 
 void CD3DObject::Update(FLOAT Time)
 {
-	//¸üĞÂÊÀ½ç¾ØÕó
+	//æ›´æ–°ä¸–ç•ŒçŸ©é˜µ
 	m_UpdateCount++;
 	if(GetParent())
 	{
@@ -245,7 +245,7 @@ void CD3DObject::Update(FLOAT Time)
 	}
 
 
-	//¸üĞÂ×Ó¶ÔÏó
+	//æ›´æ–°å­å¯¹è±¡
 	for(UINT i=0;i<m_ChildList.GetCount();i++)
 	{
 		((CD3DObject *)m_ChildList[i])->Update(Time);

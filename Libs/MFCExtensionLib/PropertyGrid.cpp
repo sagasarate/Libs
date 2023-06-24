@@ -1,4 +1,4 @@
-// PropertyGrid.cpp : ÊµÏÖÎÄ¼ş
+ï»¿// PropertyGrid.cpp : å®ç°æ–‡ä»¶
 //
 
 #include "stdafx.h"
@@ -40,8 +40,8 @@ BOOL CPropertyGrid::Create(const RECT& Rect,CWnd * pParentWnd, UINT NameColWidth
 BOOL CPropertyGrid::Init(UINT NameColWidth, UINT ValueColWidth)
 {
 	SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
-	InsertColumn(0, _T("ÊôĞÔ"), LVCFMT_LEFT, NameColWidth);
-	InsertColumn(1, _T("Öµ"), LVCFMT_LEFT, ValueColWidth);
+	InsertColumn(0, _T("å±æ€§"), LVCFMT_LEFT, NameColWidth);
+	InsertColumn(1, _T("å€¼"), LVCFMT_LEFT, ValueColWidth);
 
 
 
@@ -195,12 +195,12 @@ void CPropertyGrid::OnFinishEdit(bool IsChanged)
 	}
 	m_CurEditItem=-1;
 }
-// CPropertyGrid ÏûÏ¢´¦Àí³ÌĞò
+// CPropertyGrid æ¶ˆæ¯å¤„ç†ç¨‹åº
 
 BOOL CPropertyGrid::OnNMClick(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	//LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<NMITEMACTIVATE>(pNMHDR);
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	*pResult = 0;
 
 	LVHITTESTINFO HitTestInfo;

@@ -545,6 +545,35 @@ public:
 			return true;
 		}
 		return false;
+	}	
+	bool FromString(LPCTSTR szTime, LPCTSTR szFormat, TIME_MODE TargetMode = TIME_MODE_LOCAL)
+	{
+		WORD Year;
+		WORD Month;
+		WORD Day;
+		WORD Hour;
+		WORD Minute;
+		WORD Second;
+
+#pragma warning( push )
+#pragma warning (disable : 4996)
+		int Count = _stscanf(szTime, szFormat, &Year, &Month, &Day, &Hour, &Minute, &Second);
+#pragma warning( pop )
+		if (Count >= 6)
+		{
+			m_wYear = Year;
+			m_wDayOfYear = 0;
+			m_wMonth = Month;
+			m_wDayOfWeek = 0;
+			m_wDay = Day;
+			m_wHour = Hour;
+			m_wMinute = Minute;
+			m_wSecond = Second;
+			m_wMilliseconds = 0;
+			m_TimeMode = TargetMode;
+			return true;
+		}
+		return false;
 	}
 	LPCTSTR FormatStatic(LPCTSTR szFormat)
 	{

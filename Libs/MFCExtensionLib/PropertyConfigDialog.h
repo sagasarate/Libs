@@ -1,18 +1,18 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    PropertyConfigDialog.h                                   */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    PropertyConfigDialog.h                                   */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
 
 
-// CPropertyConfigDialog ¶Ô»°¿ò
+// CPropertyConfigDialog å¯¹è¯æ¡†
 namespace PropertyGrid
 {
 class CPropertyConfigDialog : public CDialog
@@ -20,10 +20,10 @@ class CPropertyConfigDialog : public CDialog
 	DECLARE_DYNAMIC(CPropertyConfigDialog)
 
 public:
-	CPropertyConfigDialog(UINT nIDTemplate, CWnd* pParentWnd = NULL);   // ±ê×¼¹¹Ôìº¯Êı
+	CPropertyConfigDialog(UINT nIDTemplate, CWnd* pParentWnd = NULL);   // æ ‡å‡†æ„é€ å‡½æ•°
 	virtual ~CPropertyConfigDialog();
 
-// ¶Ô»°¿òÊı¾İ
+// å¯¹è¯æ¡†æ•°æ®
 	bool IsModual()
 	{
 		return m_IsModual;
@@ -31,7 +31,7 @@ public:
 
 protected:
 	bool	m_IsModual;
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV æ”¯æŒ
 
 	DECLARE_MESSAGE_MAP()
 };

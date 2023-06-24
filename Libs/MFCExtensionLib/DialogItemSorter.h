@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    DialogItemSorter.h                                       */
-/*      ´´½¨ÈÕÆÚ:  2009Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    DialogItemSorter.h                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -18,49 +18,51 @@ class CDialogItemSorter
 public:
 	enum DIALOG_ITEM_SORT_TYPE
 	{
-		SORT_MASK=0x01,
-		SORT_HORIZONTAL=0x00,				//Ë®Æ½ÅÅÁĞ
-		SORT_VERTICAL=0x01,					//´¹Ö±ÅÅÁĞ
-		RESIZE_MASK=0x06,
-		RESIZE_FIT_PARENT_WIDTH=0x02,
-		RESIZE_FIT_PARENT_HEIGHT=0x04,
-		ALIGN_MASK=0x18,
-		ALIGN_LEFT=0x08,
-		ALIGN_TOP=0x08,
-		ALIGN_RIGHT=0x10,
-		ALIGN_BOTTOM=0x10,
-		ALIGN_CENTER=0x00,
-		PARAM_FIT_RATE=0x20,
-		PARAM_ALIGN_SPACE=0x40,
-		PARAM_ALIGN_PRE_SPACE=0x80,
-		ENABLE_RESIZE_BAR=0x100,
+		SORT_MASK = 0x01,
+		SORT_HORIZONTAL = 0x00,				//æ°´å¹³æ’åˆ—
+		SORT_VERTICAL = 0x01,					//å‚ç›´æ’åˆ—
+		RESIZE_MASK = 0x06,
+		RESIZE_FIT_PARENT_WIDTH = 0x02,
+		RESIZE_FIT_PARENT_HEIGHT = 0x04,
+		ALIGN_MASK = 0x18,
+		ALIGN_LEFT = 0x08,
+		ALIGN_TOP = 0x08,
+		ALIGN_RIGHT = 0x10,
+		ALIGN_BOTTOM = 0x10,
+		ALIGN_CENTER = 0x00,
+		PARAM_FIT_RATE = 0x20,
+		PARAM_ALIGN_SPACE = 0x40,
+		PARAM_ALIGN_PRE_SPACE = 0x80,
+		ENABLE_RESIZE_BAR = 0x100,
 	};
 protected:
 	struct SORT_TREE_ITEM
 	{
 		UINT										ID;
-		int											SortType;		
+		int											SortType;
 		float										SortParam1;
 		float										SortParam2;
-		SORT_TREE_ITEM *							pParent;
-		CArray<SORT_TREE_ITEM *,SORT_TREE_ITEM *>	ChildList;
-		CRect										Rect; 
+		SORT_TREE_ITEM*								pParent;
+		CArray<SORT_TREE_ITEM*, SORT_TREE_ITEM*>	ChildList;
+		CRect										Rect;
 		int											DialogItemID;
-		CResizeBar *								pResizeBar;
+		CWnd*										pDialogItem;
+		CResizeBar*									pResizeBar;
 
 		SORT_TREE_ITEM()
 		{
-			ID=0;
-			SortType=0;
-			SortParam1=0;
-			SortParam2=0;
-			pParent=NULL;
-			DialogItemID=0;
-			pResizeBar=NULL;
+			ID = 0;
+			SortType = 0;
+			SortParam1 = 0;
+			SortParam2 = 0;
+			pParent = NULL;
+			DialogItemID = 0;
+			pDialogItem = 0;
+			pResizeBar = NULL;
 		}
 		~SORT_TREE_ITEM()
 		{
-			for(size_t i=0;i<ChildList.GetCount();i++)
+			for (size_t i = 0; i < ChildList.GetCount(); i++)
 			{
 				SAFE_DELETE(ChildList[i]);
 			}
@@ -68,32 +70,38 @@ protected:
 			SAFE_DELETE(pResizeBar);
 		}
 	};
-	CWnd *				m_pParent;
-	SORT_TREE_ITEM *	m_pItemTree;
+	CWnd* m_pParent;
+	SORT_TREE_ITEM* m_pItemTree;
 public:
 	CDialogItemSorter(void);
 	~CDialogItemSorter(void);
 
-	void SetParent(CWnd * pParent)
+	void SetParent(CWnd* pParent)
 	{
-		m_pParent=pParent;
+		m_pParent = pParent;
 	}
-	CWnd * GetParent()
+	CWnd* GetParent()
 	{
 		return m_pParent;
 	}
-	void SetSortType(UINT ID,int SortType,float SortParam1,float SortParam2);
+	void SetSortType(UINT ID, int SortType, float SortParam1, float SortParam2);
+	void Clear()
+	{
+		SAFE_DELETE(m_pItemTree);
+		m_pItemTree = new SORT_TREE_ITEM;
+	}
 
-	bool AddDialogItem(UINT ParentID,UINT ID,int SortType,int DialogItemID,CRect Rect,float SortParam1,float SortParam2);
+	bool AddDialogItem(UINT ParentID, UINT ID, int SortType, int DialogItemID, CRect Rect, float SortParam1, float SortParam2);
+	bool AddDialogItem(UINT ParentID, UINT ID, int SortType, CWnd* pDialogItem, CRect Rect, float SortParam1, float SortParam2);
 
 	void DoSort();
 
-	void GetResizeRange(UINT ItemID,RECT& Range);
-	void OnResize(UINT ItemID,CSize& Size);
+	void GetResizeRange(UINT ItemID, RECT& Range);
+	void OnResize(UINT ItemID, CSize& Size);
 protected:
-	CDialogItemSorter::SORT_TREE_ITEM * FindTreeNode(SORT_TREE_ITEM * pRoot,UINT ID);
-	void ResizeItems(SORT_TREE_ITEM * pRoot);
-	void AlignItems(SORT_TREE_ITEM * pRoot);
-	void GetDialogItemSize(SORT_TREE_ITEM * pRoot,bool GetRoot);
-	void SetDialogItemSize(SORT_TREE_ITEM * pRoot);
+	CDialogItemSorter::SORT_TREE_ITEM* FindTreeNode(SORT_TREE_ITEM* pRoot, UINT ID);
+	void ResizeItems(SORT_TREE_ITEM* pRoot);
+	void AlignItems(SORT_TREE_ITEM* pRoot);
+	void GetDialogItemSize(SORT_TREE_ITEM* pRoot, bool GetRoot);
+	void SetDialogItemSize(SORT_TREE_ITEM* pRoot);
 };

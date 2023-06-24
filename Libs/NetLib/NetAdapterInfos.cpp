@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 
 
@@ -34,7 +34,7 @@ bool CNetAdapterInfos::Init()
 
 	if (GetIfTable(pIfTable, &IfTableLen, TRUE) != NO_ERROR)
 	{
-		PrintNetLog( _T("»ñÈ¡ÍøÂçÊÊÅäÆ÷ĞÅÏ¢Ê§°Ü"));
+		PrintNetLog( _T("è·å–ç½‘ç»œé€‚é…å™¨ä¿¡æ¯å¤±è´¥"));
 		return false;
 	}
 
@@ -50,7 +50,7 @@ bool CNetAdapterInfos::Init()
 	if (GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER, NULL,
 		pAddressTable, &AdressTableLen) != NO_ERROR)
 	{
-		PrintNetLog( _T("»ñÈ¡ÍøÂçÊÊÅäÆ÷IPµØÖ·ĞÅÏ¢Ê§°Ü"));
+		PrintNetLog( _T("è·å–ç½‘ç»œé€‚é…å™¨IPåœ°å€ä¿¡æ¯å¤±è´¥"));
 		return false;
 	}
 
@@ -129,7 +129,7 @@ bool CNetAdapterInfos::Init()
 		}
 		freeifaddrs(pIFInfo);
 
-		//»ñÈ¡MACµØÖ·
+		//è·å–MACåœ°å€
 
 		SOCKET s = socket(AF_INET, SOCK_DGRAM, 0);
 		if (s != INVALID_SOCKET)
@@ -153,7 +153,7 @@ bool CNetAdapterInfos::Init()
 	}
 	else
 	{
-		PrintNetLog( _T("getifaddrs ·¢Éú´íÎó %d£¡"), errno);
+		PrintNetLog( _T("getifaddrs å‘ç”Ÿé”™è¯¯ %dï¼"), errno);
 		return false;
 	}
 }
@@ -180,7 +180,7 @@ bool CNetAdapterInfos::FetchStatus()
 
 	if (GetIfTable(pIfTable, &IfTableLen, TRUE) != NO_ERROR)
 	{
-		PrintNetLog( _T("»ñÈ¡ÍøÂçÊÊÅäÆ÷ĞÅÏ¢Ê§°Ü"));
+		PrintNetLog( _T("è·å–ç½‘ç»œé€‚é…å™¨ä¿¡æ¯å¤±è´¥"));
 		return false;
 	}
 

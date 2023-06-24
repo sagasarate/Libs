@@ -1,4 +1,4 @@
-#ifndef _MONO_METADATA_EXCEPTION_H_
+﻿#ifndef _MONO_METADATA_EXCEPTION_H_
 #define _MONO_METADATA_EXCEPTION_H_
 
 #include "object.h"

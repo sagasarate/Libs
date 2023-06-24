@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DQuaternion.h                                          */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DQuaternion.h                                          */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -26,37 +26,37 @@ public:
 	
 	~CD3DQuaternion(){}
 
-	//µ¥Î»»¯
+	//å•ä½åŒ–
 	void SetIdentity();
 	CD3DQuaternion GetIdentity();
 	BOOL IsIdentity();
 
-	//·´×ª
+	//åè½¬
 	void Inverse();
 	CD3DQuaternion GetInverse();
 
-	//¹æ¸ñ»¯
+	//è§„æ ¼åŒ–
 	void Normalize();
 	CD3DQuaternion GetNormalize();
 
-	//³¤¶È
+	//é•¿åº¦
 	FLOAT Length();
 	FLOAT LengthSq();
 
-	//¹²éî
+	//å…±è½­
 	void Conjugate();
 	CD3DQuaternion GetConjugate();
 
-	//»ñÈ¡Å·À­½Ç
+	//è·å–æ¬§æ‹‰è§’
 	void GetYawPitchRoll(FLOAT& Yaw,FLOAT& Pitch,FLOAT& Roll,bool ReprojectAxis=true);
-	//»ñÈ¡Ğı×ªÖáĞı×ª½Ç
+	//è·å–æ—‹è½¬è½´æ—‹è½¬è§’
 	void GetAxisAngle(D3DXVECTOR3& Axis,FLOAT& Angle);
 
 	static CD3DQuaternion FromRotationAxis(D3DXVECTOR3& Axis,FLOAT Angle);
 	static CD3DQuaternion FromRotationMatrix(D3DXMATRIX& Mat);
 	static CD3DQuaternion FromRotationYawPitchRoll(FLOAT Yaw,FLOAT Pitch,FLOAT Roll);
 
-	//²åÖµ
+	//æ’å€¼
 	static CD3DQuaternion SLerp(const D3DXQUATERNION& q1,const D3DXQUATERNION& q2,FLOAT s);
 	
 

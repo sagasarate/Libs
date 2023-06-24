@@ -1,4 +1,4 @@
-/*
+﻿/*
  * threads.h: Threading API
  *
  * Author:

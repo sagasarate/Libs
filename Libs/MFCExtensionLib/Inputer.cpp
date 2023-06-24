@@ -1,15 +1,15 @@
+ï»¿/****************************************************************************/
+/*                                                                          */
+/*      æ–‡ä»¶å:    Inputer.cpp                                              */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´09æœˆ11æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
+/*                                                                          */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
+/*                                                                          */
 /****************************************************************************/
-/*                                                                          */
-/*      ÎÄ¼şÃû:    Inputer.cpp                                              */
-/*      ´´½¨ÈÕÆÚ:  2009Äê09ÔÂ11ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
-/*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
-/*                                                                          */
-/****************************************************************************/
-// Inputer.cpp : ÊµÏÖÎÄ¼ş
+// Inputer.cpp : å®ç°æ–‡ä»¶
 //
 
 #include "stdafx.h"
@@ -42,10 +42,10 @@ END_MESSAGE_MAP()
 
 
 
-// CInputer ÏûÏ¢´¦Àí³ÌĞò
+// CInputer æ¶ˆæ¯å¤„ç†ç¨‹åº
 BOOL CInputer::Create( CWnd* pParentWnd,CFont * pFont)
 {
-	// TODO: ÔÚ´ËÌí¼Ó×¨ÓÃ´úÂëºÍ/»òµ÷ÓÃ»ùÀà
+	// TODO: åœ¨æ­¤æ·»åŠ ä¸“ç”¨ä»£ç å’Œ/æˆ–è°ƒç”¨åŸºç±»
 
 	if(!CWnd::Create(NULL,_T(""), WS_CHILD, CRect(0,0,0,0), pParentWnd,3384, NULL))
 		return false;
@@ -61,7 +61,7 @@ BOOL CInputer::Create( CWnd* pParentWnd,CFont * pFont)
 	m_Spin.Create(WS_VISIBLE|WS_CHILD|UDS_ALIGNRIGHT|UDS_SETBUDDYINT|UDS_NOTHOUSANDS,CRect(0,0,20,20),this,103883);
 	m_Spin.ShowWindow(SW_HIDE);
 	
-	m_Button.Create(_T("¡­"),WS_VISIBLE|WS_CHILD|BS_NOTIFY|BS_PUSHBUTTON,CRect(0,0,20,20),this,ID_FUCTION_BUTTON);
+	m_Button.Create(_T("â€¦"),WS_VISIBLE|WS_CHILD|BS_NOTIFY|BS_PUSHBUTTON,CRect(0,0,20,20),this,ID_FUCTION_BUTTON);
 	m_Button.ShowWindow(SW_HIDE);
 
 	return true;
@@ -79,7 +79,7 @@ void CInputer::StartInput(int Type,CString& Define,CString& DefaultValue,CProper
 		break;
 	case PROT_EDIT:
 		{
-			//ÉèÖÃ±à¼­¿ò´óĞ¡
+			//è®¾ç½®ç¼–è¾‘æ¡†å¤§å°
 			GetWindowRect(&Rect);			
 			ScreenToClient(&Rect);
 			m_Edit.MoveWindow(&Rect);
@@ -90,7 +90,7 @@ void CInputer::StartInput(int Type,CString& Define,CString& DefaultValue,CProper
 		break;
 	case PROT_NUMBER:
 		{
-			//ÉèÖÃ±à¼­¿ò´óĞ¡
+			//è®¾ç½®ç¼–è¾‘æ¡†å¤§å°
 			GetWindowRect(&Rect);			
 			ScreenToClient(&Rect);
 			m_Edit.MoveWindow(&Rect);	
@@ -102,7 +102,7 @@ void CInputer::StartInput(int Type,CString& Define,CString& DefaultValue,CProper
 		break;
 	case PROT_SPIN_NUMBER:
 		{
-			//ÉèÖÃ±à¼­¿ò´óĞ¡
+			//è®¾ç½®ç¼–è¾‘æ¡†å¤§å°
 			GetWindowRect(&Rect);			
 			ScreenToClient(&Rect);
 			m_Edit.MoveWindow(&Rect);	
@@ -125,7 +125,7 @@ void CInputer::StartInput(int Type,CString& Define,CString& DefaultValue,CProper
 	case PROT_COMBO:
 		{
 		
-			//ÉèÖÃ×éºÏ¿ò´óĞ¡
+			//è®¾ç½®ç»„åˆæ¡†å¤§å°
 			GetWindowRect(&Rect);			
 			ScreenToClient(&Rect);
 			Rect.bottom=Rect.top+100;
@@ -151,16 +151,16 @@ void CInputer::StartInput(int Type,CString& Define,CString& DefaultValue,CProper
 		break;
 	case PROT_BOOL:
 		{
-			//ÉèÖÃ×éºÏ¿ò´óĞ¡
+			//è®¾ç½®ç»„åˆæ¡†å¤§å°
 			GetWindowRect(&Rect);			
 			ScreenToClient(&Rect);
 			Rect.bottom=Rect.top+100;
 			m_ComboBox.MoveWindow(&Rect);			
 
 			m_ComboBox.ResetContent();
-			m_ComboBox.InsertString(0,_T("ÊÇ"));
-			m_ComboBox.InsertString(1,_T("·ñ"));
-			if(DefaultValue==_T("ÊÇ"))
+			m_ComboBox.InsertString(0,_T("æ˜¯"));
+			m_ComboBox.InsertString(1,_T("å¦"));
+			if(DefaultValue==_T("æ˜¯"))
 				m_ComboBox.SetCurSel(0);
 			else
 				m_ComboBox.SetCurSel(1);
@@ -178,7 +178,7 @@ void CInputer::StartInput(int Type,CString& Define,CString& DefaultValue,CProper
 		break;
 	case PROT_PATH:
 		{			
-			//ÉèÖÃ±à¼­¿ò´óĞ¡
+			//è®¾ç½®ç¼–è¾‘æ¡†å¤§å°
 			GetWindowRect(&Rect);
 			Rect.right-=Rect.Height();
 			ScreenToClient(&Rect);
@@ -187,7 +187,7 @@ void CInputer::StartInput(int Type,CString& Define,CString& DefaultValue,CProper
 			m_Edit.SetWindowText((LPCTSTR)DefaultValue);
 			m_Edit.SetFocus();
 
-			//ÉèÖÃ°´Å¥´óĞ¡
+			//è®¾ç½®æŒ‰é’®å¤§å°
 			GetWindowRect(&Rect);
 			Rect.left=Rect.right-Rect.Height();
 			ScreenToClient(&Rect);
@@ -235,7 +235,7 @@ void CInputer::StartInput(int Type,CString& Define,CString& DefaultValue,CProper
 		break;
 	case PROT_CUSTOM:
 		{
-			//ÉèÖÃ±à¼­¿ò´óĞ¡
+			//è®¾ç½®ç¼–è¾‘æ¡†å¤§å°
 			GetWindowRect(&Rect);
 			Rect.right-=Rect.Height();
 			ScreenToClient(&Rect);
@@ -245,7 +245,7 @@ void CInputer::StartInput(int Type,CString& Define,CString& DefaultValue,CProper
 			m_Edit.EnableInput(false);
 			m_Edit.SetFocus();
 
-			//ÉèÖÃ°´Å¥´óĞ¡
+			//è®¾ç½®æŒ‰é’®å¤§å°
 			GetWindowRect(&Rect);
 			Rect.left=Rect.right-Rect.Height();
 			ScreenToClient(&Rect);

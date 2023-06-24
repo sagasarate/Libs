@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    D3DSimpleList.cpp                                        */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DSimpleList.cpp                                        */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -285,7 +285,7 @@ void CD3DSimpleList::SetVisible(bool IsVisible)
 
 void CD3DSimpleList::GetMiniSize(int& Width,int& Height)
 {
-	//¼ì²â´°¿Ú´óÐ¡
+	//æ£€æµ‹çª—å£å¤§å°
 	int LMinWidth,RMinWidth;
 
 	LMinWidth=m_Borders[RECT_LEFT];
@@ -324,10 +324,10 @@ void CD3DSimpleList::UpdateRects()
 	ClientToScreen(&ClientRect);
 
 
-	//¼ÆËãÐèÒªµÄ¿ÉÊÓÐÐÊý
+	//è®¡ç®—éœ€è¦çš„å¯è§†è¡Œæ•°
 	m_CurVisibleLineCount=(int)floor((FLOAT)ClientRect.Height()/(m_LineHeight+m_LineSpace));
 
-	//¸ù¾ÝÐèÒªÀ©³äÎÄ×Ö¾ØÐÎÊý
+	//æ ¹æ®éœ€è¦æ‰©å……æ–‡å­—çŸ©å½¢æ•°
 	if(m_CurVisibleLineCount>GetTextRectCount())
 		GrowTextRect(m_CurVisibleLineCount-GetTextRectCount()+LINE_GROW);
 
@@ -363,7 +363,7 @@ void CD3DSimpleList::UpdateText()
 	}		
 
 	
-	//¸üÐÂÎÄ×Ö
+	//æ›´æ–°æ–‡å­—
 	for(int i=0;i<(int)m_LineInfos.GetCount()-m_FirstVisibleLine;i++)
 	{
 		
@@ -734,7 +734,7 @@ bool CD3DSimpleList::LoadFromXml(xml_node * pXMLNode)
 	}
 	HandleMessage(this,WM_D3DGUI_WND_LOADED,GetID(),(LPARAM)this);
 
-	//×°ÔØ×Ó´°¿Ú
+	//è£…è½½å­çª—å£
 	for(int i=(int)pXMLNode->children()-1;i>=0;i--)
 	{
 		if(_tcsnicmp(pXMLNode->child(i).name(),_T("Childs"),7)==0)
@@ -743,7 +743,7 @@ bool CD3DSimpleList::LoadFromXml(xml_node * pXMLNode)
 			break;
 		}
 	}
-	//Ê¶±ðÄÚ²¿¶ÔÏó
+	//è¯†åˆ«å†…éƒ¨å¯¹è±¡
 	for(int i=(int)m_ChildWndList.GetCount()-1;i>=0;i--)
 	{
 		if(m_ChildWndList[i]->IsInternal()&&

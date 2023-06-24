@@ -55,19 +55,16 @@ CDBValue& CDBParameterSet::GetParam(int Index)
 	return m_EmptyValue;
 }
 
-bool CDBParameterSet::AddParam(DB_PARAM_INFO& ParamInfo, LPCVOID pData, size_t DataLen)
+bool CDBParameterSet::AddParam(const DB_PARAM_INFO& ParamInfo, LPCVOID pData, size_t DataLen)
 {
-	if (ParamInfo.Size <= DataLen)
-	{
-		PARAM_DATA * pParam = m_Params.AddEmpty();
-		pParam->ParamInfo = ParamInfo;
-		pParam->ParamValue.SetValue(ParamInfo.Type, pData, ParamInfo.Size, ParamInfo.DigitSize);
-		return true;
-	}
-	return false;
+	PARAM_DATA* pParam = m_Params.AddEmpty();
+	pParam->ParamInfo = ParamInfo;
+	pParam->ParamValue.SetValue(ParamInfo.Type, pData, ParamInfo.Size, ParamInfo.DigitSize);	
+	pParam->ParamInfo.Size = DataLen;
+	return true;
 }
 
-bool CDBParameterSet::AddParam(DB_PARAM_INFO& ParamInfo,const CDBValue& Value)
+bool CDBParameterSet::AddParam(const DB_PARAM_INFO& ParamInfo,const CDBValue& Value)
 {
 	PARAM_DATA * pParam = m_Params.AddEmpty();
 	pParam->ParamInfo = ParamInfo;
@@ -75,7 +72,7 @@ bool CDBParameterSet::AddParam(DB_PARAM_INFO& ParamInfo,const CDBValue& Value)
 	return true;
 }
 
-bool CDBParameterSet::AddParam(DB_PARAM_INFO& ParamInfo)
+bool CDBParameterSet::AddParam(const DB_PARAM_INFO& ParamInfo)
 {
 	PARAM_DATA * pParam = m_Params.AddEmpty();
 	pParam->ParamInfo = ParamInfo;

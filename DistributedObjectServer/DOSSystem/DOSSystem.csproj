@@ -41,14 +41,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\Work\lib\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
     <Reference Include="mscorlib">
       <HintPath>..\Work\lib\mscorlib.dll</HintPath>
-    </Reference>
-    <Reference Include="Protocol">
-      <HintPath>..\Work\lib\Protocol.dll</HintPath>
     </Reference>
     <Reference Include="System.Core">
       <HintPath>..\Work\lib\System.Core.dll</HintPath>
@@ -58,6 +52,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CSmartArray.cs" />
     <Compile Include="CSmartStruct.cs" />
     <Compile Include="CSmartValue.cs" />
     <Compile Include="DistributedObjectOperator.cs" />

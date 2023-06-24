@@ -1,4 +1,4 @@
-typedef union {
+﻿typedef union {
     unsigned long long AO_whole;
     struct {AO_t AO_v1; AO_t AO_v2;} AO_parts;
 } AO_double_t;

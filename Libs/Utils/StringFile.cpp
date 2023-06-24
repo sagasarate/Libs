@@ -285,7 +285,7 @@ BOOL CStringFile::SaveToFile(LPCTSTR pszTextFile)
 	return SaveToFile(m_pData, pszTextFile);
 }
 
-BOOL CStringFile::SaveToFile(TCHAR * pData, LPCTSTR pszTextFile)
+BOOL CStringFile::SaveToFile(LPCTSTR pData, LPCTSTR pszTextFile)
 {
 	IFileAccessor * pFile;
 
@@ -306,7 +306,7 @@ BOOL CStringFile::SaveToFile(IFileAccessor * pFile)
 {
 	return SaveToFile(m_pData, pFile);
 }
-BOOL CStringFile::SaveToFile(TCHAR * pData, IFileAccessor * pFile)
+BOOL CStringFile::SaveToFile(LPCTSTR pData, IFileAccessor * pFile)
 {
 	BOOL Ret=TRUE;
 #ifdef UNICODE

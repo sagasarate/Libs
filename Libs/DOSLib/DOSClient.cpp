@@ -154,7 +154,12 @@ BOOL CDOSClient::SendMessageMulti(OBJECT_ID * pReceiverIDList,UINT ReceiverCount
 	return FALSE;
 }
 
-BOOL CDOSClient::BroadcastMessageToProxyObjectByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
+BOOL CDOSClient::BroadcastMessageToProxyByMask(WORD RouterID, BYTE ProxyType, UINT64 Mask, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
+{
+	return FALSE;
+}
+
+BOOL CDOSClient::BroadcastMessageToProxyByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
 {
 	return FALSE;
 }
@@ -258,7 +263,7 @@ BOOL CDOSClient::DeleteConcernedObject(OBJECT_ID ObjectID)
 	return FALSE;
 }
 
-BOOL CDOSClient::FindObject(UINT ObjectType)
+BOOL CDOSClient::FindObject(UINT ObjectType, bool OnlyLocal)
 {
 	return FALSE;
 }
@@ -313,7 +318,7 @@ void CDOSClient::SetServerWorkStatus(BYTE WorkStatus)
 {
 
 }
-UINT CDOSClient::AddTimer(UINT TimeOut, UINT64 Param, bool IsRepeat)
+UINT CDOSClient::AddTimer(UINT64 TimeOut, UINT64 Param, bool IsRepeat)
 {
 	return 0;
 }
@@ -321,14 +326,30 @@ BOOL CDOSClient::DeleteTimer(UINT ID)
 {
 	return FALSE;
 }
-BOOL CDOSClient::SetBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID)
+BOOL CDOSClient::SetBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 GroupID)
+{
+	return FALSE;
+}
+BOOL CDOSClient::AddBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask)
+{
+	return FALSE;
+}
+BOOL CDOSClient::RemoveBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask)
+{
+	return FALSE;
+}
+BOOL CDOSClient::AddBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID)
+{
+	return FALSE;
+}
+BOOL CDOSClient::RemoveBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID)
 {
 	return FALSE;
 }
 void CDOSClient::OnRecvData(const BYTE * pData, UINT DataSize)
 {
 	MSG_LEN_TYPE PacketSize=0;
-	UINT PeekPos=0;
+	size_t PeekPos=0;
 	if (DataSize>m_AssembleBuffer.GetFreeSize())
 	{
 		Close();
@@ -448,7 +469,7 @@ BOOL CDOSClient::OnSystemMessage(CDOSSimpleMessage * pMessage)
 		if (pMessage->GetDataLength() >= sizeof(PING_DATA))
 		{
 			const PING_DATA * pPingData = (const PING_DATA *)pMessage->GetMsgData();
-			m_RecentPingDelay = GetTimeToTime(pPingData->Time, CEasyTimer::GetTime());
+			m_RecentPingDelay = CEasyTimer::GetTimeToTime(pPingData->Time, CEasyTimer::GetTime());
 		}
 		return TRUE;
 	}

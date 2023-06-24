@@ -1,4 +1,4 @@
-/* LzmaLib.h -- LZMA library interface
+﻿/* LzmaLib.h -- LZMA library interface
 2009-04-07 : Igor Pavlov : Public domain */
 
 #ifndef __LZMA_LIB_H

@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+ï»¿#include "StdAfx.h"
 
 namespace D3DLib{
 
@@ -143,19 +143,19 @@ BOOL CBLZWOWSceneLoader::OnRun()
 		case TASK_AREA_RELEASE:
 			SAFE_RELEASE(TaskInfo.pMapArea->pModel);
 			TaskInfo.pMapArea->Status=MAS_NOT_LOAD;
-			PrintD3DDebugLog(_T("Çø¿é[%u,%u]ÊÍ·ÅÍê±Ï"),
+			PrintD3DDebugLog(_T("åŒºå—[%u,%u]é‡Šæ”¾å®Œæ¯•"),
 				TaskInfo.pMapArea->AreaX,
 				TaskInfo.pMapArea->AreaY);
 			if(!m_FinishTaskQueue.PushBack(TaskInfo))
 			{
-				PrintD3DLog(_T("ÈÎÎñÍê³É¶ÓÁĞÒç³ö"));
+				PrintD3DLog(_T("ä»»åŠ¡å®Œæˆé˜Ÿåˆ—æº¢å‡º"));
 			}
 			break;
 		case TASK_PRE_LOAD_FINISH:
 		case TASK_ALL_FINISH:
 			if(!m_FinishTaskQueue.PushBack(TaskInfo))
 			{
-				PrintD3DLog(_T("ÈÎÎñÍê³É¶ÓÁĞÒç³ö"));
+				PrintD3DLog(_T("ä»»åŠ¡å®Œæˆé˜Ÿåˆ—æº¢å‡º"));
 			}
 			break;
 		}
@@ -186,13 +186,13 @@ int CBLZWOWSceneLoader::Update(int ProcessLimit)
 			break;
 		case TASK_AREA_PRE_LOAD:
 			m_pRender->AddSceneObject(TaskInfo.pMapArea->pModel,false);
-			PrintD3DDebugLog(_T("Çø¿é[%u,%u]Ô¤¼ÓÔØÍê±Ï"),
+			PrintD3DDebugLog(_T("åŒºå—[%u,%u]é¢„åŠ è½½å®Œæ¯•"),
 				TaskInfo.pMapArea->AreaX,
 				TaskInfo.pMapArea->AreaY);
 			TaskInfo.TaskType=TASK_AREA_LOAD;
 			if(!m_TaskQueue.PushBack(TaskInfo))
 			{
-				PrintD3DLog(_T("ÈÎÎñ¶ÓÁĞÒç³ö"));
+				PrintD3DLog(_T("ä»»åŠ¡é˜Ÿåˆ—æº¢å‡º"));
 			}
 			//m_pLowSceneModel->SetAreaVisible(
 			//	TaskInfo.pMapArea->AreaX,
@@ -200,13 +200,13 @@ int CBLZWOWSceneLoader::Update(int ProcessLimit)
 			break;
 		case TASK_CRUCIAL_AREA_LOAD:
 			m_pRender->AddSceneObject(TaskInfo.pMapArea->pModel,false);
-			PrintD3DDebugLog(_T("Çø¿é[%u,%u]Ô¤¼ÓÔØÍê±Ï"),
+			PrintD3DDebugLog(_T("åŒºå—[%u,%u]é¢„åŠ è½½å®Œæ¯•"),
 				TaskInfo.pMapArea->AreaX,
 				TaskInfo.pMapArea->AreaY);
 			TaskInfo.TaskType=TASK_AREA_LOAD;
 			if(!m_TaskQueue.PushBack(TaskInfo))
 			{
-				PrintD3DLog(_T("ÈÎÎñ¶ÓÁĞÒç³ö"));
+				PrintD3DLog(_T("ä»»åŠ¡é˜Ÿåˆ—æº¢å‡º"));
 			}
 			//m_pLowSceneModel->SetAreaVisible(
 			//	TaskInfo.pMapArea->AreaX,
@@ -214,20 +214,20 @@ int CBLZWOWSceneLoader::Update(int ProcessLimit)
 			m_Status=SLS_WORING;		
 			break;
 		case TASK_AREA_LOAD:
-			PrintD3DDebugLog(_T("Çø¿é[%u,%u]¼ÓÔØÍê±Ï"),
+			PrintD3DDebugLog(_T("åŒºå—[%u,%u]åŠ è½½å®Œæ¯•"),
 				TaskInfo.pMapArea->AreaX,
 				TaskInfo.pMapArea->AreaY);
 			TaskInfo.pMapArea->pModel->CheckNeedUpdateObjects();
 			break;
 		case TASK_AREA_PRE_RELEASE:
 			m_pRender->DelObject(TaskInfo.pMapArea->pModel,false);
-			PrintD3DDebugLog(_T("Çø¿é[%u,%u]Ô¤ÊÍ·ÅÍê±Ï"),
+			PrintD3DDebugLog(_T("åŒºå—[%u,%u]é¢„é‡Šæ”¾å®Œæ¯•"),
 				TaskInfo.pMapArea->AreaX,
 				TaskInfo.pMapArea->AreaY);
 			TaskInfo.TaskType=TASK_AREA_RELEASE;
 			if(!m_TaskQueue.PushBack(TaskInfo))
 			{
-				PrintD3DLog(_T("ÈÎÎñ¶ÓÁĞÒç³ö"));
+				PrintD3DLog(_T("ä»»åŠ¡é˜Ÿåˆ—æº¢å‡º"));
 			}
 			//m_pLowSceneModel->SetAreaVisible(
 			//	TaskInfo.pMapArea->AreaX,
@@ -236,15 +236,15 @@ int CBLZWOWSceneLoader::Update(int ProcessLimit)
 		case TASK_AREA_RELEASE:			
 			break;
 		case TASK_PRE_LOAD_FINISH:
-			PrintD3DDebugLog(_T("È«²¿Ô¤¼ÓÔØÍê±Ï"));
+			PrintD3DDebugLog(_T("å…¨éƒ¨é¢„åŠ è½½å®Œæ¯•"));
 			TaskInfo.TaskType=TASK_ALL_FINISH;
 			if(!m_TaskQueue.PushBack(TaskInfo))
 			{
-				PrintD3DLog(_T("ÈÎÎñ¶ÓÁĞÒç³ö"));
+				PrintD3DLog(_T("ä»»åŠ¡é˜Ÿåˆ—æº¢å‡º"));
 			}
 			break;
 		case TASK_ALL_FINISH:
-			PrintD3DDebugLog(_T("È«²¿¼ÓÔØÍê±Ï"));
+			PrintD3DDebugLog(_T("å…¨éƒ¨åŠ è½½å®Œæ¯•"));
 			m_Status=SLS_IDLE;
 			break;
 		}
@@ -299,7 +299,7 @@ bool CBLZWOWSceneLoader::FirstLoad(UINT MapID,FLOAT PosX,FLOAT PosY)
 			}
 			else
 			{
-				PrintD3DLog(_T("¼ÓÔØ%sÊ§°Ü"),(LPCTSTR)WDLFileName);
+				PrintD3DLog(_T("åŠ è½½%så¤±è´¥"),(LPCTSTR)WDLFileName);
 				SAFE_RELEASE(m_pLowSceneModel);
 			}
 			
@@ -339,17 +339,17 @@ bool CBLZWOWSceneLoader::FirstLoad(UINT MapID,FLOAT PosX,FLOAT PosY)
 			}
 			else
 			{
-				PrintD3DLog(_T("ËùÒªµ½´ïµÄÇøÓò[%u,%u,%u]²»´æÔÚ"),MapID,CenterAreaX,CenterAreaY);
+				PrintD3DLog(_T("æ‰€è¦åˆ°è¾¾çš„åŒºåŸŸ[%u,%u,%u]ä¸å­˜åœ¨"),MapID,CenterAreaX,CenterAreaY);
 			}
 		}
 		else
 		{
-			PrintD3DLog(_T("ÎŞ·¨´ò¿ªÎÄ¼ş%s"),(LPCTSTR)WDTFileName);
+			PrintD3DLog(_T("æ— æ³•æ‰“å¼€æ–‡ä»¶%s"),(LPCTSTR)WDTFileName);
 		}
 	}
 	else
 	{
-		PrintD3DLog(_T("µØÍ¼%u²»´æÔÚ"),MapID);
+		PrintD3DLog(_T("åœ°å›¾%uä¸å­˜åœ¨"),MapID);
 	}
 	return false;
 }
@@ -383,7 +383,7 @@ void CBLZWOWSceneLoader::CheckTasks()
 					m_SceneAreas[i].Status=MAS_LOADING;
 					if(m_SceneAreas[i].pModel)
 					{
-						PrintD3DLog(_T("¼ÓÔØÇø¿éÊ±·¢ÏÖÇø¿é[%u,%u]ÒÑÓĞÄÚÈİ"),
+						PrintD3DLog(_T("åŠ è½½åŒºå—æ—¶å‘ç°åŒºå—[%u,%u]å·²æœ‰å†…å®¹"),
 							m_SceneAreas[i].AreaX,
 							m_SceneAreas[i].AreaY);
 					}
@@ -417,7 +417,7 @@ void CBLZWOWSceneLoader::CheckTasks()
 		TaskInfo.pModel=NULL;
 		TaskInfo.pMapArea=pCrucialLoadArea;
 		m_TaskQueue.PushBack(TaskInfo);
-		PrintD3DDebugLog(_T("¿ªÊ¼¼ÓÔØ¹Ø¼üÇø¿é[%u,%u]"),
+		PrintD3DDebugLog(_T("å¼€å§‹åŠ è½½å…³é”®åŒºå—[%u,%u]"),
 			pCrucialLoadArea->AreaX,
 			pCrucialLoadArea->AreaY);
 	}
@@ -432,7 +432,7 @@ void CBLZWOWSceneLoader::CheckTasks()
 			TaskInfo.pModel=NULL;
 			TaskInfo.pMapArea=LoadAreas[i];
 			m_TaskQueue.PushBack(TaskInfo);
-			PrintD3DDebugLog(_T("¿ªÊ¼¼ÓÔØÇø¿é[%u,%u]"),
+			PrintD3DDebugLog(_T("å¼€å§‹åŠ è½½åŒºå—[%u,%u]"),
 				LoadAreas[i]->AreaX,
 				LoadAreas[i]->AreaY);
 		}
@@ -444,7 +444,7 @@ void CBLZWOWSceneLoader::CheckTasks()
 			TaskInfo.pModel=NULL;
 			TaskInfo.pMapArea=ReleaseAreas[i];
 			m_TaskQueue.PushBack(TaskInfo);
-			PrintD3DDebugLog(_T("¿ªÊ¼Ğ¶ÔØÇø¿é[%u,%u]"),
+			PrintD3DDebugLog(_T("å¼€å§‹å¸è½½åŒºå—[%u,%u]"),
 				ReleaseAreas[i]->AreaX,
 				ReleaseAreas[i]->AreaY);
 		}
@@ -459,7 +459,7 @@ void CBLZWOWSceneLoader::CheckTasks()
 
 void CBLZWOWSceneLoader::LoadArea(TASK_INFO& TaskInfo)
 {
-	PrintD3DDebugLog(_T("Çø¿é[%u,%u]¼ÓÔØÖĞ..."),
+	PrintD3DDebugLog(_T("åŒºå—[%u,%u]åŠ è½½ä¸­..."),
 		TaskInfo.pMapArea->AreaX,
 		TaskInfo.pMapArea->AreaY);	
 
@@ -480,12 +480,12 @@ void CBLZWOWSceneLoader::LoadArea(TASK_INFO& TaskInfo)
 	{
 		if(!m_FinishTaskQueue.PushBack(TaskInfo))
 		{
-			PrintD3DLog(_T("ÈÎÎñÍê³É¶ÓÁĞÒç³ö"));
+			PrintD3DLog(_T("ä»»åŠ¡å®Œæˆé˜Ÿåˆ—æº¢å‡º"));
 		}
 	}
 	else
 	{
-		PrintD3DLog(_T("CBLZWOWSceneLoader::LoadArea:¼ÓÔØÊ§°Ü%s"),(LPCTSTR)AreaFile);
+		PrintD3DLog(_T("CBLZWOWSceneLoader::LoadArea:åŠ è½½å¤±è´¥%s"),(LPCTSTR)AreaFile);
 		SAFE_RELEASE(TaskInfo.pMapArea->pModel);
 		TaskInfo.pMapArea->Status=MAS_NOT_EXIST;	
 	}
@@ -506,7 +506,7 @@ void CBLZWOWSceneLoader::LoadAreaObjects(TASK_INFO& TaskInfo)
 
 	if(!m_FinishTaskQueue.PushBack(TaskInfo))
 	{
-		PrintD3DLog(_T("ÈÎÎñÍê³É¶ÓÁĞÒç³ö"));
+		PrintD3DLog(_T("ä»»åŠ¡å®Œæˆé˜Ÿåˆ—æº¢å‡º"));
 	}
 }
 
@@ -524,7 +524,7 @@ void CBLZWOWSceneLoader::PreReleaseArea(MAP_AREA_INFO * pMapArea)
 	Info.pModel=NULL;
 	if(!m_FinishTaskQueue.PushBack(Info))
 	{
-		PrintD3DLog(_T("ÈÎÎñÍê³É¶ÓÁĞÒç³ö"));
+		PrintD3DLog(_T("ä»»åŠ¡å®Œæˆé˜Ÿåˆ—æº¢å‡º"));
 	}
 }
 
@@ -536,7 +536,7 @@ void CBLZWOWSceneLoader::PushObjectFinishEvent(CD3DObject * pObject)
 	Info.pModel=pObject;
 	if(!m_FinishTaskQueue.PushBack(Info))
 	{
-		PrintD3DLog(_T("ÈÎÎñÍê³É¶ÓÁĞÒç³ö"));
+		PrintD3DLog(_T("ä»»åŠ¡å®Œæˆé˜Ÿåˆ—æº¢å‡º"));
 	}
 
 	for(UINT i=0;i<pObject->GetChildCount();i++)
@@ -560,7 +560,7 @@ void CBLZWOWSceneLoader::PushObjectPreReleaseEvent(CD3DObject * pObject)
 	Info.pModel=pObject;
 	if(!m_FinishTaskQueue.PushBack(Info))
 	{
-		PrintD3DLog(_T("ÈÎÎñÍê³É¶ÓÁĞÒç³ö"));
+		PrintD3DLog(_T("ä»»åŠ¡å®Œæˆé˜Ÿåˆ—æº¢å‡º"));
 	}
 }
 

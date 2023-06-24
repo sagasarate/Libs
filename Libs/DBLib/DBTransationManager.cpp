@@ -153,12 +153,12 @@ int CDBTransationManager::Update(int ProcessLimit)
 
 bool CDBTransationManager::IsIdle()
 {
-	int Len=0;
 	for(int i=0;i<(int)m_WorkThreads.GetCount();i++)
 	{
-		Len+=m_WorkThreads[i]->GetQueueLen()+m_WorkThreads[i]->GetFinishQueueLen();
+		if (m_WorkThreads[i]->IsBusy() || (m_WorkThreads[i]->GetQueueLen() > 0) || (m_WorkThreads[i]->GetFinishQueueLen() > 0))
+			return false;
 	}
-	return Len==0;
+	return true;
 }
 
 bool CDBTransationManager::HaveJam()

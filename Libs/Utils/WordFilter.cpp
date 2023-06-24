@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 
 
@@ -65,11 +65,11 @@ int CWordFilter::Check(LPCTSTR szText, UINT WordTypeMask, size_t Start, size_t L
 			if(pNode)
 			{
 				if (pNode->WordTypeMask & WordTypeMask)
-					return i;
+					return (int)i;
 			}
 			Pos++;
 			
-		} while (pNode);
+		} while (pNode && Pos < Len);
 	}
 	return -1;
 }

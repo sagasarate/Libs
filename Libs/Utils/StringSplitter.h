@@ -32,11 +32,12 @@ public:
 	}
 	~CStringSplitterT()
 	{
-		for(int i=0;i<(int)m_StringList.GetCount();i++)
-		{
-			SAFE_DELETE_ARRAY(m_StringList[i]);
-			m_StringList.Clear();
-		}
+		Destory();
+	}
+	void Destory()
+	{
+		SAFE_DELETE_ARRAY(m_pBuffer);
+		m_StringList.Clear();
 	}
 	size_t Splitter(const char * pStr,char SplitterChar,size_t StrLen=0)
 	{		
@@ -47,7 +48,7 @@ public:
 		if (StrLen == 0)
 			return 0;
 
-		SAFE_DELETE_ARRAY(m_pBuffer);
+		Destory();
 		m_pBuffer = MONITORED_NEW_ARRAY(_T("CStringSplitterT"), char, StrLen + 1);
 		strncpy_s(m_pBuffer,StrLen+1,pStr,StrLen);
 		m_pBuffer[StrLen]=0;
@@ -81,7 +82,7 @@ public:
 		if (StrLen == 0)
 			return 0;
 
-		SAFE_DELETE_ARRAY(m_pBuffer);
+		Destory();
 		m_pBuffer = MONITORED_NEW_ARRAY(_T("CStringSplitterT"), WCHAR, StrLen + 1);
 		wcsncpy_s(m_pBuffer,StrLen+1,pStr,StrLen);
 		m_pBuffer[StrLen]=0;

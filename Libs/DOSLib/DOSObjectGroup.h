@@ -110,7 +110,7 @@ public:
 
 	void PrintObjectStat(UINT LogChannel);
 
-	UINT AddTimer(OBJECT_ID ObjectID, UINT TimeOut, UINT64 Param, bool IsRepeat);
+	UINT AddTimer(OBJECT_ID ObjectID, UINT64 TimeOut, UINT64 Param, bool IsRepeat);
 	BOOL DeleteTimer(UINT ID);
 protected:
 	int ProcessObjectRegister(int ProcessLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
@@ -189,7 +189,7 @@ inline bool CDOSObjectGroup::IsWorking()
 	return m_Status == STATUS_WORKING;
 }
 
-inline UINT CDOSObjectGroup::AddTimer(OBJECT_ID ObjectID, UINT TimeOut, UINT64 Param, bool IsRepeat)
+inline UINT CDOSObjectGroup::AddTimer(OBJECT_ID ObjectID, UINT64 TimeOut, UINT64 Param, bool IsRepeat)
 {
 	TIMER_DATA TimerData;
 	TimerData.ObjectID = ObjectID;

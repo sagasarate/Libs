@@ -7,10 +7,10 @@ protected:
 	struct TIMER_INFO
 	{
 		UINT	ID;
-		UINT	TimeOutTime;
+		UINT64	TimeOutTime;
 		bool	IsRepeat;
-		UINT	StartTime;
-		UINT	EndTime;
+		UINT64	StartTime;
+		UINT64	EndTime;
 		T		UserData;
 	};
 	CIDStorage<TIMER_INFO>		m_TimerQueue;
@@ -52,9 +52,9 @@ public:
 		m_TimerQueue.Clear();
 		m_Tree.Clear();
 	}
-	UINT AddTimer(UINT CurTime, UINT TimeOut, T& UserData, bool IsRepeat)
+	UINT AddTimer(UINT64 CurTime, UINT64 TimeOut, T& UserData, bool IsRepeat)
 	{
-		UINT EndTime = CurTime + TimeOut;
+		UINT64 EndTime = CurTime + TimeOut;
 		TIMER_INFO * pTimerInfo = NULL;
 		UINT ID = m_TimerQueue.NewObject(&pTimerInfo);
 		if (ID)
@@ -71,9 +71,9 @@ public:
 		}
 		return 0;
 	}
-	UINT AddTimer(UINT TimeOut, T& UserData, bool IsRepeat)
+	UINT AddTimer(UINT64 TimeOut, T& UserData, bool IsRepeat)
 	{
-		return AddTimer(CEasyTimer::GetTime(), TimeOut, UserData, IsRepeat);
+		return AddTimer(CEasyTimer64::GetTime(), TimeOut, UserData, IsRepeat);
 	}
 
 	bool DeleteTimer(UINT ID, T * pUserData)
@@ -120,9 +120,9 @@ public:
 	}
 	UINT UpdateTimer(T * pUserData, bool * pIsRepeat)
 	{
-		return UpdateTimer(CEasyTimer::GetTime(), pUserData, pIsRepeat);
+		return UpdateTimer(CEasyTimer64::GetTime(), pUserData, pIsRepeat);
 	}
-	UINT UpdateTimer(UINT CurTime, T * pUserData, bool * pIsRepeat)
+	UINT UpdateTimer(UINT64 CurTime, T * pUserData, bool * pIsRepeat)
 	{
 		int Ptr = (int)m_Tree.GetCount() - 1;
 		if (Ptr >= 0)
@@ -138,7 +138,7 @@ public:
 				m_Tree.Delete(Ptr);
 				if (pTimerInfo->IsRepeat)
 				{
-					UINT EndTime = CurTime + pTimerInfo->TimeOutTime;
+					UINT64 EndTime = CurTime + pTimerInfo->TimeOutTime;
 					pTimerInfo->StartTime = CurTime;
 					pTimerInfo->EndTime = EndTime;
 					InsertTimer(pTimerInfo);
@@ -168,7 +168,7 @@ public:
 		return 0;
 	}
 protected:
-	int SearchTimer(UINT Time, bool ForInsert)
+	int SearchTimer(UINT64 Time, bool ForInsert)
 	{
 		int Start = (int)m_Tree.GetCount() - 1;
 		int End = 0;

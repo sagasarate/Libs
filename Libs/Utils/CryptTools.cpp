@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 
 
@@ -52,7 +52,7 @@ bool CCryptTools::DESEncryptECB(const BYTE * pKey, size_t KeyLen, const BYTE * p
 	{
 		if (BlockCount == 1)
 		{
-			//×îºóÒ»¿é£¬ĞèÒªÌî³ä
+			//æœ€åä¸€å—ï¼Œéœ€è¦å¡«å……
 			if (DataLen)
 				memcpy(WorkBuffer, pData, DataLen);
 			BYTE Padding = (BYTE)(DES_BLOCK_SIZE - DataLen);
@@ -104,7 +104,7 @@ bool CCryptTools::DESDecryptECB(const BYTE * pKey, size_t KeyLen, const BYTE * p
 		des_decrypt(&CTX, pOutBuffer, pData);
 		if (DataLen == DES_BLOCK_SIZE)
 		{
-			//×îºóÒ»¿é£¬È¥³ıÌî³ä
+			//æœ€åä¸€å—ï¼Œå»é™¤å¡«å……
 			BYTE Padding = pOutBuffer[DES_BLOCK_SIZE - 1];
 			if (Padding <= DES_BLOCK_SIZE)
 			{
@@ -181,7 +181,7 @@ bool CCryptTools::AESEncryptECB(const BYTE * pKey, size_t KeyLen, const BYTE * p
 	{
 		if (BlockCount == 1)
 		{
-			//×îºóÒ»¿é£¬ĞèÒªÌî³ä
+			//æœ€åä¸€å—ï¼Œéœ€è¦å¡«å……
 			if (DataLen)
 				memcpy(WorkBuffer, pData, DataLen);
 			BYTE Padding = (BYTE)(AES_BLOCK_SIZE - DataLen);
@@ -240,7 +240,7 @@ bool CCryptTools::AESDecryptECB(const BYTE * pKey, size_t KeyLen, const BYTE * p
 		aes_decrypt(&CTX, pOutBuffer, pData);
 		if (DataLen == AES_BLOCK_SIZE)
 		{
-			//×îºóÒ»¿é£¬È¥³ıÌî³ä
+			//æœ€åä¸€å—ï¼Œå»é™¤å¡«å……
 			BYTE Padding = pOutBuffer[AES_BLOCK_SIZE - 1];
 			if (Padding <= AES_BLOCK_SIZE)
 			{
@@ -303,7 +303,7 @@ bool CCryptTools::TEAEncryptECB(const BYTE * pKey, size_t KeyLen, UINT Cycle, co
 	{
 		if (BlockCount == 1)
 		{
-			//×îºóÒ»¿é£¬ĞèÒªÌî³ä
+			//æœ€åä¸€å—ï¼Œéœ€è¦å¡«å……
 			if (DataLen)
 				memmove(pOutBuffer, pData, DataLen);
 			BYTE Padding = (BYTE)(TEA_BLOCK_SIZE - DataLen);
@@ -355,7 +355,7 @@ bool CCryptTools::TEADecryptECB(const BYTE * pKey, size_t KeyLen, UINT Cycle, co
 		tea_decrypt((UINT *)pOutBuffer, (UINT *)pKey, Cycle);
 		if (DataLen == TEA_BLOCK_SIZE)
 		{
-			//×îºóÒ»¿é£¬È¥³ıÌî³ä
+			//æœ€åä¸€å—ï¼Œå»é™¤å¡«å……
 			BYTE Padding = pOutBuffer[TEA_BLOCK_SIZE - 1];
 			if (Padding <= TEA_BLOCK_SIZE)
 			{

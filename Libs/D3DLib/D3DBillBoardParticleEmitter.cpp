@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DWOWM2BillBoardParticleEmitter.cpp                     */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DWOWM2BillBoardParticleEmitter.cpp                     */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -216,7 +216,7 @@ UINT CD3DBillBoardParticleEmitter::GetSmartStructSize(UINT Param)
 
 void CD3DBillBoardParticleEmitter::OnPrepareRender(CD3DBaseRender * pRender,CD3DFX * pFX,CEasyArray<CD3DLight *>& LightList,CD3DCamera * pCamera)
 {
-	////ÉèÖÃµÆ¹â
+	////è®¾ç½®ç¯å…‰
 	//if(LightList.GetCount())
 	//{		
 	//	D3DLIGHT9	Light;
@@ -255,7 +255,7 @@ void CD3DBillBoardParticleEmitter::OnPrepareRender(CD3DBaseRender * pRender,CD3D
 	//	}
 
 	//}
-	////ÉèÖÃÎí
+	////è®¾ç½®é›¾
 	//CD3DSceneRender * pRender=(CD3DSceneRender *)GetRender();
 	//pFX->SetColor("FogColor",pRender->GetFogColor());
 	//pFX->SetFloat("FogNear",pRender->GetFogNear());
@@ -282,7 +282,7 @@ void CD3DBillBoardParticleEmitter::OnPrepareRender(CD3DBaseRender * pRender,CD3D
 		pFX->SetVector("WorldTranslation",Vec);			
 	}
 
-	////ÉèÖÃÊÓÍ¶Ó°¾ØÕó
+	////è®¾ç½®è§†æŠ•å½±çŸ©é˜µ
 	//pFX->SetMatrix("ViewMatrix",pCamera->GetViewMatR());
 	//pFX->SetMatrix("ProjMatrix",pCamera->GetProjectMatR());
 
@@ -292,7 +292,7 @@ void CD3DBillBoardParticleEmitter::OnPrepareRender(CD3DBaseRender * pRender,CD3D
 
 void CD3DBillBoardParticleEmitter::OnPrepareRenderSubMesh(CD3DBaseRender * pRender,CD3DFX * pFX,CD3DSubMesh * pSubMesh,CD3DSubMeshMaterial * pMaterial,CEasyArray<CD3DLight *>& LightList,CD3DCamera * pCamera)
 {
-	////ÉèÖÃ²ÄÖÊ
+	////è®¾ç½®æè´¨
 	//D3DMATERIAL9 * pD3DMaterial;
 	//if(pSubMesh->IsSelected())
 	//	pD3DMaterial=&SELECTED_SUBMESH_MATERIAL;
@@ -304,7 +304,7 @@ void CD3DBillBoardParticleEmitter::OnPrepareRenderSubMesh(CD3DBaseRender * pRend
 	//pFX->SetColor("MaterialEmissive",pD3DMaterial->Emissive);
 	//pFX->SetFloat("MaterialPower",pD3DMaterial->Power);
 
-	//ÉèÖÃÎÆÀí
+	//è®¾ç½®çº¹ç†
 	//pFX->SetTexture("TexLay0",pMaterial->GetTexture(0));
 
 	if(pSubMesh->IsSelected())			
@@ -381,7 +381,7 @@ void CD3DBillBoardParticleEmitter::Update(FLOAT Time)
 			m_SubMesh.SetPrimitiveCount(m_ParticleCount*2);
 			m_IsRenderDataChanged=true;
 
-			//PrintD3DDebugLog("%sÁ£×ÓÊı%d",GetName(),m_ParticleCount);
+			//PrintD3DDebugLog("%sç²’å­æ•°%d",GetName(),m_ParticleCount);
 			//m_SubMesh.CheckValid();
 		}
 	}

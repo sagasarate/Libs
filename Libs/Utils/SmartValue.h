@@ -11,7 +11,11 @@
 /****************************************************************************/
 #pragma once
 
-	
+enum class SST_PAIR
+{
+	KEY = 1,
+	DATA
+};
 
 class CSmartValue 
 {
@@ -41,12 +45,15 @@ public:
 		VT_STRUCT,
 		VT_STRING_ANSI,
 		VT_BINARY,
-		VT_RESERVE2,
+		VT_ARRAY,
 		VT_BOOL,
 		VT_UNKNOWN,
 	};
 
 	static BYTE NULL_DATA;
+
+	static int GetTypeFromData(LPCVOID pData, UINT DataSize);
+	static UINT GetTypeLen(BYTE Type);
 
 	CSmartValue(void)
 	{	
@@ -60,7 +67,7 @@ public:
 		m_DataLen = sizeof(NULL_DATA);
 		m_IsSelfData= false;
 		Create(VT_CHAR,0);
-		*this=Value;
+		SetValue(Value);
 	}
 	CSmartValue(unsigned char Value)
 	{
@@ -68,7 +75,7 @@ public:
 		m_DataLen = sizeof(NULL_DATA);
 		m_IsSelfData= false;
 		Create(VT_UCHAR,0);
-		*this=Value;
+		SetValue(Value);
 	}
 	CSmartValue(short Value)
 	{
@@ -76,7 +83,7 @@ public:
 		m_DataLen = sizeof(NULL_DATA);
 		m_IsSelfData= false;
 		Create(VT_SHORT,0);
-		*this=Value;
+		SetValue(Value);
 	}
 	CSmartValue(unsigned short Value)
 	{
@@ -84,7 +91,7 @@ public:
 		m_DataLen = sizeof(NULL_DATA);
 		m_IsSelfData= false;
 		Create(VT_USHORT,0);
-		*this=Value;
+		SetValue(Value);
 	}
 	CSmartValue(int Value)
 	{
@@ -92,7 +99,7 @@ public:
 		m_DataLen = sizeof(NULL_DATA);
 		m_IsSelfData= false;
 		Create(VT_INT,0);
-		*this=Value;
+		SetValue(Value);
 	}
 	CSmartValue(unsigned int Value)
 	{
@@ -100,7 +107,7 @@ public:
 		m_DataLen = sizeof(NULL_DATA);
 		m_IsSelfData= false;
 		Create(VT_UINT,0);
-		*this=Value;
+		SetValue(Value);
 	}
 	//CSmartValue(long Value)
 	//{
@@ -124,7 +131,7 @@ public:
 		m_DataLen = sizeof(NULL_DATA);
 		m_IsSelfData= false;
 		Create(VT_BIGINT,0);
-		*this=Value;
+		SetValue(Value);
 	}
 	CSmartValue(unsigned __int64 Value)
 	{
@@ -132,7 +139,7 @@ public:
 		m_DataLen = sizeof(NULL_DATA);
 		m_IsSelfData= false;
 		Create(VT_UBIGINT,0);
-		*this=Value;
+		SetValue(Value);
 	}	
 	CSmartValue(float Value)
 	{
@@ -140,7 +147,7 @@ public:
 		m_DataLen = sizeof(NULL_DATA);
 		m_IsSelfData= false;
 		Create(VT_FLOAT,0);
-		*this=Value;
+		SetValue(Value);
 	}	
 	CSmartValue(double Value)
 	{
@@ -148,73 +155,23 @@ public:
 		m_DataLen = sizeof(NULL_DATA);
 		m_IsSelfData= false;
 		Create(VT_DOUBLE,0);
-		*this=Value;
+		SetValue(Value);
 	}	
 
 	CSmartValue(const char * Value)
 	{
 		m_pData = &NULL_DATA;
 		m_DataLen = sizeof(NULL_DATA);
-		m_IsSelfData= false;
-		if(Value)
-		{	
-			UINT StrLen = (UINT)strlen(Value);
-			UINT DataLen = StrLen;
-			int ValueType;
-			switch (INTERNAL_STRING_CODE_PAGE)
-			{
-			case CEasyString::STRING_CODE_PAGE_ANSI:
-				ValueType = VT_STRING_ANSI;
-				if (CEasyString::SYSTEM_STRING_CODE_PAGE == CEasyString::STRING_CODE_PAGE_UTF8)
-					DataLen = (UINT)UTF8ToAnsi(Value, StrLen, NULL, 0);
-				Create(ValueType, DataLen);
-				SetString(Value, StrLen);
-				break;
-			case CEasyString::STRING_CODE_PAGE_UTF8:
-				ValueType = VT_STRING_UTF8;
-				if (CEasyString::SYSTEM_STRING_CODE_PAGE == CEasyString::STRING_CODE_PAGE_ANSI)
-					DataLen = (UINT)AnsiToUTF8(Value, StrLen, NULL, 0);
-				Create(ValueType, DataLen);
-				SetString(Value, StrLen);
-				break;
-			case  CEasyString::STRING_CODE_PAGE_UCS16:
-				ValueType = VT_STRING_UCS16;
-				if (CEasyString::SYSTEM_STRING_CODE_PAGE == CEasyString::STRING_CODE_PAGE_ANSI)
-					DataLen = (UINT)AnsiToUnicode(Value, StrLen, NULL, 0) * sizeof(WCHAR);
-				else
-					DataLen = (UINT)UTF8ToUnicode(Value, StrLen, NULL, 0) * sizeof(WCHAR);
-				Create(ValueType, DataLen);
-				SetString(Value, StrLen);
-				break;
-			}
-		}
+		m_IsSelfData = false;
+		*this = Value;
 	}
 
 	CSmartValue(const WCHAR * Value)
 	{
 		m_pData = &NULL_DATA;
 		m_DataLen = sizeof(NULL_DATA);
-		m_IsSelfData= false;
-		if(Value)
-		{
-			UINT StrLen = (UINT)wcslen(Value);
-			switch (INTERNAL_STRING_CODE_PAGE)
-			{
-			case CEasyString::STRING_CODE_PAGE_ANSI:
-				Create(VT_STRING_ANSI, (UINT)UnicodeToAnsi(Value, StrLen, NULL, 0));
-				SetString(Value, StrLen);
-				break;
-			case CEasyString::STRING_CODE_PAGE_UTF8:
-				Create(VT_STRING_UTF8, (UINT)UnicodeToUTF8(Value, StrLen, NULL, 0));
-				SetString(Value, StrLen);
-				break;
-			case  CEasyString::STRING_CODE_PAGE_UCS16:
-				Create(VT_STRING_UCS16, StrLen * sizeof(WCHAR));
-				SetString(Value, StrLen);
-				break;
-			}
-			
-		}
+		m_IsSelfData = false;
+		*this = Value;
 	}	
 	CSmartValue(bool Value)
 	{
@@ -224,16 +181,30 @@ public:
 		if(Value)
 		{
 			Create(VT_BOOL,0);
-			*this=Value;
+			SetValue(Value);
 		}
-	}	
-
+	}
+	CSmartValue(const CVariedValue& Value)
+	{
+		m_pData = &NULL_DATA;
+		m_DataLen = sizeof(NULL_DATA);
+		m_IsSelfData = false;
+		*this = Value;
+	}
+	CSmartValue(const CEasyBuffer& Value)
+	{
+		m_pData = &NULL_DATA;
+		m_DataLen = sizeof(NULL_DATA);
+		m_IsSelfData = false;
+		Create(VT_BINARY, Value.GetUsedSize());
+		SetValue(Value);
+	}
 	CSmartValue(const CSmartValue& Value)
 	{
 		m_pData = &NULL_DATA;
 		m_DataLen = sizeof(NULL_DATA);
 		m_IsSelfData= false;
-		Attach(Value.GetData(),Value.GetDataLen(),VT_UNKNOWN);
+		Attach((void*)Value.GetData(),Value.GetDataLen(),VT_UNKNOWN);
 	}	
 	CSmartValue(LPVOID pData,UINT DataLen,int ClearType=VT_UNKNOWN)
 	{
@@ -256,132 +227,134 @@ public:
 		Destory();
 	}
 
-	bool Create(int Type,UINT Len)
+	bool Create(int Type, UINT Len)
 	{
 		Destory();
-		switch(Type)
-		{		
-		case VT_NULL:			
+		switch (Type)
+		{
+		case VT_NULL:
 			break;
 		case VT_CHAR:
 		case VT_UCHAR:
-			m_DataLen=sizeof(char)+sizeof(BYTE);
-			m_pData=MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
-			m_pData[0]=Type;
-			m_pData[1]=0;
+			m_DataLen = sizeof(char) + sizeof(BYTE);
+			m_pData = MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
+			m_pData[0] = Type;
+			m_pData[1] = 0;
 			break;
 		case VT_SHORT:
 		case VT_USHORT:
-			m_DataLen=sizeof(short)+sizeof(BYTE);
-			m_pData=MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
-			m_pData[0]=Type;
-			*((short *)(m_pData+1))=0;
+			m_DataLen = sizeof(short) + sizeof(BYTE);
+			m_pData = MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
+			m_pData[0] = Type;
+			*((short*)(m_pData + 1)) = 0;
 			break;
 		case VT_INT:
 		case VT_UINT:
-			m_DataLen=sizeof(int)+sizeof(BYTE);
-			m_pData=MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
-			m_pData[0]=Type;
-			*((int *)(m_pData+1))=0;
+			m_DataLen = sizeof(int) + sizeof(BYTE);
+			m_pData = MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
+			m_pData[0] = Type;
+			*((int*)(m_pData + 1)) = 0;
 			break;
 		case VT_BIGINT:
 		case VT_UBIGINT:
-			m_DataLen=sizeof(__int64)+sizeof(BYTE);
-			m_pData=MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
-			m_pData[0]=Type;
-			*((__int64 *)(m_pData+1))=0;
+			m_DataLen = sizeof(__int64) + sizeof(BYTE);
+			m_pData = MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
+			m_pData[0] = Type;
+			*((__int64*)(m_pData + 1)) = 0;
 			break;
 		case VT_FLOAT:
-			m_DataLen=sizeof(float)+sizeof(BYTE);
-			m_pData=MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
-			m_pData[0]=Type;
-			*((float *)(m_pData+1))=0;
+			m_DataLen = sizeof(float) + sizeof(BYTE);
+			m_pData = MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
+			m_pData[0] = Type;
+			*((float*)(m_pData + 1)) = 0;
 			break;
 		case VT_DOUBLE:
-			m_DataLen=sizeof(double)+sizeof(BYTE);
-			m_pData=MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
-			m_pData[0]=Type;
-			*((double *)(m_pData+1))=0;
+			m_DataLen = sizeof(double) + sizeof(BYTE);
+			m_pData = MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
+			m_pData[0] = Type;
+			*((double*)(m_pData + 1)) = 0;
 			break;
 		case VT_STRING_ANSI:
 		case VT_STRING_UTF8:
 			m_DataLen = (Len + 1) + sizeof(BYTE) + sizeof(UINT);
-			m_pData=MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
-			m_pData[0]=Type;
-			*((UINT *)(m_pData + sizeof(BYTE))) = 0;
-			*((char *)(m_pData+sizeof(BYTE)+sizeof(UINT)))=0;
+			m_pData = MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
+			m_pData[0] = Type;
+			*((UINT*)(m_pData + sizeof(BYTE))) = 0;
+			*((char*)(m_pData + sizeof(BYTE) + sizeof(UINT))) = 0;
 			break;
 		case VT_STRING_UCS16:
-			m_DataLen = sizeof(WCHAR)*((Len / sizeof(WCHAR)) + 1) + sizeof(BYTE) + sizeof(UINT);
-			m_pData=MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
-			m_pData[0]=Type;
-			*((UINT *)(m_pData + sizeof(BYTE))) = 0;
-			*((WCHAR *)(m_pData+sizeof(BYTE)+sizeof(UINT)))=0;
+			m_DataLen = sizeof(WCHAR) * ((Len / sizeof(WCHAR)) + 1) + sizeof(BYTE) + sizeof(UINT);
+			m_pData = MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
+			m_pData[0] = Type;
+			*((UINT*)(m_pData + sizeof(BYTE))) = 0;
+			*((WCHAR*)(m_pData + sizeof(BYTE) + sizeof(UINT))) = 0;
 			break;
 		case VT_STRUCT:
 		case VT_BINARY:
-			m_DataLen=Len+sizeof(BYTE)+sizeof(UINT);
-			m_pData=MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
-			m_pData[0]=Type;
-			*((UINT *)(m_pData + sizeof(BYTE))) = 0;
+		case VT_ARRAY:
+			m_DataLen = Len + sizeof(BYTE) + sizeof(UINT);
+			m_pData = MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
+			m_pData[0] = Type;
+			*((UINT*)(m_pData + sizeof(BYTE))) = 0;
 			break;
 		case VT_BOOL:
-			m_DataLen=sizeof(bool)+sizeof(BYTE);
-			m_pData=MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
-			m_pData[0]=Type;
+			m_DataLen = sizeof(bool) + sizeof(BYTE);
+			m_pData = MONITORED_NEW_ARRAY(_T("CSmartValue"), BYTE, m_DataLen);
+			m_pData[0] = Type;
 			*(m_pData + 1) = 0;
-			break;		
+			break;
 		default:
 			return false;
 		}
 
-		m_IsSelfData=true;
+		m_IsSelfData = true;
 		return true;
 	}
 
-	bool Attach(void * pData,UINT DataLen,int ClearType=VT_UNKNOWN)
+	bool Attach(void* pData, UINT DataLen, int ClearType = VT_UNKNOWN)
 	{
 		Destory();
-		if (pData == NULL || DataLen == 0)
+		if (pData == NULL || DataLen == 0 || ClearType > VT_UNKNOWN)
 			return false;
-		m_IsSelfData=false;
-		m_pData = (BYTE *)pData;
+		m_IsSelfData = false;
+		m_pData = (BYTE*)pData;
 
-		int DataType=ClearType;
-		UINT RealDataLen=0;
+		int DataType = ClearType;
+		UINT RealDataLen = 0;
 
-		if(ClearType==VT_UNKNOWN)
+		if (ClearType == VT_UNKNOWN)
 		{
-			DataType=GetType();
-			RealDataLen=GetLength();			
-		}		
+			m_DataLen = DataLen;
+			DataType = GetType();
+			RealDataLen = GetLength();
+		}
 
-		switch(DataType)
+		switch (DataType)
 		{
 		case VT_NULL:
 			m_DataLen = sizeof(BYTE);
 			break;
 		case VT_CHAR:
 		case VT_UCHAR:
-			m_DataLen=sizeof(char)+sizeof(BYTE);
+			m_DataLen = sizeof(char) + sizeof(BYTE);
 			break;
 		case VT_SHORT:
 		case VT_USHORT:
-			m_DataLen=sizeof(short)+sizeof(BYTE);
+			m_DataLen = sizeof(short) + sizeof(BYTE);
 			break;
 		case VT_INT:
 		case VT_UINT:
-			m_DataLen=sizeof(int)+sizeof(BYTE);
+			m_DataLen = sizeof(int) + sizeof(BYTE);
 			break;
 		case VT_BIGINT:
 		case VT_UBIGINT:
-			m_DataLen=sizeof(__int64)+sizeof(BYTE);
+			m_DataLen = sizeof(__int64) + sizeof(BYTE);
 			break;
 		case VT_FLOAT:
-			m_DataLen=sizeof(float)+sizeof(BYTE);
+			m_DataLen = sizeof(float) + sizeof(BYTE);
 			break;
 		case VT_DOUBLE:
-			m_DataLen=sizeof(double)+sizeof(BYTE);
+			m_DataLen = sizeof(double) + sizeof(BYTE);
 			break;
 		case VT_STRING_ANSI:
 		case VT_STRING_UTF8:
@@ -392,94 +365,95 @@ public:
 			break;
 		case VT_STRUCT:
 		case VT_BINARY:
-			m_DataLen=RealDataLen+sizeof(BYTE)+sizeof(UINT);
-			break;		
+		case VT_ARRAY:
+			m_DataLen = RealDataLen + sizeof(BYTE) + sizeof(UINT);
+			break;
 		case VT_BOOL:
 			m_DataLen = sizeof(BYTE) + sizeof(BYTE);
-			break;		
+			break;
 		default:
 			return false;
 		}
 
-		if(DataLen<m_DataLen)
+		if (DataLen < m_DataLen)
 		{
 			Destory();
 			return false;
 		}
 
-		m_DataLen=DataLen;
+		m_DataLen = DataLen;
 
-		if(ClearType==VT_UNKNOWN)
+		if (ClearType == VT_UNKNOWN)
 		{
-			switch(DataType)
-			{			
+			switch (DataType)
+			{
 			case VT_STRING_ANSI:
 			case VT_STRING_UTF8:
-				*((char *)(m_pData + RealDataLen + sizeof(BYTE) + sizeof(UINT))) = 0;
+				*((char*)(m_pData + RealDataLen + sizeof(BYTE) + sizeof(UINT))) = 0;
 				break;
 			case VT_STRING_UCS16:
-				*((WCHAR *)(m_pData + RealDataLen + sizeof(BYTE) + sizeof(UINT))) = 0;
-				break;					
+				*((WCHAR*)(m_pData + RealDataLen + sizeof(BYTE) + sizeof(UINT))) = 0;
+				break;
 			}
 		}
 		else
 		{
-			switch(ClearType)
+			switch (ClearType)
 			{
 			case VT_NULL:
 				m_pData[0] = ClearType;
 				break;
 			case VT_CHAR:
 			case VT_UCHAR:
-				m_pData[0]=ClearType;
-				m_pData[1]=0;
+				m_pData[0] = ClearType;
+				m_pData[1] = 0;
 				break;
 			case VT_SHORT:
 			case VT_USHORT:
-				m_pData[0]=ClearType;
-				*((short *)(m_pData+1))=0;
+				m_pData[0] = ClearType;
+				*((short*)(m_pData + 1)) = 0;
 				break;
 			case VT_INT:
 			case VT_UINT:
-				m_pData[0]=ClearType;
-				*((int *)(m_pData+1))=0;
+				m_pData[0] = ClearType;
+				*((int*)(m_pData + 1)) = 0;
 				break;
 			case VT_BIGINT:
 			case VT_UBIGINT:
-				m_pData[0]=ClearType;
-				*((__int64 *)(m_pData+1))=0;
+				m_pData[0] = ClearType;
+				*((__int64*)(m_pData + 1)) = 0;
 				break;
 			case VT_FLOAT:
-				m_pData[0]=ClearType;
-				*((float *)(m_pData+1))=0;
+				m_pData[0] = ClearType;
+				*((float*)(m_pData + 1)) = 0;
 				break;
 			case VT_DOUBLE:
-				m_pData[0]=ClearType;
-				*((double *)(m_pData+1))=0;
+				m_pData[0] = ClearType;
+				*((double*)(m_pData + 1)) = 0;
 				break;
 			case VT_STRING_ANSI:
 			case VT_STRING_UTF8:
-				m_pData[0]=ClearType;
-				*((UINT *)(m_pData+sizeof(BYTE)))=0;
-				*((char *)(m_pData+sizeof(BYTE)+sizeof(UINT)))=0;
+				m_pData[0] = ClearType;
+				*((UINT*)(m_pData + sizeof(BYTE))) = 0;
+				*((char*)(m_pData + sizeof(BYTE) + sizeof(UINT))) = 0;
 				break;
 			case VT_STRING_UCS16:
-				m_pData[0]=ClearType;
-				*((UINT *)(m_pData+sizeof(BYTE)))=0;
-				*((WCHAR *)(m_pData+sizeof(BYTE)+sizeof(UINT)))=0;
-				break;	
+				m_pData[0] = ClearType;
+				*((UINT*)(m_pData + sizeof(BYTE))) = 0;
+				*((WCHAR*)(m_pData + sizeof(BYTE) + sizeof(UINT))) = 0;
+				break;
 			case VT_STRUCT:
 			case VT_BINARY:
-				m_pData[0]=ClearType;
-				*((UINT *)(m_pData+sizeof(BYTE)))=0;
-				break;				
+			case VT_ARRAY:
+				m_pData[0] = ClearType;
+				*((UINT*)(m_pData + sizeof(BYTE))) = 0;
+				break;
 			case VT_BOOL:
-				m_pData[0]=ClearType;
+				m_pData[0] = ClearType;
 				*(m_pData + 1) = 0;
-				break;			
+				break;
 			}
 		}
-
 
 		return true;
 	}
@@ -510,14 +484,14 @@ public:
 
 	int GetType() const
 	{
-		if(m_pData==NULL)
+		if (m_pData == NULL || m_DataLen == 0)
 			return VT_UNKNOWN;
 		return m_pData[0];
-	}
+	}	
 	UINT GetLength() const
 	{
-		switch(GetType())
-		{		
+		switch (GetType())
+		{
 		case VT_NULL:
 			return 0;
 		case VT_CHAR:
@@ -538,14 +512,21 @@ public:
 			return sizeof(double);
 		case VT_STRING_ANSI:
 		case VT_STRING_UTF8:
-			return *((UINT *)(m_pData+sizeof(BYTE)));
+			if (m_DataLen >= sizeof(BYTE) + sizeof(UINT))
+				return *((UINT*)(m_pData + sizeof(BYTE)));
+			break;
 		case VT_STRING_UCS16:
-			return *((UINT *)(m_pData+sizeof(BYTE)));
+			if (m_DataLen >= sizeof(BYTE) + sizeof(UINT))
+				return *((UINT*)(m_pData + sizeof(BYTE)));
+			break;
 		case VT_STRUCT:
 		case VT_BINARY:
-			return *((UINT *)(m_pData+sizeof(BYTE)));		
+		case VT_ARRAY:
+			if (m_DataLen >= sizeof(BYTE) + sizeof(UINT))
+				return *((UINT*)(m_pData + sizeof(BYTE)));
+			break;
 		case VT_BOOL:
-			return sizeof(BYTE);		
+			return sizeof(BYTE);
 		}
 		return 0;
 	}
@@ -573,22 +554,35 @@ public:
 			return sizeof(double)+sizeof(BYTE);
 		case VT_STRING_ANSI:
 		case VT_STRING_UTF8:
-			return *((UINT *)(m_pData + sizeof(BYTE))) + sizeof(BYTE) + sizeof(UINT) + sizeof(char);
+			if (m_DataLen >= sizeof(BYTE) + sizeof(UINT))
+				return *((UINT*)(m_pData + sizeof(BYTE))) + sizeof(BYTE) + sizeof(UINT) + sizeof(char);
+			break;
 		case VT_STRING_UCS16:
 			return *((UINT *)(m_pData + sizeof(BYTE))) + sizeof(BYTE) + sizeof(UINT) + sizeof(WCHAR);
 		case VT_STRUCT:
-		case VT_BINARY:
-			return *((UINT *)(m_pData+sizeof(BYTE)))+sizeof(BYTE)+sizeof(UINT);		
+		case VT_BINARY:		
+		case VT_ARRAY:
+			if (m_DataLen >= sizeof(BYTE) + sizeof(UINT))
+				return *((UINT*)(m_pData + sizeof(BYTE))) + sizeof(BYTE) + sizeof(UINT);
+			break;
 		case VT_BOOL:
 			return sizeof(BYTE) + sizeof(BYTE);		
 		}
 		return 0;
+	}	
+	UINT GetBufferLen() const
+	{
+		return m_DataLen;
 	}
-	LPVOID GetData() const
+	LPVOID GetData()
 	{
 		return m_pData;
 	}
-	LPVOID GetValueData() const 
+	LPCVOID GetData() const
+	{
+		return m_pData;
+	}
+	LPVOID GetValueData()
 	{
 		switch (GetType())
 		{		
@@ -615,13 +609,47 @@ public:
 			return m_pData + sizeof(BYTE) + sizeof(UINT);
 		case VT_STRUCT:
 		case VT_BINARY:
-			return m_pData + sizeof(BYTE) + sizeof(UINT);		
+		case VT_ARRAY:
+			return m_pData + sizeof(BYTE) + sizeof(UINT);
 		case VT_BOOL:
 			return m_pData + sizeof(BYTE);
 		}
 		return NULL;
 	}
-
+	LPCVOID GetValueData() const
+	{
+		switch (GetType())
+		{
+		case VT_CHAR:
+		case VT_UCHAR:
+			return m_pData + sizeof(BYTE);
+		case VT_SHORT:
+		case VT_USHORT:
+			return m_pData + sizeof(BYTE);
+		case VT_INT:
+		case VT_UINT:
+			return m_pData + sizeof(BYTE);
+		case VT_BIGINT:
+		case VT_UBIGINT:
+			return m_pData + sizeof(BYTE);
+		case VT_FLOAT:
+			return m_pData + sizeof(BYTE);
+		case VT_DOUBLE:
+			return m_pData + sizeof(BYTE);
+		case VT_STRING_ANSI:
+		case VT_STRING_UTF8:
+			return m_pData + sizeof(BYTE) + sizeof(UINT);
+		case VT_STRING_UCS16:
+			return m_pData + sizeof(BYTE) + sizeof(UINT);
+		case VT_STRUCT:
+		case VT_BINARY:
+		case VT_ARRAY:
+			return m_pData + sizeof(BYTE) + sizeof(UINT);
+		case VT_BOOL:
+			return m_pData + sizeof(BYTE);
+		}
+		return NULL;
+	}
 	operator char() const
 	{
 		switch(GetType())
@@ -972,7 +1000,16 @@ public:
 		}
 		return 0;
 	}
-
+	explicit operator char* ()
+	{
+		switch (GetType())
+		{
+		case VT_STRING_ANSI:
+		case VT_STRING_UTF8:
+			return (char*)(m_pData + sizeof(BYTE) + sizeof(UINT));
+		}
+		return "";
+	}
 	operator const char *() const
 	{
 		switch(GetType())
@@ -983,7 +1020,16 @@ public:
 		}		
 		return "";
 	}
-
+	explicit operator WCHAR* ()
+	{
+		static WCHAR pEmptyStr[1] = { 0 };
+		switch (GetType())
+		{
+		case VT_STRING_UCS16:
+			return (WCHAR*)(m_pData + sizeof(BYTE) + sizeof(UINT));
+		}
+		return pEmptyStr;
+	}
 	operator const WCHAR *() const
 	{
 		static WCHAR pEmptyStr[1]={0};
@@ -994,6 +1040,15 @@ public:
 		}		
 		return pEmptyStr;
 	}
+	explicit operator unsigned char* ()
+	{
+		switch (GetType())
+		{
+		case VT_BINARY:
+			return (m_pData + sizeof(BYTE) + sizeof(UINT));
+		}
+		return NULL;
+	}
 	operator const unsigned char *() const
 	{
 		switch (GetType())
@@ -1003,18 +1058,11 @@ public:
 		}
 		return NULL;
 	}
+	
 	operator CEasyString() const
 	{
 		CEasyString String;
-		switch (GetType())
-		{
-		case VT_STRING_ANSI:
-			String.SetString((const char *)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength(), CEasyString::STRING_CODE_PAGE_ANSI);
-		case VT_STRING_UTF8:
-			String.SetString((const char *)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength(), CEasyString::STRING_CODE_PAGE_UTF8);
-		case VT_STRING_UCS16:
-			String.SetString((WCHAR *)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength(), CEasyString::STRING_CODE_PAGE_UCS16);
-		}
+		GetString(String);		
 		return String;
 	}
 
@@ -1049,6 +1097,13 @@ public:
 		return false;
 	}
 
+	operator CVariedValue() const
+	{
+		CVariedValue Value;
+		GetVariedValue(Value);		
+		return Value;
+	}
+
 
 	bool GetString(CEasyString& String) const
 	{
@@ -1061,7 +1116,7 @@ public:
 			String.SetString((const char *)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength(), CEasyString::STRING_CODE_PAGE_UTF8);
 			return true;
 		case VT_STRING_UCS16:
-			String.SetString((WCHAR *)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength(), CEasyString::STRING_CODE_PAGE_UCS16);
+			String.SetString((WCHAR*)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength() / sizeof(WCHAR), CEasyString::STRING_CODE_PAGE_UCS16);
 			return true;
 		}
 		return false;
@@ -1085,7 +1140,7 @@ public:
 			String.SetStringRef((const char *)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength(), CEasyString::STRING_CODE_PAGE_UTF8);
 			return true;
 		case VT_STRING_UCS16:
-			String.SetStringRef((WCHAR *)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength(), CEasyString::STRING_CODE_PAGE_UCS16);
+			String.SetStringRef((WCHAR *)(m_pData + sizeof(BYTE) + sizeof(UINT)), GetLength() / sizeof(WCHAR), CEasyString::STRING_CODE_PAGE_UCS16);
 			return true;
 		}
 		return false;
@@ -1097,56 +1152,428 @@ public:
 		GetStringRef(String);
 		return String;
 	}
-	
-	void operator=(const CSmartValue& Value)
-	{		
-		Attach(Value.GetData(),Value.GetDataLen(),VT_UNKNOWN);
-	}
-	void SetValue(const CSmartValue& Value)
+
+	void GetVariedValue(CVariedValue& Value) const
 	{
-		if(m_pData==NULL)
-			return;
-		switch(Value.GetType())
-		{		
+		switch (GetType())
+		{
 		case VT_CHAR:
-			*this=(char)Value;
+			Value = (char)(*this);
 			break;
 		case VT_UCHAR:
-			*this=(unsigned char)Value;
+			Value = (unsigned char)(*this);
 			break;
 		case VT_SHORT:
-			*this=(short)Value;
+			Value = (short)(*this);
 			break;
 		case VT_USHORT:
-			*this=(unsigned short)Value;
+			Value = (unsigned short)(*this);
 			break;
 		case VT_INT:
-			*this=(int)Value;
+			Value = (int)(*this);
 			break;
 		case VT_UINT:
-			*this=(unsigned int)Value;
+			Value = (unsigned int)(*this);
 			break;
 		case VT_BIGINT:
-			*this=(__int64)Value;
+			Value = (__int64)(*this);
 			break;
 		case VT_UBIGINT:
-			*this=(unsigned __int64)Value;
+			Value = (unsigned __int64)(*this);
 			break;
 		case VT_FLOAT:
-			*this=(float)Value;
+			Value = (float)(*this);
 			break;
 		case VT_DOUBLE:
-			*this=(double)Value;
-			break;
-		case VT_STRING_ANSI:
-			SetString((LPCSTR)Value, Value.GetLength(), CEasyString::STRING_CODE_PAGE_ANSI);
+			Value = (double)(*this);
 			break;
 		case VT_STRING_UTF8:
-			SetString((LPCSTR)Value, Value.GetLength(), CEasyString::STRING_CODE_PAGE_UTF8);
-			break;
 		case VT_STRING_UCS16:
-			SetString((LPCWSTR)Value, Value.GetLength());
+			Value = (CEasyString)(*this);
 			break;
+		case VT_STRUCT:
+			FetchVariedData(Value);
+			break;
+		case VT_STRING_ANSI:
+			Value = (CEasyString)(*this);
+			break;
+		case VT_BINARY:
+			Value.SetBinary((*this), GetLength());
+			break;
+		case VT_ARRAY:
+			FetchVariedData(Value);
+			break;
+		case VT_BOOL:
+			Value = (bool)(*this);
+			break;
+		default:
+			Value.Clear();
+		}
+	}
+
+	CSmartValue& operator=(char Value)
+	{		
+		Create(VT_CHAR, 0);
+		SetValue(Value);
+		return *this;
+	}
+	CSmartValue& operator=(unsigned char Value)
+	{
+		Create(VT_UCHAR, 0);
+		SetValue(Value);
+		return *this;
+	}
+	CSmartValue& operator=(short Value)
+	{
+		Create(VT_SHORT, 0);
+		SetValue(Value);
+		return *this;
+	}
+	CSmartValue& operator=(unsigned short Value)
+	{
+		Create(VT_USHORT, 0);
+		SetValue(Value);
+		return *this;
+	}
+	CSmartValue& operator=(int Value)
+	{
+		Create(VT_INT, 0);
+		SetValue(Value);
+		return *this;
+	}
+	CSmartValue& operator=(unsigned int Value)
+	{
+		Create(VT_UINT, 0);
+		SetValue(Value);
+		return *this;
+	}
+	CSmartValue& operator=(__int64 Value)
+	{
+		Create(VT_BIGINT, 0);
+		SetValue(Value);
+		return *this;
+	}
+	CSmartValue& operator=(unsigned __int64 Value)
+	{
+		Create(VT_UBIGINT, 0);
+		SetValue(Value);
+		return *this;
+	}
+	CSmartValue& operator=(float Value)
+	{
+		Create(VT_FLOAT, 0);
+		SetValue(Value);
+		return *this;
+	}
+	CSmartValue& operator=(double Value)
+	{
+		Create(VT_DOUBLE, 0);
+		SetValue(Value);
+		return *this;
+	}
+	CSmartValue& operator=(bool Value)
+	{
+		Create(VT_BOOL, 0);
+		SetValue(Value);
+		return *this;
+	}
+	CSmartValue& operator=(const char* Value)
+	{
+		Destory();
+		if (Value)
+		{
+			UINT DataLen;
+			int ValueType;
+			switch (INTERNAL_STRING_CODE_PAGE)
+			{
+			case CEasyString::STRING_CODE_PAGE_ANSI:
+				ValueType = VT_STRING_ANSI;
+				break;
+			case CEasyString::STRING_CODE_PAGE_UTF8:
+				ValueType = VT_STRING_UTF8;
+				break;
+			case  CEasyString::STRING_CODE_PAGE_UCS16:
+				ValueType = VT_STRING_UCS16;
+				break;
+			default:
+				return *this;
+			}
+			DataLen = GetValueSize(Value);
+			Create(ValueType, DataLen);
+			SetString(Value);
+		}
+		return *this;
+	}
+	CSmartValue& operator=(const WCHAR* Value)
+	{
+		Destory();
+		if (Value)
+		{
+			UINT DataLen;
+			int ValueType;
+			switch (INTERNAL_STRING_CODE_PAGE)
+			{
+			case CEasyString::STRING_CODE_PAGE_ANSI:
+				ValueType = VT_STRING_ANSI;
+				break;
+			case CEasyString::STRING_CODE_PAGE_UTF8:
+				ValueType = VT_STRING_UTF8;
+				break;
+			case  CEasyString::STRING_CODE_PAGE_UCS16:
+				ValueType = VT_STRING_UCS16;
+				break;
+			default:
+				return *this;
+			}
+			DataLen = GetValueSize(Value);
+			Create(ValueType, DataLen);
+			SetString(Value);
+		}
+		return *this;
+	}
+	CSmartValue& operator=(const CEasyBuffer& Value)
+	{
+		if (Create(VT_BINARY, Value.GetUsedSize()))
+		{
+			SetValue(Value);
+		}
+		return *this;
+	}
+	CSmartValue& operator=(const CVariedValue& Value)
+	{
+		switch (Value.GetType())
+		{
+		case VARIED_VALUE_TYPE::BOOLEAN:
+			Create(VT_BOOL, 0);
+			SetValue((bool)Value);
+			break;
+		case VARIED_VALUE_TYPE::INT8:
+			Create(VT_CHAR, 0);
+			SetValue((char)Value);
+			break;
+		case VARIED_VALUE_TYPE::UINT8:
+			Create(VT_UCHAR, 0);
+			SetValue((unsigned char)Value);
+			break;
+		case VARIED_VALUE_TYPE::INT16:
+			Create(VT_SHORT, 0);
+			SetValue((short)Value);
+			break;
+		case VARIED_VALUE_TYPE::UINT16:
+			Create(VT_USHORT, 0);
+			SetValue((unsigned short)Value);
+			break;
+		case VARIED_VALUE_TYPE::INT32:
+			Create(VT_INT, 0);
+			SetValue((int)Value);
+			break;
+		case VARIED_VALUE_TYPE::UINT32:
+			Create(VT_UINT, 0);
+			SetValue((unsigned int)Value);
+			break;
+		case VARIED_VALUE_TYPE::INT64:
+			Create(VT_BIGINT, 0);
+			SetValue((__int64)Value);
+			break;
+		case VARIED_VALUE_TYPE::UINT64:
+			Create(VT_UBIGINT, 0);
+			SetValue((unsigned __int64)Value);
+			break;
+		case VARIED_VALUE_TYPE::FLOAT32:
+			Create(VT_FLOAT, 0);
+			SetValue((float)Value);
+			break;
+		case VARIED_VALUE_TYPE::FLOAT64:
+			Create(VT_DOUBLE, 0);
+			SetValue((double)Value);
+			break;
+		case VARIED_VALUE_TYPE::STRING:
+			*this = (LPCTSTR)Value;
+			break;
+		case VARIED_VALUE_TYPE::BINARY:
+			Create(VT_ARRAY, GetBinaryValueSize(Value.GetLength()));
+			SetValue((const unsigned char*)Value, Value.GetLength());
+			break;
+		case VARIED_VALUE_TYPE::ARRAY:
+			Create(VT_ARRAY, GetVariedValueSize(Value));
+			CopyVariedData(Value);
+			break;
+		case VARIED_VALUE_TYPE::TABLE:
+			Create(VT_STRUCT, GetVariedValueSize(Value));
+			CopyVariedData(Value);
+			break;
+		default:
+			Destory();
+		}
+		return *this;
+	}
+	CSmartValue& operator=(const CSmartValue& Value)
+	{
+		Attach((void*)Value.GetData(), Value.GetDataLen(), VT_UNKNOWN);
+		return *this;
+	}	
+	template<typename T, 
+		std::enable_if_t<
+		std::is_same<std::decay_t<T>, char>::value ||
+		std::is_same<std::decay_t<T>, unsigned char>::value ||
+		std::is_same<std::decay_t<T>, short>::value ||
+		std::is_same<std::decay_t<T>, unsigned short>::value ||
+		std::is_same<std::decay_t<T>, int>::value ||
+		std::is_same<std::decay_t<T>, unsigned int>::value ||
+		std::is_same<std::decay_t<T>, __int64>::value ||
+		std::is_same<std::decay_t<T>, unsigned __int64>::value ||
+		std::is_same<std::decay_t<T>, float>::value ||
+		std::is_same<std::decay_t<T>, double>::value ||
+		std::is_same<std::decay_t<T>, bool>::value,
+		bool> = true>
+	bool SetValue(T Value)
+	{
+		if (m_pData == NULL)
+			return false;
+		switch (GetType())
+		{
+		case VT_CHAR:
+			*((char*)(m_pData + 1)) = (char)Value;
+			return true;
+		case VT_UCHAR:
+			*((unsigned char*)(m_pData + 1)) = (unsigned char)Value;
+			return true;
+		case VT_SHORT:
+			*((short*)(m_pData + 1)) = (short)Value;
+			return true;
+		case VT_USHORT:
+			*((unsigned short*)(m_pData + 1)) = (unsigned short)Value;
+			return true;
+		case VT_INT:
+			*((int*)(m_pData + 1)) = (int)Value;
+			return true;
+		case VT_UINT:
+			*((unsigned int*)(m_pData + 1)) = (unsigned int)Value;
+			return true;
+		case VT_BIGINT:
+			*((__int64*)(m_pData + 1)) = (__int64)Value;
+			return true;
+		case VT_UBIGINT:
+			*((unsigned __int64*)(m_pData + 1)) = (unsigned __int64)Value;
+			return true;
+		case VT_FLOAT:
+			*((float*)(m_pData + 1)) = (float)Value;
+			return true;
+		case VT_DOUBLE:
+			*((double*)(m_pData + 1)) = (double)Value;
+			return true;
+		case VT_BOOL:
+			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
+			return true;
+		}
+		return false;
+	}
+	bool SetValue(const char* Value)
+	{
+		return SetString(Value);
+	}
+
+	bool SetValue(const WCHAR* Value)
+	{
+		return SetString(Value);
+	}
+
+	bool SetValue(const CEasyString& Value)
+	{
+		return SetString(Value);
+	}
+	bool SetValue(const unsigned char* pData, size_t DataLen)
+	{
+		if ((pData == NULL) || (DataLen == 0))
+			return false;
+		if (GetType() == VT_BINARY)
+		{
+			size_t MaxLen = m_DataLen - sizeof(BYTE) - sizeof(UINT);
+			if (DataLen > MaxLen)
+				DataLen = MaxLen;
+			*((UINT*)(m_pData + sizeof(BYTE))) = (UINT)DataLen;
+			memcpy(m_pData + sizeof(BYTE) + sizeof(UINT), pData, DataLen);
+			return true;
+		}
+		return false;
+	}
+	bool SetValue(const CEasyBuffer& Value)
+	{
+		return SetValue((const unsigned char*)Value.GetBuffer(), Value.GetUsedSize());
+	}
+	bool SetValue(const CVariedValue& Value)
+	{
+		if (m_pData == NULL)
+			return false;
+		switch (Value.GetType())
+		{
+		case VARIED_VALUE_TYPE::BOOLEAN:
+			return SetValue((bool)Value);
+		case VARIED_VALUE_TYPE::INT8:
+			return SetValue((char)Value);
+		case VARIED_VALUE_TYPE::UINT8:
+			return SetValue((unsigned char)Value);
+		case VARIED_VALUE_TYPE::INT16:
+			return SetValue((short)Value);
+		case VARIED_VALUE_TYPE::UINT16:
+			return SetValue((unsigned short)Value);
+		case VARIED_VALUE_TYPE::INT32:
+			return SetValue((int)Value);
+		case VARIED_VALUE_TYPE::UINT32:
+			return SetValue((unsigned int)Value);
+		case VARIED_VALUE_TYPE::INT64:
+			return SetValue((__int64)Value);
+		case VARIED_VALUE_TYPE::UINT64:
+			return SetValue((unsigned __int64)Value);
+		case VARIED_VALUE_TYPE::FLOAT32:
+			return SetValue((float)Value);
+		case VARIED_VALUE_TYPE::FLOAT64:
+			return SetValue((double)Value);
+		case VARIED_VALUE_TYPE::STRING:
+			return SetValue((LPCTSTR)Value);
+		case VARIED_VALUE_TYPE::BINARY:
+			return SetValue((const unsigned char*)Value, Value.GetLength());
+		case VARIED_VALUE_TYPE::ARRAY:
+		case VARIED_VALUE_TYPE::TABLE:
+			if (GetVariedValueSize(Value) + sizeof(BYTE) + sizeof(UINT) <= GetBufferLen())
+			{
+				return CopyVariedData(Value);
+			}
+		}
+		return false;
+	}
+	bool SetValue(const CSmartValue& Value)
+	{
+		if (m_pData == NULL)
+			return false;
+		switch (Value.GetType())
+		{
+		case VT_CHAR:
+			return SetValue((char)Value);
+		case VT_UCHAR:
+			return SetValue((unsigned char)Value);
+		case VT_SHORT:
+			return SetValue((short)Value);
+		case VT_USHORT:
+			return SetValue((unsigned short)Value);
+		case VT_INT:
+			return SetValue((int)Value);
+		case VT_UINT:
+			return SetValue((unsigned int)Value);
+		case VT_BIGINT:
+			return SetValue((__int64)Value);
+		case VT_UBIGINT:
+			return SetValue((unsigned __int64)Value);
+		case VT_FLOAT:
+			return SetValue((float)Value);
+		case VT_DOUBLE:
+			return SetValue((double)Value);
+		case VT_STRING_ANSI:
+			return SetString((LPCSTR)Value, Value.GetLength(), CEasyString::STRING_CODE_PAGE_ANSI);
+		case VT_STRING_UTF8:
+			return SetString((LPCSTR)Value, Value.GetLength(), CEasyString::STRING_CODE_PAGE_UTF8);
+		case VT_STRING_UCS16:
+			return SetString((LPCWSTR)Value, Value.GetLength() / sizeof(WCHAR));
 		case VT_STRUCT:
 			if (GetType() == VT_STRUCT)
 			{
@@ -1154,6 +1581,7 @@ public:
 				if (CopyLen > GetLength())
 					CopyLen = GetLength();
 				memcpy(GetValueData(), Value.GetValueData(), CopyLen);
+				return true;
 			}
 			break;
 		case VT_BINARY:
@@ -1163,571 +1591,31 @@ public:
 				if (CopyLen > GetLength())
 					CopyLen = GetLength();
 				memcpy(GetValueData(), Value.GetValueData(), CopyLen);
+				return true;
+			}
+			break;
+		case VT_ARRAY:
+			if (GetType() == VT_ARRAY)
+			{
+				UINT CopyLen = Value.GetLength();
+				if (CopyLen > GetLength())
+					CopyLen = GetLength();
+				memcpy(GetValueData(), Value.GetValueData(), CopyLen);
+				return true;
 			}
 			break;
 		case VT_BOOL:
-			*this=(bool)Value;
-			break;
+			return SetValue((bool)Value);
 		}
-	}
-	void operator=(char Value)
-	{
-		if(m_pData==NULL)
-			return;
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			*((char *)(m_pData+1))=(char)Value;
-			break;
-		case VT_UCHAR:
-			*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-			break;
-		case VT_SHORT:
-			*((short *)(m_pData+1))=(short)Value;
-			break;
-		case VT_USHORT:
-			*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-			break;
-		case VT_INT:
-			*((int *)(m_pData+1))=(int)Value;
-			break;
-		case VT_UINT:
-			*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-			break;
-		case VT_BIGINT:
-			*((__int64 *)(m_pData+1))=(__int64)Value;
-			break;
-		case VT_UBIGINT:
-			*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-			break;
-		case VT_FLOAT:
-			*((float *)(m_pData+1))=(float)Value;
-			break;
-		case VT_DOUBLE:
-			*((double *)(m_pData+1))=(double)Value;
-			break;
-		case VT_BOOL:
-			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
-			break;
-		}
-	}
-	void operator=(unsigned char Value)
-	{
-		if(m_pData==NULL)
-			return;
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			*((char *)(m_pData+1))=(char)Value;
-			break;
-		case VT_UCHAR:
-			*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-			break;
-		case VT_SHORT:
-			*((short *)(m_pData+1))=(short)Value;
-			break;
-		case VT_USHORT:
-			*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-			break;
-		case VT_INT:
-			*((int *)(m_pData+1))=(int)Value;
-			break;
-		case VT_UINT:
-			*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-			break;
-		case VT_BIGINT:
-			*((__int64 *)(m_pData+1))=(__int64)Value;
-			break;
-		case VT_UBIGINT:
-			*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-			break;
-		case VT_FLOAT:
-			*((float *)(m_pData+1))=(float)Value;
-			break;
-		case VT_DOUBLE:
-			*((double *)(m_pData+1))=(double)Value;
-			break;
-		case VT_BOOL:
-			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
-			break;
-		}
-	}
-	void operator=(short Value)
-	{
-		if(m_pData==NULL)
-			return;
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			*((char *)(m_pData+1))=(char)Value;
-			break;
-		case VT_UCHAR:
-			*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-			break;
-		case VT_SHORT:
-			*((short *)(m_pData+1))=(short)Value;
-			break;
-		case VT_USHORT:
-			*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-			break;
-		case VT_INT:
-			*((int *)(m_pData+1))=(int)Value;
-			break;
-		case VT_UINT:
-			*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-			break;
-		case VT_BIGINT:
-			*((__int64 *)(m_pData+1))=(__int64)Value;
-			break;
-		case VT_UBIGINT:
-			*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-			break;
-		case VT_FLOAT:
-			*((float *)(m_pData+1))=(float)Value;
-			break;
-		case VT_DOUBLE:
-			*((double *)(m_pData+1))=(double)Value;
-			break;
-		case VT_BOOL:
-			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
-			break;
-		}
-	}
-	void operator=(unsigned short Value)
-	{
-		if(m_pData==NULL)
-			return;
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			*((char *)(m_pData+1))=(char)Value;
-			break;
-		case VT_UCHAR:
-			*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-			break;
-		case VT_SHORT:
-			*((short *)(m_pData+1))=(short)Value;
-			break;
-		case VT_USHORT:
-			*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-			break;
-		case VT_INT:
-			*((int *)(m_pData+1))=(int)Value;
-			break;
-		case VT_UINT:
-			*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-			break;
-		case VT_BIGINT:
-			*((__int64 *)(m_pData+1))=(__int64)Value;
-			break;
-		case VT_UBIGINT:
-			*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-			break;
-		case VT_FLOAT:
-			*((float *)(m_pData+1))=(float)Value;
-			break;
-		case VT_DOUBLE:
-			*((double *)(m_pData+1))=(double)Value;
-			break;
-		case VT_BOOL:
-			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
-			break;
-		}
-	}	
-	void operator=(int Value)
-	{
-		if(m_pData==NULL)
-			return;
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			*((char *)(m_pData+1))=(char)Value;
-			break;
-		case VT_UCHAR:
-			*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-			break;
-		case VT_SHORT:
-			*((short *)(m_pData+1))=(short)Value;
-			break;
-		case VT_USHORT:
-			*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-			break;
-		case VT_INT:
-			*((int *)(m_pData+1))=(int)Value;
-			break;
-		case VT_UINT:
-			*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-			break;
-		case VT_BIGINT:
-			*((__int64 *)(m_pData+1))=(__int64)Value;
-			break;
-		case VT_UBIGINT:
-			*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-			break;
-		case VT_FLOAT:
-			*((float *)(m_pData+1))=(float)Value;
-			break;
-		case VT_DOUBLE:
-			*((double *)(m_pData+1))=(double)Value;
-			break;
-		case VT_BOOL:
-			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
-			break;
-		}
-	}
-	void operator=(unsigned int Value)
-	{
-		if(m_pData==NULL)
-			return;
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			*((char *)(m_pData+1))=(char)Value;
-			break;
-		case VT_UCHAR:
-			*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-			break;
-		case VT_SHORT:
-			*((short *)(m_pData+1))=(short)Value;
-			break;
-		case VT_USHORT:
-			*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-			break;
-		case VT_INT:
-			*((int *)(m_pData+1))=(int)Value;
-			break;
-		case VT_UINT:
-			*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-			break;
-		case VT_BIGINT:
-			*((__int64 *)(m_pData+1))=(__int64)Value;
-			break;
-		case VT_UBIGINT:
-			*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-			break;
-		case VT_FLOAT:
-			*((float *)(m_pData+1))=(float)Value;
-			break;
-		case VT_DOUBLE:
-			*((double *)(m_pData+1))=(double)Value;
-			break;
-		case VT_BOOL:
-			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
-			break;
-		}
-	}
-	//void operator=(long Value)
-	//{
-	//	if(m_pData==NULL)
-	//		return;
-	//	switch(GetType())
-	//	{		
-	//	case VT_CHAR:
-	//		*((char *)(m_pData+1))=(char)Value;
-	//		break;
-	//	case VT_UCHAR:
-	//		*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-	//		break;
-	//	case VT_SHORT:
-	//		*((short *)(m_pData+1))=(short)Value;
-	//		break;
-	//	case VT_USHORT:
-	//		*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-	//		break;
-	//	case VT_INT:
-	//		*((int *)(m_pData+1))=(int)Value;
-	//		break;
-	//	case VT_UINT:
-	//		*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-	//		break;
-	//	case VT_BIGINT:
-	//		*((__int64 *)(m_pData+1))=(__int64)Value;
-	//		break;
-	//	case VT_UBIGINT:
-	//		*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-	//		break;
-	//	case VT_FLOAT:
-	//		*((float *)(m_pData+1))=(float)Value;
-	//		break;
-	//	case VT_DOUBLE:
-	//		*((double *)(m_pData+1))=(double)Value;
-	//		break;
-	//	case VT_BOOL:
-	//		(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
-	//		break;
-	//	}
-	//}
-	//void operator=(unsigned long Value)
-	//{
-	//	if(m_pData==NULL)
-	//		return;
-	//	switch(GetType())
-	//	{		
-	//	case VT_CHAR:
-	//		*((char *)(m_pData+1))=(char)Value;
-	//		break;
-	//	case VT_UCHAR:
-	//		*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-	//		break;
-	//	case VT_SHORT:
-	//		*((short *)(m_pData+1))=(short)Value;
-	//		break;
-	//	case VT_USHORT:
-	//		*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-	//		break;
-	//	case VT_INT:
-	//		*((int *)(m_pData+1))=(int)Value;
-	//		break;
-	//	case VT_UINT:
-	//		*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-	//		break;
-	//	case VT_BIGINT:
-	//		*((__int64 *)(m_pData+1))=(__int64)Value;
-	//		break;
-	//	case VT_UBIGINT:
-	//		*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-	//		break;
-	//	case VT_FLOAT:
-	//		*((float *)(m_pData+1))=(float)Value;
-	//		break;
-	//	case VT_DOUBLE:
-	//		*((double *)(m_pData+1))=(double)Value;
-	//		break;
-	//	case VT_BOOL:
-	//		(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
-	//		break;
-	//	}
-	//}
-	void operator=(__int64 Value)
-	{
-		if(m_pData==NULL)
-			return;
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			*((char *)(m_pData+1))=(char)Value;
-			break;
-		case VT_UCHAR:
-			*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-			break;
-		case VT_SHORT:
-			*((short *)(m_pData+1))=(short)Value;
-			break;
-		case VT_USHORT:
-			*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-			break;
-		case VT_INT:
-			*((int *)(m_pData+1))=(int)Value;
-			break;
-		case VT_UINT:
-			*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-			break;
-		case VT_BIGINT:
-			*((__int64 *)(m_pData+1))=(__int64)Value;
-			break;
-		case VT_UBIGINT:
-			*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-			break;
-		case VT_FLOAT:
-			*((float *)(m_pData+1))=(float)Value;
-			break;
-		case VT_DOUBLE:
-			*((double *)(m_pData+1))=(double)Value;
-			break;
-		case VT_BOOL:
-			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
-			break;
-		}
-	}
-	void operator=(unsigned __int64 Value)
-	{
-		if(m_pData==NULL)
-			return;
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			*((char *)(m_pData+1))=(char)Value;
-			break;
-		case VT_UCHAR:
-			*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-			break;
-		case VT_SHORT:
-			*((short *)(m_pData+1))=(short)Value;
-			break;
-		case VT_USHORT:
-			*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-			break;
-		case VT_INT:
-			*((int *)(m_pData+1))=(int)Value;
-			break;
-		case VT_UINT:
-			*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-			break;
-		case VT_BIGINT:
-			*((__int64 *)(m_pData+1))=(__int64)Value;
-			break;
-		case VT_UBIGINT:
-			*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-			break;
-		case VT_FLOAT:
-			*((float *)(m_pData+1))=(float)Value;
-			break;
-		case VT_DOUBLE:
-			*((double *)(m_pData+1))=(double)Value;
-			break;
-		case VT_BOOL:
-			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
-			break;
-		}
-	}
-	void operator=(float Value)
-	{
-		if(m_pData==NULL)
-			return;
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			*((char *)(m_pData+1))=(char)Value;
-			break;
-		case VT_UCHAR:
-			*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-			break;
-		case VT_SHORT:
-			*((short *)(m_pData+1))=(short)Value;
-			break;
-		case VT_USHORT:
-			*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-			break;
-		case VT_INT:
-			*((int *)(m_pData+1))=(int)Value;
-			break;
-		case VT_UINT:
-			*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-			break;
-		case VT_BIGINT:
-			*((__int64 *)(m_pData+1))=(__int64)Value;
-			break;
-		case VT_UBIGINT:
-			*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-			break;
-		case VT_FLOAT:
-			*((float *)(m_pData+1))=(float)Value;
-			break;
-		case VT_DOUBLE:
-			*((double *)(m_pData+1))=(double)Value;
-			break;
-		case VT_BOOL:
-			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
-			break;
-		}
+		return false;
 	}
 
-	void operator=(double Value)
+	bool SetString(const char * pStr, int Len = -1, CEasyString::STRING_CODE_PAGE CodePage = CEasyString::STRING_CODE_PAGE_AUTO)
 	{
-		if(m_pData==NULL)
-			return;
-		switch(GetType())
-		{		
-		case VT_CHAR:
-			*((char *)(m_pData+1))=(char)Value;
-			break;
-		case VT_UCHAR:
-			*((unsigned char *)(m_pData+1))=(unsigned char)Value;
-			break;
-		case VT_SHORT:
-			*((short *)(m_pData+1))=(short)Value;
-			break;
-		case VT_USHORT:
-			*((unsigned short *)(m_pData+1))=(unsigned short)Value;
-			break;
-		case VT_INT:
-			*((int *)(m_pData+1))=(int)Value;
-			break;
-		case VT_UINT:
-			*((unsigned int *)(m_pData+1))=(unsigned int)Value;
-			break;
-		case VT_BIGINT:
-			*((__int64 *)(m_pData+1))=(__int64)Value;
-			break;
-		case VT_UBIGINT:
-			*((unsigned __int64 *)(m_pData+1))=(unsigned __int64)Value;
-			break;
-		case VT_FLOAT:
-			*((float *)(m_pData+1))=(float)Value;
-			break;
-		case VT_DOUBLE:
-			*((double *)(m_pData+1))=(double)Value;
-			break;
-		case VT_BOOL:
-			(Value != 0) ? (*(m_pData + 1)) = 1 : (*(m_pData + 1)) = 0;
-			break;
-		}
-	}
-
-	void operator=(const char * Value)
-	{
-		Destory();
-		if(Value)
-			SetString(Value,(UINT)strlen(Value));
-	}
-
-	void operator=(const WCHAR * Value)
-	{
-		Destory();
-		if(Value)
-			SetString(Value,(UINT)wcslen(Value));
-	}
-
-	void operator=(const CEasyString& Value)
-	{
-		Destory();
-		SetString(Value,(UINT)Value.GetLength());
-	}	
-
-	void operator=(bool Value)
-	{
-		if (m_pData == NULL)
-			return;
-		switch (GetType())
-		{
-		case VT_CHAR:
-			*((char *)(m_pData + 1)) = Value ? 1 : 0;
-			break;
-		case VT_UCHAR:
-			*((unsigned char *)(m_pData + 1)) = Value ? 1 : 0;
-			break;
-		case VT_SHORT:
-			*((short *)(m_pData + 1)) = Value ? 1 : 0;
-			break;
-		case VT_USHORT:
-			*((unsigned short *)(m_pData + 1)) = Value ? 1 : 0;
-			break;
-		case VT_INT:
-			*((int *)(m_pData + 1)) = Value ? 1 : 0;
-			break;
-		case VT_UINT:
-			*((unsigned int *)(m_pData + 1)) = Value ? 1 : 0;
-			break;
-		case VT_BIGINT:
-			*((__int64 *)(m_pData + 1)) = Value ? 1 : 0;
-			break;
-		case VT_UBIGINT:
-			*((unsigned __int64 *)(m_pData + 1)) = Value ? 1 : 0;
-			break;
-		case VT_FLOAT:
-			*((float *)(m_pData + 1)) = Value ? 1.0f : 0.0f;
-			break;
-		case VT_DOUBLE:
-			*((double *)(m_pData + 1)) = Value ? 1 : 0;
-			break;
-		case VT_BOOL:
-			*((bool *)(m_pData + 1)) = Value ? 1 : 0;
-			break;
-		}
-	}
-
-	bool SetString(const char * pStr, UINT Len, CEasyString::STRING_CODE_PAGE CodePage = CEasyString::STRING_CODE_PAGE_AUTO)
-	{
+		if (pStr == NULL)
+			return false;
+		if (Len < 0)
+			Len = strlen(pStr);
 		if (CodePage == CEasyString::STRING_CODE_PAGE_AUTO)
 			CodePage = CEasyString::SYSTEM_STRING_CODE_PAGE;
 		switch (GetType())
@@ -1736,7 +1624,7 @@ public:
 			if (CodePage == CEasyString::STRING_CODE_PAGE_UTF8)
 			{
 				UINT DestStrLen = (UINT)UTF8ToAnsi(pStr, Len, NULL, 0);
-				UINT HeaderLen = (UINT)(sizeof(BYTE) - sizeof(UINT));
+				UINT HeaderLen = (UINT)(sizeof(BYTE) + sizeof(UINT));
 				UINT MaxLen = m_DataLen - HeaderLen - sizeof(char);
 				if (DestStrLen > MaxLen)
 					DestStrLen = MaxLen;
@@ -1747,7 +1635,7 @@ public:
 			else 
 			{
 				UINT DestStrLen = Len;
-				UINT HeaderLen = (UINT)(sizeof(BYTE) - sizeof(UINT));
+				UINT HeaderLen = (UINT)(sizeof(BYTE) + sizeof(UINT));
 				UINT MaxLen = m_DataLen - HeaderLen - sizeof(char);
 				if (DestStrLen > MaxLen)
 					DestStrLen = MaxLen;
@@ -1760,7 +1648,7 @@ public:
 			if (CodePage == CEasyString::STRING_CODE_PAGE_ANSI)
 			{
 				UINT DestStrLen = (UINT)AnsiToUTF8(pStr, Len, NULL, 0);
-				UINT HeaderLen = (UINT)(sizeof(BYTE) - sizeof(UINT));
+				UINT HeaderLen = (UINT)(sizeof(BYTE) + sizeof(UINT));
 				UINT MaxLen = m_DataLen - HeaderLen - sizeof(char);
 				if (DestStrLen > MaxLen)
 					DestStrLen = MaxLen;
@@ -1771,7 +1659,7 @@ public:
 			else
 			{
 				UINT DestStrLen = Len;
-				UINT HeaderLen = (UINT)(sizeof(BYTE) - sizeof(UINT));
+				UINT HeaderLen = (UINT)(sizeof(BYTE) + sizeof(UINT));
 				UINT MaxLen = m_DataLen - HeaderLen - sizeof(char);
 				if (DestStrLen > MaxLen)
 					DestStrLen = MaxLen;
@@ -1784,7 +1672,7 @@ public:
 			if (CodePage == CEasyString::STRING_CODE_PAGE_ANSI)
 			{
 				UINT DestStrLen = (UINT)AnsiToUnicode(pStr, Len, NULL, 0);
-				UINT HeaderLen = (UINT)(sizeof(BYTE) - sizeof(UINT));
+				UINT HeaderLen = (UINT)(sizeof(BYTE) + sizeof(UINT));
 				UINT MaxLen = (m_DataLen - HeaderLen - sizeof(WCHAR)) / sizeof(WCHAR);
 				if (DestStrLen > MaxLen)
 					DestStrLen = MaxLen;
@@ -1795,7 +1683,7 @@ public:
 			else
 			{
 				UINT DestStrLen = (UINT)UTF8ToUnicode(pStr, Len, NULL, 0);
-				UINT HeaderLen = (UINT)(sizeof(BYTE) - sizeof(UINT));
+				UINT HeaderLen = (UINT)(sizeof(BYTE) + sizeof(UINT));
 				UINT MaxLen = (m_DataLen - HeaderLen - sizeof(WCHAR)) / sizeof(WCHAR);
 				if (DestStrLen > MaxLen)
 					DestStrLen = MaxLen;
@@ -1804,21 +1692,52 @@ public:
 				*((UINT *)(m_pData + sizeof(BYTE))) = DestStrLen * sizeof(WCHAR);
 			}
 			return true;
+		case VT_BINARY:
+			{
+				UINT DestStrLen = Len;
+				UINT HeaderLen = (UINT)(sizeof(BYTE) + sizeof(UINT));
+				UINT MaxLen = m_DataLen - HeaderLen;
+				if (DestStrLen > MaxLen)
+					DestStrLen = MaxLen;
+				memcpy(m_pData + HeaderLen, pStr, DestStrLen);
+				*((UINT*)(m_pData + sizeof(BYTE))) = DestStrLen;
+			}
+			return true;
 		}
 		return false;
 	}
 
-	bool SetString(const WCHAR * pStr,UINT Len)
+	bool SetString(const WCHAR * pStr,int Len = -1)
 	{
+		if (pStr == NULL)
+			return false;
+
+		if (Len < 0)
+			Len = wcslen(pStr);
+
 		CEasyString::STRING_CODE_PAGE CodePage;
 		switch (GetType())
 		{
 		case VT_STRING_ANSI:
 			CodePage = CEasyString::STRING_CODE_PAGE_ANSI;
+			break;
 		case VT_STRING_UTF8:
 			CodePage = CEasyString::STRING_CODE_PAGE_UTF8;
+			break;
 		case VT_STRING_UCS16:
 			CodePage = CEasyString::STRING_CODE_PAGE_UCS16;
+			break;
+		case VT_BINARY:
+			{
+				UINT DestStrLen = Len * sizeof(WCHAR);
+				UINT HeaderLen = (UINT)(sizeof(BYTE) + sizeof(UINT));
+				UINT MaxLen = m_DataLen - HeaderLen;
+				if (DestStrLen > MaxLen)
+					DestStrLen = MaxLen;
+				memcpy(m_pData + HeaderLen, pStr, DestStrLen);
+				*((UINT*)(m_pData + sizeof(BYTE))) = DestStrLen;
+			}
+			return true;
 		default:
 			return false;
 		}
@@ -1858,25 +1777,135 @@ public:
 			return true;
 		}
 		return false;
-	}
-	bool SetBinary(const void * pData, UINT DataLen)
+	}	
+	bool SetNull()
 	{
-		if (GetType() == VT_BINARY)
-		{
-			UINT MaxLen = m_DataLen - sizeof(BYTE) - sizeof(UINT);
-			if (DataLen > MaxLen)
-				DataLen = MaxLen;
-			*((UINT *)(m_pData + sizeof(BYTE))) = DataLen;
-			memcpy(m_pData + sizeof(BYTE) + sizeof(UINT), pData, DataLen);
+		if (m_pData == NULL)
+			return false;
+		if (m_pData == &NULL_DATA)
 			return true;
-		}
-		return false;
+		*m_pData = VT_NULL;
+		return true;
 	}
 	bool IsNull()
 	{
 		return GetType() == VT_NULL;
 	}
+	void Dump(CStringBuilder& OutBuffer, bool HaveType);	
 
-	static int GetTypeFromData(LPCVOID pData,UINT DataSize);
-	
+	inline static SMART_VALUE_TYPE GetTypeByValue(char Value)
+	{
+		return VT_CHAR;
+	}
+	inline static SMART_VALUE_TYPE GetTypeByValue(unsigned char Value)
+	{
+		return VT_UCHAR;
+	}
+	inline static SMART_VALUE_TYPE GetTypeByValue(short Value)
+	{
+		return VT_SHORT;
+	}
+	inline static SMART_VALUE_TYPE GetTypeByValue(unsigned short Value)
+	{
+		return VT_USHORT;
+	}
+	inline static SMART_VALUE_TYPE GetTypeByValue(int Value)
+	{
+		return VT_INT;
+	}
+	inline static SMART_VALUE_TYPE GetTypeByValue(unsigned int Value)
+	{
+		return VT_UINT;
+	}
+	inline static SMART_VALUE_TYPE GetTypeByValue(__int64 Value)
+	{
+		return VT_BIGINT;
+	}
+	inline static SMART_VALUE_TYPE GetTypeByValue(unsigned __int64 Value)
+	{
+		return VT_UBIGINT;
+	}
+	inline static SMART_VALUE_TYPE GetTypeByValue(float Value)
+	{
+		return VT_FLOAT;
+	}
+	inline static SMART_VALUE_TYPE GetTypeByValue(double Value)
+	{
+		return VT_DOUBLE;
+	}
+	inline static SMART_VALUE_TYPE GetTypeByValue(bool Value)
+	{
+		return VT_BOOL;
+	}
+	template<typename T,
+		std::enable_if_t<
+		std::is_same<std::decay_t<T>, char>::value ||
+		std::is_same<std::decay_t<T>, unsigned char>::value ||
+		std::is_same<std::decay_t<T>, short>::value ||
+		std::is_same<std::decay_t<T>, unsigned short>::value ||
+		std::is_same<std::decay_t<T>, int>::value ||
+		std::is_same<std::decay_t<T>, unsigned int>::value ||
+		std::is_same<std::decay_t<T>, __int64>::value ||
+		std::is_same<std::decay_t<T>, unsigned __int64>::value ||
+		std::is_same<std::decay_t<T>, float>::value ||
+		std::is_same<std::decay_t<T>, double>::value ||
+		std::is_same<std::decay_t<T>, bool>::value,
+		bool> = true>
+	inline static UINT GetValueSize(T Value)
+	{
+		return sizeof(Value);
+	}
+	inline static UINT GetValueSize(const char* Value)
+	{
+		UINT StrLen = (UINT)strlen(Value);
+		UINT DataLen = 0;
+		switch (INTERNAL_STRING_CODE_PAGE)
+		{
+		case CEasyString::STRING_CODE_PAGE_ANSI:
+			if (CEasyString::SYSTEM_STRING_CODE_PAGE == CEasyString::STRING_CODE_PAGE_UTF8)
+				DataLen = (UINT)UTF8ToAnsi(Value, StrLen, NULL, 0);
+			else
+				DataLen = StrLen;
+			break;
+		case CEasyString::STRING_CODE_PAGE_UTF8:
+			if (CEasyString::SYSTEM_STRING_CODE_PAGE == CEasyString::STRING_CODE_PAGE_ANSI)
+				DataLen = (UINT)AnsiToUTF8(Value, StrLen, NULL, 0);
+			else
+				DataLen = StrLen;
+			break;
+		case  CEasyString::STRING_CODE_PAGE_UCS16:
+			if (CEasyString::SYSTEM_STRING_CODE_PAGE == CEasyString::STRING_CODE_PAGE_ANSI)
+				DataLen = (UINT)AnsiToUnicode(Value, StrLen, NULL, 0) * sizeof(WCHAR);
+			else
+				DataLen = (UINT)UTF8ToUnicode(Value, StrLen, NULL, 0) * sizeof(WCHAR);
+			break;
+		}
+		return DataLen;
+	}
+	inline static UINT GetValueSize(const WCHAR* Value)
+	{
+		UINT StrLen = (UINT)wcslen(Value);
+		UINT DataLen = 0;
+		switch (INTERNAL_STRING_CODE_PAGE)
+		{
+		case CEasyString::STRING_CODE_PAGE_ANSI:
+			DataLen = (UINT)UnicodeToAnsi(Value, StrLen, NULL, 0);
+			break;
+		case CEasyString::STRING_CODE_PAGE_UTF8:
+			DataLen = (UINT)UnicodeToUTF8(Value, StrLen, NULL, 0);
+			break;
+		case  CEasyString::STRING_CODE_PAGE_UCS16:
+			DataLen = StrLen * sizeof(WCHAR);
+			break;
+		}
+		return DataLen;
+	}
+	inline static UINT GetBinaryValueSize(size_t Len)
+	{
+		return (UINT)Len;
+	}
+	static UINT GetVariedValueSize(const CVariedValue& Value);
+protected:
+	bool CopyVariedData(const CVariedValue& Value);
+	bool FetchVariedData(CVariedValue& Value) const;
 };

@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DWOWM2RibbonEmitter.cpp                                */
-/*      ´´½¨ÈÕÆÚ:  2010Äê02ÔÂ09ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DWOWM2RibbonEmitter.cpp                                */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´02æœˆ09æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -189,7 +189,7 @@ UINT CD3DRibbonEmitter::GetSmartStructSize(UINT Param)
 
 void CD3DRibbonEmitter::OnPrepareRender(CD3DBaseRender * pRender,CD3DFX * pFX,CEasyArray<CD3DLight *>& LightList,CD3DCamera * pCamera)
 {
-	////ÉèÖÃµÆ¹â
+	////è®¾ç½®ç¯å…‰
 	//if(LightList.GetCount())
 	//{		
 	//	D3DLIGHT9	Light;
@@ -228,7 +228,7 @@ void CD3DRibbonEmitter::OnPrepareRender(CD3DBaseRender * pRender,CD3DFX * pFX,CE
 	//	}
 
 	//}
-	////ÉèÖÃÎí
+	////è®¾ç½®é›¾
 	//CD3DSceneRender * pRender=(CD3DSceneRender *)GetRender();
 	//pFX->SetColor("FogColor",pRender->GetFogColor());
 	//pFX->SetFloat("FogNear",pRender->GetFogNear());
@@ -236,7 +236,7 @@ void CD3DRibbonEmitter::OnPrepareRender(CD3DBaseRender * pRender,CD3DFX * pFX,CE
 }
 void CD3DRibbonEmitter::OnPrepareRenderSubMesh(CD3DBaseRender * pRender,CD3DFX * pFX,CD3DSubMesh * pSubMesh,CD3DSubMeshMaterial * pMaterial,CEasyArray<CD3DLight *>& LightList,CD3DCamera * pCamera)
 {
-	////ÉèÖÃ²ÄÖÊ
+	////è®¾ç½®æè´¨
 	//D3DMATERIAL9 * pD3DMaterial;
 	//if(pSubMesh->IsSelected())
 	//	pD3DMaterial=&SELECTED_SUBMESH_MATERIAL;
@@ -248,10 +248,10 @@ void CD3DRibbonEmitter::OnPrepareRenderSubMesh(CD3DBaseRender * pRender,CD3DFX *
 	//pFX->SetColor("MaterialEmissive",pD3DMaterial->Emissive);
 	//pFX->SetFloat("MaterialPower",pD3DMaterial->Power);
 
-	//ÉèÖÃÎÆÀí
+	//è®¾ç½®çº¹ç†
 	//pFX->SetTexture("TexLay0",pMaterial->GetTexture(0));
 
-	//ÉèÖÃÊÓÍ¶Ó°¾ØÕó
+	//è®¾ç½®è§†æŠ•å½±çŸ©é˜µ
 	//pFX->SetMatrix("ViewMatrix",pCamera->GetViewMatR());
 	//pFX->SetMatrix("ProjMatrix",pCamera->GetProjectMatR());
 

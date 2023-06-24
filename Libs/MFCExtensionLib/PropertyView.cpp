@@ -1,15 +1,15 @@
+ï»¿/****************************************************************************/
+/*                                                                          */
+/*      æ–‡ä»¶å:    PropertyView.cpp                                         */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
+/*                                                                          */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
+/*                                                                          */
 /****************************************************************************/
-/*                                                                          */
-/*      ÎÄ¼şÃû:    PropertyView.cpp                                         */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
-/*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
-/*                                                                          */
-/****************************************************************************/
-// PropertyView.cpp : ÊµÏÖÎÄ¼ş
+// PropertyView.cpp : å®ç°æ–‡ä»¶
 //
 
 #include "stdafx.h"
@@ -36,16 +36,16 @@ BEGIN_MESSAGE_MAP(CPropertyView, CView)
 END_MESSAGE_MAP()
 
 
-// CPropertyView »æÍ¼
+// CPropertyView ç»˜å›¾
 
 void CPropertyView::OnDraw(CDC* pDC)
 {
 	CDocument* pDoc = GetDocument();
-	// TODO: ÔÚ´ËÌí¼Ó»æÖÆ´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ ç»˜åˆ¶ä»£ç 
 }
 
 
-// CPropertyView Õï¶Ï
+// CPropertyView è¯Šæ–­
 
 #ifdef _DEBUG
 void CPropertyView::AssertValid() const
@@ -60,12 +60,12 @@ void CPropertyView::Dump(CDumpContext& dc) const
 #endif //_DEBUG
 
 
-// CPropertyView ÏûÏ¢´¦Àí³ÌĞò
+// CPropertyView æ¶ˆæ¯å¤„ç†ç¨‹åº
 void CPropertyView::OnSize(UINT nType, int cx, int cy)
 {
 	CView::OnSize(nType, cx, cy);
 
-	// TODO: ÔÚ´Ë´¦Ìí¼ÓÏûÏ¢´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤å¤„æ·»åŠ æ¶ˆæ¯å¤„ç†ç¨‹åºä»£ç 
 	if(::IsWindow(m_PropertyGrid.GetSafeHwnd()))
 	{
 		RECT rect;
@@ -79,7 +79,7 @@ void CPropertyView::OnInitialUpdate()
 {
 	CView::OnInitialUpdate();
 
-	// TODO: ÔÚ´ËÌí¼Ó×¨ÓÃ´úÂëºÍ/»òµ÷ÓÃ»ùÀà
+	// TODO: åœ¨æ­¤æ·»åŠ ä¸“ç”¨ä»£ç å’Œ/æˆ–è°ƒç”¨åŸºç±»
 	CRect Rect;
 	GetClientRect(&Rect);
 	m_PropertyGrid.Create(Rect,this);

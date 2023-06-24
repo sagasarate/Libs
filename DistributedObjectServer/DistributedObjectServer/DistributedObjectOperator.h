@@ -36,7 +36,8 @@ public:
 	virtual int GetGroupIndex() override;
 	virtual BOOL SendMessage(OBJECT_ID ReceiverID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) override;
 	virtual BOOL SendMessageMulti(OBJECT_ID * pReceiverIDList, UINT ReceiverCount, bool IsSorted, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) override;
-	virtual BOOL BroadcastMessageToProxyObjectByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize) override;
+	virtual BOOL BroadcastMessageToProxyByMask(WORD RouterID, BYTE ProxyType, UINT64 Mask, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize) override;
+	virtual BOOL BroadcastMessageToProxyByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize) override;
 
 	virtual CDOSMessagePacket * NewMessagePacket(UINT DataSize, UINT ReceiverCount) override;
 	virtual BOOL ReleaseMessagePacket(CDOSMessagePacket * pPacket) override;
@@ -51,7 +52,7 @@ public:
 	virtual BOOL AddConcernedObject(OBJECT_ID ObjectID, bool NeedTest) override;
 	virtual BOOL DeleteConcernedObject(OBJECT_ID ObjectID) override;
 
-	virtual BOOL FindObject(UINT ObjectType) override;
+	virtual BOOL FindObject(UINT ObjectType, bool OnlyLocal) override;
 	virtual BOOL ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize) override;
 	virtual BOOL CloseProxyObject(OBJECT_ID ProxyObjectID, UINT Delay) override;
 	virtual BOOL RequestProxyObjectIP(OBJECT_ID ProxyObjectID) override;
@@ -70,11 +71,14 @@ public:
 
 	virtual void SetServerWorkStatus(BYTE WorkStatus) override;
 
-	virtual UINT AddTimer(UINT TimeOut, UINT64 Param, bool IsRepeat) override;
+	virtual UINT AddTimer(UINT64 TimeOut, UINT64 Param, bool IsRepeat) override;
 	virtual BOOL DeleteTimer(UINT ID) override;
 
-	virtual BOOL SetBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID) override;
-
+	virtual BOOL SetBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask) override;
+	virtual BOOL AddBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask) override;
+	virtual BOOL RemoveBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask) override;
+	virtual BOOL AddBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID) override;
+	virtual BOOL RemoveBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID) override;
 protected:
 	BOOL OnPreTranslateMessage(CDOSMessage * pMessage);
 	virtual BOOL OnMessage(CDOSMessage * pMessage) override;
@@ -85,7 +89,7 @@ protected:
 	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString) override;
 	virtual void OnShutDown(BYTE Level, UINT Param) override;
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT) override;
-	virtual void OnTimer(UINT ID, UINT64 Param) override;
+	virtual void OnTimer(UINT ID, UINT64 Param, bool IsRepeat) override;
 	virtual void OnTimerRelease(UINT ID, UINT64 Param) override;
 
 	bool CallCSInitialize();
@@ -101,7 +105,7 @@ protected:
 	int CallCSUpdate(int ProcessPacketLimit);
 	void CallCSOnException(MonoObject * pPostException);
 	bool CallOnConsoleCommand(LPCTSTR szCommand);
-	void CallCSOnTimer(UINT ID, UINT64 Param);
+	void CallCSOnTimer(UINT ID, UINT64 Param, bool IsRepeat);
 	void CallCSOnTimerRelease(UINT ID, UINT64 Param);
 
 	static bool DoRegisterLogger(UINT LogChannel, LPCTSTR FileName);
@@ -113,7 +117,8 @@ public:
 	static int InternalCallGetGroupIndex(CDistributedObjectOperator * pOperator);
 	static bool InternalCallSendMessage(CDistributedObjectOperator * pOperator, OBJECT_ID ReceiverID, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen);
 	static bool InternalCallSendMessageMulti(CDistributedObjectOperator * pOperator, MonoArray * ReceiverIDList, bool IsSorted, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen);
-	static bool InternalCallBroadcastMessageToProxyObjectByGroup(CDistributedObjectOperator * pOperator, WORD RouterID, BYTE ProxyType, UINT64 GroupID, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen);
+	static bool InternalCallBroadcastMessageToProxyByMask(CDistributedObjectOperator * pOperator, WORD RouterID, BYTE ProxyType, UINT64 Mask, UINT MsgID, WORD MsgFlag, MonoArray * Data, int StartIndex, int DataLen);
+	static bool InternalCallBroadcastMessageToProxyByGroup(CDistributedObjectOperator* pOperator, WORD RouterID, BYTE ProxyType, UINT64 GroupID, UINT MsgID, WORD MsgFlag, MonoArray* Data, int StartIndex, int DataLen);
 	static bool InternalCallRegisterMsgMap(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, MonoArray * MsgIDList);
 	static bool InternalCallUnregisterMsgMap(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, MonoArray * MsgIDList);
 	static bool InternalCallRegisterGlobalMsgMap(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType, UINT MsgID, int MapType);
@@ -121,7 +126,7 @@ public:
 	static bool InternalCallSetUnhanleMsgReceiver(CDistributedObjectOperator * pOperator, WORD ProxyRouterID, BYTE ProxyType);
 	static bool InternalCallAddConcernedObject(CDistributedObjectOperator * pOperator, OBJECT_ID ObjectID, bool NeedTest);
 	static bool InternalCallDeleteConcernedObject(CDistributedObjectOperator * pOperator, OBJECT_ID ObjectID);
-	static bool InternalCallFindObject(CDistributedObjectOperator * pOperator, UINT ObjectType);
+	static bool InternalCallFindObject(CDistributedObjectOperator * pOperator, UINT ObjectType, bool OnlyLocal);
 	static bool InternalCallReportObject(CDistributedObjectOperator * pOperator, OBJECT_ID TargetID, MonoArray * Data, int StartIndex, int DataLen);
 	static bool InternalCallCloseProxyObject(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, UINT Delay);
 	static bool InternalCallRequestProxyObjectIP(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID);
@@ -135,9 +140,13 @@ public:
 	static bool InternalCallRegisterCommandReceiver(CDistributedObjectOperator * pOperator);
 	static bool InternalCallUnregisterCommandReceiver(CDistributedObjectOperator * pOperator);
 	static void InternalCallSetServerWorkStatus(CDistributedObjectOperator * pOperator, BYTE WorkStatus);
-	static UINT InternalCallAddTimer(CDistributedObjectOperator * pOperator, UINT TimeOut, MonoObject * pParam, bool IsRepeat);
+	static UINT InternalCallAddTimer(CDistributedObjectOperator * pOperator, UINT64 TimeOut, MonoObject * pParam, bool IsRepeat);
 	static bool InternalCallDeleteTimer(CDistributedObjectOperator * pOperator, UINT ID);
-	static bool InternalCallSetBroadcastGroup(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, UINT64 GroupID);
+	static bool InternalCallSetBroadcastMask(CDistributedObjectOperator * pOperator, OBJECT_ID ProxyObjectID, UINT64 Mask);
+	static bool InternalCallAddBroadcastMask(CDistributedObjectOperator* pOperator, OBJECT_ID ProxyObjectID, UINT64 Mask);
+	static bool InternalCallRemoveBroadcastMask(CDistributedObjectOperator* pOperator, OBJECT_ID ProxyObjectID, UINT64 Mask);
+	static bool InternalCallAddBroadcastGroup(CDistributedObjectOperator* pOperator, OBJECT_ID ProxyObjectID, UINT64 GroupID);
+	static bool InternalCallRemoveBroadcastGroup(CDistributedObjectOperator* pOperator, OBJECT_ID ProxyObjectID, UINT64 GroupID);
 };
 
 inline UINT CDistributedObjectOperator::GetPoolID()

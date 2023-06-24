@@ -1,4 +1,4 @@
-#ifndef __MONO_CONFIG_INTERNAL_H__
+﻿#ifndef __MONO_CONFIG_INTERNAL_H__
 #define __MONO_CONFIG_INTERNAL_H__
 
 //#include <config.h>

@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    D3DSceneRender.cpp                                       */
-/*      ´´½¨ÈÕÆÚ:  2010Äê07ÔÂ19ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    D3DSceneRender.cpp                                       */
+/*      åˆ›å»ºæ—¥æœŸ:  2010å¹´07æœˆ19æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 
@@ -196,7 +196,7 @@ bool CD3DSceneRender::DelObject(CD3DObject * pObj,bool IsRecursive)
 			{
 				if(!DeleteSceneObject(pObj))				
 				{
-					PrintD3DLog(_T("´Ó³¡¾°Ê÷ÖĞÉ¾³ı¶ÔÏó[%s,%s]Ê§°Ü"),
+					PrintD3DLog(_T("ä»åœºæ™¯æ ‘ä¸­åˆ é™¤å¯¹è±¡[%s,%s]å¤±è´¥"),
 						pObj->GetName(),pObj->GetClassInfo().ClassName);
 				}
 			}
@@ -234,7 +234,7 @@ bool CD3DSceneRender::AddSceneObject(CD3DObject * pObject,bool IsRecursive)
 	//CD3DVector3 BoxSize=BBox.GetSize();
 	//if(BoxSize.x<=0||BoxSize.y<=0||BoxSize.z<=0)
 	//{
-	//	PrintD3DDebugLog("¶ÔÏó[%s]°üÎ§ºÍ´óĞ¡Òì³££¬ÎŞ·¨¼ÓÈë³¡¾°Ê÷£¬µ±×÷·Ç³¡¾°¶ÔÏó´¦Àí",pObject->GetName());
+	//	PrintD3DDebugLog("å¯¹è±¡[%s]åŒ…å›´å’Œå¤§å°å¼‚å¸¸ï¼Œæ— æ³•åŠ å…¥åœºæ™¯æ ‘ï¼Œå½“ä½œéåœºæ™¯å¯¹è±¡å¤„ç†",pObject->GetName());
 	//	if(!AddObject(pObject,false))
 	//		return false;
 	//}
@@ -243,7 +243,7 @@ bool CD3DSceneRender::AddSceneObject(CD3DObject * pObject,bool IsRecursive)
 		int Relation=m_pSceneRoot->NodeBox.CheckRelation(BBox);
 		if((!BBox.IsValid())||Relation==CD3DBoundingBox::RELATION_TYPE_OUT||Relation==CD3DBoundingBox::RELATION_TYPE_BE_INCLUDE)
 		{
-			PrintD3DLog(_T("¶ÔÏó[%s]ÒòÎª³¬³ö³¡¾°·¶Î§£¬ÎŞ·¨¼ÓÈë³¡¾°Ê÷"),pObject->GetName());
+			PrintD3DLog(_T("å¯¹è±¡[%s]å› ä¸ºè¶…å‡ºåœºæ™¯èŒƒå›´ï¼Œæ— æ³•åŠ å…¥åœºæ™¯æ ‘"),pObject->GetName());
 			if(!AddObject(pObject,false))
 				return false;
 		}
@@ -263,7 +263,7 @@ bool CD3DSceneRender::AddSceneObject(CD3DObject * pObject,bool IsRecursive)
 				AddRootObject(pObject);
 		
 
-			//WMO±¾Éí²»¼ÓÈë³¡¾°Ê÷
+			//WMOæœ¬èº«ä¸åŠ å…¥åœºæ™¯æ ‘
 			if(pObject->IsKindOfFast(GET_CLASS_INFO(CD3DWOWWMOModel)))
 			{
 				if(!AddObject(pObject,false))
@@ -276,7 +276,7 @@ bool CD3DSceneRender::AddSceneObject(CD3DObject * pObject,bool IsRecursive)
 		}
 		else
 		{
-			PrintD3DLog(_T("¶ÔÏó[%s]²»ÊÇ¿ÉäÖÈ¾¶ÔÏó£¬²»¼ÓÈë³¡¾°Ê÷"));
+			PrintD3DLog(_T("å¯¹è±¡[%s]ä¸æ˜¯å¯æ¸²æŸ“å¯¹è±¡ï¼Œä¸åŠ å…¥åœºæ™¯æ ‘"));
 			return AddObject(pObject,IsRecursive);
 		}
 	}
@@ -527,7 +527,7 @@ bool CD3DSceneRender::AddWMOObject(CD3DWOWWMOModel * pWMOObject)
 	{
 		if(m_WMOObjectList[i]==pWMOObject)
 		{
-			PrintD3DLog(_T("CD3DSceneRender::AddWMOObject:WMO¶ÔÏó[%s]ÒÑ¾­´æÔÚÁË"),
+			PrintD3DLog(_T("CD3DSceneRender::AddWMOObject:WMOå¯¹è±¡[%s]å·²ç»å­˜åœ¨äº†"),
 				pWMOObject->GetName());
 			return false;
 		}
@@ -545,7 +545,7 @@ bool CD3DSceneRender::DelWMOObject(CD3DWOWWMOModel * pWMOObject)
 			return true;
 		}
 	}
-	PrintD3DLog(_T("CD3DSceneRender::DelWMOObject:WMO¶ÔÏó[%s]²»´æÔÚ"),
+	PrintD3DLog(_T("CD3DSceneRender::DelWMOObject:WMOå¯¹è±¡[%s]ä¸å­˜åœ¨"),
 		pWMOObject->GetName());
 	return false;
 }
@@ -734,25 +734,25 @@ void CD3DSceneRender::Render()
 		RenderLock.Lock(m_RenderLock);		
 	}
 
-	//ÉèÖÃ¹²Ïí²ÎÊı
+	//è®¾ç½®å…±äº«å‚æ•°
 	
 	m_pSharedParamFX->SetColor("FogColor",GetFogColor());
 	m_pSharedParamFX->SetFloat("FogNear",GetFogNear());
 	m_pSharedParamFX->SetFloat("FogFar",GetFogFar());
 
-	//ÉèÖÃÈ«¾Ö¹â
+	//è®¾ç½®å…¨å±€å…‰
 	if(m_pGlobalLight)
 	{
 		m_pSharedParamFX->SetValue("GlobalLight",&(m_pGlobalLight->GetLight()),sizeof(D3DLIGHT9));
 	}
 
 
-	////ÉèÖÃÉãÏñ»ú
+	////è®¾ç½®æ‘„åƒæœº
 
 	//m_pCamera->Apply(m_pDevice,D3DCAMERA_APPLY_ALL);
 
 
-	////ÉèÖÃµÆ¹â
+	////è®¾ç½®ç¯å…‰
 	//for(UINT i=0;i<MAX_LIGHT;i++)
 	//{
 	//	m_pDevice->GetD3DDevice()->LightEnable(i,false);
@@ -767,7 +767,7 @@ void CD3DSceneRender::Render()
 	//}			
 
 
-	//äÖÈ¾±³¾°¶ÔÏó
+	//æ¸²æŸ“èƒŒæ™¯å¯¹è±¡
 	if(m_pBackGroundCamera)
 	{
 		m_RenderBatchList.Empty();
@@ -795,7 +795,7 @@ void CD3DSceneRender::Render()
 
 		DoBatchRender();
 
-		//Çå³ıZBuffer
+		//æ¸…é™¤ZBuffer
 		m_pDevice->Clear(0,D3DCLEAR_ZBUFFER);
 	}
 
@@ -811,7 +811,7 @@ void CD3DSceneRender::Render()
 	CD3DFrustum Frustum=m_pCamera->GetFrustumR();
 
 
-	//Çå¿Õ¼ÆÊı
+	//æ¸…ç©ºè®¡æ•°
 	m_ObjectCount=0;
 	m_SubMeshCount=0;
 	m_FaceCount=0;
@@ -831,7 +831,7 @@ void CD3DSceneRender::Render()
 	m_TransparentSubMeshList.Empty();
 
 
-	//½øĞĞWMO¶ÔÏóµÄÊÓ¿Ú²Ã¼ô
+	//è¿›è¡ŒWMOå¯¹è±¡çš„è§†å£è£å‰ª
 	for(UINT i=0;i<m_WMOObjectList.GetCount();i++)
 	{
 		CD3DBoundingBox BBox=(*m_WMOObjectList[i]->GetBoundingBox())*m_WMOObjectList[i]->GetWorldMatrixR();
@@ -841,7 +841,7 @@ void CD3DSceneRender::Render()
 		}		
 	}
 	
-	//äÖÈ¾·Ç³¡¾°¶ÔÏó
+	//æ¸²æŸ“éåœºæ™¯å¯¹è±¡
 
 	for(UINT i=0;i<m_ObjectList.GetCount();i++)
 	{
@@ -852,7 +852,7 @@ void CD3DSceneRender::Render()
 	}
 	
 
-	//äÖÈ¾³¡¾°¶ÔÏó
+	//æ¸²æŸ“åœºæ™¯å¯¹è±¡
 
 	ClearTreeRenderFlag(m_pSceneRoot);
 
@@ -883,7 +883,7 @@ void CD3DSceneRender::Render()
 
 	//PrintImportantLog(0,"Face=%d",m_FaceCount);
 	
-	//ÇåÀíËùÓĞÁÙÊ±äÖÈ¾±ê¼Ç
+	//æ¸…ç†æ‰€æœ‰ä¸´æ—¶æ¸²æŸ“æ ‡è®°
 	for(UINT i=0;i<m_SceneRenderUnitList.GetCount();i++)
 	{
 		m_SceneRenderUnitList[i]->IsPreRenderd=false;
@@ -1020,7 +1020,7 @@ bool CD3DSceneRender::DeleteSceneObject(CD3DObject * pObject)
 			}
 			if(m_SceneRenderUnitList[i]->TreeNodes.GetCount())
 			{
-				PrintD3DLog(_T("Î´ÄÜ´ÓËùÓĞÊ÷½ÚµãÖĞÇå³ı´Ë¶ÔÏó"));
+				PrintD3DLog(_T("æœªèƒ½ä»æ‰€æœ‰æ ‘èŠ‚ç‚¹ä¸­æ¸…é™¤æ­¤å¯¹è±¡"));
 			}
 			//DeleteObjectFromTree(m_pSceneRoot,m_SceneRenderUnitList[i]);
 			SAFE_DELETE(m_SceneRenderUnitList[i]);
@@ -1138,7 +1138,7 @@ bool CD3DSceneRender::AddObjectToTree(TREE_NODE * pTree,CD3DObject * pObject,boo
 	{
 		if(m_SceneObjectList[i]==pObject)
 		{
-			PrintD3DLog(_T("¶ÔÏó[%s]ÒÑ¾­´æÔÚÓÚ³¡¾°ÖĞ"),
+			PrintD3DLog(_T("å¯¹è±¡[%s]å·²ç»å­˜åœ¨äºåœºæ™¯ä¸­"),
 				pObject->GetName());
 			return false;
 		}
@@ -1163,7 +1163,7 @@ bool CD3DSceneRender::AddObjectToTree(TREE_NODE * pTree,CD3DObject * pObject,boo
 				pObjectInfo->ObjectType=RBT_OBJECT;
 				if(pSubMesh->CheckProperty(CD3DSubMesh::SMF_IS_ANI_MESH)||(!pObject->CanDoSubMeshViewCull()))
 				{
-					//¶ÔÓÚSkinMesh,Ê¹ÓÃ¶ÔÏó°üÎ§ºĞ×÷ÎªSubMesh°üÎ§ºĞ
+					//å¯¹äºSkinMesh,ä½¿ç”¨å¯¹è±¡åŒ…å›´ç›’ä½œä¸ºSubMeshåŒ…å›´ç›’
 					pObjectInfo->WorldBBox=(*pObject->GetBoundingBox())*pObject->GetWorldMatrix();
 				}
 				else
@@ -1189,7 +1189,7 @@ bool CD3DSceneRender::AddObjectToTree(TREE_NODE * pTree,CD3DObject * pObject,boo
 			}
 			else
 			{
-				PrintD3DLog(_T("¶ÔÏó[%s]µÄSubMesh[%u]Ã»ÓĞFX,ÎŞ·¨¼ÓÈëäÖÈ¾"),
+				PrintD3DLog(_T("å¯¹è±¡[%s]çš„SubMesh[%u]æ²¡æœ‰FX,æ— æ³•åŠ å…¥æ¸²æŸ“"),
 					pObject->GetName(),i);
 			}
 		}
@@ -1199,7 +1199,7 @@ bool CD3DSceneRender::AddObjectToTree(TREE_NODE * pTree,CD3DObject * pObject,boo
 	if(CostTime>MaxCost)
 	{
 		MaxCost=CostTime;
-		PrintD3DDebugLog(_T("CD3DSceneRender::AddSceneObject:×î´óºÄÊ±:%g[%u,%u,%u,%u,%u,%u]"),
+		PrintD3DDebugLog(_T("CD3DSceneRender::AddSceneObject:æœ€å¤§è€—æ—¶:%g[%u,%u,%u,%u,%u,%u]"),
 			(double)MaxCost/CEasyTimerEx::TIME_UNIT_PER_SECOND,
 			m_AddObjectSubMeshCount,m_AddObjectTreeWalkCount,m_AddObjectTreeAddCount,
 			m_AddObjectTreeCutCount,m_AddObjectTreeUpdateCount,m_AddObjectObjectTestCount);
@@ -1245,10 +1245,10 @@ void CD3DSceneRender::AddObjectToTree(TREE_NODE * pTree,RENDER_OBJECT_INFO * pOb
 		}
 		else
 		{
-			PrintD3DLog(_T("CD3DSceneRender::AddObjectToTree:Òì³££¬¼ÓÈë½ÚµãµÄ¶ÔÏóºÍ½ÚµãµÄÈÎºÎÒ»¸ö×Ó½áµã¶¼²»Ïà½»"));
+			PrintD3DLog(_T("CD3DSceneRender::AddObjectToTree:å¼‚å¸¸ï¼ŒåŠ å…¥èŠ‚ç‚¹çš„å¯¹è±¡å’ŒèŠ‚ç‚¹çš„ä»»ä½•ä¸€ä¸ªå­ç»“ç‚¹éƒ½ä¸ç›¸äº¤"));
 		}
 	}	
-	//Î´ÄÜ¼ÓÈë×ÓÊ÷£¬¾Í¼ÓÈëµ±Ç°½Úµã
+	//æœªèƒ½åŠ å…¥å­æ ‘ï¼Œå°±åŠ å…¥å½“å‰èŠ‚ç‚¹
 	
 	m_AddObjectTreeAddCount++;
 	pTree->AddObj(pObjectInfo);
@@ -1271,14 +1271,14 @@ void CD3DSceneRender::UpdateTree(TREE_NODE * pNode)
 		pNode->UpdateFlag=TNUF_NONE;
 		if(pNode->ObjectList.GetCount()>=MINI_CUT_COUNT&&pNode->ChildCount==0)
 		{		
-			//³¢ÊÔ½øĞĞ¿Õ¼ä·Ö¸î
+			//å°è¯•è¿›è¡Œç©ºé—´åˆ†å‰²
 			CD3DVector3 CutCenter=GetBoxCutCenter(pNode);
 			if(CanBeCut(pNode,CutCenter))
 			{
 				m_AddObjectTreeCutCount++;
 				CreateChilds(pNode,CutCenter,false);
 
-				//½«¶ÔÏó·ÖÉ¢µ½×ÓÊ÷ÖĞ
+				//å°†å¯¹è±¡åˆ†æ•£åˆ°å­æ ‘ä¸­
 				for(int i=(int)pNode->ObjectList.GetCount()-1;i>=0;i--)
 				{
 					CD3DBoundingBox BBox=pNode->ObjectList[i]->WorldBBox;
@@ -1325,7 +1325,7 @@ void CD3DSceneRender::UpdateTree(TREE_NODE * pNode)
 				}
 			}
 
-			//¸üĞÂ×Ó½áµã
+			//æ›´æ–°å­ç»“ç‚¹
 			if(pNode->ChildCount)
 			{
 				for(UINT i=0;i<m_TreeMode;i++)
@@ -1342,7 +1342,7 @@ void CD3DSceneRender::UpdateTree(TREE_NODE * pNode)
 	{
 		pNode->UpdateFlag=TNUF_NONE;
 	
-		//¼ì²é×Ó½ÚµãÊÇ·ñ¿ÉÉ¾³ı
+		//æ£€æŸ¥å­èŠ‚ç‚¹æ˜¯å¦å¯åˆ é™¤
 		if(pNode->ChildCount)
 		{
 			for(UINT i=0;i<m_TreeMode;i++)
@@ -1380,7 +1380,7 @@ void CD3DSceneRender::CreateChilds(TREE_NODE * pNode,CD3DVector3 CutCenter,bool 
 		pNode->Childs[i]->ObjectList.Create(8,128);
 		pNode->Childs[i]->IsFixed=IsFixed;
 
-		//½ÚµãÓĞ±ä¶¯£¬¸üĞÂÏà¹ØÊı¾İ
+		//èŠ‚ç‚¹æœ‰å˜åŠ¨ï¼Œæ›´æ–°ç›¸å…³æ•°æ®
 		if(m_ShowNodeFrame)
 		{
 			pNode->Childs[i]->pBoundingFrame=new CD3DBoundingFrame();
@@ -1638,7 +1638,7 @@ void CD3DSceneRender::RenderObject(CD3DObject * pObject,const CD3DFrustum& Frust
 	if(pObject->IsVisible())
 	{
 
-		//ÊÓ×¶²Ã¼õ
+		//è§†é”¥è£å‡
 	
 		int BoxCut=2;
 
@@ -1718,7 +1718,7 @@ void CD3DSceneRender::RenderObject(CD3DObject * pObject,const CD3DFrustum& Frust
 				{	
 					if(BoxCut==1&&pObject->CanDoSubMeshViewCull()&&(!pSubMesh->CheckProperty(CD3DSubMesh::SMF_IS_ANI_MESH)))
 					{
-						//¶ÔÓÚ¶ÔÏó²¿·Ö¿É¼ûµÄ£¬½øĞĞSubMesh¼¶²Ã¼õ,SkinMesh³ıÍâ
+						//å¯¹äºå¯¹è±¡éƒ¨åˆ†å¯è§çš„ï¼Œè¿›è¡ŒSubMeshçº§è£å‡,SkinMeshé™¤å¤–
 						CD3DBoundingBox SubMeshBBox=pSubMesh->GetBoundingBox();
 						SubMeshBBox*=pObject->GetWorldMatrixR();
 						if(!Frustum.BoxLocation(SubMeshBBox))
@@ -1773,7 +1773,7 @@ void CD3DSceneRender::RenderSubMesh(RENDER_OBJECT_INFO * pObjectInfo,const CD3DF
 			//if(pObjectInfo->pObject->CanDoSubMeshViewCull())
 			{
 				m_ObjectCheckCount++;
-				//½øĞĞSubMesh¼¶²Ã¼õ
+				//è¿›è¡ŒSubMeshçº§è£å‡
 				if(!Frustum.BoxLocation(pObjectInfo->WorldBBox))
 				{				
 					m_ObjectCutCount++;
@@ -2014,7 +2014,7 @@ void CD3DSceneRender::DoBatchRender()
 
 	//pObject=NULL;
 
-	//ÔÙ»æÖÆÍ¸Ã÷µÄ	
+	//å†ç»˜åˆ¶é€æ˜çš„	
 
 	OldHashCode1=0;
 	OldHashCode2=0;
@@ -2143,7 +2143,7 @@ int CD3DSceneRender::CheckBBoxRelation(const CD3DBoundingBox& BBox1,const CD3DBo
 {
 	if(m_TreeMode==TREE_MODE_QD)
 	{
-		//ËÄ²æÊ÷Ä£Ê½²»¿¼ÂÇÉÏ·½ÏòµÄYÖá
+		//å››å‰æ ‘æ¨¡å¼ä¸è€ƒè™‘ä¸Šæ–¹å‘çš„Yè½´
 		if(BBox1.m_Max.x<BBox2.m_Min.x||
 			BBox1.m_Max.z<BBox2.m_Min.z||
 			BBox1.m_Min.x>BBox2.m_Max.x||
@@ -2777,7 +2777,7 @@ void CD3DSceneRender::RenderSubMeshEx(CD3DSubMesh * pSubMesh)
 
 	//pSubMesh->CheckValidR();
 
-	//ÉèÖÃ¶¥µã½á¹¹¶¨Òå
+	//è®¾ç½®é¡¶ç‚¹ç»“æ„å®šä¹‰
 	if(pSubMesh->GetVertexFormat().pVertexDeclaration)
 	{
 		m_pDevice->GetD3DDevice()->SetVertexDeclaration(pSubMesh->GetVertexFormat().pVertexDeclaration);
@@ -2792,7 +2792,7 @@ void CD3DSceneRender::RenderSubMeshEx(CD3DSubMesh * pSubMesh)
 		IndexFormat=D3DFMT_INDEX32;
 
 
-	//Ìî³ä¶¥µãÊı¾İ
+	//å¡«å……é¡¶ç‚¹æ•°æ®
 	if(pSubMesh->GetRenderBufferUsed()==CD3DSubMesh::BUFFER_USE_DX)
 	{
 		m_pDevice->GetD3DDevice()->SetStreamSource( 0, pSubMesh->GetDXVertexBuffer(), 0, pSubMesh->GetVertexFormat().VertexSize );
@@ -2802,7 +2802,7 @@ void CD3DSceneRender::RenderSubMeshEx(CD3DSubMesh * pSubMesh)
 
 
 	HRESULT hr;
-	//Ìá½»äÖÈ¾	
+	//æäº¤æ¸²æŸ“	
 
 	
 	

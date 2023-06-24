@@ -1,4 +1,4 @@
-// ResizeBar.cpp : ÊµÏÖÎÄ¼ş
+ï»¿// ResizeBar.cpp : å®ç°æ–‡ä»¶
 //
 
 #include "stdafx.h"
@@ -54,13 +54,13 @@ END_MESSAGE_MAP()
 
 
 
-// CResizeBar ÏûÏ¢´¦Àí³ÌĞò
+// CResizeBar æ¶ˆæ¯å¤„ç†ç¨‹åº
 
 
 
 void CResizeBar::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	// TODO: ÔÚ´ËÌí¼ÓÏûÏ¢´¦Àí³ÌĞò´úÂëºÍ/»òµ÷ÓÃÄ¬ÈÏÖµ
+	// TODO: åœ¨æ­¤æ·»åŠ æ¶ˆæ¯å¤„ç†ç¨‹åºä»£ç å’Œ/æˆ–è°ƒç”¨é»˜è®¤å€¼
 
 	CWnd::OnLButtonDown(nFlags, point);
 
@@ -75,7 +75,7 @@ void CResizeBar::OnLButtonDown(UINT nFlags, CPoint point)
 
 void CResizeBar::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	// TODO: ÔÚ´ËÌí¼ÓÏûÏ¢´¦Àí³ÌĞò´úÂëºÍ/»òµ÷ÓÃÄ¬ÈÏÖµ
+	// TODO: åœ¨æ­¤æ·»åŠ æ¶ˆæ¯å¤„ç†ç¨‹åºä»£ç å’Œ/æˆ–è°ƒç”¨é»˜è®¤å€¼
 
 	CWnd::OnLButtonUp(nFlags, point);
 
@@ -90,7 +90,7 @@ void CResizeBar::OnLButtonUp(UINT nFlags, CPoint point)
 
 void CResizeBar::OnMouseMove(UINT nFlags, CPoint point)
 {
-	// TODO: ÔÚ´ËÌí¼ÓÏûÏ¢´¦Àí³ÌĞò´úÂëºÍ/»òµ÷ÓÃÄ¬ÈÏÖµ
+	// TODO: åœ¨æ­¤æ·»åŠ æ¶ˆæ¯å¤„ç†ç¨‹åºä»£ç å’Œ/æˆ–è°ƒç”¨é»˜è®¤å€¼
 
 	CWnd::OnMouseMove(nFlags, point);
 
@@ -133,8 +133,8 @@ void CResizeBar::OnMouseMove(UINT nFlags, CPoint point)
 void CResizeBar::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
-	// TODO: ÔÚ´Ë´¦Ìí¼ÓÏûÏ¢´¦Àí³ÌĞò´úÂë
-	// ²»Îª»æÍ¼ÏûÏ¢µ÷ÓÃ CWnd::OnPaint()
+	// TODO: åœ¨æ­¤å¤„æ·»åŠ æ¶ˆæ¯å¤„ç†ç¨‹åºä»£ç 
+	// ä¸ä¸ºç»˜å›¾æ¶ˆæ¯è°ƒç”¨ CWnd::OnPaint()
 
 	if(m_IsInResizing)
 	{

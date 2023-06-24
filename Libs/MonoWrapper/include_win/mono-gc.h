@@ -1,4 +1,4 @@
-/*
+﻿/*
  * mono-gc.h: GC related public interface
  *
  */

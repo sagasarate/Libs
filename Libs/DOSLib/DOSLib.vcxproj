@@ -516,6 +516,8 @@
     <ClCompile Include="DOSObjectGroup.cpp" />
     <ClCompile Include="DOSClient.cpp" />
     <ClCompile Include="DOSDefines.cpp" />
+    <ClCompile Include="WebSocketProxyConnection.cpp" />
+    <ClCompile Include="WebSocketProxyService.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DOSObjectProxyConnectionNoBuff.h" />
@@ -540,6 +542,8 @@
     <ClInclude Include="DOSDefines.h" />
     <ClInclude Include="DOSMessage.h" />
     <ClInclude Include="DOSLib.h" />
+    <ClInclude Include="WebSocketProxyConnection.h" />
+    <ClInclude Include="WebSocketProxyService.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DOSLib.cbp" />
