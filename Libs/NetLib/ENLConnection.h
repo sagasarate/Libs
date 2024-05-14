@@ -34,6 +34,7 @@ protected:
 	UINT										m_MaxPacketSize;
 	CEasyNetLinkManager::DATA_COMPRESS_TYPE		m_DataCompressType;
 	UINT										m_MinCompressSize;
+	bool										m_DisconnectOnTransferFail;
 	CEasyBuffer									m_CompressBuffer;
 
 public:
@@ -43,10 +44,10 @@ public:
 	virtual void Release() override;
 	virtual UINT AddUseRef() override;
 
-	bool Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent, const CIPAddress& ConnectionAddress, 
-		UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
+	bool Init(CEasyNetLinkManager* pManager, CEasyNetLink* pParent, const CIPAddress& ConnectionAddress,
+		UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail);
 	bool Init(CEasyNetLinkManager * pManager, CEasyNetLink * pParent, UINT MaxPacketSize, 
-		CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
+		CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail);
 	
 
 	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT) override;
@@ -63,5 +64,7 @@ public:
 
 protected:
 	void SendLinkMsg(DWORD MsgID, LPCVOID pData = NULL, UINT DataSize = 0);
+	const void* CompressMsg(const void* pData, UINT& DataLen);
+	const BYTE* DecompressMsg(const BYTE* pData, UINT& DataLen);
 };
 

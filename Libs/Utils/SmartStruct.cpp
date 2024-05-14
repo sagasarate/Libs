@@ -93,3 +93,16 @@ UINT CSmartStruct::GetVariedMemberSize(const CVariedValue& Value)
 	}
 	return sizeof(WORD) + sizeof(BYTE);
 }
+
+rapidjson::Value CSmartStruct::ToJson(rapidjson::Document::AllocatorType& Alloc)
+{
+	rapidjson::Value Object(rapidjson::kObjectType);
+	TCHAR IDStr[256];
+	for (Pair& Member : *this)
+	{
+		_stprintf_s(IDStr, 255, _T("%u"), Member.MemberID);
+		rapidjson::Value Name = rapidjson::Value((LPCTSTR)IDStr, Alloc);
+		Object.AddMember(Name, Member.Value.ToJson(Alloc), Alloc);
+	}
+	return Object;
+}

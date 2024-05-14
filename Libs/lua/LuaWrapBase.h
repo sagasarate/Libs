@@ -11,6 +11,7 @@ extern "C" {
 #include "luasocket/luasocket.h"
 }
 
+class CLuaBaseMetaClass;
 
 extern UINT g_LuaLogChannel;
 
@@ -124,7 +125,7 @@ inline void LogLuaStrWithTag(int LogLevel, lua_State* L, int Idx, LPCTSTR Tag, L
 			CLogManager::GetInstance()->PrintLogDirect(g_LuaLogChannel, LogLevel, Tag, szLuaStr);
 		}
 	}
-	
+
 	if (BeDumpStack)
 		lua_pop(L, 1);
 }
@@ -162,6 +163,21 @@ inline CEasyString LuaGetString(lua_State* L, int idx)
 	CEasyString Str;
 	LuaStrToSystemStr(lua_tostring(L, idx), Str);
 	return Str;
+}
+
+inline bool LuaIsArray(lua_State* L, int idx)
+{
+	idx = lua_absindex(L, idx);
+	if (lua_istable(L, idx))
+	{
+		return lua_rawlen(L, idx) > 0;
+	}
+	return false;
+}
+
+inline bool IsLuaTable(const CSmartStruct& Packet)
+{
+	return Packet.GetLength() == 0 || Packet.IsMemberExist(VARIED_MEMEBR_ID);
 }
 
 #define luaL_argassert(arg, _index_) if (!Match(TypeWrapper<P##arg>(), L, _index_)) \

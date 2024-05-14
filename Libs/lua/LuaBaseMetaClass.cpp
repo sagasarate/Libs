@@ -81,14 +81,14 @@ void CLuaBaseMetaClass::RegisterMemberFunctions(lua_State * pLuaState) const
 
 }
 
-bool CLuaBaseMetaClass::GetProperty(lua_State* L, LPCTSTR szPropertyName)
-{
-	return false;
-}
-bool CLuaBaseMetaClass::SetProperty(lua_State* L, LPCTSTR szPropertyName)
-{
-	return false;
-}
+//bool CLuaBaseMetaClass::GetProperty(lua_State* L, LPCTSTR szPropertyName)
+//{
+//	return false;
+//}
+//bool CLuaBaseMetaClass::SetProperty(lua_State* L, LPCTSTR szPropertyName)
+//{
+//	return false;
+//}
 
 void CLuaBaseMetaClass::Dump(CEasyString& Data) const
 {
@@ -215,7 +215,7 @@ bool CLuaBaseMetaClass::UnregisterLuaObject()
 	{
 		if (IsInLuaHeap())
 		{
-			LogLua(_T("内部对象无需注销"));
+			//LogLua(_T("内部对象无需注销"));
 			return true;
 		}
 		else
@@ -254,7 +254,7 @@ bool CLuaBaseMetaClass::UnregisterLuaObject()
 				lua_settable(m_pRegisterVM->GetLuaState(), -3);
 				lua_pop(m_pRegisterVM->GetLuaState(), 1);
 				m_pRegisterVM = NULL;
-				LogLua(_T("0x%p成功从Lua注销"), this);
+				//LogLua(_T("0x%p成功从Lua注销"), this);
 				return true;
 			}
 			else
@@ -283,7 +283,7 @@ bool CLuaBaseMetaClass::PushToLua(CLuaThread* pLuaThread)
 			int Type = lua_gettable(pLuaThread->GetLuaState(), -2);
 			if (Type == LUA_TUSERDATA)
 			{
-				lua_remove(pLuaThread->GetLuaState(), lua_gettop(pLuaThread->GetLuaState()) - 1);
+				lua_remove(pLuaThread->GetLuaState(), -2);
 				return true;
 			}
 			else
@@ -394,6 +394,19 @@ bool CLuaBaseMetaClass::MergeLuaObject(CLuaThread* pLuaThread, int Index, OBJECT
 	return Ret;
 }
 
+CLuaThread* CLuaBaseMetaClass::AllocLuaThread()
+{
+	if (m_pRegisterVM)
+	{
+		return m_pRegisterVM->AllocLuaThread();
+	}
+	else
+	{
+		LogLua(_T("对象%s还未注册进Lua"), GetClassName());
+	}
+	return NULL;
+}
+
 bool CLuaBaseMetaClass::PrepareCall(CLuaThread* pLuaThread, LPCTSTR szMemberName) throw(LUA_EXCEPTION)
 {
 	try
@@ -413,7 +426,6 @@ bool CLuaBaseMetaClass::PrepareCall(CLuaThread* pLuaThread, LPCTSTR szMemberName
 	{
 		return false;
 	}
-
 }
 
 CLuaThread* CLuaBaseMetaClass::PrepareCall(LPCTSTR szMemberName)
@@ -427,6 +439,191 @@ CLuaThread* CLuaBaseMetaClass::PrepareCall(LPCTSTR szMemberName)
 		LogLua(_T("对象%s还未注册进Lua"), GetClassName());
 	}
 	return NULL;
+}
+
+bool CLuaBaseMetaClass::PushMember(CLuaThread* pLuaThread, LPCTSTR MemberName)
+{
+	int Top = lua_gettop(pLuaThread->GetLuaState());
+	if (PushToLua(pLuaThread)) 
+	{
+		int ObjIndex = lua_gettop(pLuaThread->GetLuaState());
+		//取出成员表
+		if (lua_getiuservalue(pLuaThread->GetLuaState(), ObjIndex, 1) == LUA_TTABLE)
+		{
+			if (LUA_SCRIPT_CODE_PAGE == CEasyString::SYSTEM_STRING_CODE_PAGE)
+			{
+				//内码一致，直接压栈
+				pLuaThread->PushString(MemberName);
+			}
+			else
+			{
+				//内码不同，转换后压栈
+				CEasyStringA Name;
+				SystemStrToLuaStr(MemberName, Name);
+				pLuaThread->PushString(Name);
+			}
+			lua_gettable(pLuaThread->GetLuaState(), -2);
+
+			if (IsProperty(pLuaThread->GetLuaState()))
+			{
+				//是属性，执行__get
+				lua_pushcclosure(pLuaThread->GetLuaState(), CLuaThread::LuaErrParser, 0);
+				int nMsgFn = lua_gettop(pLuaThread->GetLuaState());
+				lua_pushstring(pLuaThread->GetLuaState(), "__get");
+				lua_gettable(pLuaThread->GetLuaState(), -3);
+				if (lua_isfunction(pLuaThread->GetLuaState(), -1))
+				{
+					lua_pushvalue(pLuaThread->GetLuaState(), ObjIndex);
+					if (lua_pcall(pLuaThread->GetLuaState(), 1, 1, nMsgFn) == LUA_OK)
+					{
+						lua_copy(pLuaThread->GetLuaState(), -1, Top + 1);
+						lua_settop(pLuaThread->GetLuaState(), Top + 1);
+						return true;
+					}
+				}				
+			}
+			else
+			{
+				lua_copy(pLuaThread->GetLuaState(), -1, Top + 1);
+				lua_settop(pLuaThread->GetLuaState(), Top + 1);
+				return true;
+			}
+			
+		}		
+	}
+	lua_settop(pLuaThread->GetLuaState(), Top);
+	pLuaThread->PushNil();
+	return false;
+}
+
+bool CLuaBaseMetaClass::SetMember(CLuaThread* pLuaThread, LPCTSTR MemberName)
+{
+	int Top = lua_gettop(pLuaThread->GetLuaState());
+	if (Top > 0)
+	{
+		if (PushToLua(pLuaThread))
+		{
+			int ObjIndex = lua_gettop(pLuaThread->GetLuaState());
+			//取出成员表
+			if (lua_getiuservalue(pLuaThread->GetLuaState(), ObjIndex, 1) == LUA_TTABLE)
+			{
+				if (LUA_SCRIPT_CODE_PAGE == CEasyString::SYSTEM_STRING_CODE_PAGE)
+				{
+					//内码一致，直接压栈
+					pLuaThread->PushString(MemberName);
+				}
+				else
+				{
+					//内码不同，转换后压栈
+					CEasyStringA Name;
+					SystemStrToLuaStr(MemberName, Name);
+					pLuaThread->PushString(Name);
+				}
+				lua_pushvalue(pLuaThread->GetLuaState(), -1);
+				lua_gettable(pLuaThread->GetLuaState(), -3);
+
+				if (IsProperty(pLuaThread->GetLuaState()))
+				{
+					//是属性，执行__get
+					lua_pushcclosure(pLuaThread->GetLuaState(), CLuaThread::LuaErrParser, 0);
+					int nMsgFn = lua_gettop(pLuaThread->GetLuaState());
+					lua_pushstring(pLuaThread->GetLuaState(), "__set");
+					lua_gettable(pLuaThread->GetLuaState(), -3);
+					if (lua_isfunction(pLuaThread->GetLuaState(), -1))
+					{
+						lua_pushvalue(pLuaThread->GetLuaState(), ObjIndex);
+						lua_pushvalue(pLuaThread->GetLuaState(), Top);
+						if (lua_pcall(pLuaThread->GetLuaState(), 1, 1, nMsgFn) == LUA_OK)
+						{
+							lua_settop(pLuaThread->GetLuaState(), Top - 1);
+							return true;
+						}
+					}
+				}
+				else
+				{
+					pLuaThread->Pop(1);
+					lua_pushvalue(pLuaThread->GetLuaState(), Top);
+					lua_settable(pLuaThread->GetLuaState(), -3);
+					lua_settop(pLuaThread->GetLuaState(), Top - 1);
+					return true;
+				}
+
+			}
+
+		}
+		lua_settop(pLuaThread->GetLuaState(), Top - 1);
+	}
+	return false;
+}
+
+int CLuaBaseMetaClass::AddPersistentObject(CLuaThread* pLuaThread, int Index)
+{
+	int Top = lua_gettop(pLuaThread->GetLuaState());
+	if(Top>0)
+	{
+		Index = lua_absindex(pLuaThread->GetLuaState(), Index);
+		PushMember(pLuaThread, "__PERSISTENT_OBJECTS");
+		if (!lua_istable(pLuaThread->GetLuaState(), -1))
+		{
+			pLuaThread->Pop(1);
+			lua_newtable(pLuaThread->GetLuaState());
+			if (!SetMember(pLuaThread, "__PERSISTENT_OBJECTS"))
+			{
+				LogLua(_T("创建表__PERSISTENT_OBJECTS失败"));
+				lua_settop(pLuaThread->GetLuaState(), Top - 1);
+				return LUA_NOREF;
+			}
+			PushMember(pLuaThread, "__PERSISTENT_OBJECTS");
+			//LogLuaDebug(_T("__PERSISTENT_OBJECTS Created"));
+		}
+		lua_pushvalue(pLuaThread->GetLuaState(), Index);
+		int RefID = luaL_ref(pLuaThread->GetLuaState(), -2);
+
+		//int Len = luaL_len(pLuaThread->GetLuaState(), -1);
+		//LogLuaDebug(_T("__PERSISTENT_OBJECTS Ref=%d MaxRef=%d"), RefID, Len);
+
+		lua_settop(pLuaThread->GetLuaState(), Top - 1);
+		return RefID;
+	}
+	return LUA_NOREF;
+}
+int CLuaBaseMetaClass::PushPersistentObject(CLuaThread* pLuaThread, int RefID)
+{
+	PushMember(pLuaThread, "__PERSISTENT_OBJECTS");
+	if (lua_istable(pLuaThread->GetLuaState(), -1))
+	{
+		lua_rawgeti(pLuaThread->GetLuaState(), -1, RefID);
+		lua_remove(pLuaThread->GetLuaState(), -2);
+		return lua_type(pLuaThread->GetLuaState(), -1);
+	}
+	else
+	{
+		LogLua(_T("表__PERSISTENT_OBJECTS不存在"));
+	}
+	pLuaThread->Pop(1);
+	pLuaThread->PushNil();
+	return LUA_TNIL;
+}
+bool CLuaBaseMetaClass::RemovePersistentObject(CLuaThread* pLuaThread, int RefID)
+{
+	PushMember(pLuaThread, "__PERSISTENT_OBJECTS");
+	if (lua_istable(pLuaThread->GetLuaState(), -1))
+	{
+		luaL_unref(pLuaThread->GetLuaState(), -1, RefID);
+
+		//int Len = luaL_len(pLuaThread->GetLuaState(), -1);
+		//LogLuaDebug(_T("__CALLBACK_FN_TABLE MaxRef=%d"), Len);
+
+		lua_pop(pLuaThread->GetLuaState(), 1);
+		return true;
+	}
+	else
+	{
+		LogLua(_T("表__PERSISTENT_OBJECTS不存在"));
+	}
+	pLuaThread->Pop(1);
+	return false;
 }
 
 int CLuaBaseMetaClass::DoGarbageCollect(lua_State* L)
@@ -466,8 +663,6 @@ int CLuaBaseMetaClass::DoGarbageCollect(lua_State* L)
 	}
 	return 0;
 }
-
-
 
 int CLuaBaseMetaClass::DoGetMember(lua_State* L)
 {
@@ -556,6 +751,7 @@ int CLuaBaseMetaClass::DoGetMember(lua_State* L)
 	}
 	return 0;
 }
+
 int CLuaBaseMetaClass::DoSetMember(lua_State* L)
 {
 	if (lua_type(L, 1) == LUA_TUSERDATA)
@@ -745,11 +941,9 @@ LPCTSTR CLuaBaseMetaClass::LuaGetClassName()
 	return GetMetaClassName();
 }
 
-bool CLuaBaseMetaClass::LuaMergeObject(LUA_EMPTY_VALUE Param1)
+bool CLuaBaseMetaClass::LuaMergeObject(LUA_EMPTY_VALUE Obj, int MergeType)
 {
-	LUA_INTEGER OverWriteExist = lua_tointeger(m_pCurThread->GetLuaState(), -1);
-	m_pCurThread->Pop(1);
-	return MergeLuaObject(m_pCurThread, lua_gettop(m_pCurThread->GetLuaState()), (OBJECT_MERGE_TYPE)OverWriteExist);
+	return MergeLuaObject(m_pCurThread, 2, (OBJECT_MERGE_TYPE)MergeType);
 }
 
 bool CLuaBaseMetaClass::LuaMemberExist(LPCSTR MemberName)
@@ -757,7 +951,7 @@ bool CLuaBaseMetaClass::LuaMemberExist(LPCSTR MemberName)
 	bool Exist = false;
 	if (PushToLua(m_pCurThread))
 	{
-		if (lua_getiuservalue(m_pCurThread->GetLuaState(), 1, 1) == LUA_TTABLE)
+		if (lua_getiuservalue(m_pCurThread->GetLuaState(), -1, 1) == LUA_TTABLE)
 		{
 			lua_pushstring(m_pCurThread->GetLuaState(), MemberName);
 			lua_gettable(m_pCurThread->GetLuaState(), -2);

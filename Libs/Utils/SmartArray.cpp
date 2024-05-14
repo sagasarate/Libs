@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    SmartStruct.h                                            */
-/*      ´´½¨ÈÕÆÚ:  2022Äê07ÔÂ30ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    SmartStruct.h                                            */
+/*      åˆ›å»ºæ—¥æœŸ:  2022å¹´07æœˆ30æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
@@ -190,4 +190,15 @@ UINT CSmartArray::GetVariedMemberSize(const CVariedValue& Value)
 		}
 	}
 	return sizeof(BYTE);
+}
+
+rapidjson::Value CSmartArray::ToJson(rapidjson::Document::AllocatorType& Alloc)
+{
+	rapidjson::Value Object(rapidjson::kArrayType);
+
+	for (CSmartValue& Value : *this)
+	{
+		Object.PushBack(Value.ToJson(Alloc), Alloc);
+	}
+	return Object;
 }

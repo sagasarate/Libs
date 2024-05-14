@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 
 #define QueryFilterInfoReleaseGraph(fi) if ((fi).pGraph) (fi).pGraph->Release();

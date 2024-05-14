@@ -42,13 +42,13 @@ CEasyNetLink::~CEasyNetLink(void)
 }
 
 bool CEasyNetLink::Init(CEasyNetLinkManager * pManager, const CIPAddress& ConnectionAddress, UINT ReportID, 
-	UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
+	UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail)
 {
 	SAFE_RELEASE(m_pConnection);
 	m_pManager = pManager;
 	m_ReportID = ReportID;
 	
-	m_pConnection = NewConnection(ConnectionAddress, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize);
+	m_pConnection = NewConnection(ConnectionAddress, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize, DisconnectOnTransferFail);
 	if (m_pConnection)
 		return true;
 	else
@@ -56,14 +56,14 @@ bool CEasyNetLink::Init(CEasyNetLinkManager * pManager, const CIPAddress& Connec
 }
 
 bool CEasyNetLink::Init(CEasyNetLinkManager * pManager, UINT ReportID, UINT MaxPacketSize, 
-	CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool NeedReallocConnectionID)
+	CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail, bool NeedReallocConnectionID)
 {
 	SAFE_RELEASE(m_pConnection);
 	m_pManager = pManager;
 	m_ReportID = ReportID;	
 	m_NeedReallocConnectionID = NeedReallocConnectionID;
 	
-	m_pConnection = NewConnection(MaxPacketSize, DataCompressType, MinCompressSize);
+	m_pConnection = NewConnection(MaxPacketSize, DataCompressType, MinCompressSize, DisconnectOnTransferFail);
 	if (m_pConnection)
 		return true;
 	else
@@ -134,10 +134,10 @@ void CEasyNetLink::PrintInfo(UINT LogChannel)
 	}
 }
 
-CENLBaseConnection * CEasyNetLink::NewConnection(UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
+CENLBaseConnection * CEasyNetLink::NewConnection(UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail)
 {
 	CENLConnection * pConnection = MONITORED_NEW(_T("CEasyNetLink"), CENLConnection);
-	if (pConnection->Init(m_pManager, this, MaxPacketSize, DataCompressType, MinCompressSize))
+	if (pConnection->Init(m_pManager, this, MaxPacketSize, DataCompressType, MinCompressSize, DisconnectOnTransferFail))
 	{
 		return pConnection;
 	}
@@ -145,10 +145,10 @@ CENLBaseConnection * CEasyNetLink::NewConnection(UINT MaxPacketSize, CEasyNetLin
 }
 
 CENLBaseConnection * CEasyNetLink::NewConnection(const CIPAddress& ConnectionAddress, UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize,
-	CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
+	CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail)
 {
 	CENLConnection * pConnection = MONITORED_NEW(_T("CEasyNetLink"), CENLConnection);
-	if (pConnection->Init(m_pManager, this, ConnectionAddress, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize))
+	if (pConnection->Init(m_pManager, this, ConnectionAddress, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize, DisconnectOnTransferFail))
 	{
 		return pConnection;
 	}

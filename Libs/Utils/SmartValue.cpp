@@ -236,41 +236,104 @@ UINT CSmartValue::GetVariedValueSize(const CVariedValue& Value)
 	}
 	return 0;
 }
-
-bool CSmartValue::CopyVariedData(const CVariedValue& Value)
+bool CSmartValue::SetValue(const CVariedValue& Value, bool CanChangeType)
 {
-	if (Value.GetType() == VARIED_VALUE_TYPE::ARRAY)
+	if (m_pData == NULL)
+		return false;
+	switch (Value.GetType())
 	{
-		CSmartArray Array(*this);
-		Array.Clear();
-		for (const CVariedValue& Child : Value)
+	case VARIED_VALUE_TYPE::BOOLEAN:
+		return SetValue((bool)Value, CanChangeType);
+	case VARIED_VALUE_TYPE::INT8:
+		return SetValue((char)Value, CanChangeType);
+	case VARIED_VALUE_TYPE::UINT8:
+		return SetValue((unsigned char)Value, CanChangeType);
+	case VARIED_VALUE_TYPE::INT16:
+		return SetValue((short)Value);
+	case VARIED_VALUE_TYPE::UINT16:
+		return SetValue((unsigned short)Value, CanChangeType);
+	case VARIED_VALUE_TYPE::INT32:
+		return SetValue((int)Value, CanChangeType);
+	case VARIED_VALUE_TYPE::UINT32:
+		return SetValue((unsigned int)Value, CanChangeType);
+	case VARIED_VALUE_TYPE::INT64:
+		return SetValue((__int64)Value, CanChangeType);
+	case VARIED_VALUE_TYPE::UINT64:
+		return SetValue((unsigned __int64)Value, CanChangeType);
+	case VARIED_VALUE_TYPE::FLOAT32:
+		return SetValue((float)Value, CanChangeType);
+	case VARIED_VALUE_TYPE::FLOAT64:
+		return SetValue((double)Value, CanChangeType);
+	case VARIED_VALUE_TYPE::STRING:
+		return SetValue((LPCTSTR)Value, CanChangeType);
+	case VARIED_VALUE_TYPE::BINARY:
+		return SetValue((const unsigned char*)Value, Value.GetLength(), CanChangeType);
+	case VARIED_VALUE_TYPE::ARRAY:
 		{
-			if (!Array.AddMember(Child))
+			UINT NeedSize = GetVariedValueSize(Value) + sizeof(BYTE) + sizeof(UINT);
+			if (NeedSize > m_DataLen)
 				return false;
+			if (GetType() != VT_ARRAY)
+			{
+				if (CanChangeType)
+				{
+					if (!ChangeType(VT_ARRAY, NeedSize))
+						return false;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			CSmartArray Array(*this);
+			Array.Clear();
+			for (const CVariedValue& Child : Value)
+			{
+				if (!Array.AddMember(Child))
+					return false;
+			}
+			return true;
 		}
-		return true;
-	}
-	else if (Value.GetType() == VARIED_VALUE_TYPE::TABLE)
-	{
-		CSmartStruct Struct(*this);
-		Struct.Clear();
-		void* Pos = Value.GetFirstChildPos();
-		while (Pos)
+		break;
+	case VARIED_VALUE_TYPE::TABLE:
 		{
-			CVariedValue Key;
-			const CVariedValue* pChild = Value.GetNextChild(Pos, Key);
-			CSmartStruct SubStruct = Struct.PrepareSubStruct();
-			if (!SubStruct.AddMember((WORD)SST_PAIR::KEY, Key))
+			UINT NeedSize = GetVariedValueSize(Value) + sizeof(BYTE) + sizeof(UINT);
+			if (NeedSize > m_DataLen)
 				return false;
-			if (!SubStruct.AddMember((WORD)SST_PAIR::DATA, *pChild))
-				return false;
-			if (!Struct.FinishMember(1, SubStruct.GetDataLen()))
-				return false;
+			if (GetType() != VT_STRUCT)
+			{
+				if (CanChangeType)
+				{
+					if (!ChangeType(VT_STRUCT, NeedSize))
+						return false;
+				}
+				else
+				{
+					return false;
+				}				
+			}
+			CSmartStruct Struct(*this);
+			Struct.Clear();
+			void* Pos = Value.GetFirstChildPos();
+			while (Pos)
+			{
+				CVariedValue Key;
+				const CVariedValue* pChild = Value.GetNextChild(Pos, Key);
+				CSmartStruct SubStruct = Struct.PrepareSubStruct();
+				if (!SubStruct.AddMember((WORD)SST_PAIR::KEY, Key))
+					return false;
+				if (!SubStruct.AddMember((WORD)SST_PAIR::DATA, *pChild))
+					return false;
+				if (!Struct.FinishMember(VARIED_MEMEBR_ID, SubStruct.GetDataLen()))
+					return false;
+			}
+			return true;
 		}
-		return true;
+		break;
 	}
 	return false;
 }
+
 bool CSmartValue::FetchVariedData(CVariedValue& Value) const
 {
 	if (GetType() == VT_ARRAY)
@@ -299,4 +362,44 @@ bool CSmartValue::FetchVariedData(CVariedValue& Value) const
 		}
 	}
 	return false;
+}
+
+rapidjson::Value CSmartValue::ToJson(rapidjson::Document::AllocatorType& Alloc)
+{
+	switch (this->GetType())
+	{
+	case VT_CHAR:
+	case VT_SHORT:
+	case VT_INT:
+		return rapidjson::Value((int)(*this));
+	case VT_UCHAR:
+	case VT_USHORT:
+	case VT_UINT:
+		return rapidjson::Value((unsigned int)(*this));
+	case VT_BIGINT:
+		return rapidjson::Value((__int64)(*this));
+	case VT_UBIGINT:
+		return rapidjson::Value((unsigned __int64)(*this));
+	case VT_FLOAT:
+		return rapidjson::Value((float)(*this));
+	case VT_DOUBLE:
+		return rapidjson::Value((double)(*this));
+	case VT_STRING_ANSI:
+	case VT_STRING_UTF8:
+	case VT_STRING_UCS16:
+		return rapidjson::Value((LPCTSTR)GetString(), Alloc);
+	case VT_STRUCT:
+		return CSmartStruct(*this).ToJson(Alloc);
+	case VT_BINARY:
+		{
+			CEasyString BinStr = BinToString((BYTE*)(*this), GetLength());
+			return rapidjson::Value((LPCTSTR)BinStr, Alloc);
+		}
+	case VT_ARRAY:
+		return CSmartArray(*this).ToJson(Alloc);
+	case VT_BOOL:
+		return rapidjson::Value((bool)(*this));
+	default:
+		return rapidjson::Value(rapidjson::kNullType);
+	}
 }

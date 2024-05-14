@@ -114,6 +114,12 @@ struct STORAGE_POOL_SETTING
 		GrowSize = 0;
 		GrowLimit = 0;
 	}
+	STORAGE_POOL_SETTING(UINT Start, UINT Grow, UINT Limit)
+	{
+		StartSize = Start;
+		GrowSize = Grow;
+		GrowLimit = Limit;
+	}
 	UINT MaxSize()
 	{
 		return StartSize + GrowSize*GrowLimit;

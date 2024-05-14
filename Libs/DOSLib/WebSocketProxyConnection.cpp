@@ -1,4 +1,4 @@
-#include "stdafx.h"
+Ôªø#include "stdafx.h"
 
 
 
@@ -13,6 +13,11 @@ CWebSocketProxyConnection::~CWebSocketProxyConnection()
 }
 void CWebSocketProxyConnection::OnConnection(bool IsSucceed)
 {
+	if (m_Config.MaxWSFrameSize < 1024)
+	{
+		PrintDOSLog(_T("ÊúÄÂ§ßÂ∏ßÂ§ßÂ∞è(%u)ÂºÇÂ∏∏ÔºÅ"), m_Config.MaxWSFrameSize);
+		m_Config.MaxWSFrameSize = 1024;
+	}
 	m_NeedDelayClose = false;
 	m_KeepAliveTimer.SaveTime();
 	m_KeepAliveCount = 0;
@@ -22,7 +27,7 @@ void CWebSocketProxyConnection::OnConnection(bool IsSucceed)
 
 	if (IsSucceed)
 	{
-		PrintDOSDebugLog(_T(" ’µΩ¥˙¿Ì∂‘œÛµƒ¡¨Ω”£°IP=%s"), GetRemoteAddress().GetIPString());
+		PrintDOSDebugLog(_T("Êî∂Âà∞‰ª£ÁêÜÂØπË±°ÁöÑËøûÊé•ÔºÅIP=%s"), GetRemoteAddress().GetIPString());
 		m_Status = STATUS_CONNECTED;
 		m_pService->AcceptConnection(this);
 
@@ -30,7 +35,7 @@ void CWebSocketProxyConnection::OnConnection(bool IsSucceed)
 	}
 	else
 	{
-		PrintDOSLog(_T("¡¨Ω”≥ı ºªØ ß∞‹£°IP=%s"), GetRemoteAddress().GetIPString());
+		PrintDOSLog(_T("ËøûÊé•ÂàùÂßãÂåñÂ§±Ë¥•ÔºÅIP=%s"), GetRemoteAddress().GetIPString());
 		m_Status = STATUS_DISCONNECTED;
 		m_pService->QueryDestoryConnection(this);
 	}
@@ -42,11 +47,11 @@ bool CWebSocketProxyConnection::OnMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, const
 
 	if ((m_Config.MsgCompressType != MSG_COMPRESS_NONE) && ((MsgFlag & DOS_MESSAGE_FLAG_NO_COMPRESS) == 0))
 	{
-		//—πÀı
+		//ÂéãÁº©
 		LPCVOID pNewData = CompressMsg(pData, DataLen);
 		if (pNewData == NULL)
 		{
-			PrintDOSLog(_T("œ˚œ¢0x%X—πÀı ß∞‹"), MsgID);
+			PrintDOSLog(_T("Ê∂àÊÅØ0x%XÂéãÁº©Â§±Ë¥•"), MsgID);
 			return false;
 		}
 		if (pNewData != pData)
@@ -54,8 +59,8 @@ bool CWebSocketProxyConnection::OnMessage(MSG_ID_TYPE MsgID, WORD MsgFlag, const
 			MsgFlag |= DOS_MESSAGE_FLAG_COMPRESSED;
 			pData = pNewData;
 		}
-	}
-	return SendWebSocketFrame(WEB_SOCKET_OP_CODE_BINARY_DATA, MsgID, MsgFlag, 0, pData, DataLen);
+	}	
+	return SendMsg(MsgID, MsgFlag, 0, (const BYTE*)pData, DataLen);
 }
 
 void CWebSocketProxyConnection::OnRecvData(const BYTE * pData, UINT DataSize)
@@ -76,7 +81,13 @@ void CWebSocketProxyConnection::OnRecvData(const BYTE * pData, UINT DataSize)
 
 void CWebSocketProxyConnection::OnKeepAliveMsg(UINT Timestamp, UINT RecentDelay)
 {
+	m_RecentPingDelay = RecentDelay;
 
+	PING_DATA PingData;
+	PingData.Time = Timestamp;
+	PingData.RecentDelay = m_RecentPingDelay;
+
+	SendMsg(DSM_PROXY_KEEP_ALIVE_PONG, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE, 0, (const BYTE*)&PingData, sizeof(PingData));
 }
 void CWebSocketProxyConnection::OnKeepAliveAckMsg(UINT Timestamp)
 {
@@ -93,9 +104,9 @@ void CWebSocketProxyConnection::SendProtocolOption()
 	if (m_Config.MsgEnCryptType != MSG_ENCRYPT_NONE)
 		Data.Flag |= PROTOCOL_OPTION_FLAG_UP_MSG_USE_ENCRYPT;
 
-	SendWebSocketFrame(WEB_SOCKET_OP_CODE_BINARY_DATA, DSM_PROTOCOL_OPTION, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE,0, &Data, sizeof(PROTOCOL_OPTION));
+	SendMsg(DSM_PROTOCOL_OPTION, DOS_MESSAGE_FLAG_SYSTEM_MESSAGE,0, (const BYTE*)&Data, sizeof(PROTOCOL_OPTION));
 
-	PrintDOSDebugLog(_T("“—∑¢ÀÕ–≠“È≈‰÷√0x%X"), Data.Flag);
+	PrintDOSDebugLog(_T("Â∑≤ÂèëÈÄÅÂçèËÆÆÈÖçÁΩÆ0x%X"), Data.Flag);
 }
 
 
@@ -128,7 +139,7 @@ void CWebSocketProxyConnection::ProcessHTTPMsg(const BYTE * pData, UINT DataSize
 		case HRPS_RETURN2:
 			if (pData[Ptr] == '\n')
 			{
-				//«Î«Û√¸¡Ó“—æ≠ÕÍ’˚
+				//ËØ∑Ê±ÇÂëΩ‰ª§Â∑≤ÁªèÂÆåÊï¥
 				((BYTE *)pData)[Ptr] = 0;
 				((BYTE *)pData)[Ptr - 1] = 0;
 				OnHTTPRequest((const char *)pData);
@@ -150,14 +161,14 @@ void CWebSocketProxyConnection::OnHTTPRequest(const char * szRequest)
 
 	CEasyArray<char *> Lines;
 	ParseStringLines((char *)szRequest, Lines);
-	CEasyString GetField;
-	CEasyString UpgradeField;
-	CEasyString ConnectionField;
-	CEasyString SecWebSocketKeyField;
-	CEasyString SecWebSocketVersionField;
-	CEasyString SecWebSocketExtensionsField;
-	CEasyString HostField;
-	CEasyString OriginField;
+	CEasyStringA GetField;
+	CEasyStringA UpgradeField;
+	CEasyStringA ConnectionField;
+	CEasyStringA SecWebSocketKeyField;
+	CEasyStringA SecWebSocketVersionField;
+	CEasyStringA SecWebSocketExtensionsField;
+	CEasyStringA HostField;
+	CEasyStringA OriginField;
 	for (UINT i = 0; i < Lines.GetCount(); i++)
 	{
 		if (strncmp(Lines[i], "GET ", 4) == 0)
@@ -210,7 +221,7 @@ void CWebSocketProxyConnection::OnHTTPRequest(const char * szRequest)
 		sha1.Update((BYTE*)SecWebSocketKeyField.GetBuffer(), SecWebSocketKeyField.GetLength());
 		sha1.Final();
 		sha1.GetHash(HashBin);
-		CEasyString HashStr = CBase64::Encode(HashBin, 20);
+		CEasyStringA HashStr = CBase64::Encode(HashBin, 20);
 		SendHTTPRespond(101, HashStr);
 		m_WebSocketStatus = WEB_SOCKET_STATUS_ACCEPTED;
 	}
@@ -231,11 +242,11 @@ void CWebSocketProxyConnection::SendHTTPRespond(int Code, LPCSTR szContent)
 		break;
 	case 403:
 		sprintf_s(Buff, 4096, "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\r\nContent-Length: %u\r\n\r\n%s",
-			strlen(szContent), szContent);
+			(UINT)strlen(szContent), szContent);
 		break;
 	default:
 		sprintf_s(Buff, 4096, "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\r\nContent-Length: %u\r\n\r\n%s",
-			strlen(szContent), szContent);
+			(UINT)strlen(szContent), szContent);
 		break;
 	}
 	Send(Buff, strlen(Buff));
@@ -267,10 +278,11 @@ void CWebSocketProxyConnection::ProcessWebSocketData(const BYTE * pData, UINT Da
 {
 	if (m_AssembleBuffer.PushBack(pData, DataSize))
 	{
-		while (m_AssembleBuffer.GetUsedSize() >= 2)
+		UINT FrameCount = 0;
+		size_t Pos = 0;
+		while (m_AssembleBuffer.GetUsedSize() - Pos >= 2)
 		{
 			BYTE Header1, Header2;
-			size_t Pos = 0;
 			m_AssembleBuffer.Peek(Pos, &Header1, sizeof(Header1));
 			m_AssembleBuffer.Peek(Pos, &Header2, sizeof(Header2));
 			BYTE OPCode = Header1 & 0x0F;
@@ -295,8 +307,41 @@ void CWebSocketProxyConnection::ProcessWebSocketData(const BYTE * pData, UINT Da
 			}
 			if (m_AssembleBuffer.GetUsedSize() >= Pos + DataLen)
 			{
-				OnWebSocketFrame(OPCode, IsFinFrame, HaveMask, MaskKey, ((BYTE*)m_AssembleBuffer.GetBuffer()) + Pos, DataLen);
-				m_AssembleBuffer.PopFront(NULL, Pos + DataLen);
+				FrameCount++;
+				if (IsFinFrame)
+				{
+					//ÁªìÊùüÂ∏ß
+					if (FrameCount > 1)
+					{
+						//Â§öÂ∏ß
+						if (!ProcessMultiFrameData(m_AssembleBuffer, FrameCount))
+						{
+							Disconnect();
+							break;
+						}
+					}
+					else
+					{
+						//ÂçïÂ∏ß
+						BYTE* pData = ((BYTE*)m_AssembleBuffer.GetBuffer()) + Pos;
+						if (HaveMask)
+						{
+							for (UINT i = 0; i < DataLen; i++)
+							{
+								pData[i] = pData[i] ^ MaskKey[i % 4];
+							}
+						}
+						OnWebSocketFrame(OPCode, pData, DataLen);
+					}
+					m_AssembleBuffer.PopFront(NULL, Pos + DataLen);
+					FrameCount = 0;
+					Pos = 0;
+				}
+				else
+				{
+					//ÁªßÁª≠Â§ÑÁêÜ‰∏ã‰∏ÄÂ∏ß
+					Pos += DataLen;
+				}
 			}
 			else
 			{
@@ -307,11 +352,86 @@ void CWebSocketProxyConnection::ProcessWebSocketData(const BYTE * pData, UINT Da
 	else
 	{
 		Disconnect();
-		PrintDOSLog(_T("DOSLib"), _T("∂‘œÛ¥˙¿Ì(%d)∆¥∞¸ª∫≥Â“Á≥ˆ£¨¡¨Ω”∂œø™£°"), GetID());
+		PrintDOSLog(_T("ÂØπË±°‰ª£ÁêÜ(%d)ÊãºÂåÖÁºìÂÜ≤Ê∫¢Âá∫ÔºåËøûÊé•Êñ≠ÂºÄÔºÅ"), GetID());
 	}
 }
-
-void CWebSocketProxyConnection::OnWebSocketFrame(BYTE OPCode, bool IsFinFrame, bool HaveMask, BYTE * MaskKey, BYTE* pData, UINT DataLen)
+bool CWebSocketProxyConnection::ProcessMultiFrameData(CEasyBuffer& DataBuffer, UINT FrameCount)
+{
+	size_t Pos = 0;
+	UINT TotalDataLen = 0;
+	BYTE* pFrameData = NULL;
+	BYTE OPCode = 0;
+	for (UINT i = 0; i < FrameCount; i++)
+	{
+		if (m_AssembleBuffer.GetUsedSize() - Pos < 2)
+		{
+			PrintDOSLog(_T("ÂØπË±°‰ª£ÁêÜ(%d)Â∏ßÊï∞ÊçÆÂ§ßÂ∞èÂºÇÂ∏∏1ÔºÅ"), GetID());
+			return false;
+		}
+		BYTE Header1, Header2;
+		m_AssembleBuffer.Peek(Pos, &Header1, sizeof(Header1));
+		m_AssembleBuffer.Peek(Pos, &Header2, sizeof(Header2));
+		if (pFrameData == NULL)
+		{
+			if (WEB_SOCKET_OP_CODE_CONTINUOUS_DATA != (Header1 & 0x0F))
+			{
+				PrintDOSLog(_T("ÂØπË±°‰ª£ÁêÜ(%d)Â∏ßÊï∞ÊçÆOPCode()ÈîôËØØÔºÅ"), GetID(), (Header1 & 0x0F));
+				return false;
+			}
+		}
+		else
+		{
+			OPCode = Header1 & 0x0F;
+		}		
+		BYTE ReserveCode = (Header1 >> 4) & 0x07;
+		bool IsFinFrame = (Header1 & 0x80) != 0;
+		bool HaveMask = (Header2 & 0x80) != 0;
+		UINT64 DataLen = Header2 & 0x7F;
+		if (DataLen == 126)
+		{
+			m_AssembleBuffer.Peek(Pos, &DataLen, sizeof(WORD));
+			DataLen = ntohs(DataLen);
+		}
+		else if (DataLen == 127)
+		{
+			m_AssembleBuffer.Peek(Pos, &DataLen, sizeof(UINT64));
+			DataLen = __ntohll(DataLen);
+		}
+		BYTE MaskKey[4];
+		if (HaveMask)
+		{
+			m_AssembleBuffer.Peek(Pos, MaskKey, sizeof(BYTE) * 4);
+		}
+		if (m_AssembleBuffer.GetUsedSize() >= Pos + DataLen)
+		{
+			BYTE* pData = ((BYTE*)m_AssembleBuffer.GetBuffer()) + Pos;
+			if (HaveMask)
+			{
+				for (UINT i = 0; i < DataLen; i++)
+				{
+					pData[i] = pData[i] ^ MaskKey[i % 4];
+				}
+			}
+			if (pFrameData == NULL)
+			{
+				pFrameData = pData;
+			}
+			else
+			{
+				//ÁßªÂä®Êï∞ÊçÆÔºå‰ΩøÂæóÂêÑÂ∏ßÊï∞ÊçÆËøûÁª≠
+				memmove(pFrameData + DataLen, pData, DataLen);
+			}
+			TotalDataLen += DataLen;
+		}
+		else
+		{
+			PrintDOSLog(_T("ÂØπË±°‰ª£ÁêÜ(%d)Â∏ßÊï∞ÊçÆÂ§ßÂ∞èÂºÇÂ∏∏2ÔºÅ"), GetID());
+		}
+	}
+	OnWebSocketFrame(OPCode, pFrameData, TotalDataLen);
+	return true;
+}
+void CWebSocketProxyConnection::OnWebSocketFrame(BYTE OPCode, BYTE* pData, UINT DataLen)
 {
 	//PrintDOSDebugLog("Frame:%u %u %s %s Mask=%02X %02X %02X %02X", 
 	//	OPCode, DataLen, IsFinFrame ? "true" : "false", HaveMask ? "true" : "false", MaskKey[0], MaskKey[1], MaskKey[2], MaskKey[3]);
@@ -321,13 +441,7 @@ void CWebSocketProxyConnection::OnWebSocketFrame(BYTE OPCode, bool IsFinFrame, b
 	case WEB_SOCKET_OP_CODE_TEXT_DATA:
 	case WEB_SOCKET_OP_CODE_BINARY_DATA:
 		{
-			if (HaveMask)
-			{
-				for (UINT i = 0; i < DataLen; i++)
-				{
-					pData[i] = pData[i] ^ MaskKey[i % 4];
-				}
-			}
+			
 			if (DataLen >= sizeof(WS_MESSAGE_HEAD))
 			{
 				WS_MESSAGE_HEAD* pHeader = (WS_MESSAGE_HEAD*)pData;
@@ -338,6 +452,7 @@ void CWebSocketProxyConnection::OnWebSocketFrame(BYTE OPCode, bool IsFinFrame, b
 	case WEB_SOCKET_OP_CODE_CLOSE:
 		{
 			SendWebSocketCloseMsg();
+			PrintDOSLog(_T("ÂØπË±°‰ª£ÁêÜ(%d)Êî∂Âà∞WebSocketÁöÑËøûÊé•ÂÖ≥Èó≠Â∏ßÔºÅ"), GetID());
 			QueryDisconnect(1000);
 		}
 		break;
@@ -352,7 +467,7 @@ void CWebSocketProxyConnection::OnWebSocketFrame(BYTE OPCode, bool IsFinFrame, b
 	
 		break;
 	default:
-		PrintDOSLog(_T("DOSLib"), _T("∂‘œÛ¥˙¿Ì(%d)Œ¥÷™µƒWebSocketµƒOPCode(%d)£¨¡¨Ω”∂œø™£°"), GetID(), OPCode);
+		PrintDOSLog(_T("ÂØπË±°‰ª£ÁêÜ(%d)Êú™Áü•ÁöÑWebSocketÁöÑOPCode(%d)ÔºåËøûÊé•Êñ≠ÂºÄÔºÅ"), GetID(), OPCode);
 		Disconnect();
 	}
 }
@@ -376,13 +491,49 @@ void CWebSocketProxyConnection::SendWebSocketPongMsg()
 		Send(Frame, sizeof(Frame));
 }
 
+bool CWebSocketProxyConnection::SendMsg(MSG_ID_TYPE MsgID, WORD MsgFlag, WORD CRC, const BYTE* pData, UINT DataLen)
+{
+	WS_MESSAGE_HEAD MsgHeader;
+	MsgHeader.MsgID = MsgID;
+	MsgHeader.MsgFlag = MsgFlag;
+	MsgHeader.CRC = CRC;
 
-bool CWebSocketProxyConnection::SendWebSocketFrame(WEB_SOCKET_OP_CODE OPCode, MSG_ID_TYPE MsgID, WORD MsgFlag, WORD CRC, const void* pData, UINT DataLen)
+	UINT TotalDataLen = sizeof(MsgHeader)+ DataLen;
+	if (TotalDataLen < m_Config.MaxWSFrameSize)
+	{
+		return SendWebSocketFrame(WEB_SOCKET_OP_CODE_BINARY_DATA, &MsgHeader, sizeof(MsgHeader), pData, DataLen, true);
+	}
+	else
+	{
+		//ÂàÜÂ∏ßÂèëÈÄÅ
+		UINT SendLen = m_Config.MaxWSFrameSize - sizeof(MsgHeader);
+		if (!SendWebSocketFrame(WEB_SOCKET_OP_CODE_BINARY_DATA, &MsgHeader, sizeof(MsgHeader), pData, SendLen, false))
+			return false;
+		DataLen -= SendLen;
+		pData += SendLen;
+		while (DataLen)
+		{
+			if (DataLen > m_Config.MaxWSFrameSize)
+				SendLen = m_Config.MaxWSFrameSize;
+			else
+				SendLen = DataLen;
+			DataLen -= SendLen;
+			if (!SendWebSocketFrame(WEB_SOCKET_OP_CODE_CONTINUOUS_DATA, pData, SendLen, NULL, 0, DataLen == 0))
+				return false;
+			pData += SendLen;
+		}
+		return true;
+	}
+}
+bool CWebSocketProxyConnection::SendWebSocketFrame(WEB_SOCKET_OP_CODE OPCode, const void* pData1, UINT DataLen1, const void* pData2, UINT DataLen2, bool IsFin)
 {
 	BYTE FrameHeader[10];
 	UINT HeaderSize = 2;
-	FrameHeader[0] = OPCode | 0x80;
-	UINT MsgLen = DataLen + sizeof(WS_MESSAGE_HEAD);
+	if(IsFin)
+		FrameHeader[0] = OPCode | 0x80;
+	else
+		FrameHeader[0] = OPCode;
+	UINT MsgLen = DataLen1+ DataLen2;
 	if (MsgLen < 126)
 	{
 		FrameHeader[1] = MsgLen;
@@ -394,7 +545,7 @@ bool CWebSocketProxyConnection::SendWebSocketFrame(WEB_SOCKET_OP_CODE OPCode, MS
 		FrameHeader[2] = Len & 0xFF;
 		FrameHeader[3] = (Len >> 8) & 0xFF;
 		HeaderSize += 2;
-	}
+	}	
 	else
 	{
 		FrameHeader[1] = 127;
@@ -410,24 +561,22 @@ bool CWebSocketProxyConnection::SendWebSocketFrame(WEB_SOCKET_OP_CODE OPCode, MS
 		HeaderSize += 8;
 	}
 
-	WS_MESSAGE_HEAD MsgHeader;
-	MsgHeader.MsgID = MsgID;
-	MsgHeader.MsgFlag = MsgFlag;
-	MsgHeader.CRC = CRC;
-
 	LPCVOID DataBuffers[3];
 	UINT DataSizes[3];
-
+	UINT BuffCount = 1;
 	DataBuffers[0] = FrameHeader;
 	DataSizes[0] = HeaderSize;
-	DataBuffers[1] = &MsgHeader;
-	DataSizes[1] = sizeof(MsgHeader);
-	DataBuffers[2] = pData;
-	DataSizes[2] = DataLen;
-
-	
-	if (pData && DataLen)
-		return SendMulti(DataBuffers, DataSizes, 3);
-	else
-		return SendMulti(DataBuffers, DataSizes, 2);
+	if (pData1 && DataLen1)
+	{
+		DataBuffers[1] = pData1;
+		DataSizes[1] = DataLen1;
+		BuffCount++;
+	}
+	if(pData2 && DataLen2)
+	{
+		DataBuffers[2] = pData2;
+		DataSizes[2] = DataLen2;
+		BuffCount++;
+	}
+	return SendMulti(DataBuffers, DataSizes, BuffCount);
 }

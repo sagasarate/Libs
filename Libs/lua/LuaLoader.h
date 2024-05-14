@@ -57,7 +57,7 @@ public:
 						if (Result == LUA_OK)
 						{
 							pVM->AddLoadedModule(szName);
-							LogLuaDebug(_T("已成功加载模块%s"), szModelName);
+							//LogLuaDebug(_T("已成功加载模块%s"), szModelName);
 						}
 						else
 						{
@@ -190,7 +190,7 @@ public:
 						if (Result == LUA_OK)
 						{
 							pVM->AddLoadedModule(szName);
-							LogLuaDebug(_T("已成功加载模块%s"), szModelName);
+							//LogLuaDebug(_T("已成功加载模块%s"), szModelName);
 						}
 						else
 						{

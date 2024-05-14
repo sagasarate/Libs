@@ -48,7 +48,7 @@ UINT CENLConnectionNoBuff::AddUseRef()
 }
 
 bool CENLConnectionNoBuff::Init(CDOSRouterLinkManager * pManager, CEasyNetLink * pParent, const CIPAddress& ConnectionAddress,
-	UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
+	UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail)
 {
 	m_pManager = pManager;
 	m_pParent = pParent;
@@ -70,7 +70,7 @@ bool CENLConnectionNoBuff::Init(CDOSRouterLinkManager * pManager, CEasyNetLink *
 }
 
 bool CENLConnectionNoBuff::Init(CDOSRouterLinkManager * pManager, CEasyNetLink * pParent, UINT MaxPacketSize,
-	CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
+	CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail)
 {
 	m_pManager = pManager;
 	m_pParent = pParent;

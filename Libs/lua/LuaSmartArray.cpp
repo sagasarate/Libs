@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 #if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
 #undef new
@@ -18,7 +18,7 @@ void CLuaSmartArray::Dump(CEasyString& Data) const
 void CLuaSmartArray::ResgisterStaticFunctions(CBaseLuaVM* pLuaVM, LPCTSTR LibName)
 {
 	pLuaVM->RegisterStaticFunction(LibName, _T("New"), &CLuaSmartArray::LuaNew);
-	pLuaVM->RegisterStaticFunction(LibName, _T("GetEmptyStructSize"), &CLuaSmartArray::LuaGetEmptyStructSize);
+	pLuaVM->RegisterStaticFunction(LibName, _T("GetEmptyArraySize"), &CLuaSmartArray::LuaGetEmptyArraySize);
 	pLuaVM->RegisterStaticFunction(LibName, _T("GetFixMemberSize"), &CLuaSmartArray::LuaGetFixMemberSize);
 	pLuaVM->RegisterStaticFunction(LibName, _T("GetArrayMemberSize"), &CLuaSmartArray::LuaGetArrayMemberSize);
 	pLuaVM->RegisterStaticFunction(LibName, _T("GetStructMemberSize"), &CLuaSmartArray::LuaGetStructMemberSize);
@@ -34,6 +34,7 @@ void CLuaSmartArray::RegisterMemberFunctions(lua_State* pLuaState) const
 	RegisterMetaFunction<CLuaSmartArray>(pLuaState, _T("GetData"), &CLuaSmartArray::LuaGetData);
 	RegisterMetaFunction<CLuaSmartArray>(pLuaState, _T("GetDataLen"), &CLuaSmartArray::LuaGetDataLen);
 	RegisterMetaFunction<CLuaSmartArray>(pLuaState, _T("GetLength"), &CLuaSmartArray::LuaGetLength);
+	RegisterMetaFunction<CLuaSmartArray>(pLuaState, _T("GetBufferLen"), &CLuaSmartArray::LuaGetBufferLen);
 	RegisterMetaFunction<CLuaSmartArray>(pLuaState, _T("GetArrayLength"), &CLuaSmartArray::LuaGetArrayLength);
 	RegisterMetaFunction<CLuaSmartArray>(pLuaState, _T("GetFreeLen"), &CLuaSmartArray::LuaGetFreeLen);
 	RegisterMetaFunction<CLuaSmartArray>(pLuaState, _T("GetElementType"), &CLuaSmartArray::LuaGetElementType);
@@ -66,71 +67,7 @@ void CLuaSmartArray::RegisterMemberFunctions(lua_State* pLuaState) const
 	RegisterMetaFunction<CLuaSmartArray>(pLuaState, _T("AddArray"), &CLuaSmartArray::LuaAddArray);
 }
 
-bool CLuaSmartArray::AddMember(lua_State* L, int Idx)
-{
-	int Type = GetLuaObjectType(L, Idx);
-	switch (Type)
-	{
-	case LUA_TNIL:
-		m_Data.AddMemberNull();
-		return true;
-	case LUA_TBOOLEAN:
-		m_Data.AddMember(lua_toboolean(L, Idx) != 0);
-		return true;
-	case LUA_TNUMBER:
-		m_Data.AddMember(lua_tonumber(L, Idx));
-		return true;
-	case LUA_TSTRING:
-		{
-			LPCTSTR szStr;
-			CEasyString Temp;
-			if (LUA_SCRIPT_CODE_PAGE == CEasyString::SYSTEM_STRING_CODE_PAGE)
-			{
-				szStr = (LPCTSTR)lua_tostring(L, Idx);
-			}
-			else
-			{
-				LuaStrToSystemStr(lua_tostring(L, Idx), Temp);
-				szStr = Temp;
-			}
-			m_Data.AddMember(szStr);
-		}
-		return true;
-	case LUA_TINTEGER:
-		m_Data.AddMember((UINT64)lua_tointeger(L, Idx));
-		return true;
-	case CLuaByteArray::CLASS_ID:
-		{
-			CLuaByteArray* pObject = dynamic_cast<CLuaByteArray*>((CLuaByteArray*)lua_touserdata(L, Idx));
-			if (pObject)
-			{
-				m_Data.AddMember((LPCSTR)pObject->GetData(), pObject->GetDataLen());
-			}
-		}
-		return true;
-	case CLuaSmartValue::CLASS_ID:
-		{
-			CLuaSmartValue* pObject = dynamic_cast<CLuaSmartValue*>((CLuaSmartValue*)lua_touserdata(L, Idx));
-			if (pObject)
-			{
-				m_Data.AddMember(pObject->GetValue());
-				return true;
-			}
-		}
-		return true;
-	case CLuaSmartArray::CLASS_ID:
-		{
-			CLuaSmartArray* pObject = dynamic_cast<CLuaSmartArray*>((CLuaSmartArray*)lua_touserdata(L, Idx));
-			if (pObject)
-			{
-				m_Data.AddMember(pObject->GetValue());
-				return true;
-			}
-		}
-		return true;
-	}
-	return false;
-}
+
 void CLuaSmartArray::OnGarbageCollect()
 {
 	if (m_IsInLuaHeap)
@@ -230,29 +167,29 @@ LUA_EMPTY_VALUE CLuaSmartArray::LuaNew(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 		lua_pushnil(pLuaThread->GetLuaState());
 	return LUA_EMPTY_VALUE();
 }
-UINT CLuaSmartArray::LuaGetEmptyStructSize(CLuaThread* pLuaThread)
+UINT CLuaSmartArray::LuaGetEmptyArraySize(CLuaThread* pLuaThread)
 {
-	return CSmartStruct::GetEmptyStructSize();
+	return CSmartArray::GetEmptyArraySize();
 }
 UINT CLuaSmartArray::LuaGetFixMemberSize(CLuaThread* pLuaThread, UINT TypeLen)
 {
-	return CSmartStruct::GetFixMemberSize(TypeLen);
+	return CSmartArray::GetFixMemberSize(TypeLen);
 }
 UINT CLuaSmartArray::LuaGetArrayMemberSize(CLuaThread* pLuaThread, UINT ArraySize)
 {
-	return CSmartStruct::GetArrayMemberSize(ArraySize);
+	return CSmartArray::GetArrayMemberSize(ArraySize);
 }
 UINT CLuaSmartArray::LuaGetStructMemberSize(CLuaThread* pLuaThread, UINT StructSize)
 {
-	return CSmartStruct::GetStructMemberSize(StructSize);
+	return CSmartArray::GetStructMemberSize(StructSize);
 }
 UINT CLuaSmartArray::LuaGetStringMemberSize(CLuaThread* pLuaThread, LPCTSTR Str)
 {
-	return CSmartStruct::GetStringMemberSize(Str);
+	return CSmartArray::GetStringMemberSize(Str);
 }
 UINT CLuaSmartArray::LuaGetBinaryMemberSize(CLuaThread* pLuaThread, UINT DataLen)
 {
-	return CSmartStruct::GetBinaryMemberSize(DataLen);
+	return CSmartArray::GetBinaryMemberSize(DataLen);
 }
 UINT CLuaSmartArray::LuaGetVariedMemberSize(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 {
@@ -291,6 +228,10 @@ UINT CLuaSmartArray::LuaGetDataLen()
 UINT CLuaSmartArray::LuaGetLength()
 {
 	return m_Data.GetLength();
+}
+UINT CLuaSmartArray::LuaGetBufferLen()
+{
+	return m_Data.GetBufferLen();
 }
 UINT CLuaSmartArray::LuaGetArrayLength()
 {
@@ -385,7 +326,7 @@ bool CLuaSmartArray::LuaAttach(CLuaBaseMetaClass* pObject)
 
 		if (Attached && IsInLuaHeap())
 		{
-			//ÊÇÄÚ²¿¶ÔÏó£¬ÐèÒª¹ØÁªÒýÓÃ£¬±ÜÃâ±»»ØÊÕ
+			//æ˜¯å†…éƒ¨å¯¹è±¡ï¼Œéœ€è¦å…³è”å¼•ç”¨ï¼Œé¿å…è¢«å›žæ”¶
 			if (PushToLua(m_pCurThread))
 			{
 				if (pObject->PushToLua(m_pCurThread))
@@ -422,7 +363,7 @@ void CLuaSmartArray::LuaClear()
 }
 LUA_EMPTY_VALUE CLuaSmartArray::LuaGetMember(UINT Index)
 {
-	CLuaSmartValue::PushValueToLua(m_pCurThread, m_Data.GetMember(Index), this);
+	m_pCurThread->UnpackValue(m_Data.GetMember(Index), this);
 
 	return LUA_EMPTY_VALUE();
 }
@@ -437,7 +378,16 @@ LUA_EMPTY_VALUE CLuaSmartArray::LuaGetMemberObject(UINT Index)
 }
 bool CLuaSmartArray::LuaAddMember(LUA_EMPTY_VALUE)
 {
-	return AddMember(m_pCurThread->GetLuaState(), 3);	
+	CSmartValue Value;
+	if (m_Data.PrepareMember(CSmartValue::VT_NULL, Value))
+	{
+		if (m_pCurThread->PackValue(Value, 2, true))
+		{
+			m_Data.FinishMember(Value.GetDataLen());
+			return true;
+		}
+	}
+	return false;
 }
 
 bool CLuaSmartArray::LuaAddMemberFloat(float Value)
@@ -491,7 +441,7 @@ LUA_EMPTY_VALUE CLuaSmartArray::LuaGetFirstMemberPosition()
 }
 LUA_CUSTOM_RETURN CLuaSmartArray::LuaGetNextMember(LPVOID Pos)
 {
-	CLuaSmartValue::PushValueToLua(m_pCurThread, m_Data.GetNextMember(Pos), this);
+	m_pCurThread->UnpackValue(m_Data.GetNextMember(Pos), this);
 	if (Pos)
 		m_pCurThread->PushValue(Pos);
 	else
@@ -538,10 +488,10 @@ bool CLuaSmartArray::LuaFinishMember(UINT MemberSize)
 {
 	return m_Data.FinishMember(MemberSize);
 }
-bool CLuaSmartArray::LuaAppend(CLuaSmartArray* pStruct)
+bool CLuaSmartArray::LuaAppend(CLuaSmartArray* pArray)
 {
-	if (pStruct)
-		return m_Data.Append(pStruct->GetValue());
+	if (pArray)
+		return m_Data.Append(pArray->GetValue());
 	return false;
 }
 bool CLuaSmartArray::LuaExpand(UINT ExpandSize)
@@ -550,222 +500,39 @@ bool CLuaSmartArray::LuaExpand(UINT ExpandSize)
 }
 LUA_EMPTY_VALUE CLuaSmartArray::LuaGetArray()
 {
-	lua_newtable(m_pCurThread->GetLuaState());
-	UINT ElementSize = m_Data.GetElementSize();
-	if (ElementSize)
-	{
-		//¶¨³¤ÔªËØ
-		UINT Len = m_Data.GetArrayLength();
-		for (UINT i = 0; i < Len; i++)
-		{
-			lua_pushnumber(m_pCurThread->GetLuaState(), i + 1);
-			CLuaSmartValue::PushValueToLua(m_pCurThread, m_Data.GetMember(i), this);
-			lua_settable(m_pCurThread->GetLuaState(), -2);
-		}
-	}
-	else
-	{
-		//±ä³¤ÔªËØ
-		void* Pos = m_Data.GetFirstMemberPosition();
-		UINT Index = 1;
-		while (Pos)
-		{
-			lua_pushnumber(m_pCurThread->GetLuaState(), Index);
-			CLuaSmartValue::PushValueToLua(m_pCurThread, m_Data.GetNextMember(Pos), this);
-			lua_settable(m_pCurThread->GetLuaState(), -2);
-			Index++;
-		}
-	}
+	m_pCurThread->UnpackArray(m_Data, this);
 	return LUA_EMPTY_VALUE();
 }
-bool CLuaSmartArray::LuaAddArray(BYTE ElementType, LUA_EMPTY_VALUE)
+bool CLuaSmartArray::LuaAddArray(LUA_EMPTY_VALUE)
 {
 	int ParamCount = lua_gettop(m_pCurThread->GetLuaState());
+	BYTE ElementType = CSmartValue::VT_UNKNOWN;
 	if (ParamCount >= 3)
 	{
-		if (lua_istable(m_pCurThread->GetLuaState(), 3))
+		if (lua_isnumber(m_pCurThread->GetLuaState(), 3))
+			ElementType = lua_tonumber(m_pCurThread->GetLuaState(), 3);
+	}
+	return m_pCurThread->PackArray(m_Data, 2, ElementType);
+	if (lua_istable(m_pCurThread->GetLuaState(), 2))
+	{
+		
+		m_pCurThread->PushNil();
+		while (lua_next(m_pCurThread->GetLuaState(), 2) != 0)
 		{
-			lua_len(m_pCurThread->GetLuaState(), 3);
-			UINT Len = lua_tointeger(m_pCurThread->GetLuaState(), -1);
-			lua_pop(m_pCurThread->GetLuaState(), 1);
-			for (UINT i = 0; i < Len; i++)
+			CSmartValue Value;
+			if (m_Data.PrepareMember(CSmartValue::VT_NULL, Value))
 			{
-				lua_pushnumber(m_pCurThread->GetLuaState(), i + 1);
-				lua_gettable(m_pCurThread->GetLuaState(), 3);
-				switch (ElementType)
+				if (m_pCurThread->PackValue(Value, -1, true))
 				{
-				case CSmartValue::VT_NULL:
-					m_Data.AddMemberNull();
-					break;
-				case CSmartValue::VT_CHAR:
-					m_Data.AddMember((char)lua_tointeger(m_pCurThread->GetLuaState(), -1));
-					break;
-				case CSmartValue::VT_UCHAR:
-					m_Data.AddMember((BYTE)lua_tointeger(m_pCurThread->GetLuaState(), -1));
-					break;
-				case CSmartValue::VT_SHORT:
-					m_Data.AddMember((short)lua_tointeger(m_pCurThread->GetLuaState(), -1));
-					break;
-				case CSmartValue::VT_USHORT:
-					m_Data.AddMember((WORD)lua_tointeger(m_pCurThread->GetLuaState(), -1));
-					break;
-				case CSmartValue::VT_INT:
-					m_Data.AddMember((int)lua_tointeger(m_pCurThread->GetLuaState(), -1));
-					break;
-				case CSmartValue::VT_UINT:
-					m_Data.AddMember((UINT)lua_tointeger(m_pCurThread->GetLuaState(), -1));
-					break;
-				case CSmartValue::VT_BIGINT:
-					m_Data.AddMember((INT64)lua_tointeger(m_pCurThread->GetLuaState(), -1));
-					break;
-				case CSmartValue::VT_UBIGINT:
-					m_Data.AddMember((UINT64)lua_tointeger(m_pCurThread->GetLuaState(), -1));
-					break;
-				case CSmartValue::VT_FLOAT:
-					m_Data.AddMember((float)lua_tonumber(m_pCurThread->GetLuaState(), -1));
-					break;
-				case CSmartValue::VT_DOUBLE:
-					m_Data.AddMember((double)lua_tonumber(m_pCurThread->GetLuaState(), -1));
-					break;
-				case CSmartValue::VT_STRING_UTF8:
-					{
-						const char* pStr = lua_tostring(m_pCurThread->GetLuaState(), -1);
-						if (pStr)
-						{
-							if (LUA_SCRIPT_CODE_PAGE == CEasyString::STRING_CODE_PAGE_UTF8)
-							{
-								m_Data.AddMember(pStr);
-							}
-							else
-							{
-								m_Data.AddMember((LPCSTR)AnsiToUTF8(pStr));
-							}
-						}
-						else
-						{
-							m_Data.AddMemberNull();
-						}
-					}
-					break;
-				case CSmartValue::VT_STRING_UCS16:
-					{
-						const char* pStr = lua_tostring(m_pCurThread->GetLuaState(), -1);
-						if (pStr)
-						{
-							if (LUA_SCRIPT_CODE_PAGE == CEasyString::STRING_CODE_PAGE_UTF8)
-							{
-								m_Data.AddMember((LPCWSTR)UTF8ToUnicode(pStr));
-							}
-							else
-							{
-								m_Data.AddMember((LPCWSTR)AnsiToUnicode(pStr));
-							}
-						}
-						else
-						{
-							m_Data.AddMemberNull();
-						}
-					}
-					break;
-				case CSmartValue::VT_STRUCT:
-					{
-						CLuaBaseMetaClass* pObject = LuaWrap::Get(TypeWrapper<CLuaBaseMetaClass*>(), m_pCurThread->GetLuaState(), -1);
-						if (pObject)
-						{
-							if (pObject->GetMetaClassID() == CLuaSmartValue::CLASS_ID)
-							{
-								m_Data.AddMember(((CLuaSmartValue*)pObject)->GetValue());
-							}
-							else if (pObject->GetMetaClassID() == CLuaSmartStruct::CLASS_ID)
-							{
-								m_Data.AddMember(((CLuaSmartStruct*)pObject)->GetValue());
-							}
-							else
-							{
-								m_Data.AddMember(CSmartStruct());
-							}
-						}
-						else
-						{
-							m_Data.AddMemberNull();
-						}
-					}
-					break;
-				case CSmartValue::VT_STRING_ANSI:
-					{
-						const char* pStr = lua_tostring(m_pCurThread->GetLuaState(), -1);
-						if (pStr)
-						{
-							if (LUA_SCRIPT_CODE_PAGE == CEasyString::STRING_CODE_PAGE_UTF8)
-							{
-								m_Data.AddMember((LPCSTR)UTF8ToAnsi(pStr));
-							}
-							else
-							{
-								m_Data.AddMember(pStr);
-							}
-						}
-						else
-						{
-							m_Data.AddMemberNull();
-						}
-					}
-					break;
-				case CSmartValue::VT_BINARY:
-					{
-						CLuaByteArray* pObject = LuaWrap::Get(TypeWrapper<CLuaByteArray*>(), m_pCurThread->GetLuaState(), -1);
-						if (pObject)
-						{
-							m_Data.AddMember((const BYTE*)pObject->GetData(), pObject->GetDataLen());
-						}
-						else
-						{
-							const BYTE* pData = (const BYTE*)lua_touserdata(m_pCurThread->GetLuaState(), -1);
-							UINT Len = lua_rawlen(m_pCurThread->GetLuaState(), -1);
-							if (pData && Len)
-							{
-								m_Data.AddMember(pData, Len);
-							}
-							else
-							{
-								m_Data.AddMemberNull();
-							}
-						}
-
-					}
-					break;
-				case CSmartValue::VT_ARRAY:
-					{
-						CLuaSmartArray* pObject = LuaWrap::Get(TypeWrapper<CLuaSmartArray*>(), m_pCurThread->GetLuaState(), -1);
-						if (pObject)
-						{
-							m_Data.AddMember(pObject->GetValue());
-						}
-						else
-						{
-							m_Data.AddMemberNull();
-						}
-
-					}
-					break;
-				case CSmartValue::VT_BOOL:
-					m_Data.AddMember(lua_toboolean(m_pCurThread->GetLuaState(), -1));
-					break;
-				default:
-					if(!AddMember(m_pCurThread->GetLuaState(), -1))
-						m_Data.AddMemberNull();
+					m_Data.FinishMember(Value.GetDataLen());
 				}
-				lua_pop(m_pCurThread->GetLuaState(), 2);
 			}
-		}
-		else
-		{
-			LogLua(_T("param2 must table"));
+			m_pCurThread->Pop(1);
 		}
 	}
 	else
 	{
-		LogLua(_T("not enough param"));
+		luaL_error(m_pCurThread->GetLuaState(), "param2 must table");
 	}
 	return false;
 }

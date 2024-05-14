@@ -6,30 +6,30 @@ class CLuaSmartValue;
 class CLuaSmartStruct;
 namespace LuaWrap
 {
-	struct LuaLightUserData
-	{
-		LuaLightUserData(const void* value) :
-			m_value(value)
-		{
-		}
+	//struct LuaLightUserData
+	//{
+	//	LuaLightUserData(const void* value) :
+	//		m_value(value)
+	//	{
+	//	}
 
-		const void* m_value;
-	};
+	//	const void* m_value;
+	//};
 
 
-	struct LuaUserData
-	{
-		LuaUserData(const void* value) :
-			m_value(value)
-		{
-		}
+	//struct LuaUserData
+	//{
+	//	LuaUserData(const void* value) :
+	//		m_value(value)
+	//	{
+	//	}
 
-		const void* m_value;
-	};
+	//	const void* m_value;
+	//};
 
-	struct LuaNil
-	{
-	};	
+	//struct LuaNil
+	//{
+	//};	
 
 	inline void Push(CLuaThread* pLuaThread, bool value)				{ lua_pushboolean(pLuaThread->GetLuaState(), value); }
 	inline void Push(CLuaThread* pLuaThread, char value)				{ lua_pushinteger(pLuaThread->GetLuaState(), value); }
@@ -76,10 +76,16 @@ namespace LuaWrap
 			lua_pushstring(pLuaThread->GetLuaState(), StringA);
 		}
 	}
-	inline void Push(CLuaThread* pLuaThread, const LuaNil&)					{ lua_pushnil(pLuaThread->GetLuaState()); }
+	//inline void Push(CLuaThread* pLuaThread, const LuaNil&)					{ lua_pushnil(pLuaThread->GetLuaState()); }
 	inline void Push(CLuaThread* pLuaThread, lua_CFunction value)			{ lua_pushcclosure(pLuaThread->GetLuaState(), value, 0); }
-	inline void Push(CLuaThread* pLuaThread, const void* value)				{ lua_pushlightuserdata(pLuaThread->GetLuaState(), (void*)value); }
-	inline void Push(CLuaThread* pLuaThread, const LuaLightUserData& value)	{ lua_pushlightuserdata(pLuaThread->GetLuaState(), (void*)value.m_value); }
+	inline void Push(CLuaThread* pLuaThread, const void* value)				
+	{ 
+		if (value)
+			lua_pushlightuserdata(pLuaThread->GetLuaState(), (void*)value);
+		else
+			lua_pushnil(pLuaThread->GetLuaState());
+	}
+	//inline void Push(CLuaThread* pLuaThread, const LuaLightUserData& value)	{ lua_pushlightuserdata(pLuaThread->GetLuaState(), (void*)value.m_value); }
 	
 	inline void Push(CLuaThread* pLuaThread, LUA_EMPTY_VALUE value)
 	{
@@ -224,7 +230,7 @@ namespace LuaWrap
 	}
 	inline bool	Match(TypeWrapper<void*>, lua_State* L, int idx)
 	{
-		return lua_type(L, idx) == LUA_TLIGHTUSERDATA;
+		return lua_type(L, idx) == LUA_TLIGHTUSERDATA || lua_isnil(L, idx);
 	}	
 
 	inline bool	Match(TypeWrapper<LUA_PARAMS&>, lua_State* L, int idx)
@@ -245,6 +251,11 @@ namespace LuaWrap
 		return Type == LUA_TNIL || Type == LUA_TBOOLEAN || Type == LUA_TNUMBER || Type == LUA_TINTEGER || Type == LUA_TSTRING || Type == LUA_TTABLE || Type == LUA_TUSERDATA;
 	}
 	inline bool	Match(TypeWrapper<CVariedValue&>, lua_State* L, int idx)
+	{
+		int Type = lua_type(L, idx);
+		return Type == LUA_TNIL || Type == LUA_TBOOLEAN || Type == LUA_TNUMBER || Type == LUA_TINTEGER || Type == LUA_TSTRING || Type == LUA_TTABLE || Type == LUA_TUSERDATA;
+	}
+	inline bool	Match(TypeWrapper<const CVariedValue&>, lua_State* L, int idx)
 	{
 		int Type = lua_type(L, idx);
 		return Type == LUA_TNIL || Type == LUA_TBOOLEAN || Type == LUA_TNUMBER || Type == LUA_TINTEGER || Type == LUA_TSTRING || Type == LUA_TTABLE || Type == LUA_TUSERDATA;
@@ -331,10 +342,10 @@ namespace LuaWrap
 		return Str;
 
 	}
-	inline LuaNil			Get(TypeWrapper<LuaNil>, lua_State* L, int idx)
-	{
-		(void)L, (void)idx;  return LuaNil();
-	}
+	//inline LuaNil			Get(TypeWrapper<LuaNil>, lua_State* L, int idx)
+	//{
+	//	(void)L, (void)idx;  return LuaNil();
+	//}
 	inline lua_CFunction	Get(TypeWrapper<lua_CFunction>, lua_State* L, int idx)
 	{
 		return static_cast<lua_CFunction>(lua_tocfunction(L, idx));
@@ -447,6 +458,12 @@ namespace LuaWrap
 		return Value;
 	}
 	inline CVariedValue	Get(TypeWrapper<CVariedValue&>, lua_State* L, int idx)
+	{
+		CVariedValue Value;
+		GetVariedValue(L, idx, Value);
+		return Value;
+	}
+	inline CVariedValue	Get(TypeWrapper<const CVariedValue&>, lua_State* L, int idx)
 	{
 		CVariedValue Value;
 		GetVariedValue(L, idx, Value);

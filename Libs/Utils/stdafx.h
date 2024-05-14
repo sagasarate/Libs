@@ -50,6 +50,21 @@
 //#define USE_MONITORED_NEW
 
 // TODO: 在此处引用程序要求的附加头文件
+
+#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
+#undef new
+#endif
+
+#include "../../Libs/rapidjson/document.h"
+#include "../../Libs/rapidjson/stringbuffer.h"
+#include "../../Libs/rapidjson/prettywriter.h"
+
+
+
+#if defined(USE_CRT_DETAIL_NEW) && defined(_DEBUG)
+#define new NEWNEW
+#endif
+
 #include "Utils.h"
 
 

@@ -8,11 +8,11 @@ class CLuaThread
 {
 public:
 	typedef bool(*LUA_META_CLASS_COPY_FUNCTION) (int Type, CLuaThread * pFromLThread, int Index, CLuaThread * pToLThread);
-	enum LUA_VALUE_PACKET_SSID
-	{
-		SSID_LUA_VALUE_TABLE_KEY = 101,
-		SSID_LUA_VALUE_TABLE_VALUE = 102,
-	};
+	//enum LUA_VALUE_PACKET_SSID
+	//{
+	//	SSID_LUA_VALUE_TABLE_KEY = 101,
+	//	SSID_LUA_VALUE_TABLE_VALUE = 102,
+	//};
 	enum LUA_THREAD_TYPE
 	{
 		LUA_THREAD_TYPE_NORMAL,
@@ -185,20 +185,15 @@ public:
 	}
 	template<typename T>
 	void PushValue(T Value);
-	bool PushPacketValue(const CSmartValue& Value);
-	int PushPacket(const CSmartStruct& Packet);
-	bool PushTablePacket(const CSmartArray& Packet);
+	
+	
 	template<typename T>
-	bool PushArray(const CEasyArray<T>& ArrayList, UINT StartIndex = 0, UINT PushCount = 0);
+	bool PushArray(const CEasyArray<T>& ArrayList, UINT StartIndex = 0, UINT PushCount = -1);
+	template<typename T>
+	bool PushArray(const T* pArray, UINT ArrayLen, UINT StartIndex = 0, UINT PushCount = -1);
 	bool PushJson(LPCTSTR JsonStr);
 	bool GetJson(CEasyString& JsonStr, int Index, bool IsPretty);
-	bool Prepare(CBaseScriptHost * pObject, LPCSTR szFunctionName);
-	inline bool Prepare(CBaseScriptHost * pObject, LPCWSTR szFunctionName)
-	{
-		CEasyStringA StringA;
-		StringA = szFunctionName;
-		return Prepare(pObject, (LPCSTR)StringA);
-	}
+	bool Prepare(CBaseScriptHost * pObject, LPCTSTR szObjectName, LPCTSTR szFunctionName);	
 	int DoCall(int ParamCount);		
 	int DoCall(LPCTSTR ScriptName, LPCTSTR ScriptContent);
 	CEasyString GetErrorString(int Idx = -1)
@@ -211,8 +206,12 @@ public:
 	{
 		return GetLuaObjectType(m_pLuaState, Index);
 	}
-	bool PackResult(CSmartStruct& Packet, int SkillCount);
-	bool PackTable(CSmartArray& Packet, int Index);
+	bool PackValue(CSmartValue& Value, int Index, bool CanChangeType, int ValueType = CSmartValue::VT_UNKNOWN, bool EnableArray = true);
+	bool PackArray(CSmartArray& Packet, int Index, int ElementType = CSmartValue::VT_UNKNOWN);
+	bool PackTable(CSmartStruct& Packet, int Index, bool EnableArray = true);
+	bool UnpackArray(const CSmartArray& Packet, CLuaBaseMetaClass* pBindObj);
+	bool UnpackTable(const CSmartStruct& Packet, CLuaBaseMetaClass* pBindObj);
+	bool UnpackValue(const CSmartValue& Value, CLuaBaseMetaClass* pBindObj);
 	template<typename T>
 	T PopValue();
 	template<typename T>
@@ -236,5 +235,6 @@ public:
 	int Update(int ProcessLimit = 32);
 	static bool IsSiblingThread(CLuaThread * pThread1, CLuaThread * pThread2);
 	static int LuaErrParser(lua_State* L);
+	
 };
 

@@ -34,6 +34,7 @@ void CLuaSmartStruct::RegisterMemberFunctions(lua_State * pLuaState) const
 	RegisterMetaFunction<CLuaSmartStruct>(pLuaState, _T("GetData"), &CLuaSmartStruct::LuaGetData);
 	RegisterMetaFunction<CLuaSmartStruct>(pLuaState, _T("GetDataLen"), &CLuaSmartStruct::LuaGetDataLen);
 	RegisterMetaFunction<CLuaSmartStruct>(pLuaState, _T("GetLength"), &CLuaSmartStruct::LuaGetLength);
+	RegisterMetaFunction<CLuaSmartStruct>(pLuaState, _T("GetBufferLen"), &CLuaSmartStruct::LuaGetBufferLen);
 	RegisterMetaFunction<CLuaSmartStruct>(pLuaState, _T("GetFreeLen"), &CLuaSmartStruct::LuaGetFreeLen);
 	RegisterMetaFunction<CLuaSmartStruct>(pLuaState, _T("Attach"), &CLuaSmartStruct::LuaAttach);
 	RegisterMetaFunction<CLuaSmartStruct>(pLuaState, _T("CloneFrom"), &CLuaSmartStruct::LuaCloneFrom);
@@ -222,6 +223,10 @@ UINT CLuaSmartStruct::LuaGetLength()
 {
 	return m_Data.GetLength();
 }
+UINT CLuaSmartStruct::LuaGetBufferLen()
+{
+	return m_Data.GetBufferLen();
+}
 UINT CLuaSmartStruct::LuaGetFreeLen()
 {
 	return m_Data.GetFreeLen();
@@ -340,7 +345,7 @@ void CLuaSmartStruct::LuaClear()
 }
 LUA_EMPTY_VALUE CLuaSmartStruct::LuaGetMember(WORD MemberID)
 {
-	CLuaSmartValue::PushValueToLua(m_pCurThread, m_Data.GetMember(MemberID), this);
+	m_pCurThread->UnpackValue(m_Data.GetMember(MemberID), this);
 	
 	return LUA_EMPTY_VALUE();
 }
@@ -355,88 +360,14 @@ LUA_EMPTY_VALUE CLuaSmartStruct::LuaGetMemberObject(WORD MemberID)
 }
 bool CLuaSmartStruct::LuaAddMember(WORD MemberID, LUA_EMPTY_VALUE)
 {
-	int Type = GetLuaObjectType(m_pCurThread->GetLuaState(), 3);
-	switch (Type)
+	CSmartValue Value;
+	if (m_Data.PrepareMember(CSmartValue::VT_NULL, Value))
 	{
-	case LUA_TNIL:
-		m_Data.AddMemberNull(MemberID);
-		return true;
-	case LUA_TBOOLEAN:
-		m_Data.AddMember(MemberID,lua_toboolean(m_pCurThread->GetLuaState(), 3) != 0);
-		return true;
-	case LUA_TNUMBER:
-		m_Data.AddMember(MemberID, lua_tonumber(m_pCurThread->GetLuaState(), 3));
-		return true;
-	case LUA_TSTRING:
+		if (m_pCurThread->PackValue(Value, 3, true))
 		{
-			LPCTSTR szStr;
-			CEasyString Temp;
-			if (LUA_SCRIPT_CODE_PAGE == CEasyString::SYSTEM_STRING_CODE_PAGE)
-			{
-				szStr = (LPCTSTR)lua_tostring(m_pCurThread->GetLuaState(), 3);
-			}
-			else
-			{
-				LuaStrToSystemStr(lua_tostring(m_pCurThread->GetLuaState(), 3), Temp);
-				szStr = Temp;
-			}
-			m_Data.AddMember(MemberID, szStr);
-		}		
-		return true;
-	case LUA_TTABLE:
-		return false;
-	case LUA_TINTEGER:
-		{
-			UINT64 Value = lua_tointeger(m_pCurThread->GetLuaState(), 3);
-			if(Value<=0xFF)
-				m_Data.AddMember(MemberID, (BYTE)Value);
-			else if(Value <= 0xFFFF)
-				m_Data.AddMember(MemberID, (WORD)Value);
-			else if (Value <= 0xFFFFFFFF)
-				m_Data.AddMember(MemberID, (UINT)Value);
-			else
-				m_Data.AddMember(MemberID,Value);
+			m_Data.FinishMember(MemberID, Value.GetDataLen());
+			return true;
 		}
-		return true;
-	case CLuaByteArray::CLASS_ID:
-		{
-			CLuaByteArray * pObject = dynamic_cast<CLuaByteArray *>((CLuaByteArray *)lua_touserdata(m_pCurThread->GetLuaState(), 3));
-			if (pObject)
-			{
-				m_Data.AddMember(MemberID, (LPCSTR)pObject->GetData(), pObject->GetDataLen());
-			}
-		}
-		break;
-	case CLuaSmartValue::CLASS_ID:
-		{
-			CLuaSmartValue * pObject = dynamic_cast<CLuaSmartValue *>((CLuaSmartValue *)lua_touserdata(m_pCurThread->GetLuaState(), 3));
-			if (pObject)
-			{
-				m_Data.AddMember(MemberID, pObject->GetValue());
-				return true;
-			}
-		}
-		break;
-	case CLuaSmartStruct::CLASS_ID:
-		{
-			CLuaSmartStruct * pObject = dynamic_cast<CLuaSmartStruct *>((CLuaSmartStruct *)lua_touserdata(m_pCurThread->GetLuaState(), 3));
-			if (pObject)
-			{
-				m_Data.AddMember(MemberID, pObject->GetValue());
-				return true;
-			}
-		}
-		break;
-	case CLuaSmartArray::CLASS_ID:
-		{
-			CLuaSmartArray* pObject = dynamic_cast<CLuaSmartArray*>((CLuaSmartArray*)lua_touserdata(m_pCurThread->GetLuaState(), 3));
-			if (pObject)
-			{
-				m_Data.AddMember(MemberID, pObject->GetValue());
-				return true;
-			}
-		}
-		break;
 	}
 	return false;
 }
@@ -496,7 +427,7 @@ LUA_EMPTY_VALUE CLuaSmartStruct::LuaGetFirstMemberPosition()
 LUA_CUSTOM_RETURN CLuaSmartStruct::LuaGetNextMember(LPVOID Pos)
 {
 	WORD MemberID;
-	CLuaSmartValue::PushValueToLua(m_pCurThread, m_Data.GetNextMember(Pos, MemberID), this);
+	m_pCurThread->UnpackValue(m_Data.GetNextMember(Pos, MemberID), this);
 	m_pCurThread->PushInteger(MemberID);
 	if (Pos)
 		m_pCurThread->PushValue(Pos);

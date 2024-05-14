@@ -25,6 +25,7 @@ protected:
 	UINT										m_MaxPacketSize;
 	CEasyNetLinkManager::DATA_COMPRESS_TYPE		m_DataCompressType;
 	UINT										m_MinCompressSize;
+	bool										m_DisconnectOnTransferFail;
 	CEasyArray<CIPPattern>						m_IPList;
 
 	DECLARE_CLASS_INFO_STATIC(CEasyNetLinkService);
@@ -36,7 +37,7 @@ public:
 		bool NeedReallocConnectionID, bool IsUseListenThread,
 		int ParallelAcceptCount, UINT AcceptQueueSize,
 		UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize,
-		CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
+		CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail);
 
 
 	virtual CBaseNetConnection * CreateConnection(CIPAddress& RemoteAddress);

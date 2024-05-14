@@ -71,7 +71,7 @@ BOOL CEasyThread::Resume()
 {
 	if (ResumeThread(m_hThread) != (DWORD)-1)
 	{
-		m_Status,THREAD_STATUS_WORKING;
+		//m_Status=THREAD_STATUS_WORKING;
 		return TRUE;
 	}
 	else

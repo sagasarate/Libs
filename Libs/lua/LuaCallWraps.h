@@ -825,6 +825,27 @@ namespace LuaWrap
 #undef LUA_WRAP_CALL_RETURN_TYPE
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
+#define LUA_WRAP_CALL_RETURN_TYPE CEasyString
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#include "LuaCallWrapTemplate.h"
+
+#undef LUA_WRAP_CALL_RETURN_TYPE
+#undef LUA_WRAP_RETURN_PUSH_OPERATION
+
+#define LUA_WRAP_CALL_RETURN_TYPE CEasyString&
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#include "LuaCallWrapTemplate.h"
+
+#undef LUA_WRAP_CALL_RETURN_TYPE
+#undef LUA_WRAP_RETURN_PUSH_OPERATION
+
+#define LUA_WRAP_CALL_RETURN_TYPE const CEasyString
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#include "LuaCallWrapTemplate.h"
+
+#undef LUA_WRAP_CALL_RETURN_TYPE
+#undef LUA_WRAP_RETURN_PUSH_OPERATION
+
 #define LUA_WRAP_CALL_RETURN_TYPE CVariedValue
 #define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
@@ -833,6 +854,13 @@ namespace LuaWrap
 #undef LUA_WRAP_RETURN_PUSH_OPERATION
 
 #define LUA_WRAP_CALL_RETURN_TYPE CVariedValue&
+#define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
+#include "LuaCallWrapTemplate.h"
+
+#undef LUA_WRAP_CALL_RETURN_TYPE
+#undef LUA_WRAP_RETURN_PUSH_OPERATION
+
+#define LUA_WRAP_CALL_RETURN_TYPE const CVariedValue&
 #define LUA_WRAP_RETURN_PUSH_OPERATION(Ret) Push(pThreadInfo, Ret); if (pThreadInfo->IsNeedYield()) {return lua_yield(pThreadInfo->GetLuaState(),pThreadInfo->GetYieldReturnCount());} else return 1;
 #include "LuaCallWrapTemplate.h"
 

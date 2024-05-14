@@ -38,6 +38,7 @@ public:
 		return m_LuaThreadPool.GetObject(ID);
 	}
 	CLuaThread* GetThreadByYeildType(int YeildType);
+	void ClearAllYeildThread();
 	CLuaThread* GetMainThread()
 	{
 		return &m_MainThread;
@@ -48,6 +49,7 @@ public:
 	}
 	CLuaThread* AllocLuaThread();
 	CLuaThread* PrepareCall(CBaseScriptHost* pObject, LPCTSTR szFunctionName);
+	CLuaThread* PrepareCall(CBaseScriptHost* pObject, LPCTSTR szObjectName, LPCTSTR szFunctionName);
 	CLuaThread* PrepareCallMember(CLuaBaseMetaClass* pObject, LPCTSTR szFunctionName);
 	bool AddCFunction(LPCTSTR LibName, LPCTSTR FuncName, lua_CFunction Function, LPCVOID FuncAddr, UINT FuncSize);
 	bool AddCFunction(LPCTSTR LibName, const LUA_CFUN_INFO& FunctionInfo)
@@ -68,7 +70,7 @@ public:
 	}
 
 
-	int DoGarbageCollect();
+	int DoGarbageCollect(bool PrintStatus);
 
 	template <typename Callee, typename SearchFunc, typename LoadFunc>
 	inline bool RegisterLoader(Callee* pCaller, SearchFunc SearchFn, LoadFunc LoadFn)
@@ -183,6 +185,9 @@ public:
 	static void DumpLuaValue(lua_State* L, int Index, CStringBuilder& OutBugger, LPCTSTR PrevStr, bool ForceSameLine, int Deep);
 	bool IsObjectExist(CLuaBaseMetaClass* pObject);
 	bool AddNewThreadCallback(lua_State* L, int Index);
+	int AddPersistentObject(lua_State* L, int Index);
+	int PushPersistentObject(lua_State* L, int ID);
+	bool RemovePersistentObject(lua_State* L, int ID);
 protected:
 	void InitEnv();
 	static int LuaPrint(lua_State* L);	
@@ -192,3 +197,7 @@ protected:
 	static int ExtendModuleLoader(lua_State* L, LPCTSTR ModelName);
 };
 
+inline CLuaThread* CBaseLuaVM::PrepareCall(CBaseScriptHost* pObject, LPCTSTR szFunctionName)
+{
+	return PrepareCall(pObject, NULL, szFunctionName);
+}

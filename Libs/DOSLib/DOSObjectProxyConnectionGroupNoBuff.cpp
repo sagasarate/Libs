@@ -237,7 +237,7 @@ void CDOSObjectProxyConnectionGroupNoBuff::OnSystemMsg(CDOSMessagePacket* pPacke
 	CDOSMessage* pMessage = &pPacket->GetMessage();
 	switch (pMessage->GetMsgID())
 	{
-	case DSM_PROXY_GROUP_BROADCAST:
+	case DSM_PROXY_BROADCAST_BY_MASK:
 		if (pMessage->GetDataLength() >= sizeof(MASK_BROADCAST_INFO))
 		{
 			const MASK_BROADCAST_INFO* pInfo = (const MASK_BROADCAST_INFO*)(pMessage->GetMsgData());

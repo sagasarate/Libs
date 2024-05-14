@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    SmartStruct.h                                            */
-/*      ´´½¨ÈÕÆÚ:  2022Äê07ÔÂ30ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    SmartStruct.h                                            */
+/*      åˆ›å»ºæ—¥æœŸ:  2022å¹´07æœˆ30æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -21,7 +21,7 @@ protected:
 	int				m_ElementSize;
 	bool			m_IsSelfData;
 	LPCTSTR			m_Tag;
-public:	
+public:
 	enum
 	{
 		HEAD_SIZE = (sizeof(BYTE) + sizeof(UINT)),
@@ -40,7 +40,7 @@ public:
 		iterator(CSmartArray* pArray, void* Pos)
 		{
 			m_pParent = pArray;
-			m_Pos = Pos;			
+			m_Pos = Pos;
 		}
 		iterator(const iterator& itr)
 		{
@@ -151,6 +151,19 @@ public:
 		m_IsSelfData = true;
 		m_Tag = Tag;
 		Attach((void*)Value.GetData(), Value.GetBufferLen(), false);
+	}
+	CSmartArray(CSmartArray&& Array)  noexcept
+	{
+		m_pData = Array.m_pData;
+		m_DataLen = Array.m_DataLen;
+		m_ElementSize = Array.m_ElementSize;
+		m_IsSelfData = Array.m_IsSelfData;
+		m_Tag = Array.m_Tag;
+		Array.m_pData = NULL;
+		Array.m_DataLen = 0;
+		Array.m_ElementSize = 0;
+		Array.m_IsSelfData = true;
+		Array.m_Tag = _T("CSmartStruct");
 	}
 	LPCTSTR GetTag()
 	{
@@ -266,7 +279,7 @@ public:
 		{
 			*((UINT*)(m_pData + sizeof(BYTE))) = 0;
 			m_ElementSize = 0;
-		}			
+		}
 	}
 
 	operator CSmartValue() const
@@ -286,14 +299,14 @@ public:
 		const BYTE* pArrayData = (const BYTE*)m_pData;
 		pArrayData += sizeof(BYTE);
 		UINT ArrayDataLen = *((UINT*)pArrayData);
-		pArrayData += sizeof(UINT);		
+		pArrayData += sizeof(UINT);
 		if (ArrayDataLen + sizeof(BYTE) + sizeof(UINT)> m_DataLen)
 			ArrayDataLen = m_DataLen - sizeof(BYTE) - sizeof(UINT);
 		if(ArrayDataLen)
 		{
 			if (m_ElementSize)
 			{
-				//¶¨³¤ÔªËØ
+				//å®šé•¿å…ƒç´ 
 				CSmartValue Value;
 				if (Value.Attach((void*)pArrayData, ArrayDataLen, CSmartValue::VT_UNKNOWN))
 				{
@@ -302,7 +315,7 @@ public:
 			}
 			else
 			{
-				//±ä³¤ÔªËØ
+				//å˜é•¿å…ƒç´ 
 				CSmartValue Value;
 				UINT Count = 0;
 				const BYTE* pHead = pArrayData;
@@ -319,8 +332,8 @@ public:
 			}
 		}
 		return  0;
-	}	
-	
+	}
+
 	UINT GetLength() const
 	{
 		if (m_pData == NULL)
@@ -365,14 +378,14 @@ public:
 		return CSmartValue::VT_UNKNOWN;
 	}
 	UINT GetElementSize() const
-	{		
+	{
 		return m_ElementSize;
 	}
 	CSmartValue GetMember(UINT Index) const
 	{
 		if (m_ElementSize)
 		{
-			//¶¨³¤ÔªËØ
+			//å®šé•¿å…ƒç´ 
 			CSmartValue Value;
 
 			UINT ArrayLen = GetLength() / m_ElementSize;
@@ -384,7 +397,7 @@ public:
 		}
 		else
 		{
-			//±ä³¤ÔªËØ
+			//å˜é•¿å…ƒç´ 
 			CSmartValue Value;
 			const BYTE* pHead = (BYTE*)GetValueData();
 			const BYTE* pTail = pHead + GetLength();
@@ -465,7 +478,7 @@ public:
 		if (Pos)
 		{
 			BYTE* pHead = (BYTE*)Pos;
-			BYTE* pTail = m_pData + GetDataLen();			
+			BYTE* pTail = m_pData + GetDataLen();
 
 			if (pHead >= pTail)
 			{
@@ -574,7 +587,7 @@ public:
 		{
 			if (m_ElementSize)
 			{
-				//¶¨³¤ÔªËØ
+				//å®šé•¿å…ƒç´ 
 				CSmartValue Value;
 
 				UINT ArrayLen = GetLength() / m_ElementSize;
@@ -585,11 +598,11 @@ public:
 						return false;
 					Array[i] = Value;
 				}
-				
+
 			}
 			else
 			{
-				//±ä³¤ÔªËØ
+				//å˜é•¿å…ƒç´ 
 				CSmartValue Value;
 				const BYTE* pHead = (BYTE*)GetValueData();
 				const BYTE* pTail = pHead + GetLength();
@@ -611,7 +624,7 @@ public:
 		{
 			return true;
 		}
-	}	
+	}
 	bool GetArray(CEasyArray<CEasyString>& Array) const
 	{
 		if (GetLength())
@@ -669,7 +682,7 @@ public:
 		{
 			if (m_ElementSize)
 			{
-				//¶¨³¤ÔªËØ
+				//å®šé•¿å…ƒç´ 
 				CSmartValue Value;
 
 				UINT ArrayLen = GetLength() / m_ElementSize;
@@ -684,7 +697,7 @@ public:
 			}
 			else
 			{
-				//±ä³¤ÔªËØ
+				//å˜é•¿å…ƒç´ 
 				CSmartValue Value;
 				const BYTE* pHead = (BYTE*)GetValueData();
 				const BYTE* pTail = pHead + GetLength();
@@ -744,12 +757,12 @@ public:
 						pFreeBuffer += NewElementSize;
 					}
 					return FinishMember(NeedSize);
-				}				
+				}
 			}
 			else
 			{
 				return true;
-			}			
+			}
 		}
 		return false;
 	}
@@ -846,6 +859,24 @@ public:
 	{
 		return m_DataLen - GetDataLen();
 	}
+	bool PrepareMember(BYTE Type, CSmartValue& SmartValue)
+	{
+		BYTE* pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength();
+		UINT FreeSize = GetFreeLen();
+		if (SmartValue.Attach(pFreeBuffer, FreeSize, Type))
+		{
+			return true;
+		}
+		return false;
+	}
+	CSmartValue PrepareMember(BYTE Type)
+	{
+		CSmartValue SmartValue;
+		BYTE* pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength();
+		UINT FreeSize = GetFreeLen();
+		SmartValue.Attach(pFreeBuffer, FreeSize, Type);
+		return SmartValue;
+	}
 	CSmartStruct PrepareSubStruct();
 
 	CSmartArray PrepareArrayMember()
@@ -865,19 +896,19 @@ public:
 		{
 			return false;
 		}
-		
+
 		BYTE* pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength();
-		UINT NewElementSize = GetElementSizeByType(*pFreeBuffer);		
+		UINT NewElementSize = GetElementSizeByType(*pFreeBuffer);
 		if (GetLength())
 		{
-			//Èç¹ûĞÂÔªËØºÍÒÑÓĞÔªËØ´óĞ¡²»Í¬£¬ElementSizeÉèÖÃÎª0´ú±í¸ÄÊı×é²»ÊÇ¹æÔòÊı×é			
+			//å¦‚æœæ–°å…ƒç´ å’Œå·²æœ‰å…ƒç´ å¤§å°ä¸åŒï¼ŒElementSizeè®¾ç½®ä¸º0ä»£è¡¨æ”¹æ•°ç»„ä¸æ˜¯è§„åˆ™æ•°ç»„
 			if (m_ElementSize != NewElementSize)
 				m_ElementSize = 0;
 		}
 		else
 		{
 			m_ElementSize = NewElementSize;
-		}		
+		}
 
 		*((UINT*)(m_pData + sizeof(BYTE))) += NeedSize;
 		return true;
@@ -885,7 +916,7 @@ public:
 	bool AddMemberNull()
 	{
 		CSmartValue SmartValue;
-		if (PrepareMember(VT_NULL, SmartValue))
+		if (PrepareMember(CSmartValue::VT_NULL, SmartValue))
 		{
 			SmartValue.SetNull();
 			return FinishMember(SmartValue.GetDataLen());
@@ -915,7 +946,7 @@ public:
 			return FinishMember(SmartValue.GetDataLen());
 		}
 		return false;
-	}	
+	}
 	bool AddMember(const char* pszStr)
 	{
 		if (pszStr == NULL)
@@ -998,8 +1029,8 @@ public:
 		if (GetFreeLen() < NeedSize)
 		{
 			return false;
-		}				
-		
+		}
+
 		BYTE* pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength();
 		*((BYTE*)pFreeBuffer) = ValueType;
 		pFreeBuffer += sizeof(BYTE);
@@ -1090,7 +1121,7 @@ public:
 		if (GetFreeLen() < NeedSize)
 		{
 			return false;
-		}		
+		}
 
 		BYTE* pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength();
 		*((BYTE*)pFreeBuffer) = ValueType;
@@ -1134,7 +1165,7 @@ public:
 		if (GetFreeLen() < NeedSize)
 		{
 			return false;
-		}	
+		}
 
 		BYTE* pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength();
 		*((BYTE*)pFreeBuffer) = CSmartValue::VT_BINARY;
@@ -1153,7 +1184,7 @@ public:
 	bool AddMember(const CSmartValue& Value)
 	{
 		if (m_pData == NULL)
-			return false;		
+			return false;
 		if (Value.GetDataLen() <= 0)
 		{
 			return false;
@@ -1180,7 +1211,7 @@ public:
 		if (GetFreeLen() < NeedSize)
 		{
 			return false;
-		}		
+		}
 
 		BYTE* pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength();
 		memcpy(pFreeBuffer, Data.GetData(), Data.GetDataLen());
@@ -1255,7 +1286,7 @@ public:
 		if (GetFreeLen() < NeedSize)
 		{
 			return false;
-		}		
+		}
 
 		BYTE* pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength();
 
@@ -1265,6 +1296,10 @@ public:
 		return true;
 	}
 	void Dump(CStringBuilder& OutBuffer, bool HaveType);
+	static inline UINT GetEmptyArraySize()
+	{
+		return sizeof(BYTE) + sizeof(UINT);
+	}
 	static inline UINT GetFixMemberSize(UINT TypeLen)
 	{
 		return sizeof(BYTE) + TypeLen;
@@ -1333,17 +1368,10 @@ public:
 		return sizeof(BYTE) + sizeof(UINT) + DataLen;
 	}
 	static UINT GetVariedMemberSize(const CVariedValue& Value);
-protected:
-	bool PrepareMember(BYTE Type, CSmartValue& SmartValue)
-	{
-		BYTE* pFreeBuffer = m_pData + sizeof(BYTE) + sizeof(UINT) + GetLength();
-		UINT FreeSize = GetFreeLen();
-		if (SmartValue.Attach(pFreeBuffer, FreeSize, Type))
-		{
-			return true;
-		}
-		return false;
-	}
+#ifdef RAPIDJSON_DOCUMENT_H_
+	rapidjson::Value ToJson(rapidjson::Document::AllocatorType& Alloc);
+#endif
+protected:	
 	void CheckElements()
 	{
 		m_ElementSize = 0;
@@ -1351,13 +1379,13 @@ protected:
 		while (Pos)
 		{
 			CSmartValue Value = GetNextMember(Pos);
-			UINT Size = GetElementSizeByType(Value.GetType());			
+			UINT Size = GetElementSizeByType(Value.GetType());
 			if (Size)
 			{
 				if (m_ElementSize == 0)
 				{
 					m_ElementSize = Size;
-				}					
+				}
 				else if (m_ElementSize != Size)
 				{
 					m_ElementSize = 0;
@@ -1398,5 +1426,6 @@ protected:
 		}
 		return 0;
 	}
+
 };
 

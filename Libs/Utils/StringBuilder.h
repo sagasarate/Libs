@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼şÃû:    StringBuilder.h                                         */
-/*      ´´½¨ÈÕÆÚ:  2022Äê10ÔÂ18ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    StringBuilder.h                                         */
+/*      åˆ›å»ºæ—¥æœŸ:  2022å¹´10æœˆ18æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼ş°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓĞ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼şÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼ş¿ª·¢£¬µ«                      */
-/*      ±ØĞë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºä»»ä½•å•†ä¸šå’Œéå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜                                                  */
 /*                                                                          */
 /****************************************************************************/
 #pragma once
@@ -102,7 +102,7 @@ public:
 				OutPos++;
 			}
 		}
-		if (OutStr.GetBufferSize() + 1 < OutLen)
+		if (OutStr.GetBufferSize() < OutLen + 1)
 			OutStr.Resize(OutLen, false);
 		else
 			OutStr.Empty();
@@ -145,6 +145,14 @@ public:
 		}
 		return TotalLen;
 	}	
+	bool IsEmpty()
+	{
+		if (m_StrList.GetCount())
+		{
+			return m_StrList[0].IsEmpty();
+		}
+		return true;
+	}
 protected:
 	CEasyString& PrepareBuffer(size_t NeedSize)
 	{

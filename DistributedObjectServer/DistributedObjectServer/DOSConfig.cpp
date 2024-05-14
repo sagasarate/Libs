@@ -442,6 +442,9 @@ bool CDOSConfig::ReadProxyConfig(xml_node& XMLContent, CLIENT_PROXY_PLUGIN_INFO&
 	if (XMLContent.has_attribute("MaxMsgDumpSize"))
 		Config.MaxMsgDumpSize = XMLContent.attribute("MaxMsgDumpSize");
 
+	if (XMLContent.has_attribute("MaxWSFrameSize"))
+		Config.MaxWSFrameSize = XMLContent.attribute("MaxWSFrameSize");
+
 	if (XMLContent.has_attribute("PluginName"))
 	{
 		Config.PluginName = XMLContent.attribute("PluginName").getvalue();

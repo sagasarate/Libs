@@ -56,7 +56,7 @@ public:
 
 	virtual bool Close();
 
-	virtual bool SetBlobMaxProcessSize(UINT64 MaxSize);
+	virtual bool SetBlobMaxProcessSize(size_t MaxSize);
 protected:
 	int FetchRow();
 };

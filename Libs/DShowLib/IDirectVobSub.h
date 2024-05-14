@@ -1,4 +1,4 @@
-/* 
+﻿/* 
  *	Copyright (C) 2003-2006 Gabest
  *	http://www.gabest.org
  *

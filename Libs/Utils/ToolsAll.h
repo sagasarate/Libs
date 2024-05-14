@@ -218,6 +218,226 @@ inline double __ntohd(UINT64 Value)
 	}
 }
 
+template<typename T,
+	std::enable_if_t<
+	std::is_same<std::decay_t<T>, char>::value ||
+	std::is_same<std::decay_t<T>, short>::value ||
+	std::is_same<std::decay_t<T>, int>::value,
+	bool> = true>
+	inline CEasyString JoinList(const CEasyArray<T>& List, LPCTSTR szConnector)
+{
+	CStringBuilder Str;
+	for (T Item : List)
+	{
+		if (Str.IsEmpty())
+			Str.AppendFormated(_T("%d"), Item);
+		else
+			Str.AppendFormated(_T("%s%d"), szConnector, Item);
+	}
+	return Str.GetStr();
+}
+
+template<typename T,
+	std::enable_if_t<
+	std::is_same<std::decay_t<T>, unsigned char>::value ||
+	std::is_same<std::decay_t<T>, unsigned short>::value ||
+	std::is_same<std::decay_t<T>, unsigned int>::value,
+	bool> = true>
+	inline CEasyString JoinList(const CEasyArray<T>& List, LPCTSTR szConnector)
+{
+	CStringBuilder Str;
+	for (T Item : List)
+	{
+		if (Str.IsEmpty())
+			Str.AppendFormated(_T("%u"), Item);
+		else
+			Str.AppendFormated(_T("%s%u"), szConnector, Item);
+	}
+	return Str.GetStr();
+}
+
+template<typename T,
+	std::enable_if_t<
+	std::is_same<std::decay_t<T>, __int64>::value,
+	bool> = true>
+	inline CEasyString JoinList(const CEasyArray<T>& List, LPCTSTR szConnector)
+{
+	CStringBuilder Str;
+	for (T Item : List)
+	{
+		if (Str.IsEmpty())
+			Str.AppendFormated(_T("%lld"), Item);
+		else
+			Str.AppendFormated(_T("%s%lld"), szConnector, Item);
+	}
+	return Str.GetStr();
+}
+
+template<typename T,
+	std::enable_if_t<
+	std::is_same<std::decay_t<T>, unsigned __int64>::value,
+	bool> = true>
+	inline CEasyString JoinList(const CEasyArray<T>& List, LPCTSTR szConnector)
+{
+	CStringBuilder Str;
+	for (T Item : List)
+	{
+		if (Str.IsEmpty())
+			Str.AppendFormated(_T("%llu"), Item);
+		else
+			Str.AppendFormated(_T("%s%llu"), szConnector, Item);
+	}
+	return Str.GetStr();
+}
+
+template<typename T,
+	std::enable_if_t<
+	std::is_same<std::decay_t<T>, float>::value ||
+	std::is_same<std::decay_t<T>, double>::value,
+	bool> = true>
+	inline CEasyString JoinList(const CEasyArray<T>& List, LPCTSTR szConnector)
+{
+	CStringBuilder Str;
+	for (T Item : List)
+	{
+		if (Str.IsEmpty())
+			Str.AppendFormated(_T("%f"), Item);
+		else
+			Str.AppendFormated(_T("%s%f"), szConnector, Item);
+	}
+	return Str.GetStr();
+}
+
+inline CEasyString JoinList(const CEasyArray<LPCTSTR>& List, LPCTSTR szConnector)
+{
+	CStringBuilder Str;
+	for (LPCTSTR Item : List)
+	{
+		if (Str.IsEmpty())
+			Str.AppendFormated(_T("%s"), (LPCTSTR)Item);
+		else
+			Str.AppendFormated(_T("%s%s"), szConnector, (LPCTSTR)Item);
+	}
+	return Str.GetStr();
+}
+
+inline CEasyString JoinList(const CEasyArray<CEasyString>& List, LPCTSTR szConnector)
+{
+	CStringBuilder Str;
+	for (const CEasyString& Item : List)
+	{
+		if (Str.IsEmpty())
+			Str.AppendFormated(_T("%s"), (LPCTSTR)Item);
+		else
+			Str.AppendFormated(_T("%s%s"), szConnector, (LPCTSTR)Item);
+	}
+	return Str.GetStr();
+}
+
+template<typename T, typename V, typename VALUE_GET_FN,
+	std::enable_if_t<
+	std::is_same<std::decay_t<T>, char>::value ||
+	std::is_same<std::decay_t<T>, short>::value ||
+	std::is_same<std::decay_t<T>, int>::value,
+	bool> = true>
+inline CEasyString JoinList(const CEasyArray<V>& List, LPCTSTR szConnector, VALUE_GET_FN ValueGetFn)
+{
+	CStringBuilder Str;
+	for (const V& Item : List)
+	{
+		if (Str.IsEmpty())
+			Str.AppendFormated(_T("%d"), ValueGetFn(Item));
+		else
+			Str.AppendFormated(_T("%s%d"), szConnector, ValueGetFn(Item));
+	}
+	return Str.GetStr();
+}
+
+template<typename T, typename V, typename VALUE_GET_FN,
+	std::enable_if_t<
+	std::is_same<std::decay_t<T>, unsigned char>::value ||
+	std::is_same<std::decay_t<T>, unsigned short>::value ||
+	std::is_same<std::decay_t<T>, unsigned int>::value,
+	bool> = true>
+	inline CEasyString JoinList(const CEasyArray<V>& List, LPCTSTR szConnector, VALUE_GET_FN ValueGetFn)
+{
+	CStringBuilder Str;
+	for (const V& Item : List)
+	{
+		if (Str.IsEmpty())
+			Str.AppendFormated(_T("%u"), ValueGetFn(Item));
+		else
+			Str.AppendFormated(_T("%s%u"), szConnector, ValueGetFn(Item));
+	}
+	return Str.GetStr();
+}
+
+template<typename T, typename V, typename VALUE_GET_FN,
+	std::enable_if_t<
+	std::is_same<std::decay_t<T>, __int64>::value,
+	bool> = true>
+	inline CEasyString JoinList(const CEasyArray<V>& List, LPCTSTR szConnector, VALUE_GET_FN ValueGetFn)
+{
+	CStringBuilder Str;
+	for (const V& Item : List)
+	{
+		if (Str.IsEmpty())
+			Str.AppendFormated(_T("%lld"), ValueGetFn(Item));
+		else
+			Str.AppendFormated(_T("%s%lld"), szConnector, ValueGetFn(Item));
+	}
+	return Str.GetStr();
+}
+
+template<typename T, typename V, typename VALUE_GET_FN,
+	std::enable_if_t<
+	std::is_same<std::decay_t<T>, unsigned __int64>::value,
+	bool> = true>
+	inline CEasyString JoinList(const CEasyArray<V>& List, LPCTSTR szConnector, VALUE_GET_FN ValueGetFn)
+{
+	CStringBuilder Str;
+	for (const V& Item : List)
+	{
+		if (Str.IsEmpty())
+			Str.AppendFormated(_T("%llu"), Item);
+		else
+			Str.AppendFormated(_T("%s%llu"), szConnector, Item);
+	}
+	return Str.GetStr();
+}
+
+template<typename T, typename V, typename VALUE_GET_FN,
+	std::enable_if_t<
+	std::is_same<std::decay_t<T>, float>::value ||
+	std::is_same<std::decay_t<T>, double>::value,
+	bool> = true>
+	inline CEasyString JoinList(const CEasyArray<V>& List, LPCTSTR szConnector, VALUE_GET_FN ValueGetFn)
+{
+	CStringBuilder Str;
+	for (const V& Item : List)
+	{
+		if (Str.IsEmpty())
+			Str.AppendFormated(_T("%f"), ValueGetFn(Item));
+		else
+			Str.AppendFormated(_T("%s%f"), szConnector, ValueGetFn(Item));
+	}
+	return Str.GetStr();
+}
+
+template<typename V, typename VALUE_GET_FN>
+inline CEasyString JoinList(const CEasyArray<V>& List, LPCTSTR szConnector, VALUE_GET_FN ValueGetFn)
+{
+	CStringBuilder Str;
+	for (const V& Item : List)
+	{
+		if (Str.IsEmpty())
+			Str.AppendFormated(_T("%s"), ValueGetFn(Item));
+		else
+			Str.AppendFormated(_T("%s%s"), szConnector, ValueGetFn(Item));
+	}
+	return Str.GetStr();
+}
+
 
 extern UINT WalkCallStack(void * pFrame, LPVOID * AddressList, UINT MaxStep);
 

@@ -96,90 +96,9 @@ void CLuaThread::Destory()
 //		m_pLuaVM->DeleteScriptThread(this);
 //	}
 //}
-bool CLuaThread::PushPacketValue(const CSmartValue& Value)
-{
-	if (m_pLuaState == NULL)
-	{
-		PushNil();
-		return false;
-	}
-	switch (Value.GetType())
-	{
-	case CSmartValue::VT_NULL:
-		lua_pushnil(m_pLuaState);
-		break;
-	case CSmartValue::VT_CHAR:
-	case CSmartValue::VT_UCHAR:
-	case CSmartValue::VT_SHORT:
-	case CSmartValue::VT_USHORT:
-	case CSmartValue::VT_INT:
-	case CSmartValue::VT_UINT:	
-	case CSmartValue::VT_UBIGINT:
-	case CSmartValue::VT_BIGINT:
-		PushInteger(Value);
-		break;
-	case CSmartValue::VT_FLOAT:
-	case CSmartValue::VT_DOUBLE:
-		PushNumber(Value);
-		break;
-	case CSmartValue::VT_STRING_UTF8:
-	case CSmartValue::VT_STRING_ANSI:
-		PushString((LPCSTR)Value);
-		break;
-	case CSmartValue::VT_STRING_UCS16:
-		PushString((LPCWSTR)Value);
-		break;
-	case CSmartValue::VT_ARRAY:
-		return PushTablePacket(Value);
-	case CSmartValue::VT_BOOL:
-		PushBoolean(Value);
-		break;
-	default:
-		PushNil();
-		break;
-	}
-	return true;
-}
-int CLuaThread::PushPacket(const CSmartStruct& Packet)
-{
-	int Count = 0;
-	void * Pos = Packet.GetFirstMemberPosition();
-	while (Pos)
-	{
-		WORD MemberID;
-		CSmartValue Value = Packet.GetNextMember(Pos, MemberID);
-		if (PushPacketValue(Value))
-			Count++;
-	}
-	return Count;
-}
-bool CLuaThread::PushTablePacket(const CSmartArray& Packet)
-{
-	if (m_pLuaState == NULL)
-	{
-		PushNil();
-		return false;
-	}
 
-	lua_newtable(m_pLuaState);
 
-	void * Pos = Packet.GetFirstMemberPosition();
-	while (Pos)
-	{		
-		CSmartStruct Value = Packet.GetNextMember(Pos);
-		CSmartValue TableKey = Value.GetMember(CLuaThread::SSID_LUA_VALUE_TABLE_KEY);
-		if (!PushPacketValue(TableKey))
-			break;
-		CSmartValue TableValue = Value.GetMember(CLuaThread::SSID_LUA_VALUE_TABLE_VALUE);
-		if (!PushPacketValue(TableValue))
-		{
-			lua_pop(m_pLuaState, 1);
-			break;
-		}
-		lua_settable(m_pLuaState, -3);
-	}
-	return true;
-}
+
 
 bool TableToJson(lua_State* pLuaState, int Index, rapidjson::Value& JsonObject, rapidjson::Document::AllocatorType& Alloc)
 {
@@ -187,9 +106,8 @@ bool TableToJson(lua_State* pLuaState, int Index, rapidjson::Value& JsonObject, 
 	{
 		return false;
 	}
+	Index = lua_absindex(pLuaState, Index);
 	lua_pushnil(pLuaState);  /* 第一个 key */
-	if (Index < 0)
-		Index--;
 	int Next = lua_next(pLuaState, Index);
 	if (lua_isinteger(pLuaState, -2))
 	{
@@ -426,7 +344,7 @@ bool CLuaThread::GetJson(CEasyString& JsonStr, int Index, bool IsPretty)
 	}
 	return false;
 }
-bool CLuaThread::Prepare(CBaseScriptHost * pObject, LPCSTR szFunctionName)
+bool CLuaThread::Prepare(CBaseScriptHost * pObject, LPCTSTR szObjectName, LPCTSTR szFunctionName)
 {
 	if (m_pLuaState == NULL)
 	{
@@ -439,10 +357,45 @@ bool CLuaThread::Prepare(CBaseScriptHost * pObject, LPCSTR szFunctionName)
 	StartCall();
 	if(szFunctionName)
 	{
-		lua_getglobal(m_pLuaState, szFunctionName);
+		LPCSTR szObjName = NULL, szFuncName;
+		CEasyStringA ObjName, FuncName;
+		if (LUA_SCRIPT_CODE_PAGE == CEasyString::SYSTEM_STRING_CODE_PAGE)
+		{
+			szObjName = (LPCSTR)szObjectName;
+			szFuncName = (LPCSTR)szFunctionName;
+		}
+		else
+		{
+			if (szObjectName)
+			{
+				SystemStrToLuaStr(szObjectName, ObjName);
+				szObjName = ObjName;
+			}
+			SystemStrToLuaStr(szFunctionName, FuncName);
+			szFuncName = FuncName;
+		}
+		if (szObjName)
+		{
+			//带对象，先获取对象
+			lua_getglobal(m_pLuaState, szObjName);
+			if (lua_istable(m_pLuaState, -1))
+			{
+				lua_pushstring(m_pLuaState, szFunctionName);
+				lua_gettable(m_pLuaState, -2);
+			}
+			else
+			{
+				LogLua(_T("对象%s未找到"), szObjectName);
+			}
+		}
+		else
+		{
+			lua_getglobal(m_pLuaState, szFuncName);
+		}		
 
 		if (!lua_isfunction(m_pLuaState, -1))
 		{
+			lua_pop(m_pLuaState, 1);
 			LogLua(_T("Lua函数%s未找到"), szFunctionName);
 			return false;
 		}
@@ -524,75 +477,309 @@ int CLuaThread::DoCall(LPCTSTR ScriptName, LPCTSTR ScriptContent)
 		}
 		if (szScriptName && szScriptContent)
 		{
-			lua_pushcclosure(GetLuaState(), CLuaThread::LuaErrParser, 0);
-			int Ret = luaL_loadbuffer(GetLuaState(), szScriptContent, ContentLen, szScriptName);
-			if (Ret == LUA_OK)
+			m_IsNeedYield = false;			
+			int m_LastLuaStatus = luaL_loadbuffer(GetLuaState(), szScriptContent, ContentLen, szScriptName);
+			if (m_LastLuaStatus == LUA_OK)
 			{
-				Ret = lua_pcall(GetLuaState(), 0, LUA_MULTRET, lua_gettop(GetLuaState()) - 1);
-			}
-			if (Ret != LUA_OK)			
+				m_LastLuaStatus = LUA_EXECUTING;
+				int nResult = 0;
+				m_LastLuaStatus = lua_resume(m_pLuaState, NULL, 0, &nResult);
+			}	
+			if ((m_LastLuaStatus != LUA_OK) && (m_LastLuaStatus != LUA_YIELD))
 			{
-				if (lua_type(GetLuaState(), -1) == LUA_TSTRING)
-				{
-					LogLuaStr(GetLuaState(), -1, NULL, false);
-				}
+				if (lua_type(m_pLuaState, -1) == LUA_TSTRING)
+					LogLuaStr(m_pLuaState, -1, _T("脚本执行出错"), true);
 				else
-				{
-					LogLuaDirect(_T("lua load failed"));
-				}
+					LogLuaStack(m_pLuaState, _T("脚本执行出错"));
 			}
-			return Ret;
+			return m_LastLuaStatus;
 		}
 	}
 	return LUA_ERRRUN;
 }
 
 
-bool CLuaThread::PackResult(CSmartStruct& Packet, int SkillCount)
+bool CLuaThread::PackValue(CSmartValue& Value, int Index, bool CanChangeType, int ValueType, bool EnableArray)
 {
-	if (m_pLuaState == NULL)
-		return false;
-	if (m_LastLuaStatus == LUA_OK)
+	if (ValueType < 0)
+		ValueType = Value.GetType();
+	switch (ValueType)
 	{
-		int Count = lua_gettop(m_pLuaState) - SkillCount;
-		if (Count>0)
+	case CSmartValue::VT_NULL:
+		Value.SetNull();
+		return true;		
+	case CSmartValue::VT_CHAR:
+		Value.SetValue((char)lua_tointeger(m_pLuaState, Index), CanChangeType);
+		return true;
+	case CSmartValue::VT_UCHAR:
+		Value.SetValue((unsigned char)lua_tointeger(m_pLuaState, Index), CanChangeType);
+		return true;
+	case CSmartValue::VT_SHORT:
+		Value.SetValue((short)lua_tointeger(m_pLuaState, Index), CanChangeType);
+		return true;
+	case CSmartValue::VT_USHORT:
+		Value.SetValue((unsigned short)lua_tointeger(m_pLuaState, Index), CanChangeType);
+		return true;
+	case CSmartValue::VT_INT:
+		Value.SetValue((int)lua_tointeger(m_pLuaState, Index), CanChangeType);
+		return true;
+	case CSmartValue::VT_UINT:
+		Value.SetValue((unsigned int)lua_tointeger(m_pLuaState, Index), CanChangeType);
+		return true;
+	case CSmartValue::VT_BIGINT:
+		Value.SetValue((INT64)lua_tointeger(m_pLuaState, Index), CanChangeType);
+		return true;
+	case CSmartValue::VT_UBIGINT:
+		Value.SetValue((UINT64)lua_tointeger(m_pLuaState, Index), CanChangeType);
+		return true;
+	case CSmartValue::VT_FLOAT:
+		Value.SetValue((float)lua_tonumber(m_pLuaState, Index), CanChangeType);
+		return true;
+	case CSmartValue::VT_DOUBLE:
+		Value.SetValue((double)lua_tonumber(m_pLuaState, Index), CanChangeType);
+		return true;
+	case CSmartValue::VT_STRING_ANSI:
+	case CSmartValue::VT_STRING_UTF8:
+	case CSmartValue::VT_STRING_UCS16:
 		{
-			for (WORD Index = 3; Index < Count + 3; Index++)
+			const char* pStr = lua_tostring(m_pLuaState, Index);
+			if (pStr)
 			{
-				switch (GetLuaObjectType(m_pLuaState, Index))
+				Value.SetString(pStr, -1, LUA_SCRIPT_CODE_PAGE, CanChangeType);
+				return true;
+			}			
+		}
+		break;
+	case CSmartValue::VT_STRUCT:
+		{
+			CLuaBaseMetaClass* pObject = LuaWrap::Get(TypeWrapper<CLuaBaseMetaClass*>(), m_pLuaState, Index);
+			if (pObject)
+			{
+				if (pObject->GetMetaClassID() == CLuaSmartValue::CLASS_ID)
 				{
-				case LUA_TNIL:
-					Packet.AddMemberNull(Index);
-					break;
-				case LUA_TBOOLEAN:
-					Packet.AddMember(Index, lua_toboolean(m_pLuaState, Index));
-					break;
-				case LUA_TNUMBER:
-					Packet.AddMember(Index, lua_tonumber(m_pLuaState, Index));
-					break;
-				case LUA_TSTRING:
-					Packet.AddMember(Index, lua_tostring(m_pLuaState, Index));
-					break;
-				case LUA_TTABLE:
+					Value.SetValue(((CLuaSmartValue*)pObject)->GetValue(), CanChangeType);
+					return true;
+				}
+				else if (pObject->GetMetaClassID() == CLuaSmartStruct::CLASS_ID)
 				{
-					CSmartArray SubPacket = Packet.PrepareSubArray();
-					if (!PackTable(SubPacket, Index))
-						return false;
-					Packet.FinishMember(Index, SubPacket.GetDataLen());
+					Value.SetValue(((CLuaSmartStruct*)pObject)->GetValue(), CanChangeType);
+					return true;
+				}				
+			}			
+		}
+		break;
+	case CSmartValue::VT_BINARY:
+		{
+			CLuaByteArray* pObject = LuaWrap::Get(TypeWrapper<CLuaByteArray*>(), m_pLuaState, Index);
+			if (pObject)
+			{
+				Value.SetValue((const BYTE*)pObject->GetData(), pObject->GetDataLen(), CanChangeType);
+				return true;
+			}
+			else
+			{
+				const BYTE* pData = (const BYTE*)lua_touserdata(m_pLuaState, -1);
+				UINT Len = lua_rawlen(m_pLuaState, -1);
+				if (pData && Len)
+				{
+					Value.SetValue(pData, Len, CanChangeType);
+					return true;
+				}				
+			}
+		}
+		break;
+	case CSmartValue::VT_ARRAY:
+		{
+			CLuaSmartArray* pObject = LuaWrap::Get(TypeWrapper<CLuaSmartArray*>(), m_pLuaState, Index);
+			if (pObject)
+			{
+				Value.SetValue(pObject->GetValue(), CanChangeType);
+				return true;
+			}		
+		}
+		break;
+	case CSmartValue::VT_BOOL:
+		Value.SetValue(lua_toboolean(m_pLuaState, Index) != 0, CanChangeType);
+		return true;
+	case CSmartValue::VT_UNKNOWN:
+		{
+			int ValueType = GetLuaObjectType(m_pLuaState, Index);
+			switch (ValueType)
+			{
+			case LUA_TNIL:
+				Value.SetNull();
+				return true;
+			case LUA_TBOOLEAN:
+				Value.SetValue(lua_toboolean(m_pLuaState, Index) != 0, CanChangeType);
+				return true;
+			case LUA_TNUMBER:
+				Value.SetValue(lua_tonumber(m_pLuaState, Index), CanChangeType);
+				return true;
+			case LUA_TSTRING:
+				{
+					LPCTSTR szStr;
+					CEasyString Temp;
+					if (LUA_SCRIPT_CODE_PAGE == CEasyString::SYSTEM_STRING_CODE_PAGE)
+					{
+						szStr = (LPCTSTR)lua_tostring(m_pLuaState, Index);
+					}
+					else
+					{
+						LuaStrToSystemStr(lua_tostring(m_pLuaState, Index), Temp);
+						szStr = Temp;
+					}
+					Value.SetValue(szStr, CanChangeType);
+				}
+				return true;
+			case LUA_TTABLE:
+				if (EnableArray&&LuaIsArray(m_pLuaState, Index))
+				{
+					if (Value.GetType() != CSmartValue::VT_ARRAY)
+					{
+						if (CanChangeType)
+						{
+							if (!Value.ChangeType(CSmartValue::VT_ARRAY))
+								return false;
+						}
+						else
+						{
+							return false;
+						}
+					}
+					return PackArray(CSmartArray(Value), Index);
+				}
+				else
+				{
+					if (Value.GetType() != CSmartValue::VT_STRUCT)
+					{
+						if (CanChangeType)
+						{
+							if (!Value.ChangeType(CSmartValue::VT_STRUCT))
+								return false;
+						}
+						else
+						{
+							return false;
+						}
+					}
+					return PackTable(CSmartStruct(Value), Index, EnableArray);
 				}
 				break;
-				case LUA_TINTEGER:
-					Packet.AddMember(Index, lua_tointeger(m_pLuaState, Index));
-					break;
+			case LUA_TINTEGER:
+				Value.SetValue(lua_tointeger(m_pLuaState, Index), CanChangeType);
+				return true;
+			case CLuaByteArray::CLASS_ID:
+				{
+					CLuaByteArray* pObject = LuaWrap::Get(TypeWrapper<CLuaByteArray*>(), m_pLuaState, Index);
+					if (pObject)
+					{
+						if (Value.GetType() != CSmartValue::VT_BINARY)
+						{
+							if (CanChangeType)
+							{
+								if (!Value.ChangeType(CSmartValue::VT_BINARY, pObject->GetDataLen()))
+									return false;
+							}
+							else
+							{
+								return false;
+							}
+						}
+						Value.SetValue(pObject->GetData(), pObject->GetDataLen(), CanChangeType);
+						return true;
+					}
+					else
+					{
+						return false;
+					}
 				}
+				break;
+			case CLuaSmartValue::CLASS_ID:
+				{
+					CLuaSmartValue* pObject = LuaWrap::Get(TypeWrapper<CLuaSmartValue*>(), m_pLuaState, Index);
+					if (pObject)
+					{
+						if (CanChangeType)
+						{
+							if (!Value.ChangeType(pObject->GetValue().GetType(), pObject->GetValue().GetLength()))
+								return false;
+						}
+						else
+						{
+							return false;
+						}
+						Value.SetValue(pObject->GetValue(), CanChangeType);
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
+				break;
+			case CLuaSmartStruct::CLASS_ID:
+				{
+					CLuaSmartStruct* pObject = LuaWrap::Get(TypeWrapper<CLuaSmartStruct*>(), m_pLuaState, Index);
+					if (pObject)
+					{
+						if (Value.GetType() != CSmartValue::VT_STRUCT)
+						{
+							if (CanChangeType)
+							{
+								if (!Value.ChangeType(CSmartValue::VT_STRUCT, pObject->GetValue().GetLength()))
+									return false;
+							}
+							else
+							{
+								return false;
+							}
+						}
+						Value.SetValue(pObject->GetValue(), CanChangeType);
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
+				break;
+			case CLuaSmartArray::CLASS_ID:
+				{
+					CLuaSmartArray* pObject = LuaWrap::Get(TypeWrapper<CLuaSmartArray*>(), m_pLuaState, Index);
+					if (pObject)
+					{
+						if (Value.GetType() != CSmartValue::VT_ARRAY)
+						{
+							if (CanChangeType)
+							{
+								if (!Value.ChangeType(CSmartValue::VT_ARRAY, pObject->GetValue().GetLength()))
+									return false;
+							}
+							else
+							{
+								return false;
+							}
+						}
+						Value.SetValue(pObject->GetValue(), CanChangeType);
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
+				break;
+			default:
+				return false;
 			}
-			lua_pop(m_pLuaState, Count);
 		}
-		return true;
+		break;
+	default:
+		return false;
 	}
-	return false;
+	return true;
 }
-bool CLuaThread::PackTable(CSmartArray& Packet, int Index)
+bool CLuaThread::PackArray(CSmartArray& Packet, int Index, int ElementType)
 {
 	if (m_pLuaState == NULL)
 		return false;
@@ -601,71 +788,233 @@ bool CLuaThread::PackTable(CSmartArray& Packet, int Index)
 	{		
 		return false;
 	}
+	Index = lua_absindex(m_pLuaState, Index);
 	lua_pushnil(m_pLuaState);
-	if (Index < 0)
-		Index--;
 	while (lua_next(m_pLuaState, Index) != 0)
-	{	
-		bool IsValid = false;
-		CSmartStruct Pair = Packet.PrepareSubStruct();
-		//打包Key
-		switch (GetLuaObjectType(m_pLuaState, -2))
+	{
+		//打包Value
+		CSmartValue Value;
+		if(Packet.PrepareMember(CSmartValue::VT_NULL, Value))
 		{
-		case LUA_TBOOLEAN:
-			Pair.AddMember(SSID_LUA_VALUE_TABLE_KEY, lua_toboolean(m_pLuaState, -2) != 0);
-			IsValid = true;
-			break;
-		case LUA_TNUMBER:
-			Pair.AddMember(SSID_LUA_VALUE_TABLE_KEY, lua_tonumber(m_pLuaState, -2));
-			IsValid = true;
-			break;
-		case LUA_TSTRING:
-			Pair.AddMember(SSID_LUA_VALUE_TABLE_KEY, lua_tostring(m_pLuaState, -2));
-			IsValid = true;
-			break;		
-		case LUA_TINTEGER:
-			Pair.AddMember(SSID_LUA_VALUE_TABLE_KEY, lua_tointeger(m_pLuaState, -2));
-			IsValid = true;
-			break;		
-		}
-		if(IsValid)
-		{
-			IsValid = false;
-			//打包Value
-			switch (GetLuaObjectType(m_pLuaState, -1))
-			{			
-			case LUA_TBOOLEAN:
-				Pair.AddMember(SSID_LUA_VALUE_TABLE_VALUE, lua_toboolean(m_pLuaState, -1) != 0);
-				IsValid = true;
-				break;
-			case LUA_TNUMBER:
-				Pair.AddMember(SSID_LUA_VALUE_TABLE_VALUE, lua_tonumber(m_pLuaState, -1));
-				IsValid = true;
-				break;
-			case LUA_TSTRING:
-				Pair.AddMember(SSID_LUA_VALUE_TABLE_VALUE, lua_tostring(m_pLuaState, -1));
-				IsValid = true;
-				break;
-			case LUA_TTABLE:
-				{
-					CSmartArray SubPacket = Pair.PrepareSubArray();
-					if (PackTable(SubPacket, -1))
-					{
-						IsValid = true;
-						Pair.FinishMember(SSID_LUA_VALUE_TABLE_VALUE, SubPacket.GetDataLen());
-					}				
-				}
-				break;
-			case LUA_TINTEGER:
-				Pair.AddMember(SSID_LUA_VALUE_TABLE_VALUE, lua_tointeger(m_pLuaState, -1));
-				IsValid = true;
-				break;			
-			}
-			if (IsValid)
-				Packet.FinishMember(Pair.GetDataLen());
+			if (PackValue(Value, -1, true, ElementType))
+				Packet.FinishMember(Value.GetDataLen());
 		}
 		lua_pop(m_pLuaState, 1);
-	}	
+	}
+	return true;
+}
+bool CLuaThread::PackTable(CSmartStruct& Packet, int Index, bool EnableArray)
+{
+	if (m_pLuaState == NULL)
+		return false;
+
+	if (!lua_istable(m_pLuaState, Index))
+	{
+		return false;
+	}
+	Index = lua_absindex(m_pLuaState, Index);
+	lua_pushnil(m_pLuaState);	
+	while (lua_next(m_pLuaState, Index) != 0)
+	{
+		CSmartStruct Pair = Packet.PrepareSubStruct();
+		CSmartValue Key;
+		if (Pair.PrepareMember(CSmartValue::VT_NULL, Key))
+		{
+			if (PackValue(Key, -2, true))
+			{
+				if (Pair.FinishMember((WORD)SST_PAIR::KEY, Key.GetDataLen()))
+				{
+					CSmartValue Value;
+					if (Pair.PrepareMember(CSmartValue::VT_NULL, Value))
+					{
+						if (PackValue(Value, -1, true))
+						{
+							if (Pair.FinishMember((WORD)SST_PAIR::DATA, Value.GetDataLen()))
+							{
+								Packet.FinishMember(VARIED_MEMEBR_ID, Pair.GetDataLen());
+							}
+						}
+					}
+				}
+			}
+		}
+		lua_pop(m_pLuaState, 1);
+	}
+	return true;
+}
+bool CLuaThread::UnpackArray(const CSmartArray& Packet, CLuaBaseMetaClass* pBindObj)
+{
+	if (m_pLuaState == NULL)
+	{
+		return false;
+	}
+
+	lua_newtable(m_pLuaState);
+
+	UINT Index = 1;
+	if (Packet.GetElementSize())
+	{
+		//定长元素
+		UINT Len = Packet.GetArrayLength();
+		for (UINT i = 0; i < Len; i++)
+		{
+			if (UnpackValue(Packet.GetMember(i), pBindObj))
+			{
+				if (!lua_isnil(m_pLuaState, -1))
+				{
+					lua_seti(m_pLuaState, -2, Index);
+					Index++;
+				}
+			}
+			else
+			{
+				lua_pop(m_pLuaState, 1);
+			}
+		}
+	}
+	else
+	{
+		//变长元素
+		void* Pos = Packet.GetFirstMemberPosition();
+		
+		while (Pos)
+		{
+			if(UnpackValue(Packet.GetNextMember(Pos), pBindObj))
+			{
+				if (!lua_isnil(m_pLuaState, -1))
+				{
+					lua_seti(m_pLuaState, -2, Index);
+					Index++;
+				}
+			}
+			else
+			{
+				lua_pop(m_pLuaState, 1);
+			}
+		}
+	}
+	return true;
+}
+bool CLuaThread::UnpackTable(const CSmartStruct& Packet, CLuaBaseMetaClass* pBindObj)
+{
+	lua_newtable(m_pLuaState);
+
+	void* Pos = Packet.GetFirstMemberPosition();
+	while (Pos)
+	{
+		WORD MemberID;
+		CSmartStruct Value = Packet.GetNextMember(Pos, MemberID);
+		CSmartValue TableKey = Value.GetMember((WORD)SST_PAIR::KEY);
+		CSmartValue TableValue = Value.GetMember((WORD)SST_PAIR::DATA);
+		int Top = lua_gettop(m_pLuaState);
+		if (UnpackValue(TableKey, pBindObj) && UnpackValue(TableValue, pBindObj))
+		{
+			if (!lua_isnil(m_pLuaState, -2) && !lua_isnil(m_pLuaState, -1))
+			{
+				lua_settable(m_pLuaState, -3);
+			}
+			else
+			{
+				lua_settop(m_pLuaState, Top);
+			}
+		}
+		else
+		{
+			lua_settop(m_pLuaState, Top);
+		}
+	}
+	return true;
+}
+
+bool CLuaThread::UnpackValue(const CSmartValue& Value, CLuaBaseMetaClass* pBindObj)
+{
+	switch (Value.GetType())
+	{
+	case CSmartValue::VT_CHAR:
+	case CSmartValue::VT_UCHAR:
+	case CSmartValue::VT_SHORT:
+	case CSmartValue::VT_USHORT:
+	case CSmartValue::VT_INT:
+	case CSmartValue::VT_UINT:
+	case CSmartValue::VT_BIGINT:
+	case CSmartValue::VT_UBIGINT:
+		lua_pushinteger(m_pLuaState, Value);
+		break;
+	case CSmartValue::VT_FLOAT:
+	case CSmartValue::VT_DOUBLE:
+		lua_pushnumber(m_pLuaState, Value);
+		break;
+	case CSmartValue::VT_STRING_UTF8:
+		{
+			LPCSTR szStr;
+			CEasyStringA Temp;
+			if (LUA_SCRIPT_CODE_PAGE == CEasyString::STRING_CODE_PAGE_UTF8)
+			{
+				szStr = (LPCSTR)Value;
+			}
+			else
+			{
+				SystemStrToLuaStr((LPCSTR)Value, Temp);
+				szStr = Temp;
+			}
+			lua_pushstring(m_pLuaState, szStr);
+		}
+		break;
+	case CSmartValue::VT_STRING_ANSI:
+		{
+			LPCSTR szStr;
+			CEasyStringA Temp;
+			if (LUA_SCRIPT_CODE_PAGE == CEasyString::STRING_CODE_PAGE_ANSI)
+			{
+				szStr = (LPCSTR)Value;
+			}
+			else
+			{
+				SystemStrToLuaStr((LPCSTR)Value, Temp);
+				szStr = Temp;
+			}
+			lua_pushstring(m_pLuaState, szStr);
+		}
+		break;
+	case CSmartValue::VT_STRING_UCS16:
+		{
+			CEasyStringA StringA;
+			SystemStrToLuaStr((LPCWSTR)Value, StringA);
+			lua_pushstring(m_pLuaState, StringA);
+		}
+		break;
+	case CSmartValue::VT_STRUCT:
+		{
+			CSmartStruct Struct(Value);
+			if (IsLuaTable(Struct))
+			{
+				UnpackTable(Struct, pBindObj);
+			}				
+			else
+			{
+				CLuaSmartValue* pObject = CLuaSmartValue::New(this, pBindObj);
+				if (pObject)
+				{
+					if (pBindObj)
+						pObject->Attach(Struct);
+					else
+						pObject->GetValue().CloneFrom(Struct);
+				}
+				else {
+					PushNil();
+				}
+			}				
+		}		
+		break;
+	case CSmartValue::VT_ARRAY:
+		UnpackArray(Value, pBindObj);		
+		break;
+	case CSmartValue::VT_BOOL:
+		lua_pushboolean(m_pLuaState, Value);
+		break;
+	default:
+		PushNil();
+	}
 	return true;
 }
 //int CLuaThread::MoveResultToLThread(CLuaThread * pLThread, LUA_META_CLASS_COPY_FUNCTION pExtendCopyFN)

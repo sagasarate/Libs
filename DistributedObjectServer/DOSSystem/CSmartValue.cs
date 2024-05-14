@@ -5,46 +5,49 @@ using System.Text;
 
 namespace DOSSystem
 {
-    public struct CSmartValue
+    public enum SST_PAIR
     {
-        public enum SMART_VALUE_TYPE
-        {
-            VT_NULL,
-            VT_CHAR,
-            VT_UCHAR,
-            VT_SHORT,
-            VT_USHORT,
-            VT_INT,
-            VT_UINT,
-            VT_BIGINT,
-            VT_UBIGINT,
-            VT_FLOAT,
-            VT_DOUBLE,
-            VT_STRING_UTF8,
-            VT_STRING_UCS16,
-            VT_STRUCT,
-            VT_STRING_ANSI,
-            VT_BINARY,
-            VT_ARRAY,
-            VT_BOOL,
-            VT_UNKNOWN,
-        };
+        KEY = 1,
+	    DATA
+    };
 
-        public enum STRING_CODE_PAGE
-        {
-            STRING_CODE_PAGE_ANSI,
-            STRING_CODE_PAGE_UTF8,
-            STRING_CODE_PAGE_UCS16,
-        };
+    public enum SMART_VALUE_TYPE
+    {
+        VT_NULL,
+        VT_CHAR,
+        VT_UCHAR,
+        VT_SHORT,
+        VT_USHORT,
+        VT_INT,
+        VT_UINT,
+        VT_BIGINT,
+        VT_UBIGINT,
+        VT_FLOAT,
+        VT_DOUBLE,
+        VT_STRING_UTF8,
+        VT_STRING_UCS16,
+        VT_STRUCT,
+        VT_STRING_ANSI,
+        VT_BINARY,
+        VT_ARRAY,
+        VT_BOOL,
+        VT_UNKNOWN,
+    };
+    public enum STRING_CODE_PAGE
+    {
+        STRING_CODE_PAGE_ANSI,
+        STRING_CODE_PAGE_UTF8,
+        STRING_CODE_PAGE_UCS16,
+    };
+    public class CSmartValue : ICloneable
+    {
 
         static byte[] NULL_DATA = { (byte)SMART_VALUE_TYPE.VT_NULL };
-        public static STRING_CODE_PAGE INTERNAL_STRING_CODE_PAGE = STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16;        
+        public static STRING_CODE_PAGE INTERNAL_STRING_CODE_PAGE = STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16;
 
-        byte[] m_pData;
-        uint m_StartIndex;
-        uint m_DataLen;
-
-        public static CSmartValue NULL = new CSmartValue { m_pData = NULL_DATA, m_StartIndex = 0, m_DataLen = (uint)NULL_DATA.Length };
+        byte[] m_pData = NULL_DATA;
+        uint m_StartIndex = 0;
+        uint m_DataLen = (uint)NULL_DATA.Length;
 
         public CSmartValue(byte[] pData, uint StartIndex, uint DataLen, SMART_VALUE_TYPE ClearType)
 	    {
@@ -787,8 +790,6 @@ namespace DOSSystem
                     return BitConverter.ToSingle(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte));
                 case SMART_VALUE_TYPE.VT_DOUBLE:
                     return BitConverter.ToDouble(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte));
-                case SMART_VALUE_TYPE.VT_BOOL:
-                    return (Value.m_pData[Value.m_StartIndex + sizeof(byte)] != 0);
                 case SMART_VALUE_TYPE.VT_STRING_ANSI:
                     {
                         string Temp = Encoding.GetEncoding(936).GetString(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte) + sizeof(uint), (int)Value.GetLength());
@@ -799,10 +800,42 @@ namespace DOSSystem
                         string Temp = Encoding.UTF8.GetString(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte) + sizeof(uint), (int)Value.GetLength());
                         return Temp;
                     }
+                case SMART_VALUE_TYPE.VT_STRUCT:
                 case SMART_VALUE_TYPE.VT_STRING_UCS16:
                     {
                         string Temp = Encoding.Unicode.GetString(Value.m_pData, (int)Value.m_StartIndex + sizeof(byte) + sizeof(uint), (int)Value.GetLength());
                         return Temp;
+                    }
+                case SMART_VALUE_TYPE.VT_BINARY:
+                    {
+                        return CVariedValue.FromBinary(Value.m_pData, Value.m_StartIndex + sizeof(byte) + sizeof(uint), Value.GetLength());
+                    }
+                case SMART_VALUE_TYPE.VT_ARRAY:
+                    {                        
+                        CSmartArray Array = Value;
+                        CVariedValue VValue = CVariedValue.CreateArray((int)Array.GetArrayLength());
+                        int Pos = Array.GetFirstMemberPosition();
+                        while (Pos >= 0)
+                        {
+                            VValue.AddChild(Array.GetNextMember(ref Pos));
+                        }
+                        return VValue;
+                    }
+                case SMART_VALUE_TYPE.VT_BOOL:
+                    {
+                        CSmartStruct Struct = Value;
+                        CVariedValue VValue = CVariedValue.CreateTable();
+                        int Pos = Struct.GetFirstMemberPosition();
+                        while (Pos >= 0)
+                        {
+                            ushort MemberID = 0;
+                            CSmartStruct SubStruct = Struct.GetNextMember(ref Pos,ref MemberID);
+                            if(SubStruct.IsMemberExist((ushort)SST_PAIR.KEY)&& SubStruct.IsMemberExist((ushort)SST_PAIR.DATA))
+                            {
+                                VValue.AddChild(SubStruct.GetMember((ushort)SST_PAIR.KEY), SubStruct.GetMember((ushort)SST_PAIR.DATA));
+                            }
+                        }
+                        return VValue;
                     }
             }
             return new CVariedValue();
@@ -887,7 +920,7 @@ namespace DOSSystem
         }
         public static implicit operator CSmartValue(string Value)
         {
-            CSmartValue SmartValue = NULL;
+            CSmartValue SmartValue = new CSmartValue();
             switch (INTERNAL_STRING_CODE_PAGE)
             {
                 case STRING_CODE_PAGE.STRING_CODE_PAGE_ANSI:
@@ -1008,22 +1041,36 @@ namespace DOSSystem
                             break;
                     }
                     break;
+                case VARIED_VALUE_TYPE.BINARY:
+                    SmartValue.Create(SMART_VALUE_TYPE.VT_BINARY, Value.GetLength());
+                    SmartValue.SetValue((byte[])Value);
+                    break;
+                case VARIED_VALUE_TYPE.ARRAY:
+                    {
+                        CSmartArray Array = new CSmartArray(GetVariedValueSize(Value));
+                        foreach(CVariedValue Child in Value)
+                        {
+                            Array.AddMember(Child);
+                        }
+                        SmartValue = Array;
+                    }
+                    break;
+                case VARIED_VALUE_TYPE.TABLE:
+                    {
+                        CSmartStruct Struct = new CSmartStruct(GetVariedValueSize(Value));
+                        foreach (KeyValuePair<CVariedValue, CVariedValue> pair in Value)
+                        {
+                            CSmartStruct SubStruct = Struct.PrepareSubStruct();
+                            SubStruct.AddMember((ushort)SST_PAIR.KEY, pair.Key);
+                            SubStruct.AddMember((ushort)SST_PAIR.DATA, pair.Value);
+                            Struct.FinishMember(1, SubStruct.GetDataLen());
+                        }
+                        SmartValue = Struct;
+                    }
+                    break;
             }
             return SmartValue;
         }
-        public static bool operator ==(CSmartValue LValue, CSmartValue RValue)
-        {
-            return LValue.m_pData == RValue.m_pData &&
-                LValue.m_StartIndex == RValue.m_StartIndex &&
-                LValue.m_DataLen == RValue.m_DataLen;
-        }
-        public static bool operator !=(CSmartValue LValue, CSmartValue RValue)
-        {
-            return LValue.m_pData != RValue.m_pData ||
-                LValue.m_StartIndex != RValue.m_StartIndex ||
-                LValue.m_DataLen != RValue.m_DataLen;
-        }
-
         public bool SetValue<T>(T Value) where T : IConvertible
         {
             if(m_pData!=null)
@@ -1247,6 +1294,93 @@ namespace DOSSystem
         public static SMART_VALUE_TYPE SetGetTypeByValue(bool Value)
         {
             return SMART_VALUE_TYPE.VT_BOOL;
+        }
+        public static uint GetValueSize(string Value)
+        {
+            uint DataLen = 0;
+            switch (INTERNAL_STRING_CODE_PAGE)
+            {
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_ANSI:
+                    DataLen = (uint)Encoding.GetEncoding(936).GetByteCount(Value);
+                    break;
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_UTF8:
+                    DataLen = (uint)Encoding.UTF8.GetByteCount(Value);
+                    break;
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16:
+                    DataLen = (uint)Encoding.Unicode.GetByteCount(Value);
+                    break;
+            }
+            return DataLen;
+        }
+        public static uint GetVariedValueSize(CVariedValue Value)
+        {
+            switch (Value.Type)
+            {
+                case VARIED_VALUE_TYPE.BOOLEAN:
+                    return sizeof(bool);
+                case VARIED_VALUE_TYPE.INT8:
+                    return sizeof(sbyte);
+                case VARIED_VALUE_TYPE.UINT8:
+                    return sizeof(byte);
+                case VARIED_VALUE_TYPE.INT16:
+                    return sizeof(short);
+                case VARIED_VALUE_TYPE.UINT16:
+                    return sizeof(ushort);
+                case VARIED_VALUE_TYPE.INT32:
+                    return sizeof(int);
+                case VARIED_VALUE_TYPE.UINT32:
+                    return sizeof(uint);
+                case VARIED_VALUE_TYPE.INT64:
+                    return sizeof(long);
+                case VARIED_VALUE_TYPE.UINT64:
+                    return sizeof(ulong);
+                case VARIED_VALUE_TYPE.FLOAT32:
+                    return sizeof(float);
+                case VARIED_VALUE_TYPE.FLOAT64:
+                    return sizeof(double);
+                case VARIED_VALUE_TYPE.STRING:
+                    return GetValueSize((string)Value);
+                case VARIED_VALUE_TYPE.BINARY:
+                    return Value.GetLength();
+                case VARIED_VALUE_TYPE.ARRAY:
+                    {
+                        uint Size = 0;
+                        foreach (CVariedValue Child in Value)
+                        {
+                            Size += CSmartArray.GetVariedMemberSize(Child);
+                        }
+                        return Size;
+                    }
+                case VARIED_VALUE_TYPE.TABLE:
+                    {
+                        uint Size = 0;
+                        foreach (KeyValuePair<CVariedValue, CVariedValue> pair in Value)
+                        {
+                            uint SubSize = CSmartStruct.GetVariedMemberSize(pair.Key) + CSmartStruct.GetVariedMemberSize(pair.Value);
+                            Size += CSmartStruct.GetStructMemberSize(SubSize);
+                        }
+                        return Size;
+                    }
+            }
+            return 0;
+        }
+        public bool CloneFrom(CSmartValue Value)
+        {
+            if (Value.GetData() == null)
+                return false;
+
+            Destory();
+            m_pData = new byte[Value.m_DataLen];
+            m_StartIndex = 0;
+            m_DataLen = Value.m_DataLen;
+            Array.Copy(Value.m_pData, Value.m_StartIndex, m_pData, m_StartIndex, m_DataLen);
+            return true;
+        }
+        public object Clone()
+        {
+            CSmartStruct Struct = new CSmartStruct();
+            Struct.CloneFrom(this);
+            return Struct;
         }
     }
 }

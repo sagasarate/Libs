@@ -139,19 +139,25 @@ public:
 	bool PushToLua(CLuaThread* pLuaThread);
 	//static CLuaBaseMetaClass* New(lua_State* pLuaState);
 	bool MergeLuaObject(CLuaThread* pLuaThread, int Index, OBJECT_MERGE_TYPE MergeType);//将一个Lua对象合并到自身，Index不能是伪索引
+	CLuaThread* AllocLuaThread();
 	bool PrepareCall(CLuaThread* pLuaThread, LPCTSTR szMemberName) throw(LUA_EXCEPTION);
 	CLuaThread* PrepareCall(LPCTSTR szMemberName);
 	template<typename T>
 	T GetMember(LPCTSTR MemberName) throw(LUA_EXCEPTION);
 	template<typename T>
 	void SetMember(LPCTSTR MemberName, const T& Value) throw(LUA_EXCEPTION);
+	bool PushMember(CLuaThread* pLuaThread, LPCTSTR MemberName);
+	bool SetMember(CLuaThread* pLuaThread, LPCTSTR MemberName);
+	int AddPersistentObject(CLuaThread* pLuaThread, int Index);
+	int PushPersistentObject(CLuaThread* pLuaThread, int RefID);
+	bool RemovePersistentObject(CLuaThread* pLuaThread, int RefID);	
 protected:
 	void InitClassMember(lua_State* L);
 	void RegisterMetaClass(lua_State * pLuaState) const;
 	virtual void RegisterMemberFunctions(lua_State * pLuaState) const;
 	virtual void OnGarbageCollect() = 0;
-	virtual bool GetProperty(lua_State* L, LPCTSTR szPropertyName);
-	virtual bool SetProperty(lua_State* L, LPCTSTR szPropertyName);
+	//virtual bool GetProperty(lua_State* L, LPCTSTR szPropertyName);
+	//virtual bool SetProperty(lua_State* L, LPCTSTR szPropertyName);
 	static int DoGarbageCollect(lua_State* L);
 	static int DoGetMember(lua_State* L);
 	static int DoSetMember(lua_State* L);
@@ -176,7 +182,7 @@ protected:
 protected:
 
 	LPCTSTR LuaGetClassName();
-	bool LuaMergeObject(LUA_EMPTY_VALUE Param1);
+	bool LuaMergeObject(LUA_EMPTY_VALUE Obj, int MergeType);
 	bool LuaMemberExist(LPCSTR MemberName);
 };
 

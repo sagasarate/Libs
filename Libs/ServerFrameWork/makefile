@@ -30,7 +30,7 @@ LIB_DEBUG = $(LIB)
 LDFLAGS_DEBUG = $(LDFLAGS)
 OBJDIR_DEBUG = linux/debug
 DEP_DEBUG = 
-OUT_DEBUG = ../bin/ServerFrameWorkD.a
+OUT_DEBUG = ../Bin/ServerFrameWorkD.a
 
 INC_RELEASE = $(INC)
 CFLAGS_RELEASE = $(CFLAGS) -g -W -fPIC
@@ -39,9 +39,9 @@ RCFLAGS_RELEASE = $(RCFLAGS)
 LIBDIR_RELEASE = $(LIBDIR)
 LIB_RELEASE = $(LIB)
 LDFLAGS_RELEASE = $(LDFLAGS)
-OBJDIR_RELEASE = linux/Release
+OBJDIR_RELEASE = linux/release
 DEP_RELEASE = 
-OUT_RELEASE = ../bin/ServerFrameWork.a
+OUT_RELEASE = ../Bin/ServerFrameWork.a
 
 OBJ_CPP_DEBUG = $(SRC_CPP_FILES:%.cpp=$(OBJDIR_DEBUG)/%.o)
 
@@ -52,7 +52,7 @@ all: debug release
 clean: clean_debug clean_release
 
 before_debug: 
-	test -d ../bin || mkdir -p ../bin
+	test -d ../Bin || mkdir -p ../Bin
 	test -d $(OBJDIR_DEBUG) || mkdir -p $(OBJDIR_DEBUG)
 
 after_debug: 
@@ -75,7 +75,7 @@ clean_debug:
 
 
 before_release: 
-	test -d ../bin || mkdir -p ../bin
+	test -d ../Bin || mkdir -p ../Bin
 	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
 
 after_release: 

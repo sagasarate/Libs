@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+﻿#include "StdAfx.h"
 
 
 #define CONNECT_TRACE_LEVEL 3

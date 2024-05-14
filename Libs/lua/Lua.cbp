@@ -595,6 +595,9 @@
 			<Option target="Release Win32" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="src/ljumptab.h">
+			<Option virtualFolder="Lua/" />
+		</Unit>
 		<Unit filename="src/llex.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder="Lua/" />
@@ -699,6 +702,9 @@
 			<Option target="Debug Win32" />
 			<Option target="Release Win32" />
 			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lopnames.h">
+			<Option virtualFolder="Lua/" />
 		</Unit>
 		<Unit filename="src/loslib.c">
 			<Option compilerVar="CC" />

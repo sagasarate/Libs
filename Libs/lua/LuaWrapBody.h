@@ -43,22 +43,56 @@ inline bool CLuaThread::PushArray(const CEasyArray<T>& ArrayList, UINT StartInde
 {
 	if (m_pLuaState == NULL)
 	{
-		PushNil();
+		return false;
+	}
+	lua_newtable(m_pLuaState);
+	if (StartIndex < ArrayList.GetCount())
+	{
+		if (PushCount + StartIndex > (UINT)ArrayList.GetCount())
+			PushCount = (UINT)ArrayList.GetCount() - StartIndex;
+		if (PushCount)
+		{
+			for (UINT i = StartIndex; i < StartIndex + PushCount; i++)
+			{
+				lua_pushinteger(m_pLuaState, i + 1);
+				PushValue(ArrayList[i]);
+				lua_settable(m_pLuaState, -3);
+			}	
+		}
+	}	
+	return true;
+}
+
+template<typename T>
+inline bool CLuaThread::PushArray(const T* pArray, UINT ArrayLen, UINT StartIndex, UINT PushCount)
+{
+	if (m_pLuaState == NULL)
+	{
 		return false;
 	}
 
-	if (StartIndex >= ArrayList.GetCount())
-		StartIndex = ArrayList.GetCount() - 1;
-
-	if ((PushCount == 0) || (PushCount + StartIndex >= ArrayList.GetCount()))
-		PushCount = ArrayList.GetCount() - StartIndex;
-
-	lua_newtable(m_pLuaState);
-	for (UINT i = StartIndex; i < StartIndex + PushCount; i++)
+	if (pArray)
 	{
-		lua_pushinteger(m_pLuaState, i + 1);
-		PushValue(ArrayList[i]);
-		lua_settable(m_pLuaState, -3);
+		lua_newtable(m_pLuaState);
+		if (StartIndex < ArrayLen)
+		{
+			if (PushCount + StartIndex > ArrayLen)
+				PushCount = ArrayLen - StartIndex;
+			if (PushCount)
+			{
+				
+				for (UINT i = StartIndex; i < StartIndex + PushCount; i++)
+				{
+					lua_pushinteger(m_pLuaState, i + 1);
+					PushValue(pArray[i]);
+					lua_settable(m_pLuaState, -3);
+				}
+			}
+		}
+	}
+	else
+	{
+		lua_pushnil(m_pLuaState);
 	}
 	return true;
 }

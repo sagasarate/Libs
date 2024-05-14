@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 enum class VARIED_VALUE_TYPE :char
 {
@@ -270,6 +270,13 @@ public:
 		m_ui64Value = 0;
 		*this = Value;
 	}
+	CVariedValue(CVariedValue&& Value) noexcept
+	{
+		m_Type = Value.m_Type;
+		m_ui64Value = Value.m_ui64Value;
+		Value.m_Type = VARIED_VALUE_TYPE::NIL;
+		Value.m_ui64Value = 0;
+	}
 	operator bool() const
 	{
 		switch (m_Type)
@@ -525,6 +532,12 @@ public:
 			return *m_pStrValue;
 		return CEasyString::EMPTY_STR;
 	}
+	operator CEasyString()
+	{
+		if (m_Type == VARIED_VALUE_TYPE::STRING)
+			return *m_pStrValue;
+		return CEasyString();
+	}
 
 	operator const unsigned char*() const
 	{
@@ -534,7 +547,7 @@ public:
 	}
 
 #ifdef WIN32
-	CVariedValue operator=(const VARIANT& Value)
+	CVariedValue& operator=(const VARIANT& Value)
 	{		
 		switch (Value.vt)
 		{
@@ -755,16 +768,27 @@ public:
 		case VARIED_VALUE_TYPE::TABLE:
 			{
 				CreateTable();
-				void* Pos = m_pTableValue->GetFirstObjectPos();
+				void* Pos = Value.m_pTableValue->GetFirstObjectPos();
 				while (Pos)
 				{
 					CVariedValue Key;
-					CVariedValue* pData = m_pTableValue->GetNextObject(Pos, Key);
+					CVariedValue* pData = Value.m_pTableValue->GetNextObject(Pos, Key);
 					m_pTableValue->Insert(Key, *pData);
 				}
 			}
 			break;
 		}
+		return *this;
+	}
+	CVariedValue& operator=(CVariedValue&& Value)  noexcept
+	{
+		if ((&m_Type) == (&Value.m_Type))
+			return *this;
+		Clear();
+		m_Type = Value.m_Type;
+		m_ui64Value = Value.m_ui64Value;
+		Value.m_Type = VARIED_VALUE_TYPE::NIL;
+		Value.m_ui64Value = 0;
 		return *this;
 	}
 	bool operator<(const CVariedValue& Value) const
@@ -923,7 +947,151 @@ public:
 	{
 		return ((UINT64)(*this)) | ((UINT64)Value);
 	}
-
+	CVariedValue operator+(const CVariedValue& Value) const
+	{
+		VARIED_VALUE_TYPE Type = GetArithmeticType(m_Type, Value.m_Type);
+		switch (Type)
+		{
+		case VARIED_VALUE_TYPE::BOOLEAN:
+			return ((bool)(*this))||((bool)Value);
+		case VARIED_VALUE_TYPE::INT8:
+			return (char)(*this) + (char)Value;
+		case VARIED_VALUE_TYPE::UINT8:
+			return (unsigned char)(*this) + (unsigned char)Value;
+		case VARIED_VALUE_TYPE::INT16:
+			return (short)(*this) + (short)Value;
+		case VARIED_VALUE_TYPE::UINT16:
+			return (unsigned short)(*this) + (unsigned short)Value;
+		case VARIED_VALUE_TYPE::INT32:
+			return (int)(*this) + (int)Value;
+		case VARIED_VALUE_TYPE::UINT32:
+			return (unsigned int)(*this) + (unsigned int)Value;
+		case VARIED_VALUE_TYPE::INT64:
+			return (__int64)(*this) + (__int64)Value;
+		case VARIED_VALUE_TYPE::UINT64:
+			return (unsigned __int64)(*this) + (unsigned __int64)Value;
+		case VARIED_VALUE_TYPE::FLOAT32:
+			return (float)(*this) + (float)Value;
+		case VARIED_VALUE_TYPE::FLOAT64:
+			return (double)(*this) + (double)Value;
+		}
+		return CVariedValue::NIL;
+	}
+	CVariedValue operator-(const CVariedValue& Value) const
+	{
+		VARIED_VALUE_TYPE Type = GetArithmeticType(m_Type, Value.m_Type);
+		switch (Type)
+		{
+		case VARIED_VALUE_TYPE::BOOLEAN:
+			return ((bool)(*this)) || ((bool)Value);
+		case VARIED_VALUE_TYPE::INT8:
+			return (char)(*this) - (char)Value;
+		case VARIED_VALUE_TYPE::UINT8:
+			return (unsigned char)(*this) - (unsigned char)Value;
+		case VARIED_VALUE_TYPE::INT16:
+			return (short)(*this) - (short)Value;
+		case VARIED_VALUE_TYPE::UINT16:
+			return (unsigned short)(*this) - (unsigned short)Value;
+		case VARIED_VALUE_TYPE::INT32:
+			return (int)(*this) - (int)Value;
+		case VARIED_VALUE_TYPE::UINT32:
+			return (unsigned int)(*this) - (unsigned int)Value;
+		case VARIED_VALUE_TYPE::INT64:
+			return (__int64)(*this) - (__int64)Value;
+		case VARIED_VALUE_TYPE::UINT64:
+			return (unsigned __int64)(*this) - (unsigned __int64)Value;
+		case VARIED_VALUE_TYPE::FLOAT32:
+			return (float)(*this) - (float)Value;
+		case VARIED_VALUE_TYPE::FLOAT64:
+			return (double)(*this) - (double)Value;		
+		}
+		return CVariedValue::NIL;
+	}
+	CVariedValue operator*(const CVariedValue& Value) const
+	{
+		VARIED_VALUE_TYPE Type = GetArithmeticType(m_Type, Value.m_Type);
+		switch (Type)
+		{
+		case VARIED_VALUE_TYPE::BOOLEAN:
+			return ((bool)(*this)) && ((bool)Value);
+		case VARIED_VALUE_TYPE::INT8:
+			return (char)(*this) * (char)Value;
+		case VARIED_VALUE_TYPE::UINT8:
+			return (unsigned char)(*this) * (unsigned char)Value;
+		case VARIED_VALUE_TYPE::INT16:
+			return (short)(*this) * (short)Value;
+		case VARIED_VALUE_TYPE::UINT16:
+			return (unsigned short)(*this) * (unsigned short)Value;
+		case VARIED_VALUE_TYPE::INT32:
+			return (int)(*this) * (int)Value;
+		case VARIED_VALUE_TYPE::UINT32:
+			return (unsigned int)(*this) * (unsigned int)Value;
+		case VARIED_VALUE_TYPE::INT64:
+			return (__int64)(*this) * (__int64)Value;
+		case VARIED_VALUE_TYPE::UINT64:
+			return (unsigned __int64)(*this) * (unsigned __int64)Value;
+		case VARIED_VALUE_TYPE::FLOAT32:
+			return (float)(*this) * (float)Value;
+		case VARIED_VALUE_TYPE::FLOAT64:
+			return (double)(*this) * (double)Value;		
+		}
+		return CVariedValue::NIL;
+	}
+	CVariedValue operator/(const CVariedValue& Value) const
+	{
+		VARIED_VALUE_TYPE Type = GetArithmeticType(m_Type, Value.m_Type);
+		switch (Type)
+		{
+		case VARIED_VALUE_TYPE::BOOLEAN:
+			return ((bool)(*this)) && ((bool)Value);
+		case VARIED_VALUE_TYPE::INT8:
+			return (char)(*this) / (char)Value;
+		case VARIED_VALUE_TYPE::UINT8:
+			return (unsigned char)(*this) / (unsigned char)Value;
+		case VARIED_VALUE_TYPE::INT16:
+			return (short)(*this) / (short)Value;
+		case VARIED_VALUE_TYPE::UINT16:
+			return (unsigned short)(*this) / (unsigned short)Value;
+		case VARIED_VALUE_TYPE::INT32:
+			return (int)(*this) / (int)Value;
+		case VARIED_VALUE_TYPE::UINT32:
+			return (unsigned int)(*this) / (unsigned int)Value;
+		case VARIED_VALUE_TYPE::INT64:
+			return (__int64)(*this) / (__int64)Value;
+		case VARIED_VALUE_TYPE::UINT64:
+			return (unsigned __int64)(*this) / (unsigned __int64)Value;
+		case VARIED_VALUE_TYPE::FLOAT32:
+			return (float)(*this) / (float)Value;
+		case VARIED_VALUE_TYPE::FLOAT64:
+			return (double)(*this) / (double)Value;		
+		}
+		return CVariedValue::NIL;
+	}
+	CVariedValue operator-() const
+	{
+		switch (m_Type)
+		{
+		case VARIED_VALUE_TYPE::BOOLEAN:
+			return !((bool)(*this));
+		case VARIED_VALUE_TYPE::INT8:		
+			return -(char)(*this);
+		case VARIED_VALUE_TYPE::UINT8:
+		case VARIED_VALUE_TYPE::INT16:		
+			return -(short)(*this);		
+		case VARIED_VALUE_TYPE::UINT16:
+		case VARIED_VALUE_TYPE::INT32:
+			return -(int)(*this);
+		case VARIED_VALUE_TYPE::UINT32:
+		case VARIED_VALUE_TYPE::INT64:
+		case VARIED_VALUE_TYPE::FLOAT64:
+			return -(__int64)(*this);
+		case VARIED_VALUE_TYPE::FLOAT32:
+			return -(float)(*this);
+		case VARIED_VALUE_TYPE::UINT64:		
+			return -(double)(*this);		
+		}
+		return CVariedValue::NIL;
+	}
 	size_t GetLength() const
 	{
 		switch (m_Type)
@@ -1368,6 +1536,206 @@ public:
 			break;
 		}
 		return Str;
+	}
+protected:
+	VARIED_VALUE_TYPE GetArithmeticType(VARIED_VALUE_TYPE LeftType, VARIED_VALUE_TYPE RightType) const
+	{
+		switch (LeftType)
+		{
+		case VARIED_VALUE_TYPE::BOOLEAN:
+			switch (RightType)
+			{
+			case VARIED_VALUE_TYPE::BOOLEAN:				
+			case VARIED_VALUE_TYPE::INT8:
+			case VARIED_VALUE_TYPE::UINT8:				
+			case VARIED_VALUE_TYPE::INT16:
+			case VARIED_VALUE_TYPE::UINT16:				
+			case VARIED_VALUE_TYPE::INT32:
+			case VARIED_VALUE_TYPE::UINT32:				
+			case VARIED_VALUE_TYPE::INT64:
+			case VARIED_VALUE_TYPE::UINT64:				
+			case VARIED_VALUE_TYPE::FLOAT32:				
+			case VARIED_VALUE_TYPE::FLOAT64:
+				return RightType;
+			}
+			break;
+		case VARIED_VALUE_TYPE::INT8:
+			switch (RightType)
+			{
+			case VARIED_VALUE_TYPE::BOOLEAN:				
+			case VARIED_VALUE_TYPE::INT8:
+				return LeftType;
+			case VARIED_VALUE_TYPE::UINT8:
+				return VARIED_VALUE_TYPE::INT16;
+			case VARIED_VALUE_TYPE::INT16:
+			case VARIED_VALUE_TYPE::UINT16:
+			case VARIED_VALUE_TYPE::INT32:
+			case VARIED_VALUE_TYPE::UINT32:
+			case VARIED_VALUE_TYPE::INT64:
+			case VARIED_VALUE_TYPE::UINT64:
+			case VARIED_VALUE_TYPE::FLOAT32:
+			case VARIED_VALUE_TYPE::FLOAT64:
+				return RightType;
+			}
+			break;
+		case VARIED_VALUE_TYPE::UINT8:
+			switch (RightType)
+			{
+			case VARIED_VALUE_TYPE::BOOLEAN:
+				return LeftType;
+			case VARIED_VALUE_TYPE::INT8:
+				return VARIED_VALUE_TYPE::INT16;
+			case VARIED_VALUE_TYPE::UINT8:
+			case VARIED_VALUE_TYPE::INT16:
+			case VARIED_VALUE_TYPE::UINT16:
+			case VARIED_VALUE_TYPE::INT32:
+			case VARIED_VALUE_TYPE::UINT32:
+			case VARIED_VALUE_TYPE::INT64:
+			case VARIED_VALUE_TYPE::UINT64:
+			case VARIED_VALUE_TYPE::FLOAT32:
+			case VARIED_VALUE_TYPE::FLOAT64:
+				return RightType;
+			}
+			break;
+		case VARIED_VALUE_TYPE::INT16:
+			switch (RightType)
+			{
+			case VARIED_VALUE_TYPE::BOOLEAN:				
+			case VARIED_VALUE_TYPE::INT8:				
+			case VARIED_VALUE_TYPE::UINT8:				
+			case VARIED_VALUE_TYPE::INT16:
+				return LeftType;
+			case VARIED_VALUE_TYPE::UINT16:
+				return VARIED_VALUE_TYPE::INT32;
+			case VARIED_VALUE_TYPE::INT32:
+			case VARIED_VALUE_TYPE::UINT32:
+			case VARIED_VALUE_TYPE::INT64:
+			case VARIED_VALUE_TYPE::UINT64:
+			case VARIED_VALUE_TYPE::FLOAT32:
+			case VARIED_VALUE_TYPE::FLOAT64:
+				return RightType;
+			}
+			break;
+		case VARIED_VALUE_TYPE::UINT16:
+			switch (RightType)
+			{
+			case VARIED_VALUE_TYPE::BOOLEAN:
+			case VARIED_VALUE_TYPE::INT8:
+			case VARIED_VALUE_TYPE::UINT8:
+				return LeftType;
+			case VARIED_VALUE_TYPE::INT16:
+				return VARIED_VALUE_TYPE::INT32;
+			case VARIED_VALUE_TYPE::UINT16:				
+			case VARIED_VALUE_TYPE::INT32:
+			case VARIED_VALUE_TYPE::UINT32:
+			case VARIED_VALUE_TYPE::INT64:
+			case VARIED_VALUE_TYPE::UINT64:
+			case VARIED_VALUE_TYPE::FLOAT32:
+			case VARIED_VALUE_TYPE::FLOAT64:
+				return RightType;
+			}
+			break;
+		case VARIED_VALUE_TYPE::INT32:
+			switch (RightType)
+			{
+			case VARIED_VALUE_TYPE::BOOLEAN:
+			case VARIED_VALUE_TYPE::INT8:
+			case VARIED_VALUE_TYPE::UINT8:				
+			case VARIED_VALUE_TYPE::INT16:				
+			case VARIED_VALUE_TYPE::UINT16:				
+			case VARIED_VALUE_TYPE::INT32:
+				return LeftType;
+			case VARIED_VALUE_TYPE::UINT32:
+				return VARIED_VALUE_TYPE::INT64;
+			case VARIED_VALUE_TYPE::INT64:
+			case VARIED_VALUE_TYPE::UINT64:
+				return RightType;
+			case VARIED_VALUE_TYPE::FLOAT32:
+			case VARIED_VALUE_TYPE::FLOAT64:				
+				return VARIED_VALUE_TYPE::FLOAT64;
+			}
+			break;
+		case VARIED_VALUE_TYPE::UINT32:
+			switch (RightType)
+			{
+			case VARIED_VALUE_TYPE::BOOLEAN:
+			case VARIED_VALUE_TYPE::INT8:
+			case VARIED_VALUE_TYPE::UINT8:
+			case VARIED_VALUE_TYPE::INT16:
+			case VARIED_VALUE_TYPE::UINT16:
+				return LeftType;
+			case VARIED_VALUE_TYPE::INT32:
+				return VARIED_VALUE_TYPE::INT64;
+			case VARIED_VALUE_TYPE::UINT32:				
+			case VARIED_VALUE_TYPE::INT64:
+			case VARIED_VALUE_TYPE::UINT64:
+				return RightType;
+			case VARIED_VALUE_TYPE::FLOAT32:
+			case VARIED_VALUE_TYPE::FLOAT64:				
+				return VARIED_VALUE_TYPE::FLOAT64;
+			}
+			break;
+		case VARIED_VALUE_TYPE::INT64:
+			switch (RightType)
+			{
+			case VARIED_VALUE_TYPE::BOOLEAN:
+			case VARIED_VALUE_TYPE::INT8:
+			case VARIED_VALUE_TYPE::UINT8:
+			case VARIED_VALUE_TYPE::INT16:
+			case VARIED_VALUE_TYPE::UINT16:
+			case VARIED_VALUE_TYPE::INT32:				
+			case VARIED_VALUE_TYPE::UINT32:
+			case VARIED_VALUE_TYPE::INT64:
+				return LeftType;				
+			case VARIED_VALUE_TYPE::UINT64:
+				return RightType;
+			case VARIED_VALUE_TYPE::FLOAT32:
+			case VARIED_VALUE_TYPE::FLOAT64:
+				return VARIED_VALUE_TYPE::FLOAT64;
+			}
+			break;
+		case VARIED_VALUE_TYPE::UINT64:
+			switch (RightType)
+			{
+			case VARIED_VALUE_TYPE::BOOLEAN:
+			case VARIED_VALUE_TYPE::INT8:
+			case VARIED_VALUE_TYPE::UINT8:
+			case VARIED_VALUE_TYPE::INT16:
+			case VARIED_VALUE_TYPE::UINT16:
+			case VARIED_VALUE_TYPE::INT32:
+			case VARIED_VALUE_TYPE::UINT32:
+			case VARIED_VALUE_TYPE::INT64:				
+			case VARIED_VALUE_TYPE::UINT64:
+				return LeftType;
+			case VARIED_VALUE_TYPE::FLOAT32:
+			case VARIED_VALUE_TYPE::FLOAT64:
+				return RightType;
+			}
+			break;
+		case VARIED_VALUE_TYPE::FLOAT32:
+			switch (RightType)
+			{
+			case VARIED_VALUE_TYPE::BOOLEAN:
+			case VARIED_VALUE_TYPE::INT8:
+			case VARIED_VALUE_TYPE::UINT8:
+			case VARIED_VALUE_TYPE::INT16:
+			case VARIED_VALUE_TYPE::UINT16:
+				return LeftType;
+			case VARIED_VALUE_TYPE::INT32:
+			case VARIED_VALUE_TYPE::UINT32:
+			case VARIED_VALUE_TYPE::INT64:
+			case VARIED_VALUE_TYPE::UINT64:		
+				return VARIED_VALUE_TYPE::FLOAT64;
+			case VARIED_VALUE_TYPE::FLOAT32:
+				return LeftType;
+			case VARIED_VALUE_TYPE::FLOAT64:
+				return RightType;
+			}
+			break;
+		case VARIED_VALUE_TYPE::FLOAT64:
+			return LeftType;
+		}
+		return VARIED_VALUE_TYPE::NIL;
 	}
 };
 

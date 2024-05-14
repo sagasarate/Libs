@@ -478,6 +478,12 @@
 		<Unit filename="SettingFile.h">
 			<Option virtualFolder="文件系统/配置文件/" />
 		</Unit>
+		<Unit filename="SmartArray.cpp">
+			<Option virtualFolder="SmartStruct/" />
+		</Unit>
+		<Unit filename="SmartArray.h">
+			<Option virtualFolder="SmartStruct/" />
+		</Unit>
 		<Unit filename="SmartPtr.h">
 			<Option virtualFolder="聪明指针/" />
 		</Unit>
@@ -609,6 +615,9 @@
 		</Unit>
 		<Unit filename="VSOutputLogPrinter.h">
 			<Option virtualFolder="Log/缺省实现/" />
+		</Unit>
+		<Unit filename="VariedValue.h">
+			<Option virtualFolder="数据结构/" />
 		</Unit>
 		<Unit filename="WinTypeWrap.h">
 			<Option virtualFolder="数据结构/" />

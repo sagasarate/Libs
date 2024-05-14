@@ -133,6 +133,7 @@ UINT CDOSObjectProxyServiceNoBuff::GetConnectionCount()
 {
 	return m_ConnectionPool.GetObjectCount();
 }
+
 float CDOSObjectProxyServiceNoBuff::GetCPUUsedRate()
 {
 	return m_ThreadPerformanceCounter.GetCPUUsedRate();
@@ -852,7 +853,7 @@ void CDOSObjectProxyServiceNoBuff::OnSystemMsg(CDOSMessagePacket * pPacket)
 			BYTE ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(pInfo->ProxyObjectID.GroupIndex);
 			if (ProxyType == m_Config.ProxyType)
 			{
-				CDOSObjectProxyConnectionDefault* pProxyConnection = GetConnection(pInfo->ProxyObjectID.ObjectIndex);
+				CDOSObjectProxyConnectionNoBuff* pProxyConnection = GetConnection(pInfo->ProxyObjectID.ObjectIndex);
 				if (pProxyConnection)
 				{
 					pProxyConnection->AddBroadcastGroup(pInfo->GroupID);
@@ -875,7 +876,7 @@ void CDOSObjectProxyServiceNoBuff::OnSystemMsg(CDOSMessagePacket * pPacket)
 			BYTE ProxyType = GET_PROXY_TYPE_FROM_PROXY_GROUP_INDEX(pInfo->ProxyObjectID.GroupIndex);
 			if (ProxyType == m_Config.ProxyType)
 			{
-				CDOSObjectProxyConnectionDefault* pProxyConnection = GetConnection(pInfo->ProxyObjectID.ObjectIndex);
+				CDOSObjectProxyConnectionNoBuff* pProxyConnection = GetConnection(pInfo->ProxyObjectID.ObjectIndex);
 				if (pProxyConnection)
 				{
 					pProxyConnection->RemoveBroadcastGroup(pInfo->GroupID);
@@ -926,7 +927,7 @@ void CDOSObjectProxyServiceNoBuff::OnSystemMsg(CDOSMessagePacket * pPacket)
 				void* Pos = GetFirstConnectionPos();
 				while (Pos)
 				{
-					CDOSObjectProxyConnectionDefault* pConnect = GetNextConnection(Pos);
+					CDOSObjectProxyConnectionNoBuff* pConnect = GetNextConnection(Pos);
 					if (pConnect->IsConnected() && (pConnect->IsInBroadcastGroup(pInfo->GroupID)))
 					{
 						pConnect->PushMessage(pPacket);
@@ -936,7 +937,7 @@ void CDOSObjectProxyServiceNoBuff::OnSystemMsg(CDOSMessagePacket * pPacket)
 			else
 			{
 				//多线程模式
-				for (CDOSObjectProxyConnectionGroup& Group : m_ConnectionGroups)
+				for (CDOSObjectProxyConnectionGroupNoBuff& Group : m_ConnectionGroups)
 				{
 					Group.PushMessage(0, pPacket);
 				}

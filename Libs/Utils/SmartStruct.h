@@ -159,6 +159,17 @@ public:
 		m_Tag = Tag;
 		Attach((void*)Value.GetData(), Value.GetBufferLen(), false);
 	}
+	CSmartStruct(CSmartStruct&& Struct)  noexcept
+	{
+		m_pData = Struct.m_pData;
+		m_DataLen = Struct.m_DataLen;
+		m_IsSelfData = Struct.m_IsSelfData;
+		m_Tag = Struct.m_Tag;
+		Struct.m_pData = NULL;
+		Struct.m_DataLen = 0;
+		Struct.m_IsSelfData = true;
+		Struct.m_Tag = _T("CSmartStruct");
+	}
 	LPCTSTR GetTag()
 	{
 		return m_Tag;
@@ -878,6 +889,17 @@ public:
 		}
 		return false;
 	}
+	CSmartValue PrepareMember(CSmartValue::SMART_VALUE_TYPE Type)
+	{
+		CSmartValue Value;
+		UINT BufferSize;
+		void* pBuffer = PrepareMember(BufferSize);
+		if (pBuffer)
+		{
+			Value.Attach(pBuffer, BufferSize, Type);
+		}
+		return Value;
+	}
 	CSmartArray PrepareSubArray()
 	{
 		CSmartArray SubArray;
@@ -1295,5 +1317,8 @@ public:
 		return m_DataLen-GetDataLen();
 	}
 	
+#ifdef RAPIDJSON_DOCUMENT_H_
+	rapidjson::Value ToJson(rapidjson::Document::AllocatorType& Alloc);
+#endif
 };
 

@@ -215,7 +215,10 @@ bool CEasyNetLinkManager::LoadConfig(xml_node& XmlRoot, ENL_CONFIG& Config, UINT
 						{
 							ServiceConfig.MinCompressSize = Service.attribute(_T("MinCompressSize"));
 						}
-						
+						if (Service.has_attribute(_T("DisconnectOnTransferFail")))
+						{
+							ServiceConfig.DisconnectOnTransferFail = Service.attribute(_T("DisconnectOnTransferFail"));
+						}
 						for (UINT k = 0; k < Service.children(); k++)
 						{
 							if (_tcsnicmp(Service.child(k).name(), _T("IPList"), 6) == 0)
@@ -285,6 +288,10 @@ bool CEasyNetLinkManager::LoadConfig(xml_node& XmlRoot, ENL_CONFIG& Config, UINT
 						{
 							ConnectionConfig.MinCompressSize = Connection.attribute(_T("MinCompressSize"));
 						}
+						if (Connection.has_attribute(_T("DisconnectOnTransferFail")))
+						{
+							ConnectionConfig.DisconnectOnTransferFail = Connection.attribute(_T("DisconnectOnTransferFail"));
+						}
 						Config.ConnectionConfig.ConnectionList.Add(ConnectionConfig);
 					}
 				}
@@ -315,20 +322,22 @@ CEasyNetLinkService * CEasyNetLinkManager::AddService(UINT ID,UINT ReportID,cons
 	bool NeedReallocConnectionID, UINT MaxPacketSize, bool IsUseListenThread,
 	int ParallelAcceptCount, UINT AcceptQueueSize,
 	UINT RecvQueueSize, UINT SendQueueSize,
-	DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
+	DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize,
+	bool DisconnectOnTransferFail)
 {
 	CEasyNetLinkService * pService=CreateLinkService(ID);
 	if(pService)
 	{
 		if (pService->Init(this, ReportID, ListenAddress, NeedReallocConnectionID, IsUseListenThread, ParallelAcceptCount, AcceptQueueSize,
-			RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize))
+			RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize, DisconnectOnTransferFail))
 		{
-			PrintNetLog( _T("CEasyNetLinkManager::AddService 创建Service[%s][%s:%u],%s,并发Accept=%d,Accept队列长度=%u,接收队列长度=%u,发送队列长度=%u,最大数据包大小=%u,压缩类型=%d,最小压缩大小=%u"),
+			PrintNetLog(_T("创建Service[%s][%s:%u],%s,并发Accept=%d,Accept队列长度=%u,接收队列长度=%u,发送队列长度=%u,最大数据包大小=%u,压缩类型=%d,最小压缩大小=%u,传输出错时断开连接=%s"),
 				CClassifiedID(ID).ToStr(),
 				ListenAddress.GetIPString(),
 				ListenAddress.GetPort(),
 				IsUseListenThread ? _T("使用侦听线程") : _T("使用IOCP侦听"),
-				ParallelAcceptCount, AcceptQueueSize, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize);
+				ParallelAcceptCount, AcceptQueueSize, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize,
+				DisconnectOnTransferFail ? _T("true") : _T("false"));
 			return pService;
 		}
 		DeleteLinkService(pService);
@@ -338,25 +347,27 @@ CEasyNetLinkService * CEasyNetLinkManager::AddService(UINT ID,UINT ReportID,cons
 }
 
 bool CEasyNetLinkManager::AddLink(UINT ReportID, const CIPAddress& ConnectionAddress, UINT MaxPacketSize,
-										UINT RecvQueueSize,UINT SendQueueSize,
-										DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
+	UINT RecvQueueSize, UINT SendQueueSize,
+	DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize,
+	bool DisconnectOnTransferFail)
 {
-	CEasyNetLink * pLink=CreateAcceptLink();
+	CEasyNetLink* pLink = CreateAcceptLink();
 	if (pLink)
 	{
-		if (pLink->Init(this, ConnectionAddress, ReportID, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize))
+		if (pLink->Init(this, ConnectionAddress, ReportID, RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize, DisconnectOnTransferFail))
 		{
-			PrintNetLog(_T("CEasyNetLinkManager::AddLink 创建Connection[%s][%s:%u],接收队列长度=%u,发送队列长度=%u,最大数据包大小=%u,压缩类型=%d,最小压缩大小=%u"),
+			PrintNetLog(_T("CEasyNetLinkManager::AddLink 创建Connection[%s][%s:%u],接收队列长度=%u,发送队列长度=%u,最大数据包大小=%u,压缩类型=%d,最小压缩大小=%u,传输出错时断开连接=%s"),
 				CClassifiedID(ReportID).ToStr(),
 				ConnectionAddress.GetIPString(),
 				ConnectionAddress.GetPort(),
-				RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize);
+				RecvQueueSize, SendQueueSize, MaxPacketSize, DataCompressType, MinCompressSize,
+				DisconnectOnTransferFail ? _T("true") : _T("false"));
 			return true;
 		}
 		else
 		{
 			DeleteLink(pLink);
-			PrintNetLog( _T("CEasyNetLinkManager::AddLink 创建Connection失败"));			
+			PrintNetLog(_T("CEasyNetLinkManager::AddLink 创建Connection失败"));
 		}
 	}
 	return false;

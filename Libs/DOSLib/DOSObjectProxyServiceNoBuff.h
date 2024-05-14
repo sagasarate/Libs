@@ -103,6 +103,8 @@ public:
 	virtual CBaseNetConnection * CreateConnection(CIPAddress& RemoteAddress);
 	virtual bool DeleteConnection(CBaseNetConnection * pConnection);	
 	CDOSObjectProxyConnectionNoBuff * GetConnection(UINT ID);
+	virtual LPVOID GetFirstConnectionPos();
+	virtual CDOSObjectProxyConnectionNoBuff* GetNextConnection(LPVOID& Pos);
 
 	void AcceptConnection(CDOSObjectProxyConnectionNoBuff * pConnection);
 	void QueryDestoryConnection(CDOSObjectProxyConnectionNoBuff * pConnection);
@@ -140,4 +142,13 @@ protected:
 inline CDOSObjectProxyConnectionNoBuff * CDOSObjectProxyServiceNoBuff::GetConnection(UINT ID)
 {
 	return m_ConnectionPool.GetObject(ID);
+}
+
+inline LPVOID CDOSObjectProxyServiceNoBuff::GetFirstConnectionPos()
+{
+	return m_ConnectionPool.GetFirstObjectPos();
+}
+inline CDOSObjectProxyConnectionNoBuff* CDOSObjectProxyServiceNoBuff::GetNextConnection(LPVOID& Pos)
+{
+	return m_ConnectionPool.GetNextObject(Pos);
 }

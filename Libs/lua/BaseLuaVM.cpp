@@ -256,6 +256,18 @@ CLuaThread * CBaseLuaVM::GetThreadByYeildType(int YeildType)
 	}
 	return NULL;
 }
+void CBaseLuaVM::ClearAllYeildThread()
+{
+	void* Pos = m_LuaThreadPool.GetFirstObjectPos();
+	while (Pos)
+	{
+		CLuaThread* pLuaThread = m_LuaThreadPool.GetNextObject(Pos);
+		if (pLuaThread->GetLastLuaStatus() == LUA_YIELD)
+		{
+			pLuaThread->Destory();
+		}
+	}
+}
 CLuaThread* CBaseLuaVM::AllocLuaThread()
 {
 	if (GetLuaState() == NULL)
@@ -263,7 +275,7 @@ CLuaThread* CBaseLuaVM::AllocLuaThread()
 	if (m_LuaThreadPool.GetObjectCount() == m_LuaThreadPool.GetBufferSize())
 	{
 		//线程池已满，尝试回收无用线程
-		DoGarbageCollect();
+		DoGarbageCollect(false);
 	}
 	CLuaThread* pLuaThread = m_LuaThreadPool.NewObject();
 	if (pLuaThread)
@@ -319,12 +331,12 @@ CLuaThread* CBaseLuaVM::AllocLuaThread()
 	}
 	return NULL;
 }
-CLuaThread * CBaseLuaVM::PrepareCall(CBaseScriptHost * pObject, LPCTSTR szFunctionName)
+CLuaThread * CBaseLuaVM::PrepareCall(CBaseScriptHost * pObject, LPCTSTR szObjectName, LPCTSTR szFunctionName)
 {
 	CLuaThread* pLuaThread = AllocLuaThread();
 	if (pLuaThread)
 	{		
-		if (!pLuaThread->Prepare(pObject, szFunctionName))
+		if (!pLuaThread->Prepare(pObject, szObjectName, szFunctionName))
 		{
 			pLuaThread->Destory();
 			pLuaThread = NULL;
@@ -536,7 +548,7 @@ UINT CBaseLuaVM::AddCFunctions(LPCTSTR LibName, const CEasyArray<LUA_CFUN_INFO>&
 	return RegidterCount;
 }
 
-int CBaseLuaVM::DoGarbageCollect()
+int CBaseLuaVM::DoGarbageCollect(bool PrintStatus)
 {
 	int Count = 0;
 	void * Pos = m_LuaThreadPool.GetFirstObjectPos();
@@ -550,7 +562,15 @@ int CBaseLuaVM::DoGarbageCollect()
 		}
 	}
 	if (GetLuaState())
+	{
 		lua_gc(GetLuaState(), LUA_GCCOLLECT);
+		if (PrintStatus)
+		{
+			int MemUsedK = lua_gc(GetLuaState(), LUA_GCCOUNT);
+			int MemUsed= lua_gc(GetLuaState(), LUA_GCCOUNTB);
+			//LogLua(_T("mem used=%dK%d"), MemUsedK, MemUsed);
+		}
+	}		
 	return Count;
 }
 
@@ -576,7 +596,7 @@ void CBaseLuaVM::ClearLoadedModule()
 					lua_rawset(GetLuaState(), -3);
 					CEasyString Temp;
 					LuaStrToSystemStr(ModuleName, Temp);
-					LogLuaDebug(_T("已移除模块%s的缓冲"), (LPCTSTR)Temp);
+					//LogLuaDebug(_T("已移除模块%s的缓冲"), (LPCTSTR)Temp);
 				}
 				m_LoadedModules.Clear();
 			}
@@ -639,6 +659,10 @@ void CBaseLuaVM::InitEnv()
 	//创建表__NEW_THREAD_CALLBACKS用来存放新建线程时的回调函数
 	lua_newtable(GetLuaState());
 	lua_setglobal(GetLuaState(), "__NEW_THREAD_CALLBACKS");
+
+	//创建表__PERSISTENT_OBJECTS用来存放持久对象
+	lua_newtable(GetLuaState());
+	lua_setglobal(GetLuaState(), "__PERSISTENT_OBJECTS");
 
 	CLuaByteArray::ResgisterStaticFunctions(this);
 	CLuaGrid::ResgisterStaticFunctions(this);
@@ -784,7 +808,7 @@ bool CBaseLuaVM::IsObjectExist(CLuaBaseMetaClass* pObject)
 {
 	if (lua_getglobal(m_MainThread.GetLuaState(), "__ALL_OBJECTS") == LUA_TTABLE)
 	{
-		lua_pushlightuserdata(m_MainThread.GetLuaState(), this);
+		lua_pushlightuserdata(m_MainThread.GetLuaState(), pObject);
 		int Type = lua_gettable(m_MainThread.GetLuaState(), -2);
 		m_MainThread.Pop(2);
 		return Type == LUA_TUSERDATA;
@@ -801,6 +825,7 @@ bool CBaseLuaVM::AddNewThreadCallback(lua_State* L, int Index)
 			lua_pushvalue(L, Index);
 			lua_pushvalue(L, Index);
 			lua_settable(L, -3);
+			LogLuaDebug(_T("已添加线程创建回调"));
 		}
 		else
 		{
@@ -813,6 +838,57 @@ bool CBaseLuaVM::AddNewThreadCallback(lua_State* L, int Index)
 		LogLua(_T("callback not function"));
 	}
 	return false;
+}
+
+int CBaseLuaVM::AddPersistentObject(lua_State* L, int Index)
+{
+	Index = lua_absindex(L, Index);
+	if (lua_getglobal(L, "__PERSISTENT_OBJECTS") == LUA_TTABLE)
+	{
+		lua_pushvalue(L, Index);
+		int ID = luaL_ref(L, -2);
+		lua_pop(L, 1);
+		return ID;
+	}
+	else
+	{
+		LogLua(_T("表__PERSISTENT_OBJECTS不存在"));
+		lua_pop(L, 1);
+		return LUA_NOREF;
+	}	
+}
+
+int CBaseLuaVM::PushPersistentObject(lua_State* L, int ID)
+{
+	if (lua_getglobal(L, "__PERSISTENT_OBJECTS") == LUA_TTABLE)
+	{
+		lua_rawgeti(L, -1, ID);
+		lua_remove(L, -2);
+		return lua_type(L,-1);
+	}
+	else
+	{
+		LogLua(_T("表__PERSISTENT_OBJECTS不存在"));
+		lua_pop(L, 1);
+		lua_pushnil(L);
+		return LUA_TNIL;
+	}
+}
+
+bool CBaseLuaVM::RemovePersistentObject(lua_State* L, int ID)
+{
+	if (lua_getglobal(L, "__PERSISTENT_OBJECTS") == LUA_TTABLE)
+	{
+		luaL_unref(L, -1, ID);
+		lua_pop(L, 1);
+		return true;
+	}
+	else
+	{
+		LogLua(_T("表__PERSISTENT_OBJECTS不存在"));
+		lua_pop(L, 1);
+		return false;
+	}
 }
 
 int CBaseLuaVM::LuaPanic(lua_State* L)

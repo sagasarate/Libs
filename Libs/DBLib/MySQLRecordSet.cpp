@@ -274,7 +274,7 @@ bool CMySQLRecordSet::Close()
 	return true;
 }
 
-bool CMySQLRecordSet::SetBlobMaxProcessSize(UINT64 MaxSize)
+bool CMySQLRecordSet::SetBlobMaxProcessSize(size_t MaxSize)
 {
 	return false;
 }

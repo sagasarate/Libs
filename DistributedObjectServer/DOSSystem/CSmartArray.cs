@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DOSSystem
 {
-    public class CSmartArray
+    public class CSmartArray : ICloneable
     {
         byte[] m_pData;
         uint m_StartIndex;
@@ -14,7 +14,7 @@ namespace DOSSystem
 
         public class ElementTypeNotMatchException : Exception
         {
-            public ElementTypeNotMatchException(string Msg):base(Msg)
+            public ElementTypeNotMatchException(string Msg) : base(Msg)
             {
 
             }
@@ -55,7 +55,7 @@ namespace DOSSystem
             m_DataLen = BufferLen + sizeof(byte) + sizeof(uint);
             m_ElementSize = 0;
             m_pData = new byte[m_DataLen];
-            m_pData[m_StartIndex] = (byte)CSmartValue.SMART_VALUE_TYPE.VT_STRUCT;
+            m_pData[m_StartIndex] = (byte)SMART_VALUE_TYPE.VT_STRUCT;
             SetLength(0);
             return true;
         }
@@ -75,7 +75,7 @@ namespace DOSSystem
             {
                 if (DataLen >= sizeof(byte) + sizeof(uint))
                 {
-                    m_pData[m_StartIndex] = (byte)CSmartValue.SMART_VALUE_TYPE.VT_ARRAY;
+                    m_pData[m_StartIndex] = (byte)SMART_VALUE_TYPE.VT_ARRAY;
                     SetLength(0);
                 }
                 else
@@ -86,7 +86,7 @@ namespace DOSSystem
             }
             else
             {
-                if ((CSmartValue.SMART_VALUE_TYPE)m_pData[StartIndex] != CSmartValue.SMART_VALUE_TYPE.VT_ARRAY)
+                if ((SMART_VALUE_TYPE)m_pData[StartIndex] != SMART_VALUE_TYPE.VT_ARRAY)
                 {
                     Destory();
                     return false;
@@ -171,7 +171,7 @@ namespace DOSSystem
             if (ArrayDataLen + sizeof(byte) + sizeof(uint) > m_DataLen)
                 ArrayDataLen = m_DataLen - sizeof(byte) - sizeof(uint);
             if (ArrayDataLen > 0)
-            {                
+            {
                 if (m_ElementSize > 0)
                 {
                     //定长元素
@@ -180,14 +180,14 @@ namespace DOSSystem
                 else
                 {
                     //变长元素
-                    CSmartValue Value = CSmartValue.NULL;
+                    CSmartValue Value = new CSmartValue();
                     uint Count = 0;
                     uint HeadIndex = ArrayDataStart;
                     uint TailIndex = HeadIndex + ArrayDataLen;
 
                     while (HeadIndex + sizeof(byte) < TailIndex)
                     {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                             break;
                         Count++;
                         HeadIndex += Value.GetDataLen();
@@ -198,13 +198,13 @@ namespace DOSSystem
             return 0;
         }
 
-        public CSmartValue.SMART_VALUE_TYPE GetElementType()
+        public SMART_VALUE_TYPE GetElementType()
         {
             if (m_ElementSize > 0 && GetLength() > 0)
             {
-                return (CSmartValue.SMART_VALUE_TYPE)m_pData[m_StartIndex + sizeof(byte) + sizeof(uint)];
+                return (SMART_VALUE_TYPE)m_pData[m_StartIndex + sizeof(byte) + sizeof(uint)];
             }
-            return CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN;
+            return SMART_VALUE_TYPE.VT_UNKNOWN;
         }
         public uint GetElementSize()
         {
@@ -212,7 +212,7 @@ namespace DOSSystem
         }
         public CSmartValue GetMember(uint Index)
         {
-            CSmartValue Value = CSmartValue.NULL;
+            CSmartValue Value = new CSmartValue();
 
             if (m_ElementSize > 0)
             {
@@ -220,9 +220,9 @@ namespace DOSSystem
                 uint ArrayLen = GetLength() / m_ElementSize;
                 if (Index < ArrayLen)
                 {
-                   
+
                     uint StartIndex = m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * Index;
-                    Value.Attach(m_pData, StartIndex, m_ElementSize, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN);                    
+                    Value.Attach(m_pData, StartIndex, m_ElementSize, SMART_VALUE_TYPE.VT_UNKNOWN);
                     return Value;
                 }
             }
@@ -234,7 +234,7 @@ namespace DOSSystem
 
                 while (HeadIndex + sizeof(byte) < TailIndex)
                 {
-                    if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                    if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                         break;
                     if (Index == 0)
                         return Value;
@@ -276,7 +276,7 @@ namespace DOSSystem
         }
         public CSmartValue GetNextMember(ref int Pos)
         {
-            CSmartValue Value = CSmartValue.NULL;
+            CSmartValue Value = new CSmartValue();
 
             if (m_pData == null)
             {
@@ -288,7 +288,7 @@ namespace DOSSystem
             if (Pos != 0)
             {
                 uint HeadIndex = (uint)Pos;
-                uint TailIndex = m_StartIndex + GetDataLen();               
+                uint TailIndex = m_StartIndex + GetDataLen();
 
                 if (HeadIndex >= TailIndex)
                 {
@@ -296,7 +296,7 @@ namespace DOSSystem
                 }
                 else
                 {
-                    if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                    if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                     {
                         Pos = 0;
                         return Value;
@@ -364,7 +364,7 @@ namespace DOSSystem
             if (Pos != 0)
             {
                 uint HeadIndex = (uint)Pos;
-                uint TailIndex = m_StartIndex + GetDataLen();                
+                uint TailIndex = m_StartIndex + GetDataLen();
 
                 if (HeadIndex >= TailIndex)
                 {
@@ -400,7 +400,7 @@ namespace DOSSystem
                     Array.Capacity = (int)ArrayLen;
                     for (uint i = 0; i < ArrayLen; i++)
                     {
-                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                     }
@@ -413,7 +413,7 @@ namespace DOSSystem
 
                     while (HeadIndex + sizeof(byte) < TailIndex)
                     {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                         HeadIndex += Value.GetDataLen();
@@ -438,7 +438,7 @@ namespace DOSSystem
                     Array.Capacity = (int)ArrayLen;
                     for (uint i = 0; i < ArrayLen; i++)
                     {
-                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                     }
@@ -451,7 +451,7 @@ namespace DOSSystem
 
                     while (HeadIndex + sizeof(byte) < TailIndex)
                     {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                         HeadIndex += Value.GetDataLen();
@@ -476,7 +476,7 @@ namespace DOSSystem
                     Array.Capacity = (int)ArrayLen;
                     for (uint i = 0; i < ArrayLen; i++)
                     {
-                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                     }
@@ -490,7 +490,7 @@ namespace DOSSystem
 
                     while (HeadIndex + sizeof(byte) < TailIndex)
                     {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                         HeadIndex += Value.GetDataLen();
@@ -515,7 +515,7 @@ namespace DOSSystem
                     Array.Capacity = (int)ArrayLen;
                     for (uint i = 0; i < ArrayLen; i++)
                     {
-                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                     }
@@ -529,7 +529,7 @@ namespace DOSSystem
 
                     while (HeadIndex + sizeof(byte) < TailIndex)
                     {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                         HeadIndex += Value.GetDataLen();
@@ -554,7 +554,7 @@ namespace DOSSystem
                     Array.Capacity = (int)ArrayLen;
                     for (uint i = 0; i < ArrayLen; i++)
                     {
-                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                     }
@@ -568,7 +568,7 @@ namespace DOSSystem
 
                     while (HeadIndex + sizeof(byte) < TailIndex)
                     {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                         HeadIndex += Value.GetDataLen();
@@ -593,7 +593,7 @@ namespace DOSSystem
                     Array.Capacity = (int)ArrayLen;
                     for (uint i = 0; i < ArrayLen; i++)
                     {
-                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                     }
@@ -607,7 +607,7 @@ namespace DOSSystem
 
                     while (HeadIndex + sizeof(byte) < TailIndex)
                     {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                         HeadIndex += Value.GetDataLen();
@@ -632,7 +632,7 @@ namespace DOSSystem
                     Array.Capacity = (int)ArrayLen;
                     for (uint i = 0; i < ArrayLen; i++)
                     {
-                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                     }
@@ -646,7 +646,7 @@ namespace DOSSystem
 
                     while (HeadIndex + sizeof(byte) < TailIndex)
                     {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                         HeadIndex += Value.GetDataLen();
@@ -671,7 +671,7 @@ namespace DOSSystem
                     Array.Capacity = (int)ArrayLen;
                     for (uint i = 0; i < ArrayLen; i++)
                     {
-                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                     }
@@ -685,7 +685,7 @@ namespace DOSSystem
 
                     while (HeadIndex + sizeof(byte) < TailIndex)
                     {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                         HeadIndex += Value.GetDataLen();
@@ -710,7 +710,7 @@ namespace DOSSystem
                     Array.Capacity = (int)ArrayLen;
                     for (uint i = 0; i < ArrayLen; i++)
                     {
-                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                     }
@@ -724,7 +724,7 @@ namespace DOSSystem
 
                     while (HeadIndex + sizeof(byte) < TailIndex)
                     {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                         HeadIndex += Value.GetDataLen();
@@ -749,7 +749,7 @@ namespace DOSSystem
                     Array.Capacity = (int)ArrayLen;
                     for (uint i = 0; i < ArrayLen; i++)
                     {
-                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                     }
@@ -763,7 +763,7 @@ namespace DOSSystem
 
                     while (HeadIndex + sizeof(byte) < TailIndex)
                     {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                         HeadIndex += Value.GetDataLen();
@@ -788,7 +788,7 @@ namespace DOSSystem
                     Array.Capacity = (int)ArrayLen;
                     for (uint i = 0; i < ArrayLen; i++)
                     {
-                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                     }
@@ -801,7 +801,7 @@ namespace DOSSystem
 
                     while (HeadIndex + sizeof(byte) < TailIndex)
                     {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                         HeadIndex += Value.GetDataLen();
@@ -819,25 +819,17 @@ namespace DOSSystem
         {
             if (GetLength() > 0)
             {
-                CSmartValue.SMART_VALUE_TYPE ElementType = GetElementType();
-                if (ElementType == CSmartValue.SMART_VALUE_TYPE.VT_STRING_UTF8 ||
-                    ElementType == CSmartValue.SMART_VALUE_TYPE.VT_STRING_UCS16 ||
-                    ElementType == CSmartValue.SMART_VALUE_TYPE.VT_STRING_ANSI)
-                {
-                    uint HeadIndex = m_StartIndex + sizeof(byte) + sizeof(uint);
-                    uint TailIndex = HeadIndex + GetLength();
-                    CSmartValue Value = new CSmartValue();
+                uint HeadIndex = m_StartIndex + sizeof(byte) + sizeof(uint);
+                uint TailIndex = HeadIndex + GetLength();
+                CSmartValue Value = new CSmartValue();
 
-                    while ((HeadIndex + sizeof(byte) < TailIndex) && (m_pData[HeadIndex] == (byte)ElementType))
-                    {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
-                            return false;
-                        Array.Add(Value);
-                        HeadIndex += Value.GetDataLen();
-                    }
-                    return true;
+                while (HeadIndex + sizeof(byte) < TailIndex)
+                {
+                    Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN);
+                    Array.Add(Value);
+                    HeadIndex += Value.GetDataLen();
                 }
-                return false;
+                return true;
             }
             else
             {
@@ -854,7 +846,7 @@ namespace DOSSystem
 
                 while (HeadIndex + sizeof(byte) < TailIndex)
                 {
-                    Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN);
+                    Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN);
                     Array.Add(Value);
                     HeadIndex += Value.GetDataLen();
                 }
@@ -870,8 +862,8 @@ namespace DOSSystem
         {
             if (GetLength() > 0)
             {
-                CSmartValue.SMART_VALUE_TYPE ElementType = GetElementType();
-                if (ElementType == CSmartValue.SMART_VALUE_TYPE.VT_STRUCT)
+                SMART_VALUE_TYPE ElementType = GetElementType();
+                if (ElementType == SMART_VALUE_TYPE.VT_STRUCT)
                 {
                     uint HeadIndex = m_StartIndex + sizeof(byte) + sizeof(uint);
                     uint TailIndex = HeadIndex + GetLength();
@@ -905,7 +897,7 @@ namespace DOSSystem
                     Array.Capacity = (int)ArrayLen;
                     for (uint i = 0; i < ArrayLen; i++)
                     {
-                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, m_StartIndex + sizeof(byte) + sizeof(uint) + m_ElementSize * i, m_ElementSize, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                     }
@@ -918,7 +910,7 @@ namespace DOSSystem
 
                     while (HeadIndex + sizeof(byte) < TailIndex)
                     {
-                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                        if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                             return false;
                         Array.Add(Value);
                         HeadIndex += Value.GetDataLen();
@@ -932,16 +924,16 @@ namespace DOSSystem
             }
         }
 
-        CSmartValue PrepareMember(CSmartValue.SMART_VALUE_TYPE Type)
+        CSmartValue PrepareMember(SMART_VALUE_TYPE Type)
         {
-            CSmartValue SmartValue = CSmartValue.NULL;
+            CSmartValue SmartValue = new CSmartValue();
             uint StartIndex = m_StartIndex + sizeof(byte) + sizeof(uint) + GetLength();
             uint DataLen = m_DataLen - (StartIndex - m_StartIndex);
             if (SmartValue.Attach(m_pData, StartIndex, DataLen, Type))
             {
                 return SmartValue;
             }
-            return CSmartValue.NULL;
+            return null;
         }
 
         public CSmartStruct PrepareSubStruct()
@@ -953,7 +945,8 @@ namespace DOSSystem
                 SubStruct = new CSmartStruct();
                 uint StartIndex = m_StartIndex + sizeof(byte) + sizeof(uint) + GetLength();
                 uint DataLen = m_DataLen - (StartIndex - m_StartIndex);
-                SubStruct.Attach(m_pData, StartIndex, DataLen, true);
+                if (!SubStruct.Attach(m_pData, StartIndex, DataLen, true))
+                    return null;
             }
 
             return SubStruct;
@@ -967,7 +960,8 @@ namespace DOSSystem
                 SubStruct = new CSmartArray();
                 uint StartIndex = m_StartIndex + sizeof(byte) + sizeof(uint) + GetLength();
                 uint DataLen = m_DataLen - (StartIndex - m_StartIndex);
-                SubStruct.Attach(m_pData, StartIndex, DataLen, true);
+                if (!SubStruct.Attach(m_pData, StartIndex, DataLen, true))
+                    return null;
             }
 
             return SubStruct;
@@ -976,14 +970,14 @@ namespace DOSSystem
         {
             if (m_pData == null)
                 return false;
-            
+
             if (GetFreeLen() < MemberSize)
             {
                 return false;
             }
             uint StartIndex = m_StartIndex + sizeof(byte) + sizeof(uint) + GetLength();
-            uint NewElementSize = GetElementSizeByType((CSmartValue.SMART_VALUE_TYPE)m_pData[StartIndex]);
-            if (GetLength()>0)
+            uint NewElementSize = GetElementSizeByType((SMART_VALUE_TYPE)m_pData[StartIndex]);
+            if (GetLength() > 0)
             {
                 //如果新元素和已有元素大小不同，ElementSize设置为0代表改数组不是规则数组	
                 if (m_ElementSize != NewElementSize)
@@ -998,8 +992,8 @@ namespace DOSSystem
         }
         public bool AddMemberNull()
         {
-            CSmartValue SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_NULL);
-            if (SmartValue != CSmartValue.NULL)
+            CSmartValue SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_NULL);
+            if (SmartValue != null)
             {
                 return FinishMember(SmartValue.GetDataLen());
             }
@@ -1007,92 +1001,102 @@ namespace DOSSystem
         }
         public bool AddMember<T>(T Value) where T : IConvertible
         {
-            CSmartValue SmartValue = CSmartValue.NULL;
-            
+            CSmartValue SmartValue = null;
+
             if (Value is sbyte)
-                SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_CHAR);
+                SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_CHAR);
             else if (Value is byte)
-                SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_UCHAR);
+                SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_UCHAR);
             else if (Value is short)
-                SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_SHORT);
+                SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_SHORT);
             else if (Value is ushort)
-                SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_USHORT);
+                SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_USHORT);
             else if (Value is int)
-                SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_INT);
+                SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_INT);
             else if (Value is uint)
-                SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_UINT);
+                SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_UINT);
             else if (Value is long)
-                SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_BIGINT);
+                SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_BIGINT);
             else if (Value is ulong)
-                SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_UBIGINT);
+                SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_UBIGINT);
             else if (Value is float)
-                SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_FLOAT);
+                SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_FLOAT);
             else if (Value is double)
-                SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_DOUBLE);
+                SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_DOUBLE);
             else if (Value is bool)
-                SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_BOOL);
+                SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_BOOL);
 
-            if (SmartValue != CSmartValue.NULL)
-            {
-                SmartValue.SetValue(Value);
-                return FinishMember(SmartValue.GetDataLen());
-            }
-            return false;
-        }
-       
-
-        public bool AddMember(string Value)
-        {
-            CSmartValue SmartValue = CSmartValue.NULL;
-            switch (CSmartValue.INTERNAL_STRING_CODE_PAGE)
-            {
-                case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_ANSI:
-                    SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_STRING_ANSI);
-                    break;
-                case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_UTF8:
-                    SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_STRING_UTF8);
-                    break;
-                case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16:
-                    SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_STRING_UCS16);
-                    break;
-            }
-
-            if (SmartValue != CSmartValue.NULL)
+            if (SmartValue != null)
             {
                 if (SmartValue.SetValue(Value))
                     return FinishMember(SmartValue.GetDataLen());
-            }            
+            }
+            return false;
+        }
+
+
+        public bool AddMember(string Value)
+        {
+            CSmartValue SmartValue = null;
+            switch (CSmartValue.INTERNAL_STRING_CODE_PAGE)
+            {
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_ANSI:
+                    SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_STRING_ANSI);
+                    break;
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_UTF8:
+                    SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_STRING_UTF8);
+                    break;
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16:
+                    SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_STRING_UCS16);
+                    break;
+            }
+
+            if (SmartValue != null)
+            {
+                if (SmartValue.SetValue(Value))
+                    return FinishMember(SmartValue.GetDataLen());
+            }
             return false;
         }
         public bool AddMember(byte[] Value)
         {
-            CSmartValue SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_BINARY);
-            if (SmartValue != CSmartValue.NULL)
+            CSmartValue SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_BINARY);
+            if (SmartValue != null)
             {
-                SmartValue.SetValue(Value);
-                return FinishMember(SmartValue.GetDataLen());
+                if (SmartValue.SetValue(Value))
+                    return FinishMember(SmartValue.GetDataLen());
             }
             return false;
         }
 
         public bool AddMember(CSmartArray Value)
         {
-            CSmartValue SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_ARRAY);
-            if (SmartValue != CSmartValue.NULL)
+            CSmartValue SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_ARRAY);
+            if (SmartValue != null)
             {
-                SmartValue.SetValue(Value);
-                return FinishMember(SmartValue.GetDataLen());
+                if (SmartValue.SetValue(Value))
+                    return FinishMember(SmartValue.GetDataLen());
             }
             return false;
         }
 
         public bool AddMember(CSmartStruct Value)
         {
-            CSmartValue SmartValue = PrepareMember(CSmartValue.SMART_VALUE_TYPE.VT_STRUCT);
-            if (SmartValue != CSmartValue.NULL)
+            CSmartValue SmartValue = PrepareMember(SMART_VALUE_TYPE.VT_STRUCT);
+            if (SmartValue != null)
             {
-                SmartValue.SetValue(Value);
-                return FinishMember(SmartValue.GetDataLen());
+                if (SmartValue.SetValue(Value))
+                    return FinishMember(SmartValue.GetDataLen());
+            }
+            return false;
+        }
+        public bool AddMember(CSmartValue Value)
+        {
+            CSmartValue SmartValue = PrepareMember(Value.GetValueType());
+            if (SmartValue != null)
+            {
+                if (SmartValue.SetValue(Value))
+                    return FinishMember(SmartValue.GetDataLen());
             }
             return false;
         }
@@ -1125,7 +1129,12 @@ namespace DOSSystem
                 case VARIED_VALUE_TYPE.FLOAT64:
                     return AddMember((double)Value);
                 case VARIED_VALUE_TYPE.STRING:
-                    return AddMember((string)Value); ;
+                    return AddMember((string)Value);
+                case VARIED_VALUE_TYPE.BINARY:
+                    return AddMember((byte[])Value);
+                case VARIED_VALUE_TYPE.ARRAY:
+                case VARIED_VALUE_TYPE.TABLE:
+                    return AddMember((CSmartValue)Value);
             }
             return false;
         }
@@ -1134,61 +1143,61 @@ namespace DOSSystem
         {
             if (Array.Count > 0)
             {
-                CSmartValue.SMART_VALUE_TYPE ArrayType = CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN;
+                SMART_VALUE_TYPE ArrayType = SMART_VALUE_TYPE.VT_UNKNOWN;
                 uint ArrayElementSize = 0;
                 if (Array[0] is sbyte)
                 {
-                    ArrayType = CSmartValue.SMART_VALUE_TYPE.VT_CHAR;
+                    ArrayType = SMART_VALUE_TYPE.VT_CHAR;
                     ArrayElementSize = sizeof(byte) + sizeof(sbyte);
                 }
                 else if (Array[0] is byte)
                 {
-                    ArrayType = CSmartValue.SMART_VALUE_TYPE.VT_UCHAR;
+                    ArrayType = SMART_VALUE_TYPE.VT_UCHAR;
                     ArrayElementSize = sizeof(byte) + sizeof(byte);
                 }
                 else if (Array[0] is short)
                 {
-                    ArrayType = CSmartValue.SMART_VALUE_TYPE.VT_SHORT;
+                    ArrayType = SMART_VALUE_TYPE.VT_SHORT;
                     ArrayElementSize = sizeof(byte) + sizeof(short);
                 }
                 else if (Array[0] is ushort)
                 {
-                    ArrayType = CSmartValue.SMART_VALUE_TYPE.VT_USHORT;
+                    ArrayType = SMART_VALUE_TYPE.VT_USHORT;
                     ArrayElementSize = sizeof(byte) + sizeof(ushort);
                 }
                 else if (Array[0] is int)
                 {
-                    ArrayType = CSmartValue.SMART_VALUE_TYPE.VT_INT;
+                    ArrayType = SMART_VALUE_TYPE.VT_INT;
                     ArrayElementSize = sizeof(byte) + sizeof(int);
                 }
                 else if (Array[0] is uint)
                 {
-                    ArrayType = CSmartValue.SMART_VALUE_TYPE.VT_UINT;
+                    ArrayType = SMART_VALUE_TYPE.VT_UINT;
                     ArrayElementSize = sizeof(byte) + sizeof(uint);
                 }
                 else if (Array[0] is long)
                 {
-                    ArrayType = CSmartValue.SMART_VALUE_TYPE.VT_BIGINT;
+                    ArrayType = SMART_VALUE_TYPE.VT_BIGINT;
                     ArrayElementSize = sizeof(byte) + sizeof(long);
                 }
                 else if (Array[0] is ulong)
                 {
-                    ArrayType = CSmartValue.SMART_VALUE_TYPE.VT_UBIGINT;
+                    ArrayType = SMART_VALUE_TYPE.VT_UBIGINT;
                     ArrayElementSize = sizeof(byte) + sizeof(ulong);
                 }
                 else if (Array[0] is float)
                 {
-                    ArrayType = CSmartValue.SMART_VALUE_TYPE.VT_FLOAT;
+                    ArrayType = SMART_VALUE_TYPE.VT_FLOAT;
                     ArrayElementSize = sizeof(byte) + sizeof(float);
                 }
                 else if (Array[0] is double)
                 {
-                    ArrayType = CSmartValue.SMART_VALUE_TYPE.VT_DOUBLE;
+                    ArrayType = SMART_VALUE_TYPE.VT_DOUBLE;
                     ArrayElementSize = sizeof(byte) + sizeof(double);
                 }
                 else if (Array[0] is bool)
                 {
-                    ArrayType = CSmartValue.SMART_VALUE_TYPE.VT_BOOL;
+                    ArrayType = SMART_VALUE_TYPE.VT_BOOL;
                     ArrayElementSize = sizeof(byte) + sizeof(bool);
                 }
                 else
@@ -1308,7 +1317,7 @@ namespace DOSSystem
         public static uint GetStructMemberSize(uint StructSize)
         {
             return sizeof(byte) + sizeof(uint) + StructSize;
-        }       
+        }
         public static uint GetBinaryMemberSize(uint Len)
         {
             return sizeof(byte) + sizeof(uint) + sizeof(byte) * (Len);
@@ -1318,21 +1327,21 @@ namespace DOSSystem
             uint DataLen = 0;
             switch (CSmartValue.INTERNAL_STRING_CODE_PAGE)
             {
-                case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_ANSI:
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_ANSI:
                     DataLen = 1;
                     if (!string.IsNullOrEmpty(Str))
                     {
                         DataLen += (uint)Encoding.GetEncoding(936).GetByteCount(Str);
                     }
                     break;
-                case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_UTF8:
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_UTF8:
                     DataLen = 1;
                     if (!string.IsNullOrEmpty(Str))
                     {
                         DataLen += (uint)Encoding.UTF8.GetByteCount(Str);
                     }
                     break;
-                case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16:
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16:
                     DataLen = sizeof(char);
                     if (!string.IsNullOrEmpty(Str))
                     {
@@ -1384,7 +1393,7 @@ namespace DOSSystem
             {
                 CSmartValue Value = GetNextMember(ref Pos);
                 uint Size = GetElementSizeByType(Value.GetValueType());
-                
+
                 if (Size > 0)
                 {
                     if (m_ElementSize == 0)
@@ -1404,34 +1413,34 @@ namespace DOSSystem
                 }
             }
         }
-        protected uint GetElementSizeByType(CSmartValue.SMART_VALUE_TYPE Type)
+        protected uint GetElementSizeByType(SMART_VALUE_TYPE Type)
         {
             switch (Type)
             {
-                case CSmartValue.SMART_VALUE_TYPE.VT_NULL:
+                case SMART_VALUE_TYPE.VT_NULL:
                     return sizeof(byte);
-                case CSmartValue.SMART_VALUE_TYPE.VT_CHAR:
-                case CSmartValue.SMART_VALUE_TYPE.VT_UCHAR:
+                case SMART_VALUE_TYPE.VT_CHAR:
+                case SMART_VALUE_TYPE.VT_UCHAR:
                     return sizeof(byte) + sizeof(char);
-                case CSmartValue.SMART_VALUE_TYPE.VT_SHORT:
-                case CSmartValue.SMART_VALUE_TYPE.VT_USHORT:
+                case SMART_VALUE_TYPE.VT_SHORT:
+                case SMART_VALUE_TYPE.VT_USHORT:
                     return sizeof(byte) + sizeof(short);
-                case CSmartValue.SMART_VALUE_TYPE.VT_INT:
-                case CSmartValue.SMART_VALUE_TYPE.VT_UINT:
+                case SMART_VALUE_TYPE.VT_INT:
+                case SMART_VALUE_TYPE.VT_UINT:
                     return sizeof(byte) + sizeof(int);
-                case CSmartValue.SMART_VALUE_TYPE.VT_BIGINT:
-                case CSmartValue.SMART_VALUE_TYPE.VT_UBIGINT:
+                case SMART_VALUE_TYPE.VT_BIGINT:
+                case SMART_VALUE_TYPE.VT_UBIGINT:
                     return sizeof(byte) + sizeof(long);
-                case CSmartValue.SMART_VALUE_TYPE.VT_FLOAT:
+                case SMART_VALUE_TYPE.VT_FLOAT:
                     return sizeof(byte) + sizeof(float);
-                case CSmartValue.SMART_VALUE_TYPE.VT_DOUBLE:
+                case SMART_VALUE_TYPE.VT_DOUBLE:
                     return sizeof(byte) + sizeof(double);
-                case CSmartValue.SMART_VALUE_TYPE.VT_BOOL:
+                case SMART_VALUE_TYPE.VT_BOOL:
                     return sizeof(byte) + sizeof(byte);
             }
             return 0;
         }
-        public CSmartArray Clone()
+        public object Clone()
         {
             CSmartArray Array = new CSmartArray();
             Array.CloneFrom(this);

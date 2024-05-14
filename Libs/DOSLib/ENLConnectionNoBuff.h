@@ -41,9 +41,9 @@ public:
 	virtual UINT AddUseRef() override;
 
 	bool Init(CDOSRouterLinkManager * pManager, CEasyNetLink * pParent, const CIPAddress& ConnectionAddress,
-		UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
+		UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail);
 	bool Init(CDOSRouterLinkManager * pManager, CEasyNetLink * pParent, UINT MaxPacketSize,
-		CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
+		CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail);
 	
 
 	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT) override;

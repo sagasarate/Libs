@@ -23,6 +23,7 @@ CEasyNetLinkService::CEasyNetLinkService(void)
 	m_MaxPacketSize=0;
 	m_DataCompressType = CEasyNetLinkManager::DATA_COMPRESS_TYPE_NONE;
 	m_MinCompressSize = CEasyNetLinkManager::DEFAULT_MIN_COMPRESS_SIZE;
+	m_DisconnectOnTransferFail = true;
 	m_IPList.SetTag(_T("CEasyNetLinkService"));
 }
 
@@ -34,7 +35,7 @@ bool CEasyNetLinkService::Init(CEasyNetLinkManager* pManager, UINT ReportID, con
 	bool NeedReallocConnectionID, bool IsUseListenThread,
 	int ParallelAcceptCount, UINT AcceptQueueSize,
 	UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize,
-	CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize)
+	CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail)
 {
 	m_pManager = pManager;
 	m_ReportID = ReportID;
@@ -44,6 +45,7 @@ bool CEasyNetLinkService::Init(CEasyNetLinkManager* pManager, UINT ReportID, con
 	m_MaxPacketSize = MaxPacketSize;
 	m_DataCompressType = DataCompressType;
 	m_MinCompressSize = MinCompressSize;
+	m_DisconnectOnTransferFail = DisconnectOnTransferFail;
 
 	SetServer(m_pManager->GetServer());
 	if (Create(IPPROTO_TCP, AcceptQueueSize,
@@ -84,7 +86,7 @@ CBaseNetConnection * CEasyNetLinkService::CreateConnection(CIPAddress& RemoteAdd
 		pLink = m_pManager->CreateAcceptLink();
 		if (pLink)
 		{
-			if (pLink->Init(m_pManager, GetReportID(), m_MaxPacketSize, m_DataCompressType, m_MinCompressSize, NeedReallocConnectionID()))
+			if (pLink->Init(m_pManager, GetReportID(), m_MaxPacketSize, m_DataCompressType, m_MinCompressSize, m_DisconnectOnTransferFail, NeedReallocConnectionID()))
 			{
 				return pLink->GetConnection();
 			}

@@ -102,6 +102,7 @@ struct CLIENT_PROXY_CONFIG
 	UINT										MinMsgSize;
 	bool										DumpMsg;
 	UINT										MaxMsgDumpSize;
+	UINT										MaxWSFrameSize;
 
 	bool										EnableGuardThread;
 	UINT										GuardThreadKeepAliveTime;
@@ -126,6 +127,7 @@ struct CLIENT_PROXY_CONFIG
 		MinMsgSize = 0;
 		DumpMsg = false;
 		MaxMsgDumpSize = 1024;
+		MaxWSFrameSize = 30000;
 		AcceptQueueSize = DEFAULT_SERVER_ACCEPT_QUEUE;
 		ParallelAcceptCount = DEFAULT_PARALLEL_ACCEPT;
 		RecvBufferSize = DEFAULT_SERVER_RECV_DATA_QUEUE;

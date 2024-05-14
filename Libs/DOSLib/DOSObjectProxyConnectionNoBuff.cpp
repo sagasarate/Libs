@@ -194,6 +194,18 @@ bool CDOSObjectProxyConnectionNoBuff::Init(CDOSObjectProxyServiceNoBuff * pServi
 	m_TotalMsgRecvCount = 0;
 	m_BroadcastMask = 0;
 
+	if (m_BroadcastGroupList.GetBufferSize())
+	{
+		m_BroadcastGroupList.Clear();
+	}
+	else
+	{
+		if (!m_BroadcastGroupList.Create(m_Config.BroadcastGroupPoolSetting))
+		{
+			PrintDOSLog(_T("创建群发组列表失败！"));
+			return false;
+		}
+	}
 	m_Status = STATUS_INITED;
 	return true;
 }
@@ -600,7 +612,7 @@ bool CDOSObjectProxyConnectionNoBuff::OnSystemMessage(const CDOSMessagePacket * 
 			pData += sizeof(GROUP_BROADCAST_INFO);
 			DataLen -= sizeof(GROUP_BROADCAST_INFO);
 
-			OnMessage(pInfo->MsgID, pInfo->MsgFlag, pData, DataLen);
+			OnBroadCastMessage(pInfo->MsgID, pInfo->MsgFlag, pData, DataLen);
 		}
 		return true;
 	case DSM_ROUTE_LINK_LOST:

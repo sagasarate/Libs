@@ -31,19 +31,19 @@ void CLuaLibCommon::LuaLog(CLuaThread * pLuaThread, LUA_EMPTY_VALUE)
 		pLuaThread->PushString("format");
 		if (lua_gettable(pLuaThread->GetLuaState(), -2) == LUA_TFUNCTION)
 		{
-			lua_insert(pLuaThread->GetLuaState(), 2);
+			lua_insert(pLuaThread->GetLuaState(), 1);
 			pLuaThread->Pop(1);
-			lua_pcall(pLuaThread->GetLuaState(), ParamCount - 1, 1, NULL);
+			lua_pcall(pLuaThread->GetLuaState(), ParamCount, 1, NULL);
 			LogLuaStr(pLuaThread->GetLuaState(), -1, NULL, false);
 		}
 		else
 		{
-			LogLuaStr(pLuaThread->GetLuaState(), 2, NULL, false);
+			LogLuaStr(pLuaThread->GetLuaState(), 1, NULL, false);
 		}
 	}
 	else
 	{
-		LogLuaStr(pLuaThread->GetLuaState(), 2, NULL, false);
+		LogLuaStr(pLuaThread->GetLuaState(), 1, NULL, false);
 	}	
 }
 void CLuaLibCommon::LuaLogDebug(CLuaThread * pLuaThread, LUA_EMPTY_VALUE)
@@ -55,19 +55,19 @@ void CLuaLibCommon::LuaLogDebug(CLuaThread * pLuaThread, LUA_EMPTY_VALUE)
 		pLuaThread->PushString("format");
 		if (lua_gettable(pLuaThread->GetLuaState(), -2) == LUA_TFUNCTION)
 		{
-			lua_insert(pLuaThread->GetLuaState(), 2);
+			lua_insert(pLuaThread->GetLuaState(), 1);
 			pLuaThread->Pop(1);
-			lua_pcall(pLuaThread->GetLuaState(), ParamCount - 1, 1, NULL);
+			lua_pcall(pLuaThread->GetLuaState(), ParamCount, 1, NULL);
 			LogLuaStrDebug(pLuaThread->GetLuaState(), -1, NULL, false);
 		}
 		else
 		{
-			LogLuaStrDebug(pLuaThread->GetLuaState(), 2, NULL, false);
+			LogLuaStrDebug(pLuaThread->GetLuaState(), 1, NULL, false);
 		}
 	}
 	else
 	{
-		LogLuaStrDebug(pLuaThread->GetLuaState(), 2, NULL, false);
+		LogLuaStrDebug(pLuaThread->GetLuaState(), 1, NULL, false);
 	}
 }
 void CLuaLibCommon::LuaLogWithStack(CLuaThread * pLuaThread, LUA_EMPTY_VALUE)
@@ -79,19 +79,19 @@ void CLuaLibCommon::LuaLogWithStack(CLuaThread * pLuaThread, LUA_EMPTY_VALUE)
 		pLuaThread->PushString("format");
 		if (lua_gettable(pLuaThread->GetLuaState(), -2) == LUA_TFUNCTION)
 		{
-			lua_insert(pLuaThread->GetLuaState(), 2);
+			lua_insert(pLuaThread->GetLuaState(), 1);
 			pLuaThread->Pop(1);
-			lua_pcall(pLuaThread->GetLuaState(), ParamCount - 1, 1, NULL);
+			lua_pcall(pLuaThread->GetLuaState(), ParamCount, 1, NULL);
 			LogLuaStr(pLuaThread->GetLuaState(), -1, NULL, true);
 		}
 		else
 		{
-			LogLuaStr(pLuaThread->GetLuaState(), 2, NULL, true);
+			LogLuaStr(pLuaThread->GetLuaState(), 1, NULL, true);
 		}
 	}
 	else
 	{
-		LogLuaStr(pLuaThread->GetLuaState(), 2, NULL, true);
+		LogLuaStr(pLuaThread->GetLuaState(), 1, NULL, true);
 	}
 }
 UINT CLuaLibCommon::LuaGetCurTime(CLuaThread* pLuaThread)
@@ -125,9 +125,5 @@ LUA_EMPTY_VALUE CLuaLibCommon::LuaDump(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 
 bool CLuaLibCommon::LuaRegisterNewThreadCallback(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 {
-	if (lua_isfunction(pLuaThread->GetLuaState(), 1))
-	{
-
-	}
 	return pLuaThread->GetLuaVM()->AddNewThreadCallback(pLuaThread->GetLuaState(), 1);
 }

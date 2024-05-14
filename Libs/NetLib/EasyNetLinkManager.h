@@ -41,6 +41,7 @@ public:
 		UINT					SendQueueSize;
 		DATA_COMPRESS_TYPE		DataCompressType;
 		UINT					MinCompressSize;
+		bool					DisconnectOnTransferFail;
 		CEasyArray<CIPPattern>	IPPatternList;
 
 		ENL_SERVICE()
@@ -57,6 +58,7 @@ public:
 			SendQueueSize = DEFAULT_SERVER_SEND_DATA_QUEUE;
 			DataCompressType = DATA_COMPRESS_TYPE_NONE;
 			MinCompressSize = DEFAULT_MIN_COMPRESS_SIZE;
+			DisconnectOnTransferFail = true;
 		}
 	};
 
@@ -79,6 +81,7 @@ public:
 		UINT				SendQueueSize;
 		DATA_COMPRESS_TYPE	DataCompressType;
 		UINT				MinCompressSize;
+		bool				DisconnectOnTransferFail;
 
 		ENL_CONNECTION()
 		{
@@ -88,6 +91,7 @@ public:
 			SendQueueSize = DEFAULT_SERVER_SEND_DATA_QUEUE;
 			DataCompressType = DATA_COMPRESS_TYPE_NONE;
 			MinCompressSize = DEFAULT_MIN_COMPRESS_SIZE;
+			DisconnectOnTransferFail = true;
 		}
 	};
 
@@ -144,14 +148,16 @@ public:
 	static bool LoadConfig(xml_node& XmlRoot, ENL_CONFIG& Config, UINT DefaultServerID);
 	virtual void Destory();
 
-	CEasyNetLinkService * AddService(UINT ID, UINT ReportID, const CIPAddress& ListenAddress,
+	CEasyNetLinkService* AddService(UINT ID, UINT ReportID, const CIPAddress& ListenAddress,
 		bool NeedReallocConnectionID, UINT MaxPacketSize = 0, bool IsUseListenThread = true,
 		int ParallelAcceptCount = DEFAULT_PARALLEL_ACCEPT, UINT AcceptQueueSize = DEFAULT_SERVER_ACCEPT_QUEUE,
 		UINT RecvQueueSize = DEFAULT_SERVER_RECV_DATA_QUEUE, UINT SendQueueSize = DEFAULT_SERVER_SEND_DATA_QUEUE,
-		DATA_COMPRESS_TYPE DataCompressType = DATA_COMPRESS_TYPE_NONE, UINT MinCompressSize = DEFAULT_MIN_COMPRESS_SIZE);
+		DATA_COMPRESS_TYPE DataCompressType = DATA_COMPRESS_TYPE_NONE, UINT MinCompressSize = DEFAULT_MIN_COMPRESS_SIZE,
+		bool DisconnectOnTransferFail = true);
 	bool AddLink(UINT ReportID, const CIPAddress& ConnectionAddress, UINT MaxPacketSize = 0,
 		UINT RecvQueueSize=DEFAULT_SERVER_RECV_DATA_QUEUE,UINT SendQueueSize=DEFAULT_SERVER_SEND_DATA_QUEUE,
-		DATA_COMPRESS_TYPE DataCompressType = DATA_COMPRESS_TYPE_NONE, UINT MinCompressSize = DEFAULT_MIN_COMPRESS_SIZE);
+		DATA_COMPRESS_TYPE DataCompressType = DATA_COMPRESS_TYPE_NONE, UINT MinCompressSize = DEFAULT_MIN_COMPRESS_SIZE,
+		bool DisconnectOnTransferFail = true);
 
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 

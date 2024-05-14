@@ -41,9 +41,9 @@ public:
 	virtual ~CEasyNetLink(void);
 
 	bool Init(CEasyNetLinkManager * pManager, const CIPAddress& ConnectionAddress, UINT ReportID,
-		UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
+		UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail);
 
-	bool Init(CEasyNetLinkManager * pManager, UINT ReportID, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool NeedReallocConnectionID);
+	bool Init(CEasyNetLinkManager * pManager, UINT ReportID, UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail, bool NeedReallocConnectionID);
 
 	bool Init(CEasyNetLink * pLink);
 
@@ -78,9 +78,9 @@ public:
 
 	void PrintInfo(UINT LogChannel);
 protected:
-	virtual CENLBaseConnection * NewConnection(UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
+	virtual CENLBaseConnection * NewConnection(UINT MaxPacketSize, CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail);
 	virtual CENLBaseConnection * NewConnection(const CIPAddress& ConnectionAddress, UINT RecvQueueSize, UINT SendQueueSize, UINT MaxPacketSize,
-		CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize);
+		CEasyNetLinkManager::DATA_COMPRESS_TYPE DataCompressType, UINT MinCompressSize, bool DisconnectOnTransferFail);
 };
 
 

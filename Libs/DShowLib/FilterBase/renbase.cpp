@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+Ôªø//------------------------------------------------------------------------------
 // File: RenBase.cpp
 //
 // Desc: DirectShow base classes.
@@ -920,7 +920,7 @@ BOOL CBaseRenderer::ScheduleSample(IMediaSample *pMediaSample)
         return FALSE;
     }
 	m_RecentSampleTime=StartSample;
-	//PrintSystemLog(0,"µ±«∞≤…—˘ ±º‰%d",StartSample/10000000);
+	//PrintSystemLog(0,"ÂΩìÂâçÈááÊ†∑Êó∂Èó¥%d",StartSample/10000000);
 
     // If we don't have a reference clock then we cannot set up the advise
     // time so we simply set the event indicating an image to render. This
@@ -1155,7 +1155,7 @@ HRESULT CBaseRenderer::Receive(IMediaSample *pSample)
 		if(StartSample<m_RecentSampleTime)
 		{
 #ifdef _DEBUG
-			PrintSystemLog(0,"«ø÷∆‰÷»æ");
+			PrintSystemLog(0,"Âº∫Âà∂Ê∏≤Êüì");
 #endif
 			Render(m_pMediaSample);
 		}

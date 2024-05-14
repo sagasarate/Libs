@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 
 
@@ -18,7 +18,7 @@ BOOL CWebSocketProxyService::OnStart()
 
 	if (!m_MsgQueue.Create(m_Config.ProxyMsgQueueSize))
 	{
-		PrintDOSLog(_T("´úÀí·şÎñ[%u]´´½¨%u´óĞ¡µÄÏûÏ¢¶ÓÁĞÊ§°Ü£¡"),
+		PrintDOSLog(_T("ä»£ç†æœåŠ¡[%u]åˆ›å»º%uå¤§å°çš„æ¶ˆæ¯é˜Ÿåˆ—å¤±è´¥ï¼"),
 			GetID(),
 			m_Config.ProxyMsgQueueSize);
 		return FALSE;
@@ -26,7 +26,7 @@ BOOL CWebSocketProxyService::OnStart()
 
 	if (!m_MessageMap.Create(m_Config.GlobalMsgMapSize, m_Config.GlobalMsgMapSize, 32))
 	{
-		PrintDOSLog(_T("´úÀí·şÎñ[%u]´´½¨%u´óĞ¡µÄÏûÏ¢Ó³Éä±íÊ§°Ü£¡"),
+		PrintDOSLog(_T("ä»£ç†æœåŠ¡[%u]åˆ›å»º%uå¤§å°çš„æ¶ˆæ¯æ˜ å°„è¡¨å¤±è´¥ï¼"),
 			GetID(),
 			m_Config.GlobalMsgMapSize);
 		return FALSE;
@@ -40,15 +40,15 @@ BOOL CWebSocketProxyService::OnStart()
 		{
 			if (lzo_init() != LZO_E_OK)
 			{
-				PrintDOSLog(_T("´úÀí·şÎñ¿ªÆôÏûÏ¢Ñ¹ËõÊ§°Ü"));
+				PrintDOSLog(_T("ä»£ç†æœåŠ¡å¼€å¯æ¶ˆæ¯å‹ç¼©å¤±è´¥"));
 				m_Config.MsgCompressType = MSG_COMPRESS_NONE;
 				m_Config.MinMsgCompressSize = 0;
 			}
-			PrintDOSLog(_T("´úÀí·şÎñ¿ªÆôÏûÏ¢Ñ¹Ëõ"));
+			PrintDOSLog(_T("ä»£ç†æœåŠ¡å¼€å¯æ¶ˆæ¯å‹ç¼©"));
 		}
 		break;
 		default:
-			PrintDOSLog(_T("´úÀí·şÎñ[%u]²»Ö§³ÖÏûÏ¢Ñ¹ËõÄ£Ê½%u£¡"),
+			PrintDOSLog(_T("ä»£ç†æœåŠ¡[%u]ä¸æ”¯æŒæ¶ˆæ¯å‹ç¼©æ¨¡å¼%uï¼"),
 				GetID(), m_Config.MsgCompressType);
 			m_Config.MsgCompressType = MSG_COMPRESS_NONE;
 			m_Config.MinMsgCompressSize = 0;
@@ -63,7 +63,7 @@ BOOL CWebSocketProxyService::OnStart()
 	if (!CheckEncryptConfig())
 	{
 		m_Config.MsgEnCryptType = MSG_ENCRYPT_NONE;
-		PrintDOSLog(_T("¼ÓÃÜÉèÖÃ²»ºÏ·¨£¬ÏûÏ¢¼ÓÃÜ±»È¡Ïû"));
+		PrintDOSLog(_T("åŠ å¯†è®¾ç½®ä¸åˆæ³•ï¼Œæ¶ˆæ¯åŠ å¯†è¢«å–æ¶ˆ"));
 	}
 
 	if (m_Config.EnableBlackList)
@@ -81,7 +81,7 @@ BOOL CWebSocketProxyService::OnStart()
 				pInfo->ExpireTime = 0;
 			}
 		}
-		PrintDOSLog(_T("ÒÑ¼ÓÔØ%u¸öºÚÃûµ¥"), m_IPBlackList.GetObjectCount());
+		PrintDOSLog(_T("å·²åŠ è½½%uä¸ªé»‘åå•"), m_IPBlackList.GetObjectCount());
 
 		m_RecvProtectedIPList.Create(m_Config.BlackListPoolSetting);
 	}
@@ -96,24 +96,24 @@ BOOL CWebSocketProxyService::OnStart()
 		DEFAULT_PARALLEL_RECV,
 		false))
 	{
-		PrintDOSLog(_T("´úÀí·şÎñ[%u]´´½¨Ê§°Ü£¡"), GetID());
+		PrintDOSLog(_T("ä»£ç†æœåŠ¡[%u]åˆ›å»ºå¤±è´¥ï¼"), GetID());
 		return FALSE;
 	}
 
 	if (!StartListen(m_Config.ListenAddress))
 	{
-		PrintDOSLog(_T("´úÀí·şÎñ[%u]ÕìÌıÓÚ(%s:%u)Ê§°Ü£¡"),
+		PrintDOSLog(_T("ä»£ç†æœåŠ¡[%u]ä¾¦å¬äº(%s:%u)å¤±è´¥ï¼"),
 			GetID(),
 			m_Config.ListenAddress.GetIPString(),
 			m_Config.ListenAddress.GetPort());
 		return FALSE;
 	}
-	PrintDOSLog(_T("´úÀí·şÎñ[%u]ÕìÌıÓÚ(%s:%u)£¡"),
+	PrintDOSLog(_T("ä»£ç†æœåŠ¡[%u]ä¾¦å¬äº(%s:%u)ï¼"),
 		GetID(),
 		m_Config.ListenAddress.GetIPString(),
 		m_Config.ListenAddress.GetPort());
 
-	PrintDOSLog(_T("¶ÔÏó´úÀí[%u]Ïß³Ì[%u]ÒÑÆô¶¯"), GetID(), GetThreadID());
+	PrintDOSLog(_T("å¯¹è±¡ä»£ç†[%u]çº¿ç¨‹[%u]å·²å¯åŠ¨"), GetID(), GetThreadID());
 
 	if (m_Config.MsgCompressType == MSG_COMPRESS_LZO)
 	{
@@ -122,12 +122,12 @@ BOOL CWebSocketProxyService::OnStart()
 		{
 			if (m_CompressBuffer.Create(CompressBufferSize))
 			{
-				PrintDOSLog(_T("ÒÑ´´½¨%u´óĞ¡µÄÑ¹Ëõ»º³å"),
+				PrintDOSLog(_T("å·²åˆ›å»º%uå¤§å°çš„å‹ç¼©ç¼“å†²"),
 					CompressBufferSize);
 			}
 			else
 			{
-				PrintDOSLog(_T("´´½¨%u´óĞ¡µÄÑ¹Ëõ»º³åÊ§°Ü£¡"),
+				PrintDOSLog(_T("åˆ›å»º%uå¤§å°çš„å‹ç¼©ç¼“å†²å¤±è´¥ï¼"),
 					CompressBufferSize);
 				return FALSE;
 			}
@@ -141,12 +141,12 @@ BOOL CWebSocketProxyService::OnStart()
 		{
 			if (m_EncyptBuffer.Create(EncyptBufferSize))
 			{
-				PrintDOSLog(_T("ÒÑ´´½¨%u´óĞ¡µÄ½âÃÜ»º³å"),
+				PrintDOSLog(_T("å·²åˆ›å»º%uå¤§å°çš„è§£å¯†ç¼“å†²"),
 					EncyptBufferSize);
 			}
 			else
 			{
-				PrintDOSLog(_T("´´½¨%u´óĞ¡µÄ½âÃÜ»º³åÊ§°Ü£¡"),
+				PrintDOSLog(_T("åˆ›å»º%uå¤§å°çš„è§£å¯†ç¼“å†²å¤±è´¥ï¼"),
 					EncyptBufferSize);
 				return FALSE;
 			}
@@ -155,13 +155,13 @@ BOOL CWebSocketProxyService::OnStart()
 
 	if (m_WSConnectionPool.Create(m_Config.ConnectionPoolSetting))
 	{
-		PrintDOSDebugLog(_T("´úÀí·şÎñ[%u]´´½¨(%u,%u,%u)´óĞ¡µÄÁ¬½Ó³Ø³É¹¦£¡"),
+		PrintDOSDebugLog(_T("ä»£ç†æœåŠ¡[%u]åˆ›å»º(%u,%u,%u)å¤§å°çš„è¿æ¥æ± æˆåŠŸï¼"),
 			GetID(),
 			m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
 	}
 	else
 	{
-		PrintDOSLog(_T("´úÀí·şÎñ[%u]´´½¨(%u,%u,%u)´óĞ¡µÄÁ¬½Ó³ØÊ§°Ü£¡"),
+		PrintDOSLog(_T("ä»£ç†æœåŠ¡[%u]åˆ›å»º(%u,%u,%u)å¤§å°çš„è¿æ¥æ± å¤±è´¥ï¼"),
 			GetID(),
 			m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
 		return FALSE;
@@ -173,13 +173,13 @@ BOOL CWebSocketProxyService::OnStart()
 	{
 		if (m_DestoryConnectionList.Create(m_Config.ConnectionPoolSetting))
 		{
-			PrintDOSDebugLog(_T("´úÀí·şÎñ[%u]´´½¨(%u,%u,%u)´óĞ¡µÄÁ¬½ÓÏú»Ù¶ÓÁĞ³É¹¦£¡"),
+			PrintDOSDebugLog(_T("ä»£ç†æœåŠ¡[%u]åˆ›å»º(%u,%u,%u)å¤§å°çš„è¿æ¥é”€æ¯é˜Ÿåˆ—æˆåŠŸï¼"),
 				GetID(),
 				m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
 		}
 		else
 		{
-			PrintDOSLog(_T("´úÀí·şÎñ[%u]´´½¨(%u,%u,%u)´óĞ¡µÄÁ¬½ÓÏú»Ù¶ÓÁĞÊ§°Ü£¡"),
+			PrintDOSLog(_T("ä»£ç†æœåŠ¡[%u]åˆ›å»º(%u,%u,%u)å¤§å°çš„è¿æ¥é”€æ¯é˜Ÿåˆ—å¤±è´¥ï¼"),
 				GetID(),
 				m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
 			return FALSE;
@@ -187,13 +187,13 @@ BOOL CWebSocketProxyService::OnStart()
 
 
 		m_ConnectionGroups.Resize(m_Config.ConnectionGroupCount);
-		PrintDOSDebugLog(_T("´úÀí·şÎñ[%u]´´½¨ÁË%u¸öÁ¬½Ó×éÏß³Ì"), GetID(), (UINT)m_ConnectionGroups.GetCount());
+		PrintDOSDebugLog(_T("ä»£ç†æœåŠ¡[%u]åˆ›å»ºäº†%uä¸ªè¿æ¥ç»„çº¿ç¨‹"), GetID(), (UINT)m_ConnectionGroups.GetCount());
 		for (UINT i = 0; i < m_ConnectionGroups.GetCount(); i++)
 		{
 			if (!m_ConnectionGroups[i].Init(this, m_Config, i))
 				return FALSE;
 			m_ConnectionGroups[i].Start();
-			PrintDOSDebugLog(_T("Á¬½Ó×éÏß³Ì[%u]ÒÑÆô¶¯"), m_ConnectionGroups[i].GetThreadID());
+			PrintDOSDebugLog(_T("è¿æ¥ç»„çº¿ç¨‹[%u]å·²å¯åŠ¨"), m_ConnectionGroups[i].GetThreadID());
 		}
 	}
 
@@ -218,7 +218,7 @@ void CWebSocketProxyService::OnClose()
 	CAutoLockEx Lock;
 	if (m_Config.ConnectionGroupCount)
 	{
-		//¶àÏßÁ¬½Ó×éÄ£Ê½ĞèÒª¼ÓËø
+		//å¤šçº¿è¿æ¥ç»„æ¨¡å¼éœ€è¦åŠ é”
 		Lock.Lock(m_EasyCriticalSection);
 	}
 
@@ -227,7 +227,7 @@ void CWebSocketProxyService::OnClose()
 	{
 		if (!((CDOSServer*)GetServer())->ReleaseMessagePacket(Msg.pMsgPacket))
 		{
-			PrintDOSLog(_T("ÊÍ·ÅÏûÏ¢ÄÚ´æ¿éÊ§°Ü£¡"));
+			PrintDOSLog(_T("é‡Šæ”¾æ¶ˆæ¯å†…å­˜å—å¤±è´¥ï¼"));
 		}
 	}
 	for (UINT i = 0; i < m_ConnectionGroups.GetCount(); i++)
@@ -256,7 +256,7 @@ CBaseNetConnection* CWebSocketProxyService::CreateConnection(CIPAddress& RemoteA
 		{
 			m_WSConnectionPool.DeleteObject(ID);
 			pConnection = NULL;
-			PrintDOSDebugLog(_T("ÏÖÓĞÁ¬½ÓÊı%u"), m_WSConnectionPool.GetObjectCount());
+			PrintDOSDebugLog(_T("ç°æœ‰è¿æ¥æ•°%u"), m_WSConnectionPool.GetObjectCount());
 		}
 	}
 	return pConnection;
@@ -267,7 +267,7 @@ bool CWebSocketProxyService::DeleteConnection(CBaseNetConnection* pConnection)
 
 	if (m_WSConnectionPool.DeleteObject(pConnection->GetID()))
 	{
-		PrintDOSDebugLog(_T("ÏÖÓĞÁ¬½ÓÊı%u"), m_WSConnectionPool.GetObjectCount());
+		PrintDOSDebugLog(_T("ç°æœ‰è¿æ¥æ•°%u"), m_WSConnectionPool.GetObjectCount());
 		return true;
 	}
 	return false;
@@ -311,7 +311,7 @@ int CWebSocketProxyService::CheckFreeObject()
 	}
 	if (ProcessCount)
 	{
-		PrintDOSDebugLog(_T("ÒÑ³¹µ×ÊÍ·Å%d¸öÁ¬½Ó"), ProcessCount);
+		PrintDOSDebugLog(_T("å·²å½»åº•é‡Šæ”¾%dä¸ªè¿æ¥"), ProcessCount);
 	}
 	return ProcessCount;
 }

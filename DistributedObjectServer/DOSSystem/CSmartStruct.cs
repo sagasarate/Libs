@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DOSSystem
 {
-    public class CSmartStruct
+    public class CSmartStruct : ICloneable
     {
         byte[] m_pData;
         uint m_StartIndex;
@@ -44,7 +44,7 @@ namespace DOSSystem
             m_StartIndex = 0;
             m_DataLen = BufferLen + sizeof(byte) + sizeof(uint);
             m_pData = new byte[m_DataLen];
-            m_pData[m_StartIndex] = (byte)CSmartValue.SMART_VALUE_TYPE.VT_STRUCT;
+            m_pData[m_StartIndex] = (byte)SMART_VALUE_TYPE.VT_STRUCT;
             SetLength(0);
             return true;
         }
@@ -65,7 +65,7 @@ namespace DOSSystem
             {
                 if (DataLen >= sizeof(byte) + sizeof(uint))
                 {
-                    m_pData[m_StartIndex] = (byte)CSmartValue.SMART_VALUE_TYPE.VT_STRUCT;
+                    m_pData[m_StartIndex] = (byte)SMART_VALUE_TYPE.VT_STRUCT;
                     SetLength(0);
                 }
                 else
@@ -76,7 +76,7 @@ namespace DOSSystem
             }
             else
             {
-                if ((CSmartValue.SMART_VALUE_TYPE)m_pData[StartIndex] != CSmartValue.SMART_VALUE_TYPE.VT_STRUCT)
+                if ((SMART_VALUE_TYPE)m_pData[StartIndex] != SMART_VALUE_TYPE.VT_STRUCT)
                 {
                     Destory();
                     return false;
@@ -208,7 +208,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_NULL))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_NULL))
                 {
                     return FinishMember(ID, SmartValue.GetDataLen());
                 }
@@ -222,7 +222,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_CHAR))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_CHAR))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -237,7 +237,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_UCHAR))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_UCHAR))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -252,7 +252,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_SHORT))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_SHORT))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -267,7 +267,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_USHORT))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_USHORT))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -282,7 +282,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_INT))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_INT))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -297,7 +297,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_UINT))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_UINT))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -312,7 +312,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_BIGINT))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_BIGINT))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -327,7 +327,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_UBIGINT))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_UBIGINT))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -342,7 +342,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_FLOAT))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_FLOAT))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -357,7 +357,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_DOUBLE))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_DOUBLE))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -372,7 +372,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_BOOL))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_BOOL))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -391,14 +391,14 @@ namespace DOSSystem
                 bool Ret = false;
                 switch (CSmartValue.INTERNAL_STRING_CODE_PAGE)
                 {
-                    case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_ANSI:
-                        Ret = SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_STRING_ANSI);
+                    case STRING_CODE_PAGE.STRING_CODE_PAGE_ANSI:
+                        Ret = SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_STRING_ANSI);
                         break;
-                    case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_UTF8:
-                        Ret = SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_STRING_UTF8);
+                    case STRING_CODE_PAGE.STRING_CODE_PAGE_UTF8:
+                        Ret = SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_STRING_UTF8);
                         break;
-                    case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16:
-                        Ret = SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_STRING_UCS16);
+                    case STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16:
+                        Ret = SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_STRING_UCS16);
                         break;
                 }
                 if (Ret)
@@ -416,7 +416,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_BINARY))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_BINARY))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -431,7 +431,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_STRUCT))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_STRUCT))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -446,7 +446,7 @@ namespace DOSSystem
             if (StartIndex >= 0)
             {
                 CSmartValue SmartValue = new CSmartValue();
-                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, CSmartValue.SMART_VALUE_TYPE.VT_STRUCT))
+                if (SmartValue.Attach(m_pData, (uint)StartIndex, BufferSize, SMART_VALUE_TYPE.VT_STRUCT))
                 {
                     if (SmartValue.SetValue(Value))
                         return FinishMember(ID, SmartValue.GetDataLen());
@@ -483,7 +483,12 @@ namespace DOSSystem
                 case VARIED_VALUE_TYPE.FLOAT64:
                     return AddMember(ID, (double)Value);
                 case VARIED_VALUE_TYPE.STRING:
-                    return AddMember(ID, (string)Value); ;
+                    return AddMember(ID, (string)Value);
+                case VARIED_VALUE_TYPE.BINARY:
+                    return AddMember(ID, (byte[])Value);
+                case VARIED_VALUE_TYPE.ARRAY:
+                case VARIED_VALUE_TYPE.TABLE:
+                    return AddMember(ID, (CSmartValue)Value);
             }
             return false;
         }
@@ -499,7 +504,7 @@ namespace DOSSystem
             {
                 HeadIndex += sizeof(ushort);
 
-                CSmartValue Value = new CSmartValue(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN);
+                CSmartValue Value = new CSmartValue(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN);
                 HeadIndex += Value.GetDataLen();
                 MemberCount++;
             }
@@ -518,7 +523,7 @@ namespace DOSSystem
             while (HeadIndex + sizeof(ushort) < TailIndex)
             {
                 HeadIndex += sizeof(ushort);
-                if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                     break;
                 HeadIndex += Value.GetDataLen();
                 if (Index == 0)
@@ -543,7 +548,7 @@ namespace DOSSystem
             {
                 ushort MemberID = BitConverter.ToUInt16(m_pData, (int)HeadIndex);
                 HeadIndex += sizeof(ushort);
-                if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                     break;
                 if (MemberID == ID)
                     return Value;
@@ -577,7 +582,7 @@ namespace DOSSystem
             {
                 ushort MemberID = BitConverter.ToUInt16(m_pData, (int)HeadIndex);
                 HeadIndex += sizeof(ushort);
-                if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                     break;
                 if (MemberID == ID)
                     return Index;
@@ -604,7 +609,7 @@ namespace DOSSystem
                 if (Index == 0)
                     return MemberID;
                 HeadIndex += sizeof(ushort);
-                if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                     break;
                 HeadIndex += Value.GetDataLen();
                 Index--;
@@ -651,7 +656,7 @@ namespace DOSSystem
                 }
                 else
                 {
-                    if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, CSmartValue.SMART_VALUE_TYPE.VT_UNKNOWN))
+                    if (!Value.Attach(m_pData, HeadIndex, TailIndex - HeadIndex, SMART_VALUE_TYPE.VT_UNKNOWN))
                     {
                         Pos = 0;
                         return Value;
@@ -699,21 +704,21 @@ namespace DOSSystem
             uint DataLen = 0;
             switch (CSmartValue.INTERNAL_STRING_CODE_PAGE)
             {
-                case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_ANSI:
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_ANSI:
                     DataLen = 1;
                     if (!string.IsNullOrEmpty(Str))
                     {
                         DataLen += (uint)Encoding.GetEncoding(936).GetByteCount(Str);
                     }
                     break;
-                case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_UTF8:
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_UTF8:
                     DataLen = 1;
                     if (!string.IsNullOrEmpty(Str))
                     {
                         DataLen += (uint)Encoding.UTF8.GetByteCount(Str);
                     }
                     break;
-                case CSmartValue.STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16:
+                case STRING_CODE_PAGE.STRING_CODE_PAGE_UCS16:
                     DataLen = sizeof(char);
                     if (!string.IsNullOrEmpty(Str))
                     {
@@ -756,7 +761,7 @@ namespace DOSSystem
             }
             return sizeof(ushort) + sizeof(byte);
         }
-        public CSmartStruct Clone()
+        public object Clone()
         {
             CSmartStruct Struct = new CSmartStruct();
             Struct.CloneFrom(this);

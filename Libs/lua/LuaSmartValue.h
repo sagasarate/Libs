@@ -104,7 +104,6 @@ public:
 	{
 		m_Data.Destory();
 	}
-	static void PushValueToLua(CLuaThread* pLuaThread, const CSmartValue& Value, CLuaBaseMetaClass* pParent);
 	static void ResgisterStaticFunctions(CBaseLuaVM* pLuaVM, LPCTSTR LibName);
 	static void ResgisterStaticFunctions(CBaseLuaVM* pLuaVM)
 	{
@@ -119,6 +118,7 @@ protected:
 	LUA_EMPTY_VALUE LuaGetData();
 	UINT LuaGetDataLen();	
 	UINT LuaGetLength();
+	UINT LuaGetBufferLen();
 	bool LuaAttach(CLuaBaseMetaClass* pObject);
 	int LuaGetType();
 	LUA_EMPTY_VALUE LuaGetValue();

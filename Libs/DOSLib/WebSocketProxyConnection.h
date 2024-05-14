@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CWebSocketProxyConnection :
 	public CDOSObjectProxyConnectionDefault
@@ -61,11 +61,13 @@ protected:
 	void SendHTTPRespond(int Code, LPCSTR szContent);
 	void ParseStringLines(char * szStr, CEasyArray<char *>& StrLines);
 	void ProcessWebSocketData(const BYTE * pData, UINT DataSize);
-	void OnWebSocketFrame(BYTE OPCode, bool IsFinFrame, bool HaveMask, BYTE * MaskKey, BYTE* pData, UINT DataLen);
+	bool ProcessMultiFrameData(CEasyBuffer& DataBuffer, UINT FrameCount);
+	void OnWebSocketFrame(BYTE OPCode, BYTE* pData, UINT DataLen);
 	void SendWebSocketCloseMsg();
 	void SendWebSocketPingMsg();
 	void SendWebSocketPongMsg();
-	bool SendWebSocketFrame(WEB_SOCKET_OP_CODE OPCode, MSG_ID_TYPE MsgID, WORD MsgFlag, WORD CRC, const void* pData, UINT DataLen);
+	bool SendMsg(MSG_ID_TYPE MsgID, WORD MsgFlag, WORD CRC, const BYTE* pData, UINT DataLen);
+	bool SendWebSocketFrame(WEB_SOCKET_OP_CODE OPCode, const void* pData1, UINT DataLen1, const void* pData2, UINT DataLen2, bool IsFin);
 };
 
 

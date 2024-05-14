@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CLuaSmartArray :
 	public CLuaBaseMetaClass
@@ -122,11 +122,10 @@ public:
 	}
 protected:
 	virtual void RegisterMemberFunctions(lua_State* pLuaState) const;
-	bool AddMember(lua_State* L, int Idx);
 protected:
 	virtual void OnGarbageCollect();
 	static LUA_EMPTY_VALUE LuaNew(CLuaThread* pLuaThread, LUA_EMPTY_VALUE);
-	static UINT LuaGetEmptyStructSize(CLuaThread* pLuaThread);
+	static UINT LuaGetEmptyArraySize(CLuaThread* pLuaThread);
 	static UINT LuaGetFixMemberSize(CLuaThread* pLuaThread, UINT TypeLen);
 	static UINT LuaGetArrayMemberSize(CLuaThread* pLuaThread, UINT ArraySize);
 	static UINT LuaGetStructMemberSize(CLuaThread* pLuaThread, UINT StructSize);
@@ -135,6 +134,7 @@ protected:
 	static UINT LuaGetVariedMemberSize(CLuaThread* pLuaThread, LUA_EMPTY_VALUE);
 	UINT LuaGetDataLen();
 	UINT LuaGetLength();
+	UINT LuaGetBufferLen();
 	UINT LuaGetArrayLength();
 	UINT LuaGetFreeLen();
 	LUA_EMPTY_VALUE LuaGetData();
@@ -166,7 +166,7 @@ protected:
 	bool LuaAppend(CLuaSmartArray* pArray);
 	bool LuaExpand(UINT ExpandSize);
 	LUA_EMPTY_VALUE LuaGetArray();
-	bool LuaAddArray(BYTE ElementType, LUA_EMPTY_VALUE);
+	bool LuaAddArray(LUA_EMPTY_VALUE);
 };
 
 DECLARE_META_CLASS_MATCHER(CLuaSmartArray)

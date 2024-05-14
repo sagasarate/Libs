@@ -3,7 +3,6 @@ using System.Text;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-
 namespace DOSSystem
 {
     public struct OBJECT_ID
@@ -113,34 +112,5 @@ namespace DOSSystem
         }
 
         public delegate int MsgHandler(CSmartStruct MsgPacket);
-    }
-
-    public class Logger
-    {
-        public static uint LogChannel;
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static void InternalLog(uint LogChannel, string Msg);
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static void InternalLogDebug(uint LogChannel, string Msg);
-
-        public static void Log(string Msg)
-        {
-            InternalLog(Logger.LogChannel, Msg);
-        }
-
-        public static void LogDebug(string Msg)
-        {
-            InternalLogDebug(Logger.LogChannel, Msg);
-        }
-        public static void Log(string Format, params object[] Params)
-        {
-            InternalLog(Logger.LogChannel, string.Format(Format, Params));
-        }
-
-        public static void LogDebug(string Format, params object[] Params)
-        {
-            InternalLogDebug(Logger.LogChannel, string.Format(Format, Params));
-        }
-    };
+    }    
 }

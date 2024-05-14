@@ -138,6 +138,7 @@ protected:
 	static UINT LuaGetVariedMemberSize(CLuaThread* pLuaThread, LUA_EMPTY_VALUE);
 	UINT LuaGetDataLen();
 	UINT LuaGetLength();
+	UINT LuaGetBufferLen();
 	UINT LuaGetFreeLen();
 	LUA_EMPTY_VALUE LuaGetData();	
 	bool LuaAttach(CLuaBaseMetaClass* pObject);

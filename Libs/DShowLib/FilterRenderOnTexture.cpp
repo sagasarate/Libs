@@ -1,12 +1,12 @@
-/****************************************************************************/
+ï»¿/****************************************************************************/
 /*                                                                          */
-/*      ÎÄ¼þÃû:    FilterRenderOnTexture.cpp                                */
-/*      ´´½¨ÈÕÆÚ:  2009Äê07ÔÂ06ÈÕ                                           */
-/*      ×÷Õß:      Sagasarate                                               */
+/*      æ–‡ä»¶å:    FilterRenderOnTexture.cpp                                */
+/*      åˆ›å»ºæ—¥æœŸ:  2009å¹´07æœˆ06æ—¥                                           */
+/*      ä½œè€…:      Sagasarate                                               */
 /*                                                                          */
-/*      ±¾Èí¼þ°æÈ¨¹éSagasarate(sagasarate@sina.com)ËùÓÐ                     */
-/*      Äã¿ÉÒÔ½«±¾Èí¼þÓÃÓÚÈÎºÎÉÌÒµºÍ·ÇÉÌÒµÈí¼þ¿ª·¢£¬µ«                      */
-/*      ±ØÐë±£Áô´Ë°æÈ¨ÉùÃ÷                                                  */
+/*      æœ¬è½¯ä»¶ç‰ˆæƒå½’Sagasarate(sagasarate@sina.com)æ‰€æœ‰                     */
+/*      ä½ å¯ä»¥å°†æœ¬è½¯ä»¶ç”¨äºŽä»»ä½•å•†ä¸šå’Œéžå•†ä¸šè½¯ä»¶å¼€å‘ï¼Œä½†                      */
+/*      å¿…é¡»ä¿ç•™æ­¤ç‰ˆæƒå£°æ˜Ž                                                  */
 /*                                                                          */
 /****************************************************************************/
 #include "StdAfx.h"
@@ -49,7 +49,7 @@ CEasyString GetMediaTypeName(const CLSID& MainType,const CLSID& SubType)
 		NULL, CLSCTX_INPROC, IID_IFilterMapper2, 
 		(void **) &pMapper);
 
-	CEasyString TypeName="Î´ÖªÀàÐÍ";
+	CEasyString TypeName="æœªçŸ¥ç±»åž‹";
 
 	if (FAILED(hr))
 	{
@@ -254,7 +254,7 @@ LPCTSTR GetVideoFormatName(const GUID& TypeID)
 	else
 	{
 		static char buff[128];
-		sprintf_s(buff,128,"Î´ÖªÀàÐÍ{%08X,%04X,%04X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X}",
+		sprintf_s(buff,128,"æœªçŸ¥ç±»åž‹{%08X,%04X,%04X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X}",
 			TypeID.Data1,TypeID.Data2,TypeID.Data3,
 			TypeID.Data4[0],TypeID.Data4[1],TypeID.Data4[2],TypeID.Data4[3],
 			TypeID.Data4[4],TypeID.Data4[5],TypeID.Data4[6],TypeID.Data4[7]);
@@ -355,7 +355,7 @@ HRESULT CFilterRenderOnTexture::CheckMediaType(const CMediaType *pmt)
 		return E_INVALIDARG;
 	}
 
-	PrintSystemLog(0,"ÊÕµ½Ã½ÌåÀàÐÍ%s",GetVideoFormatName(*pmt->Subtype()));
+	PrintSystemLog(0,"æ”¶åˆ°åª’ä½“ç±»åž‹%s",GetVideoFormatName(*pmt->Subtype()));
 
 
 	if((m_SupportTextureFormat&SUPPORT_D3DFMT_YUY2)||(m_SupportTextureFormat&SUPPORT_D3DFMT_YUY2))

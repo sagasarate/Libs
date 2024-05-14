@@ -356,6 +356,17 @@ public:
 		m_StringLength = 0;
 		SetString(Str.GetBuffer(), (int)Str.GetLength());
 	}
+	CEasyStringT(CEasyStringT&& Str)  noexcept
+	{
+		m_pBuffer = Str.m_pBuffer;
+		m_BufferSize = Str.m_BufferSize;
+		m_StringLength = Str.m_StringLength;
+		m_HashCode = Str.m_HashCode;
+		Str.m_pBuffer = EMPTY_PSTR;
+		Str.m_BufferSize = 1;
+		Str.m_StringLength = 0;
+		Str.m_HashCode = 0;
+	}
 	~CEasyStringT()
 	{
 		ReleaseBuffer();
@@ -367,11 +378,13 @@ public:
 			MONITORED_DELETE_ARRAY(m_pBuffer);
 		}
 		m_pBuffer = EMPTY_PSTR;
-		m_BufferSize = 1;
+		m_BufferSize = 1;		
 	}
 	void Clear()
 	{
-		Resize(0, false);
+		ReleaseBuffer();
+		m_StringLength = 0;
+		m_HashCode = 0;
 	}
 	void Empty()
 	{
@@ -541,6 +554,21 @@ public:
 	CEasyStringT<T>& operator=(const CEasyStringT<WCHAR>& Str)
 	{
 		SetString(Str.GetBuffer(), (int)Str.GetLength());
+		return *this;
+	}
+	CEasyStringT& operator=(CEasyStringT&& Str)  noexcept
+	{
+		if (m_pBuffer == Str.m_pBuffer)
+			return *this;
+		ReleaseBuffer();
+		m_pBuffer = Str.m_pBuffer;
+		m_BufferSize = Str.m_BufferSize;
+		m_StringLength = Str.m_StringLength;
+		m_HashCode = Str.m_HashCode;
+		Str.m_pBuffer = EMPTY_PSTR;
+		Str.m_BufferSize = 1;
+		Str.m_StringLength = 0;
+		Str.m_HashCode = 0;
 		return *this;
 	}
 	int Compare(const T* pStr) const
@@ -1723,11 +1751,10 @@ inline bool CEasyStringT<char>::AppendFormatNoExpandVL(const char* pFormat, va_l
 
 	SIZE_TYPE Pos = m_StringLength;
 	if (m_StringLength + Len >= m_BufferSize)
-		Resize(m_StringLength + Len, true);
-	else
 		return false;
 	vsprintf_s(m_pBuffer + Pos, Len + 1, pFormat, vl);
 	m_StringLength += Len;
+	return true;
 }
 
 template<>
@@ -1740,11 +1767,10 @@ inline bool CEasyStringT<WCHAR>::AppendFormatNoExpandVL(const WCHAR* pFormat, va
 
 	SIZE_TYPE Pos = m_StringLength;
 	if (m_StringLength + Len >= m_BufferSize)
-		Resize(m_StringLength + Len, true);
-	else
 		return false;
 	vswprintf_s(m_pBuffer + Pos, Len + 1, pFormat, vl);
 	m_StringLength += Len;
+	return true;
 }
 
 template<>
@@ -1752,8 +1778,9 @@ inline bool CEasyStringT<char>::AppendFormatNoExpand(const char* pFormat, ...)
 {
 	va_list	vl;
 	va_start(vl, pFormat);
-	AppendFormatNoExpandVL(pFormat, vl);
+	int Ret = AppendFormatNoExpandVL(pFormat, vl);
 	va_end(vl);
+	return Ret;
 }
 
 template<>
@@ -1761,8 +1788,9 @@ inline bool CEasyStringT<WCHAR>::AppendFormatNoExpand(const WCHAR* pFormat, ...)
 {
 	va_list	vl;
 	va_start(vl, pFormat);
-	AppendFormatNoExpandVL(pFormat, vl);
+	int Ret = AppendFormatNoExpandVL(pFormat, vl);
 	va_end(vl);
+	return Ret;
 }
 
 template<>
@@ -2077,7 +2105,7 @@ inline CEasyString ToString(bool Value)
 
 
 
-inline CEasyString UTF8ToLocal(LPCSTR szStr, int StrLen = 0)
+inline CEasyString UTF8ToLocal(LPCSTR szStr, int StrLen = -1)
 {
 	if (StrLen < 0)
 		StrLen = (int)CEasyString::GetStrLen(szStr);
@@ -2095,7 +2123,7 @@ inline CEasyString UTF8ToLocal(LPCSTR szStr, int StrLen = 0)
 	return OutStr;
 }
 
-inline CEasyStringA LocalToUTF8(LPCTSTR szStr, int StrLen = 0)
+inline CEasyStringA LocalToUTF8(LPCTSTR szStr, int StrLen = -1)
 {
 	if (StrLen < 0)
 		StrLen = (int)CEasyString::GetStrLen(szStr);
@@ -2113,7 +2141,7 @@ inline CEasyStringA LocalToUTF8(LPCTSTR szStr, int StrLen = 0)
 	return OutStr;
 }
 
-inline CEasyStringW AnsiToUnicode(const char* SrcStr, int SrcLen = 0)
+inline CEasyStringW AnsiToUnicode(const char* SrcStr, int SrcLen = -1)
 {
 	CEasyStringW DestStr;
 	if (SrcLen < 0)
@@ -2128,7 +2156,7 @@ inline CEasyStringW AnsiToUnicode(const char* SrcStr, int SrcLen = 0)
 	return DestStr;
 }
 
-inline CEasyStringA UnicodeToAnsi(const WCHAR* SrcStr, int SrcLen = 0)
+inline CEasyStringA UnicodeToAnsi(const WCHAR* SrcStr, int SrcLen = -1)
 {
 	CEasyStringA DestStr;
 	if (SrcLen < 0)
