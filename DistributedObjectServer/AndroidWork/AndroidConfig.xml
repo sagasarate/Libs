@@ -1,4 +1,0 @@
-<Main>
-  <Group ServerIP="127.0.0.1" ServerPort="8600" AccountName="Test%04d" Password="123" ClientCount="1" StartIndex="1501"
-         FirstConnectDelay="1000" ReconnectDelay="10000" AutoReconnect="true" ScriptFile="Script01.txt"/>
-</Main>
