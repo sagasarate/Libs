@@ -1,4 +1,5 @@
 # EasyGameLibs
+2024-9-12：进行目录调整，DistributedObjectServer暂时移除，稍后放置于独立项目中
 2024-5-15：多项累积更新，主要是Lua库的大量Bug修正    
 2023-6-32：
     增加复合数据类型CVariedValue
