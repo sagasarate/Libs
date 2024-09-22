@@ -50,7 +50,7 @@ bool CNetServer::StartUp(int EventObjectPoolSize,
 	m_IOCPObjectPoolGrowLimit=EventObjectPoolGrowLimit;
 	m_EventRouterPoolGrowSize=EventRouterPoolGrowSize;
 	m_EventRouterPoolGrowLimit=EventRouterPoolGrowlimit;
-	return Start() != FALSE;;
+	return Start();
 }
 
 void CNetServer::ShutDown(DWORD Milliseconds)
@@ -58,13 +58,13 @@ void CNetServer::ShutDown(DWORD Milliseconds)
 	SafeTerminate(Milliseconds);	
 }
 
-BOOL CNetServer::OnStart()
+bool CNetServer::OnStart()
 {
 	if(!CBaseNetServer::OnStart())
-		return FALSE;
+		return false;
 
 	if(m_hIOCP!=NULL)
-		return FALSE;
+		return false;
 
 	CNetSocket::NetStartup();
 
@@ -75,13 +75,13 @@ BOOL CNetServer::OnStart()
 	if( m_hIOCP == NULL )
 	{
 		PrintNetLog(_T("(%d)创建完成端口失败(%d)！"),GetID(),GetLastError());		
-		return FALSE;
+		return false;
 	}
 
 	if (m_IOCPWorkThreadCount <= 0)
 	{
 		PrintNetLog(_T("非法的IOCP工作线程数量"));
-		return FALSE;
+		return false;
 	}
 
 	m_pIOCPThreads = MONITORED_NEW_ARRAY(_T("CNetService"), CIOCPThread, m_IOCPWorkThreadCount);
@@ -94,21 +94,21 @@ BOOL CNetServer::OnStart()
 	PrintNetLog(_T("已创建%d个IOCP工作线程"), m_IOCPWorkThreadCount);
 	if(!OnStartUp())
 	{		
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL CNetServer::OnRun()
+bool CNetServer::OnRun()
 {
 	if(!CBaseNetServer::OnRun())
-		return FALSE;
+		return false;
 
 	if(Update()==0)
 	{
 		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
-	return TRUE;
+	return true;
 }
 
 void CNetServer::OnTerminate()
@@ -226,10 +226,10 @@ bool CNetServer::DeleteEventRouter(CIOCPEventRouter * pEventRouter)
 	if(!m_EventRouterPool.DeleteObject(pEventRouter->GetID()))
 	{
 		PrintNetLog(_T("(%d)Server无法删除CIOCPEventRouter(%d)！"),GetID(),pEventRouter->GetID());
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 

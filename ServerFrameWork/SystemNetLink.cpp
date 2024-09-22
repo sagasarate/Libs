@@ -11,11 +11,11 @@
 /****************************************************************************/
 #include "stdafx.h"
 
-CSystemNetLink::CSystemNetLink(CBaseServer * pServer)
+CSystemNetLink::CSystemNetLink(CBaseServer* pServer)
 {
 	FUNCTION_BEGIN;
-	m_pServer=pServer;
-	m_IsLinkLog=FALSE;
+	m_pServer = pServer;
+	m_IsLinkLog = false;
 	FUNCTION_END;
 }
 
@@ -24,7 +24,7 @@ CSystemNetLink::~CSystemNetLink(void)
 }
 
 
-void CSystemNetLink::SendMsg(WORD Msg,LPCVOID pData,int DataLen)
+void CSystemNetLink::SendMsg(WORD Msg, LPCVOID pData, int DataLen)
 {
 	FUNCTION_BEGIN;
 	static char s_SendBuffer[65536];
@@ -34,13 +34,13 @@ void CSystemNetLink::SendMsg(WORD Msg,LPCVOID pData,int DataLen)
 	CEasyBuffer	SendBuffer(s_SendBuffer, 65536, _T("CSystemNetLink"));;
 	SMSG_HEADER MsgHeader;
 
-	MsgHeader.MsgID=Msg;
-	MsgHeader.Size=(WORD)(sizeof(SMSG_HEADER)+DataLen);
-	SendBuffer.PushBack(&MsgHeader,sizeof(SMSG_HEADER));
+	MsgHeader.MsgID = Msg;
+	MsgHeader.Size = (WORD)(sizeof(SMSG_HEADER) + DataLen);
+	SendBuffer.PushBack(&MsgHeader, sizeof(SMSG_HEADER));
 
-	if(DataLen)
-		SendBuffer.PushBack(pData,DataLen);
-	SendData(SendBuffer.GetBuffer(),SendBuffer.GetUsedSize());
+	if (DataLen)
+		SendBuffer.PushBack(pData, DataLen);
+	SendData(SendBuffer.GetBuffer(), (UINT)SendBuffer.GetUsedSize());
 
 
 	FUNCTION_END;
@@ -48,87 +48,87 @@ void CSystemNetLink::SendMsg(WORD Msg,LPCVOID pData,int DataLen)
 
 
 //接受数据
-void CSystemNetLink::OnData(const BYTE * pData, UINT DataSize)
+void CSystemNetLink::OnData(const BYTE* pData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
 
 
-	SMSG * pMsg = (SMSG *)pData;
+	SMSG* pMsg = (SMSG*)pData;
 	DataSize = DataSize - sizeof(SMSG_HEADER);
 
-	switch(pMsg->Header.MsgID)
+	switch (pMsg->Header.MsgID)
 	{
 	case SC_MSG_QUERY_SERVER_STATUS:
+	{
+		CSmartStruct QueryInfo(pMsg->Data, DataSize, false);
+		CSmartStruct ServerStatus(SERVER_STATUS_BLOCK_SIZE);
+		void* Pos = QueryInfo.GetFirstMemberPosition();
+		while (Pos)
 		{
-			CSmartStruct QueryInfo(pMsg->Data,DataSize,false);
-			CSmartStruct ServerStatus(SERVER_STATUS_BLOCK_SIZE);
-			void * Pos = QueryInfo.GetFirstMemberPosition();
-			while (Pos)
+			WORD MemberID;
+			CSmartValue Value = QueryInfo.GetNextMember(Pos, MemberID);
+			if (MemberID == SC_SST_QSS_STATUS_ID)
 			{
-				WORD MemberID;
-				CSmartValue Value = QueryInfo.GetNextMember(Pos, MemberID);
-				if (MemberID == SC_SST_QSS_STATUS_ID)
-				{
-					WORD StatusID = Value;
-					ServerStatus.AddMember(StatusID,
-						m_pServer->GetServerStatus(StatusID));
-				}
+				WORD StatusID = Value;
+				ServerStatus.AddMember(StatusID,
+					m_pServer->GetServerStatus(StatusID));
 			}
-			SendMsg(SC_MSG_QUERY_SERVER_STATUS_RESULT,
-				ServerStatus.GetData(),ServerStatus.GetDataLen());
 		}
-		break;
+		SendMsg(SC_MSG_QUERY_SERVER_STATUS_RESULT,
+			ServerStatus.GetData(), ServerStatus.GetDataLen());
+	}
+	break;
 	case SC_MSG_QUERY_ALL_SERVER_STATUS:
-		{
-			SendMsg(SC_MSG_QUERY_SERVER_STATUS_RESULT,
-				m_pServer->GetAllServerStatus().GetData(),
-				m_pServer->GetAllServerStatus().GetDataLen());
-		}
-		break;
+	{
+		SendMsg(SC_MSG_QUERY_SERVER_STATUS_RESULT,
+			m_pServer->GetAllServerStatus().GetData(),
+			m_pServer->GetAllServerStatus().GetDataLen());
+	}
+	break;
 	case SC_MSG_GET_SERVER_STATUS_FORMAT_INFO:
+	{
+		CEasyArray<SERVER_STATUS_FORMAT_INFO> ServerStatusFormatList(_T("CSystemControlPipe"));
+		m_pServer->GetAllServerStatusFormat(ServerStatusFormatList);
+
+		CSmartStruct Packet(SERVER_STATUS_FORMAT_INFO_SIZE * (UINT)ServerStatusFormatList.GetCount());
+
+		UINT BufferSize;
+		void* pBuffer;
+		for (UINT i = 0; i < ServerStatusFormatList.GetCount(); i++)
 		{
-			CEasyArray<SERVER_STATUS_FORMAT_INFO> ServerStatusFormatList(_T("CSystemControlPipe"));
-			m_pServer->GetAllServerStatusFormat(ServerStatusFormatList);
-
-			CSmartStruct Packet(SERVER_STATUS_FORMAT_INFO_SIZE*(UINT)ServerStatusFormatList.GetCount());
-
-			UINT BufferSize;
-			void * pBuffer;
-			for (UINT i = 0; i < ServerStatusFormatList.GetCount(); i++)
-			{
-				SERVER_STATUS_FORMAT_INFO& Info = ServerStatusFormatList[i];
-				pBuffer = Packet.PrepareMember(BufferSize);
-				CSmartStruct FormatInfo(pBuffer, BufferSize, true);
-				FormatInfo.AddMember(SC_SST_SSFI_STATUS_ID, Info.StatusID);
-				FormatInfo.AddMember(SC_SST_SSFI_FORMAT_TYPE, Info.FormatType);
-				FormatInfo.AddMember(SC_SST_SSFI_NAME, Info.szName);
-				Packet.FinishMember(SC_SST_SSFIL_SERVER_STATUS_FORMAT_INFO, FormatInfo.GetDataLen());
-			}
-
-			SendMsg(SC_MSG_GET_SERVER_STATUS_FORMAT_INFO_RESULT,
-				Packet.GetData(), Packet.GetDataLen());
+			SERVER_STATUS_FORMAT_INFO& Info = ServerStatusFormatList[i];
+			pBuffer = Packet.PrepareMember(BufferSize);
+			CSmartStruct FormatInfo(pBuffer, BufferSize, true);
+			FormatInfo.AddMember(SC_SST_SSFI_STATUS_ID, Info.StatusID);
+			FormatInfo.AddMember(SC_SST_SSFI_FORMAT_TYPE, Info.FormatType);
+			FormatInfo.AddMember(SC_SST_SSFI_NAME, Info.szName);
+			Packet.FinishMember(SC_SST_SSFIL_SERVER_STATUS_FORMAT_INFO, FormatInfo.GetDataLen());
 		}
-		break;
+
+		SendMsg(SC_MSG_GET_SERVER_STATUS_FORMAT_INFO_RESULT,
+			Packet.GetData(), Packet.GetDataLen());
+	}
+	break;
 	case SC_MSG_SET_SERVER_STATUS:
-		{
-		}
-		break;
+	{
+	}
+	break;
 	case SC_MSG_LINK_LOG:
-		m_IsLinkLog=TRUE;
+		m_IsLinkLog = true;
 		Log("已开启接收Log");
 		break;
 	case SC_MSG_UNLINK_LOG:
 		Log("已关闭接收Log");
-		m_IsLinkLog=FALSE;
+		m_IsLinkLog = false;
 		break;
 	case SC_MSG_EXEC_COMMAND:
-		{
-			CSmartStruct CommandInfo(pMsg->Data,DataSize,false);
-			LPCTSTR szCommand=CommandInfo.GetMember(SC_SST_EC_COMMAND_STR);
-			m_pServer->PushConsoleCmd(szCommand);
-		}
-		break;
-	
+	{
+		CSmartStruct CommandInfo(pMsg->Data, DataSize, false);
+		LPCTSTR szCommand = CommandInfo.GetMember(SC_SST_EC_COMMAND_STR);
+		m_pServer->PushConsoleCmd(szCommand);
+	}
+	break;
+
 	}
 
 	FUNCTION_END;

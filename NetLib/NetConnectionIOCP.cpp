@@ -404,7 +404,7 @@ bool CNetConnection::SendMulti(LPCVOID * pDataBuffers, const UINT * pDataSizes, 
 
 				if (m_Socket.SendOverlapped(
 					pOverLappedObject->GetDataBuff()->GetBuffer(),
-					pOverLappedObject->GetDataBuff()->GetUsedSize(),
+					(int)pOverLappedObject->GetDataBuff()->GetUsedSize(),
 					NumberOfBytes, Flag,
 					pOverLappedObject->GetOverlapped()))
 				{
@@ -456,7 +456,7 @@ bool CNetConnection::QueryRecv()
 
 		if(m_Socket.RecvOverlapped(
 			pOverLappedObject->GetDataBuff()->GetBuffer(),
-			pOverLappedObject->GetDataBuff()->GetBufferSize(),
+			(int)pOverLappedObject->GetDataBuff()->GetBufferSize(),
 			NumberOfBytes,Flag,
 			pOverLappedObject->GetOverlapped()))
 		{
@@ -492,7 +492,7 @@ int CNetConnection::Update(int ProcessPacketLimit)
 		COverLappedObject * pOverLappedObject;
 		while(m_RecvDataQueue.PopFront(&pOverLappedObject))
 		{			
-			OnRecvData((const BYTE *)pOverLappedObject->GetDataBuff()->GetBuffer(), pOverLappedObject->GetDataBuff()->GetUsedSize());
+			OnRecvData((const BYTE *)pOverLappedObject->GetDataBuff()->GetBuffer(), (UINT)pOverLappedObject->GetDataBuff()->GetUsedSize());
 			ReleaseOverLappedObject(pOverLappedObject);
 			PacketCount++;
 			if(PacketCount>=ProcessPacketLimit)

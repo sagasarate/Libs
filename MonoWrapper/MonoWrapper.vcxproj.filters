@@ -1,131 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="预编译">
-      <UniqueIdentifier>{7bf89270-cae9-4633-8d9c-1c42412cc977}</UniqueIdentifier>
-    </Filter>
     <Filter Include="MonoWrapper">
       <UniqueIdentifier>{8688f217-b02d-4b42-8ddc-86ec2283d03e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include">
-      <UniqueIdentifier>{3b4c19cf-32cc-446d-a08a-95a7c027ab9f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib">
-      <UniqueIdentifier>{476cbc17-63df-427a-ba15-635494adb6d5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\x64">
-      <UniqueIdentifier>{96f91cd3-cf78-4134-9ad4-338d8d1d5d69}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\x86">
-      <UniqueIdentifier>{ac8355f6-57b6-4563-b0b9-478b1262120b}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>预编译</Filter>
-    </ClInclude>
     <ClInclude Include="MonoWrapper.h">
       <Filter>MonoWrapper</Filter>
     </ClInclude>
-    <ClInclude Include="include\appdomain.h">
-      <Filter>include</Filter>
+    <ClInclude Include="mono_api_mini.h">
+      <Filter>MonoWrapper</Filter>
     </ClInclude>
-    <ClInclude Include="include\assembly.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\class.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\debugger-agent.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\environment.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\exception.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\image.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jit.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\loader.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\metadata.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mono-config.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mono-config-dirs.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mono-counters.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mono-debug.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mono-dl-fallback.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mono-error.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mono-gc.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mono-logger.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mono-publib.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\object.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\reflection.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\row-indexes.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\threads.h">
-      <Filter>include</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>预编译</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="lib\x64\mono-2.0D.lib">
-      <Filter>lib\x64</Filter>
-    </Library>
-    <Library Include="lib\x64\mono-2.0.lib">
-      <Filter>lib\x64</Filter>
-    </Library>
-    <Library Include="lib\x64\monosgen-2.0.lib">
-      <Filter>lib\x64</Filter>
-    </Library>
-    <Library Include="lib\x64\monosgen-2.0D.lib">
-      <Filter>lib\x64</Filter>
-    </Library>
-    <Library Include="lib\x86\mono-2.0.lib">
-      <Filter>lib\x86</Filter>
-    </Library>
-    <Library Include="lib\x86\mono-2.0D.lib">
-      <Filter>lib\x86</Filter>
-    </Library>
-    <Library Include="lib\x86\monosgen-2.0.lib">
-      <Filter>lib\x86</Filter>
-    </Library>
-    <Library Include="lib\x86\monosgen-2.0D.lib">
-      <Filter>lib\x86</Filter>
-    </Library>
   </ItemGroup>
 </Project>

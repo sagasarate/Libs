@@ -79,7 +79,7 @@ inline bool CBaseNetService::IsWorking()
 {
 	if(m_Socket.GetState()==CNetSocket::SS_LISTENING||
 		m_Socket.GetState()==CNetSocket::SS_CONNECTED)
-		return TRUE;
+		return true;
 	else
-		return FALSE;
+		return false;
 }

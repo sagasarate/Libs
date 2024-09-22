@@ -25,8 +25,8 @@ public:
 	CFileSearcher(void);
 	~CFileSearcher(void);
 
-	BOOL FindFirst(LPCTSTR FindPattern);
-	BOOL FindNext();
+	bool FindFirst(LPCTSTR FindPattern);
+	bool FindNext();
 	void Close();
 
 	CEasyString GetFileName();
@@ -44,22 +44,22 @@ public:
 	CEasyTime GetLastAccessTime();
 	CEasyTime GetCreationTime();
 
-	BOOL IsDots();
+	bool IsDots();
 
-	BOOL MatchesMask(DWORD dwMask);
+	bool MatchesMask(DWORD dwMask);
 
-	BOOL IsReadOnly();
-	BOOL IsDirectory();
-	BOOL IsCompressed();
-	BOOL IsSystem();
-	BOOL IsHidden();
-	BOOL IsTemporary();
-	BOOL IsNormal();
-	BOOL IsArchived();
+	bool IsReadOnly();
+	bool IsDirectory();
+	bool IsCompressed();
+	bool IsSystem();
+	bool IsHidden();
+	bool IsTemporary();
+	bool IsNormal();
+	bool IsArchived();
 
-	BOOL CanRead();
-	BOOL CanWrite();
-	BOOL CanExec();
+	bool CanRead();
+	bool CanWrite();
+	bool CanExec();
 
 	int FetchLogicalDrive();
 	int GetLogicalDriveCount();
@@ -72,31 +72,31 @@ inline DWORD CFileSearcher::GetFileAttributes()
 	return m_FindedFileInfo.dwFileAttributes;
 }
 
-inline BOOL CFileSearcher::IsReadOnly()
+inline bool CFileSearcher::IsReadOnly()
 { return MatchesMask(FILE_ATTRIBUTE_READONLY); }
-inline BOOL CFileSearcher::IsDirectory()
+inline bool CFileSearcher::IsDirectory()
 { return MatchesMask(FILE_ATTRIBUTE_DIRECTORY); }
-inline BOOL CFileSearcher::IsCompressed()
+inline bool CFileSearcher::IsCompressed()
 { return MatchesMask(FILE_ATTRIBUTE_COMPRESSED); }
-inline BOOL CFileSearcher::IsSystem()
+inline bool CFileSearcher::IsSystem()
 { return MatchesMask(FILE_ATTRIBUTE_SYSTEM); }
-inline BOOL CFileSearcher::IsHidden()
+inline bool CFileSearcher::IsHidden()
 { return MatchesMask(FILE_ATTRIBUTE_HIDDEN); }
-inline BOOL CFileSearcher::IsTemporary()
+inline bool CFileSearcher::IsTemporary()
 { return MatchesMask(FILE_ATTRIBUTE_TEMPORARY); }
-inline BOOL CFileSearcher::IsNormal()
+inline bool CFileSearcher::IsNormal()
 { return MatchesMask(FILE_ATTRIBUTE_NORMAL); }
-inline BOOL CFileSearcher::IsArchived()
+inline bool CFileSearcher::IsArchived()
 { return MatchesMask(FILE_ATTRIBUTE_ARCHIVE); }
-inline BOOL CFileSearcher::CanRead()
+inline bool CFileSearcher::CanRead()
 {
-	return TRUE;
+	return true;
 }
-inline BOOL CFileSearcher::CanWrite()
+inline bool CFileSearcher::CanWrite()
 {
 	return !IsReadOnly();
 }
-inline BOOL CFileSearcher::CanExec()
+inline bool CFileSearcher::CanExec()
 {
 	CEasyString FileExt = GetFileExt();
 	return FileExt.CompareNoCase(_T(".exe")) == 0;

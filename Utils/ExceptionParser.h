@@ -81,13 +81,13 @@ public:
 	static void ExceptionTranslator(UINT Code,LPEXCEPTION_POINTERS pException);
 	static LONG ExceptionPrinter(LPEXCEPTION_POINTERS pException,UINT64 DebugInfo1,LPCTSTR szFunName);
 
-	BOOL WriteDump(LPEXCEPTION_POINTERS pException);
+	bool WriteDump(LPEXCEPTION_POINTERS pException);
 
-	BOOL SymInit();
-	BOOL SymLoadFromModule(LPCTSTR szModuleFileName);
+	bool SymInit();
+	bool SymLoadFromModule(LPCTSTR szModuleFileName);
 	UINT GetCallStack(DWORD64 * pAddressBuffer,UINT Depth);
 
-	BOOL GetAddressInfo(DWORD64 Address,ADDRESS_INFO * pAddressInfo);
+	bool GetAddressInfo(DWORD64 Address,ADDRESS_INFO * pAddressInfo);
 
 protected:
 
@@ -106,7 +106,7 @@ protected:
 
 	static void SignalHandler(int signal);	
 
-	static BOOL GetInMemoryFileVersion(LPCTSTR szFile, LPTSTR szFileFullName, DWORD & dwMS, DWORD & dwLS);
+	static bool GetInMemoryFileVersion(LPCTSTR szFile, LPTSTR szFileFullName, DWORD & dwMS, DWORD & dwLS);
 
 	static void EnumModuleSymStatus(HANDLE hProcess);
 	

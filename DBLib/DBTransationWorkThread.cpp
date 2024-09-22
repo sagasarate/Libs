@@ -68,7 +68,7 @@ bool CDBTransationWorkThread::Init(IDatabase * pDatabase, LPCSTR ConnectStr, boo
 
 	PrintDBLog("工作线程队列长度%d", QueueSize);
 
-	return Start()!=FALSE;
+	return Start();
 }
 
 bool CDBTransationWorkThread::AddTransaction(CDBTransaction * pDBTansaction)
@@ -96,7 +96,7 @@ CDBTransaction * CDBTransationWorkThread::PopFinishTransaction()
 	return pDBTansaction;
 }
 
-BOOL CDBTransationWorkThread::OnStart()
+bool CDBTransationWorkThread::OnStart()
 {
 	mysql_thread_init();
 	m_pConnection = m_pDatabase->CreateConnection();
@@ -108,9 +108,9 @@ BOOL CDBTransationWorkThread::OnStart()
 	{
 		PrintDBLog("[%u]数据库无法连接", GetID());
 	}
-	return TRUE;
+	return true;
 }
-BOOL CDBTransationWorkThread::OnRun()
+bool CDBTransationWorkThread::OnRun()
 {
 	CDBTransaction* pDBTansaction = NULL;
 	//LPVOID Pos=m_TransQueue.GetFirstObjectPos();
@@ -163,7 +163,7 @@ BOOL CDBTransationWorkThread::OnRun()
 		}
 		m_ConnectionTestTimer.SaveTime();
 	}
-	return TRUE;
+	return true;
 }
 void CDBTransationWorkThread::OnTerminate()
 {

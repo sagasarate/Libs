@@ -10,7 +10,6 @@
 /*                                                                          */
 /****************************************************************************/
 #include "stdafx.h"
-#include <sys/syscall.h>
 #include <execinfo.h>
 
 CEasyCriticalSection CEasyThread::m_GetCallStackLock;
@@ -26,7 +25,7 @@ CEasyThread::CEasyThread():CNameObject()
 	m_ThreadHandle = 0;
 	m_ThreadID=0;
 	m_Status=THREAD_STATUS_TERMINATED;
-	m_WantTerminate=FALSE;
+	m_WantTerminate=false;
 }
 
 CEasyThread::~CEasyThread()
@@ -35,12 +34,12 @@ CEasyThread::~CEasyThread()
 }
 
 
-BOOL CEasyThread::Start(BOOL IsSuspended,DWORD StartWaitTime)
+bool CEasyThread::Start(bool IsSuspended,DWORD StartWaitTime)
 {
 	int Flag = 0;
 
 	if(IsWorking())
-		return FALSE;
+		return false;
 
 	struct sigaction sa;
 	sigfillset(&sa.sa_mask);
@@ -54,46 +53,46 @@ BOOL CEasyThread::Start(BOOL IsSuspended,DWORD StartWaitTime)
 	sigaction(SIG_THREAD_RESUME, &sa, NULL);
 
 	m_Status=THREAD_STATUS_STARTING;
-	m_WantTerminate=FALSE;
+	m_WantTerminate=false;
 
 	if(pthread_create(&m_ThreadHandle,NULL,ThreadProc,this)!=0)
 	{
-		return FALSE;
+		return false;
 	}
 	//pthread_detach(m_ThreadHandle);
 	WaitForWorking(StartWaitTime);
 
-	return TRUE;
+	return true;
 }
 
 
-BOOL CEasyThread::Resume()
+bool CEasyThread::Resume()
 {
 	if (m_Status == THREAD_STATUS_SUSPENDED)
 	{
 		pthread_kill(m_ThreadHandle, SIG_THREAD_RESUME);
 		m_Status = THREAD_STATUS_WORKING;
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 
-BOOL CEasyThread::Suspend()
+bool CEasyThread::Suspend()
 {
 	if (m_Status == THREAD_STATUS_WORKING)
 	{
 		pthread_kill(m_ThreadHandle, SIG_THREAD_SUSPEND);
 		m_Status = SIG_THREAD_SUSPEND;
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 
 void CEasyThread::Terminate()
 {
-	m_WantTerminate=TRUE;
+	m_WantTerminate=true;
 	if(m_Status!=THREAD_STATUS_TERMINATED)
 		m_Status=THREAD_STATUS_ENDING;
 }
@@ -120,17 +119,17 @@ void CEasyThread::SafeTerminate(DWORD Milliseconds)
 	m_ThreadID = 0;
 }
 
-BOOL CEasyThread::WaitForWorking(DWORD Milliseconds)
+bool CEasyThread::WaitForWorking(DWORD Milliseconds)
 {
 	if (IsWorking())
-		return TRUE;
+		return true;
 	if(Milliseconds==INFINITE)
 	{
 		while(m_Status==THREAD_STATUS_STARTING)
 		{
 			DoSleep(10);
 		}
-		return TRUE;
+		return true;
 	}
 	else
 	{
@@ -144,21 +143,21 @@ BOOL CEasyThread::WaitForWorking(DWORD Milliseconds)
 				break;
 			DoSleep(10);
 		}
-		return FALSE;
+		return false;
 	}
 }
 
-BOOL CEasyThread::WaitForTerminate(DWORD Milliseconds)
+bool CEasyThread::WaitForTerminate(DWORD Milliseconds)
 {
 	if (IsTerminated())
-		return TRUE;
+		return true;
 	if(Milliseconds==INFINITE)
 	{
 		while(m_Status!=THREAD_STATUS_TERMINATED)
 		{
 			DoSleep(10);
 		}
-		return TRUE;
+		return true;
 	}
 	else
 	{
@@ -167,18 +166,18 @@ BOOL CEasyThread::WaitForTerminate(DWORD Milliseconds)
 		while(true)
 		{
 			if(IsTerminated())
-				return TRUE;
+				return true;
 			if (Timer.IsTimeOut())
 				break;
 			DoSleep(10);
 		}
-		return FALSE;
+		return false;
 	}
 }
 
-BOOL CEasyThread::SetThreadPriority(int Priority)
+bool CEasyThread::SetThreadPriority(int Priority)
 {
-	return FALSE;
+	return false;
 }
 
 int CEasyThread::GetThreadPriority()
@@ -186,9 +185,9 @@ int CEasyThread::GetThreadPriority()
 	return ET_PRIORITY_ERROR_RETURN;
 }
 
-BOOL CEasyThread::OnStart()
+bool CEasyThread::OnStart()
 {
-	return TRUE;
+	return true;
 }
 
 void CEasyThread::Execute()
@@ -198,9 +197,9 @@ void CEasyThread::Execute()
 	}
 }
 
-BOOL CEasyThread::OnRun()
+bool CEasyThread::OnRun()
 {
-	return TRUE;
+	return true;
 }
 
 void CEasyThread::OnTerminate()

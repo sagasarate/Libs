@@ -21,8 +21,8 @@ public:
 
 	bool Init(CDOSServer * pServer);
 
-	virtual BOOL OnStart();
-	virtual BOOL OnRun();
+	virtual bool OnStart();
+	virtual bool OnRun();
 	virtual void OnTerminate();
 
 	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT);

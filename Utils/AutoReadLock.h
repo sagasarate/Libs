@@ -30,14 +30,14 @@ public:
 		m_pLock=&ReadWriteLock;
 		m_pLock->LockRead();
 	}
-	BOOL TryLock(CEasyReadWriteLock& ReadWriteLock)
+	bool TryLock(CEasyReadWriteLock& ReadWriteLock)
 	{
 		if(ReadWriteLock.TryLockRead())
 		{
 			m_pLock=&ReadWriteLock;
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
 	~CAutoReadLock()
 	{

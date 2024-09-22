@@ -35,7 +35,7 @@ bool CDOSObjectProxyConnectionGroupNoBuff::Init(CDOSObjectProxyServiceNoBuff * p
 			{
 				PrintDOSLog(_T("创建%u大小的压缩缓冲失败！"),
 					CompressBufferSize);
-				return FALSE;
+				return false;
 			}
 		}
 	}
@@ -54,7 +54,7 @@ bool CDOSObjectProxyConnectionGroupNoBuff::Init(CDOSObjectProxyServiceNoBuff * p
 			{
 				PrintDOSLog(_T("创建%u大小的解密缓冲失败！"),
 					EncyptBufferSize);
-				return FALSE;
+				return false;
 			}
 		}
 	}
@@ -63,7 +63,7 @@ bool CDOSObjectProxyConnectionGroupNoBuff::Init(CDOSObjectProxyServiceNoBuff * p
 	{
 		PrintDOSLog(_T("创建%u大小的消息队列失败！"),
 			m_Config.ProxyMsgQueueSize);
-		return FALSE;
+		return false;
 	}
 	
 	if (!m_ConnectionPool.Create(m_Config.ConnectionPoolSetting))
@@ -95,13 +95,13 @@ bool CDOSObjectProxyConnectionGroupNoBuff::AddConnection(CDOSObjectProxyConnecti
 	return false;
 }
 
-BOOL CDOSObjectProxyConnectionGroupNoBuff::OnStart()
+bool CDOSObjectProxyConnectionGroupNoBuff::OnStart()
 {
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(), THREAD_CPU_COUNT_TIME);
-	return TRUE;
+	return true;
 }
 
-BOOL CDOSObjectProxyConnectionGroupNoBuff::OnRun()
+bool CDOSObjectProxyConnectionGroupNoBuff::OnRun()
 {
 
 	m_ThreadPerformanceCounter.DoPerformanceCount();
@@ -146,7 +146,7 @@ BOOL CDOSObjectProxyConnectionGroupNoBuff::OnRun()
 	{
 		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
-	return TRUE;
+	return true;
 }
 
 void CDOSObjectProxyConnectionGroupNoBuff::OnTerminate()

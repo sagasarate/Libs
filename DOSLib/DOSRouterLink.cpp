@@ -82,7 +82,7 @@ CENLBaseConnection * CDOSRouterLink::NewConnection(UINT MaxPacketSize, CEasyNetL
 	if(m_pManager->UseNoBuffConnection())
 	{
 		CENLConnectionNoBuff * pConnection = MONITORED_NEW(_T("CDOSRouterLink"), CENLConnectionNoBuff);
-		if (pConnection->Init((CDOSRouterLinkManager *)m_pManager, this, MaxPacketSize, DataCompressType, MinCompressSize, DisconnectOnTransferFai))
+		if (pConnection->Init((CDOSRouterLinkManager *)m_pManager, this, MaxPacketSize, DataCompressType, MinCompressSize, DisconnectOnTransferFail))
 		{
 			return pConnection;
 		}

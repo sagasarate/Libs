@@ -18,9 +18,9 @@ LIBDIR =
 LIB = 
 LDFLAGS = 
 
-SRC_CPP_FILES=$(shell find ./ -name "*.cpp" -a ! -name "Win*.*"  -a ! -name "*Win.*" -a ! -name "Exception*.*" -a ! -name "Gif.cpp" -a ! -name "USO*.*" -a ! -name "ResourceFile*.*")
+SRC_CPP_FILES=$(shell find ./ -name "*.cpp" -a ! -name "Win*.*"  -a ! -name "*Win.*" -a ! -name "Exception*.*" -a ! -name "Gif.cpp" -a ! -name "USO*.*" -a ! -name "ResourceFile*.*" -a ! -name "TreeObject.*")
 SRC_C_FILES=$(shell find ./ -name "*.c" -a ! -name "Win*.*"  -a ! -name "*Win.*" -a ! -name "LzFindMt.c" -a ! -name "Threads.c")
-HEADER_FILES=$(shell find ./ -name "*.h" -a ! -name "Win*.*"  -a ! -name "*Win.*" -a ! -name "Exception*.*" -a ! -name "Gif.h" -a ! -name "USO*.*" -a ! -name "ResourceFile*.*")
+HEADER_FILES=$(shell find ./ -name "*.h" -a ! -name "Win*.*"  -a ! -name "*Win.*" -a ! -name "Exception*.*" -a ! -name "Gif.h" -a ! -name "USO*.*" -a ! -name "ResourceFile*.*" -a ! -name "TreeObject.*")
 
 INC_DEBUG = $(INC)
 CFLAGS_DEBUG = $(CFLAGS) -g -O0 -W -fPIC -D_DEBUG

@@ -554,7 +554,7 @@ public:
 		case VT_BSTR:		
 			Clear();
 			m_Type = VARIED_VALUE_TYPE::STRING;
-			m_pStrValue = new CEasyString();
+			m_pStrValue = MONITORED_NEW("CVariedValue", CEasyString);
 			m_pStrValue->SetString(Value.bstrVal, ::SysStringLen(Value.bstrVal));
 			break;
 		case VT_I2:
@@ -718,21 +718,21 @@ public:
 	{
 		Clear();
 		m_Type = VARIED_VALUE_TYPE::STRING;
-		m_pStrValue = new CEasyString(Value);
+		m_pStrValue = MONITORED_NEW("CVariedValue", CEasyString, Value);
 		return *this;
 	}
 	CVariedValue& operator=(const CEasyString& Value)
 	{
 		Clear();
 		m_Type = VARIED_VALUE_TYPE::STRING;
-		m_pStrValue = new CEasyString(Value);
+		m_pStrValue = MONITORED_NEW("CVariedValue", CEasyString, Value);
 		return *this;
 	}
 	CVariedValue& operator=(const CEasyBuffer& Value)
 	{
 		Clear();
 		m_Type = VARIED_VALUE_TYPE::BINARY;
-		m_pBinaryValue = new CEasyBuffer(Value);
+		m_pBinaryValue = MONITORED_NEW("CVariedValue", CEasyBuffer, Value);
 		return *this;
 	}
 	CVariedValue& operator=(const CVariedValue& Value)
@@ -757,13 +757,13 @@ public:
 			m_ui64Value = Value.m_ui64Value;
 			break;
 		case VARIED_VALUE_TYPE::STRING:
-			m_pStrValue = new CEasyString(*Value.m_pStrValue);
+			m_pStrValue = MONITORED_NEW("CVariedValue", CEasyString, *Value.m_pStrValue);
 			break;
 		case VARIED_VALUE_TYPE::BINARY:
-			m_pBinaryValue = new CEasyBuffer(*Value.m_pBinaryValue);
+			m_pBinaryValue = MONITORED_NEW("CVariedValue", CEasyBuffer, *Value.m_pBinaryValue);
 			break;
 		case VARIED_VALUE_TYPE::ARRAY:
-			m_pArrayValue = new CEasyArray<CVariedValue>(*Value.m_pArrayValue);
+			m_pArrayValue = MONITORED_NEW("CVariedValue", CEasyArray<CVariedValue>, *Value.m_pArrayValue);
 			break;
 		case VARIED_VALUE_TYPE::TABLE:
 			{
@@ -1129,21 +1129,21 @@ public:
 	{
 		Clear();
 		m_Type = VARIED_VALUE_TYPE::STRING;
-		m_pStrValue = new CEasyString();
+		m_pStrValue = MONITORED_NEW("CVariedValue", CEasyString);
 		return true;
 	}
 	bool CreateBinary(size_t Size)
 	{
 		Clear();
 		m_Type = VARIED_VALUE_TYPE::BINARY;
-		m_pBinaryValue = new CEasyBuffer(Size);
+		m_pBinaryValue = MONITORED_NEW("CVariedValue", CEasyBuffer, Size);
 		return true;
 	}
 	bool CreateArray(size_t Size = 16, size_t GrowSize = 16)
 	{
 		Clear();
 		m_Type = VARIED_VALUE_TYPE::ARRAY;
-		m_pArrayValue = new CEasyArray<CVariedValue>(Size, GrowSize);
+		m_pArrayValue = MONITORED_NEW("CVariedValue", CEasyArray<CVariedValue>, Size, GrowSize);
 		return true;
 	}
 
@@ -1151,7 +1151,8 @@ public:
 	{
 		Clear();
 		m_Type = VARIED_VALUE_TYPE::TABLE;
-		m_pTableValue = new CStaticMap<CVariedValue, CVariedValue>(Size, GrowSize, -1);
+		using MapType = CStaticMap<CVariedValue, CVariedValue>;
+		m_pTableValue = MONITORED_NEW("CVariedValue", MapType, (UINT)Size, (UINT)GrowSize, -1);
 		return true;
 	}
 	bool SetString(LPCTSTR pStr, int Len)

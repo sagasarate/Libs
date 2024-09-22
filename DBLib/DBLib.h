@@ -16,20 +16,20 @@
 
 //typedef unsigned long ulong;
 
-inline BOOL PrintDBLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
+inline bool PrintDBLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl, Format);
-	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DB_ERROR_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
+	bool ret = CLogManager::GetInstance()->PrintLogVL(LOG_DB_ERROR_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }
 
-inline BOOL PrintDBDebugLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
+inline bool PrintDBDebugLogWithTag(LPCTSTR Tag, LPCTSTR Format, ...)
 {
 	va_list vl;
 	va_start(vl, Format);
-	BOOL ret = CLogManager::GetInstance()->PrintLogVL(LOG_DB_ERROR_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, Tag, Format, vl);
+	bool ret = CLogManager::GetInstance()->PrintLogVL(LOG_DB_ERROR_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, Tag, Format, vl);
 	va_end(vl);
 	return ret;
 }

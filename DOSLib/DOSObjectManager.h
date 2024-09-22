@@ -36,8 +36,8 @@ public:
 	void SuspendAllGroup();
 	bool WaitForSuspend(UINT TimeOut = -1);
 
-	BOOL RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterInfo);
-	BOOL UnregisterObject(OBJECT_ID ObjectID);
+	bool RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterInfo);
+	bool UnregisterObject(OBJECT_ID ObjectID);
 
 	void SetServer(CDOSServer * pServer);
 	CDOSServer * GetServer();
@@ -47,7 +47,7 @@ public:
 	UINT GetGroupCount();
 	CDOSObjectGroup * GetGroup(UINT Index);
 	
-	BOOL PushMessage(OBJECT_ID ObjectID,CDOSMessagePacket * pPacket);
+	bool PushMessage(OBJECT_ID ObjectID,CDOSMessagePacket * pPacket);
 
 protected:
 

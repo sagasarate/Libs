@@ -568,7 +568,7 @@ struct ES_BOLAN
 };
 
 
-inline BOOL CanMakeIdentifier(TCHAR c)
+inline bool CanMakeIdentifier(TCHAR c)
 {
 	if(c!='+'&&c!='-'&&c!='*'&&c!='/'&&
 		c!=','&&c!='('&&c!=')'&&c!=' '&&

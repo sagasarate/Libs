@@ -43,14 +43,14 @@ public:
 
 	virtual int Connect(LPCSTR ConnectStr);
 	virtual int Disconnect();
-	virtual BOOL IsConnected();
+	virtual bool IsConnected();
 	virtual int ExecuteSQL(LPCSTR SQLStr,int StrLen=0,IDBParameterSet * pParamSet=NULL);
 	virtual int ExecuteSQLWithoutResultSet(LPCSTR SQLStr, int StrLen = 0, IDBParameterSet * pParamSet = NULL);
 	virtual int GetTables();
 	virtual int GetResults(IDBRecordSet * pDBRecordset);
 	virtual int NextResults(IDBRecordSet * pDBRecordset);
 	virtual int GetAffectedRowCount();
-	virtual int EnableTransaction(BOOL IsEnable);
+	virtual int EnableTransaction(bool IsEnable);
 	virtual int Commit();
 	virtual int RollBack();
 	virtual UINT GetLastDatabaseErrorCode();
@@ -60,7 +60,7 @@ public:
 	virtual void Reset();
 	virtual int SelectDefaultDatabase(LPCTSTR szDBName);
 	
-	void ProcessMessagesODBC(SQLSMALLINT plm_handle_type,SQLHANDLE plm_handle,char *logstring,int ConnInd);
+	void ProcessMessagesODBC(SQLSMALLINT plm_handle_type,SQLHANDLE plm_handle,char *logstring,bool ConnInd);
 	static int ODBCCTypeTODBLibType(int Type,UINT64& Size);
 	static int DBLibTypeToODBCCType(int Type,UINT64& Size);
 	static int DBLibTypeToODBCSQLType(int Type,UINT64& Size);

@@ -126,7 +126,7 @@ bool CTRConnection::SendHandshake1()
 	Buff[25] = 0x10;
 	memcpy(Buff + 28, m_InfoHash.NodeID, 20);
 	memcpy(Buff + 48, m_PeerID.NodeID, 20);
-	return Send(Buff, 68) != FALSE;
+	return Send(Buff, 68);
 }
 bool CTRConnection::SendHandshake2()
 {
@@ -151,7 +151,7 @@ bool CTRConnection::SendHandshake2()
 	BuffSize -= Len;
 
 	*MsgSize = htonl(BuffPtr - sizeof(UINT));
-	return Send(pBuff, BuffPtr) != FALSE;
+	return Send(pBuff, BuffPtr);
 }
 bool CTRConnection::SendRequest(UINT Piece)
 {
@@ -176,7 +176,7 @@ bool CTRConnection::SendRequest(UINT Piece)
 	BuffSize -= Len;
 
 	*MsgSize = htonl(BuffPtr - sizeof(UINT));
-	return Send(pBuff, BuffPtr) != FALSE;
+	return Send(pBuff, BuffPtr);
 }
 
 void CTRConnection::OnMsg(BYTE * pData, UINT DataSize)

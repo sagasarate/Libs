@@ -53,8 +53,8 @@ public:
 	static void Enable(bool Enable);
 
 protected:
-	virtual BOOL OnStart();
-	virtual BOOL OnRun();
+	virtual bool OnStart();
+	virtual bool OnRun();
 	virtual void OnTerminate();
 	void PrintDumpLog(IFileAccessor * pLogFile, LPCTSTR Format, ...);
 	void DumpThreadCallStack();

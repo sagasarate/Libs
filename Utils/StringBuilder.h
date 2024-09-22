@@ -145,6 +145,10 @@ public:
 		}
 		return TotalLen;
 	}	
+	size_t GetBlockSize()
+	{
+		return m_BlockSize;
+	}
 	bool IsEmpty()
 	{
 		if (m_StrList.GetCount())

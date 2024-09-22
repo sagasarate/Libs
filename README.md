@@ -1,4 +1,10 @@
 # EasyGameLibs
+2024-9-22：
+代码页转换统一使用iconv，不再使用windows自带的
+移除对BOOL,TRUE,FALSE的使用
+将AddUnique，AddSorted，AddSortedUniqued，RemoveFromList，RemoveAllFromList，ExistInList，FindInList，IndexInList，ArrayMap，ReplaceInList这几个CEasyArray相关的全局函数改为了CEasyArray的成员函数AddUnique，AddSorted，AddSortedUniqued，Remove，RemoveAll，Exist，Find，FindIndex，Map，Replace
+修复分组群发在多线程连接模式下无法送达的问题
+
 2024-9-12：进行目录调整，DistributedObjectServer暂时移除，稍后放置于独立项目中
 
 2024-5-15：多项累积更新，主要是Lua库的大量Bug修正    

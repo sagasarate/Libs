@@ -12,7 +12,7 @@ CWebSocketProxyService::~CWebSocketProxyService()
 }
 
 
-BOOL CWebSocketProxyService::OnStart()
+bool CWebSocketProxyService::OnStart()
 {
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(), THREAD_CPU_COUNT_TIME);
 
@@ -21,7 +21,7 @@ BOOL CWebSocketProxyService::OnStart()
 		PrintDOSLog(_T("代理服务[%u]创建%u大小的消息队列失败！"),
 			GetID(),
 			m_Config.ProxyMsgQueueSize);
-		return FALSE;
+		return false;
 	}
 
 	if (!m_MessageMap.Create(m_Config.GlobalMsgMapSize, m_Config.GlobalMsgMapSize, 32))
@@ -29,7 +29,7 @@ BOOL CWebSocketProxyService::OnStart()
 		PrintDOSLog(_T("代理服务[%u]创建%u大小的消息映射表失败！"),
 			GetID(),
 			m_Config.GlobalMsgMapSize);
-		return FALSE;
+		return false;
 	}
 
 	if (m_Config.MinMsgCompressSize)
@@ -97,7 +97,7 @@ BOOL CWebSocketProxyService::OnStart()
 		false))
 	{
 		PrintDOSLog(_T("代理服务[%u]创建失败！"), GetID());
-		return FALSE;
+		return false;
 	}
 
 	if (!StartListen(m_Config.ListenAddress))
@@ -106,7 +106,7 @@ BOOL CWebSocketProxyService::OnStart()
 			GetID(),
 			m_Config.ListenAddress.GetIPString(),
 			m_Config.ListenAddress.GetPort());
-		return FALSE;
+		return false;
 	}
 	PrintDOSLog(_T("代理服务[%u]侦听于(%s:%u)！"),
 		GetID(),
@@ -129,7 +129,7 @@ BOOL CWebSocketProxyService::OnStart()
 			{
 				PrintDOSLog(_T("创建%u大小的压缩缓冲失败！"),
 					CompressBufferSize);
-				return FALSE;
+				return false;
 			}
 		}
 	}
@@ -148,7 +148,7 @@ BOOL CWebSocketProxyService::OnStart()
 			{
 				PrintDOSLog(_T("创建%u大小的解密缓冲失败！"),
 					EncyptBufferSize);
-				return FALSE;
+				return false;
 			}
 		}
 	}
@@ -164,7 +164,7 @@ BOOL CWebSocketProxyService::OnStart()
 		PrintDOSLog(_T("代理服务[%u]创建(%u,%u,%u)大小的连接池失败！"),
 			GetID(),
 			m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
-		return FALSE;
+		return false;
 	}
 
 
@@ -182,7 +182,7 @@ BOOL CWebSocketProxyService::OnStart()
 			PrintDOSLog(_T("代理服务[%u]创建(%u,%u,%u)大小的连接销毁队列失败！"),
 				GetID(),
 				m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
-			return FALSE;
+			return false;
 		}
 
 
@@ -191,7 +191,7 @@ BOOL CWebSocketProxyService::OnStart()
 		for (UINT i = 0; i < m_ConnectionGroups.GetCount(); i++)
 		{
 			if (!m_ConnectionGroups[i].Init(this, m_Config, i))
-				return FALSE;
+				return false;
 			m_ConnectionGroups[i].Start();
 			PrintDOSDebugLog(_T("连接组线程[%u]已启动"), m_ConnectionGroups[i].GetThreadID());
 		}
@@ -206,7 +206,7 @@ BOOL CWebSocketProxyService::OnStart()
 
 
 
-	return TRUE;
+	return true;
 }
 
 UINT CWebSocketProxyService::GetConnectionCount()

@@ -16,10 +16,10 @@ IMPLEMENT_META_CLASS(CLuaGrid, _T("Grid"))
 
 void CLuaGrid::Dump(CEasyString& Data) const
 {
-	UINT Row = m_Data.GetCount();
+	UINT Row = (UINT)m_Data.GetCount();
 	UINT Col = 0;
 	if (Row)
-		Col = m_Data[0].GetCount();
+		Col = (UINT)m_Data[0].GetCount();
 	Data.Format(_T("CLuaGrid(%u,%u)(%s)"), Col, Row, IsInLuaHeap() ? _T("InLuaHeap") : _T("InCHeap"));
 }
 void CLuaGrid::ResgisterStaticFunctions(CBaseLuaVM* pLuaVM, LPCTSTR LibName)

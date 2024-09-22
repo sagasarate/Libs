@@ -73,7 +73,7 @@ int CODBCConnection::Init(CODBCDatabase * pDatabase)
 	nResult = SQLAllocHandle( SQL_HANDLE_DBC,m_pDatabase->GetHandle() , &m_hDBConn );
 	if ( nResult != SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_ENV, m_pDatabase->GetHandle(),"分配连接句柄失败！\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_ENV, m_pDatabase->GetHandle(),"分配连接句柄失败！\r\n", true);
 		return DBERR_SQLALLOCHANDLEFAIL;
 	}	
 
@@ -141,7 +141,7 @@ int CODBCConnection::Connect(LPCSTR ConnectStr)
 	{
 		if ( nResult != SQL_SUCCESS_WITH_INFO )
 		{
-			ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"连接失败！\r\n", TRUE);
+			ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"连接失败！\r\n", true);
 			return DBERR_ODBC_SQLCONNECTFAIL;
 		}
 	}
@@ -158,29 +158,29 @@ int CODBCConnection::Disconnect()
 	}
 	if( SQLDisconnect( m_hDBConn ) != SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"关闭连接失败！\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"关闭连接失败！\r\n", true);
 		return DBERR_ODBC_SQLDISCONNECTFAIL;
 	}
 	return DBERR_SUCCEED;
 }
 
-BOOL CODBCConnection::IsConnected()
+bool CODBCConnection::IsConnected()
 {
 	if(m_hDBConn==NULL)
-		return FALSE;
+		return false;
 	int nResult;
 
 	SQLINTEGER Value; 
 	nResult=SQLGetConnectAttr(m_hDBConn,SQL_ATTR_CONNECTION_DEAD,&Value,sizeof(Value),NULL);
 	if(nResult!=SQL_SUCCESS)
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"检查连接状态失败！\r\n", TRUE);
-		return FALSE;
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"检查连接状态失败！\r\n", true);
+		return false;
 	}
 	if(Value==SQL_CD_TRUE)
-		return FALSE;
+		return false;
 	else
-		return TRUE;
+		return true;
 }
 
 int CODBCConnection::ExecuteSQL(LPCSTR SQLStr,int StrLen,IDBParameterSet * pParamSet)
@@ -214,7 +214,7 @@ int CODBCConnection::GetTables()
 	nResult=SQLAllocHandle( SQL_HANDLE_STMT, m_hDBConn, &m_hStmt );	
 	if (  nResult!= SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"分配静态Statement句柄失败！\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"分配静态Statement句柄失败！\r\n", true);
 		return DBERR_SQLALLOCHANDLEFAIL;
 	}	
 
@@ -225,7 +225,7 @@ int CODBCConnection::GetTables()
 
 	if ( (nResult != SQL_SUCCESS) && (nResult != SQL_SUCCESS_WITH_INFO) && (nResult != SQL_NO_DATA)) 
 	{	
-		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取所有表", TRUE);		
+		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取所有表", true);
 		return DBERR_EXE_SQL_FAIL;
 	}	
 
@@ -280,7 +280,7 @@ int CODBCConnection::NextResults(IDBRecordSet * pDBRecordset)
 			return DBERR_NO_MORE_RESULTS;
 		else 
 		{
-			ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"执行SQL失败！\r\n", TRUE);
+			ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"执行SQL失败！\r\n", true);
 			return DBERR_EXE_SQL_FAIL;
 		}
 	}
@@ -298,7 +298,7 @@ int CODBCConnection::GetAffectedRowCount()
 	{
 		return (int)RowCount;
 	}
-	ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取影响行数失败\r\n", TRUE);
+	ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取影响行数失败\r\n", true);
 	return -1;
 }
 
@@ -313,7 +313,7 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 	nResult=SQLNumResultCols(hStmt,(SQLSMALLINT *)&ColNum);
 	if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"获取结果集列数失败！\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"获取结果集列数失败！\r\n", true);
 		return DBERR_ODBC_GETCOLNUMFAIL;
 	}
 	if(ColNum<=0)
@@ -331,7 +331,7 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 	for(UINT i=0;i<ColNum;i++)
 	{		
 		int ColNameLen;
-		BOOL CanNULL;
+		bool CanNULL;
 
 		nResult=SQLDescribeCol(hStmt,i+1,(SQLCHAR *)ColInfos[i].Name,MAX_COLUMN_NAME,
 			(SQLSMALLINT *)&ColNameLen,	(SQLSMALLINT *)&ColInfos[i].Type,
@@ -339,7 +339,7 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 			(SQLSMALLINT *)&CanNULL);
 		if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 		{
-			ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"获取结果集列信息失败！\r\n", TRUE);
+			ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"获取结果集列信息失败！\r\n", true);
 			return DBERR_ODBC_GETCOLINFOFAIL;
 		}
 		ColInfos[i].Name[MAX_COLUMN_NAME-1]=0;
@@ -389,7 +389,7 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 			&(FieldSize[i]));
 		if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO)
 		{
-			ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"绑定结果集列失败！\r\n", TRUE);
+			ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"绑定结果集列失败！\r\n", true);
 			return DBERR_BINDCOLFAIL;
 		}		
 		pFieldBuffer+=ColInfos[i].Size;
@@ -415,7 +415,7 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 
 	if(nResult != SQL_NO_DATA )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"获取结果集数据！\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_STMT, hStmt,"获取结果集数据！\r\n", true);
 		return DBERR_FETCH_RESULT_FAIL;
 	}
 	ResultBuff.MakeSmooth();
@@ -428,7 +428,7 @@ int CODBCConnection::FetchStaticResult(SQLHSTMT hStmt,CDBStaticRecordSet * pDBRe
 		return DBERR_INVALID_PARAM;
 }
 
-int CODBCConnection::EnableTransaction(BOOL IsEnable)
+int CODBCConnection::EnableTransaction(bool IsEnable)
 {
 	int nResult;
 
@@ -439,7 +439,7 @@ int CODBCConnection::EnableTransaction(BOOL IsEnable)
 
 	if ( nResult != SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"改变事务设置失败！\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"改变事务设置失败！\r\n", true);
 		return DBERR_ODBC_ENABLETRANSACTIONFAIL;
 	}
 	else
@@ -450,7 +450,7 @@ int CODBCConnection::Commit()
 {
 	if (SQLEndTran(SQL_HANDLE_DBC , m_hDBConn, SQL_COMMIT)!= SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"提交事务失败！\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"提交事务失败！\r\n", true);
 		return DBERR_ODBC_COMMITFAIL;
 	}
 	else
@@ -461,7 +461,7 @@ int CODBCConnection::RollBack()
 {
 	if (SQLEndTran(SQL_HANDLE_DBC , m_hDBConn, SQL_ROLLBACK)!= SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"回滚事务失败！\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"回滚事务失败！\r\n", true);
 		return DBERR_ODBC_ROLLBACKFAIL;
 	}
 	else
@@ -512,7 +512,7 @@ int CODBCConnection::SelectDefaultDatabase(LPCTSTR szDBName)
 	return DBERR_NOT_IMPLEMENT;
 }
 
-void CODBCConnection::ProcessMessagesODBC(SQLSMALLINT plm_handle_type,SQLHANDLE plm_handle,char *logstring,int ConnInd)
+void CODBCConnection::ProcessMessagesODBC(SQLSMALLINT plm_handle_type,SQLHANDLE plm_handle,char *logstring,bool ConnInd)
 {
 	RETCODE		plm_retcode = SQL_SUCCESS;
 	UCHAR		plm_szSqlState[MAX_MSG_BUFF] = "";
@@ -855,7 +855,7 @@ int CODBCConnection::ExecuteSQLDirect(LPCSTR SQLStr,int StrLen)
 	nResult=SQLAllocHandle( SQL_HANDLE_STMT, m_hDBConn, &m_hStmt );	
 	if (  nResult!= SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"分配静态Statement句柄失败！\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"分配静态Statement句柄失败！\r\n", true);
 		return DBERR_SQLALLOCHANDLEFAIL;
 	}	
 
@@ -874,7 +874,7 @@ int CODBCConnection::ExecuteSQLDirect(LPCSTR SQLStr,int StrLen)
 			StrLen=(int)strlen(SQLStr);
 		ErrorSQL.Append(SQLStr,StrLen);
 		ErrorSQL+="失败]";
-		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,ErrorSQL, TRUE);		
+		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,ErrorSQL, true);
 		return DBERR_EXE_SQL_FAIL;
 	}	
 
@@ -905,7 +905,7 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 	nResult=SQLAllocHandle( SQL_HANDLE_STMT, m_hDBConn, &m_hStmt );	
 	if (  nResult!= SQL_SUCCESS )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"分配静态Statement句柄失败！\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"分配静态Statement句柄失败！\r\n", true);
 		return DBERR_SQLALLOCHANDLEFAIL;
 	}	
 
@@ -923,7 +923,7 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 			StrLen=(int)strlen(SQLStr);
 		ErrorSQL.Append(SQLStr,StrLen);
 		ErrorSQL+="失败]";
-		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,ErrorSQL, TRUE);		
+		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,ErrorSQL, true);
 		return DBERR_EXE_SQL_FAIL;
 	}	
 
@@ -932,7 +932,7 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 	nResult=SQLNumParams (m_hStmt,(SQLSMALLINT *)&ParamNum);
 	if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 	{
-		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取参数数量失败！\r\n", TRUE);
+		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取参数数量失败！\r\n", true);
 		return DBERR_PARAMCOUNTFAIL;
 	}
 
@@ -965,7 +965,7 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 			nResult=SQLDescribeParam(m_hStmt,i+1,&tParamType,&tParamSize,&tParamDigitalSize,&tParamCanNull);
 			if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 			{
-				ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"绑定参数失败！\r\n", TRUE);
+				ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"绑定参数失败！\r\n", true);
 				return DBERR_BINDPARAMFAIL;
 			}
 			
@@ -994,7 +994,7 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 
 			if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 			{
-				ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"绑定参数失败！\r\n", TRUE);
+				ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"绑定参数失败！\r\n", true);
 				return DBERR_BINDPARAMFAIL;
 			}
 		}
@@ -1012,7 +1012,7 @@ int  CODBCConnection::ExecuteSQLWithParam(LPCSTR SQLStr,int StrLen,CDBParameterS
 			StrLen=(int)strlen(SQLStr);
 		ErrorSQL.Append(SQLStr,StrLen);
 		ErrorSQL+="失败]";
-		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,ErrorSQL, TRUE);		
+		ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,ErrorSQL, true);
 		return DBERR_EXE_SQL_FAIL;
 	}	
 	return DBERR_SUCCEED;
@@ -1031,7 +1031,7 @@ void CODBCConnection::SetConnectFlags(LPCSTR szFlags)
 			int nResult=SQLSetConnectAttr(m_hDBConn, SQL_COPT_SS_MARS_ENABLED, (SQLPOINTER)1, SQL_IS_UINTEGER);
 			if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 			{
-				ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"应用参数NC_MARS_ENABLED失败！\r\n", TRUE);
+				ProcessMessagesODBC(SQL_HANDLE_DBC, m_hDBConn,"应用参数NC_MARS_ENABLED失败！\r\n", true);
 			}
 		}		
 	}

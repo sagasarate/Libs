@@ -234,7 +234,7 @@ int CGif::Close()
 int CGif::ReadBlocks()
 {
 	BYTE	ch;
-	BOOL	BlockEnd=false;
+	bool	BlockEnd=false;
 
 	if(m_pGifFile==NULL) return 1;
 	while(!BlockEnd)
@@ -812,7 +812,7 @@ int CGif::AddImageBlock(int x, int y, int width, int height, char * buff, RGBQUA
 	return 0;
 }
 
-int CGif::AddImageBlock(int x, int y, HBITMAP hbmp, BOOL SavePal)
+int CGif::AddImageBlock(int x, int y, HBITMAP hbmp, bool SavePal)
 {
 	BITMAP	bmp;
 	BITMAPINFO *bih;

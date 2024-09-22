@@ -29,13 +29,13 @@ public:
 	~CStringFile();
 	void Destroy();
 	void MakeDeflate();
-	BOOL LoadFile( LPCTSTR pszTextFile ,bool bSplitLine=true);
-	BOOL LoadFile( IFileAccessor * pFile ,bool bSplitLine=true);
-	BOOL LoadFromString(LPCTSTR pStr,int Len=-1,bool bSplitLine=true);
-	BOOL SaveToFile(LPCTSTR pszTextFile);
-	BOOL SaveToFile(LPCTSTR pData, LPCTSTR pszTextFile);
-	BOOL SaveToFile(IFileAccessor * pFile);
-	BOOL SaveToFile(LPCTSTR, IFileAccessor * pFile);
+	bool LoadFile( LPCTSTR pszTextFile ,bool bSplitLine=true);
+	bool LoadFile( IFileAccessor * pFile ,bool bSplitLine=true);
+	bool LoadFromString(LPCTSTR pStr,int Len=-1,bool bSplitLine=true);
+	bool SaveToFile(LPCTSTR pszTextFile);
+	bool SaveToFile(LPCTSTR pData, LPCTSTR pszTextFile);
+	bool SaveToFile(IFileAccessor * pFile);
+	bool SaveToFile(LPCTSTR, IFileAccessor * pFile);
 	TCHAR * operator[]( UINT line );
 	TCHAR * GetData()
 	{
@@ -70,7 +70,7 @@ public:
 		return m_SaveCodePage;
 	}
 protected:
-	BOOL BuildLines( );
+	bool BuildLines( );
 	UINT	ProcData();
 	
 };

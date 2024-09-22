@@ -97,27 +97,27 @@ public:
 		}
 		return NULL;
 	}
-	BOOL MoveToBefore(LPVOID Pos,LPVOID Target)
+	bool MoveToBefore(LPVOID Pos,LPVOID Target)
 	{
 		if(Pos&&Pos!=Target&&m_ObjectCount>1)
 		{
 			StorageNode * pNode=(StorageNode *)Pos;
 			Pick(pNode);
 			InsertNodeBefore(pNode,Target);
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
-	BOOL MoveToAfter(LPVOID Pos,LPVOID Target)
+	bool MoveToAfter(LPVOID Pos,LPVOID Target)
 	{
 		if(Pos&&Pos!=Target&&m_ObjectCount>1)
 		{
 			StorageNode * pNode=(StorageNode *)Pos;
 			Pick(pNode);
 			InsertNodeAfter(pNode,Target);
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
 
 	LPVOID InsertAfter(LPVOID Pos=NULL)
@@ -173,16 +173,16 @@ public:
 	}
 	
 	
-	BOOL DeleteObject(LPVOID Pos)
+	bool DeleteObject(LPVOID Pos)
 	{
 		if(Pos)
 		{
 			StorageNode * pNode=(StorageNode *)Pos;
 			Pick(pNode);
 			MONITORED_DELETE(pNode);
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
 	
 	LPVOID PushFront()
@@ -229,26 +229,26 @@ public:
 		return NULL;
 	}
 
-	BOOL PopFront(T& Object)
+	bool PopFront(T& Object)
 	{
 		if(m_pObjectListHead)
 		{
 			Object=m_pObjectListHead->Object;
 			DeleteObject(m_pObjectListHead);
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}	
 
-	BOOL PopBack(T& Object)
+	bool PopBack(T& Object)
 	{
 		if(m_pObjectListTail)
 		{
 			Object=m_pObjectListTail->Object;
 			DeleteObject(m_pObjectListTail);
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
 	LPVOID Find(const T& Object)
 	{

@@ -27,11 +27,11 @@ COverLappedObject::~COverLappedObject(void)
 	
 }
 
-BOOL COverLappedObject::Create(CNetServer * pCreator)
+bool COverLappedObject::Create(CNetServer * pCreator)
 {
 	m_pCreator=pCreator;	
 	Clear();
-	return TRUE;
+	return true;
 }
 
 

@@ -59,7 +59,7 @@ public:
 		}
 
 	}
-	BOOL TryLockRead()
+	bool TryLockRead()
 	{
 		CAutoLockEx Lock1;
 		if(Lock1.TryLock(m_ReadLock))
@@ -74,7 +74,7 @@ public:
 						m_LockLevel = LL_READ;
 						m_ReadCount ++;
 						ResetEvent(m_UnlockEvent);
-						return TRUE;
+						return true;
 					}
 					
 				}
@@ -88,11 +88,11 @@ public:
 					m_LockLevel = LL_READ;
 					m_ReadCount ++;
 					ResetEvent(m_UnlockEvent);
-					return TRUE;
+					return true;
 				}
 			}
 		}
-		return FALSE;
+		return false;
 		
 	}	
 	void LockWrite()
@@ -113,7 +113,7 @@ public:
 			ResetEvent(m_UnlockEvent);
 		}
 	}
-	BOOL TryLockWrite()
+	bool TryLockWrite()
 	{
 		CAutoLockEx Lock1;
 
@@ -126,7 +126,7 @@ public:
 				{
 					m_LockLevel = LL_WRITE;
 					ResetEvent(m_UnlockEvent);
-					return TRUE;
+					return true;
 				}
 			}
 			else
@@ -138,12 +138,12 @@ public:
 					{
 						m_LockLevel = LL_WRITE;
 						ResetEvent(m_UnlockEvent);
-						return TRUE;
+						return true;
 					}
 				}
 			}
 		}
-		return FALSE;
+		return false;
 	}
 	void Unlock()
 	{

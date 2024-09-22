@@ -364,7 +364,7 @@ void CExceptionParser::ParseCallStack(PCONTEXT pContextRecord,UINT MaxLoopCount)
 	{
 		if(StackFrame.AddrFrame.Offset==0)
 			break;
-		BOOL Ret=GetAddressInfo(StackFrame.AddrPC.Offset,&AddressInfo);
+		bool Ret=GetAddressInfo(StackFrame.AddrPC.Offset,&AddressInfo);
 		if(LastInstance!=AddressInfo.hInstance)
 		{	
 			LastInstance=AddressInfo.hInstance;
@@ -380,7 +380,7 @@ void CExceptionParser::ParseCallStack(PCONTEXT pContextRecord,UINT MaxLoopCount)
 
 }
 
-BOOL CExceptionParser::GetAddressInfo(DWORD64 Address,ADDRESS_INFO * pAddressInfo)
+bool CExceptionParser::GetAddressInfo(DWORD64 Address,ADDRESS_INFO * pAddressInfo)
 {
 	if(m_hProcess==NULL)
 		return false;
@@ -440,10 +440,10 @@ BOOL CExceptionParser::GetAddressInfo(DWORD64 Address,ADDRESS_INFO * pAddressInf
 				m_hProcess, Address, pAddressInfo->SymbolInfo.MaxNameLen, GetLastError());
 		}
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL CExceptionParser::WriteDump(LPEXCEPTION_POINTERS pException)
+bool CExceptionParser::WriteDump(LPEXCEPTION_POINTERS pException)
 {
 	HANDLE hDumpFile;
 
@@ -489,7 +489,7 @@ BOOL CExceptionParser::WriteDump(LPEXCEPTION_POINTERS pException)
 		{
 			PrintImportantLog(_T("写入Dump文件成功%s"),szDumpFileName);
 			CloseHandle(hDumpFile);
-			return TRUE;
+			return true;
 		}
 		else
 		{
@@ -503,11 +503,11 @@ BOOL CExceptionParser::WriteDump(LPEXCEPTION_POINTERS pException)
 		PrintImportantLog(_T("打开Dump文件失败%s"),szDumpFileName);
 	}
 
-	return FALSE;
+	return false;
 }
 
 
-BOOL CExceptionParser::SymInit()
+bool CExceptionParser::SymInit()
 {
 	TCHAR szModulePath[MAX_PATH];
 	szModulePath[0] = 0;
@@ -546,17 +546,17 @@ BOOL CExceptionParser::SymInit()
 		if(!SymInitialize(m_hProcess,NULL,TRUE))
 		{
 			PrintImportantLog(_T("无法到PDB文件"));
-			return FALSE;
+			return false;
 		}
 	}
 	PrintImportantLog(_T("初始化符号完毕"));
 	
-	return TRUE;
+	return true;
 }
 
 
 
-BOOL CExceptionParser::SymLoadFromModule(LPCTSTR szModuleFileName)
+bool CExceptionParser::SymLoadFromModule(LPCTSTR szModuleFileName)
 {
 	PrintImportantLog(_T("开始从%s加载符号"),szModuleFileName);
 	HMODULE hModule=GetModuleHandle(szModuleFileName);
@@ -570,7 +570,7 @@ BOOL CExceptionParser::SymLoadFromModule(LPCTSTR szModuleFileName)
 			if(SymLoadModuleExT(m_hProcess,NULL,szModuleFileName,NULL,(DWORD64)ModuleInfo.lpBaseOfDll,0,NULL,0))
 			{
 				PrintImportantLog(_T("加载符号成功"));
-				return TRUE;
+				return true;
 			}
 			else
 			{
@@ -586,7 +586,7 @@ BOOL CExceptionParser::SymLoadFromModule(LPCTSTR szModuleFileName)
 	{
 		PrintImportantLog(_T("获取模块句柄失败%d"),GetLastError());
 	}
-	return FALSE;
+	return false;
 }
 
 UINT CExceptionParser::GetCallStack(DWORD64 * pAddressBuffer,UINT Depth)
@@ -692,7 +692,7 @@ void CExceptionParser::SignalHandler(int signal)
 	PrintImportantLog(_T("系统提示%d"),signal);
 }
 
-BOOL CExceptionParser::GetInMemoryFileVersion(LPCTSTR szFile, LPTSTR szFileFullName, DWORD & dwMS, DWORD & dwLS)
+bool CExceptionParser::GetInMemoryFileVersion(LPCTSTR szFile, LPTSTR szFileFullName, DWORD & dwMS, DWORD & dwLS)
 {
 	HMODULE hInstIH = GetModuleHandle(szFile);
 
@@ -719,7 +719,7 @@ BOOL CExceptionParser::GetInMemoryFileVersion(LPCTSTR szFile, LPTSTR szFileFullN
 			&dwVerInfoHandle);
 		if (0 == dwVerSize)
 		{
-			return (FALSE);
+			return false;
 		}
 
 		// Got the version size, now get the version information.
@@ -730,7 +730,7 @@ BOOL CExceptionParser::GetInMemoryFileVersion(LPCTSTR szFile, LPTSTR szFileFullN
 			lpData))
 		{
 			SAFE_DELETE_ARRAY(lpData);
-			return (FALSE);
+			return false;
 		}
 
 		VS_FIXEDFILEINFO * lpVerInfo;
@@ -747,9 +747,9 @@ BOOL CExceptionParser::GetInMemoryFileVersion(LPCTSTR szFile, LPTSTR szFileFullN
 
 		SAFE_DELETE_ARRAY(lpData);
 
-		return (bRet);
+		return bRet != FALSE;
 	}
-	return FALSE;
+	return false;
 }
 
 BOOL CALLBACK EnumModulesCallback(LPCSTR   ModuleName, DWORD64 BaseOfDll, PVOID   UserContext)

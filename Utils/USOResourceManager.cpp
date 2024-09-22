@@ -329,7 +329,7 @@ bool CUSOResourceManager::DeleteResource(LPCTSTR szResourceName)
 {
 	CEasyString ResourceName=szResourceName;
 	ResourceName.MakeUpper();
-	return m_Resources.Delete(ResourceName)==TRUE;
+	return m_Resources.Delete(ResourceName);
 }
 
 void CUSOResourceManager::ClearAllResource()

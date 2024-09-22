@@ -60,35 +60,35 @@ public:
 	{
 		SaveTime(CEasyTimer::GetTime());
 	}
-	static BOOL	IsTimeOut( UINT32 starttime, UINT32 timeout )
+	static bool	IsTimeOut( UINT32 starttime, UINT32 timeout )
 	{
 		UINT32	dwTime = CEasyTimer::GetTime();
 		if( GetTimeToTime(starttime, dwTime) >= timeout )
 		{
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
-	BOOL	IsTimeOut( UINT32 dwTimeOut )
+	bool	IsTimeOut( UINT32 dwTimeOut )
 	{
 		UINT32	dwTime = CEasyTimer::GetTime();
 		if( GetTimeToTime(m_dwSavedTime, dwTime)>= dwTimeOut )
 		{
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
 	void	SetTimeOut( UINT32	dwTimeOut)
 	{
 		m_dwSavedTime = CEasyTimer::GetTime();
 		m_dwTimeoutTime = dwTimeOut;
 	}
-	BOOL	IsTimeOut()
+	bool	IsTimeOut()
 	{
 		UINT32	dwTime = CEasyTimer::GetTime();
 		if( GetTimeToTime(m_dwSavedTime, dwTime)>= m_dwTimeoutTime )
-			return TRUE;
-		return FALSE;
+			return true;
+		return false;
 	}
 	void Reset(UINT32 dwCurTime)
 	{

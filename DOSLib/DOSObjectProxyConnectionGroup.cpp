@@ -36,7 +36,7 @@ bool CDOSObjectProxyConnectionGroup::Init(CDOSObjectProxyServiceDefault * pServi
 			{
 				PrintDOSLog(_T("创建%u大小的压缩缓冲失败！"),
 					CompressBufferSize);
-				return FALSE;
+				return false;
 			}
 		}
 	}
@@ -55,7 +55,7 @@ bool CDOSObjectProxyConnectionGroup::Init(CDOSObjectProxyServiceDefault * pServi
 			{
 				PrintDOSLog(_T("创建%u大小的解密缓冲失败！"),
 					EncyptBufferSize);
-				return FALSE;
+				return false;
 			}
 		}
 	}
@@ -64,7 +64,7 @@ bool CDOSObjectProxyConnectionGroup::Init(CDOSObjectProxyServiceDefault * pServi
 	{
 		PrintDOSLog(_T("创建%u大小的消息队列失败！"),
 			m_Config.ProxyMsgQueueSize);
-		return FALSE;
+		return false;
 	}
 	
 	if (!m_ConnectionPool.Create(m_Config.ConnectionPoolSetting))
@@ -96,13 +96,13 @@ bool CDOSObjectProxyConnectionGroup::AddConnection(CDOSObjectProxyConnectionDefa
 	return false;
 }
 
-BOOL CDOSObjectProxyConnectionGroup::OnStart()
+bool CDOSObjectProxyConnectionGroup::OnStart()
 {
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(), THREAD_CPU_COUNT_TIME);
-	return TRUE;
+	return true;
 }
 
-BOOL CDOSObjectProxyConnectionGroup::OnRun()
+bool CDOSObjectProxyConnectionGroup::OnRun()
 {
 
 	m_ThreadPerformanceCounter.DoPerformanceCount();
@@ -147,7 +147,7 @@ BOOL CDOSObjectProxyConnectionGroup::OnRun()
 	{
 		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
-	return TRUE;
+	return true;
 }
 
 void CDOSObjectProxyConnectionGroup::OnTerminate()
@@ -245,6 +245,19 @@ void CDOSObjectProxyConnectionGroup::OnSystemMsg(CDOSMessagePacket* pPacket)
 			for (CDOSObjectProxyConnectionDefault* pConnection : m_ConnectionPool)
 			{
 				if (pConnection->IsConnected() && (pConnection->GetBroadcastMask() & pInfo->Mask))
+				{
+					pConnection->PushMessage(pPacket);
+				}
+			}
+		}
+		break;
+	case DSM_PROXY_BROADCAST_BY_GROUP:
+		if (pMessage->GetDataLength() >= sizeof(GROUP_BROADCAST_INFO))
+		{
+			const GROUP_BROADCAST_INFO* pInfo = (const GROUP_BROADCAST_INFO*)(pMessage->GetMsgData());
+			for (CDOSObjectProxyConnectionDefault* pConnection : m_ConnectionPool)
+			{
+				if (pConnection->IsConnected() && (pConnection->IsInBroadcastGroup(pInfo->GroupID)))
 				{
 					pConnection->PushMessage(pPacket);
 				}

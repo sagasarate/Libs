@@ -95,7 +95,7 @@ class CGif
 public:
 	HBITMAP Convert(HBITMAP hbmp,int BitCount);
 	int AddControlBlock(int delay,int BGColor);
-	int AddImageBlock(int x,int y,HBITMAP hbmp,BOOL SavePal=false);
+	int AddImageBlock(int x,int y,HBITMAP hbmp,bool SavePal=false);
 	int AddImageBlock(int x,int y,int width,int height,char *buff,RGBQUAD *pal=NULL,int PalCount=0);
 	int Create(LPCTSTR FileName, int width,int height,int BGColor=-1,RGBQUAD *pal=NULL,int PalCount=0);
 	HBITMAP GetBitmap(int index);
@@ -123,13 +123,13 @@ public:
 	{return m_ControlBlockCount;}
 	int	GetOtherBlockCount()
 	{return m_OtherBlockCount;}
-	BOOL HaveGlobalPalette()
+	bool HaveGlobalPalette()
 	{return m_GlobalPalette;}
 	CGif();
 	~CGif();
 
 protected:
-	BOOL			m_OpenFromHandle;
+	bool			m_OpenFromHandle;
 	int				m_WorkState;
 	CLZWPack		m_pack;
 	int				m_width;
@@ -143,6 +143,6 @@ protected:
 	int				m_ControlBlockCount;
 	int				m_OtherBlockCount;
 	RGBQUAD			m_pal[256];
-	BOOL			m_GlobalPalette;
+	bool			m_GlobalPalette;
 };
 

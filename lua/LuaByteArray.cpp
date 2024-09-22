@@ -103,7 +103,7 @@ LUA_EMPTY_VALUE CLuaByteArray::LuaSubArray(UINT StartIndex)
 	UINT DataLen = 0;
 	if (ParamCount >= 2)
 	{
-		DataLen = lua_tointeger(m_pCurThread->GetLuaState(), 2);
+		DataLen = (UINT)lua_tointeger(m_pCurThread->GetLuaState(), 2);
 		if (StartIndex + DataLen > m_DataLen)
 		{
 			DataLen = 0;

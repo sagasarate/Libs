@@ -39,7 +39,7 @@ CThreadSafeCycleBufferEx::~CThreadSafeCycleBufferEx(void)
 	Destory();
 }
 
-BOOL CThreadSafeCycleBufferEx::Create(UINT Size,UINT SmoothSize)
+bool CThreadSafeCycleBufferEx::Create(UINT Size,UINT SmoothSize)
 {
 	Destory();
 	CAutoLockEx FrontLock;
@@ -55,7 +55,7 @@ BOOL CThreadSafeCycleBufferEx::Create(UINT Size,UINT SmoothSize)
 
 	if(Size<=SmoothSize*2)
 	{
-		return FALSE;
+		return false;
 	}
 	m_pBuffer = MONITORED_NEW_ARRAY(GetTag(), BYTE, Size);
 	m_BufferSize=Size-SmoothSize;
@@ -63,10 +63,10 @@ BOOL CThreadSafeCycleBufferEx::Create(UINT Size,UINT SmoothSize)
 	m_BufferHead=0;
 	m_BufferTail=0;
 	m_IsSelfBuffer=true;
-	return TRUE;
+	return true;
 }
 
-BOOL CThreadSafeCycleBufferEx::Create(LPVOID pBuff,UINT Size,UINT SmoothSize)
+bool CThreadSafeCycleBufferEx::Create(LPVOID pBuff,UINT Size,UINT SmoothSize)
 {
 	Destory();
 	CAutoLockEx FrontLock;
@@ -82,7 +82,7 @@ BOOL CThreadSafeCycleBufferEx::Create(LPVOID pBuff,UINT Size,UINT SmoothSize)
 
 	if(Size<=SmoothSize*2)
 	{
-		return FALSE;
+		return false;
 	}
 
 	m_pBuffer=(BYTE *)pBuff;
@@ -91,7 +91,7 @@ BOOL CThreadSafeCycleBufferEx::Create(LPVOID pBuff,UINT Size,UINT SmoothSize)
 	m_BufferHead=0;
 	m_BufferTail=0;
 	m_IsSelfBuffer=false;
-	return TRUE;
+	return true;
 }
 
 void CThreadSafeCycleBufferEx::Destory()

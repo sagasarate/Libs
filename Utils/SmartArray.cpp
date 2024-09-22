@@ -165,7 +165,7 @@ UINT CSmartArray::GetVariedMemberSize(const CVariedValue& Value)
 	case VARIED_VALUE_TYPE::STRING:
 		return GetStringMemberSize((LPCTSTR)Value);
 	case VARIED_VALUE_TYPE::BINARY:
-		return GetBinaryMemberSize(Value.GetLength());
+		return GetBinaryMemberSize((UINT)Value.GetLength());
 	case VARIED_VALUE_TYPE::ARRAY:
 		{
 			UINT Size = 0;
@@ -192,12 +192,14 @@ UINT CSmartArray::GetVariedMemberSize(const CVariedValue& Value)
 	return sizeof(BYTE);
 }
 
-rapidjson::Value CSmartArray::ToJson(rapidjson::Document::AllocatorType& Alloc)
+rapidjson::Value CSmartArray::ToJson(rapidjson::Document::AllocatorType& Alloc) const
 {
 	rapidjson::Value Object(rapidjson::kArrayType);
 
-	for (CSmartValue& Value : *this)
+	void* Pos = GetFirstMemberPosition();
+	while (Pos)
 	{
+		CSmartValue Value = GetNextMember(Pos);
 		Object.PushBack(Value.ToJson(Alloc), Alloc);
 	}
 	return Object;

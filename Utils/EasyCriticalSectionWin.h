@@ -38,15 +38,15 @@ public:
 		LeaveCriticalSection( &m_critical_sec );
 	}
 #if(_WIN32_WINNT >= 0x0400)
-	BOOL TryLock()
+	bool TryLock()
 	{
 		return TryEnterCriticalSection(&m_critical_sec );
 	}
 #else
-	BOOL TryLock()
+	bool TryLock()
 	{
 		Lock();
-		return TRUE;
+		return true;
 	}
 #endif
 };

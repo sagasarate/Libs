@@ -45,7 +45,7 @@ bool CNetPUDPService::OnIOCPEvent(int EventID, COverLappedObject * pOverLappedOb
 			{
 				GetServer()->AddUDPRecvBytes(pOverLappedObject->GetDataBuff()->GetUsedSize());
 				OnRecvData(pOverLappedObject->GetAddress(),
-					(const BYTE *)pOverLappedObject->GetDataBuff()->GetBuffer(), pOverLappedObject->GetDataBuff()->GetUsedSize());
+					(const BYTE *)pOverLappedObject->GetDataBuff()->GetBuffer(), (UINT)pOverLappedObject->GetDataBuff()->GetUsedSize());
 				ReleaseOverLappedObject(pOverLappedObject);				
 				return true;
 			}
@@ -232,7 +232,7 @@ bool CNetPUDPService::QueryUDPRecv()
 	if(m_Socket.RecvFromOverlapped(pOverLappedObject->GetAddress(),
 		pOverLappedObject->GetAddressLen(),
 		pOverLappedObject->GetDataBuff()->GetBuffer(),
-		pOverLappedObject->GetDataBuff()->GetBufferSize(),
+		(int)pOverLappedObject->GetDataBuff()->GetBufferSize(),
 		NumberOfBytes,Flag,
 		pOverLappedObject->GetOverlapped()))
 	{
@@ -275,7 +275,7 @@ bool CNetPUDPService::QueryUDPSend(const CIPAddress& IPAddress, LPCVOID pData, i
 
 	if(m_Socket.SendToOverlapped(pOverLappedObject->GetAddress(),
 		pOverLappedObject->GetDataBuff()->GetBuffer(),
-		pOverLappedObject->GetDataBuff()->GetUsedSize(),
+		(int)pOverLappedObject->GetDataBuff()->GetUsedSize(),
 		NumberOfBytes,Flag,
 		pOverLappedObject->GetOverlapped()))
 	{				

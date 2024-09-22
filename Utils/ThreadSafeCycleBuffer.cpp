@@ -57,7 +57,7 @@ CThreadSafeCycleBuffer::~CThreadSafeCycleBuffer(void)
 	Destory();
 }
 
-BOOL CThreadSafeCycleBuffer::Create(UINT Size)
+bool CThreadSafeCycleBuffer::Create(UINT Size)
 {
 	Destory();
 	CAutoLockEx FrontLock;
@@ -77,10 +77,10 @@ BOOL CThreadSafeCycleBuffer::Create(UINT Size)
 	m_IsSelfBuffer=true;
 	m_IsLockFront=true;
 	m_IsLockBack=true;
-	return TRUE;
+	return true;
 }
 
-BOOL CThreadSafeCycleBuffer::Create(LPVOID pBuff,UINT Size)
+bool CThreadSafeCycleBuffer::Create(LPVOID pBuff,UINT Size)
 {
 	Destory();
 	CAutoLockEx FrontLock;
@@ -100,7 +100,7 @@ BOOL CThreadSafeCycleBuffer::Create(LPVOID pBuff,UINT Size)
 	m_IsSelfBuffer=false;
 	m_IsLockFront=true;
 	m_IsLockBack=true;
-	return TRUE;
+	return true;
 }
 
 void CThreadSafeCycleBuffer::Destory()

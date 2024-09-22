@@ -234,7 +234,7 @@ public:
 		}
 		return BufferSize;
 	}
-	BOOL IsCreated() const
+	bool IsCreated() const
 	{
 		return m_ObjectBuffPages.GetCount()!=0;
 	}
@@ -479,11 +479,11 @@ public:
 			return 0;
 	}
 	
-	BOOL DeleteObject(UINT ID)
+	bool DeleteObject(UINT ID)
 	{
 		return DeleteObjectByPos(GetObjectPosByID(ID));
 	}	
-	BOOL DeleteObjectByPos(LPVOID Pos)
+	bool DeleteObjectByPos(LPVOID Pos)
 	{
 		StorageNode * pNode=(StorageNode *)Pos;
 		if(pNode)
@@ -576,7 +576,7 @@ public:
 		}
 		return NULL;
 	}
-	BOOL MoveToBefore(LPVOID Pos,LPVOID Target)
+	bool MoveToBefore(LPVOID Pos,LPVOID Target)
 	{
 		if(Pos&&Pos!=Target&&m_ObjectCount>1)
 		{
@@ -584,11 +584,11 @@ public:
 			StorageNode * pBefore=(StorageNode *)Target;
 			PickNode(pNode);
 			InsertNodeBefore(pNode,pBefore);
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
-	BOOL MoveToAfter(LPVOID Pos,LPVOID Target)
+	bool MoveToAfter(LPVOID Pos,LPVOID Target)
 	{
 		if(Pos&&Pos!=Target&&m_ObjectCount>1)
 		{
@@ -596,11 +596,11 @@ public:
 			StorageNode * pAfter=(StorageNode *)Target;
 			PickNode(pNode);
 			InsertNodeAfter(pNode,pAfter);
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
-	BOOL MoveSorted(LPVOID Pos)
+	bool MoveSorted(LPVOID Pos)
 	{
 		StorageNode * pNode=(StorageNode *)Pos;
 		if(pNode)
@@ -619,9 +619,9 @@ public:
 			{
 				InsertNodeAfter(pNode,pHead);
 			}
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
 
 	LPVOID PushFront()
@@ -668,26 +668,26 @@ public:
 		return NULL;
 	}
 
-	BOOL PopFront(T& Object)
+	bool PopFront(T& Object)
 	{
 		if(m_pObjectListHead)
 		{
 			Object=m_pObjectListHead->GetObjectRef();
 			DeleteNode(m_pObjectListHead);
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}	
 
-	BOOL PopBack(T& Object)
+	bool PopBack(T& Object)
 	{
 		if(m_pObjectListTail)
 		{
 			Object=m_pObjectListTail->GetObjectRef();
 			DeleteNode(m_pObjectListTail);
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
 	LPVOID Find(const T& Object) const
 	{

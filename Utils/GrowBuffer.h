@@ -54,25 +54,25 @@ public:
 		m_Tag = Tag;
 	}
 
-	BOOL Create(UINT InitSize,UINT GrowSize);	
+	bool Create(UINT InitSize,UINT GrowSize);	
 	void Destory();
 
 	UINT GetBufferSize() const;
 	UINT GetUsedSize() const;
-	BOOL SetUsedSize(UINT Size);
+	bool SetUsedSize(UINT Size);
 	UINT GetFreeSize() const;
 	LPVOID GetBuffer() const;
 	LPVOID GetFreeBuffer() const;
 	
-	BOOL PushBack(LPCVOID pData,UINT Size);
-	BOOL PushConstBack(UINT Data,UINT Size);	
+	bool PushBack(LPCVOID pData,UINT Size);
+	bool PushConstBack(UINT Data,UINT Size);	
 
-	BOOL Peek(UINT& Pos,LPVOID pData,UINT Size) const;
+	bool Peek(UINT& Pos,LPVOID pData,UINT Size) const;
 
 	void MakeSmooth();
 protected:
 	UINT BufferPosToNodePos(UINT Pos,UINT * pOffset=NULL) const;
-	BOOL GrowBuffer(UINT NewSize);
+	bool GrowBuffer(UINT NewSize);
 
 };
 
@@ -99,12 +99,12 @@ inline LPVOID CGrowBuffer::GetFreeBuffer() const
 }
 
 
-inline BOOL CGrowBuffer::PushBack(LPCVOID pData,UINT Size)
+inline bool CGrowBuffer::PushBack(LPCVOID pData,UINT Size)
 {
 	if(GetFreeSize()<Size)
 	{
 		if(!GrowBuffer(m_UsedSize+Size))
-			return FALSE;
+			return false;
 	}
 
 	m_UsedSize+=Size;
@@ -138,18 +138,18 @@ inline BOOL CGrowBuffer::PushBack(LPCVOID pData,UINT Size)
 		
 	}
 
-	return TRUE;
+	return true;
 	
 }
 
-inline BOOL CGrowBuffer::PushConstBack(UINT Data,UINT Size)
+inline bool CGrowBuffer::PushConstBack(UINT Data,UINT Size)
 {
 	return PushBack(&Data,Size);
 }
 
 
 
-inline BOOL CGrowBuffer::Peek(UINT& Pos,LPVOID pData,UINT Size) const
+inline bool CGrowBuffer::Peek(UINT& Pos,LPVOID pData,UINT Size) const
 {
 	if(Pos+Size<=m_UsedSize)
 	{
@@ -183,9 +183,9 @@ inline BOOL CGrowBuffer::Peek(UINT& Pos,LPVOID pData,UINT Size) const
 			NodeOffset=0;
 		}
 		
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 inline UINT CGrowBuffer::BufferPosToNodePos(UINT Pos,UINT * pOffset) const

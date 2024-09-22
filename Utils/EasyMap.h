@@ -106,7 +106,7 @@ public:
 		}
 		return NULL;
 	}
-	BOOL Insert(const KEY& Key,const T& Value)
+	bool Insert(const KEY& Key,const T& Value)
 	{
 		StorageNode * pNode=InsertNode(m_pTreeRoot,Key);
 		if(pNode)
@@ -117,11 +117,11 @@ public:
 				pNode->Color=NC_RED;
 				BalanceInsert(pNode);
 			}
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}	
-	BOOL Delete(const KEY& Key)
+	bool Delete(const KEY& Key)
 	{
 		StorageNode * pNode=FindNode(m_pTreeRoot,Key);
 		if(pNode)
@@ -131,11 +131,11 @@ public:
 			{
 				BalanceDelete(pNeedBalanceNode);
 			}
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
-	BOOL DeleteByPos(void * Pos)
+	bool DeleteByPos(void * Pos)
 	{
 		StorageNode * pNode=(StorageNode *)Pos;
 		if(pNode)
@@ -145,9 +145,9 @@ public:
 			{
 				BalanceDelete(pNeedBalanceNode);
 			}
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
 	T * Find(const KEY& Key)
 	{

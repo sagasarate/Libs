@@ -47,7 +47,7 @@ CGrowBuffer::~CGrowBuffer(void)
 	Destory();
 }
 
-BOOL CGrowBuffer::Create(UINT InitSize,UINT GrowSize)
+bool CGrowBuffer::Create(UINT InitSize,UINT GrowSize)
 {
 	Destory();
 	m_BufferNodes = MONITORED_NEW_ARRAY(GetTag(), BUFFER_NODE, BUFFER_NODE_INIT_SIZE);
@@ -61,7 +61,7 @@ BOOL CGrowBuffer::Create(UINT InitSize,UINT GrowSize)
 	m_BufferNodes[0].pBuffer = MONITORED_NEW_ARRAY(GetTag(), char, m_FirstSize);
 	m_BufferNodes[0].BufferSize=m_FirstSize;
 	m_BufferNodes[0].UsedSize=0;
-	return TRUE;
+	return true;
 }
 
 void CGrowBuffer::Destory()
@@ -80,12 +80,12 @@ void CGrowBuffer::Destory()
 	m_GrowSize=0;
 }
 
-BOOL CGrowBuffer::SetUsedSize(UINT Size)
+bool CGrowBuffer::SetUsedSize(UINT Size)
 {
 	if(Size>m_BufferSize)
 	{
 		if(!GrowBuffer(m_UsedSize+Size))
-			return FALSE;
+			return false;
 	}
 	if(Size<m_UsedSize)
 	{
@@ -125,7 +125,7 @@ BOOL CGrowBuffer::SetUsedSize(UINT Size)
 		}
 		m_CurBufferNodeIndex=NodePos;
 	}
-	return TRUE;
+	return true;
 }
 
 void CGrowBuffer::MakeSmooth()
@@ -155,10 +155,10 @@ void CGrowBuffer::MakeSmooth()
 	m_BufferNodes[0].UsedSize=m_UsedSize;
 }
 
-BOOL CGrowBuffer::GrowBuffer(UINT NewSize)
+bool CGrowBuffer::GrowBuffer(UINT NewSize)
 {
 	if(NewSize<=m_BufferSize)
-		return TRUE;
+		return true;
 	if(m_UsedBufferNodeCount>=m_BufferNodeCount)
 	{
 		UINT AddNodeCount=(NewSize-m_BufferSize)/m_GrowSize+1;
@@ -185,5 +185,5 @@ BOOL CGrowBuffer::GrowBuffer(UINT NewSize)
 		m_BufferSize+=m_GrowSize;
 		m_UsedBufferNodeCount++;
 	}
-	return TRUE;
+	return true;
 }

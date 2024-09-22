@@ -13,7 +13,7 @@ CAsyncLogWorkThread::~CAsyncLogWorkThread()
 }
 
 
-BOOL CAsyncLogWorkThread::OnRun()
+bool CAsyncLogWorkThread::OnRun()
 {
 	int ProcessCount = 0;
 	{
@@ -25,7 +25,7 @@ BOOL CAsyncLogWorkThread::OnRun()
 	}
 	if (ProcessCount == 0)
 		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
-	return TRUE;
+	return true;
 }
 
 bool CAsyncLogWorkThread::AddLogPrinter(ILogPrinter * pLogPrinter)

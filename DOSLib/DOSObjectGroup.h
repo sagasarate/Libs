@@ -29,6 +29,7 @@ protected:
 		OBJECT_ID			ObjectID;
 		CDOSBaseObject *	pObject;
 		int					Weight;
+		UINT				ProcessLimit;
 		UINT				Param;
 	};
 	struct OBJECT_STAT_INFO
@@ -47,31 +48,34 @@ protected:
 		OBJECT_ID	ObjectID;
 		UINT64		Param;
 	};
-	CDOSObjectManager *								m_pManager;
-	UINT											m_Index;
-	OBJECT_GROUP_TYPE								m_Type;
-	volatile STATUS									m_Status;
-	volatile int									m_Weight;
+	CDOSObjectManager*									m_pManager;
+	UINT												m_Index;
+	OBJECT_GROUP_TYPE									m_Type;
+	volatile STATUS										m_Status;
+	volatile int										m_Weight;
 
-	DOS_OBJECT_CONFIG								m_Config;
-	
-	UINT64											m_TotalGroupCost;
-	CEasyTimer										m_GroupWeightUpdateTimer;
+	DOS_OBJECT_CONFIG									m_Config;
 
-	CThreadPerformanceCounter						m_ThreadPerformanceCounter;
+	CEasyTimer											m_GroupWeightUpdateTimer;
+
+	CThreadPerformanceCounter							m_ThreadPerformanceCounter;
+	volatile UINT64										m_ObjRegisterCost;
+	volatile UINT64										m_ObjUnregisterCost;
+	volatile UINT64										m_TimerCost;
+	volatile UINT64										m_AdditionalUpdateCost;
 
 
-	CThreadSafeIDStorage<DOS_OBJECT_REGISTER_INFO>	m_ObjectRegisterQueue;
-	CThreadSafeIDStorage<OBJECT_ID>					m_ObjectUnregisterQueue;
+	CThreadSafeCycleQueue<DOS_OBJECT_REGISTER_INFO>		m_ObjectRegisterQueue;
+	CThreadSafeCycleQueue<OBJECT_ID>					m_ObjectUnregisterQueue;
 
-	CIDStorage<DOS_OBJECT_INFO>						m_ObjectPool;
+	CIDStorage<DOS_OBJECT_INFO>							m_ObjectPool;
 
-	CStaticMap<OBJECT_ID,OBJECT_STAT_INFO>			m_ObjectCountStatMap;
+	CStaticMap<UINT, OBJECT_STAT_INFO>					m_ObjectCountStatMap;
 
-	CEasyCriticalSection							m_EasyCriticalSection;
+	CEasyCriticalSection								m_EasyCriticalSection;
 
-	CGuardThread									m_GuardThread;
-	CTimerQueue<TIMER_DATA>							m_TimerQueue;
+	CGuardThread										m_GuardThread;
+	CTimerQueue<TIMER_DATA>								m_TimerQueue;
 
 	DECLARE_CLASS_INFO_STATIC(CDOSObjectGroup);
 public:
@@ -84,8 +88,8 @@ public:
 	
 	CDOSObjectManager * GetManager();
 
-	BOOL RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterInfo);
-	BOOL UnregisterObject(OBJECT_ID ObjectID);
+	bool RegisterObject(DOS_OBJECT_REGISTER_INFO& ObjectRegisterInfo);
+	bool UnregisterObject(OBJECT_ID ObjectID);
 	UINT GetObjectCount();
 
 	int GetWeight();
@@ -102,16 +106,16 @@ public:
 	bool IsWorking();
 
 
-	virtual BOOL OnStart();
-	virtual BOOL OnRun();
-	virtual void OnTerminate();
+	virtual bool OnStart() override;
+	virtual bool OnRun() override;
+	virtual void OnTerminate() override;
 
-	BOOL PushMessage(OBJECT_ID ObjectID,CDOSMessagePacket * pPacket);
+	bool PushMessage(OBJECT_ID ObjectID,CDOSMessagePacket * pPacket);
 
 	void PrintObjectStat(UINT LogChannel);
 
 	UINT AddTimer(OBJECT_ID ObjectID, UINT64 TimeOut, UINT64 Param, bool IsRepeat);
-	BOOL DeleteTimer(UINT ID);
+	bool DeleteTimer(UINT ID);
 protected:
 	int ProcessObjectRegister(int ProcessLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 	int ProcessObjectUnregister(int ProcessLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
@@ -191,12 +195,20 @@ inline bool CDOSObjectGroup::IsWorking()
 
 inline UINT CDOSObjectGroup::AddTimer(OBJECT_ID ObjectID, UINT64 TimeOut, UINT64 Param, bool IsRepeat)
 {
-	TIMER_DATA TimerData;
-	TimerData.ObjectID = ObjectID;
-	TimerData.Param = Param;
-	return m_TimerQueue.AddTimer(TimeOut, TimerData, IsRepeat);
+	if(TimeOut)
+	{
+		TIMER_DATA TimerData;
+		TimerData.ObjectID = ObjectID;
+		TimerData.Param = Param;
+		return m_TimerQueue.AddTimer(TimeOut, TimerData, IsRepeat);
+	}
+	else
+	{
+		PrintDOSLog(_T("对象[0x%llX]注册0时长的定时器"));
+		return false;
+	}
 }
-inline BOOL CDOSObjectGroup::DeleteTimer(UINT ID)
+inline bool CDOSObjectGroup::DeleteTimer(UINT ID)
 {
 	TIMER_DATA TimerData;
 	if (m_TimerQueue.DeleteTimer(ID, &TimerData))
@@ -210,7 +222,7 @@ inline BOOL CDOSObjectGroup::DeleteTimer(UINT ID)
 		{
 			PrintDOSLog(_T("对象[0x%llX]无法找到"), TimerData.ObjectID);
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }

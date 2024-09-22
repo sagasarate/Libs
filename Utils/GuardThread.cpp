@@ -38,14 +38,14 @@ CGuardThread::~CGuardThread(void)
 }
 
 
-BOOL CGuardThread::OnStart()
+bool CGuardThread::OnStart()
 {	
 	PrintImportantLog(_T("守护线程启动，目标线程[%u],KeepAliveTime=%u,MaxLostAliveCount=%u"),
 		m_TargetThreadID, m_KeepAliveTime, m_MaxLostAliveCount);
-	return TRUE;
+	return true;
 }
 
-BOOL CGuardThread::OnRun()
+bool CGuardThread::OnRun()
 {
 	if (m_Enable)
 	{
@@ -60,12 +60,12 @@ BOOL CGuardThread::OnRun()
 			{
 				PrintImportantLog(_T("检测到线程[%u]死锁"), m_TargetThreadID);
 				DumpThreadCallStack();
-				assert(false);
+				exit(-1);
 			}
 		}
 	}
 	DoSleep(100);
-	return TRUE;
+	return true;
 }
 
 void CGuardThread::OnTerminate()

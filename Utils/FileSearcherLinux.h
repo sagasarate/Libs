@@ -26,8 +26,8 @@ public:
 	CFileSearcher(void);
 	~CFileSearcher(void);
 
-	BOOL FindFirst(LPCTSTR FindPattern);
-	BOOL FindNext();
+	bool FindFirst(LPCTSTR FindPattern);
+	bool FindNext();
 	void Close();
 
 	CEasyString GetFileName();
@@ -45,22 +45,22 @@ public:
 	CEasyTime GetLastAccessTime();
 	CEasyTime GetCreationTime();
 
-	BOOL IsDots();
+	bool IsDots();
 
-	BOOL MatchesMask(DWORD dwMask);
+	bool MatchesMask(DWORD dwMask);
 
-	BOOL IsReadOnly();
-	BOOL IsDirectory();
-	BOOL IsCompressed();
-	BOOL IsSystem();
-	BOOL IsHidden();
-	BOOL IsTemporary();
-	BOOL IsNormal();
-	BOOL IsArchived();
+	bool IsReadOnly();
+	bool IsDirectory();
+	bool IsCompressed();
+	bool IsSystem();
+	bool IsHidden();
+	bool IsTemporary();
+	bool IsNormal();
+	bool IsArchived();
 
-	BOOL CanRead();
-	BOOL CanWrite();
-	BOOL CanExec();
+	bool CanRead();
+	bool CanWrite();
+	bool CanExec();
 
 	int FetchLogicalDrive();
 	int GetLogicalDriveCount();

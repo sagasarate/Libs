@@ -83,7 +83,7 @@ LUA_EMPTY_VALUE CLuaSmartStruct::LuaNew(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 		{
 			if (ParamCount == 2)
 			{
-				StartIndex = lua_tointeger(pLuaThread->GetLuaState(), 2);
+				StartIndex = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 2);
 				if (StartIndex < pByteArray->GetDataLen())
 				{
 					DataLen = pByteArray->GetDataLen() - StartIndex;
@@ -95,14 +95,14 @@ LUA_EMPTY_VALUE CLuaSmartStruct::LuaNew(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 			}
 			else if (ParamCount == 3)
 			{
-				StartIndex = lua_tointeger(pLuaThread->GetLuaState(), 2);
-				DataLen = lua_tointeger(pLuaThread->GetLuaState(), 3);
+				StartIndex = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 2);
+				DataLen = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 3);
 			}
 			else if (ParamCount >= 4)
 			{
-				StartIndex = lua_tointeger(pLuaThread->GetLuaState(), 2);
-				DataLen = lua_tointeger(pLuaThread->GetLuaState(), 3);
-				IsEmpty = lua_toboolean(pLuaThread->GetLuaState(), 4);
+				StartIndex = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 2);
+				DataLen = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 3);
+				IsEmpty = lua_toboolean(pLuaThread->GetLuaState(), 4) != 0;
 			}
 			else
 			{
@@ -117,7 +117,7 @@ LUA_EMPTY_VALUE CLuaSmartStruct::LuaNew(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 		}
 		else
 		{
-			DataLen = lua_tointeger(pLuaThread->GetLuaState(), 1);
+			DataLen = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 1);
 		}		
 	}	
 
@@ -270,8 +270,8 @@ bool CLuaSmartStruct::LuaAttach(CLuaBaseMetaClass* pObject)
 					UINT DataLen = pByteArray->GetDataLen();
 					if (ParamCount  >= 5)
 					{
-						StartIndex = lua_tointeger(m_pCurThread->GetLuaState(), 4);
-						DataLen = lua_tointeger(m_pCurThread->GetLuaState(), 5);
+						StartIndex = (UINT)lua_tointeger(m_pCurThread->GetLuaState(), 4);
+						DataLen = (UINT)lua_tointeger(m_pCurThread->GetLuaState(), 5);
 						if (StartIndex + DataLen > pByteArray->GetDataLen())
 						{
 							luaL_error(m_pCurThread->GetLuaState(), "start(%u) len(%u) out of byte array range(%u)",

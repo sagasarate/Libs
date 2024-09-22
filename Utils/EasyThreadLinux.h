@@ -25,14 +25,14 @@ enum THREAD_STATUS
 
 enum THREAD_PRIORITY
 {
-	ET_PRIORITY_TIME_CRITICAL=0,
+	ET_PRIORITY_TIME_CRITICAL = 0,
 	ET_PRIORITY_HIGHEST,
 	ET_PRIORITY_ABOVE_NORMA,
 	ET_PRIORITY_NORMAL,
 	ET_PRIORITY_BELOW_NORMA,
 	ET_PRIORITY_LOWEST,
 	ET_PRIORITY_IDLE,
-	ET_PRIORITY_ERROR_RETURN=-1,
+	ET_PRIORITY_ERROR_RETURN = -1,
 };
 
 
@@ -47,7 +47,7 @@ class CEasyThread :
 	public CNameObject
 {
 protected:
-	pthread_t		m_ThreadHandle;	
+	pthread_t		m_ThreadHandle;
 	pid_t			m_ThreadID;
 	volatile UINT	m_Status;
 	volatile UINT	m_WantTerminate;
@@ -55,7 +55,7 @@ protected:
 	static CEasyCriticalSection		m_GetCallStackLock;
 	static pthread_t				m_GetCallStackCaller;
 	static pthread_t				m_GetCallStackTarget;
-	static LPVOID *					m_CallStackSaveBuffer;
+	static LPVOID* m_CallStackSaveBuffer;
 	static UINT						m_CallStackMaxDepth;
 
 	DECLARE_CLASS_INFO_STATIC(CEasyThread)
@@ -64,72 +64,72 @@ public:
 	virtual ~CEasyThread();
 
 	///启动线程
-	BOOL Start(BOOL IsSuspended = FALSE,DWORD StartWaitTime=DEFAULT_THREAD_STARTUP_TIME);
+	bool Start(bool IsSuspended = false, DWORD StartWaitTime = DEFAULT_THREAD_STARTUP_TIME);
 
 	///继续线程
-	BOOL Resume();
+	bool Resume();
 
 	/// 挂起线程
-	BOOL Suspend();
+	bool Suspend();
 
 	///终止线程
 	void Terminate();
 
 	//强制结束
 	void ForceTerminate();
-	void SafeTerminate(DWORD Milliseconds=DEFAULT_THREAD_TERMINATE_TIME);
+	void SafeTerminate(DWORD Milliseconds = DEFAULT_THREAD_TERMINATE_TIME);
 
 	//线程是否被结束了
-	BOOL IsTerminated();
+	bool IsTerminated();
 
 	//线程是否被挂起
-	BOOL IsSuspend();
+	bool IsSuspend();
 
 	//线程是否运行中
-	BOOL IsWorking();
+	bool IsWorking();
 
 	///获得线程状态
 	int GetStatus();
 
 	///等待线程开始工作
-	BOOL WaitForWorking(DWORD Milliseconds=INFINITE);
+	bool WaitForWorking(DWORD Milliseconds = INFINITE);
 
 	///等待线程退出
-	BOOL WaitForTerminate(DWORD Milliseconds=INFINITE);
+	bool WaitForTerminate(DWORD Milliseconds = INFINITE);
 
 
 	HANDLE GetThreadHandle();
 	UINT GetThreadID();
 
-	BOOL SetThreadPriority(int Priority);
+	bool SetThreadPriority(int Priority);
 	int GetThreadPriority();
 
-	static int GetCallStack(HANDLE hThread, LPVOID * CallStacks, UINT MaxDepth);
+	static int GetCallStack(HANDLE hThread, LPVOID* CallStacks, UINT MaxDepth);
 protected:
-	virtual BOOL OnStart();
+	virtual bool OnStart();
 	virtual void Execute();
-	virtual BOOL OnRun();
+	virtual bool OnRun();
 	virtual void OnTerminate();
 
 	///线程例程
 	static LPVOID ThreadProc(LPVOID pParam);
 
-	static void CallStackSignalHandler(int signr, siginfo_t *info, void *secret);
-	static void SuspendSignalHandler(int signr, siginfo_t *info, void *secret);
-	static void ResumeSignalHandler(int signr, siginfo_t *info, void *secret);
+	static void CallStackSignalHandler(int signr, siginfo_t* info, void* secret);
+	static void SuspendSignalHandler(int signr, siginfo_t* info, void* secret);
+	static void ResumeSignalHandler(int signr, siginfo_t* info, void* secret);
 };
 
-inline BOOL CEasyThread::IsTerminated()
+inline bool CEasyThread::IsTerminated()
 {
-	return m_Status==THREAD_STATUS_TERMINATED;
+	return m_Status == THREAD_STATUS_TERMINATED;
 }
-inline BOOL CEasyThread::IsSuspend()
+inline bool CEasyThread::IsSuspend()
 {
-	return m_Status==THREAD_STATUS_SUSPENDED;
+	return m_Status == THREAD_STATUS_SUSPENDED;
 }
-inline BOOL CEasyThread::IsWorking()
+inline bool CEasyThread::IsWorking()
 {
-	return m_Status==THREAD_STATUS_WORKING;
+	return m_Status == THREAD_STATUS_WORKING;
 }
 inline int CEasyThread::GetStatus()
 {
@@ -144,4 +144,9 @@ inline HANDLE CEasyThread::GetThreadHandle()
 inline UINT CEasyThread::GetThreadID()
 {
 	return m_ThreadID;
+}
+
+inline UINT GetCurThreadID()
+{
+	return (UINT)syscall(SYS_gettid);
 }

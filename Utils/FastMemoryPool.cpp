@@ -52,7 +52,7 @@ CFastMemoryPool::~CFastMemoryPool(void)
 	Destory();
 }
 
-BOOL CFastMemoryPool::Create(UINT BlockSize, UINT LevelSize, UINT MaxLevel, bool IsThreadLock)
+bool CFastMemoryPool::Create(UINT BlockSize, UINT LevelSize, UINT MaxLevel, bool IsThreadLock)
 {
 	Destory();
 
@@ -123,7 +123,7 @@ BOOL CFastMemoryPool::Create(UINT BlockSize, UINT LevelSize, UINT MaxLevel, bool
 	}
 
 	
-	return TRUE;
+	return true;
 }
 
 void CFastMemoryPool::Destory()
@@ -240,7 +240,7 @@ LPVOID CFastMemoryPool::Alloc(UINT Size)
 		return NULL;
 }
 
-BOOL CFastMemoryPool::Free(LPVOID pMem)
+bool CFastMemoryPool::Free(LPVOID pMem)
 {
 	if (pMem)
 	{
@@ -253,15 +253,15 @@ BOOL CFastMemoryPool::Free(LPVOID pMem)
 			}
 			AtomicInc(&m_SystemFreeCount);
 			MONITORED_DELETE_ARRAY((char *)pMem);
-			return TRUE;
+			return true;
 		}
 		else
-			return FALSE;
+			return false;
 	}
 	else
 	{
 		PrintImportantLog(_T("错误，释放了一个空指针"));
-		return FALSE;
+		return false;
 	}
 }
 
@@ -301,7 +301,7 @@ LPVOID CFastMemoryPool::AllocBlock(BlockList * pBlockList, UINT AllocSize)
 	return NULL;
 }
 
-BOOL CFastMemoryPool::FreeBlock(BlockNode * pNode)
+bool CFastMemoryPool::FreeBlock(BlockNode * pNode)
 {
 	CAutoLockEx ThreadLock;
 	if (m_IsThreadLock)
@@ -338,10 +338,10 @@ BOOL CFastMemoryPool::FreeBlock(BlockNode * pNode)
 		//#ifdef _DEBUG
 		//		memset((BYTE *)pNode + sizeof(BlockNode), 0xFE, pBlockList->AvailableSize);
 		//#endif
-		return TRUE;
+		return true;
 
 	}
-	return FALSE;
+	return false;
 }
 
 void CFastMemoryPool::DumpBlock(BlockNode * pNode)

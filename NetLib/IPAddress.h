@@ -223,7 +223,7 @@ public:
 		}
 		else if (m_IPAddress.SocketAddress6.sin6_family == AF_INET6)
 		{
-			return IN6_IS_ADDR_UNSPECIFIED(&m_IPAddress.SocketAddress6.sin6_addr) != FALSE;
+			return IN6_IS_ADDR_UNSPECIFIED(&m_IPAddress.SocketAddress6.sin6_addr) != 0;
 		}
 		else
 		{
@@ -239,7 +239,7 @@ public:
 		}
 		else if (m_IPAddress.SocketAddress6.sin6_family == AF_INET6)
 		{
-			return IN6_IS_ADDR_LOOPBACK(&m_IPAddress.SocketAddress6.sin6_addr) != FALSE;
+			return IN6_IS_ADDR_LOOPBACK(&m_IPAddress.SocketAddress6.sin6_addr) != 0;
 		}
 		else
 		{

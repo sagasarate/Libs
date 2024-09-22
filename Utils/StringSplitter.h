@@ -16,19 +16,25 @@ template < typename T>
 class CStringSplitterT
 {
 protected:
-	T *					m_pBuffer;
-	CEasyArray< T * >	m_StringList;
+	T* m_pBuffer;
+	CEasyArray< T* >	m_StringList;
 public:
 	CStringSplitterT()
 	{
-		m_pBuffer=NULL;
+		m_pBuffer = NULL;
 		m_StringList.SetTag(_T("CStringSplitterT"));
 	}
-	CStringSplitterT(const T* pStr,T SplitterChar,size_t StrLen=0)
+	CStringSplitterT(const T* pStr, T SplitterChar, size_t StrLen = 0)
 	{
-		m_pBuffer=NULL;
+		m_pBuffer = NULL;
 		m_StringList.SetTag(_T("CStringSplitterT"));
-		Splitter(pStr,SplitterChar,StrLen);
+		Splitter(pStr, SplitterChar, StrLen);
+	}
+	CStringSplitterT(const T* pStr, const T* SplitterStr, size_t StrLen = 0, size_t SplitterStrLen = 0)
+	{
+		m_pBuffer = NULL;
+		m_StringList.SetTag(_T("CStringSplitterT"));
+		Splitter(pStr, SplitterStr, StrLen, SplitterStrLen);
 	}
 	~CStringSplitterT()
 	{
@@ -39,71 +45,151 @@ public:
 		SAFE_DELETE_ARRAY(m_pBuffer);
 		m_StringList.Clear();
 	}
-	size_t Splitter(const char * pStr,char SplitterChar,size_t StrLen=0)
-	{		
-		if(pStr==NULL)
+	size_t Splitter(const char* pStr, char SplitterChar, size_t StrLen = 0)
+	{
+		if (pStr == NULL)
 			return 0;
-		if(StrLen==0)
-			StrLen=strlen(pStr);
+		if (StrLen == 0)
+			StrLen = strlen(pStr);
 		if (StrLen == 0)
 			return 0;
 
 		Destory();
 		m_pBuffer = MONITORED_NEW_ARRAY(_T("CStringSplitterT"), char, StrLen + 1);
-		strncpy_s(m_pBuffer,StrLen+1,pStr,StrLen);
-		m_pBuffer[StrLen]=0;
+		strncpy_s(m_pBuffer, StrLen + 1, pStr, StrLen);
+		m_pBuffer[StrLen] = 0;
 
-		char * pSrc=m_pBuffer;
-		char * pFinded=NULL;
-	
-		do{
-			pFinded=strchr(pSrc,SplitterChar);
-			if(pFinded)
+		char* pSrc = m_pBuffer;
+		char* pFinded = NULL;
+
+		do {
+			pFinded = strchr(pSrc, SplitterChar);
+			if (pFinded)
 			{
 				m_StringList.Add(pSrc);
-				*pFinded=0;
+				*pFinded = 0;
 				pFinded++;
-				pSrc=pFinded;				
+				pSrc = pFinded;
 			}
 			else
 			{
 				m_StringList.Add(pSrc);
 			}
-		}while(pFinded);
+		} while (pFinded);
 
 		return GetCount();
 	}
-	size_t Splitter(const WCHAR * pStr,WCHAR SplitterChar,size_t StrLen=0)
+	size_t Splitter(const WCHAR* pStr, WCHAR SplitterChar, size_t StrLen = 0)
 	{
-		if(pStr==NULL)
+		if (pStr == NULL)
 			return 0;
-		if(StrLen==0)
-			StrLen=wcslen(pStr);
+		if (StrLen == 0)
+			StrLen = wcslen(pStr);
 		if (StrLen == 0)
 			return 0;
 
 		Destory();
 		m_pBuffer = MONITORED_NEW_ARRAY(_T("CStringSplitterT"), WCHAR, StrLen + 1);
-		wcsncpy_s(m_pBuffer,StrLen+1,pStr,StrLen);
-		m_pBuffer[StrLen]=0;
+		wcsncpy_s(m_pBuffer, StrLen + 1, pStr, StrLen);
+		m_pBuffer[StrLen] = 0;
 
-		WCHAR * pSrc=m_pBuffer;
-		WCHAR * pFinded=NULL;
+		WCHAR* pSrc = m_pBuffer;
+		WCHAR* pFinded = NULL;
 
-		do{
-			pFinded=wcschr(pSrc,SplitterChar);
-			if(pFinded)
+		do {
+			pFinded = wcschr(pSrc, SplitterChar);
+			if (pFinded)
 			{
 				m_StringList.Add(pSrc);
-				*pFinded=0;
+				*pFinded = 0;
 				pFinded++;
-				pSrc=pFinded;				
+				pSrc = pFinded;
 			}
 			else
 			{
 				m_StringList.Add(pSrc);
 			}
-		}while(pFinded);
+		} while (pFinded);
+
+		return GetCount();
+	}
+	size_t Splitter(const char* pStr, const char* SplitterStr, size_t StrLen = 0, size_t SplitterStrLen = 0)
+	{
+		if (pStr == NULL || SplitterStr == NULL)
+			return 0;
+		if (StrLen == 0)
+			StrLen = strlen(pStr);
+		if (StrLen == 0)
+			return 0;
+		if (SplitterStrLen == 0)
+			SplitterStrLen = strlen(SplitterStr);
+		if (SplitterStrLen == 0)
+			return 0;
+
+		Destory();
+		m_pBuffer = MONITORED_NEW_ARRAY(_T("CStringSplitterT"), char, StrLen + 1);
+		strncpy_s(m_pBuffer, StrLen + 1, pStr, StrLen);
+		m_pBuffer[StrLen] = 0;
+		CEasyStringA SplitterPattern;
+		SplitterPattern.SetString(SplitterStr, SplitterStrLen);
+
+		char* pSrc = m_pBuffer;
+		char* pFinded = NULL;
+
+		do {
+			pFinded = strstr(pSrc, SplitterPattern);
+			if (pFinded)
+			{
+				m_StringList.Add(pSrc);
+				*pFinded = 0;
+				pFinded += SplitterStrLen;
+				pSrc = pFinded;
+			}
+			else
+			{
+				m_StringList.Add(pSrc);
+			}
+		} while (pFinded);
+
+		return GetCount();
+	}
+	size_t Splitter(const WCHAR* pStr, const WCHAR* SplitterStr, size_t StrLen = 0, size_t SplitterStrLen = 0)
+	{
+		if (pStr == NULL || SplitterStr == NULL)
+			return 0;
+		if (StrLen == 0)
+			StrLen = wcslen(pStr);
+		if (StrLen == 0)
+			return 0;
+		if (SplitterStrLen == 0)
+			SplitterStrLen = wcslen(SplitterStr);
+		if (SplitterStrLen == 0)
+			return 0;
+
+		Destory();
+		m_pBuffer = MONITORED_NEW_ARRAY(_T("CStringSplitterT"), WCHAR, StrLen + 1);
+		wcsncpy_s(m_pBuffer, StrLen + 1, pStr, StrLen);
+		m_pBuffer[StrLen] = 0;
+		CEasyStringW SplitterPattern;
+		SplitterPattern.SetString(SplitterStr, SplitterStrLen);
+
+		WCHAR* pSrc = m_pBuffer;
+		WCHAR* pFinded = NULL;
+
+		do {
+			pFinded = wcsstr(pSrc, SplitterPattern);
+			if (pFinded)
+			{
+				m_StringList.Add(pSrc);
+				*pFinded = 0;
+				pFinded += SplitterStrLen;
+				pSrc = pFinded;
+			}
+			else
+			{
+				m_StringList.Add(pSrc);
+			}
+		} while (pFinded);
 
 		return GetCount();
 	}
@@ -113,12 +199,12 @@ public:
 	}
 	const T* GetAt(size_t Index)
 	{
-		if(Index<m_StringList.GetCount())
+		if (Index < m_StringList.GetCount())
 			return m_StringList[Index];
 		else
 			return NULL;
 	}
-	const T * operator[](size_t Index)
+	const T* operator[](size_t Index)
 	{
 		return GetAt(Index);
 	}

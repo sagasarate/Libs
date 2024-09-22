@@ -154,7 +154,7 @@ public:
 				lua_getfield(GetLuaState(), -1, "searchers");
 				if (lua_istable(GetLuaState(), -1))
 				{
-					size_t LoaderCount = lua_rawlen(GetLuaState(), -1);
+					size_t LoaderCount = (size_t)lua_rawlen(GetLuaState(), -1);
 					LogLuaDebug(_T("exist %u lua loaders"), LoaderCount);
 					UINT DataSize = sizeof(CBaseLuaVM*) + sizeof(SearchFunc) + sizeof(LoadFunc);
 					BYTE* pBuffer = (BYTE*)lua_newuserdatauv(GetLuaState(), DataSize, 0);
@@ -166,7 +166,7 @@ public:
 						memcpy(pBuffer + sizeof(CBaseLuaVM*) + sizeof(SearchFunc), &LoadFn, sizeof(LoadFunc));
 						lua_pushcclosure(GetLuaState(), (LuaLoaderDispatcherHelper3<SearchFunc, LoadFunc>::LuaSearcher), 1);
 						lua_rawseti(GetLuaState(), -2, LoaderCount + 1);
-						LoaderCount = lua_rawlen(GetLuaState(), -1);
+						LoaderCount = (size_t)lua_rawlen(GetLuaState(), -1);
 						LogLuaDebug(_T("exist %u lua loaders after register"), LoaderCount);
 						lua_pop(GetLuaState(), 2);
 						return true;

@@ -12,70 +12,6 @@
 #pragma once
 
 
-
-/////////////////////////////////////////////////////////////////////////////
-// Win32 libraries
-
-//#ifndef _AFX
-//
-//	#ifndef _UNICODE
-//		#ifdef _DEBUG
-//			#pragma comment(lib, "nafxcwd.lib")
-//		#else
-//			#pragma comment(lib, "nafxcw.lib")
-//		#endif
-//	#else
-//		#ifdef _DEBUG
-//			#pragma comment(lib, "uafxcwd.lib")
-//		#else
-//			#pragma comment(lib, "uafxcw.lib")
-//		#endif
-//	#endif
-//
-//
-//	#ifdef _DLL
-//		#if !defined(_AFX_NO_DEBUG_CRT) && defined(_DEBUG)
-//			#pragma comment(lib, "msvcrtd.lib")
-//		#else
-//			#pragma comment(lib, "msvcrt.lib")
-//		#endif
-//	#else
-//		#ifdef _MT
-//			#if !defined(_AFX_NO_DEBUG_CRT) && defined(_DEBUG)
-//				#pragma comment(lib, "libcmtd.lib")
-//			#else
-//				#pragma comment(lib, "libcmt.lib")
-//			#endif
-//		#else
-//			#if !defined(_AFX_NO_DEBUG_CRT) && defined(_DEBUG)
-//				#pragma comment(lib, "libcd.lib")
-//			#else
-//				#pragma comment(lib, "libc.lib")
-//			#endif
-//		#endif
-//	#endif
-//
-//	#pragma comment(lib, "kernel32.lib")
-//	#pragma comment(lib, "user32.lib")
-//	#pragma comment(lib, "gdi32.lib")
-//	#pragma comment(lib, "msimg32.lib")
-//	#pragma comment(lib, "comdlg32.lib")
-//	#pragma comment(lib, "winspool.lib")
-//	#pragma comment(lib, "advapi32.lib")
-//	#pragma comment(lib, "shell32.lib")
-//	#pragma comment(lib, "comctl32.lib")
-//	#pragma comment(lib, "shlwapi.lib")
-//
-//	// force inclusion of NOLIB.OBJ for /disallowlib directives
-//	#pragma comment(linker, "/include:__afxForceEXCLUDE")
-//
-//	// force inclusion of DLLMODUL.OBJ for _USRDLL
-//	#ifdef _USRDLL
-//	#pragma comment(linker, "/include:__afxForceUSRDLL")
-//	#endif
-//#endif
-
-
 #include <windows.h>
 #include <Winsvc.h>
 //#include <minwindef.h>
@@ -136,171 +72,129 @@ inline UINT GetCurProcessID()
 	return GetCurrentProcessId();
 }
 
-inline unsigned int AtomicInc(volatile unsigned int * pVal)
+inline unsigned int AtomicInc(volatile unsigned int* pVal)
 {
 	//return AO_int_fetch_and_add1_read(pVal)+1;
-	return _InterlockedIncrement((volatile LONG *)pVal);
+	return _InterlockedIncrement((volatile LONG*)pVal);
 }
 
-inline unsigned int AtomicDec(volatile unsigned int * pVal)
+inline unsigned int AtomicDec(volatile unsigned int* pVal)
 {
 	//return AO_int_fetch_and_sub1_read(pVal)-1;
-	return _InterlockedDecrement((volatile LONG *)pVal);
+	return _InterlockedDecrement((volatile LONG*)pVal);
 }
 
 
-inline unsigned int AtomicAdd(volatile unsigned int * pVal, unsigned int AddVal)
+inline unsigned int AtomicAdd(volatile unsigned int* pVal, unsigned int AddVal)
 {
 	//return AO_int_fetch_and_add(pVal,AddVal);
-	return _InterlockedExchangeAdd((volatile LONG *)pVal,AddVal)+AddVal;
+	return _InterlockedExchangeAdd((volatile LONG*)pVal, AddVal) + AddVal;
 }
 
-inline unsigned int AtomicSub(volatile unsigned int * pVal, unsigned int SubVal)
+inline unsigned int AtomicSub(volatile unsigned int* pVal, unsigned int SubVal)
 {
 	//return AO_int_fetch_and_add(pVal,-SubVal);
-	return _InterlockedExchangeAdd((volatile LONG *)pVal, (unsigned int)(-((int)SubVal))) - SubVal;
+	return _InterlockedExchangeAdd((volatile LONG*)pVal, (unsigned int)(-((int)SubVal))) - SubVal;
 }
 
 
-inline unsigned int AtomicOr(volatile unsigned int * pVal, unsigned int AndVal)
+inline unsigned int AtomicOr(volatile unsigned int* pVal, unsigned int AndVal)
 {
-	return _InterlockedOr((volatile LONG *)pVal, AndVal);
+	return _InterlockedOr((volatile LONG*)pVal, AndVal);
 }
 
-inline unsigned int AtomicAnd(volatile unsigned int * pVal, unsigned int AndVal)
+inline unsigned int AtomicAnd(volatile unsigned int* pVal, unsigned int AndVal)
 {
-	return _InterlockedAnd((volatile LONG *)pVal,AndVal);
+	return _InterlockedAnd((volatile LONG*)pVal, AndVal);
 }
 
-inline unsigned int AtomicXor(volatile unsigned int * pVal, unsigned int AddVal)
+inline unsigned int AtomicXor(volatile unsigned int* pVal, unsigned int AddVal)
 {
 	//return AO_int_fetch_and_add(pVal,AddVal)+AddVal;
-	return _InterlockedXor((volatile LONG *)pVal, AddVal);
+	return _InterlockedXor((volatile LONG*)pVal, AddVal);
 }
 
-inline bool AtomicCompareAndSet(volatile unsigned int * pVal, unsigned int CompValue, unsigned int NewVal)
+inline bool AtomicCompareAndSet(volatile unsigned int* pVal, unsigned int CompValue, unsigned int NewVal)
 {
-	return _InterlockedCompareExchange((volatile LONG *)pVal, NewVal, CompValue) != *pVal;
+	return _InterlockedCompareExchange((volatile LONG*)pVal, NewVal, CompValue) != *pVal;
 }
 
 #ifdef _WIN64
 
-inline unsigned __int64 AtomicInc(volatile unsigned __int64 * pVal)
+inline unsigned __int64 AtomicInc(volatile unsigned __int64* pVal)
 {
 	//return AO_int_fetch_and_add1_read(pVal)+1;
-	return _InterlockedIncrement64((volatile LONG64 *)pVal);
+	return _InterlockedIncrement64((volatile LONG64*)pVal);
 }
-inline unsigned __int64 AtomicDec(volatile unsigned __int64 * pVal)
+inline unsigned __int64 AtomicDec(volatile unsigned __int64* pVal)
 {
 	//return AO_int_fetch_and_sub1_read(pVal)-1;
-	return _InterlockedDecrement64((volatile LONG64 *)pVal);
+	return _InterlockedDecrement64((volatile LONG64*)pVal);
 }
 
 
-inline unsigned __int64 AtomicAdd(volatile unsigned __int64 * pVal, unsigned __int64 AddVal)
+inline unsigned __int64 AtomicAdd(volatile unsigned __int64* pVal, unsigned __int64 AddVal)
 {
 	//return AO_int_fetch_and_add(pVal,AddVal);
-	return _InterlockedExchangeAdd64((volatile LONG64 *)pVal, AddVal) + AddVal;
+	return _InterlockedExchangeAdd64((volatile LONG64*)pVal, AddVal) + AddVal;
 }
 
-inline unsigned __int64 AtomicSub(volatile unsigned __int64 * pVal, unsigned __int64 SubVal)
+inline unsigned __int64 AtomicSub(volatile unsigned __int64* pVal, unsigned __int64 SubVal)
 {
 	//return AO_int_fetch_and_add(pVal,-SubVal);
-	return _InterlockedExchangeAdd64((volatile LONG64 *)pVal, (unsigned __int64)(-((__int64)SubVal))) - SubVal;
+	return _InterlockedExchangeAdd64((volatile LONG64*)pVal, (unsigned __int64)(-((__int64)SubVal))) - SubVal;
 }
 
 
-inline unsigned __int64 AtomicOr(volatile unsigned __int64 * pVal, unsigned __int64 AndVal)
+inline unsigned __int64 AtomicOr(volatile unsigned __int64* pVal, unsigned __int64 AndVal)
 {
-	return _InterlockedOr64((volatile LONG64 *)pVal, AndVal);
+	return _InterlockedOr64((volatile LONG64*)pVal, AndVal);
 }
 
-inline unsigned __int64 AtomicAnd(volatile unsigned __int64 * pVal, unsigned __int64 AndVal)
+inline unsigned __int64 AtomicAnd(volatile unsigned __int64* pVal, unsigned __int64 AndVal)
 {
-	return _InterlockedAnd64((volatile LONG64 *)pVal, AndVal);
+	return _InterlockedAnd64((volatile LONG64*)pVal, AndVal);
 }
 
-inline unsigned __int64 AtomicXor(volatile unsigned __int64 * pVal, unsigned __int64 AddVal)
+inline unsigned __int64 AtomicXor(volatile unsigned __int64* pVal, unsigned __int64 AddVal)
 {
 	//return AO_int_fetch_and_add(pVal,AddVal)+AddVal;
-	return _InterlockedXor64((volatile LONG64 *)pVal, AddVal);
+	return _InterlockedXor64((volatile LONG64*)pVal, AddVal);
 }
 
-inline bool AtomicCompareAndSet(volatile unsigned __int64 * pVal, unsigned __int64 CompValue, unsigned __int64 NewVal)
+inline bool AtomicCompareAndSet(volatile unsigned __int64* pVal, unsigned __int64 CompValue, unsigned __int64 NewVal)
 {
-	return _InterlockedCompareExchange64((volatile LONG64 *)pVal, NewVal, CompValue) != *pVal;
+	return _InterlockedCompareExchange64((volatile LONG64*)pVal, NewVal, CompValue) != *pVal;
 }
 #endif
 
 
-inline size_t GetEnvVar(LPCTSTR pszVarName,LPTSTR pszValue,size_t nBufferLen)
+inline size_t GetEnvVar(LPCTSTR pszVarName, LPTSTR pszValue, size_t nBufferLen)
 {
-	size_t ValueLen=0;
-#ifdef _UNICODE
-	_wgetenv_s(&ValueLen,pszValue,nBufferLen,pszVarName);
-#else	
-	getenv_s(&ValueLen,pszValue,nBufferLen,pszVarName);
-#endif
-	return ValueLen;
+	return GetEnvironmentVariable(pszVarName, pszValue, (DWORD)nBufferLen);
+	//	size_t ValueLen=0;	
+	//#ifdef _UNICODE
+	//	_wgetenv_s(&ValueLen,pszValue,nBufferLen,pszVarName);
+	//#else	
+	//	getenv_s(&ValueLen,pszValue,nBufferLen,pszVarName);
+	//#endif
+	//	return ValueLen;
 }
 
-inline bool SetEnvVar(LPCTSTR pszVarName,LPTSTR pszValue)
+inline bool SetEnvVar(LPCTSTR pszVarName, LPCTSTR pszValue)
 {
-#ifdef _UNICODE
-	if(_wputenv_s(pszVarName,pszValue)==0)
-		return true;
-#else	
-	if(_putenv_s(pszVarName,pszValue)==0)
-		return true;
-#endif
-	return false;
-}
-
-inline size_t AnsiToUnicode(const char * SrcStr,size_t SrcLen,WCHAR * DestStr,size_t DestLen)
-{
-	return (size_t)MultiByteToWideChar(CP_ACP,0,SrcStr,(int)SrcLen,(LPWSTR)DestStr,(int)DestLen);
-}
-
-inline size_t UnicodeToAnsi(const WCHAR * SrcStr,size_t SrcLen,char * DestStr,size_t DestLen)
-{
-	return (size_t)WideCharToMultiByte(CP_ACP,0,(LPWSTR)SrcStr,(int)SrcLen,DestStr,(int)DestLen,NULL,NULL);
-}
-
-inline size_t UTF8ToUnicode(const char * SrcStr, size_t SrcLen, WCHAR * DestStr, size_t DestLen)
-{
-	return (size_t)MultiByteToWideChar(CP_UTF8, 0, SrcStr, (int)SrcLen, (LPWSTR)DestStr, (int)DestLen);
-}
-
-inline size_t UnicodeToUTF8(const WCHAR * SrcStr,size_t SrcLen,char * DestStr,size_t DestLen)
-{
-	return (size_t)WideCharToMultiByte(CP_UTF8,0,(LPWSTR)SrcStr,(int)SrcLen,DestStr,(int)DestLen,NULL,NULL);
+	return SetEnvironmentVariable(pszVarName, pszValue) != FALSE;
+	//#ifdef _UNICODE
+	//	if(_wputenv_s(pszVarName,pszValue)==0)
+	//		return true;
+	//#else	
+	//	if(_putenv_s(pszVarName,pszValue)==0)
+	//		return true;
+	//#endif
+	//	return false;
 }
 
 
-
-inline size_t AnsiToUTF8(const char * SrcStr,size_t SrcLen,char * DestStr,size_t DestLen)
-{
-	int WLen=MultiByteToWideChar(CP_ACP,0,SrcStr,(int)SrcLen,NULL,0);
-	WCHAR * pWBuffer=new WCHAR[WLen+1];
-	WLen=MultiByteToWideChar(CP_ACP,0,SrcStr,(int)SrcLen,pWBuffer,WLen);
-	pWBuffer[WLen]=0;
-
-	int Len=WideCharToMultiByte(CP_UTF8,0,pWBuffer,WLen,DestStr,(int)DestLen,NULL,NULL);
-	delete[] pWBuffer;
-	return (size_t)Len;
-}
-
-inline size_t UTF8ToAnsi(const char * SrcStr,size_t SrcLen,char * DestStr,size_t DestLen)
-{
-	int WLen=MultiByteToWideChar(CP_UTF8,0,SrcStr,(int)SrcLen,NULL,0);
-	WCHAR * pWBuffer=new WCHAR[WLen+1];
-	WLen=MultiByteToWideChar(CP_UTF8,0,SrcStr,(int)SrcLen,pWBuffer,WLen);
-	pWBuffer[WLen]=0;
-
-	int Len=WideCharToMultiByte(CP_ACP,0,pWBuffer,WLen,DestStr,(int)DestLen,NULL,NULL);
-	delete[] pWBuffer;
-	return (size_t)Len;
-}
 
 #include "EasyCriticalSectionWin.h"
 #include "AutoLock.h"

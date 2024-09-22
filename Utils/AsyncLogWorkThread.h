@@ -10,7 +10,7 @@ public:
 	CAsyncLogWorkThread();
 	~CAsyncLogWorkThread();
 
-	virtual BOOL OnRun();
+	virtual bool OnRun();
 
 	virtual bool AddLogPrinter(ILogPrinter * pLogPrinter);
 	virtual bool RemoveLogPrinter(ILogPrinter * pLogPrinter);

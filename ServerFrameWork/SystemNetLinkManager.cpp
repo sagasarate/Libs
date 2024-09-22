@@ -42,11 +42,11 @@ void CSystemNetLinkManager::SendLogMsg(LPCTSTR LogMsg)
 	{
 		CEasyBuffer	SendBuffer(s_SendBuffer, 65536, _T("CSystemNetLinkManager"));
 		SMSG_HEADER * pMsgHeader = (SMSG_HEADER *)s_SendBuffer;
-		UINT StrLne = _tcslen(LogMsg);
+		UINT StrLen = (UINT)_tcslen(LogMsg);
 
 		pMsgHeader->MsgID = SC_MSG_SERVER_LOG;
-		pMsgHeader->Size = (WORD)(sizeof(SMSG_HEADER) + StrLne*sizeof(TCHAR));
-		memcpy(s_SendBuffer + sizeof(SMSG_HEADER), LogMsg, StrLne*sizeof(TCHAR));
+		pMsgHeader->Size = (WORD)(sizeof(SMSG_HEADER) + StrLen *sizeof(TCHAR));
+		memcpy(s_SendBuffer + sizeof(SMSG_HEADER), LogMsg, StrLen *sizeof(TCHAR));
 
 		SendBuffer.SetUsedSize(pMsgHeader->Size);
 
@@ -60,7 +60,7 @@ void CSystemNetLinkManager::SendLogMsg(LPCTSTR LogMsg)
 				CSystemNetLink * pLink=(CSystemNetLink *)(*ppValue);
 				if(pLink->IsLinkLog())
 				{
-					pLink->SendData(SendBuffer.GetBuffer(),SendBuffer.GetUsedSize());
+					pLink->SendData(SendBuffer.GetBuffer(),(UINT)SendBuffer.GetUsedSize());
 				}
 			}
 		}

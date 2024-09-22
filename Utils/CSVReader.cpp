@@ -271,7 +271,7 @@ bool CCSVReader::Save(IFileAccessor * pFileAccessor,bool WriteHeader)
 	StringFile.SetSaveCodePage(m_SaveCodePage);
 
 	StringFile.LoadFromString(pSaveBuffer,DataLen,false);
-	bool Ret=StringFile.SaveToFile(pFileAccessor)==TRUE;
+	bool Ret=StringFile.SaveToFile(pFileAccessor);
 
 	SAFE_DELETE_ARRAY(pSaveBuffer);
 	return Ret;

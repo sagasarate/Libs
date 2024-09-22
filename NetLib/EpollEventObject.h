@@ -45,7 +45,7 @@ public:
 	void SetID(UINT ID);
 	UINT GetID();
 
-	BOOL Create(CNetServer * pCreator);
+	bool Create(CNetServer * pCreator);
 	void Destory();
 	
 	CEasyBuffer * GetDataBuff();	

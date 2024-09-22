@@ -28,13 +28,13 @@ bool CIOCPListenThread::Init(CNetService * pService,SOCKET ListenSocket)
 	return true;
 }
 
-BOOL CIOCPListenThread::OnStart()
+bool CIOCPListenThread::OnStart()
 {
 	PrintNetLog(_T("ListenThread启动"));
-	return TRUE;
+	return true;
 }
 
-BOOL CIOCPListenThread::OnRun()
+bool CIOCPListenThread::OnRun()
 {
 	CIPAddress Address;
 	int AddressLen = sizeof(CIPAddress);
@@ -53,7 +53,7 @@ BOOL CIOCPListenThread::OnRun()
 			if(pOverLappedObject)
 			{
 				m_pServer->OnIOCPEvent(IOE_ERROR,pOverLappedObject);
-				return FALSE;
+				return false;
 			}
 			else
 			{
@@ -72,7 +72,7 @@ BOOL CIOCPListenThread::OnRun()
 			{
 				pOverLappedObject->SetAcceptSocket(AcceptSocket);
 				m_pServer->OnIOCPEvent(IOE_PACKET,pOverLappedObject);
-				return TRUE;
+				return true;
 			}
 			else
 			{
@@ -84,7 +84,7 @@ BOOL CIOCPListenThread::OnRun()
 
 		closesocket(AcceptSocket);
 	}
-	return TRUE;
+	return true;
 }
 
 void CIOCPListenThread::OnTerminate()

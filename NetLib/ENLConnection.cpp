@@ -420,7 +420,7 @@ const BYTE* CENLConnection::DecompressMsg(const BYTE* pData, UINT& DataLen)
 				NULL);
 			if (Result == LZO_E_OK)
 			{
-				DataLen = OutLen;
+				DataLen = (UINT)OutLen;
 				return (BYTE*)m_CompressBuffer.GetBuffer();
 			}
 			else

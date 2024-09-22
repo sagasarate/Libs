@@ -50,7 +50,7 @@ int	CServerApp::m_Pipe[2] = { 0, 0 };
 
 CServerApp::CServerApp(void)
 {
-	m_WantExist=FALSE;
+	m_WantExist=false;
 	m_pServer=NULL;
 	m_gAppInstance=this;
 }
@@ -61,10 +61,10 @@ CServerApp::~CServerApp(void)
 
 
 
-BOOL CServerApp::OnStartUp()
+bool CServerApp::OnStartUp()
 {
 	InitSignals();	
-	return TRUE;
+	return true;
 }
 void CServerApp::OnShutDown()
 {
@@ -206,7 +206,7 @@ void CServerApp::OnQuitSignal(int SignalNum, siginfo_t * pSigInfo, void * pConte
 {
 	PrintImportantLog("收到退出信号%d，准备退出", SignalNum);
 	if (m_gAppInstance)
-		m_gAppInstance->m_WantExist = TRUE;
+		m_gAppInstance->m_WantExist = true;
 }
 
 void CServerApp::OnExceptionSignal(int SignalNum, siginfo_t * pSigInfo, void * pContext)

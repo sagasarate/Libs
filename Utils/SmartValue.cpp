@@ -364,7 +364,7 @@ bool CSmartValue::FetchVariedData(CVariedValue& Value) const
 	return false;
 }
 
-rapidjson::Value CSmartValue::ToJson(rapidjson::Document::AllocatorType& Alloc)
+rapidjson::Value CSmartValue::ToJson(rapidjson::Document::AllocatorType& Alloc) const
 {
 	switch (this->GetType())
 	{
@@ -377,9 +377,9 @@ rapidjson::Value CSmartValue::ToJson(rapidjson::Document::AllocatorType& Alloc)
 	case VT_UINT:
 		return rapidjson::Value((unsigned int)(*this));
 	case VT_BIGINT:
-		return rapidjson::Value((__int64)(*this));
+		return rapidjson::Value((int64_t)((__int64)(*this)));
 	case VT_UBIGINT:
-		return rapidjson::Value((unsigned __int64)(*this));
+		return rapidjson::Value((uint64_t)((unsigned __int64)(*this)));
 	case VT_FLOAT:
 		return rapidjson::Value((float)(*this));
 	case VT_DOUBLE:
@@ -392,7 +392,7 @@ rapidjson::Value CSmartValue::ToJson(rapidjson::Document::AllocatorType& Alloc)
 		return CSmartStruct(*this).ToJson(Alloc);
 	case VT_BINARY:
 		{
-			CEasyString BinStr = BinToString((BYTE*)(*this), GetLength());
+			CEasyString BinStr = BinToString((const BYTE*)(*this), GetLength());
 			return rapidjson::Value((LPCTSTR)BinStr, Alloc);
 		}
 	case VT_ARRAY:

@@ -66,7 +66,7 @@ void CServerThread::Execute()
 }
 
 
-BOOL CServerThread::OnStart()
+bool CServerThread::OnStart()
 {
 	FUNCTION_BEGIN;
 
@@ -163,7 +163,7 @@ BOOL CServerThread::OnStart()
 	m_ESFactionList.AddCFunction("SetConsoleLogLevel",1,this,&CServerThread::SFSetConsoleLogLevel);
 
 	if(!CNetServer::OnStart())
-		return FALSE;
+		return false;
 
 	//初始化系统连接
 	m_pSysNetLinkManager = MONITORED_NEW(_T("CServerThread"), CSystemNetLinkManager);
@@ -248,7 +248,7 @@ BOOL CServerThread::OnStart()
 	Log("服务器成功启动");
 
 	FUNCTION_END;
-	return TRUE;
+	return true;
 }
 
 void CServerThread::OnBeginTerminate()
@@ -268,12 +268,12 @@ void CServerThread::OnTerminate()
 	FUNCTION_END;
 }
 
-BOOL CServerThread::OnRun()
+bool CServerThread::OnRun()
 {
 	FUNCTION_BEGIN;
 
 	if(!CNetServer::OnRun())
-		return FALSE;
+		return false;
 
 	if(Update(CSystemConfig::GetInstance()->GetMainThreadProcessLimit())==0)
 	{
@@ -298,7 +298,7 @@ BOOL CServerThread::OnRun()
 	
 
 	FUNCTION_END;
-	return TRUE;
+	return true;
 }
 
 int CServerThread::Update(int ProcessPacketLimit)
@@ -329,9 +329,9 @@ int CServerThread::Update(int ProcessPacketLimit)
 	return 0;
 }
 
-BOOL CServerThread::OnTerminating()
+bool CServerThread::OnTerminating()
 {
-	return FALSE;
+	return false;
 }
 
 
@@ -409,7 +409,7 @@ void CServerThread::QueryShowDown()
 bool CServerThread::IsServerTerminated()
 {
 	FUNCTION_BEGIN;
-	return IsTerminated()!=FALSE;
+	return IsTerminated();
 	FUNCTION_END;
 	return true;
 }

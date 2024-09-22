@@ -111,7 +111,7 @@ bool CEpollThread::UnbindSocket(SOCKET Socket)
 		
 }
 
-BOOL CEpollThread::OnStart()
+bool CEpollThread::OnStart()
 {
 	PrintNetLog(_T("Epoll工作线程启动"));
 
@@ -125,12 +125,12 @@ BOOL CEpollThread::OnStart()
 	if (m_hEpoll == INVALID_HANDLE_VALUE)
 	{
 		PrintNetLog( "(%d)创建Epoll失败(%d)！", GetID(), GetLastError());
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL CEpollThread::OnRun()
+bool CEpollThread::OnRun()
 {
 
 	epoll_event Events[DEFAULT_EPOLL_EVENT_WAIT_NUM];
@@ -162,7 +162,7 @@ BOOL CEpollThread::OnRun()
 	}
 
 
-	return TRUE;
+	return true;
 }
 
 void CEpollThread::OnTerminate()
