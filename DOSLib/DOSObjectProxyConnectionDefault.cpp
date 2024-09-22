@@ -679,7 +679,7 @@ bool CDOSObjectProxyConnectionDefault::SendDisconnectNotify()
 		}		
 		pNewPacket->MakePacketLength();
 
-		bool Ret = GetServer()->GetRouter()->RouterMessage(pNewPacket) != FALSE;
+		bool Ret = GetServer()->GetRouter()->RouterMessage(pNewPacket);
 		GetServer()->ReleaseMessagePacket(pNewPacket);
 		return Ret;
 	}
@@ -766,7 +766,7 @@ bool CDOSObjectProxyConnectionDefault::DoUnregisterMsgMap(MSG_ID_TYPE MsgID, OBJ
 		{
 			//PrintDOSLog(_T("0x%llX注销了代理[0x%X]消息映射[0x%X]！"),ObjectID.ID,GetID(),MsgID);
 			m_UnacceptConnectionKeepTimer.SaveTime();
-			return m_MessageMap.Delete(MsgID) != FALSE;
+			return m_MessageMap.Delete(MsgID);
 		}
 		else
 		{
@@ -1059,7 +1059,7 @@ void * CDOSObjectProxyConnectionDefault::DecyptMsg(void * pData, MSG_LEN_TYPE& D
 					{
 						PrintDOSLog(_T("TEA:CRC校验失败"));
 						if (m_Config.DumpMsg)
-							DumpBinData((const BYTE *)m_pEncyptBuffer->GetBuffer(), OutLen, m_Config.MaxMsgDumpSize);
+							DumpBinData((const BYTE *)m_pEncyptBuffer->GetBuffer(), (UINT)OutLen, m_Config.MaxMsgDumpSize);
 					}
 				}
 				else

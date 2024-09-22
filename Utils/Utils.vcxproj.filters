@@ -261,9 +261,6 @@
     <ClInclude Include="StaticObject.h">
       <Filter>对象基类</Filter>
     </ClInclude>
-    <ClInclude Include="TreeObject.h">
-      <Filter>对象基类</Filter>
-    </ClInclude>
     <ClInclude Include="FloatRect.h">
       <Filter>数据结构</Filter>
     </ClInclude>
@@ -463,9 +460,6 @@
       <Filter>LZMA</Filter>
     </ClInclude>
     <ClInclude Include="LZMA\Lzma2Enc.h">
-      <Filter>LZMA</Filter>
-    </ClInclude>
-    <ClInclude Include="LZMA\Lzma86.h">
       <Filter>LZMA</Filter>
     </ClInclude>
     <ClInclude Include="LZMA\LzmaDec.h">
@@ -795,6 +789,9 @@
     <ClInclude Include="VariedValue.h">
       <Filter>数据结构</Filter>
     </ClInclude>
+    <ClInclude Include="TreeObject.h">
+      <Filter>USO资源管理</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EasyTimerEx.cpp">
@@ -846,9 +843,6 @@
       <Filter>文件系统\目录搜索</Filter>
     </ClCompile>
     <ClCompile Include="NameObject.cpp">
-      <Filter>对象基类</Filter>
-    </ClCompile>
-    <ClCompile Include="TreeObject.cpp">
       <Filter>对象基类</Filter>
     </ClCompile>
     <ClCompile Include="CycleBuffer.cpp">
@@ -965,12 +959,6 @@
     <ClCompile Include="LZMA\Lzma2Enc.c">
       <Filter>LZMA</Filter>
     </ClCompile>
-    <ClCompile Include="LZMA\Lzma86Dec.c">
-      <Filter>LZMA</Filter>
-    </ClCompile>
-    <ClCompile Include="LZMA\Lzma86Enc.c">
-      <Filter>LZMA</Filter>
-    </ClCompile>
     <ClCompile Include="LZMA\LzmaDec.c">
       <Filter>LZMA</Filter>
     </ClCompile>
@@ -1067,6 +1055,9 @@
     <ClCompile Include="SmartArray.cpp">
       <Filter>SmartStruct</Filter>
     </ClCompile>
+    <ClCompile Include="TreeObject.cpp">
+      <Filter>USO资源管理</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LZO\README.LZO">
@@ -1075,14 +1066,6 @@
     <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="atomic_ops\lib\libatomic_ops_gpl.lib">
-      <Filter>atomic_ops</Filter>
-    </Library>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="libatomic_ops-1.2.tar.gz">
-      <Filter>atomic_ops</Filter>
-    </CustomBuild>
     <CustomBuild Include="Utils.cbp" />
   </ItemGroup>
 </Project>

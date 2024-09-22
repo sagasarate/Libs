@@ -12,13 +12,6 @@
 #pragma once
 
 
-
-//#pragma comment(lib,"mysqlclient.lib")
-
-
-
-
-
 namespace DBLib
 {
 

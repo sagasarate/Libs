@@ -27,7 +27,7 @@ public:
 
 public:
 
-	virtual BOOL OnStartUp();
+	virtual bool OnStartUp();
 	virtual void OnShutDown();
 
 	virtual int Run();

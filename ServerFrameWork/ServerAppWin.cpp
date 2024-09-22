@@ -119,9 +119,9 @@ void CServerApp::Stop()
 		m_pServer->QueryShowDown();
 }
 
-BOOL CServerApp::OnStartUp()
+bool CServerApp::OnStartUp()
 {
-	return TRUE;
+	return true;
 }
 void CServerApp::OnShutDown()
 {

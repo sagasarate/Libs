@@ -51,7 +51,7 @@ CCycleBuffer::~CCycleBuffer(void)
 	Destory();
 }
 
-BOOL CCycleBuffer::Create(UINT Size)
+bool CCycleBuffer::Create(UINT Size)
 {
 	Destory();	
 	m_BufferSize = Size + 1;
@@ -59,10 +59,10 @@ BOOL CCycleBuffer::Create(UINT Size)
 	m_BufferHead = 0;
 	m_BufferTail = 0;
 	m_IsSelfBuffer = true;
-	return TRUE;
+	return true;
 }
 
-BOOL CCycleBuffer::Create(LPVOID pBuff, UINT Size)
+bool CCycleBuffer::Create(LPVOID pBuff, UINT Size)
 {
 	Destory();	
 	m_pBuffer = (BYTE *)pBuff;
@@ -70,7 +70,7 @@ BOOL CCycleBuffer::Create(LPVOID pBuff, UINT Size)
 	m_BufferHead = 0;
 	m_BufferTail = 0;
 	m_IsSelfBuffer = false;
-	return TRUE;
+	return true;
 }
 
 void CCycleBuffer::Destory()

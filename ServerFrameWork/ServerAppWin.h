@@ -34,7 +34,7 @@ public:
 public:
 
 	virtual int Run();
-	virtual BOOL OnStartUp();
+	virtual bool OnStartUp();
 	virtual void OnShutDown();
 
 protected:

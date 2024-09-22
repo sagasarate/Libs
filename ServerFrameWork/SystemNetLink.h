@@ -16,7 +16,7 @@ class CSystemNetLink :
 {
 protected:
 	CBaseServer *		m_pServer;
-	BOOL				m_IsLinkLog;
+	bool				m_IsLinkLog;
 public:
 	CSystemNetLink(CBaseServer * pServer);
 	~CSystemNetLink(void);
@@ -26,7 +26,7 @@ public:
 
 	virtual void OnData(const BYTE * pData, UINT DataSize);
 
-	BOOL IsLinkLog()
+	bool IsLinkLog()
 	{
 		return m_IsLinkLog;
 	}

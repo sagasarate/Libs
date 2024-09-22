@@ -46,6 +46,7 @@
 #include <utime.h>
 #include <dlfcn.h>
 #include <signal.h>
+#include <sys/syscall.h>
 
 #define __forceinline inline
 
@@ -58,8 +59,8 @@
 
 #define MAX_PATH        PATH_MAX
 
-#define TRUE			1
-#define FALSE			0
+//#define TRUE			1
+//#define FALSE			0
 #define INFINITE		0xffffffff
 #define __int64			long long
 
@@ -91,7 +92,7 @@ typedef unsigned long ULONG;
 typedef unsigned int WPARAM;
 typedef unsigned int LPARAM;
 typedef unsigned int  LRESULT;
-typedef int BOOL;
+//typedef int BOOL;
 typedef float FLOAT;
 typedef double DOUBLE;
 typedef unsigned short WCHAR;
@@ -667,39 +668,7 @@ inline bool AtomicCompareAndSet(volatile unsigned __int64 * pVal, unsigned __int
 
 #define ZeroMemory(Destination,Length) memset((Destination),0,(Length))
 
-inline size_t AnsiToUnicode(const char * SrcStr,size_t SrcLen,WCHAR * DestStr,size_t DestLen)
-{
-	DestLen = DestLen * sizeof(WCHAR);
-	return iconv_gbk2ucs2(SrcStr, SrcLen, (char *)DestStr, DestLen) / sizeof(WCHAR);
-}
 
-inline size_t UnicodeToAnsi(const WCHAR * SrcStr,size_t SrcLen,char * DestStr,size_t DestLen)
-{
-	SrcLen = SrcLen * sizeof(WCHAR);
-	return iconv_ucs22gbk((char *)SrcStr, SrcLen, DestStr, DestLen);
-}
-
-inline size_t UTF8ToUnicode(const char * SrcStr, size_t SrcLen, WCHAR * DestStr, size_t DestLen)
-{
-	DestLen = DestLen * sizeof(WCHAR);
-	return iconv_utf82ucs2(SrcStr, SrcLen, (char *)DestStr, DestLen) / sizeof(WCHAR);
-}
-
-inline size_t UnicodeToUTF8(const WCHAR * SrcStr, size_t SrcLen, char * DestStr, size_t DestLen)
-{
-	SrcLen = SrcLen * sizeof(WCHAR);
-	return iconv_ucs22utf8((char *)SrcStr, SrcLen, DestStr, DestLen);
-}
-
-inline size_t AnsiToUTF8(const char * SrcStr, size_t SrcLen, char * DestStr, size_t DestLen)
-{
-	return iconv_gbk2utf8(SrcStr, SrcLen, DestStr, DestLen);
-}
-
-inline size_t UTF8ToAnsi(const char * SrcStr, size_t SrcLen, char * DestStr, size_t DestLen)
-{
-	return iconv_utf82gbk(SrcStr, SrcLen, DestStr, DestLen);
-}
 
 #include "TCharLinux.h"
 

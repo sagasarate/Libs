@@ -79,15 +79,15 @@ LUA_EMPTY_VALUE CLuaSmartValue::LuaNew(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 	{
 		if (lua_isnumber(pLuaThread->GetLuaState(), 1) && lua_isnumber(pLuaThread->GetLuaState(), 2))
 		{
-			DataLen = lua_tointeger(pLuaThread->GetLuaState(), 1);
-			ClearType = lua_tointeger(pLuaThread->GetLuaState(), 2);			
+			DataLen = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 1);
+			ClearType = (int)lua_tointeger(pLuaThread->GetLuaState(), 2);			
 		}
 		else
 		{
 			pByteArray = pLuaThread->GetValue<CLuaByteArray*>(2);
 			if (pByteArray)
 			{
-				ClearType = lua_tointeger(pLuaThread->GetLuaState(), 3);
+				ClearType = (int)lua_tointeger(pLuaThread->GetLuaState(), 3);
 			}
 			else
 			{
@@ -100,8 +100,8 @@ LUA_EMPTY_VALUE CLuaSmartValue::LuaNew(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 		pByteArray = pLuaThread->GetValue<CLuaByteArray*>(1);
 		if (pByteArray)
 		{
-			ClearType = lua_tointeger(pLuaThread->GetLuaState(), 2);
-			StartIndex = lua_tointeger(pLuaThread->GetLuaState(), 3);
+			ClearType = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 2);
+			StartIndex = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 3);
 			if (StartIndex < pByteArray->GetDataLen())
 			{
 				DataLen = pByteArray->GetDataLen() - StartIndex;
@@ -121,9 +121,9 @@ LUA_EMPTY_VALUE CLuaSmartValue::LuaNew(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 		pByteArray = pLuaThread->GetValue<CLuaByteArray*>(1);
 		if (pByteArray)
 		{
-			ClearType = lua_tointeger(pLuaThread->GetLuaState(), 2);
-			StartIndex = lua_tointeger(pLuaThread->GetLuaState(), 3);
-			DataLen = lua_tointeger(pLuaThread->GetLuaState(), 4);
+			ClearType = (int)lua_tointeger(pLuaThread->GetLuaState(), 2);
+			StartIndex = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 3);
+			DataLen = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 4);
 			if (StartIndex + DataLen > pByteArray->GetDataLen())
 			{
 				LogLua(_T("invalid StartIndex=%u DataLen=%u on ByteArray(%u)"), StartIndex, DataLen, pByteArray->GetDataLen());
@@ -245,8 +245,8 @@ bool CLuaSmartValue::LuaAttach(CLuaBaseMetaClass* pObject)
 					UINT DataLen = pByteArray->GetDataLen();
 					if (ParamCount >= 5)
 					{
-						StartIndex = lua_tointeger(m_pCurThread->GetLuaState(), 4);
-						DataLen = lua_tointeger(m_pCurThread->GetLuaState(), 5);
+						StartIndex = (UINT)lua_tointeger(m_pCurThread->GetLuaState(), 4);
+						DataLen = (UINT)lua_tointeger(m_pCurThread->GetLuaState(), 5);
 						if (StartIndex + DataLen > pByteArray->GetDataLen())
 						{
 							luaL_error(m_pCurThread->GetLuaState(), "start(%u) len(%u) out of byte array range(%u)",
@@ -309,7 +309,7 @@ bool CLuaSmartValue::LuaSetValue(LUA_EMPTY_VALUE)
 	{
 		if (lua_isnumber(m_pCurThread->GetLuaState(), 3))
 		{
-			Type = lua_tointeger(m_pCurThread->GetLuaState(), 3);
+			Type = (int)lua_tointeger(m_pCurThread->GetLuaState(), 3);
 			if (Type > CSmartValue::VT_UNKNOWN)
 				Type = CSmartValue::VT_UNKNOWN;
 			CanChageType = true;

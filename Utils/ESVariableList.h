@@ -65,7 +65,7 @@ public:
 	{
 
 	}
-	BOOL Create(UINT Size)
+	bool Create(UINT Size)
 	{
 		return m_Map.Create(Size);
 	}
@@ -238,13 +238,13 @@ public:
 		Key.MakeUpper();
 		return m_Map.Find(Key);
 	}
-	BOOL DelVariable(LPCTSTR VarName)
+	bool DelVariable(LPCTSTR VarName)
 	{
 		CEasyString Key(VarName);
 		Key.MakeUpper();
 		return m_Map.Delete(Key);
 	}
-	BOOL DelVariable(UINT VarID)
+	bool DelVariable(UINT VarID)
 	{
 		return m_Map.DeleteByID(VarID-m_IDStart);
 	}

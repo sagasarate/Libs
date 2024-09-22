@@ -40,7 +40,7 @@ public:
 	CDOSRouterLinkManager * GetRouterLinkManager();
 
 	CDOSMessagePacket * NewMessagePacket(UINT Size);
-	BOOL ReleaseMessagePacket(CDOSMessagePacket * pPacket);
+	bool ReleaseMessagePacket(CDOSMessagePacket * pPacket);
 	void AddRefMessagePacket(CDOSMessagePacket * pPacket);
 protected:
 	virtual bool OnStartUp();
@@ -102,7 +102,7 @@ inline CDOSMessagePacket * CDOSServer::NewMessagePacket(UINT Size)
 	}
 	return pPacket;
 }
-inline BOOL CDOSServer::ReleaseMessagePacket(CDOSMessagePacket * pPacket)
+inline bool CDOSServer::ReleaseMessagePacket(CDOSMessagePacket * pPacket)
 {
 	UINT RefCount=pPacket->DecRefCount();
 #ifdef LOG_MEM_CALL_STACK
@@ -118,10 +118,10 @@ inline BOOL CDOSServer::ReleaseMessagePacket(CDOSMessagePacket * pPacket)
 		else
 		{
 			MONITORED_FREE(pPacket);
-			return TRUE;
+			return true;
 		}
 	}
-	return TRUE;
+	return true;
 }
 inline void CDOSServer::AddRefMessagePacket(CDOSMessagePacket * pPacket)
 {

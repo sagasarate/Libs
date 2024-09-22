@@ -51,17 +51,17 @@ public:
 	CDOSRouter(void);
 	virtual ~CDOSRouter(void);
 
-	BOOL Init(CDOSServer * pServer);
+	bool Init(CDOSServer * pServer);
 
-	virtual BOOL OnStart();
-	virtual BOOL OnRun();
+	virtual bool OnStart();
+	virtual bool OnRun();
 	virtual void OnTerminate();
 	
 
-	BOOL RouterMessage(OBJECT_ID SenderID,OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag,LPCVOID pData,UINT DataSize);
-	BOOL RouterMessage(OBJECT_ID SenderID, OBJECT_ID * pReceiverID, UINT ReceiverCount, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize);
+	bool RouterMessage(OBJECT_ID SenderID,OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag,LPCVOID pData,UINT DataSize);
+	bool RouterMessage(OBJECT_ID SenderID, OBJECT_ID * pReceiverID, UINT ReceiverCount, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize);
 
-	BOOL RouterMessage(CDOSMessagePacket * pPacket);
+	bool RouterMessage(CDOSMessagePacket * pPacket);
 
 	UINT GetRouterID();
 	CDOSServer * GetServer();
@@ -77,10 +77,10 @@ public:
 	void ResetStatData();
 protected:
 	int DoMessageRoute(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);	
-	BOOL IsSameRouter(const OBJECT_ID * pReceiverIDs,int Count);
+	bool IsSameRouter(const OBJECT_ID * pReceiverIDs,int Count);
 	int GetGroupCount(const OBJECT_ID * pReceiverIDs,int Count);
 
-	BOOL DispatchMessage(CDOSMessagePacket * pPacket, const OBJECT_ID * pReceiverIDs,int Count);
+	bool DispatchMessage(CDOSMessagePacket * pPacket, const OBJECT_ID * pReceiverIDs,int Count);
 };
 
 inline CDOSServer * CDOSRouter::GetServer()

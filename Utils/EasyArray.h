@@ -15,6 +15,23 @@
 #pragma warning (disable : 4345)
 
 
+template<typename T, typename COMPARE_FN>
+class COMPRE_FN_ADAPTER
+{
+public:
+	static COMPARE_FN* CompareFN;
+	static int Compare(const void* p1, const void* p2);
+};
+
+template<typename T, typename COMPARE_FN>
+COMPARE_FN* COMPRE_FN_ADAPTER<T, COMPARE_FN>::CompareFN = NULL;
+
+template<typename T, typename COMPARE_FN>
+int COMPRE_FN_ADAPTER<T, COMPARE_FN>::Compare(const void* p1, const void* p2)
+{
+	return (*CompareFN)(*((const T*)p1), *((const T*)p2));
+}
+
 template < class T >
 class CEasyArray
 {
@@ -24,6 +41,7 @@ protected:
 	size_t	m_ArrayLength;
 	size_t	m_GrowSize;
 	LPCTSTR	m_Tag;
+	bool	m_IsDummy;
 public:
 	explicit CEasyArray(LPCTSTR Tag = _T("CEasyArray"))
 	{
@@ -32,6 +50,7 @@ public:
 		m_ArrayLength = 0;
 		m_GrowSize = 1;
 		m_Tag = Tag;
+		m_IsDummy = false;
 	}
 	CEasyArray(const CEasyArray& Array, LPCTSTR Tag = _T("CEasyArray"))
 	{
@@ -41,6 +60,22 @@ public:
 		m_GrowSize = 1;
 		m_Tag = Tag;
 		*this = Array;
+		m_IsDummy = false;
+	}
+	CEasyArray(CEasyArray&& Array) noexcept
+	{
+		m_pBuffer = Array.m_pBuffer;
+		m_BufferSize = Array.m_BufferSize;
+		m_ArrayLength = Array.m_ArrayLength;
+		m_GrowSize = Array.m_GrowSize;
+		m_Tag = Array.m_Tag;
+		m_IsDummy = Array.m_IsDummy;
+
+		Array.m_pBuffer = NULL;
+		Array.m_BufferSize = 0;
+		Array.m_ArrayLength = 0;
+		Array.m_GrowSize = 1;
+		Array.m_IsDummy = false;
 	}
 	explicit CEasyArray(size_t Size, size_t GrowSize = 1, LPCTSTR Tag = _T("CEasyArray"))
 	{
@@ -49,6 +84,7 @@ public:
 		m_BufferSize = 0;
 		m_ArrayLength = 0;
 		m_Tag = Tag;
+		m_IsDummy = false;
 		if (GrowSize > 1)
 			m_GrowSize = GrowSize;
 		else
@@ -57,13 +93,13 @@ public:
 	}
 	~CEasyArray()
 	{
-		if (m_pBuffer)
+		if (m_pBuffer && (!m_IsDummy))
 		{
 			if (m_ArrayLength)
 				DestructObjects(m_pBuffer, m_ArrayLength);
 			MONITORED_FREE(m_pBuffer);
 			m_pBuffer = NULL;
-		}		
+		}
 	}
 	LPCTSTR GetTag()
 	{
@@ -84,7 +120,7 @@ public:
 	{
 		if (m_pBuffer)
 		{
-			if(m_ArrayLength)
+			if (m_ArrayLength)
 			{
 				DestructObjects(m_pBuffer, m_ArrayLength);
 				m_ArrayLength = 0;
@@ -425,17 +461,20 @@ public:
 		}
 	}
 
-	T* Find(const T& Value)
+	const CEasyArray<T> SubDummy(size_t Start, size_t Length = -1)
 	{
-		for (UINT i = 0; i < GetCount(); i++)
+		CEasyArray Dummy;
+		if (Start + 1 < m_ArrayLength)
 		{
-			T* pValue = GetObject(i);
-			if ((*pValue) == Value)
-			{
-				return pValue;
-			}
+			if (Length > m_ArrayLength - Start)
+				Length = m_ArrayLength - Start;
+			Dummy.m_pBuffer = m_pBuffer + Start;
+			Dummy.m_BufferSize = Length;
+			Dummy.m_ArrayLength = Length;
+			Dummy.m_Tag = m_Tag;
+			Dummy.m_IsDummy = true;
 		}
-		return NULL;
+		return Dummy;
 	}
 
 	T* begin()
@@ -456,6 +495,903 @@ public:
 	const T* end() const
 	{
 		return m_pBuffer + m_ArrayLength;
+	}
+
+	bool AddUnique(const T& Value)
+	{
+		for (T& Data : *this)
+		{
+			if (Data == Value)
+				return false;
+		}
+		Add(Value);
+		return true;
+	}
+
+	template<typename EQUAL_FN>
+	bool AddUnique(const T& Value, EQUAL_FN EqualFN)
+	{
+		for (T& Data : *this)
+		{
+			if (EqualFN(Data, Value))
+				return false;
+		}
+		Add(Value);
+		return true;
+	}
+
+	inline void AddSorted(const T& Value)
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			if (m_pBuffer[Mid] < Value)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		Insert(Start, Value);
+	}
+
+	template<typename COMPARE_FN>
+	inline void AddSorted(const T& Value, COMPARE_FN CompareFN)
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid], Value);
+			if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		Insert(Start, Value);
+	}
+
+	inline bool AddSortedUniqued(const T& Value)
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			if (m_pBuffer[Mid] == Value)
+			{
+				return false;
+			}
+			else if (m_pBuffer[Mid] < Value)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		Insert(Start, Value);
+		return true;
+	}
+
+	template<typename COMPARE_FN>
+	inline bool AddSortedUniqued(const T& Value, COMPARE_FN CompareFN)
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid], Value);
+			if (Result == 0)
+			{
+				return false;
+			}
+			else if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		Insert(Start, Value);
+	}
+
+	inline size_t Replace(const T& OldValue, const T& NewValue)
+	{
+		size_t Count = 0;
+		for (T& Data : (*this))
+		{
+			if (Data == OldValue)
+			{
+				Data = NewValue;
+				Count++;
+			}
+		}
+		return Count;
+	}
+
+	template<typename EQUAL_FN>
+	inline size_t Replace(const T& OldValue, const T& NewValue, EQUAL_FN EqualFN)
+	{
+		size_t Count = 0;
+		for (T& Data : (*this))
+		{
+			if (EqualFN(Data, OldValue))
+			{
+				Data = NewValue;
+				Count++;
+			}
+		}
+		return Count;
+	}
+
+	template<typename EQUAL_FN>
+	inline size_t Replace(const T& NewValue, EQUAL_FN EqualFN)
+	{
+		size_t Count = 0;
+		for (T& Data : (*this))
+		{
+			if (EqualFN(Data))
+			{
+				Data = NewValue;
+				Count++;
+			}
+		}
+		return Count;
+	}
+
+	template<typename COMPARE_FN>
+	inline void QuickSort(COMPARE_FN CompareFN)
+	{
+		COMPRE_FN_ADAPTER<T, COMPARE_FN>::CompareFN = &CompareFN;
+		qsort(GetBuffer(), GetCount(), sizeof(T), COMPRE_FN_ADAPTER<T, COMPARE_FN>::Compare);
+	}
+
+	inline bool Remove(const T& Value)
+	{
+		for (size_t i = 0; i < m_ArrayLength; i++)
+		{
+			if (m_pBuffer[i] == Value)
+			{
+				Delete(i);
+				return true;
+			}
+
+		}
+		return false;
+	}
+
+	template<typename EQUAL_FN>
+	inline bool Remove(const T& Value, EQUAL_FN EqualFN)
+	{
+		for (UINT i = 0; i < m_ArrayLength; i++)
+		{
+			if (EqualFN(m_pBuffer[i], Value))
+			{
+				Delete(i);
+				return true;
+			}
+
+		}
+		return false;
+	}
+
+	template<typename EQUAL_FN>
+	inline bool Remove(EQUAL_FN EqualFN)
+	{
+		for (UINT i = 0; i < m_ArrayLength; i++)
+		{
+			if (EqualFN(m_pBuffer[i]))
+			{
+				Delete(i);
+				return true;
+			}
+
+		}
+		return false;
+	}
+
+	inline bool RemoveBinary(const T& Value)
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			if (m_pBuffer[Mid] == Value)
+			{
+				Delete(Mid);
+				return true;
+			}
+			else if (m_pBuffer[Mid] < Value)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return false;
+	}
+
+	template<typename COMPARE_FN>
+	inline bool RemoveBinary(const T& Value, COMPARE_FN CompareFN)
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid], Value);
+			if (Result == 0)
+			{
+				Delete(Mid);
+				return true;
+			}
+			else if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return false;
+	}
+
+	template<typename COMPARE_FN>
+	inline bool RemoveBinary(COMPARE_FN CompareFN)
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid]);
+			if (Result == 0)
+			{
+				Delete(Mid);
+				return true;
+			}
+			else if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return false;
+	}
+
+	inline size_t RemoveAll(const T& Value)
+	{
+		size_t Count = 0;
+		for (int i = (int)m_ArrayLength - 1; i >= 0; i--)
+		{
+			if (m_pBuffer[i] == Value)
+			{
+				Delete(i);
+				Count++;
+			}
+		}
+		return Count;
+	}
+
+	template<typename EQUAL_FN>
+	inline size_t RemoveAll(const T& Value, EQUAL_FN EqualFN)
+	{
+		size_t Count = 0;
+		for (int i = (int)m_ArrayLength - 1; i >= 0; i--)
+		{
+			if (EqualFN(m_pBuffer[i], Value))
+			{
+				Delete(i);
+				Count++;
+			}
+		}
+		return Count;
+	}
+
+	template<typename EQUAL_FN>
+	inline size_t RemoveAll(EQUAL_FN EqualFN)
+	{
+		size_t Count = 0;
+		for (int i = (int)m_ArrayLength - 1; i >= 0; i--)
+		{
+			if (EqualFN(m_pBuffer[i]))
+			{
+				Delete(i);
+				Count++;
+			}
+		}
+		return Count;
+	}
+
+	inline bool RemoveAllBinary(const T& Value)
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			if (m_pBuffer[Mid] == Value)
+			{
+				int Head = Mid;
+				while (Head > 0 && m_pBuffer[Head - 1] == Value);
+				Head--;
+				int Tail = Mid + 1;
+				while (Tail < (int)m_ArrayLength && m_pBuffer[Tail] == Value)
+					Tail++;
+				Delete(Head, Tail - Head);
+				return true;
+			}
+			else if (m_pBuffer[Mid] < Value)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return false;
+	}
+
+	template<typename COMPARE_FN>
+	inline bool RemoveAllBinary(const T& Value, COMPARE_FN CompareFN)
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid], Value);
+			if (Result == 0)
+			{
+				int Head = Mid;
+				while (Head > 0 && (CompareFN(m_pBuffer[Head - 1], Value) == 0));
+				Head--;
+				int Tail = Mid + 1;
+				while (Tail < (int)m_ArrayLength && (CompareFN(m_pBuffer[Tail], Value) == 0))
+					Tail++;
+				Delete(Head, Tail - Head);
+				return true;
+			}
+			else if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return false;
+	}
+
+	template<typename COMPARE_FN>
+	inline bool RemoveAllBinary(COMPARE_FN CompareFN)
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid]);
+			if (Result == 0)
+			{
+				int Head = Mid;
+				while (Head > 0 && (CompareFN(m_pBuffer[Head - 1]) == 0));
+				Head--;
+				int Tail = Mid + 1;
+				while (Tail < (int)m_ArrayLength && (CompareFN(m_pBuffer[Tail]) == 0))
+					Tail++;
+				Delete(Head, Tail - Head);
+				return true;
+			}
+			else if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return false;
+	}
+
+	inline bool Exist(const T& Value) const
+	{
+		for (const T& Item : (*this))
+		{
+			if (Item == Value)
+			{
+				return true;
+			}
+
+		}
+		return false;
+	}
+
+	template<typename EQUAL_FN>
+	inline bool Exist(const T& Value, EQUAL_FN EqualFN) const
+	{
+		for (const T& Item : (*this))
+		{
+			if (EqualFN(Item, Value))
+			{
+				return true;
+			}
+
+		}
+		return false;
+	}
+
+	template<typename EQUAL_FN>
+	inline bool Exist(EQUAL_FN EqualFN) const
+	{
+		for (const T& Item : (*this))
+		{
+			if (EqualFN(Item))
+			{
+				return true;
+			}
+
+		}
+		return false;
+	}
+
+	inline bool ExistBinary(const T& Value) const
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			if (m_pBuffer[Mid] == Value)
+			{
+				return true;
+			}
+			else if (m_pBuffer[Mid] < Value)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return false;
+	}
+
+	template<typename COMPARE_FN>
+	inline bool ExistBinary(const T& Value, COMPARE_FN CompareFN) const
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid], Value);
+			if (Result == 0)
+			{
+				return true;
+			}
+			else if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return false;
+	}
+
+	template<typename COMPARE_FN>
+	inline bool ExistBinary(COMPARE_FN CompareFN) const
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid]);
+			if (Result == 0)
+			{
+				return true;
+			}
+			else if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return false;
+	}
+
+	inline T* Find(const T& Value)
+	{
+		for (T& Item : (*this))
+		{
+			if (Item == Value)
+			{
+				return &Item;
+			}
+
+		}
+		return NULL;
+	}
+
+	template<typename EQUAL_FN>
+	inline T* Find(const T& Value, EQUAL_FN EqualFN)
+	{
+		for (T& Item : (*this))
+		{
+			if (EqualFN(Item, Value))
+			{
+				return &Item;
+			}
+
+		}
+		return NULL;
+	}
+
+	template<typename EQUAL_FN>
+	inline T* Find(EQUAL_FN EqualFN)
+	{
+		for (T& Item : (*this))
+		{
+			if (EqualFN(Item))
+			{
+				return &Item;
+			}
+
+		}
+		return NULL;
+	}
+
+	inline const T* Find(const T& Value) const
+	{
+		for (const T& Item : (*this))
+		{
+			if (Item == Value)
+			{
+				return &Item;
+			}
+
+		}
+		return NULL;
+	}
+
+	template<typename EQUAL_FN>
+	inline const T* Find(const T& Value, EQUAL_FN EqualFN) const
+	{
+		for (const T& Item : (*this))
+		{
+			if (EqualFN(Item, Value))
+			{
+				return &Item;
+			}
+
+		}
+		return NULL;
+	}
+
+	template<typename EQUAL_FN>
+	inline const T* Find(EQUAL_FN EqualFN) const
+	{
+		for (const T& Item : (*this))
+		{
+			if (EqualFN(Item))
+			{
+				return &Item;
+			}
+
+		}
+		return NULL;
+	}
+
+	inline T* FindBinary(const T& Value)
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			if (m_pBuffer[Mid] == Value)
+			{
+				return m_pBuffer[Mid];
+			}
+			else if (m_pBuffer[Mid] < Value)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return NULL;
+	}
+
+	template<typename COMPARE_FN>
+	inline T* FindBinary(const T& Value, COMPARE_FN CompareFN)
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid], Value);
+			if (Result == 0)
+			{
+				return m_pBuffer[Mid];
+			}
+			else if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return NULL;
+	}
+
+	template<typename COMPARE_FN>
+	inline T* FindBinary(COMPARE_FN CompareFN)
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid]);
+			if (Result == 0)
+			{
+				return m_pBuffer[Mid];
+			}
+			else if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return NULL;
+	}
+
+	inline const T* FindBinary(const T& Value) const
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			if (m_pBuffer[Mid] == Value)
+			{
+				return m_pBuffer[Mid];
+			}
+			else if (m_pBuffer[Mid] < Value)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return NULL;
+	}
+
+	template<typename COMPARE_FN>
+	inline const T* FindBinary(const T& Value, COMPARE_FN CompareFN) const
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid], Value);
+			if (Result == 0)
+			{
+				return m_pBuffer[Mid];
+			}
+			else if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return NULL;
+	}
+
+	template<typename COMPARE_FN>
+	inline const T* FindBinary(COMPARE_FN CompareFN) const
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid]);
+			if (Result == 0)
+			{
+				return m_pBuffer[Mid];
+			}
+			else if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return NULL;
+	}
+
+	inline int FindIndex(const T& Value) const
+	{
+		for (size_t i = 0; i < m_ArrayLength; i++)
+		{
+			if (m_pBuffer[i] == Value)
+			{
+				return (int)i;
+			}
+
+		}
+		return -1;
+	}
+
+	template<typename EQUAL_FN>
+	inline int FindIndex(const T& Value, EQUAL_FN EqualFN) const
+	{
+		for (size_t i = 0; i < m_ArrayLength; i++)
+		{
+			if (EqualFN(m_pBuffer[i], Value))
+			{
+				return (int)i;
+			}
+
+		}
+		return -1;
+	}
+
+	template<typename EQUAL_FN>
+	inline int FindIndex(EQUAL_FN EqualFN) const
+	{
+		for (size_t i = 0; i < m_ArrayLength; i++)
+		{
+			if (EqualFN(m_pBuffer[i]))
+			{
+				return (int)i;
+			}
+
+		}
+		return -1;
+	}
+
+	inline int FindIndexBinary(const T& Value) const
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			if (m_pBuffer[Mid] == Value)
+			{
+				return Mid;
+			}
+			else if (m_pBuffer[Mid] < Value)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return -1;
+	}
+
+	template<typename COMPARE_FN>
+	inline int FindIndexBinary(const T& Value, COMPARE_FN CompareFN) const
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid], Value);
+			if (Result == 0)
+			{
+				return Mid;
+			}
+			else if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return -1;
+	}
+
+	template<typename COMPARE_FN>
+	inline int FindIndexBinary(COMPARE_FN CompareFN) const
+	{
+		int Start = 0;
+		int End = (int)m_ArrayLength - 1;
+		while (Start <= End)
+		{
+			int Mid = (Start + End) / 2;
+			int Result = CompareFN(m_pBuffer[Mid]);
+			if (Result == 0)
+			{
+				return Mid;
+			}
+			else if (Result < 0)
+			{
+				Start = Mid + 1;
+			}
+			else
+			{
+				End = Mid - 1;
+			}
+		}
+		return NULL;
+	}
+
+	template<typename TargetType, typename MAP_FN>
+	inline void Map(CEasyArray<TargetType>& TargetList, MAP_FN MapFN) const
+	{
+		for (const T& Item : (*this))
+		{
+			TargetList.Add(MapFN(Item));
+		}
+	}
+
+	template<typename TargetType, typename MAP_FN>
+	inline CEasyArray<TargetType> Map(MAP_FN MapFN) const
+	{
+		CEasyArray<TargetType> TargetList;
+		for (const T& Item : (*this))
+		{
+			TargetList.Add(MapFN(Item));
+		}
+		return TargetList;
 	}
 
 protected:
@@ -543,398 +1479,21 @@ protected:
 	}
 };
 
-template<typename T>
-inline bool AddUnique(CEasyArray<T>& List, const T& Value)
-{
-	for (T& Data : List)
-	{
-		if (Data == Value)
-			return false;
-	}
-	List.Add(Value);
-	return true;
-}
-
-template<typename T, typename EQUAL_FN>
-inline bool AddUnique(CEasyArray<T>& List, const T& Value, EQUAL_FN EqualFN)
-{
-	for (T& Data : List)
-	{
-		if (EqualFN(Data, Value))
-			return false;
-	}
-	List.Add(Value);
-	return true;
-}
-
-template<typename T, typename EQUAL_FN>
-inline bool ReplaceInList(CEasyArray<T>& List, const T& Value, EQUAL_FN EqualFN)
-{
-	for (T& Data : List)
-	{
-		if (EqualFN(Data, Value))
-		{
-			Data = Value;
-			return true;
-		}
-	}
-	List.Add(Value);
-	return true;
-}
-
-template<typename T>
-inline bool AddSortedUniqued(CEasyArray<T>& List, const T& Value)
-{
-	for (UINT i = 0; i < List.GetCount(); i++)
-	{
-		if (List[i] == Value)
-		{
-			return false;
-		}
-		else if (List[i] > Value)
-		{
-			List.Insert(i, Value);
-			return true;
-		}
-	}
-	List.Add(Value);
-	return true;
-}
-
-template<typename T, typename COMPARE_FN>
-inline bool AddSortedUniqued(CEasyArray<T>& List, const T& Value, COMPARE_FN CompareFN)
-{
-	for (UINT i = 0; i < List.GetCount(); i++)
-	{
-		int Result = CompareFN(List[i], Value);
-		if (Result == 0)
-		{
-			return false;
-		}
-		else if (Result > 0)
-		{
-			List.Insert(i, Value);
-			return true;
-		}
-	}
-	List.Add(Value);
-	return true;
-}
-
-template<typename T>
-inline bool AddSorted(CEasyArray<T>& List, const T& Value)
-{
-	for (UINT i = 0; i < List.GetCount(); i++)
-	{
-		if (List[i] > Value)
-		{
-			List.Insert(i, Value);
-			return true;
-		}
-	}
-	List.Add(Value);
-	return true;
-}
-
-template<typename T, typename COMPARE_FN>
-inline bool AddSorted(CEasyArray<T>& List, const T& Value, COMPARE_FN CompareFN)
-{
-	for (UINT i = 0; i < List.GetCount(); i++)
-	{
-		int Result = CompareFN(List[i], Value);
-		if (Result > 0)
-		{
-			List.Insert(i, Value);
-			return true;
-		}
-	}
-	List.Add(Value);
-	return true;
-}
-
-template<typename T, typename COMPARE_FN>
-class COMPRE_FN_ADAPTER
-{
-public:
-	static COMPARE_FN * CompareFN;
-	static int Compare(const void * p1, const void * p2);
-};
-
-template<typename T, typename COMPARE_FN>
-COMPARE_FN * COMPRE_FN_ADAPTER<T, COMPARE_FN>::CompareFN = NULL;
-
-template<typename T, typename COMPARE_FN>
-int COMPRE_FN_ADAPTER<T, COMPARE_FN>::Compare(const void * p1, const void * p2)
-{
-	return (*CompareFN)(*((const T *)p1), *((const T *)p2));
-}
-
-template<typename T, typename COMPARE_FN>
-inline void QuickSort(CEasyArray<T>& List, COMPARE_FN CompareFN)
-{
-	COMPRE_FN_ADAPTER<T, COMPARE_FN>::CompareFN = &CompareFN;
-	qsort(List.GetBuffer(),  List.GetCount(), sizeof(T), COMPRE_FN_ADAPTER<T, COMPARE_FN>::Compare);
-}
-
-template<typename T>
-inline bool RemoveFromList(CEasyArray<T>& List, const T& Value)
-{
-	for (UINT i = 0; i < List.GetCount(); i++)
-	{
-		if (List[i] == Value)
-		{
-			List.Delete(i);
-			return true;
-		}
-
-	}
-	return false;
-}
-
-template<typename T, typename EQUAL_FN>
-inline bool RemoveFromList(CEasyArray<T>& List, const T& Value, EQUAL_FN EqualFN)
-{
-	for (UINT i = 0; i < List.GetCount(); i++)
-	{
-		if (EqualFN(List[i], Value))
-		{
-			List.Delete(i);
-			return true;
-		}
-
-	}
-	return false;
-}
-
-template<typename T, typename EQUAL_FN>
-inline bool RemoveFromList(CEasyArray<T>& List, EQUAL_FN EqualFN)
-{
-	for (UINT i = 0; i < List.GetCount(); i++)
-	{
-		if (EqualFN(List[i]))
-		{
-			List.Delete(i);
-			return true;
-		}
-
-	}
-	return false;
-}
-
-template<typename T>
-inline size_t RemoveAllFromList(CEasyArray<T>& List, const T& Value)
-{
-	size_t Count = 0;
-	for (int i = (int)List.GetCount() - 1; i >= 0; i--)
-	{
-		if (List[i] == Value)
-		{
-			List.Delete(i);
-			Count++;
-		}
-	}
-	return Count;
-}
-
-template<typename T, typename EQUAL_FN>
-inline size_t RemoveAllFromList(CEasyArray<T>& List, const T& Value, EQUAL_FN EqualFN)
-{
-	size_t Count = 0;
-	for (int i = (int)List.GetCount() - 1; i >= 0; i--)
-	{
-		if (EqualFN(List[i], Value))
-		{
-			List.Delete(i);
-			Count++;
-		}
-	}
-	return Count;
-}
-
-template<typename T, typename EQUAL_FN>
-inline size_t RemoveAllFromList(CEasyArray<T>& List, EQUAL_FN EqualFN)
-{
-	size_t Count = 0;
-	for (int i = (int)List.GetCount() - 1; i >= 0; i--)
-	{
-		if (EqualFN(List[i]))
-		{
-			List.Delete(i);
-			Count++;
-		}
-	}
-	return Count;
-}
-
-template<typename T>
-inline bool ExistInList(const CEasyArray<T>& List, const T& Value)
-{
-	for (const T& Item : List)
-	{
-		if (Item == Value)
-		{
-			return true;
-		}
-
-	}
-	return false;
-}
-
-template<typename T, typename EQUAL_FN>
-inline bool ExistInList(const CEasyArray<T>& List, const T& Value, EQUAL_FN EqualFN)
-{
-	for (const T& Item : List)
-	{
-		if (EqualFN(Item, Value))
-		{
-			return true;
-		}
-
-	}
-	return false;
-}
-
-template<typename T, typename EQUAL_FN>
-inline bool ExistInList(const CEasyArray<T>& List, EQUAL_FN EqualFN)
-{
-	for (const T& Item : List)
-	{
-		if (EqualFN(Item))
-		{
-			return true;
-		}
-
-	}
-	return false;
-}
-
-template<typename T>
-inline T * FindInList(CEasyArray<T>& List, const T& Value)
-{
-	for (T& Item : List)
-	{
-		if (Item == Value)
-		{
-			return &Item;
-		}
-
-	}
-	return NULL;
-}
-
-template<typename T, typename EQUAL_FN>
-inline T * FindInList(CEasyArray<T>& List, const T& Value, EQUAL_FN EqualFN)
-{
-	for (T& Item : List)
-	{
-		if (EqualFN(Item, Value))
-		{
-			return &Item;
-		}
-
-	}
-	return NULL;
-}
-
-template<typename T, typename EQUAL_FN>
-inline T * FindInList(CEasyArray<T>& List, EQUAL_FN EqualFN)
-{
-	for (T& Item : List)
-	{
-		if (EqualFN(Item))
-		{
-			return &Item;
-		}
-
-	}
-	return NULL;
-}
-
-template<typename T>
-inline const T * FindInList(const CEasyArray<T>& List, const T& Value)
-{
-	for (const T& Item : List)
-	{
-		if (Item == Value)
-		{
-			return &Item;
-		}
-
-	}
-	return NULL;
-}
-
-template<typename T, typename EQUAL_FN>
-inline const T * FindInList(const CEasyArray<T>& List, const T& Value, EQUAL_FN EqualFN)
-{
-	for (const T& Item : List)
-	{
-		if (EqualFN(Item, Value))
-		{
-			return &Item;
-		}
-
-	}
-	return NULL;
-}
-
-template<typename T, typename EQUAL_FN>
-inline const T * FindInList(const CEasyArray<T>& List, EQUAL_FN EqualFN)
-{
-	for (const T& Item : List)
-	{
-		if (EqualFN(Item))
-		{
-			return &Item;
-		}
-
-	}
-	return NULL;
-}
-///
 
 
-template<typename T>
-inline int IndexInList(const CEasyArray<T>& List, const T& Value)
-{
-	for (size_t i = 0; i < List.GetCount(); i++)
-	{
-		if (List[i] == Value)
-		{
-			return (int)i;
-		}
 
-	}
-	return -1;
-}
 
-template<typename T, typename EQUAL_FN>
-inline int IndexInList(const CEasyArray<T>& List, const T& Value, EQUAL_FN EqualFN)
-{
-	for (size_t i = 0; i < List.GetCount(); i++)
-	{
-		if (EqualFN(List[i], Value))
-		{
-			return (int)i;
-		}
 
-	}
-	return -1;
-}
 
-template<typename T, typename EQUAL_FN>
-inline int IndexInList(const CEasyArray<T>& List, EQUAL_FN EqualFN)
-{
-	for (size_t i = 0; i < List.GetCount(); i++)
-	{
-		if (EqualFN(List[i]))
-		{
-			return (int)i;
-		}
 
-	}
-	return -1;
-}
+
+
+
+
+
+
+
+
 
 
 

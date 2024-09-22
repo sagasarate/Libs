@@ -137,7 +137,7 @@ public:
 		}
 		else
 		{
-			return m_BroadcastGroupList.Delete(GroupID) != FALSE;
+			return m_BroadcastGroupList.Delete(GroupID);
 		}		
 	}
 	bool IsInBroadcastGroup(UINT64 GroupID)

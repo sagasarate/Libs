@@ -16,7 +16,7 @@ class CSmartStruct;
 class CSmartArray
 {
 protected:
-	BYTE*			m_pData;
+	BYTE* m_pData;
 	UINT			m_DataLen;
 	int				m_ElementSize;
 	bool			m_IsSelfData;
@@ -30,7 +30,7 @@ public:
 	{
 	protected:
 		CSmartArray* m_pParent;
-		void*		 m_Pos;
+		void* m_Pos;
 	public:
 		iterator()
 		{
@@ -103,7 +103,7 @@ public:
 			m_Pos = itr.m_Pos;
 			return *this;
 		}
-		bool operator !=(const const_iterator & itr)
+		bool operator !=(const const_iterator& itr)
 		{
 			return (m_pParent != itr.m_pParent) || (m_Pos != itr.m_Pos);
 		}
@@ -300,9 +300,9 @@ public:
 		pArrayData += sizeof(BYTE);
 		UINT ArrayDataLen = *((UINT*)pArrayData);
 		pArrayData += sizeof(UINT);
-		if (ArrayDataLen + sizeof(BYTE) + sizeof(UINT)> m_DataLen)
+		if (ArrayDataLen + sizeof(BYTE) + sizeof(UINT) > m_DataLen)
 			ArrayDataLen = m_DataLen - sizeof(BYTE) - sizeof(UINT);
-		if(ArrayDataLen)
+		if (ArrayDataLen)
 		{
 			if (m_ElementSize)
 			{
@@ -581,7 +581,7 @@ public:
 		std::is_same<std::decay_t<T>, double>::value ||
 		std::is_same<std::decay_t<T>, bool>::value,
 		bool> = true>
-	bool GetArray(CEasyArray<T>& Array) const
+		bool GetArray(CEasyArray<T>& Array) const
 	{
 		if (GetLength())
 		{
@@ -721,6 +721,34 @@ public:
 		}
 	}
 
+	template<typename T>
+	bool UnpackArray(CEasyArray<T>& ObjArray)
+	{
+		void* Pos = GetFirstMemberPosition();
+		while (Pos)
+		{
+			CSmartValue Value = GetNextMember(Pos);
+			T* pObj = ObjArray.AddEmpty();
+			if (!pObj->ParsePacket(Value))
+				return false;
+		}
+		return true;
+	}
+
+	template<typename T, typename F>
+	bool UnpackArray(CEasyArray<T>& ObjArray, const F& Flags)
+	{
+		void* Pos = GetFirstMemberPosition();
+		while (Pos)
+		{
+			CSmartValue Value = GetNextMember(Pos);
+			T* pObj = ObjArray.AddEmpty();
+			if (!pObj->ParsePacket(Value, Flags))
+				return false;
+		}
+		return true;
+	}
+
 	template<typename T,
 		std::enable_if_t<
 		std::is_same<std::decay_t<T>, char>::value ||
@@ -735,11 +763,11 @@ public:
 		std::is_same<std::decay_t<T>, double>::value ||
 		std::is_same<std::decay_t<T>, bool>::value,
 		bool> = true>
-	bool AddArray(const CEasyArray<T>& Array)
+		bool AddArray(const CEasyArray<T>& Array)
 	{
 		if (m_pData)
 		{
-			if(Array.GetCount())
+			if (Array.GetCount())
 			{
 				BYTE NewElementType = CSmartValue::GetTypeByValue(Array[0]);
 				UINT NewElementSize = sizeof(BYTE) + sizeof(Array[0]);
@@ -794,7 +822,7 @@ public:
 			UINT NeedSize = 0;
 			for (const CEasyBuffer& Value : Array)
 			{
-				NeedSize += GetBinaryMemberSize(Value.GetUsedSize());
+				NeedSize += GetBinaryMemberSize((UINT)Value.GetUsedSize());
 			}
 			if (GetFreeLen() >= NeedSize)
 			{
@@ -830,6 +858,11 @@ public:
 		}
 		return false;
 	}
+	template<typename T>
+	bool PackArray(const CEasyArray<T>& ObjArray);
+
+	template<typename T, typename F>
+	bool PackArray(const CEasyArray<T>& ObjArray, const F& Flags);
 
 	iterator begin()
 	{
@@ -937,7 +970,7 @@ public:
 		std::is_same<std::decay_t<T>, double>::value ||
 		std::is_same<std::decay_t<T>, bool>::value,
 		bool> = true>
-	bool AddMember(T Value)
+		bool AddMember(T Value)
 	{
 		CSmartValue SmartValue;
 		if (PrepareMember(CSmartValue::GetTypeByValue(Value), SmartValue))
@@ -1250,27 +1283,27 @@ public:
 		case VARIED_VALUE_TYPE::STRING:
 			return AddMember((LPCTSTR)Value);
 		case VARIED_VALUE_TYPE::BINARY:
-			return AddMember((const unsigned char*)Value, Value.GetLength());
+			return AddMember((const unsigned char*)Value, (UINT)Value.GetLength());
 		case VARIED_VALUE_TYPE::ARRAY:
+		{
+			CSmartValue Member;
+			if (PrepareMember(CSmartValue::VT_ARRAY, Member))
 			{
-				CSmartValue Member;
-				if (PrepareMember(CSmartValue::VT_ARRAY, Member))
-				{
-					if (Member.SetValue(Value))
-						return FinishMember(Member.GetDataLen());
-				}
+				if (Member.SetValue(Value))
+					return FinishMember(Member.GetDataLen());
 			}
-			break;
+		}
+		break;
 		case VARIED_VALUE_TYPE::TABLE:
+		{
+			CSmartValue Member;
+			if (PrepareMember(CSmartValue::VT_STRUCT, Member))
 			{
-				CSmartValue Member;
-				if (PrepareMember(CSmartValue::VT_STRUCT, Member))
-				{
-					if (Member.SetValue(Value))
-						return FinishMember(Member.GetDataLen());
-				}
+				if (Member.SetValue(Value))
+					return FinishMember(Member.GetDataLen());
 			}
-			break;
+		}
+		break;
 		}
 		return false;
 	}
@@ -1369,9 +1402,9 @@ public:
 	}
 	static UINT GetVariedMemberSize(const CVariedValue& Value);
 #ifdef RAPIDJSON_DOCUMENT_H_
-	rapidjson::Value ToJson(rapidjson::Document::AllocatorType& Alloc);
+	rapidjson::Value ToJson(rapidjson::Document::AllocatorType& Alloc) const;
 #endif
-protected:	
+protected:
 	void CheckElements()
 	{
 		m_ElementSize = 0;

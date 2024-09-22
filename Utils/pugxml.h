@@ -478,7 +478,7 @@ inline static bool strcpyinsitu
 	if(l >= _tcslen(src)) //Destination is large enough, so just copy.
 	{
 		_tcscpy(*dest,src); //Copy.
-		return TRUE; //Success.
+		return true; //Success.
 	}
 	else //Destination is too small.
 #endif
@@ -492,7 +492,7 @@ inline static bool strcpyinsitu
 #endif
 		{
 			*insitu = false; //Mark as no longer being in-situ, so we can free it later.
-			return TRUE; //Success.
+			return true; //Success.
 		}
 	}
 	return false; //Failure.
@@ -746,7 +746,7 @@ inline static void free_node(xml_node_struct* node)
 {
 	if(!node) return;
 
-	register xml_node_struct* cursor = node;
+	xml_node_struct* cursor = node;
 
 	//Free all children of children.
 	do
@@ -754,7 +754,7 @@ inline static void free_node(xml_node_struct* node)
 LOC_STEP_INTO:
 		for(; cursor->children>0; --cursor->children) //Free each child in turn; 'children' keeps count while we jump around.
 		{
-			register xml_node_struct* t = cursor->child[cursor->children-1]; //Take a pointer to the child.
+			xml_node_struct* t = cursor->child[cursor->children-1]; //Take a pointer to the child.
 			if(t && t->children) //If the child has children.
 			{
 				cursor = t; //Step in.
@@ -764,8 +764,8 @@ LOC_STEP_INTO:
 			{
 				if(t->attributes) //Child has attributes.
 				{
-					register unsigned int n = t->attributes; //Free each attribute.
-					for(register unsigned int i=0; i<n; ++i)
+					unsigned int n = t->attributes; //Free each attribute.
+					for(unsigned int i=0; i<n; ++i)
 					{
 						if(t->attribute[i]->name && !t->attribute[i]->name_insitu)
 							MONITORED_FREE(t->attribute[i]->name);
@@ -787,8 +787,8 @@ LOC_STEP_INTO:
 	//Finally, free the root's children & the root itself.
 	if(cursor->attributes)
 	{
-		register unsigned int n = cursor->attributes;
-		for(register unsigned int i=0; i<n; ++i)
+		unsigned int n = cursor->attributes;
+		for(unsigned int i=0; i<n; ++i)
 		{
 			if(cursor->attribute[i]->name && !cursor->attribute[i]->name_insitu)
 				MONITORED_FREE(cursor->attribute[i]->name);
@@ -812,7 +812,7 @@ inline static void free_node_recursive(xml_node_struct* root)
 	if(root)
 	{
 		unsigned int n = root->attributes;
-		register unsigned int i;
+		unsigned int i;
 		for(i=0; i<n; i++)
 		{
 			if(root->attribute[i]->name && !root->attribute[i]->name_insitu)
@@ -1020,7 +1020,7 @@ inline static void outer_xml(std::basic_ostream<TCHAR,std::char_traits<TCHAR> > 
 {
 	if(node && os.good()) //There is a node and ostream is OK.
 	{
-		register unsigned int n, i;
+		unsigned int n, i;
 		os << indent.depth();
 		switch(node->type)
 		{
@@ -1283,12 +1283,18 @@ inline static void outer_xml(std::basic_ostream<TCHAR,std::char_traits<TCHAR> > 
 //<remarks>Used as base class for 'xml_node_iterator' and 'xml_attribute_iterator'.</remarks>
 
 template <class _Ty,class _Diff,class _Pointer,class _Reference>
-class xml_iterator : public std::iterator<std::random_access_iterator_tag,_Ty,_Diff,_Pointer,_Reference>
+class xml_iterator 
 {
 protected:
 	xml_node_struct* _vref; //A pointer to the node over which to iterate.
 	int _sscr; //Current subscript of element.
 public:
+	using iterator_category = std::random_access_iterator_tag;
+	using value_type = _Ty;
+	using difference_type = _Diff;
+	using pointer = _Pointer;
+	using reference = _Reference;
+
 	xml_iterator() : _vref(0), _sscr(-1) {} //Default constructor.
 	xml_iterator(xml_node_struct* vref,int sscr = 0) : _vref(vref), _sscr(sscr){ } //Initializing constructor.
 	xml_iterator(const xml_iterator& r) : _vref(r._vref), _sscr(r._sscr){ } //Copy constructor.
@@ -1383,7 +1389,8 @@ public:
 		{
 #ifdef PUGOPT_NONSEG
 			// temp.append(_attr->value,_attr->value_size);
-			temp.SetString(_attr->value,_attr->value_size);  // NF 2 Mar 2003
+			if (_attr->value_size)
+				temp.SetString(_attr->value, _attr->value_size);  // NF 2 Mar 2003
 #else
 			temp = _attr->value;
 #endif
@@ -1665,7 +1672,8 @@ public:
 #ifdef PUGOPT_NONSEG
 		// rhs.clear();  // NF 2 Mar 2003
 		// rhs.append(_attr->value,_attr->value_size);
-		rhs.SetString(_attr->value,_attr->value_size);
+		if (_attr->value_size)
+			rhs.SetString(_attr->value, _attr->value_size);
 #else
 		rhs = value();
 #endif
@@ -1734,7 +1742,8 @@ public:
 		if( has_name() )
 		{
 #ifdef PUGOPT_NONSEG
-			temp.SetString(_attr->name,_attr->name_size);
+			if (_attr->name_size)
+				temp.SetString(_attr->name, _attr->name_size);
 #else
 			temp = _attr->name;
 #endif
@@ -2132,7 +2141,8 @@ public:
 		if(has_name())
 		{
 #ifdef PUGOPT_NONSEG
-			temp.SetString(_root->name,_root->name_size);
+			if (_root->name_size)
+				temp.SetString(_root->name, _root->name_size);
 #else
 			temp = _root->name;
 #endif
@@ -2149,7 +2159,8 @@ public:
 		if(has_value())
 		{
 #ifdef PUGOPT_NONSEG
-			temp.SetString(_root->value,_root->value_size);
+			if (_root->value_size)
+				temp.SetString(_root->value, _root->value_size);
 #else
 			temp = _root->value;
 #endif
@@ -2245,13 +2256,14 @@ public:
 		CEasyString temp;
 		if(_root->children)
 		{
-			for(register unsigned int i=0; i < _root->children; ++i)
+			for(unsigned int i=0; i < _root->children; ++i)
 			{
 				xml_node_struct* node = _root->child[i];
 				if(node->value)
 				{
 #ifdef PUGOPT_NONSEG
-			        temp.SetString(node->value,node->value_size);
+					if (node->value_size)
+						temp.SetString(node->value, node->value_size);
 #else
 			        temp = node->value;
 #endif
@@ -2276,7 +2288,7 @@ public:
 	{
 		if(_root->children)
 		{
-			for(register unsigned int i=0; i < _root->children; ++i)
+			for(unsigned int i=0; i < _root->children; ++i)
 			{
 				xml_node_struct* node = _root->child[i];
 				if(node->value)
@@ -2314,11 +2326,11 @@ public:
 	xml_attribute_struct* mapto_attribute_ptr(const TCHAR* name) const
 	{
 		if(!_root || !name) return NULL;
-		register unsigned int n = _root->attributes;
+		unsigned int n = _root->attributes;
 #ifdef PUGOPT_NONSEG
 		const int namelen = _tcslen(name);
 #endif
-		for(register unsigned int i=0; i<n; ++i)
+		for(unsigned int i=0; i<n; ++i)
 #ifdef PUGOPT_NONSEG
 			if(matches_attribute_name(name,namelen,i))
 #else
@@ -2335,11 +2347,11 @@ public:
 	int mapto_attribute_idx(const TCHAR* name) const
 	{
 		if(!_root || !name) return -1;
-		register unsigned int n = _root->attributes;
+		unsigned int n = _root->attributes;
 #ifdef PUGOPT_NONSEG
 		const int namelen = _tcslen(name);
 #endif
-		for(register unsigned int i=0; i<n; ++i)
+		for(unsigned int i=0; i<n; ++i)
 #ifdef PUGOPT_NONSEG
 			if(matches_attribute_name(name,namelen,i))
 #else
@@ -2362,11 +2374,11 @@ public:
 	xml_node_struct* mapto_child_ptr(const TCHAR* name) const
 	{
 		if(!_root || !name) return NULL;
-		register unsigned int n = _root->children;
+		unsigned int n = _root->children;
 #ifdef PUGOPT_NONSEG
 		const int namelen = _tcslen(name);
 #endif
-		for(register unsigned int i=0; i<n; ++i)
+		for(unsigned int i=0; i<n; ++i)
 		{
 			if
 				(
@@ -2395,11 +2407,11 @@ public:
 	int mapto_child_idx(const TCHAR* name) const
 	{
 		if(!_root || !name) return -1;
-		register unsigned int n = _root->children;
+		unsigned int n = _root->children;
 #ifdef PUGOPT_NONSEG
 		const int namelen = _tcslen(name);
 #endif
-		for(register unsigned int i=0; i<n; ++i)
+		for(unsigned int i=0; i<n; ++i)
 		{
 			if
 				(
@@ -2434,8 +2446,8 @@ public:
 #ifdef PUGOPT_NONSEG
 			const unsigned int namelen = _tcslen(name);
 #endif
-			register unsigned int n = _root->children; //For each child.
-			for(register unsigned int i=0; i<n; ++i)
+			unsigned int n = _root->children; //For each child.
+			for(unsigned int i=0; i<n; ++i)
 			{
 				if
 					(
@@ -2480,11 +2492,11 @@ public:
 		if(empty() || !name) return xml_node(); //Invalid node, so fail.
 		if(_root->children > 0) //Has children.
 		{
-			register unsigned int n = _root->children; //For each child.
+			unsigned int n = _root->children; //For each child.
 #ifdef PUGOPT_NONSEG
 			const int namelen = _tcslen(name);
 #endif
-			for(register unsigned int i=0; i<n; ++i)
+			for(unsigned int i=0; i<n; ++i)
 			{
 				if
 				(   // check spec'd type matches or ignore if node_null. NF 25 Mar 2003
@@ -2534,12 +2546,12 @@ public:
 		if(empty() || !name || !value) return xml_node(); //Invalid node, so fail.
 		if(_root->children > 0) //Has children.
 		{
-			register unsigned int n = _root->children; //For each child.
+			unsigned int n = _root->children; //For each child.
 #ifdef PUGOPT_NONSEG
 			const unsigned int namelen = _tcslen(name);
 			const unsigned int valulen = _tcslen(value);
 #endif
-			for(register unsigned int i=0; i<n; ++i)
+			for(unsigned int i=0; i<n; ++i)
 			{
 				if
 				(
@@ -2552,8 +2564,8 @@ public:
 #endif
 				)
 				{
-					register unsigned int m = _root->child[i]->children; //For each child of child.
-					for(register unsigned int j=0; j<m; ++j)
+					unsigned int m = _root->child[i]->children; //For each child of child.
+					for(unsigned int j=0; j<m; ++j)
 					{
 						if
 						(
@@ -2617,8 +2629,8 @@ public:
 			const unsigned int attrlen = _tcslen(attr_name);
 			const unsigned int valulen = _tcslen(attr_value);
 #endif
-			register unsigned int n = _root->children; //For each child.
-			for(register unsigned int i=0; i<n; ++i)
+			unsigned int n = _root->children; //For each child.
+			for(unsigned int i=0; i<n; ++i)
 			{
 				if
 				(
@@ -2631,8 +2643,8 @@ public:
 #endif
 				)
 				{
-					register unsigned int m = _root->child[i]->attributes; //For each attribute of child.
-					for(register unsigned int j=0; j<m; ++j)
+					unsigned int m = _root->child[i]->attributes; //For each attribute of child.
+					for(unsigned int j=0; j<m; ++j)
 					{
 						if
 						(
@@ -2678,8 +2690,8 @@ public:
 		if(!_root) return xml_node();
 		if(_root->children > 0) //Has children.
 		{
-			register unsigned int n = _root->children; //For each child.
-			for(register unsigned int i=0; i<n; ++i)
+			unsigned int n = _root->children; //For each child.
+			for(unsigned int i=0; i<n; ++i)
 			{
 				if(_root->child[i]->type==type)
 					return xml_node(_root->child[i]);
@@ -2761,8 +2773,8 @@ public:
 #ifdef PUGOPT_NONSEG
 			const unsigned int namelen = _tcslen(name);
 #endif
-			register unsigned int n = children(); //Search for matching name
-			for(register unsigned int i=0; i<n; ++i)
+			unsigned int n = children(); //Search for matching name
+			for(unsigned int i=0; i<n; ++i)
 			{
 				//NF 24 Jan 2003 Changed to get child(i) just once per iteration.
 				xml_node node = child(i); //Access child node at subscript as xml_node or xml_node(NULL) if bad subscript.
@@ -2815,8 +2827,8 @@ public:
 #ifdef PUGOPT_NONSEG
 		const unsigned int namelen = _tcslen(name);
 #endif
-		register unsigned int n = children(); //For each child.
-		for(register unsigned int i=0; i<n; ++i)
+		unsigned int n = children(); //For each child.
+		for(unsigned int i=0; i<n; ++i)
 		{
 			//NF 24 Jan 2003: Changed to get child(i) just once per iteration.
 			xml_node node = child(i); //Access child node at subscript as xml_node or xml_node(NULL) if bad subscript.
@@ -2847,8 +2859,8 @@ public:
 #ifdef PUGOPT_NONSEG
 		const unsigned int namelen = _tcslen(name);
 #endif
-		register unsigned int n = _root->parent->children; //For each child of parent.
-		for(register unsigned int i=0; i<(n-1); ++i)
+		unsigned int n = _root->parent->children; //For each child of parent.
+		for(unsigned int i=0; i<(n-1); ++i)
 		{
 			if
 			(
@@ -2884,8 +2896,8 @@ public:
 	bool moveto_next_sibling()
 	{
 		if(empty() || type_document() || !_root->parent) return false; //Null or at root, so there are no valid siblings.
-		register unsigned int n = _root->parent->children; //For each child of parent (each sibling).
-		for(register unsigned int i=0; i<(n-1); ++i)
+		unsigned int n = _root->parent->children; //For each child of parent (each sibling).
+		for(unsigned int i=0; i<(n-1); ++i)
 		{
 			if
 			(
@@ -2993,10 +3005,10 @@ public:
 			path_segments.push_back((void*)name); //push_back it to array.
 			name = _tcstok_s(NULL,delimiter,&NextPos); //Get the next token,
 		}
-		register unsigned int n = path_segments.size();
+		unsigned int n = path_segments.size();
 		if(n == 0) return xml_node(); //Return null node if no path segments.
 		if(path[0]==delimiter[0]) found.moveto_root(); //Absolute path; e.g. '/foo/bar'
-		for(register unsigned int i = 0; i<n; ++i) //For each path segment.
+		for(unsigned int i = 0; i<n; ++i) //For each path segment.
 		{
 			name = (TCHAR*)path_segments.at(i);
 			if(name)
@@ -3008,7 +3020,7 @@ public:
 				}
 				else
 				{
-					register unsigned int j, m = found.children(); //For each child.
+					unsigned int j, m = found.children(); //For each child.
 					for(j=0; j<m; ++j)
 					{
 						if(found.child(j).has_name(name)) //Name matches?
@@ -3056,8 +3068,8 @@ NEXT_ELEM:;
 		if(!empty()) //Don't traveres if this is a null node.
 		{
 			walker.push(); //Increment the walker depth counter.
-			register unsigned int n = _root->children; //For each child.
-			for(register unsigned int i=0; i<n; ++i)
+			unsigned int n = _root->children; //For each child.
+			for(unsigned int i=0; i<n; ++i)
 			{
 				if(_root->child[i]) //There is a child at i.
 				{
@@ -3342,7 +3354,7 @@ public:
     {
 		if( _root->children )
 		{
-			for(register unsigned int i=0 ; i < _root->children ; ++i )
+			for(unsigned int i=0 ; i < _root->children ; ++i )
 			{
 				xml_node_struct* node = _root->child[i];
 				if( node->type == type )
@@ -3489,8 +3501,8 @@ public:
                     // the end to its spec'd location.
                     if( i < n )
                     {
-				        register int m = (i-1); //Stop at i.
-				        for(register int j=(n-1); j>m; --j) //Starting at one less than end of array, reverse loop to i.
+				        int m = (i-1); //Stop at i.
+				        for(int j=(n-1); j>m; --j) //Starting at one less than end of array, reverse loop to i.
 					        _root->child[j+1] = _root->child[j]; //Shift node to right.
 				        _root->child[i] = p; //Set node at subscript to new node.
                     }
@@ -3517,7 +3529,7 @@ public:
         bool bStat = false;
 		if(_root->children)
 		{
-			for(register unsigned int i=0; i < _root->children; )
+			for(unsigned int i=0; i < _root->children; )
 			{
 				xml_node_struct* node = _root->child[i];
 				if(node->type == type)
@@ -3604,8 +3616,8 @@ public:
 		indent_stack indent(indent_char); //Prepare the indent.
 		if(type_document()) //If this is the root, we don't want to output the root itself.
 		{
-			register unsigned int n = _root->children; //Output each child of the root.
-			for(register unsigned int i=0; i<n; ++i)
+			unsigned int n = _root->children; //Output each child of the root.
+			for(unsigned int i=0; i<n; ++i)
 				pug::outer_xml(os,indent,_root->child[i],breaks);
 		}
 		else pug::outer_xml(os,indent,_root,breaks); //Output the node.
@@ -3652,13 +3664,13 @@ public:
         assert( type_doctype() );  // must be DTD - see cmt above.
 
 	    CEasyString sxml_value( sxml_pcdata );
-		int idx = 0;
+		size_t idx = 0;
         do  // parse sxml_value
         {       // find an entity reference "&...;"
             idx = sxml_value.Find( '&', idx );
-            int idxe = sxml_value.Find( ';', idx );
-			if ( idx != CEasyString::ERROR_CHAR_POS
-              && idxe != CEasyString::ERROR_CHAR_POS
+			size_t idxe = sxml_value.Find( ';', idx );
+			if ( idx != CEasyString::INVALID_POS
+              && idxe != CEasyString::INVALID_POS
                )
             {       // get the text in between "&...;"
                 const int len = ( idxe - idx ) - 1;
@@ -3688,8 +3700,8 @@ public:
                         // character we must use the entire entity-value as the replacement.
                         // eg. <!ENTITY  test "&#x0a;&lf;line1 with amp &amp;&#x0a;&quot;line2&quot;&lf;&lt;line3&gt;">
                         // Note that Entities like: <!ENTITY amp "&#38;#38;"> complicate things.
-						int idxsc = token.Find( ';' );      // see if > 1 ";"
-                        if ( idxsc == CEasyString::ERROR_CHAR_POS || idxsc == (int)token.GetLength()-1 )
+						size_t idxsc = token.Find( ';' );      // see if > 1 ";"
+                        if ( idxsc == CEasyString::INVALID_POS || idxsc == (int)token.GetLength()-1 )
                         {
                             token = token.SubStr( 1,-1 );  // skip past "&"
                             goto cvt_to_char;
@@ -3714,7 +3726,7 @@ cvt_to_char:        // if hex "&#x.." change to 0x.. for _tcstol()
                 }
             }
         }
-        while( idx != CEasyString::ERROR_CHAR_POS );
+        while( idx != CEasyString::INVALID_POS );
 
         return sxml_value;
     }
@@ -4091,7 +4103,7 @@ protected:
 #endif
 
     // NF 29 May 2003
-    TCHAR* parse( register TCHAR* s, xml_node_struct* xmldoc, int growby, unsigned int optmsk = parse_default );
+    TCHAR* parse( TCHAR* s, xml_node_struct* xmldoc, int growby, unsigned int optmsk = parse_default );
 
 };  // class xml_parser
 
@@ -4106,8 +4118,8 @@ protected:
 //	Input string is zero-segmented if 'PUGOPT_NONSEG' is not defined. Memory
 //	may have been allocated to 'root' (free with 'free_node').
 //</remarks>
-// TCHAR* parse( register TCHAR* s, xml_node_struct* xmldoc, int growby, unsigned int optmsk = parse_default )
-inline TCHAR* xml_parser::parse( register TCHAR* s, xml_node_struct* xmldoc, int growby, unsigned int optmsk /* = parse_default */ )
+// TCHAR* parse( TCHAR* s, xml_node_struct* xmldoc, int growby, unsigned int optmsk = parse_default )
+inline TCHAR* xml_parser::parse( TCHAR* s, xml_node_struct* xmldoc, int growby, unsigned int optmsk /* = parse_default */ )
 {
 	if(!s || !xmldoc) return s;
 	TCHAR ch = 0; //Current char, in cases where we must null-terminate before we test.

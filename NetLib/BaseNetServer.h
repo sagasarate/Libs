@@ -15,37 +15,37 @@ class CBaseNetServer :
 	protected CEasyThread
 {
 protected:
-	volatile UINT		m_TCPRecvBytes;
-	volatile UINT		m_TCPSendBytes;
-	volatile UINT		m_UDPRecvBytes;
-	volatile UINT		m_UDPSendBytes;
+	volatile UINT64		m_TCPRecvBytes;
+	volatile UINT64		m_TCPSendBytes;
+	volatile UINT64		m_UDPRecvBytes;
+	volatile UINT64		m_UDPSendBytes;
 
-	volatile UINT		m_TCPRecvCount;
-	volatile UINT		m_TCPSendCount;
-	volatile UINT		m_UDPRecvCount;
-	volatile UINT		m_UDPSendCount;
+	volatile UINT64		m_TCPRecvCount;
+	volatile UINT64		m_TCPSendCount;
+	volatile UINT64		m_UDPRecvCount;
+	volatile UINT64		m_UDPSendCount;
 
 	DECLARE_CLASS_INFO_STATIC(CBaseNetServer);
 public:
 	CBaseNetServer(void);
 	~CBaseNetServer(void);
 
-	void AddTCPRecvBytes(int Count)
+	void AddTCPRecvBytes(UINT64 Count)
 	{
 		AtomicAdd(&m_TCPRecvBytes,Count);
 		AtomicInc(&m_TCPRecvCount);
 	}
-	void AddTCPSendBytes(int Count)
+	void AddTCPSendBytes(UINT64 Count)
 	{
 		AtomicAdd(&m_TCPSendBytes,Count);
 		AtomicInc(&m_TCPSendCount);
 	}
-	void AddUDPRecvBytes(int Count)
+	void AddUDPRecvBytes(UINT64 Count)
 	{
 		AtomicAdd(&m_UDPRecvBytes,Count);
 		AtomicInc(&m_UDPRecvCount);
 	}
-	void AddUDPSendBytes(int Count)
+	void AddUDPSendBytes(UINT64 Count)
 	{
 		AtomicAdd(&m_UDPSendBytes,Count);
 		AtomicInc(&m_UDPSendCount);

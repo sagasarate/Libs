@@ -576,7 +576,7 @@ int CBaseLuaVM::DoGarbageCollect(bool PrintStatus)
 
 void CBaseLuaVM::AddLoadedModule(const char* szModuleName)
 {
-	AddUnique(m_LoadedModules, CEasyStringA(szModuleName));
+	m_LoadedModules.AddUnique(CEasyStringA(szModuleName));
 }
 
 void CBaseLuaVM::ClearLoadedModule()
@@ -686,7 +686,7 @@ int CBaseLuaVM::LuaPrint(lua_State* L)
 		UINT StartIndex = 0;
 		while (StartIndex < Buffer.GetLength())
 		{
-			StartIndex += Buffer.GetStr(Temp, StartIndex, 3000);
+			StartIndex += (UINT)Buffer.GetStr(Temp, StartIndex, 3000);
 			LogLuaDirect((LPCTSTR)Temp);
 		}
 	}

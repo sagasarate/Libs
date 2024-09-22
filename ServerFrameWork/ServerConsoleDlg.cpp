@@ -43,7 +43,7 @@ CServerConsoleDlg::CServerConsoleDlg(CWnd* pParent /*=NULL*/)
 {
 	m_ServerStatus.SetTag(_T("CServerConsoleDlg"));
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON_TRAY);
-	m_pServer=NULL;
+	m_pServer = NULL;
 }
 
 CServerConsoleDlg::~CServerConsoleDlg()
@@ -94,14 +94,14 @@ BOOL CServerConsoleDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	//初始化版本信息
 	ShowVersion();
-	
-	m_ServerStatus.Create(SERVER_STATUS_BLOCK_SIZE);
-	m_DlgServerStatus.Create(m_DlgServerStatus.IDD,this);
-	
 
-	SetTimer(PANEL_TIMER_ID,SERVER_INFO_COUNT_TIME,NULL);
-	SetTimer(LOG_MSG_FETCH_TIMER,LOG_MSG_FETCH_TIME,NULL);
-	
+	m_ServerStatus.Create(SERVER_STATUS_BLOCK_SIZE);
+	m_DlgServerStatus.Create(m_DlgServerStatus.IDD, this);
+
+
+	SetTimer(PANEL_TIMER_ID, SERVER_INFO_COUNT_TIME, NULL);
+	SetTimer(LOG_MSG_FETCH_TIMER, LOG_MSG_FETCH_TIME, NULL);
+
 	return TRUE;  // 除非设置了控件的焦点，否则返回 TRUE
 }
 
@@ -114,7 +114,7 @@ void CServerConsoleDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  来绘制该图标。对于使用文档/视图模型的 MFC 应用程序，
 //  这将由框架自动完成。
 
-void CServerConsoleDlg::OnPaint() 
+void CServerConsoleDlg::OnPaint()
 {
 	if (IsIconic())
 	{
@@ -153,9 +153,9 @@ void CServerConsoleDlg::OnCancel()
 {
 	//int nRetCode = MessageBox("程序将要关闭?", "警告", MB_YESNO);
 	//if(nRetCode == IDYES)
-	{		
+	{
 		CDialog::OnCancel();
-	}	
+	}
 }
 
 
@@ -170,18 +170,18 @@ void CServerConsoleDlg::ShowVersion()
 		g_ProgramVersion[0],
 		(LPCTSTR)(CTime::GetCurrentTime().Format("%m-%d %H:%M")));
 
-	SetWindowText(Caption);	
+	SetWindowText(Caption);
 }
 
 int CServerConsoleDlg::FetchConsoleMsg(int ProcessLimit)
 {
-	int ProcessCount=0;
+	int ProcessCount = 0;
 	if (m_pServer)
 	{
 		char Buffer[5001];
 		UINT MsgLen = 0;
 		LPCTSTR szMsg = m_pServer->GetConsoleLog(MsgLen);
-		while (szMsg&&MsgLen)
+		while (szMsg && MsgLen)
 		{
 			if (IsWindowVisible())
 			{
@@ -209,25 +209,25 @@ int CServerConsoleDlg::FetchConsoleMsg(int ProcessLimit)
 void CServerConsoleDlg::OnLogMsg(LPCTSTR szLogMsg)
 {
 
-	int s1,s2;
-	int sm1,sm2;
+	int s1, s2;
+	int sm1, sm2;
 	int SelLine;
 	int EndLine;
 
 	m_edMsgWnd.SetRedraw(false);
 
-	m_edMsgWnd.GetSel(sm1,sm2);
-	m_edMsgWnd.SetSel(0,-1);
-	m_edMsgWnd.GetSel(s1,s2);
-	SelLine=m_edMsgWnd.LineFromChar(sm1);
-	EndLine=m_edMsgWnd.GetLineCount()-1;
-	if(s2>MAX_CONTROL_PANEL_MSG_LEN)
+	m_edMsgWnd.GetSel(sm1, sm2);
+	m_edMsgWnd.SetSel(0, -1);
+	m_edMsgWnd.GetSel(s1, s2);
+	SelLine = m_edMsgWnd.LineFromChar(sm1);
+	EndLine = m_edMsgWnd.GetLineCount() - 1;
+	if (s2 > MAX_CONTROL_PANEL_MSG_LEN)
 	{
-		m_edMsgWnd.SetSel(0,-1);
+		m_edMsgWnd.SetSel(0, -1);
 		m_edMsgWnd.Clear();
-		s2=0;
+		s2 = 0;
 	}
-	m_edMsgWnd.SetSel(s2,s2);
+	m_edMsgWnd.SetSel(s2, s2);
 	//m_edMsgWnd.ReplaceSel(CTime::GetCurrentTime().Format("%H:%M:%S :"));
 
 
@@ -245,35 +245,35 @@ void CServerConsoleDlg::OnLogMsg(LPCTSTR szLogMsg)
 
 
 
-	m_edMsgWnd.SetRedraw(true);	
+	m_edMsgWnd.SetRedraw(true);
 
 
-	if(SelLine==EndLine)
+	if (SelLine == EndLine)
 		m_edMsgWnd.LineScroll(m_edMsgWnd.GetLineCount());
 	else
-		m_edMsgWnd.SetSel(sm1,sm2);
+		m_edMsgWnd.SetSel(sm1, sm2);
 }
 
 void CServerConsoleDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	if (nIDEvent == PANEL_TIMER_ID&&IsWindowVisible() && m_pServer)
+	if (nIDEvent == PANEL_TIMER_ID && IsWindowVisible() && m_pServer)
 	{
-		UINT Size=m_pServer->GetAllServerStatus((BYTE *)m_ServerStatus.GetBuffer(),m_ServerStatus.GetBufferSize());
+		UINT Size = m_pServer->GetAllServerStatus((BYTE*)m_ServerStatus.GetBuffer(), (UINT)m_ServerStatus.GetBufferSize());
 		CSmartStruct StatusPacket(m_ServerStatus.GetBuffer(), Size, false, _T("CServerConsoleDlg"));
 
 		CEasyArray<SERVER_STATUS_FORMAT_INFO> FormatInfoList(_T("CServerConsoleDlg"));
 		m_pServer->GetAllServerStatusFormat(FormatInfoList);
 
-		UpdateData(true);		
+		UpdateData(true);
 		static char buff[128];
-		sprintf_s(buff,128,"%.2f",
+		sprintf_s(buff, 128, "%.2f",
 			(float)StatusPacket.GetMember(SC_SST_SS_CYCLE_TIME));
-		m_CycleTime=buff;
-		m_TCPRecv=FormatNumberWordsFloat(StatusPacket.GetMember(SC_SST_SS_TCP_RECV_FLOW),true);
-		m_TCPSend=FormatNumberWordsFloat(StatusPacket.GetMember(SC_SST_SS_TCP_SEND_FLOW),true);
-		m_UDPRecv=FormatNumberWordsFloat(StatusPacket.GetMember(SC_SST_SS_UDP_RECV_FLOW),true);
-		m_UCPSend=FormatNumberWordsFloat(StatusPacket.GetMember(SC_SST_SS_UDP_SEND_FLOW),true);
+		m_CycleTime = buff;
+		m_TCPRecv = FormatNumberWordsFloat(StatusPacket.GetMember(SC_SST_SS_TCP_RECV_FLOW), true);
+		m_TCPSend = FormatNumberWordsFloat(StatusPacket.GetMember(SC_SST_SS_TCP_SEND_FLOW), true);
+		m_UDPRecv = FormatNumberWordsFloat(StatusPacket.GetMember(SC_SST_SS_UDP_RECV_FLOW), true);
+		m_UCPSend = FormatNumberWordsFloat(StatusPacket.GetMember(SC_SST_SS_UDP_SEND_FLOW), true);
 		BYTE WorkStatus = StatusPacket.GetMember(SC_SST_SS_WORK_STATUS);
 		m_WorkStatus = WorkStatus <= SERVER_WORK_STATUS_SHUTDOWN ? g_szSERVER_WORK_STATUS[WorkStatus] : _T("未知");
 
@@ -281,7 +281,7 @@ void CServerConsoleDlg::OnTimer(UINT_PTR nIDEvent)
 
 		m_DlgServerStatus.FlushStatus(StatusPacket, FormatInfoList);
 	}
-	if(nIDEvent==LOG_MSG_FETCH_TIMER)
+	if (nIDEvent == LOG_MSG_FETCH_TIMER)
 	{
 		FetchConsoleMsg(LOG_MSG_FETCH_COUNT);
 	}
@@ -294,7 +294,7 @@ void CServerConsoleDlg::OnBnClickedExecCommand()
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(true);
 	m_Command.Trim();
-	if(!m_Command.IsEmpty())
+	if (!m_Command.IsEmpty())
 		OnCommand(m_Command);
 	m_Command.Empty();
 	UpdateData(false);
@@ -319,7 +319,7 @@ void CServerConsoleDlg::RegisterTrayIcon(LPCTSTR szTip)
 	Nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
 	Nid.uCallbackMessage = WM_TRAY_ICON_NOTIFY;
 
-	strcpy_s(Nid.szTip, sizeof(Nid.szTip),szTip);
+	strcpy_s(Nid.szTip, sizeof(Nid.szTip), szTip);
 	Shell_NotifyIcon(NIM_ADD, &Nid);
 
 }
@@ -343,16 +343,16 @@ void CServerConsoleDlg::UnregisterTrayIcon()
 
 LRESULT CServerConsoleDlg::OnTryIconNotify(WPARAM wParam, LPARAM lParam)
 {
-	
 
-	switch(lParam)
+
+	switch (lParam)
 	{
 	case WM_LBUTTONDBLCLK:
 		ShowWindow(SW_SHOW);
 		break;
 	}
 
-	
+
 
 	return 0;
 
@@ -360,15 +360,15 @@ LRESULT CServerConsoleDlg::OnTryIconNotify(WPARAM wParam, LPARAM lParam)
 }
 void CServerConsoleDlg::OnBnClickedCloseServer()
 {
-	
+
 
 	// TODO: 在此添加控件通知处理程序代码
-	if(MessageBox("是否要关闭服务器","提示",MB_YESNO)==IDYES)
-	{		
-		if(m_pServer)
+	if (MessageBox("是否要关闭服务器", "提示", MB_YESNO) == IDYES)
+	{
+		if (m_pServer)
 			m_pServer->QueryShowDown();
 	}
-	
+
 }
 
 void CServerConsoleDlg::OnBnClickedShowServerStatus()

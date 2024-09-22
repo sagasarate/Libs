@@ -674,7 +674,7 @@ bool CDOSObjectProxyConnectionNoBuff::SendDisconnectNotify()
 		}
 		pNewPacket->MakePacketLength();
 
-		bool Ret = GetServer()->GetRouter()->RouterMessage(pNewPacket) != FALSE;
+		bool Ret = GetServer()->GetRouter()->RouterMessage(pNewPacket);
 		GetServer()->ReleaseMessagePacket(pNewPacket);
 		return Ret;
 	}
@@ -741,7 +741,7 @@ bool CDOSObjectProxyConnectionNoBuff::DoUnregisterMsgMap(MSG_ID_TYPE MsgID, OBJE
 		{
 			//PrintDOSLog(_T("0x%llX注销了代理[0x%X]消息映射[0x%X]！"),ObjectID.ID,GetID(),MsgID);
 			m_UnacceptConnectionKeepTimer.SaveTime();
-			return m_MessageMap.Delete(MsgID) != FALSE;
+			return m_MessageMap.Delete(MsgID);
 		}
 		else
 		{

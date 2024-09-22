@@ -37,8 +37,8 @@ public:
 		m_Tag = Tag;
 	}
 
-	BOOL Create(UINT Size);
-	BOOL Create(LPVOID pBuff, UINT Size);
+	bool Create(UINT Size);
+	bool Create(LPVOID pBuff, UINT Size);
 	void Destory();
 	void Clear();
 
@@ -46,15 +46,15 @@ public:
 	UINT GetUsedSize();
 	UINT GetFreeSize();
 
-	BOOL PushFront(LPCVOID pData, UINT Size);
-	BOOL PushFront(UINT Data, UINT Size);
-	BOOL PushBack(LPCVOID pData, UINT Size);
-	BOOL PushBack(UINT Data, UINT Size);
+	bool PushFront(LPCVOID pData, UINT Size);
+	bool PushFront(UINT Data, UINT Size);
+	bool PushBack(LPCVOID pData, UINT Size);
+	bool PushBack(UINT Data, UINT Size);
 
-	BOOL PopFront(LPVOID pData, UINT Size);
-	BOOL PopFront(UINT Data, UINT Size);
-	BOOL PopBack(LPVOID pData, UINT Size);
-	BOOL PopBack(UINT Data, UINT Size);
+	bool PopFront(LPVOID pData, UINT Size);
+	bool PopFront(UINT Data, UINT Size);
+	bool PopBack(LPVOID pData, UINT Size);
+	bool PopBack(UINT Data, UINT Size);
 
 	LPVOID GetUsedBuffer();
 	UINT GetSmoothUsedSize();
@@ -102,7 +102,7 @@ inline UINT CCycleBuffer::GetFreeSize()
 }
 
 
-inline BOOL CCycleBuffer::PushFront(LPCVOID pData, UINT Size)
+inline bool CCycleBuffer::PushFront(LPCVOID pData, UINT Size)
 {
 	if (GetUsedSize() + Size <= GetBufferSize())
 	{
@@ -122,15 +122,15 @@ inline BOOL CCycleBuffer::PushFront(LPCVOID pData, UINT Size)
 			}
 			m_BufferHead = m_BufferSize - CutSize;
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
-inline BOOL CCycleBuffer::PushFront(UINT Data, UINT Size)
+inline bool CCycleBuffer::PushFront(UINT Data, UINT Size)
 {
 	return PushFront(&Data, Size);
 }
-inline BOOL CCycleBuffer::PushBack(LPCVOID pData, UINT Size)
+inline bool CCycleBuffer::PushBack(LPCVOID pData, UINT Size)
 {
 	if (GetUsedSize() + Size <= GetBufferSize())
 	{
@@ -150,16 +150,16 @@ inline BOOL CCycleBuffer::PushBack(LPCVOID pData, UINT Size)
 			}
 			m_BufferTail = Size - CutSize;
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
-inline BOOL CCycleBuffer::PushBack(UINT Data, UINT Size)
+inline bool CCycleBuffer::PushBack(UINT Data, UINT Size)
 {
 	return PushBack(&Data, Size);
 }
 
-inline BOOL CCycleBuffer::PopFront(LPVOID pData, UINT Size)
+inline bool CCycleBuffer::PopFront(LPVOID pData, UINT Size)
 {
 	if (Size <= GetUsedSize())
 	{
@@ -179,15 +179,15 @@ inline BOOL CCycleBuffer::PopFront(LPVOID pData, UINT Size)
 			}
 			m_BufferHead = Size - CutSize;
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
-inline BOOL CCycleBuffer::PopFront(UINT Data, UINT Size)
+inline bool CCycleBuffer::PopFront(UINT Data, UINT Size)
 {
 	return PopFront(&Data, Size);
 }
-inline BOOL CCycleBuffer::PopBack(LPVOID pData, UINT Size)
+inline bool CCycleBuffer::PopBack(LPVOID pData, UINT Size)
 {
 	if (Size <= GetUsedSize())
 	{
@@ -207,11 +207,11 @@ inline BOOL CCycleBuffer::PopBack(LPVOID pData, UINT Size)
 			}
 			m_BufferTail = m_BufferSize - CutSize;
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
-inline BOOL CCycleBuffer::PopBack(UINT Data, UINT Size)
+inline bool CCycleBuffer::PopBack(UINT Data, UINT Size)
 {
 	return PopBack(&Data, Size);
 }

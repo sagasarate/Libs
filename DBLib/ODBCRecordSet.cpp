@@ -59,7 +59,7 @@ int CODBCRecordSet::Init(CODBCConnection * pDBConnection,SQLHSTMT hStmt)
 	nResult=SQLGetStmtAttr(m_hStmt,SQL_ATTR_CURSOR_TYPE,&CursorType,sizeof(int),&AttrLen);
 	if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 	{
-		m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取环境句柄属性失败！\r\n", TRUE);
+		m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取环境句柄属性失败！\r\n", true);
 		return DBERR_ODBC_GETCOLNUMFAIL;
 	}
 	if(CursorType==SQL_CURSOR_FORWARD_ONLY)
@@ -71,7 +71,7 @@ int CODBCRecordSet::Init(CODBCConnection * pDBConnection,SQLHSTMT hStmt)
 	nResult=SQLNumResultCols(m_hStmt,(SQLSMALLINT *)&ColNum);
 	if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 	{
-		m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取结果集列数失败！\r\n", TRUE);
+		m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取结果集列数失败！\r\n", true);
 		return DBERR_ODBC_GETCOLNUMFAIL;
 	}
 
@@ -89,7 +89,7 @@ int CODBCRecordSet::Init(CODBCConnection * pDBConnection,SQLHSTMT hStmt)
 	for(UINT i=0;i<ColNum;i++)
 	{		
 		int ColNameLen;
-		BOOL CanNULL;
+		bool CanNULL;
 
 		nResult=SQLDescribeCol(m_hStmt,i+1,(SQLCHAR *)m_ColInfos[i].Name,MAX_COLUMN_NAME,
 			(SQLSMALLINT *)&ColNameLen,	(SQLSMALLINT *)&m_ColInfos[i].Type,
@@ -97,7 +97,7 @@ int CODBCRecordSet::Init(CODBCConnection * pDBConnection,SQLHSTMT hStmt)
 			(SQLSMALLINT *)&CanNULL);
 		if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO )
 		{
-			m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取结果集列信息失败！\r\n", TRUE);
+			m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取结果集列信息失败！\r\n", true);
 			return DBERR_ODBC_GETCOLINFOFAIL;
 		}
 		m_ColInfos[i].Name[MAX_COLUMN_NAME-1]=0;
@@ -124,7 +124,7 @@ int CODBCRecordSet::Init(CODBCConnection * pDBConnection,SQLHSTMT hStmt)
 			&(m_FieldSize[i]));
 		if ( nResult != SQL_SUCCESS && nResult != SQL_SUCCESS_WITH_INFO)
 		{
-			m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"绑定结果集列失败！\r\n", TRUE);
+			m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"绑定结果集列失败！\r\n", true);
 			return DBERR_BINDCOLFAIL;
 		}		
 		pFieldBuffer+=m_ColInfos[i].Size;
@@ -176,7 +176,7 @@ int CODBCRecordSet::FetchRow(int Orientation,int Offset)
 		}	
 		else
 		{
-			m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取结果集数据失败！\r\n", TRUE);
+			m_pDBConnection->ProcessMessagesODBC(SQL_HANDLE_STMT, m_hStmt,"获取结果集数据失败！\r\n", true);
 			Ret=DBERR_FETCH_RESULT_FAIL;
 			m_IsBOF=true;
 			m_IsEOF=true;

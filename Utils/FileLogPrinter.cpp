@@ -178,11 +178,11 @@ bool CFileLogPrinter::OpenLogFile()
 			m_pFileAccessor->Write(&BomHeader, 2);
 #endif
 		}
-		return  TRUE;
+		return true;
 	}
 	else
 	{
-		return  FALSE;
+		return false;
 	}
 	
 }

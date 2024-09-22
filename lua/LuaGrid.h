@@ -66,14 +66,14 @@ public:
 	UINT GetMaxCol() const
 	{
 		if (m_Data.GetCount())
-			return m_Data[0].GetCount();
+			return (UINT)m_Data[0].GetCount();
 		else
 			return 0;
 	}
 
 	UINT GetMaxRow() const
 	{
-		return m_Data.GetCount();
+		return (UINT)m_Data.GetCount();
 	}
 
 	CVariedValue& GetValue(UINT Col, UINT Row)

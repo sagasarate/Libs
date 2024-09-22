@@ -25,14 +25,14 @@ enum THREAD_STATUS
 
 enum THREAD_PRIORITY
 {
-	ET_PRIORITY_TIME_CRITICAL=THREAD_PRIORITY_TIME_CRITICAL,
-	ET_PRIORITY_HIGHEST=THREAD_PRIORITY_HIGHEST,
-	ET_PRIORITY_ABOVE_NORMA=THREAD_PRIORITY_ABOVE_NORMAL,
-	ET_PRIORITY_NORMAL=THREAD_PRIORITY_NORMAL,
-	ET_PRIORITY_BELOW_NORMA=THREAD_PRIORITY_BELOW_NORMAL,
-	ET_PRIORITY_LOWEST=THREAD_PRIORITY_LOWEST,
-	ET_PRIORITY_IDLE=THREAD_PRIORITY_IDLE,
-	ET_PRIORITY_ERROR_RETURN=THREAD_PRIORITY_ERROR_RETURN,
+	ET_PRIORITY_TIME_CRITICAL = THREAD_PRIORITY_TIME_CRITICAL,
+	ET_PRIORITY_HIGHEST = THREAD_PRIORITY_HIGHEST,
+	ET_PRIORITY_ABOVE_NORMA = THREAD_PRIORITY_ABOVE_NORMAL,
+	ET_PRIORITY_NORMAL = THREAD_PRIORITY_NORMAL,
+	ET_PRIORITY_BELOW_NORMA = THREAD_PRIORITY_BELOW_NORMAL,
+	ET_PRIORITY_LOWEST = THREAD_PRIORITY_LOWEST,
+	ET_PRIORITY_IDLE = THREAD_PRIORITY_IDLE,
+	ET_PRIORITY_ERROR_RETURN = THREAD_PRIORITY_ERROR_RETURN,
 };
 
 enum THREAD_EXIT_CODE
@@ -47,12 +47,12 @@ class CEasyThread :
 	public CNameObject
 {
 protected:
-	UINT			m_ThreadID;	
-	HANDLE			m_hThread;		
+	UINT			m_ThreadID;
+	HANDLE			m_hThread;
 	volatile UINT	m_Status;
-	volatile BOOL	m_WantTerminate;
+	volatile bool	m_WantTerminate;
 
-	
+
 
 
 	DECLARE_CLASS_INFO_STATIC(CEasyThread)
@@ -61,52 +61,52 @@ public:
 	virtual ~CEasyThread();
 
 	///启动线程
-	BOOL Start(BOOL IsSuspended = FALSE,DWORD StartWaitTime=DEFAULT_THREAD_STARTUP_TIME);
+	bool Start(bool IsSuspended = false, DWORD StartWaitTime = DEFAULT_THREAD_STARTUP_TIME);
 
 	///继续线程
-	BOOL Resume();
+	bool Resume();
 
 	/// 挂起线程
-	BOOL Suspend();
+	bool Suspend();
 
 	///终止线程
 	void Terminate();
 
 	//强制结束
 	void ForceTerminate();
-	void SafeTerminate(DWORD Milliseconds=DEFAULT_THREAD_TERMINATE_TIME);
+	void SafeTerminate(DWORD Milliseconds = DEFAULT_THREAD_TERMINATE_TIME);
 
 	//线程是否被结束了
-	BOOL IsTerminated();
+	bool IsTerminated();
 
 	//线程是否被挂起
-	BOOL IsSuspend();
+	bool IsSuspend();
 
 	//线程是否运行中
-	BOOL IsWorking();
+	bool IsWorking();
 
 	///获得线程状态
 	int GetStatus();
 
 	///等待线程开始工作
-	BOOL WaitForWorking(DWORD Milliseconds=INFINITE);
+	bool WaitForWorking(DWORD Milliseconds = INFINITE);
 
 	///等待线程退出
-	BOOL WaitForTerminate(DWORD Milliseconds=INFINITE);
+	bool WaitForTerminate(DWORD Milliseconds = INFINITE);
 
 
 	HANDLE GetThreadHandle();
 	UINT GetThreadID();
 
-	BOOL SetThreadPriority(int Priority);
+	bool SetThreadPriority(int Priority);
 	int GetThreadPriority();
 
 	int GetExitCode();
 
 protected:
-	virtual BOOL OnStart();
+	virtual bool OnStart();
 	virtual void Execute();
-	virtual BOOL OnRun();
+	virtual bool OnRun();
 	virtual void OnTerminate();
 
 
@@ -114,7 +114,7 @@ protected:
 	static UINT __stdcall ThreadProc(LPVOID pParam);
 };
 
-inline BOOL CEasyThread::IsTerminated()
+inline bool CEasyThread::IsTerminated()
 {
 	if (m_Status == THREAD_STATUS_TERMINATED)
 	{
@@ -132,13 +132,13 @@ inline BOOL CEasyThread::IsTerminated()
 		}
 	}
 }
-inline BOOL CEasyThread::IsSuspend()
+inline bool CEasyThread::IsSuspend()
 {
-	return m_Status==THREAD_STATUS_SUSPENDED;
+	return m_Status == THREAD_STATUS_SUSPENDED;
 }
-inline BOOL CEasyThread::IsWorking()
+inline bool CEasyThread::IsWorking()
 {
-	return m_Status==THREAD_STATUS_WORKING;
+	return m_Status == THREAD_STATUS_WORKING;
 }
 inline int CEasyThread::GetStatus()
 {
@@ -153,4 +153,10 @@ inline HANDLE CEasyThread::GetThreadHandle()
 inline UINT CEasyThread::GetThreadID()
 {
 	return m_ThreadID;
+}
+
+
+inline UINT GetCurThreadID()
+{
+	return (UINT)GetCurrentThreadId();
 }

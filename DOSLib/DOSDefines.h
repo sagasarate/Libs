@@ -18,9 +18,13 @@
 //#define DOS_PROXY_KEEP_ALIVE_MAX_COUNT	(20)
 #define BLACK_LIST_UPDATE_TIME			(60*1000)
 #define CONNECTION_FREE_CHECK_BATCH		32
+#define MAX_OBJECT_TYPE_NAME_LEN		32
 
-typedef bool (*DOS_GROUP_INIT_FN)(UINT GroupIndex);
-typedef bool(*DOS_GROUP_DESTORY_FN)(UINT GroupIndex);
+
+
+typedef bool (*DOS_GROUP_INIT_FN)(int GroupIndex);
+typedef int (*DOS_GROUP_UPDATE_FN)(int GroupIndex, int ProcessLimit);
+typedef void (*DOS_GROUP_DESTORY_FN)(int GroupIndex);
 
 enum MSG_COMPRESS_TYPE
 {
@@ -51,7 +55,7 @@ enum CLIENT_PROXY_MODE
 	CLIENT_PROXY_MODE_DEFAULT,
 	CLIENT_PROXY_MODE_NO_BUFF,
 	CLIENT_PROXY_MODE_WEB_SOCKET,
-	CLIENT_PROXY_MODE_CUSTOM=100,
+	CLIENT_PROXY_MODE_CUSTOM = 100,
 };
 
 enum OBJECT_GROUP_TYPE
@@ -67,7 +71,7 @@ struct CLIENT_PROXY_CONFIG
 	CIPAddress									ListenAddress;
 	UINT										ProxyMsgQueueSize;
 	UINT										ConnectionGroupCount;
-	STORAGE_POOL_SETTING						ConnectionPoolSetting;	
+	STORAGE_POOL_SETTING						ConnectionPoolSetting;
 	UINT										ConnectionMsgQueueSize;
 	UINT										AcceptQueueSize;
 	UINT										ParallelAcceptCount;
@@ -108,8 +112,8 @@ struct CLIENT_PROXY_CONFIG
 	UINT										GuardThreadKeepAliveTime;
 	UINT										GuardThreadKeepAliveCount;
 
-	
-	
+
+
 	CLIENT_PROXY_CONFIG()
 		:InitBlackList(_T("CLIENT_PROXY_CONFIG"))
 	{
@@ -134,7 +138,7 @@ struct CLIENT_PROXY_CONFIG
 		SendBufferSize = DEFAULT_SERVER_SEND_DATA_QUEUE;
 		BroadcastGroupPoolSetting.StartSize = 128;
 		BroadcastGroupPoolSetting.GrowSize = 128;
-		BroadcastGroupPoolSetting.GrowLimit = 32;		
+		BroadcastGroupPoolSetting.GrowLimit = 32;
 		MsgCompressType = MSG_COMPRESS_NONE;
 		MinMsgCompressSize = 0;
 		MsgEnCryptType = MSG_ENCRYPT_NONE;
@@ -184,6 +188,7 @@ struct DOS_OBJECT_CONFIG
 {
 	UINT										ObjectGroupCount;
 	UINT										MaxObjectGroupCount;
+	UINT										ObjectRegisterQueueSize;
 	STORAGE_POOL_SETTING						ObjectPoolSetting;
 	UINT										MaxObjectMsgQueue;
 	UINT										ObjectAliveTestTime;
@@ -191,8 +196,10 @@ struct DOS_OBJECT_CONFIG
 	UINT										ObjectKeepAliveCount;
 	bool										StatObjectCPUCost;
 	bool										UseRealGroupLoadWeight;
-	DOS_GROUP_INIT_FN							pDOSGroupInitFN;
-	DOS_GROUP_DESTORY_FN						pDOSGroupDestoryFN;
+	CEasyArray<DOS_GROUP_INIT_FN>				DOSGroupInitFNList;
+	CEasyArray <DOS_GROUP_UPDATE_FN>			DOSGroupUpdateFNList;
+	CEasyArray <DOS_GROUP_DESTORY_FN>			DOSGroupDestoryFNList;
+	int											ObjectGroupProcessLimit;
 	bool										EnableGuardThread;
 	UINT										GuardThreadKeepAliveTime;
 	UINT										GuardThreadKeepAliveCount;
@@ -202,6 +209,7 @@ struct DOS_OBJECT_CONFIG
 	{
 		ObjectGroupCount = 8;
 		MaxObjectGroupCount = 256;
+		ObjectRegisterQueueSize = 256;
 		ObjectPoolSetting.StartSize = 128;
 		ObjectPoolSetting.GrowSize = 128;
 		ObjectPoolSetting.GrowLimit = 32;
@@ -211,8 +219,7 @@ struct DOS_OBJECT_CONFIG
 		ObjectKeepAliveCount = 5;
 		StatObjectCPUCost = false;
 		UseRealGroupLoadWeight = false;
-		pDOSGroupInitFN = NULL;
-		pDOSGroupDestoryFN = NULL;
+		ObjectGroupProcessLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT;
 		EnableGuardThread = false;
 		GuardThreadKeepAliveTime = 20 * 1000;
 		GuardThreadKeepAliveCount = 5;
@@ -237,14 +244,14 @@ struct DOS_MEMORY_POOL_CONFIG
 struct DOS_CONFIG
 {
 	CEasyArray<CLIENT_PROXY_CONFIG>				ClientProxyConfigs;
-	DOS_ROUTER_CONFIG							RouterConfig;	
+	DOS_ROUTER_CONFIG							RouterConfig;
 	DOS_OBJECT_CONFIG							ObjectConfig;
 	DOS_MEMORY_POOL_CONFIG						MemoryPoolConfig;
 
 	DOS_CONFIG()
 		:ClientProxyConfigs(_T("CLIENT_PROXY_CONFIG"))
 	{
-		
+
 	}
 };
 
@@ -253,27 +260,27 @@ class CDOSBaseObject;
 struct DOS_OBJECT_REGISTER_INFO
 {
 	OBJECT_ID			ObjectID;
-	LPCSTR				szObjectTypeName;
+	char				ObjectTypeName[MAX_OBJECT_TYPE_NAME_LEN + 1];
 	int					Weight;
 	int					ObjectGroupIndex;
 	UINT				MsgQueueSize;
 	UINT				MsgProcessLimit;
 	UINT				Flag;
-	CDOSBaseObject *	pObject;
-	
+	CDOSBaseObject*		pObject;
+
 
 	DOS_OBJECT_REGISTER_INFO()
 	{
-		ObjectID=0;
-		szObjectTypeName = NULL;
-		Weight=1;
-		ObjectGroupIndex=-1;
-		MsgQueueSize=0;
-		MsgProcessLimit=0;
+		ObjectID = 0;
+		ObjectTypeName[0] = 0;
+		Weight = 1;
+		ObjectGroupIndex = -1;
+		MsgQueueSize = 0;
+		MsgProcessLimit = 0;
 		Flag = 0;
-		pObject=NULL;		
-	}	
+		pObject = NULL;
+	}
 };
 
-extern UINT DistinctObjectID(OBJECT_ID * pObjectIDs,UINT Count);
+extern UINT DistinctObjectID(OBJECT_ID* pObjectIDs, UINT Count);
 

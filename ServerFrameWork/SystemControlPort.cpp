@@ -109,7 +109,7 @@ void CSystemControlPort::SendMsg(const CIPAddress& Address,WORD Msg,LPCVOID pDat
 
 	if(DataLen)
 		SendBuffer.PushBack(pData,DataLen);
-	QueryUDPSend(Address,SendBuffer.GetBuffer(),SendBuffer.GetUsedSize());
+	QueryUDPSend(Address,SendBuffer.GetBuffer(),(UINT)SendBuffer.GetUsedSize());
 
 
 }

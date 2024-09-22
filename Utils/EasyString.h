@@ -260,29 +260,56 @@ inline T* StringTrimT(T* pStr, T TrimChar)
 #define StringTrimW	StringTrimT<WCHAR>
 
 
+inline size_t AnsiToUnicode(const char* SrcStr, size_t SrcLen, WCHAR* DestStr, size_t DestLen)
+{
+	return iconv_gbk2ucs2(SrcStr, SrcLen, DestStr, DestLen);
+}
+
+inline size_t UnicodeToAnsi(const WCHAR* SrcStr, size_t SrcLen, char* DestStr, size_t DestLen)
+{
+	return iconv_ucs22gbk(SrcStr, SrcLen, DestStr, DestLen);
+}
+
+inline size_t UTF8ToUnicode(const char* SrcStr, size_t SrcLen, WCHAR* DestStr, size_t DestLen)
+{
+	return iconv_utf82ucs2(SrcStr, SrcLen, DestStr, DestLen);
+}
+
+inline size_t UnicodeToUTF8(const WCHAR* SrcStr, size_t SrcLen, char* DestStr, size_t DestLen)
+{
+	return iconv_ucs22utf8(SrcStr, SrcLen, DestStr, DestLen);
+}
+
+inline size_t AnsiToUTF8(const char* SrcStr, size_t SrcLen, char* DestStr, size_t DestLen)
+{
+	return iconv_gbk2utf8(SrcStr, SrcLen, DestStr, DestLen);
+}
+
+inline size_t UTF8ToAnsi(const char* SrcStr, size_t SrcLen, char* DestStr, size_t DestLen)
+{
+	return iconv_utf82gbk(SrcStr, SrcLen, DestStr, DestLen);
+}
+
+
 template < typename T>
 class CEasyStringT
 {
 public:
 	typedef size_t SIZE_TYPE;
-	enum
-	{
-		ERROR_CHAR_POS = -1,
-	};
+	static const size_t INVALID_POS = (size_t)(-1);
 	enum STRING_CODE_PAGE
 	{
-		STRING_CODE_PAGE_AUTO,
-		STRING_CODE_PAGE_ANSI,
-		STRING_CODE_PAGE_UTF8,
-		STRING_CODE_PAGE_UCS16,
+		STRING_CODE_PAGE_AUTO = -1,
+		STRING_CODE_PAGE_ANSI = 0,
+		STRING_CODE_PAGE_UTF8 = 65001,
+		STRING_CODE_PAGE_UCS16 = 1200,
 	};
+	static T	ZERO_CHAR;
 	static const CEasyStringT EMPTY_STR;
+	static T* EMPTY_PSTR;
 	static STRING_CODE_PAGE SYSTEM_STRING_CODE_PAGE;
 protected:
-	static T	ZERO_CHAR;
-	static T*	EMPTY_PSTR;
-
-	T*			m_pBuffer;
+	T* m_pBuffer;
 	SIZE_TYPE	m_BufferSize;
 	SIZE_TYPE	m_StringLength;
 	UINT		m_HashCode;
@@ -300,7 +327,7 @@ public:
 		m_BufferSize = 1;
 		m_StringLength = 0;
 		m_HashCode = 0;
-		SetString(pStr, -1, CodePage);
+		SetString(pStr, 0, CodePage);
 	}
 	CEasyStringT(const WCHAR* pStr, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO)
 	{
@@ -308,9 +335,9 @@ public:
 		m_BufferSize = 1;
 		m_StringLength = 0;
 		m_HashCode = 0;
-		SetString(pStr, -1, CodePage);
+		SetString(pStr, 0, CodePage);
 	}
-	CEasyStringT(const char* pStr, int Size, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO)
+	CEasyStringT(const char* pStr, SIZE_TYPE Size, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO)
 	{
 		m_pBuffer = EMPTY_PSTR;
 		m_BufferSize = 1;
@@ -318,7 +345,7 @@ public:
 		m_HashCode = 0;
 		SetString(pStr, Size, CodePage);
 	}
-	CEasyStringT(const WCHAR* pStr, int Size, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO)
+	CEasyStringT(const WCHAR* pStr, SIZE_TYPE Size, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO)
 	{
 		m_pBuffer = EMPTY_PSTR;
 		m_BufferSize = 1;
@@ -347,14 +374,14 @@ public:
 		m_pBuffer = EMPTY_PSTR;
 		m_BufferSize = 1;
 		m_StringLength = 0;
-		SetString(Str.GetBuffer(), (int)Str.GetLength());
+		SetString(Str.GetBuffer(), Str.GetLength());
 	}
 	CEasyStringT(const CEasyStringT<WCHAR>& Str)
 	{
 		m_pBuffer = EMPTY_PSTR;
 		m_BufferSize = 1;
 		m_StringLength = 0;
-		SetString(Str.GetBuffer(), (int)Str.GetLength());
+		SetString(Str.GetBuffer(), Str.GetLength());
 	}
 	CEasyStringT(CEasyStringT&& Str)  noexcept
 	{
@@ -378,7 +405,7 @@ public:
 			MONITORED_DELETE_ARRAY(m_pBuffer);
 		}
 		m_pBuffer = EMPTY_PSTR;
-		m_BufferSize = 1;		
+		m_BufferSize = 1;
 	}
 	void Clear()
 	{
@@ -417,7 +444,7 @@ public:
 		m_pBuffer = pNewBuffer;
 		m_BufferSize = Size + 1;
 		m_HashCode = 0;
-	}	
+	}
 	bool MakeSelfBuffer()
 	{
 		if (m_pBuffer && (m_pBuffer != EMPTY_PSTR) && (m_BufferSize == 0) && m_StringLength)
@@ -469,12 +496,12 @@ public:
 		}
 		return m_HashCode;
 	}
-	void SetStringRef(const char* pStr, int StrLen, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
-	void SetStringRef(const WCHAR* pStr, int StrLen, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
-	void SetString(const char* pStr, int StrLen, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
-	void SetString(const WCHAR* pStr, int StrLen, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
-	bool Append(const char* pStr, int StrLen = -1, bool AutoExpandBuffer = true, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
-	bool Append(const WCHAR* pStr, int StrLen = -1, bool AutoExpandBuffer = true, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
+	void SetStringRef(const char* pStr, SIZE_TYPE StrLen, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
+	void SetStringRef(const WCHAR* pStr, SIZE_TYPE StrLen, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
+	void SetString(const char* pStr, SIZE_TYPE StrLen, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
+	void SetString(const WCHAR* pStr, SIZE_TYPE StrLen, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
+	bool Append(const char* pStr, SIZE_TYPE StrLen = 0, bool AutoExpandBuffer = true, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
+	bool Append(const WCHAR* pStr, SIZE_TYPE StrLen = 0, bool AutoExpandBuffer = true, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO);
 	SIZE_TYPE GetStringBytes(BYTE* pBuffer, SIZE_TYPE BufferSize, STRING_CODE_PAGE CodePage = STRING_CODE_PAGE_AUTO) const;
 	SIZE_TYPE GetLength() const
 	{
@@ -528,12 +555,12 @@ public:
 	}
 	CEasyStringT<T>& operator=(const char* pStr)
 	{
-		SetString(pStr, -1);
+		SetString(pStr, 0);
 		return *this;
 	}
 	CEasyStringT<T>& operator=(const WCHAR* pStr)
 	{
-		SetString(pStr, -1);
+		SetString(pStr, 0);
 		return *this;
 	}
 	CEasyStringT<T>& operator=(char Char)
@@ -548,12 +575,12 @@ public:
 	}
 	CEasyStringT<T>& operator=(const CEasyStringT<char>& Str)
 	{
-		SetString(Str.GetBuffer(), (int)Str.GetLength());
+		SetString(Str.GetBuffer(), Str.GetLength());
 		return *this;
 	}
 	CEasyStringT<T>& operator=(const CEasyStringT<WCHAR>& Str)
 	{
-		SetString(Str.GetBuffer(), (int)Str.GetLength());
+		SetString(Str.GetBuffer(), Str.GetLength());
 		return *this;
 	}
 	CEasyStringT& operator=(CEasyStringT&& Str)  noexcept
@@ -576,28 +603,28 @@ public:
 		if (m_pBuffer)
 			return CompareString(m_pBuffer, pStr);
 		else
-			return ERROR_CHAR_POS;
+			return -1;
 	}
 	int Compare(SIZE_TYPE Start, SIZE_TYPE Len, const T* pStr) const
 	{
 		if (m_pBuffer && Start + Len <= m_StringLength)
 			return CompareStringWithLen(m_pBuffer + Start, pStr, Len);
 		else
-			return ERROR_CHAR_POS;
+			return -1;
 	}
 	int CompareNoCase(const T* pStr) const
 	{
 		if (m_pBuffer)
 			return CompareStringNoCase(m_pBuffer, pStr);
 		else
-			return ERROR_CHAR_POS;
+			return -1;
 	}
 	int CompareNoCase(SIZE_TYPE Start, SIZE_TYPE Len, const T* pStr) const
 	{
 		if (m_pBuffer)
 			return CompareStringNoCaseWithLen(m_pBuffer + Start, pStr, Len);
 		else
-			return ERROR_CHAR_POS;
+			return -1;
 	}
 
 
@@ -705,7 +732,7 @@ public:
 	}
 	const CEasyStringT<T>& operator+=(const CEasyStringT<T>& Str)
 	{
-		Append(Str.m_pBuffer, (int)Str.m_StringLength);
+		Append(Str.m_pBuffer, Str.m_StringLength);
 		return *this;
 	}
 	friend CEasyStringT<T> operator+(const CEasyStringT<T>& Str1, const char* pStr2)
@@ -726,21 +753,21 @@ public:
 	{
 		CEasyStringT<T> String;
 		String = pStr1;
-		String.Append(Str2.m_pBuffer, (int)Str2.m_StringLength);
+		String.Append(Str2.m_pBuffer, Str2.m_StringLength);
 		return String;
 	}
 	friend CEasyStringT<T> operator+(const  WCHAR* pStr1, const CEasyStringT<T>& Str2)
 	{
 		CEasyStringT<T> String;
 		String = pStr1;
-		String.Append(Str2.m_pBuffer, (int)Str2.m_StringLength);
+		String.Append(Str2.m_pBuffer, Str2.m_StringLength);
 		return String;
 	}
 	friend CEasyStringT<T> operator+(const CEasyStringT<T>& Str1, const CEasyStringT<T>& Str2)
 	{
 		CEasyStringT<T> String;
-		String.SetString(Str1.m_pBuffer, (int)Str1.m_StringLength);
-		String.Append(Str2.m_pBuffer, (int)Str2.m_StringLength);
+		String.SetString(Str1.m_pBuffer, Str1.m_StringLength);
+		String.Append(Str2.m_pBuffer, Str2.m_StringLength);
 		return String;
 	}
 	friend CEasyStringT<T> operator+(const CEasyStringT<T>& Str1, char Char2)
@@ -761,30 +788,30 @@ public:
 	{
 		CEasyStringT<T> String;
 		String = Char1;
-		String.Append(Str2.m_pBuffer, (int)Str2.m_StringLength);
+		String.Append(Str2.m_pBuffer, Str2.m_StringLength);
 		return String;
 	}
 	friend CEasyStringT<T> operator+(WCHAR Char1, const CEasyStringT<T>& Str2)
 	{
 		CEasyStringT<T> String;
 		String = Char1;
-		String.Append(Str2.m_pBuffer, (int)Str2.m_StringLength);
+		String.Append(Str2.m_pBuffer, Str2.m_StringLength);
 		return String;
 	}
 	void TrimLeft(T TrimChar = ' ')
 	{
 		T* pTrimedStr = StringTrimLeftT<T>(m_pBuffer, TrimChar);
-		SetString(pTrimedStr, -1);
+		SetString(pTrimedStr, 0);
 	}
 	void TrimRight(T TrimChar = ' ')
 	{
 		T* pTrimedStr = StringTrimRightT<T>(m_pBuffer, TrimChar);
-		SetString(pTrimedStr, -1);
+		SetString(pTrimedStr, 0);
 	}
 	void Trim(T TrimChar = ' ')
 	{
 		T* pTrimedStr = StringTrimT<T>(m_pBuffer, TrimChar);
-		SetString(pTrimedStr, -1);
+		SetString(pTrimedStr, 0);
 	}
 	CEasyStringT<T> SubStr(SIZE_TYPE Start, SIZE_TYPE Number) const
 	{
@@ -792,7 +819,7 @@ public:
 			Start = m_StringLength;
 		if (Start + Number > m_StringLength)
 			Number = m_StringLength - Start;
-		return CEasyStringT<T>(m_pBuffer + Start, (int)Number);
+		return CEasyStringT<T>(m_pBuffer + Start, Number);
 	}
 	CEasyStringT<T> Left(SIZE_TYPE Number) const
 	{
@@ -804,7 +831,7 @@ public:
 	{
 		if (Number > m_StringLength)
 			return *this;
-		return CEasyStringT<T>(m_pBuffer + m_StringLength - Number, (int)Number);
+		return CEasyStringT<T>(m_pBuffer + m_StringLength - Number, Number);
 	}
 	static SIZE_TYPE GetFormatLenVL(const char* pFormat, va_list vl);
 	static SIZE_TYPE GetFormatLenVL(const WCHAR* pFormat, va_list vl);
@@ -828,12 +855,12 @@ public:
 
 	void MakeUpper();
 	void MakeLower();
-	int Find(const char* pDestStr, SIZE_TYPE StartPos = 0, bool IgnoreCase = false) const;
-	int Find(const WCHAR* pDestStr, SIZE_TYPE StartPos = 0, bool IgnoreCase = false) const;
-	int Find(char DestChar, SIZE_TYPE StartPos = 0, bool IgnoreCase = false) const;
-	int Find(WCHAR DestChar, SIZE_TYPE StartPos = 0, bool IgnoreCase = false) const;
-	int ReverseFind(char DestChar, bool IgnoreCase = false) const;
-	int ReverseFind(WCHAR DestChar, bool IgnoreCase = false) const;
+	SIZE_TYPE Find(const char* pDestStr, SIZE_TYPE StartPos = 0, bool IgnoreCase = false) const;
+	SIZE_TYPE Find(const WCHAR* pDestStr, SIZE_TYPE StartPos = 0, bool IgnoreCase = false) const;
+	SIZE_TYPE Find(char DestChar, SIZE_TYPE StartPos = 0, bool IgnoreCase = false) const;
+	SIZE_TYPE Find(WCHAR DestChar, SIZE_TYPE StartPos = 0, bool IgnoreCase = false) const;
+	SIZE_TYPE ReverseFind(char DestChar, bool IgnoreCase = false) const;
+	SIZE_TYPE ReverseFind(WCHAR DestChar, bool IgnoreCase = false) const;
 	void Replace(T OldChar, T NewChar)
 	{
 		if (OldChar != NewChar)
@@ -851,13 +878,13 @@ public:
 	{
 		if (CompareString(pOldStr, pNewStr) != 0)
 		{
-			int StartPos = 0;
-			int ReplaceCount = 0;
-			int ReplaceSrcLen = (int)GetStrLen(pOldStr);
-			int ReplaceDestLen = (int)GetStrLen(pNewStr);
-			int* pReplacePos = MONITORED_NEW_ARRAY(_T("CEasyStringT"), int, m_StringLength / ReplaceSrcLen + 2);
-			int FindPos = Find(pOldStr, StartPos);
-			while (FindPos >= 0)
+			SIZE_TYPE StartPos = 0;
+			SIZE_TYPE ReplaceCount = 0;
+			SIZE_TYPE ReplaceSrcLen = GetStrLen(pOldStr);
+			SIZE_TYPE ReplaceDestLen = GetStrLen(pNewStr);
+			SIZE_TYPE* pReplacePos = MONITORED_NEW_ARRAY(_T("CEasyStringT"), SIZE_TYPE, m_StringLength / ReplaceSrcLen + 2);
+			SIZE_TYPE FindPos = Find(pOldStr, StartPos);
+			while (FindPos != INVALID_POS)
 			{
 				pReplacePos[ReplaceCount] = FindPos;
 				ReplaceCount++;
@@ -866,7 +893,7 @@ public:
 			}
 
 
-			SIZE_TYPE NewStrLen = (int)m_StringLength + ReplaceCount * (ReplaceDestLen - ReplaceSrcLen);
+			SIZE_TYPE NewStrLen = m_StringLength + ReplaceCount * ReplaceDestLen - ReplaceCount * ReplaceSrcLen;
 			if (NewStrLen >= m_BufferSize)
 				Resize(NewStrLen);
 			else
@@ -874,14 +901,14 @@ public:
 
 			if (NewStrLen >= m_StringLength)
 			{
-				int SrcPos = (int)m_StringLength;
-				int DestPos = (int)NewStrLen;
+				SIZE_TYPE SrcPos = m_StringLength;
+				SIZE_TYPE DestPos = NewStrLen;
 				while (ReplaceCount)
 				{
 					ReplaceCount--;
-					int OldSrcPos = SrcPos;
+					SIZE_TYPE OldSrcPos = SrcPos;
 					SrcPos = pReplacePos[ReplaceCount] + ReplaceSrcLen;
-					int CopySize = OldSrcPos - SrcPos;
+					SIZE_TYPE CopySize = OldSrcPos - SrcPos;
 					DestPos -= CopySize;
 					if (SrcPos != DestPos && CopySize != 0)
 						memmove(m_pBuffer + DestPos, m_pBuffer + SrcPos, CopySize * sizeof(T));
@@ -893,17 +920,17 @@ public:
 			}
 			else
 			{
-				pReplacePos[ReplaceCount] = (int)m_StringLength;
-				int SrcPos = pReplacePos[0];
-				int DestPos = pReplacePos[0];
-				for (int i = 0; i < ReplaceCount; i++)
+				pReplacePos[ReplaceCount] = m_StringLength;
+				SIZE_TYPE SrcPos = pReplacePos[0];
+				SIZE_TYPE DestPos = pReplacePos[0];
+				for (SIZE_TYPE i = 0; i < ReplaceCount; i++)
 				{
 					if (ReplaceDestLen)
 						memmove(m_pBuffer + DestPos, pNewStr, ReplaceDestLen * sizeof(T));
 					SrcPos += ReplaceSrcLen;
 					DestPos += ReplaceDestLen;
 
-					int CopySize = pReplacePos[i + 1] - SrcPos;
+					SIZE_TYPE CopySize = pReplacePos[i + 1] - SrcPos;
 					if (SrcPos != DestPos && CopySize != 0)
 						memmove(m_pBuffer + DestPos, m_pBuffer + SrcPos, CopySize * sizeof(T));
 					SrcPos += CopySize;
@@ -971,8 +998,8 @@ public:
 	}
 	void Remove(T Char)
 	{
-		int Pos = 0;
-		while ((Pos = Find(Char)) >= 0)
+		SIZE_TYPE Pos = 0;
+		while ((Pos = Find(Char)) != INVALID_POS)
 		{
 			Delete(Pos, 1);
 		}
@@ -982,8 +1009,8 @@ public:
 		SIZE_TYPE Len = GetStrLen(pStr);
 		if (Len > 0)
 		{
-			int Pos = 0;
-			while ((Pos = Find(pStr)) >= 0)
+			SIZE_TYPE Pos = 0;
+			while ((Pos = Find(pStr)) != INVALID_POS)
 			{
 				Delete(Pos, Len);
 			}
@@ -999,6 +1026,8 @@ public:
 		{
 			if (StrLen == 0)
 				StrLen = GetStrLen(pStr);
+			if (StrLen <= 0)
+				return;
 			SIZE_TYPE NewStrLen = m_StringLength + StrLen;
 			if (NewStrLen >= m_BufferSize)
 				Resize(NewStrLen);
@@ -1095,12 +1124,12 @@ typename CEasyStringT<T>::STRING_CODE_PAGE CEasyStringT<T>::SYSTEM_STRING_CODE_P
 
 
 template<>
-inline void CEasyStringT<char>::SetString(const char* pStr, int StrLen, STRING_CODE_PAGE CodePage)
+inline void CEasyStringT<char>::SetString(const char* pStr, SIZE_TYPE StrLen, STRING_CODE_PAGE CodePage)
 {
 	if (pStr)
 	{
-		if (StrLen < 0)
-			StrLen = (int)GetStrLen(pStr);
+		if (StrLen == 0)
+			StrLen = GetStrLen(pStr);
 		if (StrLen > 0)
 		{
 			if ((CodePage == STRING_CODE_PAGE_AUTO) || (CodePage == SYSTEM_STRING_CODE_PAGE))
@@ -1155,12 +1184,12 @@ inline void CEasyStringT<char>::SetString(const char* pStr, int StrLen, STRING_C
 }
 
 template<>
-inline void CEasyStringT<WCHAR>::SetString(const WCHAR* pStr, int StrLen, STRING_CODE_PAGE CodePage)
+inline void CEasyStringT<WCHAR>::SetString(const WCHAR* pStr, SIZE_TYPE StrLen, STRING_CODE_PAGE CodePage)
 {
 	if (pStr)
 	{
-		if (StrLen < 0)
-			StrLen = (int)GetStrLen(pStr);
+		if (StrLen == 0)
+			StrLen = GetStrLen(pStr);
 		if (StrLen > 0)
 		{
 			if (StrLen + 1 > m_BufferSize)
@@ -1184,12 +1213,12 @@ inline void CEasyStringT<WCHAR>::SetString(const WCHAR* pStr, int StrLen, STRING
 }
 
 template<>
-inline void CEasyStringT<char>::SetString(const WCHAR* pStr, int StrLen, STRING_CODE_PAGE CodePage)
+inline void CEasyStringT<char>::SetString(const WCHAR* pStr, SIZE_TYPE StrLen, STRING_CODE_PAGE CodePage)
 {
 	if (pStr)
 	{
-		if (StrLen < 0)
-			StrLen = (int)GetStrLen(pStr);
+		if (StrLen == 0)
+			StrLen = GetStrLen(pStr);
 		if (StrLen > 0)
 		{
 			SIZE_TYPE AnsiSize;
@@ -1226,12 +1255,12 @@ inline void CEasyStringT<char>::SetString(const WCHAR* pStr, int StrLen, STRING_
 }
 
 template<>
-inline void CEasyStringT<WCHAR>::SetString(const char* pStr, int StrLen, STRING_CODE_PAGE CodePage)
+inline void CEasyStringT<WCHAR>::SetString(const char* pStr, SIZE_TYPE StrLen, STRING_CODE_PAGE CodePage)
 {
 	if (pStr)
 	{
-		if (StrLen < 0)
-			StrLen = (int)GetStrLen(pStr);
+		if (StrLen == 0)
+			StrLen = GetStrLen(pStr);
 		if (StrLen > 0)
 		{
 			SIZE_TYPE UnicodeSize;
@@ -1266,12 +1295,12 @@ inline void CEasyStringT<WCHAR>::SetString(const char* pStr, int StrLen, STRING_
 }
 
 template<>
-inline void CEasyStringT<char>::SetStringRef(const char* pStr, int StrLen, STRING_CODE_PAGE CodePage)
+inline void CEasyStringT<char>::SetStringRef(const char* pStr, SIZE_TYPE StrLen, STRING_CODE_PAGE CodePage)
 {
 	if (pStr)
 	{
-		if (StrLen < 0)
-			StrLen = (int)GetStrLen(pStr);
+		if (StrLen == 0)
+			StrLen = GetStrLen(pStr);
 		if (StrLen > 0)
 		{
 			if ((CodePage == STRING_CODE_PAGE_AUTO) || (CodePage == SYSTEM_STRING_CODE_PAGE))
@@ -1299,19 +1328,19 @@ inline void CEasyStringT<char>::SetStringRef(const char* pStr, int StrLen, STRIN
 }
 
 template<>
-inline void CEasyStringT<WCHAR>::SetStringRef(const char* pStr, int StrLen, STRING_CODE_PAGE CodePage)
+inline void CEasyStringT<WCHAR>::SetStringRef(const char* pStr, SIZE_TYPE StrLen, STRING_CODE_PAGE CodePage)
 {
 	SetString(pStr, StrLen, CodePage);
 }
 
 template<>
-inline void CEasyStringT<char>::SetStringRef(const WCHAR* pStr, int StrLen, STRING_CODE_PAGE CodePage)
+inline void CEasyStringT<char>::SetStringRef(const WCHAR* pStr, SIZE_TYPE StrLen, STRING_CODE_PAGE CodePage)
 {
 	SetString(pStr, StrLen, CodePage);
 }
 
 template<>
-inline void CEasyStringT<WCHAR>::SetStringRef(const WCHAR* pStr, int StrLen, STRING_CODE_PAGE CodePage)
+inline void CEasyStringT<WCHAR>::SetStringRef(const WCHAR* pStr, SIZE_TYPE StrLen, STRING_CODE_PAGE CodePage)
 {
 	ReleaseBuffer();
 	m_pBuffer = (WCHAR*)pStr;
@@ -1321,10 +1350,10 @@ inline void CEasyStringT<WCHAR>::SetStringRef(const WCHAR* pStr, int StrLen, STR
 }
 
 template<>
-inline bool CEasyStringT<char>::Append(const char* pStr, int StrLen, bool AutoExpandBuffer, STRING_CODE_PAGE CodePage)
+inline bool CEasyStringT<char>::Append(const char* pStr, SIZE_TYPE StrLen, bool AutoExpandBuffer, STRING_CODE_PAGE CodePage)
 {
-	if (StrLen < 0)
-		StrLen = (int)GetStrLen(pStr);
+	if (StrLen == 0)
+		StrLen = GetStrLen(pStr);
 	if (pStr && (StrLen > 0))
 	{
 		if ((CodePage == STRING_CODE_PAGE_AUTO) || (CodePage == SYSTEM_STRING_CODE_PAGE))
@@ -1335,11 +1364,11 @@ inline bool CEasyStringT<char>::Append(const char* pStr, int StrLen, bool AutoEx
 					Resize(m_StringLength + StrLen);
 				else
 					return false;
-			}				
+			}
 			else
 			{
 				MakeSelfBuffer();
-			}				
+			}
 			memmove(m_pBuffer + m_StringLength, pStr, StrLen);
 			m_pBuffer[m_StringLength + StrLen] = 0;
 			m_StringLength += StrLen;
@@ -1358,7 +1387,7 @@ inline bool CEasyStringT<char>::Append(const char* pStr, int StrLen, bool AutoEx
 			else
 			{
 				MakeSelfBuffer();
-			}				
+			}
 			AnsiToUTF8(pStr + m_StringLength, StrLen, m_pBuffer, DestSize);
 			m_pBuffer[m_StringLength + DestSize] = 0;
 			m_StringLength += DestSize;
@@ -1388,10 +1417,10 @@ inline bool CEasyStringT<char>::Append(const char* pStr, int StrLen, bool AutoEx
 }
 
 template<>
-inline bool CEasyStringT<WCHAR>::Append(const WCHAR* pStr, int StrLen, bool AutoExpandBuffer, STRING_CODE_PAGE CodePage)
+inline bool CEasyStringT<WCHAR>::Append(const WCHAR* pStr, SIZE_TYPE StrLen, bool AutoExpandBuffer, STRING_CODE_PAGE CodePage)
 {
-	if (StrLen < 0)
-		StrLen = (int)GetStrLen(pStr);
+	if (StrLen == 0)
+		StrLen = GetStrLen(pStr);
 	if (pStr && (StrLen > 0))
 	{
 		if (m_StringLength + StrLen >= m_BufferSize)
@@ -1404,7 +1433,7 @@ inline bool CEasyStringT<WCHAR>::Append(const WCHAR* pStr, int StrLen, bool Auto
 		else
 		{
 			MakeSelfBuffer();
-		}			
+		}
 		memmove(m_pBuffer + m_StringLength, pStr, sizeof(WCHAR) * StrLen);
 		m_pBuffer[m_StringLength + StrLen] = 0;
 		m_StringLength += StrLen;
@@ -1414,10 +1443,10 @@ inline bool CEasyStringT<WCHAR>::Append(const WCHAR* pStr, int StrLen, bool Auto
 }
 
 template<>
-inline bool CEasyStringT<char>::Append(const WCHAR* pStr, int StrLen, bool AutoExpandBuffer, STRING_CODE_PAGE CodePage)
+inline bool CEasyStringT<char>::Append(const WCHAR* pStr, SIZE_TYPE StrLen, bool AutoExpandBuffer, STRING_CODE_PAGE CodePage)
 {
-	if (StrLen < 0)
-		StrLen = (int)GetStrLen(pStr);
+	if (StrLen == 0)
+		StrLen = GetStrLen(pStr);
 	if (pStr && (StrLen > 0))
 	{
 		SIZE_TYPE AnsiSize;
@@ -1435,7 +1464,7 @@ inline bool CEasyStringT<char>::Append(const WCHAR* pStr, int StrLen, bool AutoE
 		else
 		{
 			MakeSelfBuffer();
-		}		
+		}
 
 		if (pStr)
 		{
@@ -1454,10 +1483,10 @@ inline bool CEasyStringT<char>::Append(const WCHAR* pStr, int StrLen, bool AutoE
 
 
 template<>
-inline bool CEasyStringT<WCHAR>::Append(const char* pStr, int StrLen, bool AutoExpandBuffer, STRING_CODE_PAGE CodePage)
+inline bool CEasyStringT<WCHAR>::Append(const char* pStr, SIZE_TYPE StrLen, bool AutoExpandBuffer, STRING_CODE_PAGE CodePage)
 {
-	if (StrLen < 0)
-		StrLen = (int)GetStrLen(pStr);
+	if (StrLen == 0)
+		StrLen = GetStrLen(pStr);
 	if (pStr && (StrLen > 0))
 	{
 		SIZE_TYPE UnicodeSize;
@@ -1778,7 +1807,7 @@ inline bool CEasyStringT<char>::AppendFormatNoExpand(const char* pFormat, ...)
 {
 	va_list	vl;
 	va_start(vl, pFormat);
-	int Ret = AppendFormatNoExpandVL(pFormat, vl);
+	bool Ret = AppendFormatNoExpandVL(pFormat, vl);
 	va_end(vl);
 	return Ret;
 }
@@ -1788,7 +1817,7 @@ inline bool CEasyStringT<WCHAR>::AppendFormatNoExpand(const WCHAR* pFormat, ...)
 {
 	va_list	vl;
 	va_start(vl, pFormat);
-	int Ret = AppendFormatNoExpandVL(pFormat, vl);
+	bool Ret = AppendFormatNoExpandVL(pFormat, vl);
 	va_end(vl);
 	return Ret;
 }
@@ -1838,7 +1867,7 @@ inline void CEasyStringT<WCHAR>::MakeLower()
 }
 
 template<>
-inline int CEasyStringT<char>::Find(const char* pDestStr, SIZE_TYPE StartPos, bool IgnoreCase) const
+inline CEasyStringT<char>::SIZE_TYPE CEasyStringT<char>::Find(const char* pDestStr, SIZE_TYPE StartPos, bool IgnoreCase) const
 {
 	if (StartPos > m_StringLength)
 		StartPos = m_StringLength;
@@ -1848,13 +1877,13 @@ inline int CEasyStringT<char>::Find(const char* pDestStr, SIZE_TYPE StartPos, bo
 	else
 		pResult = strstr(m_pBuffer + StartPos, pDestStr);
 	if (pResult == NULL)
-		return ERROR_CHAR_POS;
+		return INVALID_POS;
 	else
-		return (int)(pResult - m_pBuffer);
+		return pResult - m_pBuffer;
 }
 
 template<>
-inline int CEasyStringT<WCHAR>::Find(const WCHAR* pDestStr, SIZE_TYPE StartPos, bool IgnoreCase) const
+inline CEasyStringT<WCHAR>::SIZE_TYPE CEasyStringT<WCHAR>::Find(const WCHAR* pDestStr, SIZE_TYPE StartPos, bool IgnoreCase) const
 {
 	if (StartPos > m_StringLength)
 		StartPos = m_StringLength;
@@ -1864,13 +1893,13 @@ inline int CEasyStringT<WCHAR>::Find(const WCHAR* pDestStr, SIZE_TYPE StartPos, 
 	else
 		pResult = wcsstr(m_pBuffer + StartPos, pDestStr);
 	if (pResult == NULL)
-		return ERROR_CHAR_POS;
+		return INVALID_POS;
 	else
-		return (int)(pResult - m_pBuffer);
+		return pResult - m_pBuffer;
 }
 
 template<>
-inline int CEasyStringT<char>::Find(char DestChar, SIZE_TYPE StartPos, bool IgnoreCase) const
+inline CEasyStringT<char>::SIZE_TYPE CEasyStringT<char>::Find(char DestChar, SIZE_TYPE StartPos, bool IgnoreCase) const
 {
 	if (StartPos > m_StringLength)
 		StartPos = m_StringLength;
@@ -1880,13 +1909,13 @@ inline int CEasyStringT<char>::Find(char DestChar, SIZE_TYPE StartPos, bool Igno
 	else
 		pResult = strchr(m_pBuffer + StartPos, DestChar);
 	if (pResult == NULL)
-		return ERROR_CHAR_POS;
+		return INVALID_POS;
 	else
-		return (int)(pResult - m_pBuffer);
+		return pResult - m_pBuffer;
 }
 
 template<>
-inline int CEasyStringT<WCHAR>::Find(WCHAR DestChar, SIZE_TYPE StartPos, bool IgnoreCase) const
+inline CEasyStringT<WCHAR>::SIZE_TYPE CEasyStringT<WCHAR>::Find(WCHAR DestChar, SIZE_TYPE StartPos, bool IgnoreCase) const
 {
 	if (StartPos > m_StringLength)
 		StartPos = m_StringLength;
@@ -1896,19 +1925,19 @@ inline int CEasyStringT<WCHAR>::Find(WCHAR DestChar, SIZE_TYPE StartPos, bool Ig
 	else
 		pResult = wcschr(m_pBuffer + StartPos, DestChar);
 	if (pResult == NULL)
-		return ERROR_CHAR_POS;
+		return INVALID_POS;
 	else
-		return (int)(pResult - m_pBuffer);
+		return pResult - m_pBuffer;
 }
 
 template<>
-inline int CEasyStringT<WCHAR>::Find(char DestChar, SIZE_TYPE StartPos, bool IgnoreCase) const
+inline CEasyStringT<WCHAR>::SIZE_TYPE CEasyStringT<WCHAR>::Find(char DestChar, SIZE_TYPE StartPos, bool IgnoreCase) const
 {
 	return Find((WCHAR)DestChar, StartPos, IgnoreCase);
 }
 
 template<>
-inline int CEasyStringT<char>::ReverseFind(char DestChar, bool IgnoreCase) const
+inline CEasyStringT<char>::SIZE_TYPE CEasyStringT<char>::ReverseFind(char DestChar, bool IgnoreCase) const
 {
 	const char* pResult;
 	if (IgnoreCase)
@@ -1916,13 +1945,13 @@ inline int CEasyStringT<char>::ReverseFind(char DestChar, bool IgnoreCase) const
 	else
 		pResult = strrchr(m_pBuffer, DestChar);
 	if (pResult == NULL)
-		return ERROR_CHAR_POS;
+		return INVALID_POS;
 	else
-		return (int)(pResult - m_pBuffer);
+		return pResult - m_pBuffer;
 }
 
 template<>
-inline int CEasyStringT<WCHAR>::ReverseFind(WCHAR DestChar, bool IgnoreCase) const
+inline CEasyStringT<WCHAR>::SIZE_TYPE CEasyStringT<WCHAR>::ReverseFind(WCHAR DestChar, bool IgnoreCase) const
 {
 	const WCHAR* pResult;
 	if (IgnoreCase)
@@ -1930,12 +1959,12 @@ inline int CEasyStringT<WCHAR>::ReverseFind(WCHAR DestChar, bool IgnoreCase) con
 	else
 		pResult = wcsrchr(m_pBuffer, DestChar);
 	if (pResult == NULL)
-		return ERROR_CHAR_POS;
+		return INVALID_POS;
 	else
-		return (int)(pResult - m_pBuffer);
+		return pResult - m_pBuffer;
 }
 template<>
-inline int CEasyStringT<WCHAR>::ReverseFind(char DestChar, bool IgnoreCase) const
+inline CEasyStringT<WCHAR>::SIZE_TYPE CEasyStringT<WCHAR>::ReverseFind(char DestChar, bool IgnoreCase) const
 {
 	return ReverseFind((WCHAR)DestChar);
 }
@@ -2050,7 +2079,7 @@ template<typename T,
 	std::is_same<std::decay_t<T>, unsigned short>::value ||
 	std::is_same<std::decay_t<T>, unsigned int>::value,
 	bool> = true>
-	inline CEasyString ToString(T Value)
+inline CEasyString ToString(T Value)
 {
 	CEasyString Str;
 	Str.Format(_T("%u"), Value);
@@ -2063,7 +2092,7 @@ template<typename T,
 	std::is_same<std::decay_t<T>, short>::value ||
 	std::is_same<std::decay_t<T>, int>::value,
 	bool> = true>
-	inline CEasyString ToString(T Value)
+inline CEasyString ToString(T Value)
 {
 	CEasyString Str;
 	Str.Format(_T("%d"), Value);
@@ -2105,10 +2134,11 @@ inline CEasyString ToString(bool Value)
 
 
 
-inline CEasyString UTF8ToLocal(LPCSTR szStr, int StrLen = -1)
+
+inline CEasyString UTF8ToLocal(LPCSTR szStr, CEasyString::SIZE_TYPE StrLen = 0)
 {
-	if (StrLen < 0)
-		StrLen = (int)CEasyString::GetStrLen(szStr);
+	if (StrLen == 0)
+		StrLen = CEasyString::GetStrLen(szStr);
 	CEasyString OutStr;
 #ifdef UNICODE
 	size_t OutLen = UTF8ToUnicode(szStr, StrLen, NULL, 0);
@@ -2123,10 +2153,10 @@ inline CEasyString UTF8ToLocal(LPCSTR szStr, int StrLen = -1)
 	return OutStr;
 }
 
-inline CEasyStringA LocalToUTF8(LPCTSTR szStr, int StrLen = -1)
+inline CEasyStringA LocalToUTF8(LPCTSTR szStr, CEasyStringA::SIZE_TYPE StrLen = 0)
 {
-	if (StrLen < 0)
-		StrLen = (int)CEasyString::GetStrLen(szStr);
+	if (StrLen == 0)
+		StrLen = CEasyString::GetStrLen(szStr);
 	CEasyStringA OutStr;
 #ifdef UNICODE
 	size_t OutLen = UnicodeToUTF8(szStr, StrLen, NULL, 0);
@@ -2141,11 +2171,11 @@ inline CEasyStringA LocalToUTF8(LPCTSTR szStr, int StrLen = -1)
 	return OutStr;
 }
 
-inline CEasyStringW AnsiToUnicode(const char* SrcStr, int SrcLen = -1)
+inline CEasyStringW AnsiToUnicode(const char* SrcStr, CEasyStringW::SIZE_TYPE SrcLen = 0)
 {
 	CEasyStringW DestStr;
-	if (SrcLen < 0)
-		SrcLen = (int)CEasyString::GetStrLen(SrcStr);
+	if (SrcLen == 0)
+		SrcLen = CEasyString::GetStrLen(SrcStr);
 	size_t DestLen = AnsiToUnicode(SrcStr, SrcLen, NULL, 0);
 	if (DestLen)
 	{
@@ -2156,11 +2186,11 @@ inline CEasyStringW AnsiToUnicode(const char* SrcStr, int SrcLen = -1)
 	return DestStr;
 }
 
-inline CEasyStringA UnicodeToAnsi(const WCHAR* SrcStr, int SrcLen = -1)
+inline CEasyStringA UnicodeToAnsi(const WCHAR* SrcStr, CEasyStringA::SIZE_TYPE SrcLen = 0)
 {
 	CEasyStringA DestStr;
-	if (SrcLen < 0)
-		SrcLen = (int)CEasyString::GetStrLen(SrcStr);
+	if (SrcLen == 0)
+		SrcLen = CEasyString::GetStrLen(SrcStr);
 	size_t DestLen = UnicodeToAnsi(SrcStr, SrcLen, NULL, 0);
 	if (DestLen)
 	{
@@ -2171,11 +2201,11 @@ inline CEasyStringA UnicodeToAnsi(const WCHAR* SrcStr, int SrcLen = -1)
 	return DestStr;
 }
 
-inline CEasyStringW UTF8ToUnicode(const char* SrcStr, int SrcLen = -1)
+inline CEasyStringW UTF8ToUnicode(const char* SrcStr, CEasyStringW::SIZE_TYPE SrcLen = 0)
 {
 	CEasyStringW DestStr;
-	if (SrcLen < 0)
-		SrcLen = (int)CEasyString::GetStrLen(SrcStr);
+	if (SrcLen == 0)
+		SrcLen = CEasyString::GetStrLen(SrcStr);
 	size_t DestLen = UTF8ToUnicode(SrcStr, SrcLen, NULL, 0);
 	if (DestLen)
 	{
@@ -2186,11 +2216,11 @@ inline CEasyStringW UTF8ToUnicode(const char* SrcStr, int SrcLen = -1)
 	return DestStr;
 }
 
-inline CEasyStringA UnicodeToUTF8(const WCHAR* SrcStr, int SrcLen = -1)
+inline CEasyStringA UnicodeToUTF8(const WCHAR* SrcStr, CEasyStringA::SIZE_TYPE SrcLen = 0)
 {
 	CEasyStringA DestStr;
-	if (SrcLen < 0)
-		SrcLen = (int)CEasyString::GetStrLen(SrcStr);
+	if (SrcLen == 0)
+		SrcLen = CEasyString::GetStrLen(SrcStr);
 	size_t DestLen = UnicodeToUTF8(SrcStr, SrcLen, NULL, 0);
 	if (DestLen)
 	{
@@ -2201,23 +2231,23 @@ inline CEasyStringA UnicodeToUTF8(const WCHAR* SrcStr, int SrcLen = -1)
 	return DestStr;
 }
 #ifdef WIN32
-inline CEasyStringA AnsiToUTF8(const char* SrcStr, int SrcLen = -1)
+inline CEasyStringA AnsiToUTF8(const char* SrcStr, CEasyStringA::SIZE_TYPE SrcLen = 0)
 {
 	CEasyStringW UnicodeStr = AnsiToUnicode(SrcStr, SrcLen);
-	return UnicodeToUTF8(UnicodeStr, (int)UnicodeStr.GetLength());
+	return UnicodeToUTF8(UnicodeStr, UnicodeStr.GetLength());
 }
 
-inline CEasyStringA UTF8ToAnsi(const char* SrcStr, int SrcLen = -10)
+inline CEasyStringA UTF8ToAnsi(const char* SrcStr, CEasyStringA::SIZE_TYPE SrcLen = 0)
 {
 	CEasyStringW UnicodeStr = UTF8ToUnicode(SrcStr, SrcLen);
-	return UnicodeToAnsi(UnicodeStr, (int)UnicodeStr.GetLength());
+	return UnicodeToAnsi(UnicodeStr, UnicodeStr.GetLength());
 }
 #else
-inline CEasyStringA AnsiToUTF8(const char* SrcStr, int SrcLen = -1)
+inline CEasyStringA AnsiToUTF8(const char* SrcStr, CEasyStringA::SIZE_TYPE SrcLen = 0)
 {
 	CEasyStringA DestStr;
-	if (SrcLen < 0)
-		SrcLen = (int)CEasyString::GetStrLen(SrcStr);
+	if (SrcLen == 0)
+		SrcLen = CEasyString::GetStrLen(SrcStr);
 	size_t DestLen = AnsiToUTF8(SrcStr, SrcLen, NULL, 0);
 	if (DestLen)
 	{
@@ -2228,10 +2258,10 @@ inline CEasyStringA AnsiToUTF8(const char* SrcStr, int SrcLen = -1)
 	return DestStr;
 }
 
-inline CEasyStringA UTF8ToAnsi(const char* SrcStr, int SrcLen = -1)
+inline CEasyStringA UTF8ToAnsi(const char* SrcStr, CEasyStringA::SIZE_TYPE SrcLen = 0)
 {
 	CEasyStringA DestStr;
-	if (SrcLen < 0)
+	if (SrcLen == 0)
 		SrcLen = CEasyString::GetStrLen(SrcStr);
 	size_t DestLen = UTF8ToAnsi(SrcStr, SrcLen, NULL, 0);
 	if (DestLen)

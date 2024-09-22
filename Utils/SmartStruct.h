@@ -841,7 +841,7 @@ public:
 		case VARIED_VALUE_TYPE::STRING:
 			return AddMember(ID, (LPCTSTR)Value);
 		case VARIED_VALUE_TYPE::BINARY:
-			return AddMember(ID, (const unsigned char*)Value, Value.GetLength());
+			return AddMember(ID, (const unsigned char*)Value, (UINT)Value.GetLength());
 		case VARIED_VALUE_TYPE::ARRAY:
 			{
 				CSmartValue Member;
@@ -1318,7 +1318,34 @@ public:
 	}
 	
 #ifdef RAPIDJSON_DOCUMENT_H_
-	rapidjson::Value ToJson(rapidjson::Document::AllocatorType& Alloc);
+	rapidjson::Value ToJson(rapidjson::Document::AllocatorType& Alloc) const;
 #endif
 };
 
+template<typename T>
+bool CSmartArray::PackArray(const CEasyArray<T>& ObjArray)
+{
+	for (const T& Obj : ObjArray)
+	{
+		CSmartStruct SubPacket = PrepareSubStruct();
+		if (!Obj.MakePacket(SubPacket))
+			return false;
+		if (!FinishMember(SubPacket.GetDataLen()))
+			return false;
+	}
+	return true;
+}
+
+template<typename T, typename F>
+bool CSmartArray::PackArray(const CEasyArray<T>& ObjArray, const F& Flags)
+{
+	for (const T& Obj : ObjArray)
+	{
+		CSmartStruct SubPacket = PrepareSubStruct();
+		if (!Obj.MakePacket(SubPacket, Flags))
+			return false;
+		if (!FinishMember(SubPacket.GetDataLen()))
+			return false;
+	}
+	return true;
+}

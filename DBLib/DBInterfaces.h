@@ -50,13 +50,13 @@ namespace DBLib
 
 		virtual int Connect(LPCSTR ConnectStr) = 0;
 		virtual int Disconnect() = 0;
-		virtual BOOL IsConnected() = 0;
+		virtual bool IsConnected() = 0;
 		virtual int ExecuteSQL(LPCSTR SQLStr, int StrLen = 0, IDBParameterSet* pParamSet = NULL) = 0;
 		virtual int ExecuteSQLWithoutResultSet(LPCSTR SQLStr, int StrLen = 0, IDBParameterSet* pParamSet = NULL) = 0;
 		virtual int GetResults(IDBRecordSet* pDBRecordset) = 0;
 		virtual int NextResults(IDBRecordSet* pDBRecordset) = 0;
 		virtual int GetAffectedRowCount() = 0;
-		virtual int EnableTransaction(BOOL IsEnable) = 0;
+		virtual int EnableTransaction(bool IsEnable) = 0;
 		virtual int Commit() = 0;
 		virtual int RollBack() = 0;
 		virtual UINT GetLastDatabaseErrorCode() = 0;

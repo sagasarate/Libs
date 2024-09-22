@@ -12,8 +12,11 @@
 #include "stdafx.h"
 
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(EWOULDBLOCK)
 #define EWOULDBLOCK		WSAEWOULDBLOCK
+#endif
+
+#if defined(WIN32) && !defined(EINPROGRESS)
 #define EINPROGRESS		WSAEWOULDBLOCK
 #endif
 

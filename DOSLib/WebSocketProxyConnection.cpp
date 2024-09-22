@@ -218,7 +218,7 @@ void CWebSocketProxyConnection::OnHTTPRequest(const char * szRequest)
 		CSHA1 sha1;
 		BYTE HashBin[20];
 
-		sha1.Update((BYTE*)SecWebSocketKeyField.GetBuffer(), SecWebSocketKeyField.GetLength());
+		sha1.Update((BYTE*)SecWebSocketKeyField.GetBuffer(), (UINT)SecWebSocketKeyField.GetLength());
 		sha1.Final();
 		sha1.GetHash(HashBin);
 		CEasyStringA HashStr = CBase64::Encode(HashBin, 20);
@@ -249,7 +249,7 @@ void CWebSocketProxyConnection::SendHTTPRespond(int Code, LPCSTR szContent)
 			(UINT)strlen(szContent), szContent);
 		break;
 	}
-	Send(Buff, strlen(Buff));
+	Send(Buff, (UINT)strlen(Buff));
 	if (Code != 101)
 	{
 		QueryDisconnect(1000);
@@ -293,7 +293,7 @@ void CWebSocketProxyConnection::ProcessWebSocketData(const BYTE * pData, UINT Da
 			if (DataLen == 126)
 			{
 				m_AssembleBuffer.Peek(Pos, &DataLen, sizeof(WORD));
-				DataLen = ntohs(DataLen);
+				DataLen = ntohs((WORD)DataLen);
 			}
 			else if (DataLen == 127)
 			{
@@ -331,7 +331,7 @@ void CWebSocketProxyConnection::ProcessWebSocketData(const BYTE * pData, UINT Da
 								pData[i] = pData[i] ^ MaskKey[i % 4];
 							}
 						}
-						OnWebSocketFrame(OPCode, pData, DataLen);
+						OnWebSocketFrame(OPCode, pData, (UINT)DataLen);
 					}
 					m_AssembleBuffer.PopFront(NULL, Pos + DataLen);
 					FrameCount = 0;
@@ -390,7 +390,7 @@ bool CWebSocketProxyConnection::ProcessMultiFrameData(CEasyBuffer& DataBuffer, U
 		if (DataLen == 126)
 		{
 			m_AssembleBuffer.Peek(Pos, &DataLen, sizeof(WORD));
-			DataLen = ntohs(DataLen);
+			DataLen = ntohs((WORD)DataLen);
 		}
 		else if (DataLen == 127)
 		{
@@ -421,7 +421,7 @@ bool CWebSocketProxyConnection::ProcessMultiFrameData(CEasyBuffer& DataBuffer, U
 				//移动数据，使得各帧数据连续
 				memmove(pFrameData + DataLen, pData, DataLen);
 			}
-			TotalDataLen += DataLen;
+			TotalDataLen += (UINT)DataLen;
 		}
 		else
 		{

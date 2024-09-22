@@ -38,10 +38,10 @@ bool CDOSRouterLinkManager::Init(CDOSServer * pServer)
 		m_RouterLinkConfig.ConnectionConfig.ConnectionList[i].ReportID = m_RouterLinkConfig.ServerID;
 	}
 
-	return Start() != FALSE;
+	return Start() != false;
 }
 
-BOOL CDOSRouterLinkManager::OnStart()
+bool CDOSRouterLinkManager::OnStart()
 {
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(), THREAD_CPU_COUNT_TIME);
 
@@ -50,22 +50,22 @@ BOOL CDOSRouterLinkManager::OnStart()
 	if (!CEasyNetLinkManager::Init(m_pServer, m_RouterLinkConfig))
 	{
 		PrintDOSLog(_T("连接管理器初始化失败！"));
-		return FALSE;
+		return false;
 	}
 
 	PrintDOSLog(_T("路由连接管理器[%u]已启动"), GetThreadID());
-	return TRUE;
+	return true;
 }
 
 
-BOOL CDOSRouterLinkManager::OnRun()
+bool CDOSRouterLinkManager::OnRun()
 {
 	int ProcessCount = Update();
 	if (ProcessCount == 0)
 	{
 		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
-	return TRUE;
+	return true;
 }
 
 void CDOSRouterLinkManager::OnTerminate()

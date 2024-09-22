@@ -31,18 +31,21 @@ protected:
 
 	OBJECT_ID											m_ObjectID;
 
-	CDOSRouter *										m_pRouter;
-	CDOSObjectManager *									m_pManager;
-	CDOSObjectGroup *									m_pGroup;
+	CDOSRouter*											m_pRouter;
+	CDOSObjectManager*									m_pManager;
+	CDOSObjectGroup*									m_pGroup;
 	UINT												m_MsgProcessLimit;
-	CStaticMap<OBJECT_ID,CONCERNED_OBJECT_INFO>			m_ConcernedObject;	
+	CStaticMap<OBJECT_ID, CONCERNED_OBJECT_INFO>		m_ConcernedObject;
+	CEasyArray<OBJECT_ID>								m_ConcernorList;
 	UINT												m_ConcernedObjectTestTime;
 	UINT												m_ConcernedObjectKeepAliveCount;
 	UINT												m_ConcernedObjectCheckPtr;
 	UINT												m_ConcernedObjectCheckTime;
 	CEasyTimer											m_ConcernedObjectCheckTimer;
+	bool												m_SendDestoryNotify;
+	bool												m_BroadcastDestoryNotify;
 
-	CCycleQueue<CDOSMessagePacket *>					m_MsgQueue;
+	CCycleQueue<CDOSMessagePacket*>						m_MsgQueue;
 
 	friend class CDOSObjectGroup;
 
@@ -56,13 +59,13 @@ public:
 	virtual bool Initialize();
 	virtual void Destory();
 
-	void SetRouter(CDOSRouter * pRouter);
-	void SetManager(CDOSObjectManager * pManager);
-	void SetGroup(CDOSObjectGroup * pGroup);
+	void SetRouter(CDOSRouter* pRouter);
+	void SetManager(CDOSObjectManager* pManager);
+	void SetGroup(CDOSObjectGroup* pGroup);
 
-	CDOSRouter * GetRouter();
-	CDOSObjectManager * GetManager();
-	CDOSObjectGroup * GetGroup();
+	CDOSRouter* GetRouter();
+	CDOSObjectManager* GetManager();
+	CDOSObjectGroup* GetGroup();
 	int GetGroupIndex();
 	UINT GetRouterID();
 
@@ -70,55 +73,55 @@ public:
 	OBJECT_ID GetObjectID();
 
 	//int DoCycle(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
-	BOOL PushMessage(CDOSMessagePacket * pPacket);
-	
+	bool PushMessage(CDOSMessagePacket* pPacket);
+
 
 	UINT GetMsgQueueLen();
 
-	BOOL SendMessage(OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag=0,LPCVOID pData=0,UINT DataSize=0);
-	BOOL SendMessageMulti(OBJECT_ID * pReceiverIDList,UINT ReceiverCount,bool IsSorted,MSG_ID_TYPE MsgID,WORD MsgFlag=0,LPCVOID pData=0,UINT DataSize=0);
-	BOOL BroadcastMessageToProxyByMask(WORD RouterID, BYTE ProxyType, UINT64 Mask, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0);
-	BOOL BroadcastMessageToProxyByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0);
+	bool SendMessage(OBJECT_ID ReceiverID, OBJECT_ID SenderID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0);
+	bool SendMessageMulti(OBJECT_ID* pReceiverIDList, UINT ReceiverCount, bool IsSorted, OBJECT_ID SenderID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0);
+	bool BroadcastMessageToProxyByMask(WORD RouterID, BYTE ProxyType, UINT64 Mask, OBJECT_ID SenderID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0);
+	bool BroadcastMessageToProxyByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, OBJECT_ID SenderID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0);
 
-	CDOSMessagePacket * NewMessagePacket(UINT DataSize,UINT ReceiverCount);
-	BOOL ReleaseMessagePacket(CDOSMessagePacket * pPacket);
-	BOOL SendMessagePacket(CDOSMessagePacket * pPacket);
+	CDOSMessagePacket* NewMessagePacket(UINT DataSize, UINT ReceiverCount);
+	bool ReleaseMessagePacket(CDOSMessagePacket* pPacket);
+	bool SendMessagePacket(CDOSMessagePacket* pPacket);
 
-	BOOL RegisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount);
-	BOOL UnregisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount);
-	BOOL RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID, int MapType);
-	BOOL UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID);
-	BOOL SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType);
+	bool RegisterMsgMap(OBJECT_ID ProxyObjectID, MSG_ID_TYPE* pMsgIDList, int CmdCount);
+	bool UnregisterMsgMap(OBJECT_ID ProxyObjectID, MSG_ID_TYPE* pMsgIDList, int CmdCount);
+	bool RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID, int MapType);
+	bool UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID);
+	bool SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType);
 
-	BOOL AddConcernedObject(OBJECT_ID ObjectID,bool NeedTest);
-	BOOL DeleteConcernedObject(OBJECT_ID ObjectID);
+	bool AddConcernedObject(OBJECT_ID ObjectID, bool NeedTest);
+	bool DeleteConcernedObject(OBJECT_ID ObjectID);
 
-	BOOL FindObject(UINT ObjectType, bool OnlyLocal);
-	BOOL ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize);
-	BOOL CloseProxyObject(OBJECT_ID ProxyObjectID,UINT Delay);
-	BOOL RequestProxyObjectIP(OBJECT_ID ProxyObjectID);
-	BOOL QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param);
+	bool FindObject(UINT ObjectType, bool OnlyLocal);
+	bool ReportObject(OBJECT_ID TargetID, const void* pObjectInfoData, UINT DataSize);
+	bool CloseProxyObject(OBJECT_ID ProxyObjectID, UINT Delay);
+	bool RequestProxyObjectIP(OBJECT_ID ProxyObjectID);
+	bool QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param);
 
 	UINT AddTimer(UINT64 TimeOut, UINT64 Param, bool IsRepeat);
-	BOOL DeleteTimer(UINT ID);
-	
+	bool DeleteTimer(UINT ID);
 
-	BOOL SetBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask);
-	BOOL AddBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask);
-	BOOL RemoveBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask);
-	BOOL AddBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID);
-	BOOL RemoveBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID);
+
+	bool SetBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask);
+	bool AddBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask);
+	bool RemoveBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask);
+	bool AddBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID);
+	bool RemoveBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID);
 protected:
-	virtual BOOL OnMessage(CDOSMessage * pMessage);
-	virtual BOOL OnSystemMessage(CDOSMessage * pMessage);
+	virtual bool OnMessage(CDOSMessage* pMessage);
+	virtual bool OnSystemMessage(CDOSMessage* pMessage);
 	virtual void OnConcernedObjectLost(OBJECT_ID ObjectID);
 	virtual void OnFindObject(OBJECT_ID CallerID);
-	virtual void OnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize);
+	virtual void OnObjectReport(OBJECT_ID ObjectID, const void* pObjectInfoData, UINT DataSize);
 	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString);
-	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
+	virtual int Update(int ProcessPacketLimit = DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 
-	virtual void OnProxyObjectDisconnect(OBJECT_ID ProxyObjectID);
-	virtual void OnAliveTest(OBJECT_ID SenderID,BYTE IsEcho);
+	virtual void OnObjectDestoryed(OBJECT_ID ObjectID);
+	virtual void OnAliveTest(OBJECT_ID SenderID, BYTE IsEcho);
 	virtual void OnRouteLinkLost(UINT RouteID);
 	virtual void OnShutDown(BYTE Level, UINT Param);
 	virtual void OnTimer(UINT ID, UINT64 Param, bool IsRepeat);
@@ -128,34 +131,34 @@ protected:
 	int DoConcernedObjectTest();
 	void DoConcernedObjectTest(CONCERNED_OBJECT_INFO& Info, UINT CurTime);
 
-	CONCERNED_OBJECT_INFO * FindConcernedObjectInfo(OBJECT_ID ObjectID);
-	
+	CONCERNED_OBJECT_INFO* FindConcernedObjectInfo(OBJECT_ID ObjectID);
+
 };
 
 
 
-inline void CDOSBaseObject::SetRouter(CDOSRouter * pRouter)
+inline void CDOSBaseObject::SetRouter(CDOSRouter* pRouter)
 {
-	m_pRouter=pRouter;
+	m_pRouter = pRouter;
 }
-inline void CDOSBaseObject::SetManager(CDOSObjectManager * pManager)
+inline void CDOSBaseObject::SetManager(CDOSObjectManager* pManager)
 {
-	m_pManager=pManager;
+	m_pManager = pManager;
 }
-inline void CDOSBaseObject::SetGroup(CDOSObjectGroup * pGroup)
+inline void CDOSBaseObject::SetGroup(CDOSObjectGroup* pGroup)
 {
-	m_pGroup=pGroup;
+	m_pGroup = pGroup;
 }
 
-inline CDOSRouter * CDOSBaseObject::GetRouter()
+inline CDOSRouter* CDOSBaseObject::GetRouter()
 {
 	return m_pRouter;
 }
-inline CDOSObjectManager * CDOSBaseObject::GetManager()
+inline CDOSObjectManager* CDOSBaseObject::GetManager()
 {
 	return m_pManager;
 }
-inline CDOSObjectGroup * CDOSBaseObject::GetGroup()
+inline CDOSObjectGroup* CDOSBaseObject::GetGroup()
 {
 	return m_pGroup;
 }
@@ -163,7 +166,7 @@ inline CDOSObjectGroup * CDOSBaseObject::GetGroup()
 
 inline void CDOSBaseObject::SetObjectID(OBJECT_ID ID)
 {
-	m_ObjectID=ID;
+	m_ObjectID = ID;
 }
 inline OBJECT_ID CDOSBaseObject::GetObjectID()
 {

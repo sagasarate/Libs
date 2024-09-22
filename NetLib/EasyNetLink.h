@@ -66,7 +66,7 @@ public:
 	virtual int Update(int ProcessPacketLimit=DEFAULT_SERVER_PROCESS_PACKET_LIMIT);
 	
 
-	//void EnableReallocConnectionID(BOOL Enable);
+	//void EnableReallocConnectionID(bool Enable);
 	bool NeedReallocConnectionID();
 
 	CBaseNetConnection * GetConnection();
@@ -122,13 +122,13 @@ inline void CEasyNetLink::Disconnect()
 inline bool CEasyNetLink::IsDisconnected()
 {
 	if (m_pConnection)
-		return m_pConnection->IsDisconnected() != FALSE;
+		return m_pConnection->IsDisconnected();
 	return true;
 }
 inline bool CEasyNetLink::IsConnected()
 {
 	if (m_pConnection)
-		return m_pConnection->IsConnected() != FALSE;
+		return m_pConnection->IsConnected();
 	return false;
 }
 

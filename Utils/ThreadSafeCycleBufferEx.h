@@ -28,21 +28,21 @@ public:
 	CThreadSafeCycleBufferEx(LPVOID pBuff, UINT Size, UINT SmoothSize, LPCTSTR Tag = _T("CThreadSafeCycleBufferEx"));
 	virtual ~CThreadSafeCycleBufferEx(void);
 
-	BOOL Create(UINT Size,UINT SmoothSize);
-	BOOL Create(LPVOID pBuff,UINT Size,UINT SmoothSize);
+	bool Create(UINT Size,UINT SmoothSize);
+	bool Create(LPVOID pBuff,UINT Size,UINT SmoothSize);
 	void Destory();
 
 	void SetLockMode(bool IsLockFront,bool IsLockBack);
 
-	//BOOL PushFront(LPVOID pData,UINT Size);
-	//BOOL PushFront(UINT Data,UINT Size);
-	BOOL PushBack(LPCVOID pData,UINT Size);
-	BOOL PushBack(UINT Data,UINT Size);
+	//bool PushFront(LPVOID pData,UINT Size);
+	//bool PushFront(UINT Data,UINT Size);
+	bool PushBack(LPCVOID pData,UINT Size);
+	bool PushBack(UINT Data,UINT Size);
 
-	BOOL PopFront(LPVOID pData,UINT Size);
-	BOOL PopFront(UINT Data,UINT Size);
-	//BOOL PopBack(LPVOID pData,UINT Size);
-	//BOOL PopBack(UINT Data,UINT Size);
+	bool PopFront(LPVOID pData,UINT Size);
+	bool PopFront(UINT Data,UINT Size);
+	//bool PopBack(LPVOID pData,UINT Size);
+	//bool PopBack(UINT Data,UINT Size);
 
 	void Clear();
 
@@ -54,7 +54,7 @@ inline void CThreadSafeCycleBufferEx::SetLockMode(bool IsLockFront,bool IsLockBa
 	m_IsLockBack=IsLockBack;
 }
 
-inline BOOL CThreadSafeCycleBufferEx::PushBack(LPCVOID pData,UINT Size)
+inline bool CThreadSafeCycleBufferEx::PushBack(LPCVOID pData,UINT Size)
 {
 	CAutoLockEx Lock;
 	if(m_IsLockBack)
@@ -63,12 +63,12 @@ inline BOOL CThreadSafeCycleBufferEx::PushBack(LPCVOID pData,UINT Size)
 	}	
 	return CCycleBufferEx::PushBack(pData,Size);
 }
-inline BOOL CThreadSafeCycleBufferEx::PushBack(UINT Data,UINT Size)
+inline bool CThreadSafeCycleBufferEx::PushBack(UINT Data,UINT Size)
 {
 	return PushBack(&Data,Size);
 }
 
-inline BOOL CThreadSafeCycleBufferEx::PopFront(LPVOID pData,UINT Size)
+inline bool CThreadSafeCycleBufferEx::PopFront(LPVOID pData,UINT Size)
 {
 	CAutoLockEx Lock;
 	if(m_IsLockFront)
@@ -77,7 +77,7 @@ inline BOOL CThreadSafeCycleBufferEx::PopFront(LPVOID pData,UINT Size)
 	}	
 	return CCycleBufferEx::PopFront(pData,Size);
 }
-inline BOOL CThreadSafeCycleBufferEx::PopFront(UINT Data,UINT Size)
+inline bool CThreadSafeCycleBufferEx::PopFront(UINT Data,UINT Size)
 {
 	return PopFront(&Data,Size);
 }

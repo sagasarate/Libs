@@ -890,7 +890,7 @@ void CDHTService::OnAnnouncePeerRespond(const CIPAddress& IPAddress, const NODE_
 void CDHTService::SendRequest(const CIPAddress& IPAddress, LPCSTR Type, LPCVOID TID, UINT TIDLen, char * pData, UINT DataLen)
 {
 	char * pBuff = (char *)m_SendBuffer1.GetBuffer();
-	UINT BuffSize = m_SendBuffer1.GetBufferSize();
+	size_t BuffSize = m_SendBuffer1.GetBufferSize();
 	UINT BuffPtr = 0;
 	int Len = _snprintf_s(pBuff + BuffPtr, BuffSize, BuffSize, "d1:a");
 	BuffPtr += Len;
@@ -912,7 +912,7 @@ void CDHTService::SendRequest(const CIPAddress& IPAddress, LPCSTR Type, LPCVOID 
 void CDHTService::SendRespond(const CIPAddress& IPAddress, LPCVOID TID, UINT TIDLen, char * pData, UINT DataLen)
 {
 	char * pBuff = (char *)m_SendBuffer1.GetBuffer();
-	UINT BuffSize = m_SendBuffer1.GetBufferSize();
+	size_t BuffSize = m_SendBuffer1.GetBufferSize();
 	UINT BuffPtr = 0;
 	int Len = _snprintf_s(pBuff + BuffPtr, BuffSize, BuffSize, "d1:r");
 	BuffPtr += Len;
@@ -935,7 +935,7 @@ void CDHTService::SendPing(const CIPAddress& IPAddress, WORD ID)
 {
 	WORD TID = TID_PING + ID;
 	char * pBuff = (char *)m_SendBuffer2.GetBuffer();
-	UINT BuffSize = m_SendBuffer2.GetBufferSize();
+	size_t BuffSize = m_SendBuffer2.GetBufferSize();
 	UINT BuffPtr = 0;
 	int Len = _snprintf_s(pBuff + BuffPtr, BuffSize, BuffSize, "d2:id20:"); 
 	BuffPtr += Len;
@@ -951,7 +951,7 @@ void CDHTService::SendPing(const CIPAddress& IPAddress, WORD ID)
 void CDHTService::SendPong(const CIPAddress& IPAddress, LPCVOID TID, UINT TIDLen)
 {
 	char * pBuff = (char *)m_SendBuffer2.GetBuffer();
-	UINT BuffSize = m_SendBuffer2.GetBufferSize();
+	size_t BuffSize = m_SendBuffer2.GetBufferSize();
 	UINT BuffPtr = 0;
 
 	int Len = _snprintf_s(pBuff + BuffPtr, BuffSize, BuffSize, "d2:id20:");
@@ -970,7 +970,7 @@ void CDHTService::SendFindNode(const CIPAddress& IPAddress, const NODE_ID& NodeI
 {
 	WORD TID = TID_PING;
 	char * pBuff = (char *)m_SendBuffer2.GetBuffer();
-	UINT BuffSize = m_SendBuffer2.GetBufferSize();
+	size_t BuffSize = m_SendBuffer2.GetBufferSize();
 	UINT BuffPtr = 0;
 
 	int Len = _snprintf_s(pBuff + BuffPtr, BuffSize, BuffSize, "d2:id20:");
@@ -996,7 +996,7 @@ void CDHTService::SendFindNode(const CIPAddress& IPAddress, const NODE_ID& NodeI
 void CDHTService::SendGetPeers(const CIPAddress& IPAddress, WORD TID, const NODE_ID& InfoHash)
 {
 	char * pBuff = (char *)m_SendBuffer2.GetBuffer();
-	UINT BuffSize = m_SendBuffer2.GetBufferSize();
+	size_t BuffSize = m_SendBuffer2.GetBufferSize();
 	UINT BuffPtr = 0;
 	int Len = _snprintf_s(pBuff + BuffPtr, BuffSize, BuffSize, "d2:id20:");
 	BuffPtr += Len;
@@ -1021,7 +1021,7 @@ void CDHTService::SendGetPeers(const CIPAddress& IPAddress, WORD TID, const NODE
 void CDHTService::SendAnnouncePeer(const CIPAddress& IPAddress, WORD TID, const NODE_ID& InfoHash, WORD DownloadPort, const BYTE * pToken, UINT TolenLen)
 {
 	char * pBuff = (char *)m_SendBuffer2.GetBuffer();
-	UINT BuffSize = m_SendBuffer2.GetBufferSize();
+	size_t BuffSize = m_SendBuffer2.GetBufferSize();
 	UINT BuffPtr = 0;
 	int Len = _snprintf_s(pBuff + BuffPtr, BuffSize, BuffSize, "d2:id20:");
 	BuffPtr += Len;

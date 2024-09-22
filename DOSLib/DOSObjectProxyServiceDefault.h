@@ -106,8 +106,8 @@ public:
 	
 
 
-	virtual BOOL OnStart() override;
-	virtual BOOL OnRun() override;
+	virtual bool OnStart() override;
+	virtual bool OnRun() override;
 	virtual void OnTerminate() override;
 
 	virtual void OnClose() override;

@@ -54,12 +54,12 @@ CCycleBufferEx::~CCycleBufferEx(void)
 	Destory();
 }
 
-BOOL CCycleBufferEx::Create(UINT Size,UINT SmoothSize)
+bool CCycleBufferEx::Create(UINT Size,UINT SmoothSize)
 {
 	Destory();
 	if(Size<=SmoothSize*2)
 	{
-		return FALSE;
+		return false;
 	}
 	m_pBuffer = MONITORED_NEW_ARRAY(GetTag(), BYTE, Size);
 	m_BufferSize=Size-SmoothSize;
@@ -67,15 +67,15 @@ BOOL CCycleBufferEx::Create(UINT Size,UINT SmoothSize)
 	m_BufferHead=0;
 	m_BufferTail=0;
 	m_IsSelfBuffer=true;
-	return TRUE;
+	return true;
 }
 
-BOOL CCycleBufferEx::Create(LPVOID pBuff,UINT Size,UINT SmoothSize)
+bool CCycleBufferEx::Create(LPVOID pBuff,UINT Size,UINT SmoothSize)
 {
 	Destory();
 	if(Size<=SmoothSize*2)
 	{
-		return FALSE;
+		return false;
 	}
 
 	m_pBuffer=(BYTE *)pBuff;
@@ -84,7 +84,7 @@ BOOL CCycleBufferEx::Create(LPVOID pBuff,UINT Size,UINT SmoothSize)
 	m_BufferHead=0;
 	m_BufferTail=0;
 	m_IsSelfBuffer=false;
-	return TRUE;
+	return true;
 }
 
 void CCycleBufferEx::Destory()

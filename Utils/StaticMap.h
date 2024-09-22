@@ -383,7 +383,7 @@ public:
 		}
 		return 0;
 	}
-	BOOL DeleteByID(UINT ID)
+	bool DeleteByID(UINT ID)
 	{
 		StorageNode * pNode=(StorageNode *)GetObjectPosByID(ID);
 		if(pNode)
@@ -393,11 +393,11 @@ public:
 			{
 				BalanceDelete(pNeedBalanceNode);
 			}
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
-	BOOL DeleteByPos(void * Pos)
+	bool DeleteByPos(void * Pos)
 	{
 		StorageNode * pNode=(StorageNode *)Pos;
 		if(pNode)
@@ -407,11 +407,11 @@ public:
 			{
 				BalanceDelete(pNeedBalanceNode);
 			}
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
-	BOOL Delete(const KEY& Key)
+	bool Delete(const KEY& Key)
 	{
 		StorageNode * pNode=FindNode(m_pTreeRoot,Key);
 		if(pNode)
@@ -421,11 +421,11 @@ public:
 			{
 				BalanceDelete(pNeedBalanceNode);
 			}
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
-	BOOL ReMap(const KEY& OldKey, const KEY& NewKey)
+	bool ReMap(const KEY& OldKey, const KEY& NewKey)
 	{
 		StorageNode * pNode = FindNode(m_pTreeRoot, OldKey);
 		if (pNode)
@@ -446,11 +446,11 @@ public:
 						pNeedBalanceNode->Color = NC_RED;
 						BalanceInsert(pNode);
 					}
-					return TRUE;
+					return true;
 				}
 			}			
 		}
-		return FALSE;
+		return false;
 	}
 	void * FinPos(const KEY& Key) const
 	{
@@ -898,7 +898,7 @@ public:
 		}
 		return NULL;
 	}
-	BOOL MoveToBefore(LPVOID Pos,LPVOID Target)
+	bool MoveToBefore(LPVOID Pos,LPVOID Target)
 	{
 		if(Pos&&Pos!=Target&&m_ObjectCount>1)
 		{
@@ -906,11 +906,11 @@ public:
 			StorageNode * pBefore=(StorageNode *)Target;
 			PickNode(pNode);
 			InsertNodeBefore(pNode,pBefore);
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
-	BOOL MoveToAfter(LPVOID Pos,LPVOID Target)
+	bool MoveToAfter(LPVOID Pos,LPVOID Target)
 	{
 		if(Pos&&Pos!=Target&&m_ObjectCount>1)
 		{
@@ -918,11 +918,11 @@ public:
 			StorageNode * pAfter=(StorageNode *)Target;
 			PickNode(pNode);
 			InsertNodeAfter(pNode,pAfter);
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
-	BOOL MoveSorted(LPVOID Pos)
+	bool MoveSorted(LPVOID Pos)
 	{
 		//从小到大排列
 		StorageNode * pNode = (StorageNode *)Pos;
@@ -942,9 +942,9 @@ public:
 			{
 				InsertNodeAfter(pNode, pHead);
 			}
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
 	iterator begin()
 	{

@@ -61,7 +61,7 @@ UINT CDOSObjectProxyServiceDefault::GetID()
 }
 bool CDOSObjectProxyServiceDefault::StartService()
 {
-	return Start() != FALSE;
+	return Start() != false;
 }
 bool CDOSObjectProxyServiceDefault::StartService(IDOSObjectProxyServiceOperator* pOperator)
 {
@@ -194,7 +194,7 @@ bool CDOSObjectProxyServiceDefault::Init(CDOSServer * pServer, CLIENT_PROXY_CONF
 
 
 
-BOOL CDOSObjectProxyServiceDefault::OnStart()
+bool CDOSObjectProxyServiceDefault::OnStart()
 {
 
 	m_ThreadPerformanceCounter.Init(GetThreadHandle(), THREAD_CPU_COUNT_TIME);
@@ -204,7 +204,7 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 		PrintDOSLog( _T("代理服务[%u]创建%u大小的消息队列失败！"),
 			GetID(),
 			m_Config.ProxyMsgQueueSize);
-		return FALSE;
+		return false;
 	}
 
 	if (!m_MessageMap.Create(m_Config.GlobalMsgMapSize, m_Config.GlobalMsgMapSize, 32))
@@ -212,7 +212,7 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 		PrintDOSLog( _T("代理服务[%u]创建%u大小的消息映射表失败！"),
 			GetID(),
 			m_Config.GlobalMsgMapSize);
-		return FALSE;
+		return false;
 	}
 
 	if (m_Config.MinMsgCompressSize)
@@ -280,7 +280,7 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 		false))
 	{
 		PrintDOSLog( _T("代理服务[%u]创建失败！"), GetID());
-		return FALSE;
+		return false;
 	}
 
 	if (!StartListen(m_Config.ListenAddress))
@@ -289,7 +289,7 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 			GetID(),
 			m_Config.ListenAddress.GetIPString(),
 			m_Config.ListenAddress.GetPort());
-		return FALSE;
+		return false;
 	}
 	PrintDOSLog( _T("代理服务[%u]侦听于(%s:%u)！"),
 		GetID(),
@@ -312,7 +312,7 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 			{
 				PrintDOSLog( _T("创建%u大小的压缩缓冲失败！"),
 					CompressBufferSize);
-				return FALSE;
+				return false;
 			}
 		}
 	}
@@ -331,7 +331,7 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 			{
 				PrintDOSLog(_T("创建%u大小的解密缓冲失败！"),
 					EncyptBufferSize);
-				return FALSE;
+				return false;
 			}
 		}
 	}
@@ -347,7 +347,7 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 		PrintDOSLog(_T("代理服务[%u]创建(%u,%u,%u)大小的连接池失败！"),
 			GetID(),
 			m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
-		return FALSE;
+		return false;
 	}
 
 
@@ -365,7 +365,7 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 			PrintDOSLog(_T("代理服务[%u]创建(%u,%u,%u)大小的连接销毁队列失败！"),
 				GetID(),
 				m_Config.ConnectionPoolSetting.StartSize, m_Config.ConnectionPoolSetting.GrowSize, m_Config.ConnectionPoolSetting.GrowLimit);
-			return FALSE;
+			return false;
 		}
 
 
@@ -374,7 +374,7 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 		for (UINT i = 0; i < m_ConnectionGroups.GetCount(); i++)
 		{
 			if (!m_ConnectionGroups[i].Init(this, m_Config, i))
-				return FALSE;
+				return false;
 			m_ConnectionGroups[i].Start();
 			PrintDOSDebugLog(_T("连接组线程[%u]已启动"), m_ConnectionGroups[i].GetThreadID());
 		}
@@ -389,10 +389,10 @@ BOOL CDOSObjectProxyServiceDefault::OnStart()
 
 
 
-	return TRUE;
+	return true;
 }
 
-BOOL CDOSObjectProxyServiceDefault::OnRun()
+bool CDOSObjectProxyServiceDefault::OnRun()
 {
 	m_ThreadPerformanceCounter.DoPerformanceCount();
 
@@ -406,7 +406,7 @@ BOOL CDOSObjectProxyServiceDefault::OnRun()
 	{
 		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
-	return TRUE;
+	return true;
 }
 
 void CDOSObjectProxyServiceDefault::OnTerminate()
@@ -662,7 +662,7 @@ bool CDOSObjectProxyServiceDefault::SendGlobalMapMessage(OBJECT_ID SenderID, MSG
 		case GLOBAL_MSG_MAP_TYPE_OVERLAP:
 			{
 				return GetServer()->GetRouter()->RouterMessage(SenderID, pMapInfo->ObjectIDList[0],
-					MsgID, MsgFlag, pData, DataSize) != FALSE;
+					MsgID, MsgFlag, pData, DataSize) != false;
 			}
 			break;
 		case GLOBAL_MSG_MAP_TYPE_RANDOM:
@@ -672,14 +672,14 @@ bool CDOSObjectProxyServiceDefault::SendGlobalMapMessage(OBJECT_ID SenderID, MSG
 				if (ObjectIDList.GetCount() > 1)
 					Index = GetRand((UINT)0, (UINT)ObjectIDList.GetCount() - 1);
 				return GetServer()->GetRouter()->RouterMessage(SenderID, pMapInfo->ObjectIDList[Index],
-					MsgID, MsgFlag, pData, DataSize) != FALSE;
+					MsgID, MsgFlag, pData, DataSize) != false;
 			}
 			break;
 		case GLOBAL_MSG_MAP_TYPE_BROADCAST:
 			{
 				CEasyArray<OBJECT_ID>&	ObjectIDList = pMapInfo->ObjectIDList;
 				return GetServer()->GetRouter()->RouterMessage(SenderID, pMapInfo->ObjectIDList.GetBuffer(), (UINT)pMapInfo->ObjectIDList.GetCount(),
-					MsgID, MsgFlag, pData, DataSize) != FALSE;
+					MsgID, MsgFlag, pData, DataSize) != false;
 			}
 			break;
 		}
@@ -688,7 +688,7 @@ bool CDOSObjectProxyServiceDefault::SendGlobalMapMessage(OBJECT_ID SenderID, MSG
 	else if (m_UnhandleMsgReceiverID.ID)
 	{
 		return GetServer()->GetRouter()->RouterMessage(SenderID, m_UnhandleMsgReceiverID,
-			MsgID, MsgFlag, pData, DataSize) != FALSE;
+			MsgID, MsgFlag, pData, DataSize) != false;
 	}
 	return false;
 }

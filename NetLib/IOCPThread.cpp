@@ -24,13 +24,13 @@ CIOCPThread::~CIOCPThread(void)
 {
 }
 
-BOOL CIOCPThread::OnStart()
+bool CIOCPThread::OnStart()
 {
 	PrintNetLog( _T("IOCP工作线程启动"));
-	return TRUE;
+	return true;
 }
 
-BOOL CIOCPThread::OnRun()
+bool CIOCPThread::OnRun()
 {		
 
 	DWORD	NumberOfBytes = 0;
@@ -63,7 +63,7 @@ BOOL CIOCPThread::OnRun()
 	}	
 
 	
-	return TRUE;
+	return true;
 }
 
 void CIOCPThread::OnTerminate()

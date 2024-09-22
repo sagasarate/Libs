@@ -65,12 +65,12 @@ public:
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CStaticMap<KEY,T,StorageMode>::Insert(Key,Value);
 	}
-	BOOL DeleteByID(UINT ID)
+	bool DeleteByID(UINT ID)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CStaticMap<KEY,T,StorageMode>::DeleteByID(ID);
 	}
-	BOOL Delete(const KEY& Key)
+	bool Delete(const KEY& Key)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CStaticMap<KEY,T,StorageMode>::Delete(Key);

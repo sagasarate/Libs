@@ -65,16 +65,16 @@ void CDOSClient::Destory()
 	CNetConnection::Destory();
 }
 
-BOOL CDOSClient::Start(UINT SendQueueLen, UINT RecvQueueLen, const CIPAddress& Address, DWORD TimeOut)
+bool CDOSClient::Start(UINT SendQueueLen, UINT RecvQueueLen, const CIPAddress& Address, DWORD TimeOut)
 {
 	if (!m_SendBuffer.Create(SendQueueLen*NET_DATA_BLOCK_SIZE))
-		return FALSE;
+		return false;
 	if (!m_AssembleBuffer.Create(RecvQueueLen*NET_DATA_BLOCK_SIZE * 2))
-		return FALSE;
+		return false;
 	if (!m_EncyptBuffer.Create((SendQueueLen + 1)*NET_DATA_BLOCK_SIZE))
-		return FALSE;
+		return false;
 	if (!CNetConnection::Create(RecvQueueLen, SendQueueLen))
-		return FALSE;
+		return false;
 
 	m_KeepAliveTimer.SaveTime();
 	m_KeepAliveCount=0;
@@ -102,7 +102,7 @@ int CDOSClient::GetGroupIndex()
 {
 	return -1;
 }
-BOOL CDOSClient::SendMessage(OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag,LPCVOID pData,UINT DataSize)
+bool CDOSClient::SendMessage(OBJECT_ID ReceiverID, OBJECT_ID SenderID, MSG_ID_TYPE MsgID,WORD MsgFlag,LPCVOID pData,UINT DataSize)
 {
 	m_TotalMsgSendCount++;
 	m_SendBuffer.SetUsedSize(0);
@@ -149,19 +149,19 @@ BOOL CDOSClient::SendMessage(OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag
 	return true;
 }
 
-BOOL CDOSClient::SendMessageMulti(OBJECT_ID * pReceiverIDList,UINT ReceiverCount,bool IsSorted,MSG_ID_TYPE MsgID,WORD MsgFlag,LPCVOID pData,UINT DataSize)
+bool CDOSClient::SendMessageMulti(OBJECT_ID * pReceiverIDList,UINT ReceiverCount,bool IsSorted, OBJECT_ID SenderID, MSG_ID_TYPE MsgID,WORD MsgFlag,LPCVOID pData,UINT DataSize)
 {
-	return FALSE;
+	return false;
 }
 
-BOOL CDOSClient::BroadcastMessageToProxyByMask(WORD RouterID, BYTE ProxyType, UINT64 Mask, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
+bool CDOSClient::BroadcastMessageToProxyByMask(WORD RouterID, BYTE ProxyType, UINT64 Mask, OBJECT_ID SenderID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
 {
-	return FALSE;
+	return false;
 }
 
-BOOL CDOSClient::BroadcastMessageToProxyByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
+bool CDOSClient::BroadcastMessageToProxyByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, OBJECT_ID SenderID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
 {
-	return FALSE;
+	return false;
 }
 
 CDOSMessagePacket * CDOSClient::NewMessagePacket(UINT DataSize,UINT ReceiverCount)
@@ -171,18 +171,18 @@ CDOSMessagePacket * CDOSClient::NewMessagePacket(UINT DataSize,UINT ReceiverCoun
 	if(PacketRealLen>m_SendBuffer.GetBufferSize())
 		return NULL;
 	CDOSMessagePacket * pMsgPacket=(CDOSMessagePacket *)m_SendBuffer.GetBuffer();
-	pMsgPacket->SetAllocSize(m_SendBuffer.GetBufferSize());
+	pMsgPacket->SetAllocSize((UINT)m_SendBuffer.GetBufferSize());
 	pMsgPacket->Init();
 	pMsgPacket->SetPacketLength(PacketLen);
 	pMsgPacket->IncRefCount();
 	return pMsgPacket;
 }
-BOOL CDOSClient::ReleaseMessagePacket(CDOSMessagePacket * pPacket)
+bool CDOSClient::ReleaseMessagePacket(CDOSMessagePacket * pPacket)
 {
 	pPacket->DecRefCount();
-	return TRUE;
+	return true;
 }
-BOOL CDOSClient::SendMessagePacket(CDOSMessagePacket * pPacket)
+bool CDOSClient::SendMessagePacket(CDOSMessagePacket * pPacket)
 {
 	m_TotalMsgSendCount++;
 	CDOSSimpleMessage * pSimpleMessage=pPacket->GetMessage().MakeSimpleMessage();
@@ -231,56 +231,56 @@ BOOL CDOSClient::SendMessagePacket(CDOSMessagePacket * pPacket)
 	return true;
 }
 
-BOOL CDOSClient::RegisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount)
+bool CDOSClient::RegisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount)
 {
-	return FALSE;
+	return false;
 }
-BOOL CDOSClient::UnregisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount)
+bool CDOSClient::UnregisterMsgMap(OBJECT_ID ProxyObjectID,MSG_ID_TYPE * pMsgIDList,int CmdCount)
 {
-	return FALSE;
+	return false;
 }
-BOOL CDOSClient::RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID, int MapType)
+bool CDOSClient::RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID, int MapType)
 {
-	return FALSE;
+	return false;
 }
-BOOL CDOSClient::UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID)
+bool CDOSClient::UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID)
 {
-	return FALSE;
-}
-
-BOOL CDOSClient::SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType)
-{
-	return FALSE;
+	return false;
 }
 
-BOOL CDOSClient::AddConcernedObject(OBJECT_ID ObjectID,bool NeedTest)
+bool CDOSClient::SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType)
 {
-	return FALSE;
+	return false;
 }
 
-BOOL CDOSClient::DeleteConcernedObject(OBJECT_ID ObjectID)
+bool CDOSClient::AddConcernedObject(OBJECT_ID ObjectID,bool NeedTest)
 {
-	return FALSE;
+	return false;
 }
 
-BOOL CDOSClient::FindObject(UINT ObjectType, bool OnlyLocal)
+bool CDOSClient::DeleteConcernedObject(OBJECT_ID ObjectID)
 {
-	return FALSE;
-}
-BOOL CDOSClient::ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize)
-{
-	return FALSE;
-}
-BOOL CDOSClient::CloseProxyObject(OBJECT_ID ProxyObjectID,UINT Delay)
-{
-	return FALSE;
-}
-BOOL CDOSClient::RequestProxyObjectIP(OBJECT_ID ProxyObjectID)
-{
-	return FALSE;
+	return false;
 }
 
-BOOL CDOSClient::RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& ObjectRegisterInfo)
+bool CDOSClient::FindObject(UINT ObjectType, bool OnlyLocal)
+{
+	return false;
+}
+bool CDOSClient::ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize)
+{
+	return false;
+}
+bool CDOSClient::CloseProxyObject(OBJECT_ID ProxyObjectID,UINT Delay)
+{
+	return false;
+}
+bool CDOSClient::RequestProxyObjectIP(OBJECT_ID ProxyObjectID)
+{
+	return false;
+}
+
+bool CDOSClient::RegisterObject(DOS_OBJ_REGISTER_INFO& ObjectRegisterInfo)
 {
 	return false;
 }
@@ -289,30 +289,30 @@ void CDOSClient::Release()
 	CNetConnection::Release();
 }
 
-BOOL CDOSClient::QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param)
+bool CDOSClient::QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param)
 {
-	return FALSE;
+	return false;
 }
 
 void CDOSClient::ShutDown(UINT PluginID)
 {
 
 }
-BOOL CDOSClient::RegisterCommandReceiver()
+bool CDOSClient::RegisterCommandReceiver()
 {
-	return FALSE;
+	return false;
 }
-BOOL CDOSClient::UnregisterCommandReceiver()
+bool CDOSClient::UnregisterCommandReceiver()
 {
-	return FALSE;
+	return false;
 }
-BOOL CDOSClient::RegisterLogger(UINT LogChannel, LPCTSTR FileName)
+bool CDOSClient::RegisterLogger(UINT LogChannel, LPCTSTR FileName)
 {
-	return FALSE;
+	return false;
 }
-BOOL CDOSClient::RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader)
+bool CDOSClient::RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader)
 {
-	return FALSE;
+	return false;
 }
 void CDOSClient::SetServerWorkStatus(BYTE WorkStatus)
 {
@@ -322,29 +322,29 @@ UINT CDOSClient::AddTimer(UINT64 TimeOut, UINT64 Param, bool IsRepeat)
 {
 	return 0;
 }
-BOOL CDOSClient::DeleteTimer(UINT ID)
+bool CDOSClient::DeleteTimer(UINT ID)
 {
-	return FALSE;
+	return false;
 }
-BOOL CDOSClient::SetBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 GroupID)
+bool CDOSClient::SetBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 GroupID)
 {
-	return FALSE;
+	return false;
 }
-BOOL CDOSClient::AddBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask)
+bool CDOSClient::AddBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask)
 {
-	return FALSE;
+	return false;
 }
-BOOL CDOSClient::RemoveBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask)
+bool CDOSClient::RemoveBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask)
 {
-	return FALSE;
+	return false;
 }
-BOOL CDOSClient::AddBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID)
+bool CDOSClient::AddBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID)
 {
-	return FALSE;
+	return false;
 }
-BOOL CDOSClient::RemoveBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID)
+bool CDOSClient::RemoveBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID)
 {
-	return FALSE;
+	return false;
 }
 void CDOSClient::OnRecvData(const BYTE * pData, UINT DataSize)
 {
@@ -452,28 +452,28 @@ void CDOSClient::OnRecvData(const BYTE * pData, UINT DataSize)
 	}
 }
 
-BOOL CDOSClient::OnDOSMessage(CDOSSimpleMessage * pMessage)
+bool CDOSClient::OnDOSMessage(CDOSSimpleMessage * pMessage)
 {
-	return FALSE;
+	return false;
 }
 
-BOOL CDOSClient::OnSystemMessage(CDOSSimpleMessage * pMessage)
+bool CDOSClient::OnSystemMessage(CDOSSimpleMessage * pMessage)
 {
 	switch (pMessage->GetMsgID())
 	{
 	case DSM_PROXY_KEEP_ALIVE_PING:
 		pMessage->SetMsgID(DSM_PROXY_KEEP_ALIVE_PONG);
 		Send(pMessage, pMessage->GetMsgLength());
-		return TRUE;
+		return true;
 	case DSM_PROXY_KEEP_ALIVE_PONG:
 		if (pMessage->GetDataLength() >= sizeof(PING_DATA))
 		{
 			const PING_DATA * pPingData = (const PING_DATA *)pMessage->GetMsgData();
 			m_RecentPingDelay = CEasyTimer::GetTimeToTime(pPingData->Time, CEasyTimer::GetTime());
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 int CDOSClient::Update(int ProcessPacketLimit)

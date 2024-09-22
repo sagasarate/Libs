@@ -64,7 +64,7 @@ bool CDOSServer::OnStartUp()
 		else
 		{
 			PrintDOSLog(_T("初始化内存池失败！"));
-			return FALSE;
+			return false;
 		}
 	}
 	else
@@ -76,7 +76,7 @@ bool CDOSServer::OnStartUp()
 	if(!m_pDOSRouter->Init(this))
 	{
 		PrintDOSLog(_T("路由服务启动失败！"));
-		return FALSE;
+		return false;
 	}
 	//m_pDOSRouterService->WaitForWorking(DEFAULT_THREAD_STARTUP_TIME);
 	PrintDOSLog(_T("路由服务启动！"));
@@ -87,30 +87,30 @@ bool CDOSServer::OnStartUp()
 	if(!m_pObjectManager->Initialize())
 	{
 		PrintDOSLog( _T("对象管理器初始化失败！"));
-		return FALSE;
+		return false;
 	}
 
 	m_pProxyManager = MONITORED_NEW(_T("CDOSServer"), CDOSProxyManager);
 	if (!m_pProxyManager->Initialize(this))
 	{
 		PrintDOSLog(_T("代理管理器初始化失败！"));
-		return FALSE;
+		return false;
 	}
 
 	m_pRouterLinkManager = MONITORED_NEW(_T("CDOSServer"), CDOSRouterLinkManager);
 	if (!m_pRouterLinkManager->Init(this))
 	{
 		PrintDOSLog(_T("路由连接管理器初始化失败！"));
-		return FALSE;
+		return false;
 	}
 
 	PrintDOSLog(_T("对象管理器启动！"));
 
 	PrintDOSLog(_T("服务器(%d)启动！"),m_ServerConfig.RouterConfig.RouterID);
 
-	return TRUE;
+	return true;
 	FUNCTION_END;
-	return FALSE;
+	return false;
 }
 
 void CDOSServer::OnShutDown()

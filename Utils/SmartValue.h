@@ -198,7 +198,7 @@ public:
 		m_pData = &NULL_DATA;
 		m_DataLen = sizeof(NULL_DATA);
 		m_IsSelfData = false;
-		Create(VT_BINARY, Value.GetUsedSize());
+		Create(VT_BINARY, (UINT)Value.GetUsedSize());
 		SetValue(Value);
 	}
 	CSmartValue(const CSmartValue& Value)
@@ -1076,7 +1076,7 @@ public:
 		case VT_STRING_UTF8:
 			return (char*)(m_pData + sizeof(BYTE) + sizeof(UINT));
 		}
-		return "";
+		return (char*)"";
 	}
 	operator const char *() const
 	{
@@ -1162,6 +1162,19 @@ public:
 			return (*(m_pData + 1)) != 0;
 		}
 		return false;
+	}
+
+	//operator CEasyBuffer()
+	//{
+	//	CEasyBuffer Data((unsigned char*)this, GetLength());
+	//	Data.SetUsedSize(GetLength());
+	//	return Data;
+	//}
+
+	operator const CEasyBuffer() const
+	{
+		CEasyBuffer Data((const unsigned char*)(*this), GetLength());
+		return Data;
 	}
 
 	operator CVariedValue() const
@@ -1400,7 +1413,7 @@ public:
 	}
 	CSmartValue& operator=(const CEasyBuffer& Value)
 	{
-		if (Create(VT_BINARY, Value.GetUsedSize()))
+		if (Create(VT_BINARY, (UINT)Value.GetUsedSize()))
 		{
 			SetValue(Value);
 		}
@@ -1653,7 +1666,7 @@ public:
 		if (pStr == NULL)
 			return false;
 		if (Len < 0)
-			Len = strlen(pStr);
+			Len = (UINT)strlen(pStr);
 		if (CodePage == CEasyString::STRING_CODE_PAGE_AUTO)
 			CodePage = CEasyString::SYSTEM_STRING_CODE_PAGE;
 		int Type = GetType();
@@ -1777,7 +1790,7 @@ public:
 			return false;
 
 		if (Len < 0)
-			Len = wcslen(pStr);
+			Len = (UINT)wcslen(pStr);
 		int Type = GetType();
 		if (CanChangeType && Type != VT_STRING_ANSI && Type != VT_STRING_UTF8 && Type != VT_STRING_UCS16 && Type != VT_BINARY)
 		{
@@ -1838,7 +1851,7 @@ public:
 		case CEasyString::STRING_CODE_PAGE_UCS16:
 			{
 				UINT MaxLen = (m_DataLen - sizeof(BYTE) - sizeof(UINT) - sizeof(WCHAR)) / sizeof(WCHAR);
-				if (Len > MaxLen)
+				if ((UINT)Len > MaxLen)
 					Len = MaxLen;
 				*((UINT *)(m_pData + sizeof(BYTE))) = Len * sizeof(WCHAR);
 				memcpy(m_pData + sizeof(BYTE) + sizeof(UINT), pStr, Len * sizeof(WCHAR));
@@ -2024,7 +2037,7 @@ public:
 		}
 	}
 #ifdef RAPIDJSON_DOCUMENT_H_
-	rapidjson::Value ToJson(rapidjson::Document::AllocatorType& Alloc);
+	rapidjson::Value ToJson(rapidjson::Document::AllocatorType& Alloc) const;
 #endif
 protected:
 	bool FetchVariedData(CVariedValue& Value) const;

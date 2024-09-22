@@ -45,13 +45,13 @@ public:
 
 	virtual int Connect(LPCSTR ConnectStr);
 	virtual int Disconnect();
-	virtual BOOL IsConnected();
+	virtual bool IsConnected();
 	virtual int ExecuteSQL(LPCSTR SQLStr,int StrLen=0,IDBParameterSet * pParamSet=NULL);
 	virtual int ExecuteSQLWithoutResultSet(LPCSTR SQLStr, int StrLen = 0, IDBParameterSet * pParamSet = NULL);
 	virtual int GetResults(IDBRecordSet * pDBRecordset);
 	virtual int NextResults(IDBRecordSet * pDBRecordset);
 	virtual int GetAffectedRowCount();
-	virtual int EnableTransaction(BOOL IsEnable);
+	virtual int EnableTransaction(bool IsEnable);
 	virtual int Commit();
 	virtual int RollBack();
 
@@ -69,10 +69,10 @@ public:
 	static int MySQLTypeToDBLibType(int Type, size_t& Size,UINT& DitigalSize);
 	static size_t GetMySQLTypeBinLength(int Type, size_t Size, UINT DitigalSize, size_t BlobMaxProcessSize);
 
-	static BOOL MySQLStrValueToDBValue(int ValueType, LPCVOID pData, size_t DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue);
+	static bool MySQLStrValueToDBValue(int ValueType, LPCVOID pData, size_t DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue);
 
-	static BOOL DBValueToMySQLBinValue(int Type, LPCVOID pDBValue, size_t DBValueSize, LPVOID pData, size_t DataSize);
-	static BOOL MySQLBinValueToDBValue(int Type, LPCVOID pData, size_t DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue);
+	static bool DBValueToMySQLBinValue(int Type, LPCVOID pDBValue, size_t DBValueSize, LPVOID pData, size_t DataSize);
+	static bool MySQLBinValueToDBValue(int Type, LPCVOID pData, size_t DataSize, int DBType, UINT DitigalSize, CDBValue& DBValue);
 
 	void ProcessErrorMsg(MYSQL_STMT_HANDLE hStmt,LPCSTR Msg);
 protected:

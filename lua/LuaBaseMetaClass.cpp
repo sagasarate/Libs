@@ -422,7 +422,7 @@ bool CLuaBaseMetaClass::PrepareCall(CLuaThread* pLuaThread, LPCTSTR szMemberName
 		lua_insert(pLuaThread->GetLuaState(), lua_gettop(pLuaThread->GetLuaState()) - 1);
 		return lua_isfunction(pLuaThread->GetLuaState(), -2);
 	}
-	catch(LUA_EXCEPTION& e)
+	catch(LUA_EXCEPTION&)
 	{
 		return false;
 	}

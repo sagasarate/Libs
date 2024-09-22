@@ -76,17 +76,17 @@ public:
 	CFastMemoryPool(void);
 	virtual ~CFastMemoryPool(void);
 
-	BOOL Create(UINT BlockSize,UINT LevelSize,UINT MaxLevel=0,bool IsThreadLock=false);
+	bool Create(UINT BlockSize,UINT LevelSize,UINT MaxLevel=0,bool IsThreadLock=false);
 	virtual void Destory();
 	void Clear();
 	void Verfy(int LogChannel);
 
 	LPVOID Alloc(UINT Size);
-	BOOL Free(LPVOID pMem);
+	bool Free(LPVOID pMem);
 
 protected:
 	LPVOID AllocBlock(BlockList * pBlockList,UINT AllocSize);
-	BOOL FreeBlock(BlockNode * pNode);
+	bool FreeBlock(BlockNode * pNode);
 	void DumpBlock(BlockNode * pNode);
 public:
 	UINT GetAllocCount();

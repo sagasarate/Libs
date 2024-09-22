@@ -69,7 +69,7 @@ public:
 	void SetStatus(OVERLAPPED_OBJECT_STATUS Status);
 	OVERLAPPED_OBJECT_STATUS GetStatus();
 
-	BOOL Create(CNetServer * pCreator);
+	bool Create(CNetServer * pCreator);
 
 
 	void Clear();

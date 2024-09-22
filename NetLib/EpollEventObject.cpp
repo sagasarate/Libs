@@ -25,7 +25,7 @@ CEpollEventObject::~CEpollEventObject(void)
 	Destory();
 }
 
-BOOL CEpollEventObject::Create(CNetServer * pCreator)
+bool CEpollEventObject::Create(CNetServer * pCreator)
 {
 	m_pCreator=pCreator;
 	m_DataBuff.SetUsedSize(0);
@@ -37,7 +37,7 @@ BOOL CEpollEventObject::Create(CNetServer * pCreator)
 	m_ParentID=0;
 	m_ErrorCode=0;
 	m_EventID=0;
-	return TRUE;
+	return true;
 }
 void CEpollEventObject::Destory()
 {

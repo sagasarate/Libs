@@ -89,7 +89,7 @@ LUA_EMPTY_VALUE CLuaSmartArray::LuaNew(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 		{
 			if (ParamCount == 2)
 			{
-				StartIndex = lua_tointeger(pLuaThread->GetLuaState(), 2);
+				StartIndex = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 2);
 				if (StartIndex < pByteArray->GetDataLen())
 				{
 					DataLen = pByteArray->GetDataLen() - StartIndex;
@@ -101,14 +101,14 @@ LUA_EMPTY_VALUE CLuaSmartArray::LuaNew(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 			}
 			else if (ParamCount == 3)
 			{
-				StartIndex = lua_tointeger(pLuaThread->GetLuaState(), 2);
-				DataLen = lua_tointeger(pLuaThread->GetLuaState(), 3);
+				StartIndex = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 2);
+				DataLen = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 3);
 			}
 			else if (ParamCount >= 4)
 			{
-				StartIndex = lua_tointeger(pLuaThread->GetLuaState(), 2);
-				DataLen = lua_tointeger(pLuaThread->GetLuaState(), 3);
-				IsEmpty = lua_toboolean(pLuaThread->GetLuaState(), 4);
+				StartIndex = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 2);
+				DataLen = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 3);
+				IsEmpty = lua_toboolean(pLuaThread->GetLuaState(), 4) != 0;
 			}
 			else
 			{
@@ -123,7 +123,7 @@ LUA_EMPTY_VALUE CLuaSmartArray::LuaNew(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 		}
 		else
 		{
-			DataLen = lua_tointeger(pLuaThread->GetLuaState(), 1);
+			DataLen = (UINT)lua_tointeger(pLuaThread->GetLuaState(), 1);
 		}
 	}
 
@@ -152,7 +152,7 @@ LUA_EMPTY_VALUE CLuaSmartArray::LuaNew(CLuaThread* pLuaThread, LUA_EMPTY_VALUE)
 		if (pObject)
 		{
 			pObject->Create(DataLen);
-		}		
+		}
 		else
 		{
 			LogLua(_T("create failed"));
@@ -249,7 +249,7 @@ LUA_EMPTY_VALUE CLuaSmartArray::LuaGetData()
 		if (pObject)
 		{
 			pObject->Attach(m_Data.GetData(), m_Data.GetDataLen());
-		}		
+		}
 	}
 	else
 	{
@@ -275,53 +275,53 @@ bool CLuaSmartArray::LuaAttach(CLuaBaseMetaClass* pObject)
 		switch (pObject->GetMetaClassID())
 		{
 		case CLuaByteArray::CLASS_ID:
+		{
+			CLuaByteArray* pByteArray = dynamic_cast<CLuaByteArray*>(pObject);
+			if (pByteArray)
 			{
-				CLuaByteArray* pByteArray = dynamic_cast<CLuaByteArray*>(pObject);
-				if (pByteArray)
+				bool IsEmpty = true;
+				if (ParamCount >= 3)
 				{
-					bool IsEmpty = true;
-					if (ParamCount >= 3)
-					{
-						IsEmpty = lua_toboolean(m_pCurThread->GetLuaState(), 3);
-					}
-					UINT StartIndex = 0;
-					UINT DataLen = pByteArray->GetDataLen();
-					if (ParamCount >= 5)
-					{
-						StartIndex = lua_tointeger(m_pCurThread->GetLuaState(), 4);
-						DataLen = lua_tointeger(m_pCurThread->GetLuaState(), 5);
-						if (StartIndex + DataLen > pByteArray->GetDataLen())
-						{
-							luaL_error(m_pCurThread->GetLuaState(), "start(%u) len(%u) out of byte array range(%u)",
-								StartIndex, DataLen, pByteArray->GetDataLen());
-							return false;
-						}
-					}
-					m_Data.Attach(pByteArray->GetData() + StartIndex, DataLen, IsEmpty);
-					Attached = true;
+					IsEmpty = lua_toboolean(m_pCurThread->GetLuaState(), 3);
 				}
+				UINT StartIndex = 0;
+				UINT DataLen = pByteArray->GetDataLen();
+				if (ParamCount >= 5)
+				{
+					StartIndex = (UINT)lua_tointeger(m_pCurThread->GetLuaState(), 4);
+					DataLen = (UINT)lua_tointeger(m_pCurThread->GetLuaState(), 5);
+					if (StartIndex + DataLen > pByteArray->GetDataLen())
+					{
+						luaL_error(m_pCurThread->GetLuaState(), "start(%u) len(%u) out of byte array range(%u)",
+							StartIndex, DataLen, pByteArray->GetDataLen());
+						return false;
+					}
+				}
+				m_Data.Attach(pByteArray->GetData() + StartIndex, DataLen, IsEmpty);
+				Attached = true;
 			}
-			break;
+		}
+		break;
 		case CLuaSmartValue::CLASS_ID:
+		{
+			CLuaSmartValue* pValue = dynamic_cast<CLuaSmartValue*>(pObject);
+			if (pValue)
 			{
-				CLuaSmartValue* pValue = dynamic_cast<CLuaSmartValue*>(pObject);
-				if (pValue)
-				{
-					m_Data = pValue->GetValue();
-					Attached = true;
-				}
+				m_Data = pValue->GetValue();
+				Attached = true;
 			}
-			break;
+		}
+		break;
 		case CLuaSmartArray::CLASS_ID:
+		{
+			CLuaSmartArray* pValue = dynamic_cast<CLuaSmartArray*>(pObject);
+			if (pValue)
 			{
-				CLuaSmartArray* pValue = dynamic_cast<CLuaSmartArray*>(pObject);
-				if (pValue)
-				{
-					m_Data = pValue->GetValue();
-					Attached = true;
-				}
+				m_Data = pValue->GetValue();
+				Attached = true;
 			}
-			break;
+		}
+		break;
 		}
 
 		if (Attached && IsInLuaHeap())
@@ -348,7 +348,7 @@ LUA_EMPTY_VALUE CLuaSmartArray::LuaClone()
 		{
 			LogLua(_T("clone failed"));
 		}
-	}	
+	}
 	return LUA_EMPTY_VALUE();
 }
 bool CLuaSmartArray::LuaCloneFrom(CLuaSmartArray* pObject)
@@ -510,12 +510,12 @@ bool CLuaSmartArray::LuaAddArray(LUA_EMPTY_VALUE)
 	if (ParamCount >= 3)
 	{
 		if (lua_isnumber(m_pCurThread->GetLuaState(), 3))
-			ElementType = lua_tonumber(m_pCurThread->GetLuaState(), 3);
+			ElementType = (BYTE)lua_tointeger(m_pCurThread->GetLuaState(), 3);
 	}
 	return m_pCurThread->PackArray(m_Data, 2, ElementType);
 	if (lua_istable(m_pCurThread->GetLuaState(), 2))
 	{
-		
+
 		m_pCurThread->PushNil();
 		while (lua_next(m_pCurThread->GetLuaState(), 2) != 0)
 		{

@@ -43,7 +43,7 @@
 #include <iostream>
 #include <ostream>
 #include <math.h>
-#include "iconv/miniconv.h"
+
 #ifdef WIN32
 
 #include "Win32AddOn.h"
@@ -92,7 +92,7 @@ union UINT64_CONVERTER
 	};
 };
 
-
+#include "iconv/miniconv.h"
 #include "ExceptionHandler.h"
 
 
@@ -312,18 +312,20 @@ using namespace pug;
 using namespace pug;
 #endif
 
-#include "USOObjectCreateFilter.h"
-#include "USOResourceManager.h"
 
 
 
-#include "TreeObject.h"
+
+
 
 
 #include "FloatRect.h"
 
 #ifdef WIN32
 #include "WinTypeWrap.h"
+#include "TreeObject.h"
+#include "USOObjectCreateFilter.h"
+#include "USOResourceManager.h"
 #endif
 
 

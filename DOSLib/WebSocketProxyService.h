@@ -9,7 +9,7 @@ public:
     ~CWebSocketProxyService();
 
 
-    virtual BOOL OnStart() override;
+    virtual bool OnStart() override;
     virtual UINT GetConnectionCount() override;
 	virtual void OnClose() override;
 	virtual CBaseNetConnection* CreateConnection(CIPAddress& RemoteAddress) override;

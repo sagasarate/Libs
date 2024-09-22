@@ -129,7 +129,7 @@ namespace LuaWrap
 			break;
 		case VARIED_VALUE_TYPE::ARRAY:
 			{
-				lua_createtable(pLuaThread->GetLuaState(), value.GetLength(), 0);
+				lua_createtable(pLuaThread->GetLuaState(), (int)value.GetLength(), 0);
 				int Index = 1;
 				for (const CVariedValue& Value : value)
 				{

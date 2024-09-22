@@ -32,8 +32,8 @@ public:
 	CEasySize(DWORD dwSize) throw();
 
 	// Operations
-	BOOL operator==(SIZE size) const throw();
-	BOOL operator!=(SIZE size) const throw();
+	bool operator==(SIZE size) const throw();
+	bool operator!=(SIZE size) const throw();
 	void operator+=(SIZE size) throw();
 	void operator-=(SIZE size) throw();
 	void SetSize(int CX, int CY) throw();
@@ -77,8 +77,8 @@ public:
 	void Offset(SIZE size) throw();
 	void SetPoint(int X, int Y) throw();
 
-	BOOL operator==(POINT point) const throw();
-	BOOL operator!=(POINT point) const throw();
+	bool operator==(POINT point) const throw();
+	bool operator!=(POINT point) const throw();
 	void operator+=(SIZE size) throw();
 	void operator-=(SIZE size) throw();
 	void operator+=(POINT point) throw();
@@ -142,11 +142,11 @@ public:
 	operator LPCRECT() const throw();
 
 	// returns TRUE if rectangle has no area
-	BOOL IsRectEmpty() const throw();
+	bool IsRectEmpty() const throw();
 	// returns TRUE if rectangle is at (0,0) and has no area
-	BOOL IsRectNull() const throw();
+	bool IsRectNull() const throw();
 	// returns TRUE if point is within rectangle
-	BOOL PtInRect(POINT point) const throw();
+	bool PtInRect(POINT point) const throw();
 
 	// Operations
 
@@ -158,7 +158,7 @@ public:
 	// copy from another rectangle
 	void CopyRect(LPCRECT lpSrcRect) throw();
 	// TRUE if exactly the same as another rectangle
-	BOOL EqualRect(LPCRECT lpRect) const throw();
+	bool EqualRect(LPCRECT lpRect) const throw();
 
 	// Inflate rectangle's width and height by
 	// x units to the left and right ends of the rectangle
@@ -194,18 +194,18 @@ public:
 	void MoveToXY(POINT point) throw();
 
 	// set this rectangle to intersection of two others
-	BOOL IntersectRect(LPCRECT lpRect1, LPCRECT lpRect2) throw();
+	bool IntersectRect(LPCRECT lpRect1, LPCRECT lpRect2) throw();
 
 	// set this rectangle to bounding union of two others
-	BOOL UnionRect(LPCRECT lpRect1, LPCRECT lpRect2) throw();
+	bool UnionRect(LPCRECT lpRect1, LPCRECT lpRect2) throw();
 
 	// set this rectangle to minimum of two others
-	BOOL SubtractRect(LPCRECT lpRectSrc1, LPCRECT lpRectSrc2) throw();
+	bool SubtractRect(LPCRECT lpRectSrc1, LPCRECT lpRectSrc2) throw();
 
 	// Additional Operations
 	void operator=(const RECT& srcRect) throw();
-	BOOL operator==(const RECT& rect) const throw();
-	BOOL operator!=(const RECT& rect) const throw();
+	bool operator==(const RECT& rect) const throw();
+	bool operator!=(const RECT& rect) const throw();
 	void operator+=(POINT point) throw();
 	void operator+=(SIZE size) throw();
 	void operator+=(LPCRECT lpRect) throw();
@@ -241,9 +241,9 @@ inline CEasySize::CEasySize(DWORD dwSize) throw()
 	cx = (short)LOWORD(dwSize);
 	cy = (short)HIWORD(dwSize);
 }
-inline BOOL CEasySize::operator==(SIZE size) const throw()
+inline bool CEasySize::operator==(SIZE size) const throw()
 { return (cx == size.cx && cy == size.cy); }
-inline BOOL CEasySize::operator!=(SIZE size) const throw()
+inline bool CEasySize::operator!=(SIZE size) const throw()
 { return (cx != size.cx || cy != size.cy); }
 inline void CEasySize::operator+=(SIZE size) throw()
 { cx += size.cx; cy += size.cy; }
@@ -288,9 +288,9 @@ inline void CEasyPoint::Offset(SIZE size) throw()
 { x += size.cx; y += size.cy; }
 inline void CEasyPoint::SetPoint(int X, int Y) throw()
 { x = X; y = Y; }
-inline BOOL CEasyPoint::operator==(POINT point) const throw()
+inline bool CEasyPoint::operator==(POINT point) const throw()
 { return (x == point.x && y == point.y); }
-inline BOOL CEasyPoint::operator!=(POINT point) const throw()
+inline bool CEasyPoint::operator!=(POINT point) const throw()
 { return (x != point.x || y != point.y); }
 inline void CEasyPoint::operator+=(SIZE size) throw()
 { x += size.cx; y += size.cy; }
@@ -353,11 +353,11 @@ inline CEasyRect::operator LPRECT() throw()
 { return this; }
 inline CEasyRect::operator LPCRECT() const throw()
 { return this; }
-inline BOOL CEasyRect::IsRectEmpty() const throw()
+inline bool CEasyRect::IsRectEmpty() const throw()
 { return ::IsRectEmpty(this); }
-inline BOOL CEasyRect::IsRectNull() const throw()
+inline bool CEasyRect::IsRectNull() const throw()
 { return (left == 0 && right == 0 && top == 0 && bottom == 0); }
-inline BOOL CEasyRect::PtInRect(POINT point) const throw()
+inline bool CEasyRect::PtInRect(POINT point) const throw()
 { return ::PtInRect(this, point); }
 inline void CEasyRect::SetRect(int x1, int y1, int x2, int y2) throw()
 { ::SetRect(this, x1, y1, x2, y2); }
@@ -367,7 +367,7 @@ inline void CEasyRect::SetRectEmpty() throw()
 { ::SetRectEmpty(this); }
 inline void CEasyRect::CopyRect(LPCRECT lpSrcRect) throw()
 { ::CopyRect(this, lpSrcRect); }
-inline BOOL CEasyRect::EqualRect(LPCRECT lpRect) const throw()
+inline bool CEasyRect::EqualRect(LPCRECT lpRect) const throw()
 { return ::EqualRect(this, lpRect); }
 inline void CEasyRect::InflateRect(int x, int y) throw()
 { ::InflateRect(this, x, y); }
@@ -391,15 +391,15 @@ inline void CEasyRect::MoveToXY(int x, int y) throw()
 { MoveToX(x); MoveToY(y); }
 inline void CEasyRect::MoveToXY(POINT pt) throw()
 { MoveToX(pt.x); MoveToY(pt.y); }
-inline BOOL CEasyRect::IntersectRect(LPCRECT lpRect1, LPCRECT lpRect2) throw()
+inline bool CEasyRect::IntersectRect(LPCRECT lpRect1, LPCRECT lpRect2) throw()
 { return ::IntersectRect(this, lpRect1, lpRect2);}
-inline BOOL CEasyRect::UnionRect(LPCRECT lpRect1, LPCRECT lpRect2) throw()
+inline bool CEasyRect::UnionRect(LPCRECT lpRect1, LPCRECT lpRect2) throw()
 { return ::UnionRect(this, lpRect1, lpRect2); }
 inline void CEasyRect::operator=(const RECT& srcRect) throw()
 { ::CopyRect(this, &srcRect); }
-inline BOOL CEasyRect::operator==(const RECT& rect) const throw()
+inline bool CEasyRect::operator==(const RECT& rect) const throw()
 { return ::EqualRect(this, &rect); }
-inline BOOL CEasyRect::operator!=(const RECT& rect) const throw()
+inline bool CEasyRect::operator!=(const RECT& rect) const throw()
 { return !::EqualRect(this, &rect); }
 inline void CEasyRect::operator+=(POINT point) throw()
 { ::OffsetRect(this, point.x, point.y); }
@@ -435,7 +435,7 @@ return rect; }
 inline CEasyRect CEasyRect::operator|(const RECT& rect2) const throw()
 { CEasyRect rect; ::UnionRect(&rect, this, &rect2);
 return rect; }
-inline BOOL CEasyRect::SubtractRect(LPCRECT lpRectSrc1, LPCRECT lpRectSrc2) throw()
+inline bool CEasyRect::SubtractRect(LPCRECT lpRectSrc1, LPCRECT lpRectSrc2) throw()
 { return ::SubtractRect(this, lpRectSrc1, lpRectSrc2); }
 
 inline void CEasyRect::NormalizeRect() throw()

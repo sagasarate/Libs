@@ -51,12 +51,12 @@ public:
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CEasyList<T>::GetPrev(Pos);
 	}
-	BOOL MoveBeforeTo(LPVOID Pos,LPVOID Target)
+	bool MoveBeforeTo(LPVOID Pos,LPVOID Target)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CEasyList<T>::MoveBeforeTo(Pos,Target);
 	}
-	BOOL MoveAfterTo(LPVOID Pos,LPVOID Target)
+	bool MoveAfterTo(LPVOID Pos,LPVOID Target)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CEasyList<T>::MoveAfterTo(Pos,Target);
@@ -90,7 +90,7 @@ public:
 
 
 
-	BOOL DeleteObject(LPVOID Pos)
+	bool DeleteObject(LPVOID Pos)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CEasyList<T>::DeleteObject(Pos);
@@ -120,13 +120,13 @@ public:
 		return CEasyList<T>::PushBack(Object);
 	}
 
-	BOOL PopFront(T& Object)
+	bool PopFront(T& Object)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CEasyList<T>::PopFront(Object);
 	}
 
-	BOOL PopBack(T& Object)
+	bool PopBack(T& Object)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CEasyList<T>::PopBack(Object);

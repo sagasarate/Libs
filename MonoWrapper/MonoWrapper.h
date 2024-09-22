@@ -1,56 +1,31 @@
 ﻿#pragma once
 
-//#ifdef WIN32
-//
-#include "include/jit.h"
-#include "include/environment.h"
-#include "include/assembly.h"
-#include "include/mono-config.h"
-#include "include/mono-config-dirs.h"
-//#include "include/class-internals.h"
-#include "include/mono-debug.h"
-#include "include/debugger-agent.h"
-#include "include/mono-logger.h"
-#include "include/threads.h"
-#include "include/mono-gc.h"
-#include "include/mono-dl-fallback.h"
-//
-//#else
-//
-//#include "include_win/jit.h"
-//#include "include_win/environment.h"
-//#include "include_win/assembly.h"
-//#include "include_win/mono-config.h"
-//#include "include_win/mono-config-dirs.h"
-//#include "include_win/class-internals.h"
-//#include "include_win/mono-debug.h"
-//#include "include_win/debugger-agent.h"
-//#include "include_win/mono-logger.h"
-//#include "include_win/threads.h"
-//#include "include_win/mono-gc.h"
-//
-//#endif
+//#include <mono/jit/jit.h>
+//#include <mono/metadata/environment.h>
+//#include <mono/metadata/assembly.h>
+//#include <mono/metadata/mono-config.h>
+////#include <mono/metadata/mono-config-dirs.h>
+//#include <mono/metadata/mono-debug.h>
+//#include <mono/mini/debugger-agent.h>
+//#include <mono/metadata/threads.h>
+//#include <mono/metadata/mono-gc.h>
+//#include <mono/utils/mono-dl-fallback.h>
+//#include <mono/utils/mono-logger.h>
 
+#include "../../Libs/Utils/Utils.h"
 
+#define LOG_MONO_CHANNEL				11401
 
-
-
-
-inline void LogMono(const char* Format, ...)
+inline void LogMonoWithTag(LPCTSTR Tag, const char* Format, ...)
 {
-
-
 	va_list vl;
 
 	va_start(vl, Format);
 	CLogManager::GetInstance()->PrintLogVL(LOG_MONO_CHANNEL, ILogPrinter::LOG_LEVEL_NORMAL, 0, Format, vl);
 	va_end(vl);
-
-
-
 }
 
-inline void LogMonoDebug(const char* Format, ...)
+inline void LogMonoDebugWithTag(LPCTSTR Tag, const char* Format, ...)
 {
 	va_list vl;
 
@@ -58,3 +33,10 @@ inline void LogMonoDebug(const char* Format, ...)
 	CLogManager::GetInstance()->PrintLogVL(LOG_MONO_CHANNEL, ILogPrinter::LOG_LEVEL_DEBUG, 0, Format, vl);
 	va_end(vl);
 }
+
+#define LogMono(_Format, ...)	LogMonoWithTag(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)
+#define LogMonoDebug(_Format, ...)	LogMonoDebugWithTag(_T(__PRETTY_FUNCTION__), _Format, ##__VA_ARGS__)
+
+#include "mono_api_mini.h"
+
+#define SAFE_MONO_FREE(p) if(p) mono_free(p)

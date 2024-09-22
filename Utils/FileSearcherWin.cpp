@@ -26,21 +26,21 @@ CFileSearcher::~CFileSearcher(void)
 	Close();
 }
 
-BOOL CFileSearcher::FindFirst(LPCTSTR FindPattern)
+bool CFileSearcher::FindFirst(LPCTSTR FindPattern)
 {
 	Close();
 	m_hFile=FindFirstFile(FindPattern,&m_FindWorkData);
 	if(m_hFile==INVALID_HANDLE_VALUE)
 	{
 		m_hFile=NULL;
-		return FALSE;
+		return false;
 	}
 	m_IsFinded=true;
 	TCHAR FullPath[MAX_PATH];
 	if(_tfullpath(FullPath,FindPattern,MAX_PATH)==NULL)
 	{
 		Close();
-		return FALSE;
+		return false;
 	}
 	TCHAR Dir[MAX_PATH];
 	_tsplitpath_s(FullPath,m_SearchDir,MAX_PATH,Dir,MAX_PATH,NULL,0,NULL,0);
@@ -48,10 +48,10 @@ BOOL CFileSearcher::FindFirst(LPCTSTR FindPattern)
 	int len=(int)_tcslen(m_SearchDir);
 	if(m_SearchDir[len-1]!='\\'&&m_SearchDir[len-1]!='/')
 		_tcscat_s(m_SearchDir,MAX_PATH,_T("\\"));
-	return TRUE;
+	return true;
 }
 
-BOOL CFileSearcher::FindNext()
+bool CFileSearcher::FindNext()
 {	
 	if(m_IsFinded)
 	{
@@ -60,9 +60,9 @@ BOOL CFileSearcher::FindNext()
 		{
 			m_IsFinded=false;
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 void CFileSearcher::Close()
@@ -132,12 +132,12 @@ CEasyTime CFileSearcher::GetCreationTime()
 	return m_FindedFileInfo.ftCreationTime;
 }
 
-BOOL CFileSearcher::MatchesMask(DWORD dwMask)
+bool CFileSearcher::MatchesMask(DWORD dwMask)
 {
 	return (m_FindedFileInfo.dwFileAttributes & dwMask);
 }
 
-BOOL CFileSearcher::IsDots()
+bool CFileSearcher::IsDots()
 {	
 	if (IsDirectory())
 	{		
@@ -147,12 +147,12 @@ BOOL CFileSearcher::IsDots()
 				(m_FindedFileInfo.cFileName[1] == '.' &&
 				m_FindedFileInfo.cFileName[2] == '\0'))
 			{
-				return TRUE;
+				return true;
 			}
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 int CFileSearcher::FetchLogicalDrive()

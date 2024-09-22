@@ -67,7 +67,7 @@ UINT CSmartStruct::GetVariedMemberSize(const CVariedValue& Value)
 	case VARIED_VALUE_TYPE::STRING:
 		return GetStringMemberSize((LPCTSTR)Value);
 	case VARIED_VALUE_TYPE::BINARY:
-		return GetBinaryMemberSize(Value.GetLength());
+		return GetBinaryMemberSize((UINT)Value.GetLength());
 	case VARIED_VALUE_TYPE::ARRAY:
 		{
 			UINT Size = 0;
@@ -94,15 +94,18 @@ UINT CSmartStruct::GetVariedMemberSize(const CVariedValue& Value)
 	return sizeof(WORD) + sizeof(BYTE);
 }
 
-rapidjson::Value CSmartStruct::ToJson(rapidjson::Document::AllocatorType& Alloc)
+rapidjson::Value CSmartStruct::ToJson(rapidjson::Document::AllocatorType& Alloc) const
 {
 	rapidjson::Value Object(rapidjson::kObjectType);
-	TCHAR IDStr[256];
-	for (Pair& Member : *this)
+	TCHAR IDStr[64];
+	void* Pos = GetFirstMemberPosition();
+	while (Pos)
 	{
-		_stprintf_s(IDStr, 255, _T("%u"), Member.MemberID);
+		WORD MemberID;
+		CSmartValue Value = GetNextMember(Pos, MemberID);
+		_stprintf_s(IDStr, 63, _T("%u"), MemberID);
 		rapidjson::Value Name = rapidjson::Value((LPCTSTR)IDStr, Alloc);
-		Object.AddMember(Name, Member.Value.ToJson(Alloc), Alloc);
-	}
+		Object.AddMember(Name, Value.ToJson(Alloc), Alloc);
+	}	
 	return Object;
 }

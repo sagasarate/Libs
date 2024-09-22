@@ -23,7 +23,7 @@ CFileSearcher::~CFileSearcher(void)
 	Close();
 }
 
-BOOL CFileSearcher::FindFirst(LPCTSTR FindPattern)
+bool CFileSearcher::FindFirst(LPCTSTR FindPattern)
 {
 	Close();
 	CEasyString SearchPattern=CFileTools::MakeFullPath(FindPattern);
@@ -49,20 +49,20 @@ BOOL CFileSearcher::FindFirst(LPCTSTR FindPattern)
 			pFileInfo=readdir(pDir);
 		}
 		closedir(pDir);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL CFileSearcher::FindNext()
+bool CFileSearcher::FindNext()
 {
 	if(m_FileInfoList.GetCount()&&m_FetchIndex<(int)m_FileInfoList.GetCount()-1)
 	{
 		m_FetchIndex++;
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 void CFileSearcher::Close()
@@ -186,7 +186,7 @@ DWORD CFileSearcher::GetFileAttributes()
 	}
 }
 
-BOOL CFileSearcher::MatchesMask(DWORD dwMask)
+bool CFileSearcher::MatchesMask(DWORD dwMask)
 {
 	if(m_FetchIndex>=0&&m_FetchIndex<(int)m_FileInfoList.GetCount())
 	{
@@ -194,11 +194,11 @@ BOOL CFileSearcher::MatchesMask(DWORD dwMask)
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 
-BOOL CFileSearcher::IsDots()
+bool CFileSearcher::IsDots()
 {
 	if (IsDirectory())
 	{
@@ -210,49 +210,49 @@ BOOL CFileSearcher::IsDots()
 					(m_FileInfoList[m_FetchIndex].FileInfo.d_name[1] == '.' &&
 					m_FileInfoList[m_FetchIndex].FileInfo.d_name[2] == '\0'))
 				{
-					return TRUE;
+					return true;
 				}
 			}
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL CFileSearcher::IsReadOnly()
+bool CFileSearcher::IsReadOnly()
 {
 	return !CanWrite();
 }
-BOOL CFileSearcher::IsDirectory()
+bool CFileSearcher::IsDirectory()
 {
 	return MatchesMask(S_IFDIR);
 }
-BOOL CFileSearcher::IsCompressed()
+bool CFileSearcher::IsCompressed()
 {
-	return FALSE;
+	return false;
 }
-BOOL CFileSearcher::IsSystem()
+bool CFileSearcher::IsSystem()
 {
-	return FALSE;
+	return false;
 }
-BOOL CFileSearcher::IsHidden()
+bool CFileSearcher::IsHidden()
 {
-	return FALSE;
+	return false;
 }
-BOOL CFileSearcher::IsTemporary()
+bool CFileSearcher::IsTemporary()
 {
-	return FALSE;
+	return false;
 }
-BOOL CFileSearcher::IsNormal()
+bool CFileSearcher::IsNormal()
 {
 	return MatchesMask(S_IFREG);
 }
-BOOL CFileSearcher::IsArchived()
+bool CFileSearcher::IsArchived()
 {
 	return MatchesMask(S_IFREG);
 }
 
-BOOL CFileSearcher::CanRead()
+bool CFileSearcher::CanRead()
 {
 	if(m_FetchIndex>=0&&m_FetchIndex<(int)m_FileInfoList.GetCount())
 	{
@@ -274,10 +274,10 @@ BOOL CFileSearcher::CanRead()
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
-BOOL CFileSearcher::CanWrite()
+bool CFileSearcher::CanWrite()
 {
 	if(m_FetchIndex>=0&&m_FetchIndex<(int)m_FileInfoList.GetCount())
 	{
@@ -299,10 +299,10 @@ BOOL CFileSearcher::CanWrite()
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
-BOOL CFileSearcher::CanExec()
+bool CFileSearcher::CanExec()
 {
 	if(m_FetchIndex>=0&&m_FetchIndex<(int)m_FileInfoList.GetCount())
 	{
@@ -324,7 +324,7 @@ BOOL CFileSearcher::CanExec()
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 

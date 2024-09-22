@@ -46,14 +46,14 @@ public:
 		m_pSection=&Section;
 		m_pSection->Lock();
 	}	
-	BOOL TryLock(CEasyCriticalSection& Section)
+	bool TryLock(CEasyCriticalSection& Section)
 	{
 		if(Section.TryLock())
 		{
 			m_pSection=&Section;
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
 	~CAutoLockEx()
 	{

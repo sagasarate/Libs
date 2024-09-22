@@ -102,7 +102,7 @@ public:
 	{
 
 	}
-	BOOL Create(UINT Size)
+	bool Create(UINT Size)
 	{
 		return m_Map.Create(Size);
 	}

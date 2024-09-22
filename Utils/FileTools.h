@@ -9,9 +9,9 @@ const char DIR_SLASH = '/';
 
 #ifndef WIN32
 
-inline void _split_whole_name(const char *whole_name, char *fname, char *ext)
+inline void _split_whole_name(const char* whole_name, char* fname, char* ext)
 {
-	const char *p_ext;
+	const char* p_ext;
 
 	if (whole_name == NULL)
 	{
@@ -40,10 +40,10 @@ inline void _split_whole_name(const char *whole_name, char *fname, char *ext)
 	}
 }
 
-inline void _splitpath_s(const char *path, char *drive, size_t MaxDrvLen, char *dir, size_t MaxDirLen,
-	char *fname, size_t MaxFNameLen, char *ext, size_t MaxExtLen)
+inline void _splitpath_s(const char* path, char* drive, size_t MaxDrvLen, char* dir, size_t MaxDirLen,
+	char* fname, size_t MaxFNameLen, char* ext, size_t MaxExtLen)
 {
-	const char *p_whole_name;
+	const char* p_whole_name;
 
 	if (drive != NULL)
 		drive[0] = '\0';
@@ -147,8 +147,8 @@ public:
 	inline static CEasyString GetModulePath(HMODULE hModule)
 	{
 		CEasyString ModulePath = GetModuleFilePath(hModule);
-		int Pos = ModulePath.ReverseFind(DIR_SLASH);
-		if (Pos >= 0)
+		size_t Pos = ModulePath.ReverseFind(DIR_SLASH);
+		if (Pos != CEasyString::INVALID_POS)
 		{
 			ModulePath.Resize(Pos + 1);
 		}
@@ -175,7 +175,7 @@ public:
 	inline static CEasyString MakeFullPath(LPCTSTR Path)
 	{
 		TCHAR FilePath[MAX_PATH];
-		if(realpath(Path, FilePath))
+		if (realpath(Path, FilePath))
 			return FilePath;
 		else
 			return Path;
@@ -212,6 +212,19 @@ public:
 		return Drv;
 	}
 
+	inline static CEasyString GetPathWithoutExt(LPCTSTR Path)
+	{
+		CEasyString Drv, Dir, FileName, Out;
+		Drv.Resize(8);
+		Dir.Resize(MAX_PATH);
+		FileName.Resize(MAX_PATH);
+		_tsplitpath_s(Path, Drv, 8, Dir, MAX_PATH, FileName, MAX_PATH, NULL, 0);
+		Drv.TrimBuffer();
+		Dir.TrimBuffer();
+		FileName.TrimBuffer();
+		Out.Format(_T("%s%s%s"), (LPCTSTR)Drv, (LPCTSTR)Dir, (LPCTSTR)FileName);
+		return Out;
+	}
 
 	inline static CEasyString GetPathFileNameExt(LPCTSTR Path)
 	{
@@ -262,8 +275,8 @@ public:
 	{
 		TCHAR SrcDir[MAX_PATH];
 		TCHAR DirBuffer[MAX_PATH];
-		size_t Len=_tcslen(szDirName);
-		_tcscpy_s(SrcDir,MAX_PATH,szDirName);
+		size_t Len = _tcslen(szDirName);
+		_tcscpy_s(SrcDir, MAX_PATH, szDirName);
 
 		PrintImportantLog(_T("try mkdir %s"), SrcDir);
 
@@ -280,7 +293,7 @@ public:
 					{
 						PrintImportantLog(_T("mkdir %s failed:%d"), DirBuffer, errno);
 						return false;
-					}					
+					}
 				}
 				else
 				{
@@ -297,7 +310,7 @@ public:
 			{
 				PrintImportantLog(_T("mkdir %s failed:%d"), DirBuffer, errno);
 				return false;
-			}		
+			}
 			else
 			{
 				PrintImportantLog(_T("exist %s "), DirBuffer);
@@ -314,7 +327,7 @@ public:
 		WIN32_FILE_ATTRIBUTE_DATA FileAttr;
 		if (GetFileAttributesEx(szFileName, GetFileExInfoStandard, &FileAttr))
 		{
-			return (FileAttr.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) == 0;
+			return (FileAttr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0;
 		}
 		return false;
 	}
@@ -324,7 +337,7 @@ public:
 		struct stat FileStat;
 		if (stat(szFileName, &FileStat) == 0)
 		{
-			return (FileStat.st_mode&S_IFREG) != 0;
+			return (FileStat.st_mode & S_IFREG) != 0;
 		}
 		return false;
 	}
@@ -336,7 +349,7 @@ public:
 		WIN32_FILE_ATTRIBUTE_DATA FileAttr;
 		if (GetFileAttributesEx(szDirName, GetFileExInfoStandard, &FileAttr))
 		{
-			return (FileAttr.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) != 0;
+			return (FileAttr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 		}
 		return false;
 	}
@@ -346,7 +359,7 @@ public:
 		struct stat FileStat;
 		if (stat(szFileName, &FileStat) == 0)
 		{
-			return (FileStat.st_mode&S_IFDIR) != 0;
+			return (FileStat.st_mode & S_IFDIR) != 0;
 		}
 		return false;
 	}
@@ -382,7 +395,7 @@ public:
 			WIN32_FILE_ATTRIBUTE_DATA FileAttr;
 			if (GetFileAttributesEx(szFilePath, GetFileExInfoStandard, &FileAttr))
 			{
-				if ((FileAttr.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) != 0)
+				if ((FileAttr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
 				{
 					if (::RemoveDirectory(szFilePath))
 						return true;
@@ -492,10 +505,10 @@ public:
 			RelativePath[i * 3 + 2] = DIR_SLASH;
 		}
 
-		memcpy((LPTSTR)RelativePath.GetBuffer() + DirReturnCount * 3, SrcPath.GetBuffer() + SameDirLen, (SrcPath.GetLength() - SameDirLen)*sizeof(TCHAR));
+		memcpy((LPTSTR)RelativePath.GetBuffer() + DirReturnCount * 3, SrcPath.GetBuffer() + SameDirLen, (SrcPath.GetLength() - SameDirLen) * sizeof(TCHAR));
 		RelativePath.TrimBuffer(DirReturnCount * 3 + SrcPath.GetLength() - SameDirLen);
 		return RelativePath;
-	}
+		}
 
 #ifdef WIN32
 	inline static bool IsAbsolutePath(LPCTSTR Path)

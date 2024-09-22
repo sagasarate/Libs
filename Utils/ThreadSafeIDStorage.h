@@ -113,7 +113,7 @@ public:
 	//	CAutoLock Lock(m_EasyCriticalSection);
 	//	return CIDStorage<T,StorageMode>::GetObjectID(Pos);
 	//}
-	BOOL DeleteObject(UINT ID)
+	bool DeleteObject(UINT ID)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CIDStorage<T,StorageMode>::DeleteObject(ID);
@@ -129,17 +129,17 @@ public:
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CIDStorage<T, StorageMode>::GetPrevObject(Pos);
 	}
-	BOOL MoveBeforeTo(LPVOID Pos,LPVOID Target)
+	bool MoveBeforeTo(LPVOID Pos,LPVOID Target)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CIDStorage<T,StorageMode>::MoveBeforeTo(Pos,Target);
 	}
-	BOOL MoveAfterTo(LPVOID Pos,LPVOID Target)
+	bool MoveAfterTo(LPVOID Pos,LPVOID Target)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CIDStorage<T,StorageMode>::MoveAfterTo(Pos,Target);
 	}
-	BOOL MoveSorted(LPVOID Pos)
+	bool MoveSorted(LPVOID Pos)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CIDStorage<T,StorageMode>::MoveSorted(Pos);
@@ -168,13 +168,13 @@ public:
 		return CIDStorage<T,StorageMode>::PushBack(Object);
 	}
 
-	BOOL PopFront(T& Object)
+	bool PopFront(T& Object)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CIDStorage<T,StorageMode>::PopFront(Object);
 	}
 
-	BOOL PopBack(T& Object)
+	bool PopBack(T& Object)
 	{
 		CAutoLock Lock(m_EasyCriticalSection);
 		return CIDStorage<T,StorageMode>::PopBack(Object);

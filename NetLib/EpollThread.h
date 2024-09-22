@@ -38,8 +38,8 @@ public:
 	}
 
 protected:	
-	virtual BOOL OnStart();
-	virtual BOOL OnRun();
+	virtual bool OnStart();
+	virtual bool OnRun();
 	virtual void OnTerminate();
 };
 

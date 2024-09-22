@@ -38,11 +38,11 @@ public:
 		pthread_mutex_unlock(&m_Mutex);
 	}
 
-	BOOL TryLock()
+	bool TryLock()
 	{
 		if(pthread_mutex_trylock(&m_Mutex)==0)
-			return TRUE;
+			return true;
 		else
-			return FALSE;
+			return false;
 	}
 };

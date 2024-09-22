@@ -40,8 +40,8 @@ public:
 		m_Tag = Tag;
 	}
 
-	BOOL Create(UINT Size,UINT SmoothSize);
-	BOOL Create(LPVOID pBuff,UINT Size,UINT SmoothSize);
+	bool Create(UINT Size,UINT SmoothSize);
+	bool Create(LPVOID pBuff,UINT Size,UINT SmoothSize);
 	void Destory();
 
 	UINT GetBufferSize();
@@ -54,15 +54,15 @@ public:
 	LPVOID GetBuffer();
 	LPVOID GetFreeBuffer();
 
-	//BOOL PushFront(LPCVOID pData,UINT Size);
-	//BOOL PushFront(UINT Data,UINT Size);
-	BOOL PushBack(LPCVOID pData,UINT Size);
-	BOOL PushBack(UINT Data,UINT Size);
+	//bool PushFront(LPCVOID pData,UINT Size);
+	//bool PushFront(UINT Data,UINT Size);
+	bool PushBack(LPCVOID pData,UINT Size);
+	bool PushBack(UINT Data,UINT Size);
 
-	BOOL PopFront(LPVOID pData,UINT Size);
-	BOOL PopFront(UINT Data,UINT Size);
-	//BOOL PopBack(LPVOID pData,UINT Size);
-	//BOOL PopBack(UINT Data,UINT Size);
+	bool PopFront(LPVOID pData,UINT Size);
+	bool PopFront(UINT Data,UINT Size);
+	//bool PopBack(LPVOID pData,UINT Size);
+	//bool PopBack(UINT Data,UINT Size);
 
 	void Clear();
 
@@ -140,7 +140,7 @@ inline LPVOID CCycleBufferEx::GetFreeBuffer()
 	return m_pBuffer+m_BufferTail;
 }
 
-inline BOOL CCycleBufferEx::PushBack(LPCVOID pData,UINT Size)
+inline bool CCycleBufferEx::PushBack(LPCVOID pData,UINT Size)
 {
 	if(GetUsedSize()+Size<=GetBufferSize()&&Size<=GetSmoothSize())
 	{
@@ -165,16 +165,16 @@ inline BOOL CCycleBufferEx::PushBack(LPCVOID pData,UINT Size)
 			memcpy(m_pBuffer,m_pBuffer+m_BufferSize,Size-CutSize);
 			m_BufferTail=Size-CutSize;
 		}		
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
-inline BOOL CCycleBufferEx::PushBack(UINT Data,UINT Size)
+inline bool CCycleBufferEx::PushBack(UINT Data,UINT Size)
 {
 	return PushBack(&Data,Size);
 }
 
-inline BOOL CCycleBufferEx::PopFront(LPVOID pData,UINT Size)
+inline bool CCycleBufferEx::PopFront(LPVOID pData,UINT Size)
 {
 	if(Size<=GetUsedSize())
 	{
@@ -193,11 +193,11 @@ inline BOOL CCycleBufferEx::PopFront(LPVOID pData,UINT Size)
 			}
 			m_BufferHead=Size-CutSize;
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
-inline BOOL CCycleBufferEx::PopFront(UINT Data,UINT Size)
+inline bool CCycleBufferEx::PopFront(UINT Data,UINT Size)
 {
 	return PopFront(&Data,Size);
 }

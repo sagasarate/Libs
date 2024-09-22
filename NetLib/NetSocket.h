@@ -114,8 +114,8 @@ public:
 	CIPAddressPair& GetAddressPair();
 
 #ifdef WIN32
-	static bool CNetSocket::NetStartup();
-	static void CNetSocket::NetCleanup();
+	static bool NetStartup();
+	static void NetCleanup();
 #endif
 
 	virtual bool StealFrom(CNameObject * pObject,UINT Param=0);

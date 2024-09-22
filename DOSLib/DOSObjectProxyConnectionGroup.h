@@ -40,8 +40,8 @@ public:
 	{
 		return m_MsgQueue.GetUsedSize();
 	}
-	virtual BOOL OnStart() override;
-	virtual BOOL OnRun() override;
+	virtual bool OnStart() override;
+	virtual bool OnRun() override;
 	virtual void OnTerminate() override;
 
 	bool PushMessage(OBJECT_ID ObjectID, CDOSMessagePacket* pPacket);

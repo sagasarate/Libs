@@ -46,7 +46,7 @@ bool CNetServer::StartUp(int EventObjectPoolSize,
 	m_EventObjectPoolGrowLimit=EventObjectPoolGrowLimit;
 	m_EventRouterPoolGrowSize=EventRouterPoolGrowSize;
 	m_EventRouterPoolGrowLimit=EventRouterPoolGrowlimit;
-	return Start() != FALSE;
+	return Start();
 }
 
 void CNetServer::ShutDown(DWORD Milliseconds)
@@ -54,7 +54,7 @@ void CNetServer::ShutDown(DWORD Milliseconds)
 	SafeTerminate(Milliseconds);
 }
 
-BOOL CNetServer::OnStart()
+bool CNetServer::OnStart()
 {
 	if(!CBaseNetServer::OnStart())
 		return false;
@@ -81,16 +81,16 @@ BOOL CNetServer::OnStart()
 	return true;
 }
 
-BOOL CNetServer::OnRun()
+bool CNetServer::OnRun()
 {
 	if(!CBaseNetServer::OnRun())
-		return FALSE;
+		return false;
 
 	if(Update()==0)
 	{
 		DoSleep(DEFAULT_IDLE_SLEEP_TIME);
 	}
-	return TRUE;
+	return true;
 }
 
 void CNetServer::OnTerminate()

@@ -2,7 +2,7 @@
 
 CLuaVM::CLuaVM()
 {
-	
+
 }
 
 CLuaVM::~CLuaVM()
@@ -27,7 +27,7 @@ bool CLuaVM::Init(int LuaStackSize, UINT ThreadCount, UINT GrowSize, UINT GrowLi
 		InitEnv();
 
 		LogLuaDebug(_T("stack=%u"), lua_gettop(GetLuaState()));
-		
+
 		return InitThreadPool();
 	}
 	else
@@ -43,7 +43,7 @@ bool CLuaVM::LoadScript(LPCTSTR ScriptName, LPCTSTR ScriptContent, LPCTSTR Inclu
 	{
 		if (ProcessScriptInclude(ScriptContent, IncludePath, 0))
 			return LoadScript(ScriptName, ScriptContent);
-	}	
+	}
 	return false;
 }
 
@@ -74,13 +74,13 @@ bool CLuaVM::ProcessScriptInclude(const CEasyString& ScriptContent, LPCTSTR Sear
 		return false;
 	}
 	CEasyArray<CEasyString> IncludeList;
-	int Pos = ScriptContent.Find("--Include<", 0, true);
-	while (Pos >= 0)
+	size_t Pos = ScriptContent.Find("--Include<", 0, true);
+	while (Pos != CEasyString::INVALID_POS)
 	{
-		int End = ScriptContent.Find(">");
-		if (End >= Pos)
+		size_t End = ScriptContent.Find(">");
+		if (End != CEasyString::INVALID_POS && End >= Pos)
 		{
-			int Len = End - Pos + 1;
+			size_t Len = End - Pos + 1;
 			IncludeList.Add(ScriptContent.SubStr(Pos + 10, Len - 11));
 			Pos = End + 1;
 		}
@@ -90,7 +90,7 @@ bool CLuaVM::ProcessScriptInclude(const CEasyString& ScriptContent, LPCTSTR Sear
 		}
 		Pos = ScriptContent.Find("--Include<", Pos, true);
 	}
-	for (CEasyString& IncludeFileName: IncludeList)
+	for (CEasyString& IncludeFileName : IncludeList)
 	{
 		CEasyString FileName;
 		if (!CFileTools::IsAbsolutePath(IncludeFileName))
@@ -115,7 +115,7 @@ bool CLuaVM::ProcessScriptInclude(const CEasyString& ScriptContent, LPCTSTR Sear
 				if (!ProcessScriptInclude(ScriptFile.GetData(), SearchDir, Depth + 1))
 					return false;
 
-				time_t * pHistory = m_IncludeLoadHistory.Find(FileName);
+				time_t* pHistory = m_IncludeLoadHistory.Find(FileName);
 				if (pHistory)
 				{
 					if (FileInfo.GetLastWriteTime() == (*pHistory))

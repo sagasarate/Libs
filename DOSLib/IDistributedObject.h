@@ -33,8 +33,8 @@
 		return m_pCurHandleMsg;\
 	}\
 	void InitDOSMsgMap();\
-	BOOL HandleMsg(MSG_ID_TYPE MsgID,CSmartStruct& MsgPacket);\
-	virtual BOOL OnMessage(CDOSMessage * pMessage);
+	int HandleMsg(MSG_ID_TYPE MsgID,CSmartStruct& MsgPacket);\
+	virtual int OnMessage(CDOSMessage * pMessage);
 
 
 #define START_DOS_MSG_MAP(ClassName)	\
@@ -48,7 +48,7 @@
 
 #define END_DOS_MSG_MAP(ClassName) \
 	}\
-	BOOL ClassName::HandleMsg(MSG_ID_TYPE MsgID,CSmartStruct& MsgPacket)\
+	int ClassName::HandleMsg(MSG_ID_TYPE MsgID,CSmartStruct& MsgPacket)\
 	{\
 		DOS_MSG_HANDLE_INFO * pHandleInfo=m_MsgFnMap.Find(MsgID);\
 		if(pHandleInfo)\
@@ -61,12 +61,12 @@
 		}\
 		return COMMON_RESULT_MSG_NO_HANDLER;\
 	}\
-	BOOL ClassName::OnMessage(CDOSMessage * pMessage)\
+	int ClassName::OnMessage(CDOSMessage * pMessage)\
 	{\
 		m_CurMsgSenderID=pMessage->GetSenderID();\
 		m_pCurHandleMsg=pMessage;\
 		CSmartStruct MsgPacket=pMessage->GetDataPacket();\
-		BOOL Ret=HandleMsg(pMessage->GetMsgID(),MsgPacket);\
+		int Ret=HandleMsg(pMessage->GetMsgID(),MsgPacket);\
 		m_CurMsgSenderID=0;\
 		m_pCurHandleMsg=NULL;\
 		return Ret;\
@@ -83,8 +83,8 @@
 		return m_pCurHandleMsg;\
 	}\
 	void InitDOSMsgMap();\
-	BOOL HandleMsg(MSG_ID_TYPE MsgID,CSmartStruct& MsgPacket);\
-	virtual BOOL OnDOSMessage(CDOSSimpleMessage * pMessage);
+	int HandleMsg(MSG_ID_TYPE MsgID,CSmartStruct& MsgPacket);\
+	virtual int OnDOSMessage(CDOSSimpleMessage * pMessage);
 
 #define START_DOS_MSG_MAP_CLIENT(ClassName)	\
 	void ClassName::InitDOSMsgMap()\
@@ -98,7 +98,7 @@
 
 #define END_DOS_MSG_MAP_CLIENT(ClassName) \
 	}\
-	BOOL ClassName::HandleMsg(MSG_ID_TYPE MsgID,CSmartStruct& MsgPacket)\
+	int ClassName::HandleMsg(MSG_ID_TYPE MsgID,CSmartStruct& MsgPacket)\
 	{\
 		DOS_MSG_HANDLE_INFO * pHandleInfo=m_MsgFnMap.Find(MsgID);\
 		if(pHandleInfo)\
@@ -107,7 +107,7 @@
 		}\
 		return COMMON_RESULT_MSG_NO_HANDLER;\
 	}\
-	BOOL ClassName::OnDOSMessage(CDOSSimpleMessage * pMessage)\
+	int ClassName::OnDOSMessage(CDOSSimpleMessage * pMessage)\
 	{\
 		m_pCurHandleMsg=pMessage;\
 		return HandleMsg(pMessage->GetMsgID(),pMessage->GetDataPacket());\
@@ -128,11 +128,11 @@ public:
 
 };
 
-typedef int (CBaseMsgHandler::*DOS_MSG_HANDLE_FN)(CSmartStruct& MsgPacket);
+typedef int (CBaseMsgHandler::* DOS_MSG_HANDLE_FN)(CSmartStruct& MsgPacket);
 
 struct DOS_MSG_HANDLE_INFO
 {
-	CBaseMsgHandler *	pObject;
+	CBaseMsgHandler* pObject;
 	DOS_MSG_HANDLE_FN	pFN;
 };
 
@@ -151,7 +151,7 @@ enum COMMON_RESULT_CODE
 
 class IDistributedObject;
 
-struct DOS_OBJECT_REGISTER_INFO_EX
+struct DOS_OBJ_REGISTER_INFO
 {
 	OBJECT_ID				ObjectID;
 	LPCSTR					szObjectTypeName;
@@ -160,25 +160,27 @@ struct DOS_OBJECT_REGISTER_INFO_EX
 	UINT					MsgQueueSize;
 	UINT					MsgProcessLimit;
 	UINT					Flag;
-	IDistributedObject *	pObject;
-	
+	IDistributedObject* pObject;
 
-	DOS_OBJECT_REGISTER_INFO_EX()
+
+	DOS_OBJ_REGISTER_INFO()
 	{
-		ObjectID=0;
+		ObjectID = 0;
 		szObjectTypeName = NULL;
-		Weight=1;
-		ObjectGroupIndex=-1;
-		MsgQueueSize=0;
-		MsgProcessLimit=0;
+		Weight = 1;
+		ObjectGroupIndex = -1;
+		MsgQueueSize = 0;
+		MsgProcessLimit = 0;
 		Flag = 0;
-		pObject=NULL;		
+		pObject = NULL;
 	}
 };
 
 enum DOS_OBJECT_REGISTER_FLAG
 {
-	DOS_OBJECT_REGISTER_FLAG_USE_PRIVATE_OBJECT_GROUP=1,
+	DOS_OBJECT_REGISTER_FLAG_USE_PRIVATE_OBJECT_GROUP = 1,
+	DOS_OBJECT_REGISTER_FLAG_SEND_DESTORY_NOTIFY = (1 << 1),
+	DOS_OBJECT_REGISTER_FLAG_BROADCAST_DESTORY_NOTIFY = (1 << 2),
 };
 
 class IDistributedObjectOperator
@@ -187,73 +189,73 @@ public:
 	virtual UINT GetRouterID() = 0;
 	virtual OBJECT_ID GetObjectID() = 0;
 	virtual int GetGroupIndex() = 0;
-	virtual BOOL SendMessage(OBJECT_ID ReceiverID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) = 0;
-	virtual BOOL SendMessageMulti(OBJECT_ID * pReceiverIDList, UINT ReceiverCount, bool IsSorted, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) = 0;
-	virtual BOOL BroadcastMessageToProxyByMask(WORD RouterID, BYTE ProxyType, UINT64 Mask, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize) = 0;
-	virtual BOOL BroadcastMessageToProxyByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize) = 0;
+	virtual bool SendMessage(OBJECT_ID ReceiverID, OBJECT_ID SenderID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) = 0;
+	virtual bool SendMessageMulti(OBJECT_ID* pReceiverIDList, UINT ReceiverCount, bool IsSorted, OBJECT_ID SenderID, MSG_ID_TYPE MsgID, WORD MsgFlag = 0, LPCVOID pData = 0, UINT DataSize = 0) = 0;
+	virtual bool BroadcastMessageToProxyByMask(WORD RouterID, BYTE ProxyType, UINT64 Mask, OBJECT_ID SenderID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize) = 0;
+	virtual bool BroadcastMessageToProxyByGroup(WORD RouterID, BYTE ProxyType, UINT64 GroupID, OBJECT_ID SenderID, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize) = 0;
 
-	virtual CDOSMessagePacket * NewMessagePacket(UINT DataSize, UINT ReceiverCount) = 0;
-	virtual BOOL ReleaseMessagePacket(CDOSMessagePacket * pPacket) = 0;
-	virtual BOOL SendMessagePacket(CDOSMessagePacket * pPacket) = 0;
+	virtual CDOSMessagePacket* NewMessagePacket(UINT DataSize, UINT ReceiverCount) = 0;
+	virtual bool ReleaseMessagePacket(CDOSMessagePacket* pPacket) = 0;
+	virtual bool SendMessagePacket(CDOSMessagePacket* pPacket) = 0;
 
-	virtual BOOL RegisterMsgMap(OBJECT_ID ProxyObjectID, MSG_ID_TYPE * pMsgIDList, int CmdCount) = 0;
-	virtual BOOL UnregisterMsgMap(OBJECT_ID ProxyObjectID, MSG_ID_TYPE * pMsgIDList, int CmdCount) = 0;
-	virtual BOOL RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID, int MapType) = 0;
-	virtual BOOL UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgIDList) = 0;
-	virtual BOOL SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType) = 0;
+	virtual bool RegisterMsgMap(OBJECT_ID ProxyObjectID, MSG_ID_TYPE* pMsgIDList, int CmdCount) = 0;
+	virtual bool UnregisterMsgMap(OBJECT_ID ProxyObjectID, MSG_ID_TYPE* pMsgIDList, int CmdCount) = 0;
+	virtual bool RegisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgID, int MapType) = 0;
+	virtual bool UnregisterGlobalMsgMap(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType, MSG_ID_TYPE MsgIDList) = 0;
+	virtual bool SetUnhanleMsgReceiver(ROUTE_ID_TYPE ProxyRouterID, BYTE ProxyType) = 0;
 
-	virtual BOOL AddConcernedObject(OBJECT_ID ObjectID, bool NeedTest) = 0;
-	virtual BOOL DeleteConcernedObject(OBJECT_ID ObjectID) = 0;
+	virtual bool AddConcernedObject(OBJECT_ID ObjectID, bool NeedTest) = 0;
+	virtual bool DeleteConcernedObject(OBJECT_ID ObjectID) = 0;
 
-	virtual BOOL FindObject(UINT ObjectType, bool OnlyLocal) = 0;
-	virtual BOOL ReportObject(OBJECT_ID TargetID, const void * pObjectInfoData, UINT DataSize) = 0;
-	virtual BOOL CloseProxyObject(OBJECT_ID ProxyObjectID, UINT Delay) = 0;
-	virtual BOOL RequestProxyObjectIP(OBJECT_ID ProxyObjectID) = 0;
+	virtual bool FindObject(UINT ObjectType, bool OnlyLocal) = 0;
+	virtual bool ReportObject(OBJECT_ID TargetID, const void* pObjectInfoData, UINT DataSize) = 0;
+	virtual bool CloseProxyObject(OBJECT_ID ProxyObjectID, UINT Delay) = 0;
+	virtual bool RequestProxyObjectIP(OBJECT_ID ProxyObjectID) = 0;
 
-	virtual BOOL RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& ObjectRegisterInfo) = 0;
+	virtual bool RegisterObject(DOS_OBJ_REGISTER_INFO& ObjectRegisterInfo) = 0;
 	virtual void Release() = 0;
 
-	virtual BOOL QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param) = 0;
+	virtual bool QueryShutDown(OBJECT_ID TargetID, BYTE Level, UINT Param) = 0;
 	virtual void ShutDown(UINT PluginID) = 0;
-	virtual BOOL RegisterCommandReceiver() = 0;
-	virtual BOOL UnregisterCommandReceiver() = 0;
+	virtual bool RegisterCommandReceiver() = 0;
+	virtual bool UnregisterCommandReceiver() = 0;
 
-	virtual BOOL RegisterLogger(UINT LogChannel, LPCTSTR FileName) = 0;
-	virtual BOOL RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader) = 0;
+	virtual bool RegisterLogger(UINT LogChannel, LPCTSTR FileName) = 0;
+	virtual bool RegisterCSVLogger(UINT LogChannel, LPCTSTR FileName, LPCTSTR CSVLogHeader) = 0;
 
 	virtual void SetServerWorkStatus(BYTE WorkStatus) = 0;
 	virtual UINT AddTimer(UINT64 TimeOut, UINT64 Param, bool IsRepeat) = 0;
-	virtual BOOL DeleteTimer(UINT ID) = 0;
+	virtual bool DeleteTimer(UINT ID) = 0;
 
-	virtual BOOL SetBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask) = 0;
-	virtual BOOL AddBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask) = 0;
-	virtual BOOL RemoveBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask) = 0;
-	virtual BOOL AddBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID) = 0;
-	virtual BOOL RemoveBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID) = 0;
+	virtual bool SetBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask) = 0;
+	virtual bool AddBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask) = 0;
+	virtual bool RemoveBroadcastMask(OBJECT_ID ProxyObjectID, UINT64 Mask) = 0;
+	virtual bool AddBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID) = 0;
+	virtual bool RemoveBroadcastGroup(OBJECT_ID ProxyObjectID, UINT64 GroupID) = 0;
 };
 
 class IDistributedObject
 {
 protected:
 	OBJECT_ID									m_CurMsgSenderID;
-	CDOSMessage *								m_pCurHandleMsg;
+	CDOSMessage* m_pCurHandleMsg;
 	CHashMap<MSG_ID_TYPE, DOS_MSG_HANDLE_INFO>	m_MsgFnMap;
 public:
-	virtual BOOL Initialize(IDistributedObjectOperator * pOperator) = 0;
+	virtual bool Initialize(IDistributedObjectOperator* pOperator) = 0;
 	virtual void Destory() = 0;
 	virtual UINT AddUseRef() = 0;
 	virtual void Release() = 0;
 
-	virtual BOOL OnPreTranslateMessage(CDOSMessage * pMessage) { return FALSE; }
-	virtual BOOL OnMessage(CDOSMessage * pMessage) { return FALSE; }
-	virtual BOOL OnSystemMessage(CDOSMessage * pMessage) { return FALSE; }
+	virtual int OnPreTranslateMessage(CDOSMessage* pMessage) { return COMMON_RESULT_MSG_NO_HANDLER; }
+	virtual int OnMessage(CDOSMessage* pMessage) { return COMMON_RESULT_MSG_NO_HANDLER; }
+	virtual int OnSystemMessage(CDOSMessage* pMessage) { return COMMON_RESULT_MSG_NO_HANDLER; }
 	virtual void OnConcernedObjectLost(OBJECT_ID ObjectID) {}
-	virtual BOOL OnFindObject(OBJECT_ID CallerID) { return FALSE; }
-	virtual void OnObjectReport(OBJECT_ID ObjectID, const void * pObjectInfoData, UINT DataSize) {}
+	virtual bool OnFindObject(OBJECT_ID CallerID) { return false; }
+	virtual void OnObjectReport(OBJECT_ID ObjectID, const void* pObjectInfoData, UINT DataSize) {}
 	virtual void OnProxyObjectIPReport(OBJECT_ID ProxyObjectID, UINT Port, LPCSTR szIPString) {}
 	virtual void OnShutDown(BYTE Level, UINT Param) {}
 	virtual int Update(int ProcessPacketLimit) { return 0; }
-	virtual BOOL OnConsoleCommand(LPCTSTR szCommand) { return false; }
+	virtual bool OnConsoleCommand(LPCTSTR szCommand) { return false; }
 	virtual void OnTimer(UINT ID, UINT64 Param, bool IsRepeat) {};
 	virtual void OnTimerRelease(UINT ID, UINT64 Param) {}
 };
@@ -261,6 +263,6 @@ public:
 class IDistributedObjectManager
 {
 public:
-	virtual BOOL RegisterObject(DOS_OBJECT_REGISTER_INFO_EX& ObjectRegisterInfo) = 0;
+	virtual bool RegisterObject(DOS_OBJ_REGISTER_INFO& ObjectRegisterInfo) = 0;
 };
 

@@ -28,7 +28,7 @@ CDOSRouter::~CDOSRouter(void)
 	SafeTerminate();
 }
 
-BOOL CDOSRouter::Init(CDOSServer * pServer)
+bool CDOSRouter::Init(CDOSServer * pServer)
 {
 	FUNCTION_BEGIN;
 	m_pServer=pServer;
@@ -37,15 +37,15 @@ BOOL CDOSRouter::Init(CDOSServer * pServer)
 	if (m_Config.RouterID == 0)
 	{
 		PrintDOSLog(_T("路由ID不能为0！"));
-		return FALSE;
+		return false;
 	}
 
 	return Start();
 	FUNCTION_END;
-	return FALSE;
+	return false;
 }
 
-BOOL CDOSRouter::OnStart()
+bool CDOSRouter::OnStart()
 {
 	FUNCTION_BEGIN;
 	
@@ -55,13 +55,13 @@ BOOL CDOSRouter::OnStart()
 	if(m_MsgProcessLimit==0)
 	{
 		PrintDOSLog(_T("路由消息处理限制不能为0！"));
-		return FALSE;
+		return false;
 	}
 
 	if (!m_MsgQueue.Create(m_Config.MaxRouterSendMsgQueue))
 	{
 		PrintDOSLog(_T("创建%d大小的路由消息队列失败！"), m_Config.MaxRouterSendMsgQueue);
-		return FALSE;
+		return false;
 	}
 
 	if (m_Config.StatMsgTransfer)
@@ -81,12 +81,12 @@ BOOL CDOSRouter::OnStart()
 	}
 
 	PrintDOSLog(_T("路由线程[%u]已启动"),GetThreadID());
-	return TRUE;
+	return true;
 	FUNCTION_END;
-	return FALSE;
+	return false;
 }
 
-BOOL CDOSRouter::OnRun()
+bool CDOSRouter::OnRun()
 {
 	FUNCTION_BEGIN;
 	EXCEPTION_CATCH_START
@@ -107,9 +107,9 @@ BOOL CDOSRouter::OnRun()
 	}
 
 	EXCEPTION_CATCH_END
-	return TRUE;
+	return true;
 	FUNCTION_END;
-	return FALSE;
+	return false;
 }
 
 void CDOSRouter::OnTerminate()
@@ -131,13 +131,13 @@ void CDOSRouter::OnTerminate()
 
 
 
-BOOL CDOSRouter::RouterMessage(OBJECT_ID SenderID,OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag,LPCVOID pData,UINT DataSize)
+bool CDOSRouter::RouterMessage(OBJECT_ID SenderID,OBJECT_ID ReceiverID,MSG_ID_TYPE MsgID,WORD MsgFlag,LPCVOID pData,UINT DataSize)
 {
 	FUNCTION_BEGIN;
 	UINT PacketSize=CDOSMessagePacket::CaculatePacketLength(DataSize,1);
 	CDOSMessagePacket * pPacket=((CDOSServer *)GetServer())->NewMessagePacket(PacketSize);
 	if(pPacket==NULL)
-		return FALSE;
+		return false;
 	pPacket->GetMessage().SetMsgID(MsgID);
 	pPacket->GetMessage().SetSenderID(SenderID);
 	pPacket->GetMessage().SetDataLength(DataSize);
@@ -147,19 +147,19 @@ BOOL CDOSRouter::RouterMessage(OBJECT_ID SenderID,OBJECT_ID ReceiverID,MSG_ID_TY
 	pPacket->SetTargetIDs(1,&ReceiverID);
 	pPacket->MakePacketLength();
 
-	BOOL Ret=RouterMessage(pPacket);
+	bool Ret=RouterMessage(pPacket);
 	((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket);
 	return Ret;
 	FUNCTION_END;
-	return FALSE;
+	return false;
 }
-BOOL CDOSRouter::RouterMessage(OBJECT_ID SenderID, OBJECT_ID * pReceiverID, UINT ReceiverCount, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
+bool CDOSRouter::RouterMessage(OBJECT_ID SenderID, OBJECT_ID * pReceiverID, UINT ReceiverCount, MSG_ID_TYPE MsgID, WORD MsgFlag, LPCVOID pData, UINT DataSize)
 {
 	FUNCTION_BEGIN;
 	UINT PacketSize = CDOSMessagePacket::CaculatePacketLength(DataSize, ReceiverCount);
 	CDOSMessagePacket * pPacket = ((CDOSServer *)GetServer())->NewMessagePacket(PacketSize);
 	if (pPacket == NULL)
-		return FALSE;
+		return false;
 	pPacket->GetMessage().SetMsgID(MsgID);
 	pPacket->GetMessage().SetSenderID(SenderID);
 	pPacket->GetMessage().SetDataLength(DataSize);
@@ -169,25 +169,25 @@ BOOL CDOSRouter::RouterMessage(OBJECT_ID SenderID, OBJECT_ID * pReceiverID, UINT
 	pPacket->SetTargetIDs(ReceiverCount, pReceiverID);
 	pPacket->MakePacketLength();
 
-	BOOL Ret = RouterMessage(pPacket);
+	bool Ret = RouterMessage(pPacket);
 	((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket);
 	return Ret;
 	FUNCTION_END;
-	return FALSE;
+	return false;
 }
-BOOL CDOSRouter::RouterMessage(CDOSMessagePacket * pPacket)
+bool CDOSRouter::RouterMessage(CDOSMessagePacket * pPacket)
 {
 	FUNCTION_BEGIN;
 	if(pPacket->GetTargetIDCount()<=0)
 	{
 		PrintDOSLog(_T("消息[0x%X]没有发送目标，不发送！"),pPacket->GetMessage().GetMsgID());
-		return FALSE;
+		return false;
 	}
 	pPacket->MakePacketLength();
 	if(!pPacket->CheckPacket())
 	{
 		PrintDOSLog(_T("消息[0x%X]有效性检查失败！"),pPacket->GetMessage().GetMsgID());
-		return FALSE;
+		return false;
 	}
 	((CDOSServer *)GetServer())->AddRefMessagePacket(pPacket);
 #ifdef _DEBUG
@@ -198,7 +198,7 @@ BOOL CDOSRouter::RouterMessage(CDOSMessagePacket * pPacket)
 	{
 		((CDOSServer *)GetServer())->ReleaseMessagePacket(pPacket);
 		PrintDOSLog(_T("将消息压入路由发送队列失败！"));
-		return FALSE;
+		return false;
 	}
 	if (m_Config.StatMsgTransfer)
 	{
@@ -211,9 +211,9 @@ BOOL CDOSRouter::RouterMessage(CDOSMessagePacket * pPacket)
 		}
 	}
 
-	return TRUE;
+	return true;
 	FUNCTION_END;
-	return FALSE;
+	return false;
 }
 
 UINT CDOSRouter::GetRouterID()
@@ -348,18 +348,18 @@ int CDOSRouter::DoMessageRoute(int ProcessPacketLimit)
 }
 
 
-BOOL CDOSRouter::IsSameRouter(const OBJECT_ID * pReceiverIDs, int Count)
+bool CDOSRouter::IsSameRouter(const OBJECT_ID * pReceiverIDs, int Count)
 {
 	FUNCTION_BEGIN;
 	ROUTE_ID_TYPE RouterID = pReceiverIDs->RouterID;
 	for (int i = 1; i < Count; i++)
 	{
 		if (pReceiverIDs[i].RouterID != RouterID)
-			return FALSE;
+			return false;
 	}
-	return TRUE;
+	return true;
 	FUNCTION_END;
-	return FALSE;
+	return false;
 }
 
 int CDOSRouter::GetGroupCount(const OBJECT_ID * pReceiverIDs, int Count)
@@ -377,7 +377,7 @@ int CDOSRouter::GetGroupCount(const OBJECT_ID * pReceiverIDs, int Count)
 }
 
 
-BOOL CDOSRouter::DispatchMessage(CDOSMessagePacket * pPacket, const OBJECT_ID * pReceiverIDs, int Count)
+bool CDOSRouter::DispatchMessage(CDOSMessagePacket * pPacket, const OBJECT_ID * pReceiverIDs, int Count)
 {
 	FUNCTION_BEGIN;
 	UINT RouterID = GetRouterID();
@@ -418,8 +418,8 @@ BOOL CDOSRouter::DispatchMessage(CDOSMessagePacket * pPacket, const OBJECT_ID * 
 			//}
 		}
 	}
-	return TRUE;
+	return true;
 	FUNCTION_END;
-	return FALSE;
+	return false;
 }
 
